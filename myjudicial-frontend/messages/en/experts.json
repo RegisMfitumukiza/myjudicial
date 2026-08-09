@@ -1,0 +1,129 @@
+{
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "busy": "Busy",
+    "on_leave": "On Leave"
+  },
+  "profileCompletion": {
+    "title": "Complete Your Profile",
+    "subtitle": "A complete profile helps clients find and trust you.",
+    "completedLabel": "{pct}% completed",
+    "done": "Profile Complete",
+    "doneDesc": "Your profile is complete! Clients can discover and book you.",
+    "viewProfile": "View Profile"
+  },
+  "steps": {
+    "profile": "Profile",
+    "profileDone": "Profile completed",
+    "profilePending": "Add professional details",
+    "services": "Services",
+    "servicesDone": "Services configured",
+    "servicesPending": "Set consultation fees & specialties",
+    "documents": "Documents",
+    "documentsDone": "Documents submitted",
+    "documentsPending": "Upload ID & bar certificate",
+    "verification": "Verification",
+    "verificationDone": "Profile verified",
+    "verificationPending": "Awaiting admin review",
+    "availability": "Availability",
+    "availabilityDone": "Availability set",
+    "availabilityPending": "Set your working hours"
+  },
+  "onboarding": {
+    "title": "Welcome to MyJudicial",
+    "subtitle": "Let's get your expert profile set up."
+  },
+  "verification": {
+    "prompt": "Complete Verification",
+    "promptDesc": "You need to verify your identity and credentials to start accepting bookings.",
+    "startVerification": "Start Verification"
+  },
+  "verificationPrompt": {
+    "draft": {
+      "title": "Get Verified to Start Receiving Bookings",
+      "body": "Submit your Bar Association certificate and ID documents for admin verification.",
+      "action": "Submit Documents"
+    },
+    "pending_verification": {
+      "title": "Verification Under Review",
+      "body": "Your documents are being reviewed by our team. This typically takes 1–3 business days.",
+      "action": "View Status"
+    },
+    "rejected": {
+      "title": "Verification Rejected",
+      "body": "Your submitted documents were not approved. Please review the feedback and resubmit.",
+      "action": "Resubmit Documents"
+    },
+    "suspended": {
+      "title": "Account Suspended",
+      "body": "Your account has been suspended. Please contact support for assistance.",
+      "action": "Contact Support"
+    }
+  },
+  "photo": {
+    "title": "Profile Photo",
+    "subtitle": "Add a professional headshot to build trust with clients",
+    "reminderTitle": "Add a Profile Photo",
+    "reminderDesc": "Experts with photos receive significantly more bookings.",
+    "uploadCta": "Upload Photo",
+    "uploading": "Uploading...",
+    "changePhoto": "Change Photo",
+    "chooseDifferent": "Choose Different",
+    "remove": "Remove",
+    "removePhoto": "Remove Photo",
+    "readyToUpload": "Ready to upload",
+    "currentPhoto": "Current photo",
+    "clickToChange": "Click to change or drag a new image here",
+    "uploadYourPhoto": "Upload your photo",
+    "dragDropHint": "Drag & drop an image here, or click to select",
+    "selectPhoto": "Select Photo",
+    "guidelinesTitle": "Photo Guidelines:",
+    "guideline1": "Use a professional headshot with clear lighting",
+    "guideline2": "Face should be clearly visible and centered",
+    "guideline3": "Maximum file size: 5MB",
+    "guideline4": "Supported formats: JPG, PNG, WEBP",
+    "guideline5": "Square aspect ratio recommended (1:1)",
+    "didYouKnow": "💡 Did you know?",
+    "benefitHint": "Profiles with professional photos get 300% more client bookings and higher trust ratings.",
+    "uploadFailed": "Upload failed",
+    "errorType": "Please select an image file",
+    "errorSize": "Image must be smaller than 5MB"
+  },
+  "weeklySchedule": {
+    "title": "Weekly Schedule",
+    "noSlots": "No available slots this week.",
+    "day": "Day",
+    "slots": "Slots",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "to": "to",
+    "unsavedChanges": "You have unsaved changes",
+    "saveSchedule": "Save Schedule"
+  },
+  "transactions": {
+    "title": "Transaction History",
+    "noTransactions": "No transactions yet.",
+    "date": "Date",
+    "description": "Description",
+    "service": "Service",
+    "amount": "Amount",
+    "status": "Status",
+    "completed": "Completed",
+    "pending": "Pending",
+    "failed": "Failed"
+  },
+  "onboardingHeader": {
+    "title": "MyJudicial Expert Setup",
+    "subtitle": "Professional Legal Platform",
+    "stepOf": "Step {current} of {total}",
+    "complete": "{pct}% Complete",
+    "welcome": "Welcome to MyJudicial, {name}",
+    "legalProfessional": "Legal Professional",
+    "body": "Join Rwanda's premier legal platform trusted by thousands of clients. Complete your professional profile to start connecting with clients who need your expertise.",
+    "benefit1": "Verified Platform",
+    "benefit2": "Secure Payments",
+    "benefit3": "Client Protection",
+    "setupProgress": "Setup Progress"
+  }
+}

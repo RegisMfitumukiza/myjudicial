@@ -1,0 +1,8 @@
+{
+  "somethingWentWrong": "Something went wrong",
+  "tryAgain": "Please try again",
+  "pageNotFound": "Page not found",
+  "unauthorized": "You are not authorized to access this page",
+  "networkError": "Network error. Please check your connection.",
+  "validationError": "Please check your input and try again"
+}

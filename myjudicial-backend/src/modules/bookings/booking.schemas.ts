@@ -1,0 +1,124 @@
+import { z } from "zod";
+
+/**
+ * Create a new booking
+ * Client selects an expert, service, and available time slot
+ */
+export const createBookingSchema = z.object({
+  expertId: z.string().uuid("Invalid expert ID"),
+  serviceId: z.string().uuid("Invalid service ID"),
+  scheduledStart: z.string().datetime("Invalid date format"),
+  scheduledEnd: z.string().datetime("Invalid date format"),
+  citizenNotes: z.string().max(500).optional(),
+  paymentMNO: z.enum(["MTN", "Airtel"]).optional(),
+  paymentPhoneNumber: z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional(),
+});
+
+export type CreateBookingDto = z.infer<typeof createBookingSchema>;
+
+/**
+ * Confirm payment and move booking from PENDING to CONFIRMED
+ */
+export const confirmBookingSchema = z.object({
+  paymentReference: z.string().min(1, "Payment reference required"),
+});
+
+export type ConfirmBookingDto = z.infer<typeof confirmBookingSchema>;
+
+/**
+ * Update booking
+ */
+export const updateBookingSchema = z.object({
+  scheduledStart: z.string().datetime().optional(),
+  scheduledEnd: z.string().datetime().optional(),
+  citizenNotes: z.string().max(500).optional(),
+  status: z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional(),
+});
+
+export type UpdateBookingDto = z.infer<typeof updateBookingSchema>;
+
+/**
+ * Cancel a booking
+ */
+export const cancelBookingSchema = z.object({
+  reason: z.string().min(5, "Cancellation reason must be at least 5 characters").max(200, "Cancellation reason must be at most 200 characters").optional(),
+});
+
+export type CancelBookingDto = z.infer<typeof cancelBookingSchema>;
+
+/**
+ * Reschedule a booking
+ */
+export const rescheduleBookingSchema = z.object({
+  scheduledStart: z.string().datetime("Invalid scheduledStart format"),
+  scheduledEnd: z.string().datetime("Invalid scheduledEnd format"),
+  reason: z.string().min(5, "Reason must be at least 5 characters").max(200).optional(),
+});
+
+export type RescheduleBookingDto = z.infer<typeof rescheduleBookingSchema>;
+
+/**
+ * List bookings query parameters
+ */
+export const listBookingsSchema = z.object({
+  page: z.string().refine((val) => Number(val) >= 1, "Page must be >= 1").default("1"),
+  limit: z.string().refine((val) => { const n = Number(val); return n >= 1 && n <= 200; }, "Limit must be between 1 and 200").default("10"),
+  status: z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional(),
+});
+
+export type ListBookingsQuery = z.infer<typeof listBookingsSchema>;
+
+/**
+ * Get available time slots for an expert
+ */
+export const getAvailableSlotsSchema = z.object({
+  date: z.string().date("Invalid date format (YYYY-MM-DD)"),
+  serviceId: z.string().uuid("Invalid service ID").optional(),
+});
+
+export type GetAvailableSlotsDto = z.infer<typeof getAvailableSlotsSchema>;
+
+/**
+ * Admin List bookings query parameters
+ */
+export const adminListBookingsSchema = z.object({
+  page: z.string().refine((val) => Number(val) >= 1, "Page must be >= 1").optional().default("1"),
+  limit: z.string().refine((val) => { const n = Number(val); return n >= 1 && n <= 200; }, "Limit must be between 1 and 200").optional().default("10"),
+  status: z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional(),
+  expertId: z.string().uuid("Invalid expert ID").optional(),
+  citizenId: z.string().uuid("Invalid citizen ID").optional(),
+  dateFrom: z.string().datetime("Invalid dateFrom format").optional(),
+  dateTo: z.string().datetime("Invalid dateTo format").optional(),
+});
+
+export type AdminListBookingsQuery = z.infer<typeof adminListBookingsSchema>;
+
+/**
+ * Admin Manual Refund parameters
+ */
+export const adminRefundSchema = z.object({
+  reason: z.string().min(5, "Reason must be at least 5 characters"),
+  percentage: z.preprocess((val) => Number(val), z.union([z.literal(50), z.literal(100)])),
+});
+
+export type AdminRefundDto = z.infer<typeof adminRefundSchema>;
+
+/**
+ * Admin Stats query parameters
+ */
+export const adminStatsSchema = z.object({
+  dateFrom: z.string().datetime("Invalid dateFrom format").optional(),
+  dateTo: z.string().datetime("Invalid dateTo format").optional(),
+});
+
+export type AdminStatsQuery = z.infer<typeof adminStatsSchema>;
+
+/**
+ * Retry payment for a failed/expired booking
+ */
+export const retryPaymentSchema = z.object({
+  paymentMNO: z.enum(["MTN", "Airtel"]).optional(),
+  paymentPhoneNumber: z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional(),
+});
+
+export type RetryPaymentDto = z.infer<typeof retryPaymentSchema>;

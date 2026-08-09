@@ -1,0 +1,19 @@
+{
+  "faq1q": "How do bookings work?",
+  "faq1a": "Browse verified lawyers, select a service and time slot, then confirm your booking. You will receive a confirmation via SMS and email with all the details.",
+  "faq2q": "How do I pay?",
+  "faq2a": "We accept MTN MoMo and Airtel Money. Your payment is held in secure escrow and only released to the lawyer after your consultation is completed.",
+  "faq3q": "Are all lawyers verified?",
+  "faq3a": "Yes. Every lawyer on MyJudicial is BAR certified, identity-checked, and reviewed by our quality team before appearing on the platform.",
+  "faq4q": "Can consultations be online?",
+  "faq4a": "Yes. Many lawyers offer video calls, phone calls, and in-person consultations. You can choose your preferred mode when booking.",
+  "faq5q": "Can I cancel a booking?",
+  "faq5a": "Yes. You can cancel or reschedule a booking up to 24 hours before the consultation. Cancellations within 24 hours may incur a fee.",
+  "faq6q": "Is my payment protected?",
+  "faq6a": "Absolutely. All payments are held in escrow until your consultation is complete. If the lawyer does not show up, you get a full refund.",
+  "faq7q": "How does Mobile Money work?",
+  "faq7a": "When you book, you will receive an MoMo payment prompt on your phone. Simply enter your PIN to confirm. The payment is processed instantly.",
+  "faqTag": "FAQ",
+  "faqTitle": "Frequently Asked Questions",
+  "faqSubtitle": "Everything you need to know about MyJudicial."
+}

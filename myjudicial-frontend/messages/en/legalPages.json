@@ -1,0 +1,86 @@
+{
+  "privacy": {
+    "meta": {
+      "title": "Privacy Policy | MyJudicial",
+      "description": "Learn how MyJudicial collects, uses, and protects your personal information."
+    },
+    "hero": {
+      "badge": "Legal",
+      "title": "Privacy Policy",
+      "updated": "Last updated: July 15, 2026"
+    },
+    "content": {
+      "intro": "MyJudicial (\"we\", \"our\", or \"us\") respects your privacy and is committed to protecting your personal data. This Privacy Policy informs you about how we look after your personal data when you visit our website (regardless of where you visit it from) and tells you about your privacy rights and how the law protects you.",
+      "sections": [
+        {
+          "title": "1. Data We Collect",
+          "text": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows: Identity Data (first name, last name, username or similar identifier), Contact Data (billing address, delivery address, email address and telephone numbers), Financial Data (bank account and payment card details), Transaction Data (details about payments to and from you and other details of services you have purchased from us), Profile Data (your username and password, purchases or orders made by you, your interests, preferences, feedback and survey responses)."
+        },
+        {
+          "title": "2. How We Use Your Data",
+          "text": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances: Where we need to perform the contract we are about to enter into or have entered into with you. Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests. Where we need to comply with a legal obligation."
+        },
+        {
+          "title": "3. Data Security",
+          "text": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know. They will only process your personal data on our instructions and they are subject to a duty of confidentiality."
+        }
+      ]
+    }
+  },
+  "terms": {
+    "meta": {
+      "title": "Terms of Service | MyJudicial",
+      "description": "Read the terms and conditions for using MyJudicial's platform and services."
+    },
+    "hero": {
+      "badge": "Legal",
+      "title": "Terms of Service",
+      "updated": "Last updated: July 15, 2026"
+    },
+    "content": {
+      "intro": "These Terms of Service (\"Terms\") govern your access to and use of the MyJudicial website, apps, and services (collectively, the \"Services\"). Please read these Terms carefully before using our Services.",
+      "sections": [
+        {
+          "title": "1. Acceptance of Terms",
+          "text": "By accessing or using the Services, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, do not use the Services."
+        },
+        {
+          "title": "2. User Accounts",
+          "text": "To access certain features of the Services, you must create an account. You are responsible for safeguarding your account credentials and for all activities that occur under your account. You must be at least 18 years old to create an account."
+        },
+        {
+          "title": "3. Marketplace and Escrow",
+          "text": "MyJudicial is a marketplace connecting clients with legal professionals. We do not provide legal advice ourselves. When you book a consultation, payment is held in our secure escrow system and released to the lawyer only upon successful completion of the consultation."
+        },
+        {
+          "title": "4. Disclaimers",
+          "text": "The Services are provided 'AS IS' and 'AS AVAILABLE'. We disclaim all warranties, express or implied, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement."
+        }
+      ]
+    }
+  },
+  "cookies": {
+    "meta": {
+      "title": "Cookie Policy | MyJudicial",
+      "description": "Information about how MyJudicial uses cookies on our platform."
+    },
+    "hero": {
+      "badge": "Legal",
+      "title": "Cookie Policy",
+      "updated": "Last updated: July 15, 2026"
+    },
+    "content": {
+      "intro": "Our website uses cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site.",
+      "sections": [
+        {
+          "title": "What are cookies?",
+          "text": "A cookie is a small file of letters and numbers that we store on your browser or the hard drive of your computer if you agree. Cookies contain information that is transferred to your computer's hard drive."
+        },
+        {
+          "title": "How we use cookies",
+          "text": "We use strictly necessary cookies (required for the operation of our website), analytical/performance cookies (allow us to recognise and count the number of visitors), functionality cookies (used to recognise you when you return), and targeting cookies (record your visit, pages visited, and links followed)."
+        }
+      ]
+    }
+  }
+}

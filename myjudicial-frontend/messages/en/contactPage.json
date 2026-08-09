@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "title": "Contact Us | MyJudicial",
+    "description": "Get in touch with the MyJudicial team for support, partnerships, or general inquiries."
+  },
+  "hero": {
+    "badge": "Contact",
+    "title": "Get in Touch",
+    "subtitle": "We're here to help. Reach out to us for any questions or support."
+  },
+  "info": {
+    "title": "Contact Information",
+    "email": "info@myjudicial.rw",
+    "location": "Kigali, Rwanda",
+    "hours": "Monday - Friday: 8:00 AM - 5:00 PM (CAT)"
+  },
+  "form": {
+    "title": "Send us a message",
+    "name": "Full Name",
+    "email": "Email Address",
+    "subject": "Subject",
+    "message": "Your Message",
+    "submit": "Send Message"
+  }
+}

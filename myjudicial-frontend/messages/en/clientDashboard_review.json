@@ -1,0 +1,20 @@
+{
+  "failedToLoadBooking": "Failed to load booking",
+  "backToMyBookings": "Back to My Bookings",
+  "consultationNotCompleted": "This consultation isn't completed yet",
+  "leaveReviewOnceComplete": "You can leave a review once the consultation is marked complete.",
+  "backToConsultation": "Back to Consultation",
+  "alreadyReviewed": "You've already reviewed this consultation",
+  "selectStarRating": "Please select a star rating.",
+  "reviewSubmitted": "Review submitted. Thank you!",
+  "failedToSubmitReview": "Failed to submit review.",
+  "leaveAReview": "Leave a Review",
+  "consultation": "Consultation",
+  "legalExpert": "Legal Expert",
+  "withExpert": "{serviceName} with {expertName}",
+  "yourRating": "Your Rating",
+  "commentOptional": "Comment (Optional)",
+  "shareDetailsPlaceholder": "Share details about your experience...",
+  "submitting": "Submitting...",
+  "submitReview": "Submit Review"
+}

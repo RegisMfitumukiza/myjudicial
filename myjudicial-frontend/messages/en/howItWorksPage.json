@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "title": "How It Works | MyJudicial",
+    "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
+  },
+  "hero": {
+    "badge": "How It Works",
+    "title": "Legal help, simplified.",
+    "subtitle": "From finding the right specialist to securely paying for services, we've streamlined the entire legal process."
+  },
+  "steps": {
+    "title": "Four steps to resolve your legal issue",
+    "step1": {
+      "title": "1. Find or Match",
+      "text": "Browse our directory of verified experts by practice area, or describe your issue to our AI Assistant to get matched with the right specialist instantly."
+    },
+    "step2": {
+      "title": "2. Compare & Choose",
+      "text": "Review profiles, verified credentials, client ratings, and clear upfront pricing. No hidden fees or surprises."
+    },
+    "step3": {
+      "title": "3. Book Securely",
+      "text": "Select a time that works for you and pay securely via Mobile Money (MoMo). Your payment is held in escrow until the consultation is complete."
+    },
+    "step4": {
+      "title": "4. Consult & Review",
+      "text": "Meet with your lawyer via secure video call or in person. After the session, leave a review to help others in the community."
+    }
+  },
+  "payment": {
+    "title": "Secure Payments & Escrow",
+    "text": "Your financial security is our priority. When you book a consultation, your payment is held securely in our escrow system. The lawyer only gets paid after your consultation is successfully completed. If the lawyer doesn't show up, you get a full refund.",
+    "momo": "We accept MTN Mobile Money and Airtel Money for seamless transactions across Rwanda."
+  },
+  "cta": {
+    "title": "Ready to resolve your legal issue?",
+    "startNow": "Start Now",
+    "contactSupport": "Contact Support"
+  }
+}

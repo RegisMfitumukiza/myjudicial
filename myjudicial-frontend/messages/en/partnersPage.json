@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "Our Partners | MyJudicial",
+    "description": "MyJudicial partners with leading legal, governmental, and financial institutions in Rwanda to provide seamless access to justice."
+  },
+  "hero": {
+    "badge": "Partners",
+    "title": "Our Partners & Trusted Organizations",
+    "subtitle": "Working together with Rwanda's leading institutions to modernize the legal sector."
+  },
+  "categories": {
+    "legal": {
+      "title": "Legal & Government",
+      "desc": "Key institutional partners ensuring regulatory compliance and professional standards.",
+      "items": ["Rwanda Bar Association", "Ministry of Justice (MINIJUST)", "Rwanda Investigation Bureau (RIB)", "Supreme Court of Rwanda"]
+    },
+    "financial": {
+      "title": "Financial & Payment Partners",
+      "desc": "Trusted providers powering our secure escrow and payment infrastructure.",
+      "items": ["MTN Mobile Money", "Airtel Money", "Bank of Kigali", "Equity Bank Rwanda"]
+    },
+    "ngo": {
+      "title": "NGOs & Legal Aid",
+      "desc": "Organizations working with us to improve access to justice for vulnerable populations.",
+      "items": ["Legal Aid Forum Rwanda", "Haguruka", "Rwandan Association of Women in Sports (RAWS)"]
+    }
+  },
+  "cta": {
+    "title": "Become a Partner",
+    "subtitle": "Interested in partnering with MyJudicial? We are always looking for organizations that share our vision of accessible justice.",
+    "button": "Contact Us"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "aiAssistant": "AI Triage Assistant",
+  "describeIssue": "Describe your legal issue",
+  "analyzing": "Analyzing your case...",
+  "topMatches": "Top {count} Recommended Lawyers",
+  "startConversation": "Start Conversation",
+  "sendMessage": "Send Message",
+  "speakToAI": "Speak to AI",
+  "processing": "Processing your request..."
+}

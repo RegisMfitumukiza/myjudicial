@@ -1,0 +1,20 @@
+{
+  "title": "Earnings & Wallet",
+  "subtitle": "Track your income, platform fees, and payouts",
+  "failedToLoad": "Failed to load earnings data. Please try again.",
+  "netRevenue": "Net Revenue",
+  "afterFees": "After {amount} in platform fees",
+  "afterNoFees": "After 0 in platform fees",
+  "pendingEscrow": "Pending Escrow",
+  "heldFromBookings": "Held from active bookings",
+  "grossRevenue": "Gross Revenue",
+  "completedBookings": "{count, plural, =1 {1 completed booking} other {# completed bookings}}",
+  "recentTransactions": "Recent Transactions",
+  "noTransactions": "No completed transactions yet.",
+  "booking": "Booking",
+  "service": "Service",
+  "amount": "Amount",
+  "completed": "Completed",
+  "platformFees": "Platform Fees (15%)",
+  "netRevenuePct": "Net Revenue (85%)"
+}

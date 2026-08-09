@@ -1,0 +1,7 @@
+{
+  "title": "Reschedule Requests ({count})",
+  "actionNeeded": "Action Needed",
+  "defaultClientName": "Client",
+  "defaultServiceName": "Consultation",
+  "proposedTime": "{date} at {time}"
+}

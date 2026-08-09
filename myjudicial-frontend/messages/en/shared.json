@@ -1,0 +1,66 @@
+{
+  "portalHeader": {
+    "findExperts": "Find Experts",
+    "myDashboard": "My Dashboard"
+  },
+  "publicNav": {
+    "toggleMenu": "Toggle menu",
+    "logIn": "Log In",
+    "signUp": "Sign Up"
+  },
+  "dashboardNav": {
+    "searchPlaceholder": "Search lawyers, cases, or documents...",
+    "notifications": "Notifications",
+    "new": "new",
+    "marking": "Marking...",
+    "markAllRead": "Mark all read",
+    "allCaughtUp": "All caught up!",
+    "noNewNotifications": "No new notifications.",
+    "markAsRead": "Mark as read",
+    "viewAll": "View all notifications",
+    "justNow": "Just now",
+    "mAgo": "m ago",
+    "hAgo": "h ago",
+    "dAgo": "d ago"
+  },
+  "photoUpload": {
+    "selectImage": "Please select an image file (JPEG, PNG, or WebP)",
+    "imageTooLarge": "Image must be under 5 MB",
+    "uploadFailed": "Failed to upload photo. Please try again.",
+    "photoUpdated": "Profile photo updated",
+    "clickToChange": "Click to change photo",
+    "uploadNew": "Upload new photo"
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "management": "Management",
+    "finance": "Finance",
+    "system": "System",
+    "business": "Business",
+    "engagement": "Engagement",
+    "account": "Account",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "users": "Users",
+    "experts": "Experts",
+    "bookings": "Bookings",
+    "compliance": "Compliance",
+    "auditLogs": "Audit Logs",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "earnings": "Earnings",
+    "calendar": "Calendar",
+    "availability": "Availability",
+    "dateOverrides": "Date Overrides",
+    "scheduleSettings": "Schedule Settings",
+    "services": "Services",
+    "reviews": "Reviews",
+    "setup": "Setup",
+    "verification": "Verification",
+    "profile": "Profile",
+    "security": "Security",
+    "preferences": "Preferences",
+    "signOut": "Sign Out"
+  }
+}

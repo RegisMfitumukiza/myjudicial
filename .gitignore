@@ -1,0 +1,41 @@
+# ---- Environment (never commit secrets) ----
+.env
+.env.*
+!.env.example
+
+# ---- Node / dependencies ----
+node_modules/
+
+# ---- Frontend (Next.js) ----
+myjudicial-frontend/.next/
+myjudicial-frontend/out/
+myjudicial-frontend/build/
+myjudicial-frontend/next-env.d.ts
+
+# ---- Backend ----
+myjudicial-backend/dist/
+myjudicial-backend/logs/
+myjudicial-backend/uploads/
+myjudicial-backend/coverage/
+
+# ---- AI Service (Python) ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+myjudicial-ai-service/.coverage
+
+# ---- Logs / misc ----
+*.log
+coverage/
+tmp/
+npm-debug.log*
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,16 @@
+{
+  "title": "Analytics",
+  "subtitle": "Performance insights and trends for your practice",
+  "totalClients": "Total Clients",
+  "vsLastQuarter": "+{pct}% vs last quarter",
+  "improvement": "-{pct}% improvement",
+  "consultations": "Consultations",
+  "thisMonth": "This month",
+  "avgRevenueMonth": "Avg. Revenue/Month",
+  "avgResponseTime": "Avg. Response Time",
+  "monthlyRevenueTrend": "Monthly Revenue Trend",
+  "monthlyBreakdown": "Monthly Breakdown",
+  "month": "Month",
+  "revenue": "Revenue",
+  "avgRating": "Avg. Rating"
+}

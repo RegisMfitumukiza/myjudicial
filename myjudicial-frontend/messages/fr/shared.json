@@ -1,0 +1,66 @@
+{
+  "portalHeader": {
+    "findExperts": "Trouver des experts",
+    "myDashboard": "Mon tableau de bord"
+  },
+  "publicNav": {
+    "toggleMenu": "Basculer le menu",
+    "logIn": "Se connecter",
+    "signUp": "S'inscrire"
+  },
+  "dashboardNav": {
+    "searchPlaceholder": "Rechercher des avocats, des dossiers ou des documents...",
+    "notifications": "Notifications",
+    "new": "nouveau",
+    "marking": "Marquage...",
+    "markAllRead": "Tout marquer comme lu",
+    "allCaughtUp": "Tout est à jour !",
+    "noNewNotifications": "Pas de nouvelles notifications.",
+    "markAsRead": "Marquer comme lu",
+    "viewAll": "Voir toutes les notifications",
+    "justNow": "À l'instant",
+    "mAgo": "il y a m",
+    "hAgo": "il y a h",
+    "dAgo": "il y a j"
+  },
+  "photoUpload": {
+    "selectImage": "Veuillez sélectionner un fichier image (JPEG, PNG ou WebP)",
+    "imageTooLarge": "L'image doit faire moins de 5 Mo",
+    "uploadFailed": "Échec du téléchargement de la photo. Veuillez réessayer.",
+    "photoUpdated": "Photo de profil mise à jour",
+    "clickToChange": "Cliquez pour changer la photo",
+    "uploadNew": "Télécharger une nouvelle photo"
+  },
+  "sidebar": {
+    "overview": "Aperçu",
+    "management": "Gestion",
+    "finance": "Finance",
+    "system": "Système",
+    "business": "Entreprise",
+    "engagement": "Engagement",
+    "account": "Compte",
+    "dashboard": "Tableau de bord",
+    "analytics": "Analytique",
+    "users": "Utilisateurs",
+    "experts": "Experts",
+    "bookings": "Réservations",
+    "compliance": "Conformité",
+    "auditLogs": "Journaux d'audit",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "settings": "Paramètres",
+    "earnings": "Gains",
+    "calendar": "Calendrier",
+    "availability": "Disponibilité",
+    "dateOverrides": "Remplacements de dates",
+    "scheduleSettings": "Paramètres d'horaire",
+    "services": "Services",
+    "reviews": "Avis",
+    "setup": "Configuration",
+    "verification": "Vérification",
+    "profile": "Profil",
+    "security": "Sécurité",
+    "preferences": "Préférences",
+    "signOut": "Se déconnecter"
+  }
+}

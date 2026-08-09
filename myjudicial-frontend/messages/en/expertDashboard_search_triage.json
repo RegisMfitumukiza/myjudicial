@@ -1,0 +1,43 @@
+{
+  "whyMyJudicial": "Why MyJudicial",
+  "howItWorks": "How it works",
+  "aiTriageAssistant": "AI Triage Assistant",
+  "processingBrief": "Processing your land dispute brief...",
+  "intakeProgress": "Intake progress",
+  "topRecommendedLawyers": "Top 3 Recommended Lawyers",
+  "aiMatched": "AI Matched",
+  "match": "match",
+  "rwfPerHour": "RWF/hr",
+  "bookNow": "Book Now",
+  "dropCaseBrief": "Drop case brief or documents",
+  "pdfJpgPngLimit": "PDF, JPG, or PNG up to 10MB",
+  "capturePhoto": "Capture photo",
+  "askQuestion": "Ask a question or describe more...",
+  "saveDraft": "Save draft",
+  "bookTopMatch": "Book Top Match",
+  "proceedToBooking": "Proceed to booking",
+  "draftSaved": "Draft saved!",
+  
+  "initialMessage1": "I have analyzed your location in Gasabo District. Land disputes here often require specific documentation. Do you have the Title Deed or any previous Umudugudu resolution papers?",
+  "initialMessage2": "Yes, I have the Title Deed scan right here. I am uploading it now.",
+  "initialMessage3": "Property Deed, Gasabo received. Reviewing key clauses now...",
+  "aiReply1": "Based on the title deed, this appears to be a boundary dispute under Article 14 of Rwanda land law. I recommend a lawyer specialised in property law within Gasabo District. Shall I shortlist the top 3 available today?",
+  "aiReply2": "I have flagged two clauses that may work in your favour. Would you like me to prepare a brief summary you can share with your chosen lawyer before the consultation?",
+  "aiReply3": "Understood. To strengthen your case, you may also need a land survey report from RLMUA. Shall I add that to your document checklist?",
+  "aiReply4": "Great question. I have now gathered enough information about your case. Based on your location, case type, and urgency — here are my top 3 recommended lawyers available this week.",
+
+  "specialtyPropertyLand": "Property & Land Law",
+  "specialtyPropertyArbitration": "Property & Arbitration",
+  "specialtyFamilyMediation": "Family & Land Mediation",
+
+  "availableToday1400": "Today, 14:00",
+  "availableTomorrow0900": "Tomorrow, 09:00",
+  "availableToday1630": "Today, 16:30",
+
+  "badgeLandDisputes": "Land Disputes",
+  "badgeGasaboExpert": "Gasabo Expert",
+  "badgeSeniorCounsel": "Senior Counsel",
+  "badgeArbitration": "Arbitration",
+  "badgeMediation": "Mediation",
+  "badgeBudgetFriendly": "Budget Friendly"
+}

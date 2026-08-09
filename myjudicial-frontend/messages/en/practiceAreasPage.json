@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "title": "Legal Practice Areas | MyJudicial",
+    "description": "Browse our comprehensive list of legal practice areas and find the right expert for your specific needs."
+  },
+  "hero": {
+    "badge": "Practice Areas",
+    "title": "Browse by Practice Area",
+    "subtitle": "Find a specialist for your exact legal need. Our verified experts cover all major areas of Rwandan law."
+  },
+  "grid": {
+    "expertsCount": "{count} expert",
+    "expertsCountPlural": "{count} experts"
+  },
+  "cta": {
+    "title": "Not sure which area you need?",
+    "subtitle": "Describe your issue to our AI Assistant and get matched instantly.",
+    "useAi": "Use AI Assistant",
+    "browseAll": "Browse All Experts"
+  }
+}

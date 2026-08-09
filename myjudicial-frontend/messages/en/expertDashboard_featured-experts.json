@@ -1,0 +1,18 @@
+{
+  "feeNotSet": "Fee not set",
+  "view": "View",
+  "highestRated": "Highest Rated",
+  "highestRatedDesc": "Top-rated legal professionals by client reviews.",
+  "availableToday": "Available Today",
+  "availableTodayDesc": "Lawyers with open slots today.",
+  "mostBooked": "Most Booked",
+  "mostBookedDesc": "Most trusted professionals by completed consultations.",
+  "recentlyJoined": "Recently Joined",
+  "recentlyJoinedDesc": "Newly verified legal professionals.",
+  "ourExperts": "Our Experts",
+  "trustedLegalProfessionals": "Trusted Legal Professionals",
+  "expertsSubtitle": "All lawyers are verified, rated by real clients, and ready to help.",
+  "featuredExperts": "Featured Experts",
+  "featuredExpertsDesc": "Top legal professionals on the platform.",
+  "browseAllExperts": "Browse All Experts"
+}

@@ -1,0 +1,17 @@
+{
+  "declineReasonError": "Please provide a reason of at least 5 characters.",
+  "declineSuccess": "Booking request declined.",
+  "declineError": "Failed to decline booking.",
+  "title": "Booking Requests",
+  "description": "Consultations awaiting client payment. They confirm automatically once paid.",
+  "loadError": "Failed to load booking requests. Please try again.",
+  "emptyState": "No pending booking requests right now.",
+  "clientFallback": "Client",
+  "serviceFallback": "Consultation",
+  "awaitingPayment": "Awaiting Payment",
+  "declineButton": "Decline",
+  "declineReasonLabel": "Reason for declining (min. 5 characters)",
+  "declineReasonPlaceholder": "e.g. Schedule conflict, unable to take this case...",
+  "cancelButton": "Cancel",
+  "confirmDeclineButton": "Confirm Decline"
+}

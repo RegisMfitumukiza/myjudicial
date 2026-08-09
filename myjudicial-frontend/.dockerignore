@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Next.js build output
+.next
+out
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swp
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Build artifacts
+build-err.log
+build.log
+dev-error.log
+dev-output.log
+
+# Test files
+search_check.txt
+search_test.html
+session_response.txt
+endpoints-fix
+
+# Scripts (dev only)
+generate_pages.ps1
+start_dev.ps1
+
+# Temporary
+tmp
+temp
+*.tmp
+*.bak
+
+# OS
+Thumbs.db
+.DS_Store

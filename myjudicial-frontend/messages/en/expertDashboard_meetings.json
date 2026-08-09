@@ -1,0 +1,10 @@
+{
+  "title": "Meetings",
+  "subtitle": "Confirmed consultations ready for video call.",
+  "failedToLoad": "Failed to load meetings. Please try again.",
+  "noMeetings": "No meetings scheduled",
+  "noMeetingsDesc": "Confirmed consultations ready for video call will appear here.",
+  "joinCall": "Join Call",
+  "notYetTime": "Not yet time",
+  "consultation": "Consultation"
+}

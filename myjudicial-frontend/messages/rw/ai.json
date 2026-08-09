@@ -1,0 +1,74 @@
+{
+  "title": "Umufasha wa AI",
+  "subtitle": "Sobanura icyago cyawe c'amategeko kandi tuzabasha guhuza n'umuntu ukwiye.",
+  "steps": {
+    "describe": "Sobanura",
+    "refine": "Hindura",
+    "match": "Huza"
+  },
+  "input": {
+    "placeholder": "Sobanura icyago cyawe c'amategeko mu buryo bwuzuye...",
+    "voiceHint": "Kanda kugira ngo urondere",
+    "send": "Ohereza",
+    "attachFile": "Ongeraho dosiye"
+  },
+  "analysis": {
+    "title": "Isuzuma ry'icyago",
+    "specialty": "Urwego rw'amategeko",
+    "urgency": "Igihe ngiro",
+    "budget": "Igiciro gitungurwa",
+    "jurisdiction": "Ubuyobozi",
+    "confidence": "Kwizera",
+    "keyEntities": "Ibintu birindwa",
+    "suggestedDocs": "Amadosiye yerekanwe"
+  },
+  "urgency": {
+    "LOW": "Nto",
+    "MEDIUM": "Hagati",
+    "HIGH": "Hanze",
+    "URGENT": "Byihutirwa"
+  },
+  "recommendations": {
+    "title": "Abanyemezi bihuwe",
+    "subtitle": "Birimo isuzuma ry'icyago cyawe, ibi ni ibihimbano vyiza",
+    "matchScore": "{score}% ihuza",
+    "bookNow": "Ishyura utangire",
+    "viewProfile": "Raba urupapuro",
+    "rating": "Inyenyeri {rating}",
+    "experience": "Imyaka {years} y'uburumbe",
+    "reviews": "Ivyiyumviro {count}",
+    "startingAt": "Tangira ku {rate} RWF",
+    "viewAll": "Raba vyose",
+    "excellent": "Ihuza ryiza cane",
+    "veryGood": "Ihuza ryiza",
+    "good": "Ihuza ryiza",
+    "fair": "Ihuza risanzwe"
+  },
+  "redirect": {
+    "title": "Turimo gukurikirana abanyemezi bihuwe...",
+    "subtitle": "Turi kwihuta kwerekeza ku bisubizo neza",
+    "button": "Raba vyose"
+  },
+  "voice": {
+    "recording": "Birimo kwandika...",
+    "stop": "Hagarika kwandika",
+    "processing": "Birimo gutunganya amajwi...",
+    "error": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi."
+  },
+  "files": {
+    "dropHere": "Tega aha dosiye",
+    "browse": "Rondera dosiye",
+    "acceptedTypes": "PDF, amafoto cyangwa amadosiye",
+    "remove": "Siba"
+  },
+  "errors": {
+    "analysisFailed": "Ntibyashobotse gusuzuma icyago cyawe. Nyamuneka gerageza ukundi.",
+    "recommendationFailed": "Ntibyashobotse kubona abanyemezi. Nyamuneka gerageza ukundi.",
+    "transcriptionFailed": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi.",
+    "networkError": "Hari ikibazo cyo kwihuza. Nyamuneka suzuma uburumbe bwawe."
+  },
+  "empty": {
+    "title": "Dushoboye kukugufasha ingeri yawe?",
+    "description": "Sobanura icyago cyawe c'amategeko. Urashobora kwandika, kuvuga, cyangwa ongeraho amadosiye."
+  }
+}

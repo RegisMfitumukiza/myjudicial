@@ -1,0 +1,8 @@
+{
+  "recentEarnings": "Recent Earnings",
+  "totalAmount": "Total: {amount} RWF",
+  "highestAmount": "Highest: {amount} RWF",
+  "noEarnings": "No completed consultations yet — earnings will appear here once you complete your first booking.",
+  "revenue": "Revenue",
+  "revenuePerConsultation": "Revenue per completed consultation (RWF)"
+}

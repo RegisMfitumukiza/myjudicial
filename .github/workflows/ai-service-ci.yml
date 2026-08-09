@@ -1,0 +1,63 @@
+name: AI Service CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'myjudicial-ai-service/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/ai-service-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'myjudicial-ai-service/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/ai-service-ci.yml'
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: myjudicial-ai-service/requirements.txt
+
+      - name: Install dependencies
+        working-directory: myjudicial-ai-service
+        run: |
+          pip install --upgrade pip
+          pip install flake8
+          pip install pytest
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        working-directory: myjudicial-ai-service
+        run: flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Test with pytest
+        working-directory: myjudicial-ai-service
+        run: pytest tests/ -v
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into VPS and deploy
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
+          script: |
+            echo "=== Deploying AI service ==="
+            cd ${{ secrets.APP_DIR }}
+            git pull origin main
+            docker compose build ai
+            docker compose up -d ai
+            echo "AI service deployed successfully."

@@ -1,0 +1,14 @@
+{
+  "title": "Setup Checklist",
+  "progress": "{done} of {total} complete",
+  "allSet": " — you're all set!",
+  "profileLabel": "Professional Profile",
+  "profileDesc": "Create your expert profile with specialties, bio, and fees.",
+  "photoLabel": "Profile Photo",
+  "photoDesc": "Upload a professional photo to build trust with clients.",
+  "verificationLabel": "Identity Verification",
+  "verificationDesc": "Submit your Bar Association certificate and ID for verification.",
+  "complete": "Complete",
+  "underReview": "Under Review",
+  "actionRequired": "Action Required"
+}

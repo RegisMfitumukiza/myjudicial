@@ -1,0 +1,8 @@
+{
+  "somethingWentWrong": "Quelque chose s'est mal passé",
+  "tryAgain": "Veuillez réessayer",
+  "pageNotFound": "Page non trouvée",
+  "unauthorized": "Vous n'êtes pas autorisé à accéder à cette page",
+  "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+  "validationError": "Veuillez vérifier votre saisie et réessayer"
+}

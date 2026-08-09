@@ -1,0 +1,156 @@
+# ============================================
+# MyJudicial Platform - Docker Compose
+# ============================================
+# Usage:
+#   docker compose up -d --build
+#   docker compose logs -f
+#   docker compose down
+#
+# Services:
+#   - frontend  (Next.js, port 3000)
+#   - backend   (Express, port 4000)
+#   - ai        (FastAPI, port 5000)
+#   - postgres  (optional, comment out if using Supabase)
+# ============================================
+
+services:
+  # ============================================
+  # Frontend (Next.js 16)
+  # ============================================
+  frontend:
+    build:
+      context: ./myjudicial-frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${FRONTEND_URL:-http://localhost:3000}
+        NEXT_PUBLIC_API_URL: ${BACKEND_URL:-http://localhost:4000}
+        NEXT_PUBLIC_API_PREFIX: /api/v1
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_LIVEKIT_URL: ${LIVEKIT_URL}
+        AUTH_URL: ${FRONTEND_URL:-http://localhost:3000}
+        AUTH_SECRET: ${AUTH_SECRET}
+    container_name: myjudicial-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - myjudicial-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ============================================
+  # Backend (Express 5 + Prisma)
+  # ============================================
+  backend:
+    build:
+      context: ./myjudicial-backend
+      dockerfile: Dockerfile
+    container_name: myjudicial-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./myjudicial-backend/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=Africa/Kigali
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3000}
+      - AI_SERVICE_URL=http://ai:5000
+    networks:
+      - myjudicial-network
+    depends_on:
+      ai:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - ./myjudicial-backend/logs:/app/logs
+      - uploads_data:/app/uploads
+
+  # ============================================
+  # AI Service (FastAPI + Whisper + Embeddings)
+  # ============================================
+  ai:
+    build:
+      context: ./myjudicial-ai-service
+      dockerfile: Dockerfile
+    container_name: myjudicial-ai
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./myjudicial-ai-service/.env
+    environment:
+      - BACKEND_URL=http://backend:4000
+      - FRONTEND_URL=http://frontend:3000
+      - DATABASE_URL=${DATABASE_URL}
+      - WHISPER_DEVICE=cpu
+      - LLM_PROVIDER=groq
+      - TZ=Africa/Kigali
+    networks:
+      - myjudicial-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    volumes:
+      - whisper_cache:/app/cache
+
+  # ============================================
+  # PostgreSQL (OPTIONAL - comment out if using Supabase)
+  # ============================================
+  # Uncomment this section only if you want to run your own database
+  # instead of using Supabase cloud.
+  #
+  # postgres:
+  #   image: postgis/postgis:16-3.4
+  #   container_name: myjudicial-postgres
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+  #     POSTGRES_DB: myjudicial
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - myjudicial-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  myjudicial-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  uploads_data:
+    driver: local
+  whisper_cache:
+    driver: local
+  # postgres_data:
+  #   driver: local

@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "title": "MyJudicial | Find Verified Legal Experts in Rwanda",
+    "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
+  },
+  "hero": {
+    "badge": "Rwanda's Trusted Legal Marketplace",
+    "headline": "Find the Right Legal Expert",
+    "subheadline": "Browse verified lawyers, compare fixed fees, and book instantly.",
+    "searchPlaceholder": "What legal matter do you need help with?",
+    "locationPlaceholder": "Kigali, Rwanda",
+    "searchBtn": "Search Lawyers",
+    "orTryAi": "or",
+    "tryAi": "Use AI Assistant",
+    "trust1": "BAR Certified",
+    "trust2": "Identity Verified",
+    "trust3": "Fixed Transparent Fees",
+    "stats": {
+      "experts": "Verified Experts",
+      "consultations": "Consultations Completed",
+      "clients": "Happy Clients"
+    }
+  },
+  "practiceAreas": {
+    "title": "Browse by Practice Area",
+    "subtitle": "Find a specialist for your exact legal need",
+    "viewAll": "View All Categories",
+    "lawyer": "lawyer",
+    "lawyers": "lawyers",
+    "badge": "Practice Areas"
+  },
+  "experts": {
+    "title": "Verified Legal Experts",
+    "subtitle": "Trusted by thousands of Rwandans",
+    "loadMore": "Load More Experts",
+    "loading": "Loading experts...",
+    "found": "{count} expert found",
+    "foundPlural": "{count} experts found",
+    "viewProfile": "View Profile",
+    "noResults": "No experts found for this area",
+    "noResultsSub": "Try a different practice area or search term",
+    "clearFilters": "Clear Filters",
+    "allExperts": "All Experts"
+  },
+  "trust": {
+    "title": "Why Thousands Choose MyJudicial",
+    "item1": { "title": "BAR Certified", "desc": "All lawyers are verified by the Rwanda Bar Association" },
+    "item2": { "title": "Escrow Payments", "desc": "Funds held securely until your consultation is complete" },
+    "item3": { "title": "Fixed Transparent Fees", "desc": "See the full cost before you book — no surprises" },
+    "item4": { "title": "Instant Booking", "desc": "Book in minutes, not days" },
+    "item5": { "title": "Mobile Money", "desc": "Pay with MTN or Airtel Mobile Money" },
+    "item6": { "title": "Video Consultations", "desc": "Meet your lawyer from anywhere in Rwanda" }
+  },
+  "partners": {
+    "title": "Trusted By",
+    "subtitle": "Working with Rwanda's leading legal and government institutions"
+  },
+  "cta": {
+    "title": "Ready to find the right legal expert?",
+    "subtitle": "Browse verified lawyers or let our AI match you with the right specialist in seconds.",
+    "findLawyer": "Find a Lawyer",
+    "useAi": "Use AI Assistant"
+  }
+}

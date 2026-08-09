@@ -1,0 +1,71 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'myjudicial-backend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'myjudicial-backend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: myjudicial-backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: myjudicial-backend
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: myjudicial-backend
+        run: npx prisma generate
+
+      - name: Build
+        working-directory: myjudicial-backend
+        run: npm run build
+
+      - name: Test + coverage gate (lines >= 40%, funcs >= 30%, branches >= 70%)
+        working-directory: myjudicial-backend
+        run: npm run test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-report
+          path: myjudicial-backend/coverage/
+          retention-days: 14
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into VPS and deploy
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
+          script: |
+            echo "=== Deploying backend ==="
+            cd ${{ secrets.APP_DIR }}
+            git pull origin main
+            docker compose build backend
+            docker compose up -d backend
+            echo "Backend deployed successfully."

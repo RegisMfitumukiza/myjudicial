@@ -1,0 +1,74 @@
+{
+  "title": "Assistant IA",
+  "subtitle": "Decrivez votre probleme juridique et nous vous trouverons le bon expert.",
+  "steps": {
+    "describe": "Decrire",
+    "refine": "Affiner",
+    "match": "Associer"
+  },
+  "input": {
+    "placeholder": "Decrivez votre probleme juridique en detail...",
+    "voiceHint": "Appuyez pour enregistrer",
+    "send": "Envoyer",
+    "attachFile": "Joindre un fichier"
+  },
+  "analysis": {
+    "title": "Analyse de l'affaire",
+    "specialty": "Categorie juridique",
+    "urgency": "Urgence",
+    "budget": "Budget estime",
+    "jurisdiction": "Juridiction",
+    "confidence": "Confiance",
+    "keyEntities": "Details cles",
+    "suggestedDocs": "Documents recommandes"
+  },
+  "urgency": {
+    "LOW": "Faible",
+    "MEDIUM": "Moyen",
+    "HIGH": "Eleve",
+    "URGENT": "Urgent"
+  },
+  "recommendations": {
+    "title": "Experts correspondants",
+    "subtitle": "Selon l'analyse de votre affaire, voici les meilleures correspondances",
+    "matchScore": "{score}% de correspondance",
+    "bookNow": "Reserver",
+    "viewProfile": "Voir le profil",
+    "rating": "{rating} etoiles",
+    "experience": "{years} ans d'experience",
+    "reviews": "{count} avis",
+    "startingAt": "A partir de {rate} RWF",
+    "viewAll": "Voir tous les resultats",
+    "excellent": "Excellente correspondance",
+    "veryGood": "Tres bonne correspondance",
+    "good": "Bonne correspondance",
+    "fair": "Correspondance correcte"
+  },
+  "redirect": {
+    "title": "Recherche des experts correspondants...",
+    "subtitle": "Redirection vers les resultats avec filtres appliques",
+    "button": "Voir tous les resultats"
+  },
+  "voice": {
+    "recording": "Enregistrement...",
+    "stop": "Arreter l'enregistrement",
+    "processing": "Traitement de l'audio...",
+    "error": "Impossible de traiter l'audio. Veuillez reessayer."
+  },
+  "files": {
+    "dropHere": "Deposez les fichiers ici",
+    "browse": "Parcourir les fichiers",
+    "acceptedTypes": "PDF, images ou documents",
+    "remove": "Supprimer"
+  },
+  "errors": {
+    "analysisFailed": "Impossible d'analyser votre affaire. Veuillez reessayer.",
+    "recommendationFailed": "Impossible de trouver des experts. Veuillez reessayer.",
+    "transcriptionFailed": "Impossible de traiter l'audio. Veuillez reessayer.",
+    "networkError": "Erreur de connexion. Veuillez verifier votre connexion."
+  },
+  "empty": {
+    "title": "Comment pouvons-nous vous aider?",
+    "description": "Decrivez votre probleme juridique. Vous pouvez ecrire, parler ou joindre des documents."
+  }
+}

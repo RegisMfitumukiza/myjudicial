@@ -1,0 +1,80 @@
+# # LiveKit Server Configuration for MyJudicial
+# # For Oracle Cloud Infrastructure Deployment
+
+# port: 7880
+# bind_addresses:
+#   - "0.0.0.0"
+
+# # RTC Configuration
+# rtc:
+#   # Port range for WebRTC connections
+#   port_range_start: 50000
+#   port_range_end: 60000
+  
+#   # Use external IP for connections
+#   use_external_ip: true
+  
+#   # TCP fallback for restrictive networks
+#   tcp_port: 7881
+  
+#   # Node IP - will be detected automatically
+#   # node_ip: "auto"
+
+# # Room Configuration
+# room:
+#   # Auto-create rooms when token is valid
+#   auto_create: true
+  
+#   # Empty room timeout (5 minutes)
+#   empty_timeout: 300
+  
+#   # Maximum number of participants per room
+#   max_participants: 10
+
+# # API Keys (from environment variables)
+# keys:
+#   # Format: api_key: api_secret
+#   # These will be interpolated from environment variables
+#   # Set LIVEKIT_API_KEY and LIVEKIT_API_SECRET in .env
+
+# # Webhook Configuration
+# webhook:
+#   # API keys with webhook permissions
+#   api_key: ${LIVEKIT_API_KEY}
+  
+#   # Webhook URLs to notify on events
+#   urls:
+#     - ${BASE_URL}/api/v1/webhooks/livekit
+
+# # Logging
+# logging:
+#   level: info
+#   # Available levels: debug, info, warn, error
+  
+#   # Log to file
+#   # file: "/logs/livekit.log"
+  
+#   # Sample rate for verbose logs (1 = all, 0.1 = 10%)
+#   sample: 1
+
+# # Turn Server Configuration (for NAT traversal)
+# turn:
+#   enabled: true
+#   domain: ""
+#   # If you have a TURN server, configure it here
+#   # external_tls: true
+#   # tls_port: 5349
+
+# # Region (optional)
+# region: "africa-east"
+
+# # Limit Configuration
+# limit:
+#   # Max video layers per track
+#   num_tracks: 20
+  
+#   # Max bytes per second
+#   bytes_per_sec: 50_000_000  # 50 Mbps
+
+# # Development settings
+# # dev_mode: false

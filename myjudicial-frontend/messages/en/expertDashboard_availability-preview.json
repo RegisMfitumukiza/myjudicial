@@ -1,0 +1,7 @@
+{
+  "checkingAvailability": "Checking availability...",
+  "scanningNext14Days": "Scanning next 14 days ({searchDate}/14)...",
+  "noAvailabilityIn14Days": "No availability in the next 14 days",
+  "nextAvailable": "Next Available",
+  "bookNow": "Book Now"
+}

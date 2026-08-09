@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "Frequently Asked Questions | MyJudicial",
+    "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
+  },
+  "hero": {
+    "badge": "FAQs",
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about finding and hiring a legal expert on MyJudicial."
+  },
+  "cta": {
+    "title": "Still have questions?",
+    "subtitle": "Can't find the answer you're looking for? Our support team is here to help.",
+    "contact": "Contact Support"
+  }
+}

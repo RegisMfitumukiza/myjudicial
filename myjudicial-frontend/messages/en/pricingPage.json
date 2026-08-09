@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "title": "Pricing | MyJudicial",
+    "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
+  },
+  "hero": {
+    "badge": "Pricing",
+    "title": "Transparent Pricing, No Surprises",
+    "subtitle": "Clear upfront fees for legal services. You only pay what you agree to before the consultation begins."
+  },
+  "howItWorks": {
+    "title": "How Pricing Works",
+    "points": {
+      "fixedFees": {
+        "title": "Fixed Fees Set by Lawyers",
+        "text": "Every lawyer sets their own hourly or consultation rate. You can easily compare prices before booking."
+      },
+      "platformFee": {
+        "title": "Small Platform Fee",
+        "text": "We charge a minimal transaction fee on bookings to maintain the platform and secure escrow system."
+      },
+      "escrow": {
+        "title": "Secure Escrow Protection",
+        "text": "Your payment is held safely in escrow. The lawyer only gets paid after your consultation is complete."
+      }
+    }
+  },
+  "tiers": {
+    "free": {
+      "name": "Discovery",
+      "price": "Free",
+      "desc": "Perfect for initial research",
+      "features": [
+        "Browse all verified lawyers",
+        "Compare practice areas and fees",
+        "Read client reviews",
+        "Basic AI Assistant triage"
+      ],
+      "cta": "Start Searching"
+    },
+    "consultation": {
+      "name": "Consultation",
+      "price": "Variable",
+      "desc": "Book an expert for advice",
+      "features": [
+        "Fixed upfront pricing",
+        "Secure MoMo payments",
+        "Escrow payment protection",
+        "Video or in-person meetings",
+        "Leave a public review"
+      ],
+      "cta": "Find a Lawyer"
+    },
+    "lawyer": {
+      "name": "For Lawyers",
+      "price": "Commission",
+      "desc": "Grow your legal practice",
+      "features": [
+        "Free verified profile listing",
+        "Manage calendar and bookings",
+        "Guaranteed payment via escrow",
+        "Invoicing and analytics",
+        "Client review system"
+      ],
+      "cta": "Join as a Lawyer"
+    }
+  },
+  "escrow": {
+    "title": "Protected by MyJudicial Escrow",
+    "text": "When you book a consultation, your MTN MoMo or Airtel Money payment is transferred to a secure escrow account managed by MyJudicial. The funds are only released to the lawyer after the consultation has taken place. If the lawyer cancels or fails to show up, you receive a full refund automatically.",
+    "badge": "100% Secure"
+  },
+  "cta": {
+    "title": "Ready to get started?",
+    "subtitle": "Join thousands of Rwandans who have found the right legal help on MyJudicial.",
+    "button": "Find a Lawyer"
+  }
+}

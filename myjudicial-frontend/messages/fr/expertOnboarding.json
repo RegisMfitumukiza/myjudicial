@@ -1,0 +1,13 @@
+{
+  "title": "Configuration Expert MyJudicial",
+  "subtitle": "Plateforme juridique professionnelle",
+  "step": "Étape",
+  "of": "sur",
+  "percentComplete": "% Terminé",
+  "welcomeMessage": "Bienvenue sur MyJudicial, {name}!",
+  "welcomeDescription": "Rejoignez la première plateforme juridique du Rwanda appuyée par des milliers de clients. Complétez votre profil professionnel pour commencer à vous connecter avec les clients qui ont besoin de votre expertise.",
+  "verifiedPlatform": "Plateforme vérifiée",
+  "securePayments": "Paiements sécurisés",
+  "clientProtection": "Protection des clients",
+  "setupProgress": "Progression de la configuration"
+}

@@ -1,0 +1,66 @@
+{
+  "portalHeader": {
+    "findExperts": "Shakisha Abanyemezi",
+    "myDashboard": "Ikibaho Cyanje"
+  },
+  "publicNav": {
+    "toggleMenu": "Hindura ibikorwa",
+    "logIn": "Injira",
+    "signUp": "Iyandikishe"
+  },
+  "dashboardNav": {
+    "searchPlaceholder": "Shakisha abanditsi b'amategeko, ingendo, cyangwa ibyangombwa...",
+    "notifications": "Amatangazo",
+    "new": "gishya",
+    "marking": "Birimo gukemura...",
+    "markAllRead": "Kemura vyose",
+    "allCaughtUp": "Vyose birarangiye!",
+    "noNewNotifications": "Nta matangazo mashya.",
+    "markAsRead": "Kemura nka wasomoye",
+    "viewAll": "Reba amatangazo yose",
+    "justNow": "Ubu",
+    "mAgo": "ikiringo ciyo",
+    "hAgo": "isaha ishize",
+    "dAgo": "umunsi ushize"
+  },
+  "photoUpload": {
+    "selectImage": "Nyamuneka hitamo idosiye y'ifoto (JPEG, PNG, cyangwa WebP)",
+    "imageTooLarge": "Ifoto igomba kuba hasi ya 5 MB",
+    "uploadFailed": "Byanze kohereza ifoto. Nyamuneka gerageza ukundi.",
+    "photoUpdated": "Ifoto y'umwirondoro yavuguruwe",
+    "clickToChange": "Kanda kugira guhindure ifoto",
+    "uploadNew": "Kohereza ifoto nshya"
+  },
+  "sidebar": {
+    "overview": "Ivyerekezo",
+    "management": "Ubuyobozi",
+    "finance": "Amahera",
+    "system": "Sisitemu",
+    "business": "Akazi",
+    "engagement": "Ubufatanye",
+    "account": "Konti",
+    "dashboard": "Ikibaho",
+    "analytics": "Ivyerekezo",
+    "users": "Abakoresha",
+    "experts": "Abanyemezi",
+    "bookings": "Gahunda",
+    "compliance": "Kubaha",
+    "auditLogs": "Inyandiko z'ubusununu",
+    "messages": "Ubutumwa",
+    "notifications": "Amatangazo",
+    "settings": "Igenamiterere",
+    "earnings": "Amahera",
+    "calendar": "Kalindari",
+    "availability": "Kuboneka",
+    "dateOverrides": "Guhindura itariki",
+    "scheduleSettings": "Igenamiterere ry'igihe",
+    "services": "Serivisi",
+    "reviews": "Ivyerekezo",
+    "setup": "Kuboneka",
+    "verification": "Kwemeza",
+    "profile": "Umwirondoro",
+    "security": "Umutekano",
+    "preferences": "Ibyo utegereje",
+    "signOut": "Sohoka"
+  }
+}

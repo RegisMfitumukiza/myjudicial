@@ -1,0 +1,33 @@
+{
+  "days": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  },
+  "months": {
+    "jan": "January",
+    "feb": "February",
+    "mar": "March",
+    "apr": "April",
+    "may": "May",
+    "jun": "June",
+    "jul": "July",
+    "aug": "August",
+    "sep": "September",
+    "oct": "October",
+    "nov": "November",
+    "dec": "December"
+  },
+  "failedToLoad": "Failed to load calendar",
+  "title": "Calendar",
+  "subtitle": "View your consultation schedule",
+  "week": "Week",
+  "month": "Month",
+  "today": "Today",
+  "defaultClient": "Client",
+  "moreBookings": "+{count} more"
+}

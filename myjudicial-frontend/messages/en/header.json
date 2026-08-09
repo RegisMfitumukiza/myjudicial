@@ -1,0 +1,20 @@
+{
+  "listYourPractice": "List Your Practice",
+  "findLawyer": "Find a Lawyer",
+  "practiceAreas": "Practice Areas",
+  "aiAssistant": "AI Assistant",
+  "howItWorks": "How It Works",
+  "about": "About",
+  "help": "Help",
+  "logIn": "Log in",
+  "getStarted": "Get Started",
+  "menu": "Menu",
+  "close": "Close",
+  "languageLabel": "Language",
+  "themeLabel": "Theme",
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "rw": "Kinyarwanda"
+  }
+}

@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand-blue:   11 37 69;
+  --color-brand-dark:   11 37 69;
+  --color-brand-border: 226 232 240;
+  --color-brand-canvas: 248 250 252;
+  --color-brand-alert:  220 38 38;
+  --color-brand-green:  11 37 69;
+
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 213 72% 16%;
+  --primary-foreground: 210 40% 98%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --border: 214.3 31.8% 91.4%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --ring: 215 20.2% 65.1%;
+}
+
+.dark {
+  --color-brand-blue:   255 255 255;
+  --color-brand-dark:   248 250 252;
+  --color-brand-border: 64 64 64;
+  --color-brand-canvas: 10 10 10;
+  --color-brand-alert:  248 113 113;
+  --color-brand-green:  255 255 255;
+
+  --background: 10 10% 4%;
+  --foreground: 210 40% 98%;
+  --card: 10 10% 4%;
+  --card-foreground: 210 40% 98%;
+  --popover: 10 10% 4%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --border: 0 0% 15%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 210 40% 98%;
+  --ring: 0 0% 15%;
+}
+
+body {
+  background-color: rgb(var(--color-brand-canvas));
+  color: rgb(var(--color-brand-dark));
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Dark mode background overrides */
+.dark .bg-white {
+  background-color: rgb(18 18 18);
+}
+
+.dark .bg-slate-50,
+.dark .bg-gray-50 {
+  background-color: rgb(28 28 28);
+}
+
+.dark .bg-slate-100,
+.dark .bg-gray-100 {
+  background-color: rgb(38 38 38);
+}
+
+.dark .bg-blue-50 {
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+.dark .bg-blue-100 {
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+/* Dark mode border overrides */
+.dark .border-slate-100,
+.dark .border-slate-200 {
+  border-color: rgb(48 48 48);
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: rgb(48 48 48);
+}
+
+.dark .divide-slate-200 > * + *,
+.dark .divide-gray-200 > * + * {
+  border-color: rgb(48 48 48);
+}
+
+/* Dark mode text overrides — subtle, not pure white */
+.dark .text-slate-900,
+.dark .text-gray-900 {
+  color: rgb(240 240 240);
+}
+
+.dark .text-slate-800,
+.dark .text-gray-800 {
+  color: rgb(220 220 220);
+}
+
+.dark .text-slate-700,
+.dark .text-gray-700 {
+  color: rgb(200 200 200);
+}
+
+.dark .text-slate-600,
+.dark .text-gray-600 {
+  color: rgb(150 150 150);
+}
+
+.dark .text-slate-500,
+.dark .text-gray-500 {
+  color: rgb(120 120 120);
+}
+
+.dark .text-slate-400,
+.dark .text-gray-400 {
+  color: rgb(90 90 90);
+}
+
+/* Auth forms — clean card look, no heavy shadow */
+.auth-card {
+  @apply rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-700/60;
+}
+
+/* Semantic utility classes */
+.text-on-brand { color: white; }
+.dark .text-on-brand { color: black; }
+
+.bg-on-brand { background-color: white; }
+.dark .bg-on-brand { background-color: black; }
+
+.border-on-brand { border-color: rgb(255 255 255); }
+.dark .border-on-brand { border-color: rgb(0 0 0); }
+
+/* Native time input icon — recolor the browser-default clock glyph so it
+   reads as navy/white instead of the browser's own gray, which otherwise
+   clashes with the rest of the UI. */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(13%) sepia(41%) saturate(1728%) hue-rotate(180deg) brightness(94%) contrast(93%);
+  cursor: pointer;
+}
+
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(100%);
+  cursor: pointer;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* MapLibre popup theming — always light theme since it sits on map canvas */
+.lawyer-popup .maplibregl-popup-content {
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+  background: white;
+}
+.lawyer-popup .maplibregl-popup-tip {
+  border-top-color: white;
+}
+.lawyer-popup .maplibregl-popup-close-button {
+  font-size: 18px;
+  padding: 4px 8px;
+  color: #94a3b8;
+  right: 4px;
+  top: 4px;
+  line-height: 1;
+}
+.lawyer-popup .maplibregl-popup-close-button:hover {
+  color: #0b2545;
+}

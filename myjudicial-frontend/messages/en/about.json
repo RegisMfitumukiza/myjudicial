@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "title": "About Us | MyJudicial",
+    "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
+  },
+  "hero": {
+    "badge": "About MyJudicial",
+    "title": "Rwanda's Trusted Legal Marketplace",
+    "subtitle": "We are on a mission to make legal services accessible, transparent, and secure for everyone in Rwanda.",
+    "stats": {
+      "verifiedExperts": "Verified Experts",
+      "completedConsultations": "Completed Consultations",
+      "totalClients": "Happy Clients"
+    }
+  },
+  "mission": {
+    "title": "Our Mission",
+    "text": "To democratize access to justice in Rwanda by providing a transparent, efficient, and secure platform that connects individuals and businesses with verified legal professionals.",
+    "visionTitle": "Our Vision",
+    "visionText": "To become the leading digital legal infrastructure in Africa, where finding a lawyer is as easy as booking a flight, and legal processes are streamlined for maximum efficiency."
+  },
+  "story": {
+    "title": "Our Story",
+    "text1": "MyJudicial was born out of a simple observation: finding the right lawyer in Rwanda was often complicated, opaque, and intimidating for the average person or small business.",
+    "text2": "We realized that by leveraging technology, we could bridge the gap between talented legal professionals and those who need their services. Today, MyJudicial is a comprehensive ecosystem that not only helps clients find lawyers but also provides lawyers with the tools they need to manage and grow their practice."
+  },
+  "values": {
+    "title": "Our Core Values",
+    "access": {
+      "title": "Access",
+      "text": "We believe everyone deserves access to quality legal representation, regardless of their background or connections."
+    },
+    "transparency": {
+      "title": "Transparency",
+      "text": "Clear, upfront pricing with no hidden fees. You always know what you're paying for before you commit."
+    },
+    "trust": {
+      "title": "Trust",
+      "text": "Every lawyer on our platform is strictly vetted and verified. Your payments and data are always secure."
+    }
+  },
+  "cta": {
+    "title": "Ready to get started?",
+    "joinLawyer": "Join as a Lawyer",
+    "findLawyer": "Find a Lawyer"
+  }
+}

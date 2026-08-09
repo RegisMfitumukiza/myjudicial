@@ -1,0 +1,15 @@
+{
+  "requestSent": "Reschedule Request Sent",
+  "requestPending": "Reschedule Request Pending",
+  "waitingForResponse": "Waiting for the other party to respond.",
+  "otherPartyRequested": "The other party has requested to reschedule this booking.",
+  "current": "Current",
+  "requested": "Requested",
+  "reason": "Reason",
+  "declineReasonPlaceholder": "Optional reason for declining...",
+  "confirmDecline": "Confirm Decline",
+  "cancel": "Cancel",
+  "acceptReschedule": "Accept Reschedule",
+  "decline": "Decline",
+  "durationMin": "{durationMin} min"
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Getting Started",
+  "subtitle": "Complete these steps to activate your practice on MyJudicial",
+  "failedToLoad": "Failed to load progress. Please try again.",
+  "allStepsCompleted": "All steps completed!",
+  "stepsProgress": "{completed} of {total} steps done",
+  "done": "Done",
+  "next": "Next"
+}

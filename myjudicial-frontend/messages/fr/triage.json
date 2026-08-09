@@ -1,0 +1,10 @@
+{
+  "aiAssistant": "Assistant IA de triage",
+  "describeIssue": "Décrivez votre problème juridique",
+  "analyzing": "Analyse de votre cas...",
+  "topMatches": "Top {count} avocats recommandés",
+  "startConversation": "Démarrer la conversation",
+  "sendMessage": "Envoyer un message",
+  "speakToAI": "Parler à l'IA",
+  "processing": "Traitement de votre demande..."
+}

@@ -1,0 +1,52 @@
+{
+  "blog": {
+    "meta": {
+      "title": "Blog | MyJudicial",
+      "description": "Read the latest news and insights from MyJudicial."
+    },
+    "hero": {
+      "badge": "Blog",
+      "title": "The MyJudicial Blog",
+      "subtitle": "News, updates, and insights from our team and legal experts."
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "desc": "We are currently setting up our editorial team. Check back soon for our first publications."
+    }
+  },
+  "careers": {
+    "meta": {
+      "title": "Careers | MyJudicial",
+      "description": "Join the team at MyJudicial and help us democratize access to justice in Rwanda."
+    },
+    "hero": {
+      "badge": "Careers",
+      "title": "Join Our Team",
+      "subtitle": "Help us build the digital infrastructure for Rwanda's legal system."
+    },
+    "comingSoon": {
+      "title": "No Open Positions",
+      "desc": "We don't have any open roles at the moment, but we're always looking for great talent. Check back soon."
+    }
+  },
+  "press": {
+    "meta": {
+      "title": "Press & Media | MyJudicial",
+      "description": "Press releases, media kits, and news about MyJudicial."
+    },
+    "hero": {
+      "badge": "Press",
+      "title": "Press & Media",
+      "subtitle": "Everything you need to know about MyJudicial for your next story."
+    },
+    "comingSoon": {
+      "title": "Media Kit Coming Soon",
+      "desc": "Our press resources are currently being updated. For immediate media inquiries, please contact us."
+    }
+  },
+  "cta": {
+    "title": "Need something else?",
+    "button1": "Find a Lawyer",
+    "button2": "Contact Us"
+  }
+}

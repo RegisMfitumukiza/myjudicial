@@ -1,0 +1,13 @@
+{
+  "priorityQueue": "Priority Queue",
+  "live": "Live",
+  "viewAll": "View All",
+  "noBookings": "No upcoming bookings right now.",
+  "columns": {
+    "client": "Client",
+    "case": "Case",
+    "time": "Time",
+    "status": "Status"
+  },
+  "urgentAttention": "{count, plural, =1 {# urgent session requires immediate attention} other {# urgent sessions require immediate attention}}"
+}

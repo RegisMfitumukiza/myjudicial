@@ -1,0 +1,22 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
+import { postBookings } from "@/api/generated";
+import type { CreateBookingDto, CreateBookingResponseData } from "@/api/generated";
+
+// postBookings already routes through the Orval customFetch mutator (src/api/mutator.ts),
+// which delegates to apiFetch and attaches the Supabase bearer token automatically.
+export function useCreateBooking() {
+  return useMutation({
+    mutationFn: async (dto: CreateBookingDto) => {
+      const response = await postBookings(dto);
+
+      if (response.status >= 400) {
+        const errData = response.data as { message?: string };
+        throw new Error(errData.message ?? "Failed to create booking");
+      }
+
+      return (response.data as { data: CreateBookingResponseData }).data;
+    },
+  });
+}

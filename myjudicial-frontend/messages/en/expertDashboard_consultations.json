@@ -1,0 +1,18 @@
+{
+  "title": "Consultations",
+  "subtitle": "Manage your consultation sessions",
+  "tabUpcoming": "Upcoming",
+  "tabPast": "Past",
+  "tabCancelled": "Cancelled",
+  "failedToLoad": "Failed to load consultations. Please try again.",
+  "statusUpcoming": "Upcoming",
+  "statusCompleted": "Completed",
+  "statusCancelled": "Cancelled",
+  "clientFallback": "Client",
+  "serviceFallback": "Consultation",
+  "videoConsult": "Video Consult",
+  "noUpcoming": "You have no upcoming consultations. New bookings will appear here.",
+  "noPast": "No past consultations found. Completed sessions will appear here.",
+  "noCancelled": "No cancelled consultations. Cancelled sessions will appear here.",
+  "noTitle": "No {tab} consultations"
+}

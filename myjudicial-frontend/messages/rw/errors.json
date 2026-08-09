@@ -1,0 +1,8 @@
+{
+  "somethingWentWrong": "Hariho ikibazo",
+  "tryAgain": "Nyamuneka gerageza ukundi",
+  "pageNotFound": "Urupapuro ntirubonetse",
+  "unauthorized": "Ntabwo ufite uburenganzira bwo kubona uyu rupapuro",
+  "networkError": "Ikibazo cya murandasi. Nyamuneka suzuma internet yawe.",
+  "validationError": "Nyamuneka suzuma icyo wanditse hanyuma ugerageze ukundi"
+}

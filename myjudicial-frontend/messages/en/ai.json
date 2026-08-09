@@ -1,0 +1,74 @@
+{
+  "title": "AI Assistant",
+  "subtitle": "Describe your legal issue and we will match you with the right expert.",
+  "steps": {
+    "describe": "Describe",
+    "refine": "Refine",
+    "match": "Match"
+  },
+  "input": {
+    "placeholder": "Describe your legal issue in detail...",
+    "voiceHint": "Hold to record",
+    "send": "Send",
+    "attachFile": "Attach file"
+  },
+  "analysis": {
+    "title": "Case Analysis",
+    "specialty": "Legal Category",
+    "urgency": "Urgency",
+    "budget": "Estimated Budget",
+    "jurisdiction": "Jurisdiction",
+    "confidence": "Confidence",
+    "keyEntities": "Key Details",
+    "suggestedDocs": "Recommended Documents"
+  },
+  "urgency": {
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "URGENT": "Urgent"
+  },
+  "recommendations": {
+    "title": "Matching Experts",
+    "subtitle": "Based on your case analysis, here are the best matches",
+    "matchScore": "{score}% match",
+    "bookNow": "Book Now",
+    "viewProfile": "View Profile",
+    "rating": "{rating} stars",
+    "experience": "{years} years experience",
+    "reviews": "{count} reviews",
+    "startingAt": "Starting at {rate} RWF",
+    "viewAll": "View all matching lawyers",
+    "excellent": "Excellent match",
+    "veryGood": "Very good match",
+    "good": "Good match",
+    "fair": "Fair match"
+  },
+  "redirect": {
+    "title": "Finding matching lawyers...",
+    "subtitle": "Redirecting to search results with filters applied",
+    "button": "View all results"
+  },
+  "voice": {
+    "recording": "Recording...",
+    "stop": "Stop recording",
+    "processing": "Processing audio...",
+    "error": "Could not process audio. Please try again."
+  },
+  "files": {
+    "dropHere": "Drop files here",
+    "browse": "Browse files",
+    "acceptedTypes": "PDF, images, or documents",
+    "remove": "Remove"
+  },
+  "errors": {
+    "analysisFailed": "Could not analyze your case. Please try again.",
+    "recommendationFailed": "Could not find matching experts. Please try again.",
+    "transcriptionFailed": "Could not process audio. Please try again.",
+    "networkError": "Connection error. Please check your connection."
+  },
+  "empty": {
+    "title": "How can we help?",
+    "description": "Tell us about your legal issue. You can type, speak, or upload documents."
+  }
+}

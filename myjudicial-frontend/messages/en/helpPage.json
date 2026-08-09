@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "title": "Help Center | MyJudicial",
+    "description": "Get support and find answers to your questions about using MyJudicial."
+  },
+  "hero": {
+    "badge": "Help Center",
+    "title": "How can we help?",
+    "subtitle": "Search our knowledge base or browse categories below.",
+    "searchPlaceholder": "Search for help..."
+  },
+  "topics": {
+    "title": "Help Topics",
+    "gettingStarted": {
+      "title": "Getting Started",
+      "desc": "Learn the basics of how MyJudicial works."
+    },
+    "booking": {
+      "title": "Booking & Consultations",
+      "desc": "How to schedule, reschedule, or join a consultation."
+    },
+    "payments": {
+      "title": "Payments & Refunds",
+      "desc": "Information about MoMo, escrow, and refunds."
+    },
+    "account": {
+      "title": "Account Settings",
+      "desc": "Manage your profile, password, and notifications."
+    },
+    "lawyers": {
+      "title": "For Lawyers",
+      "desc": "Guides for setting up your practice and managing clients."
+    },
+    "trust": {
+      "title": "Trust & Safety",
+      "desc": "How we verify experts and protect your data."
+    }
+  },
+  "cta": {
+    "title": "Can't find what you're looking for?",
+    "button": "Contact Support"
+  }
+}

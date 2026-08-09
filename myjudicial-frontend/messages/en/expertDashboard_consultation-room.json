@@ -1,0 +1,9 @@
+{
+  "connectingToConsultation": "Connecting to consultation...",
+  "failedToJoin": "Failed to Join",
+  "backToBooking": "Back to Booking",
+  "you": "You",
+  "waitingForExpert": "Waiting for expert to join...",
+  "consultationInProgress": "Consultation in progress",
+  "participantsCount": "{count} participant(s)"
+}

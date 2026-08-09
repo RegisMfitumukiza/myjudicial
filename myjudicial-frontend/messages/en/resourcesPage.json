@@ -1,0 +1,28 @@
+{
+  "meta": {
+    "title": "Legal Resources | MyJudicial",
+    "description": "Guides, articles, and resources to help you navigate the Rwandan legal system."
+  },
+  "hero": {
+    "badge": "Resources",
+    "title": "Legal Resources & Guides",
+    "subtitle": "Knowledge to empower you. Find articles, guides, and practical information about Rwandan law."
+  },
+  "categories": {
+    "title": "Browse Categories",
+    "family": "Family Law",
+    "commercial": "Business & Commercial",
+    "property": "Real Estate & Land",
+    "employment": "Labor & Employment",
+    "immigration": "Immigration",
+    "tax": "Tax Law"
+  },
+  "comingSoon": {
+    "title": "Articles Coming Soon",
+    "desc": "Our network of verified experts is currently authoring comprehensive guides on Rwandan law. Check back soon for in-depth legal articles."
+  },
+  "cta": {
+    "title": "Need legal advice right now?",
+    "button": "Find a Lawyer"
+  }
+}

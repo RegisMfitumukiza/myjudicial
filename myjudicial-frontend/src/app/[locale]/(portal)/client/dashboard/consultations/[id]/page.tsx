@@ -96,7 +96,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
     const win = window.open("", "_blank");
     if (!win) { toast.error(t("toasts.popupBlocked")); return; }
     win.document.write(`<!DOCTYPE html><html><head><title>Receipt</title>
-<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#0b2545}</style></head><body><p>Loading receipt...</p></body></html>`);
+<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#24558d}</style></head><body><p>Loading receipt...</p></body></html>`);
     win.document.close();
     try {
       const json = await apiFetch<{ success: boolean; message?: string; data: any }>(
@@ -107,14 +107,14 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
       win.document.write(`<!DOCTYPE html><html><head><title>Receipt ${r.receiptNo}</title>
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#1a1a2e}
-  .header{text-align:center;border-bottom:2px solid #0b2545;padding-bottom:16px;margin-bottom:24px}
-  .header h1{font-size:18px;color:#0b2545;margin:0 0 4px}
+  .header{text-align:center;border-bottom:2px solid #24558d;padding-bottom:16px;margin-bottom:24px}
+  .header h1{font-size:18px;color:#24558d;margin:0 0 4px}
   .header p{font-size:12px;color:#666;margin:0}
   table{width:100%;border-collapse:collapse;margin:16px 0}
   td{padding:6px 0;font-size:13px;border-bottom:1px solid #eee}
   td:first-child{color:#666;width:40%}
   td:last-child{font-weight:500;text-align:right}
-  .total td{border-top:2px solid #0b2545;font-weight:700;font-size:15px;border-bottom:none;padding-top:12px}
+  .total td{border-top:2px solid #24558d;font-weight:700;font-size:15px;border-bottom:none;padding-top:12px}
   .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase}
   .badge.paid{background:#d1fae5;color:#065f46}
   .badge.pending{background:#fef3c7;color:#92400e}
@@ -123,8 +123,8 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   .actions{display:flex;gap:12px;justify-content:center;margin-top:24px}
   .btn{display:inline-block;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:opacity .15s}
   .btn:hover{opacity:.85}
-  .btn-primary{background:#0b2545;color:#fff;border:none}
-  .btn-outline{background:#fff;color:#0b2545;border:1.5px solid #0b2545}
+  .btn-primary{background:#24558d;color:#fff;border:none}
+  .btn-outline{background:#fff;color:#24558d;border:1.5px solid #24558d}
   @media print{
     .actions{display:none !important}
     body{margin:0;padding:20px}

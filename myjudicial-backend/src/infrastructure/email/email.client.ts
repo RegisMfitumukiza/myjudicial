@@ -7,6 +7,7 @@ if (!apiKey) {
 export const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME ?? "MyJudicial";
 export const EMAIL_FROM_ADDRESS =
   process.env.EMAIL_FROM_ADDRESS ?? "noreply@myjudicial.com";
+export const EMAIL_REPLY_TO = process.env.EMAIL_REPLY_TO || "support@myjudicial.com";
 
 /**
  * Minimal Brevo transactional email client using native fetch.

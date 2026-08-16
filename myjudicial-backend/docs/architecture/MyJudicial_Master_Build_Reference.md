@@ -587,10 +587,10 @@ WhatsApp Voice Message → Meta Webhook
 | Token | Hex | Usage |
 |-------|-----|-------|
 | `brand-canvas` | `#f8fafc` | Global app background |
-| `brand-dark` | `#0b2545` | Navigation, headers, sidebar, structure |
-| `brand-blue` | `#1d4ed8` | CTAs, map pins, microphone button, OTP focus |
+| `brand-dark` | `#24558d` | Navigation, headers, sidebar, structure |
+| `brand-blue` | `#24558d` | CTAs, map pins, microphone button, OTP focus |
 | `brand-border` | `#e2e8f0` | Borders, dividers, upload zones |
-| `brand-green` | `#134021` | Success states, escrow held, verified badge |
+| `brand-green` | `#24558d` | Success states, escrow held, verified badge |
 | `brand-alert` | `#d32f2f` | Warnings, expiry deadlines, urgent actions |
 
 ### Key UI Components

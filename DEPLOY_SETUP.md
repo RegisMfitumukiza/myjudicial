@@ -30,13 +30,14 @@ mkdir -p /home/$USER/myjudicial
 cd /home/$USER/myjudicial
 git clone <your-monorepo-url> .
 
-# 3. Create the three .env files
+# 3. Create the single root .env (configures the entire stack)
 cp .env.example .env
 nano .env
-cp myjudicial-backend/.env.example myjudicial-backend/.env
-nano myjudicial-backend/.env
-cp myjudicial-ai-service/.env.example myjudicial-ai-service/.env
-nano myjudicial-ai-service/.env
+
+# The per-service .env.example files (myjudicial-backend/, myjudicial-ai-service/)
+# are for LOCAL development only — docker compose does not read them.
+# Keep myjudicial-backend/.env locally if you run backend migrations via
+# `npx prisma migrate deploy` from that directory.
 
 # 4. Apply database migrations once
 cd myjudicial-backend
@@ -50,15 +51,24 @@ docker compose up -d --build
 
 `scripts/vps-init.sh` performs steps 1-2 (plus Docker Compose) and warns about missing `.env` files.
 
-## Environment Files Required
+## Environment File Required
+
+One file configures the whole stack. `docker-compose.yml` reads every service's
+variables from it via explicit `environment:` mappings; the frontend build args
+are derived from the same values.
 
 | File | Purpose | Critical values |
 |------|---------|-----------------|
-| `.env` (root) | docker-compose variable interpolation + frontend build args | `FRONTEND_URL`, `BACKEND_URL`, `AUTH_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `LIVEKIT_URL` |
-| `myjudicial-backend/.env` | backend container runtime | `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `BREVO_API_KEY`, `SUPABASE_WEBHOOK_SECRET`, `AI_SERVICE_KEY`, `AZAMPAY_*`, `OCI_*`, `LIVEKIT_*` |
-| `myjudicial-ai-service/.env` | AI container runtime | `API_KEY` (must equal backend `AI_SERVICE_KEY`), `GROQ_API_KEY` (see below), `DATABASE_URL` |
+| `.env` (root) | single source of truth for compose + all containers | `FRONTEND_URL`, `BACKEND_URL`, `AUTH_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `BREVO_API_KEY`, `AI_SERVICE_KEY`, `GROQ_API_KEY`, `AZAMPAY_*`, `OCI_*`, `LIVEKIT_*`, `ADMIN_*` |
 
-> **LLM provider note:** `docker-compose.yml` forces `LLM_PROVIDER=groq` for the AI service, so `GROQ_API_KEY` in `myjudicial-ai-service/.env` is **required** (get a free key at https://console.groq.com). If you prefer local Ollama, change `LLM_PROVIDER` in `docker-compose.yml` to `ollama` and set `OLLAMA_BASE_URL`.
+The per-service `.env` files under `myjudicial-backend/`, `myjudicial-ai-service/`
+and `myjudicial-frontend/` are for **local development only** and are ignored by
+docker compose.
+
+> **LLM provider note:** `docker-compose.yml` defaults the AI service to
+> `LLM_PROVIDER=groq`, so `GROQ_API_KEY` in the root `.env` is **required**
+> (get a free key at https://console.groq.com). If you prefer local Ollama, set
+> `LLM_PROVIDER=ollama` and `OLLAMA_BASE_URL` in the root `.env`.
 
 ## GitHub Secrets Required
 

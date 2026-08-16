@@ -1,15 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Room,
+  ConnectionQuality,
   RoomEvent,
-  VideoPresets,
   Track,
-  createLocalVideoTrack,
-  createLocalAudioTrack,
 } from "livekit-client";
-import type { RemoteTrack } from "livekit-client";
+import type { RemoteParticipant, RemoteTrack } from "livekit-client";
 import {
   Mic,
   MicOff,
@@ -22,7 +19,7 @@ import {
   MonitorOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useJoinConsultation } from "../hooks/useJoinConsultation";
+import { useRoomConnection, MAX_REJOIN_ATTEMPTS } from "../hooks/useRoomConnection";
 import { useTranslations } from "next-intl";
 
 interface ConsultationRoomProps {
@@ -32,191 +29,79 @@ interface ConsultationRoomProps {
 
 export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) {
   const t = useTranslations("expertDashboard_consultation-room");
-  const { mutateAsync: joinConsultation } = useJoinConsultation();
+  const {
+    status,
+    error,
+    room,
+    localVideoTrack,
+    localAudioTrack,
+    remoteParticipants,
+    connectionQuality,
+    rejoinAttempt,
+    leave,
+  } = useRoomConnection(bookingId);
 
-  const [room, setRoom] = useState<Room | null>(null);
-  const [isConnecting, setIsConnecting] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [localVideoTrack, setLocalVideoTrack] = useState<any>(null);
-  const [localAudioTrack, setLocalAudioTrack] = useState<any>(null);
-  const [remoteParticipants, setRemoteParticipants] = useState<any[]>([]);
+
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
   useEffect(() => {
-    let roomInstance: Room | null = null;
+    if (!localVideoTrack || !localVideoRef.current) return;
+    localVideoTrack.attach(localVideoRef.current);
+    return () => localVideoTrack.detach();
+  }, [localVideoTrack]);
 
-    async function connectToRoom() {
-      try {
-        setIsConnecting(true);
-        setError(null);
-
-        // Get LiveKit token from backend
-        const { token: livekitToken } = await joinConsultation(bookingId);
-
-        // Create room instance
-        roomInstance = new Room({
-          adaptiveStream: true,
-          dynacast: true,
-          videoCaptureDefaults: {
-            resolution: VideoPresets.h720.resolution,
-          },
-        });
-
-        // Set up event listeners
-        roomInstance.on(RoomEvent.ParticipantConnected, (participant) => {
-          console.log("Participant connected:", participant.identity);
-          updateParticipants();
-        });
-
-        roomInstance.on(RoomEvent.ParticipantDisconnected, (participant) => {
-          console.log("Participant disconnected:", participant.identity);
-          updateParticipants();
-        });
-
-        roomInstance.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
-          console.log("Track subscribed:", track.kind, participant.identity);
-          attachTrackToElement(track, participant.identity);
-          updateParticipants();
-        });
-
-        roomInstance.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
-          console.log("Track unsubscribed:", track.kind);
-          detachTrackFromElement(track);
-          updateParticipants();
-        });
-
-        roomInstance.on(RoomEvent.Disconnected, (reason) => {
-          console.log("Disconnected from room:", reason);
-          handleLeave();
-        });
-
-        // Connect to room
-        const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://localhost:7880";
-        await roomInstance.connect(livekitUrl, livekitToken);
-
-        console.log("Connected to room:", roomInstance.name);
-
-        // Create and publish local tracks
-        const videoTrack = await createLocalVideoTrack({
-          resolution: VideoPresets.h720.resolution,
-        });
-        const audioTrack = await createLocalAudioTrack();
-
-        await roomInstance.localParticipant.publishTrack(videoTrack);
-        await roomInstance.localParticipant.publishTrack(audioTrack);
-
-        setLocalVideoTrack(videoTrack);
-        setLocalAudioTrack(audioTrack);
-
-        // Attach local video to element
-        const localVideoElement = document.getElementById("local-video") as HTMLVideoElement;
-        if (localVideoElement && videoTrack) {
-          videoTrack.attach(localVideoElement);
-        }
-
-        setRoom(roomInstance);
-        setIsConnecting(false);
-
-        // Update remote participants
-        updateParticipants();
-
-        function updateParticipants() {
-          if (!roomInstance) return;
-          const participants = Array.from(roomInstance.remoteParticipants.values());
-          setRemoteParticipants(participants);
-        }
-      } catch (err) {
-        console.error("Failed to connect to room:", err);
-        setError(err instanceof Error ? err.message : "Failed to connect");
-        setIsConnecting(false);
-      }
-    }
-
-    connectToRoom();
-
-    // Cleanup
-    return () => {
-      if (roomInstance) {
-        roomInstance.disconnect();
-      }
-      if (localVideoTrack) {
-        localVideoTrack.stop();
-      }
-      if (localAudioTrack) {
-        localAudioTrack.stop();
+  useEffect(() => {
+    if (!room) return;
+    const onSubscribed = (track: RemoteTrack, _publication: unknown, participant: RemoteParticipant) => {
+      if (track.kind === Track.Kind.Video) {
+        const el = videoRefs.current[participant.sid];
+        if (el) track.attach(el);
+      } else if (track.kind === Track.Kind.Audio) {
+        const el = audioRefs.current[participant.sid];
+        if (el) track.attach(el);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- joinConsultation (from useMutation) is stable; only bookingId should retrigger the connection
-  }, [bookingId]);
+    const onUnsubscribed = (track: RemoteTrack) => {
+      track.detach();
+    };
+    room.on(RoomEvent.TrackSubscribed, onSubscribed);
+    room.on(RoomEvent.TrackUnsubscribed, onUnsubscribed);
+    return () => {
+      room.off(RoomEvent.TrackSubscribed, onSubscribed);
+      room.off(RoomEvent.TrackUnsubscribed, onUnsubscribed);
+    };
+  }, [room]);
 
-  function attachTrackToElement(track: RemoteTrack, identity: string) {
-    if (track.kind === Track.Kind.Video) {
-      const videoElement = document.getElementById(`remote-video-${identity}`) as HTMLVideoElement;
-      if (videoElement) {
-        track.attach(videoElement);
-      }
-    } else if (track.kind === Track.Kind.Audio) {
-      const audioElement = document.getElementById(`remote-audio-${identity}`) as HTMLAudioElement;
-      if (audioElement) {
-        track.attach(audioElement);
-      }
-    }
-  }
+  useEffect(() => {
+    if (!room || status !== "connected") return;
+    const onGesture = () => {
+      room.startAudio();
+    };
+    window.addEventListener("pointerdown", onGesture, { once: true });
+    return () => window.removeEventListener("pointerdown", onGesture);
+  }, [room, status]);
 
-  function detachTrackFromElement(track: RemoteTrack) {
-    track.detach();
-  }
-
-  async function toggleAudio() {
-    if (localAudioTrack) {
-      if (isAudioEnabled) {
-        localAudioTrack.mute();
-      } else {
-        localAudioTrack.unmute();
-      }
-      setIsAudioEnabled(!isAudioEnabled);
-    }
-  }
-
-  async function toggleVideo() {
-    if (localVideoTrack) {
-      if (isVideoEnabled) {
-        localVideoTrack.mute();
-      } else {
-        localVideoTrack.unmute();
-      }
-      setIsVideoEnabled(!isVideoEnabled);
-    }
-  }
-
-  async function toggleScreenShare() {
-    if (!room) return;
-
-    try {
-      if (isScreenSharing) {
-        // Stop screen sharing
-        await room.localParticipant.setScreenShareEnabled(false);
-        setIsScreenSharing(false);
-      } else {
-        // Start screen sharing
-        await room.localParticipant.setScreenShareEnabled(true);
-        setIsScreenSharing(true);
-      }
-    } catch (err) {
-      console.error("Failed to toggle screen share:", err);
-    }
-  }
-
-  function handleLeave() {
-    if (room) {
-      room.disconnect();
-    }
+  const handleLeave = () => {
+    leave();
     onLeave();
-  }
+  };
 
-  if (isConnecting) {
+  const qualityInfo: Record<ConnectionQuality, { label: string; dot: string }> = {
+    [ConnectionQuality.Excellent]: { label: t("qualityExcellent"), dot: "bg-emerald-400" },
+    [ConnectionQuality.Good]: { label: t("qualityGood"), dot: "bg-brand-dark" },
+    [ConnectionQuality.Poor]: { label: t("qualityPoor"), dot: "bg-amber-400" },
+    [ConnectionQuality.Lost]: { label: t("qualityLost"), dot: "bg-red-400" },
+    [ConnectionQuality.Unknown]: { label: "", dot: "bg-gray-400" },
+  };
+  const quality = qualityInfo[connectionQuality];
+  const errorMessage = error === "connectionLost" ? t("connectionLost") : error;
+
+  if (status === "connecting") {
     return (
       <div className="flex h-screen items-center justify-center bg-black">
         <div className="text-center">
@@ -227,12 +112,12 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
     );
   }
 
-  if (error) {
+  if (status === "error") {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-black px-6">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-white text-[18px] font-semibold mb-2">{t("failedToJoin")}</p>
-        <p className="text-white/60 text-[13px] mb-6 text-center max-w-md">{error}</p>
+        <p className="text-white text-[18px] font-semibold mb-2">{t("connectionError")}</p>
+        <p className="text-white/60 text-[13px] mb-6 text-center max-w-md">{errorMessage}</p>
         <Button
           onClick={onLeave}
           variant="outline"
@@ -245,22 +130,53 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
   }
 
   return (
-    <div className="flex h-screen flex-col bg-black">
+    <div className="relative flex h-screen flex-col bg-black">
+      {/* Reconnecting banner */}
+      {status === "reconnecting" && (
+        <div className="absolute inset-x-0 top-4 z-10 flex justify-center">
+          <div className="flex items-center gap-2 rounded-full bg-brand-dark px-4 py-2 text-white shadow-lg">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <p className="text-[13px]">
+              {rejoinAttempt > 0
+                ? t("reconnectingAttempt", { count: rejoinAttempt, max: MAX_REJOIN_ATTEMPTS })
+                : t("reconnecting")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Connection quality indicator */}
+      {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
+        <div className="absolute inset-x-0 top-4 z-10 flex justify-end px-6">
+          <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur-sm">
+            <span className={`h-2 w-2 rounded-full ${quality.dot}`} />
+            <p className="text-[12px]">{quality.label}</p>
+          </div>
+        </div>
+      )}
+
       {/* Video Grid */}
       <div className="flex-1 grid grid-cols-1 gap-2 p-4 lg:grid-cols-2">
         {/* Remote Participants */}
         {remoteParticipants.map((participant) => (
           <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900">
             <video
-              id={`remote-video-${participant.identity}`}
+              ref={(el) => {
+                videoRefs.current[participant.sid] = el;
+              }}
               autoPlay
               playsInline
               className="h-full w-full object-cover"
             />
-            <audio id={`remote-audio-${participant.identity}`} autoPlay />
+            <audio
+              ref={(el) => {
+                audioRefs.current[participant.sid] = el;
+              }}
+              autoPlay
+            />
             <div className="absolute bottom-4 left-4 rounded-lg bg-black/70 px-3 py-1.5">
               <p className="text-[12px] font-semibold text-white">
-                {participant.identity}
+                {participant.name || t("participant")}
               </p>
             </div>
           </div>
@@ -269,7 +185,7 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
         {/* Local Participant */}
         <div className="relative overflow-hidden rounded-xl bg-gray-900">
           <video
-            id="local-video"
+            ref={localVideoRef}
             autoPlay
             playsInline
             muted
@@ -310,7 +226,15 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
           {/* Center - Call Controls */}
           <div className="flex items-center gap-3">
             <Button
-              onClick={toggleAudio}
+              onClick={async () => {
+                if (!localAudioTrack) return;
+                if (isAudioEnabled) {
+                  await localAudioTrack.mute();
+                } else {
+                  await localAudioTrack.unmute();
+                }
+                setIsAudioEnabled(!isAudioEnabled);
+              }}
               size="lg"
               className={`h-12 w-12 rounded-full ${
                 isAudioEnabled
@@ -322,7 +246,15 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
             </Button>
 
             <Button
-              onClick={toggleVideo}
+              onClick={async () => {
+                if (!localVideoTrack) return;
+                if (isVideoEnabled) {
+                  await localVideoTrack.mute();
+                } else {
+                  await localVideoTrack.unmute();
+                }
+                setIsVideoEnabled(!isVideoEnabled);
+              }}
               size="lg"
               className={`h-12 w-12 rounded-full ${
                 isVideoEnabled
@@ -334,7 +266,20 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
             </Button>
 
             <Button
-              onClick={toggleScreenShare}
+              onClick={async () => {
+                if (!room) return;
+                try {
+                  if (isScreenSharing) {
+                    await room.localParticipant.setScreenShareEnabled(false);
+                    setIsScreenSharing(false);
+                  } else {
+                    await room.localParticipant.setScreenShareEnabled(true);
+                    setIsScreenSharing(true);
+                  }
+                } catch (err) {
+                  console.error("Failed to toggle screen share:", err);
+                }
+              }}
               size="lg"
               className={`h-12 w-12 rounded-full ${
                 isScreenSharing

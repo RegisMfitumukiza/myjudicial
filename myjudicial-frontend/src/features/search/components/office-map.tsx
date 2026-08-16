@@ -51,7 +51,7 @@ export function OfficeMap({ latitude, longitude, label, className }: OfficeMapPr
     el.className = "office-marker";
     el.style.cssText = `
       width: 28px; height: 28px; border-radius: 50%;
-      background: #0b2545; border: 3px solid #fff;
+      background: #24558d; border: 3px solid #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       display: flex; align-items: center; justify-content: center;
     `;
@@ -61,7 +61,7 @@ export function OfficeMap({ latitude, longitude, label, className }: OfficeMapPr
       .setLngLat([longitude, latitude])
       .setPopup(
         new maplibregl.Popup({ offset: 20, closeButton: false }).setHTML(
-          `<div style="padding:4px 8px;font-size:12px;font-weight:600;color:#0b2545;white-space:nowrap">${label ?? t("officeLocation")}</div>`
+          `<div style="padding:4px 8px;font-size:12px;font-weight:600;color:#24558d;white-space:nowrap">${label ?? t("officeLocation")}</div>`
         )
       )
       .addTo(map);

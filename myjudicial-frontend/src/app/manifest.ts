@@ -7,18 +7,18 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Secure, mobile-first legal documentation and case tracking.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f8fafc",
-    theme_color: "#0b2545",
+    background_color: "#ffffff",
+    theme_color: "#24558d",
     icons: [
       {
-        src: "/logo.webp",
+        src: "/favicon/android-chrome-192x192.png",
         sizes: "192x192",
-        type: "image/webp",
+        type: "image/png",
       },
       {
-        src: "/logo.webp",
+        src: "/favicon/android-chrome-512x512.png",
         sizes: "512x512",
-        type: "image/webp",
+        type: "image/png",
       },
     ],
   };

@@ -1,4 +1,4 @@
-import { brevo, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS } from "./email.client.js";
+import { brevo, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS, EMAIL_REPLY_TO } from "./email.client.js";
 import { logger } from "../../shared/utils/logger.js";
 import { emailLayout } from "./templates/email-layout.js";
 import {
@@ -30,7 +30,7 @@ const sendEmail = async (params: SendEmailParams): Promise<void> => {
       subject: params.subject,
       htmlContent: params.htmlContent,
       textContent: params.textContent,
-      replyTo: params.replyTo,
+      replyTo: params.replyTo ?? { email: EMAIL_REPLY_TO },
     });
 
     logger.info("Email sent", {

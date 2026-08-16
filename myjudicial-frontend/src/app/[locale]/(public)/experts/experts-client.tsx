@@ -59,7 +59,7 @@ function ExpertCard({ expert, selected, onSelect }: { expert: Lawyer; selected: 
       onClick={onSelect}
       className={`group block overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-200 ${
         selected
-          ? "border-[rgb(11,37,69)] ring-2 ring-[rgb(11,37,69)]/20 shadow-md"
+          ? "border-[rgb(36,85,141)] ring-2 ring-[rgb(36,85,141)]/20 shadow-md"
           : "border-border hover:-translate-y-0.5 hover:shadow-lg"
       }`}
     >

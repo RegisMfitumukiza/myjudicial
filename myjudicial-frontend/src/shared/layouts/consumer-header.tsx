@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Link, usePathname } from "@/i18n/routing";
+import { useState } from "react";
+import { Link } from "@/i18n/routing";
 import { signOut } from "next-auth/react";
 import {
   Search,
@@ -30,7 +30,6 @@ interface ConsumerHeaderProps {
 }
 
 export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
-  const path = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const t = useTranslations("nav");
@@ -46,7 +45,6 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const notifUnreadCount = unreadNotifData?.status === 200 ? unreadNotifData.data.data.count : 0;
 
   const navigation = [
-    { href: "/client/dashboard", label: t("home"), icon: null },
     { href: "/experts", label: t("findLawyers"), icon: Search },
     { href: "/client/dashboard/consultations", label: t("consultations"), icon: Calendar },
     { href: "/client/dashboard/messages", label: t("messages"), icon: MessageSquare },
@@ -55,9 +53,6 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   ];
 
   const isActive = (href: string) => {
-    if (href === "/client/dashboard") {
-      return pathname === href;
-    }
     return pathname === href || pathname.startsWith(href + "/");
   };
 

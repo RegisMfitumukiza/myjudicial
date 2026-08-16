@@ -5,6 +5,7 @@ import { EscrowService } from "../../modules/payments/escrow.service.js";
 import { BookingRepository } from "../../modules/bookings/booking.repository.js";
 import { BookingService } from "../../modules/bookings/booking.service.js";
 import { EscrowLedgerRepository } from "../../modules/payments/escrow.repository.js";
+import { AdminSettingService } from "../../modules/settings/admin-setting.service.js";
 import { prisma } from "../database/prisma.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
 
@@ -122,6 +123,12 @@ export const LiveKitWebhookController = {
         }
 
         if (booking.status === "ACTIVE" || booking.status === "CONFIRMED") {
+          if (booking.actualEndTime) {
+            logger.info("LiveKit room_finished skipped — booking already finalized", { bookingId });
+            res.status(200).json({ received: true });
+            return;
+          }
+
           const now = new Date();
           const roomStartedAt = event.room.creationTime
             ? new Date(Number(event.room.creationTime) * 1000)
@@ -140,14 +147,15 @@ export const LiveKitWebhookController = {
             durationMin,
           });
 
-          if (durationSec >= 300) {
-            // At least 5 minutes -> complete and release escrow
+          const minEscrowSec = await AdminSettingService.get("minEscrowDurationSeconds");
+          if (durationSec >= minEscrowSec) {
+            // At least the configured minimum -> complete and release escrow
             await EscrowService.releaseEscrow(bookingId);
-            logger.info("Escrow released after consultation (duration >= 5 mins)", { bookingId, duration: durationSec });
+            logger.info("Escrow released after consultation", { bookingId, durationSec, minEscrowSec });
           } else {
-            // Less than 5 minutes -> cancel and refund
-            logger.info("Consultation duration short (< 5 mins), triggering cancel and refund", { bookingId, duration: durationSec });
-            await BookingService.cancelBooking(bookingId, "SYSTEM", `Consultation lasted less than 5 minutes (${durationSec}s)`);
+            // Shorter than the configured minimum -> cancel and refund
+            logger.info("Consultation duration short, triggering cancel and refund", { bookingId, durationSec, minEscrowSec });
+            await BookingService.cancelBooking(bookingId, "SYSTEM", `Consultation lasted less than ${Math.floor(minEscrowSec / 60)} minutes (${durationSec}s)`);
           }
         }
       } catch (err) {

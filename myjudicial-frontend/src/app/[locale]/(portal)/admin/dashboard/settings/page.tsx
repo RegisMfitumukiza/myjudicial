@@ -212,7 +212,7 @@ export default function SettingsPage() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="inline-flex items-center gap-2 bg-[#0b2545] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#0b2545]/80 disabled:opacity-50 transition-colors"
+        className="inline-flex items-center gap-2 bg-[#24558d] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#24558d]/80 disabled:opacity-50 transition-colors"
       >
         {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
         {t("saveChanges")}

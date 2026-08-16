@@ -49,17 +49,17 @@ import {
 import { apiFetch } from "@/lib/api/client";
 
 const COLORS = {
-  primary: "#0b2545",
-  secondary: "#0b2545",
+  primary: "#24558d",
+  secondary: "#24558d",
   tertiary: "#000000",
   danger: "#000000",
-  success: "#0b2545",
+  success: "#24558d",
   warning: "#000000",
-  info: "#0b2545",
+  info: "#24558d",
   gray: "#000000",
 };
 
-const PIE_COLORS = ["#0b2545", "#000000", "#ffffff"];
+const PIE_COLORS = ["#24558d", "#000000", "#ffffff"];
 
 // Types
 type TimePeriod = "today" | "7days" | "30days" | "90days" | "year";
@@ -621,7 +621,7 @@ export default function AnalyticsPage() {
                     <YAxis stroke="#6b7280" fontSize={12} />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="current" fill="#0b2545" name="Current Period" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="current" fill="#24558d" name="Current Period" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="previous" fill="#000000" name="Previous Period" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -644,7 +644,7 @@ export default function AnalyticsPage() {
                     <YAxis stroke="#6b7280" fontSize={12} />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="current" fill="#0b2545" name="Current Period" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="current" fill="#24558d" name="Current Period" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="previous" fill="#000000" name="Previous Period" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>

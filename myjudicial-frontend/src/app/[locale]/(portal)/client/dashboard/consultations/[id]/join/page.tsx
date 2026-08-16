@@ -178,12 +178,12 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
                   {hasCamera ? (
                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
                       <CheckCircle size={14} />
-                      <span className="text-[12px] font-semibold">Ready</span>
+                      <span className="text-[12px] font-semibold">{t("ready")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                       <AlertCircle size={14} />
-                      <span className="text-[12px] font-semibold">Not Found</span>
+                      <span className="text-[12px] font-semibold">{t("notFound")}</span>
                     </div>
                   )}
                 </div>
@@ -196,12 +196,12 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
                   {hasMic ? (
                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
                       <CheckCircle size={14} />
-                      <span className="text-[12px] font-semibold">Ready</span>
+                      <span className="text-[12px] font-semibold">{t("ready")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                       <AlertCircle size={14} />
-                      <span className="text-[12px] font-semibold">Not Found</span>
+                      <span className="text-[12px] font-semibold">{t("notFound")}</span>
                     </div>
                   )}
                 </div>

@@ -80,7 +80,7 @@ export const heading = (text: string, level?: "h1" | "h2" | "h3"): string => {
   const sizes = { h1: "24px", h2: "20px", h3: "16px" };
   const weights = { h1: "700", h2: "600", h3: "600" };
   const tag = level || "h2";
-  return `<${tag} style="margin:0 0 16px;font-size:${sizes[tag]};font-weight:${weights[tag]};color:#0b2545;line-height:1.3;">${text}</${tag}>`;
+  return `<${tag} style="margin:0 0 16px;font-size:${sizes[tag]};font-weight:${weights[tag]};color:#24558d;line-height:1.3;">${text}</${tag}>`;
 };
 
 /** Body paragraph */

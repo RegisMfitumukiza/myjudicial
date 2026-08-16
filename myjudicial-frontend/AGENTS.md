@@ -1,10 +1,10 @@
 # MyJudicial Frontend — Anchored Summary
 
 ## Goal
-Maintain a polished MyJudicial frontend with a restricted dark navy blue / black / white color palette, clean dashboard card styling, and enterprise-grade navigation architecture.
+Maintain a polished MyJudicial frontend with a restricted brand blue / black / white color palette, clean dashboard card styling, and enterprise-grade navigation architecture.
 
 ## Constraints & Preferences
-- Only three colors allowed: dark navy blue (`#0b2545`), black (`#000000`), white (`#ffffff`) — no grays, reds, greens, or other hues
+- Only three colors allowed: brand blue (`#24558d`), black (`#000000`), white (`#ffffff`) — no grays, reds, greens, or other hues
 - Language preference persisted to `localStorage` under key `mj_lang`
 - Dark mode must be visually consistent across all pages using only the three-color palette
 - `/experts` is the canonical listing page — all "browse lawyers" links point here
@@ -78,9 +78,9 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 - **Result**: Landing page "near me" button navigates to `/en/search?sort=NEAREST&lat=...&lng=...` (200 OK). All locale-prefixed routes (`/en/search`, `/fr/search`, `/rw/search`) work correctly.
 
 ### Recent: Search page dark mode + margin fix
-- **Map DOM elements (markers, tooltips, badges, radius circle)** — replaced `var(--color-brand-dark)` with hardcoded `rgb(11,37,69)` since map is always light-themed (CSS `var()` resolves to near-white in dark mode on canvas)
-- **MapLibre GL paint layers** — `circle-color` changed from `"var(--color-brand-dark)"` to `"rgb(11,37,69)"` (canvas doesn't support CSS variables)
-- **Popup** — always light-themed: hardcoded `background: white`, navy text, slate-500 muted, slate-200 borders; close button hover slots to navy
+- **Map DOM elements (markers, tooltips, badges, radius circle)** — replaced `var(--color-brand-dark)` with hardcoded `rgb(36,85,141)` since map is always light-themed (CSS `var()` resolves to near-white in dark mode on canvas)
+- **MapLibre GL paint layers** — `circle-color` changed from `"var(--color-brand-dark)"` to `"rgb(36,85,141)"` (canvas doesn't support CSS variables)
+- **Popup** — always light-themed: hardcoded `background: white`, brand blue text, slate-500 muted, slate-200 borders; close button hover slots to brand blue
 - **Buttons with `bg-brand-dark text-white dark:bg-white dark:text-brand-dark`** across 5 files → `bg-brand-dark text-on-brand` (semantic class handles contrast automatically)
 - **Category pills dark mode** — removed `dark:border-white dark:bg-white dark:text-brand-dark`, using `text-on-brand`
 - **Search page width** — non-map view changed from `max-w-5xl` (1024px) to `max-w-[1400px]` to match landing page; ResultsList padding `px-4 sm:px-6 py-4 sm:py-6`
@@ -90,10 +90,10 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 ## Key Decisions
 - Map canvas (OSM tiles) is always light — map DOM elements (markers, tooltips, popups) must use hardcoded colors, not CSS variables
 - `text-on-brand` is the preferred utility for buttons on brand-dark backgrounds (handles dark mode contrast automatically)
-- Popups are always light-themed (white bg, navy text) since they float on a light map canvas
-- View Profile button in popup uses hardcoded `rgb(11,37,69)` bg with white text
-- Get Directions button in popup uses hardcoded `rgb(11,37,69)` text/border with transparent bg
-- Popup close button hover: `#0b2545` (navy)
+- Popups are always light-themed (white bg, brand blue text) since they float on a light map canvas
+- View Profile button in popup uses hardcoded `rgb(36,85,141)` bg with white text
+- Get Directions button in popup uses hardcoded `rgb(36,85,141)` text/border with transparent bg
+- Popup close button hover: `#24558d` (brand blue)
 - All other conventions remain unchanged from previous sessions
 - Landing page MUST live inside `(public)` route group to get the `<Header />` layout — never at `[locale]/page.tsx` directly
 
@@ -133,7 +133,7 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 - `src/shared/components/profile-menu.tsx`: Public-facing auth dropdown
 - `src/shared/components/theme-toggle.tsx`: Single shared theme toggle
 - `src/shared/components/photo-upload.tsx`: Reusable photo upload components
-- `src/features/search/components/map-view.tsx`: Map markers, tooltips, popups, radius circle — hardcoded navy for all map DOM elements + canvas paint properties
+- `src/features/search/components/map-view.tsx`: Map markers, tooltips, popups, radius circle — hardcoded brand blue for all map DOM elements + canvas paint properties
 - `src/features/search/components/expert-map.tsx`: Expert detail map — hardcoded colors for pins and popup
 - `src/features/search/components/search-page-client.tsx`: Main search layout — `max-w-[1400px]` for non-map view, `text-on-brand` buttons
 - `src/features/search/components/no-results-panel.tsx`: Expand radius button
@@ -142,6 +142,6 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 - `src/features/search/components/filters-sheet.tsx`: Active state proximity/sort/filter buttons
 - `src/features/search/components/category-pills.tsx`: Active specialty pills
 - `src/features/search/components/results-list.tsx`: Padding `px-4 sm:px-6 py-4 sm:py-6`
-- `src/app/globals.css`: Popup CSS — hardcoded white bg, navy close button hover, removed dark mode overrides
+- `src/app/globals.css`: Popup CSS — hardcoded white bg, brand blue close button hover, removed dark mode overrides
 - `src/lib/api/client.ts`: API fetch client with `resolveApiPath` (localhost:4000 + /api/v1)
 - `src/i18n/routing.ts`: Locale routing config (en/fr/rw, localePrefix: always)

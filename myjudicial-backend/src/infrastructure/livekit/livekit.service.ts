@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import { logger } from "../../shared/utils/logger.js";
 import { ValidationError } from "../../shared/errors/index.js";
@@ -51,8 +52,13 @@ export const LiveKitService = {
     const { apiKey, apiSecret } = getLiveKitConfig();
     const roomName = `consultation_${bookingId}`;
 
+    // Unique identity per issued token so LiveKit never closes an older
+    // connection (DUPLICATE_IDENTITY) when the same user joins from a second
+    // tab or device. The display name travels separately for the UI.
+    const identity = `${userId}#${randomUUID()}`;
+
     const token = new AccessToken(apiKey, apiSecret, {
-      identity: userId,
+      identity,
       name: displayName,
       ttl: "4h", // Tokens expire 4 hours from issuance
     });

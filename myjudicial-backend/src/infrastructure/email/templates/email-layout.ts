@@ -1,6 +1,13 @@
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 /**
+ * Real MyJudicial logo, white variant for the brand blue header.
+ * Hosted with the frontend static assets; overridable via EMAIL_LOGO_URL.
+ */
+const EMAIL_LOGO_URL =
+  process.env.EMAIL_LOGO_URL || `${FRONTEND_URL}/myjudicial-logo-white.png`;
+
+/**
  * Build a full-page branded email layout.
  * Every email wraps its content in this shell for consistent branding.
  */
@@ -54,13 +61,17 @@ export const emailLayout = (content: string, options?: { previewText?: string })
  */
 const emailHeader = (): string => `
 <tr>
-  <td style="padding:32px 40px 24px;text-align:center;background-color:#0b2545;border-radius:12px 12px 0 0;">
+  <td style="padding:32px 40px 24px;text-align:center;background-color:#24558d;border-radius:12px 12px 0 0;">
     <a href="${FRONTEND_URL}" target="_blank" style="text-decoration:none;">
-      <span style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">
-        &#9878;&#65039; MyJudicial
-      </span>
+      <img
+        src="${EMAIL_LOGO_URL}"
+        alt="MyJudicial"
+        width="160"
+        height="114"
+        style="display:block;margin:0 auto;width:160px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;"
+      />
     </a>
-    <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;letter-spacing:0.5px;">
+    <p style="margin:10px 0 0;font-size:13px;color:#94a3b8;letter-spacing:0.5px;">
       Rwanda Legal Services Platform
     </p>
   </td>
@@ -71,7 +82,7 @@ const emailHeader = (): string => `
  */
 const emailFooter = (): string => `
 <tr>
-  <td style="padding:24px 40px 32px;background-color:#0b2545;border-radius:0 0 12px 12px;">
+  <td style="padding:24px 40px 32px;background-color:#24558d;border-radius:0 0 12px 12px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
       <tr>
         <td style="text-align:center;padding-bottom:16px;">
@@ -83,7 +94,7 @@ const emailFooter = (): string => `
         </td>
       </tr>
       <tr>
-        <td style="text-align:center;border-top:1px solid #1e3a5e;padding-top:16px;">
+          <td style="text-align:center;border-top:1px solid #3a6ea8;padding-top:16px;">
           <p style="margin:0;color:#64748b;font-size:12px;line-height:1.6;">
             &copy; ${new Date().getFullYear()} MyJudicial. All rights reserved.<br/>
             Kigali, Rwanda

@@ -144,15 +144,15 @@ function createMarkerElements(props: {
 
   const size = props.selected ? 44 : 36;
   const pin = document.createElement("div");
-  const NAVY = "rgb(11,37,69)";
-  const bg = props.selected ? NAVY : "white";
+  const BRAND = "rgb(36,85,141)";
+  const bg = props.selected ? BRAND : "white";
   const border = props.selected
     ? "3px solid white"
-    : `2.5px solid ${NAVY}`;
+    : `2.5px solid ${BRAND}`;
   const shadow = props.selected
     ? "0 4px 16px rgba(0,0,0,0.35)"
     : "0 2px 10px rgba(0,0,0,0.2)";
-  const textColor = props.selected ? "white" : NAVY;
+  const textColor = props.selected ? "white" : BRAND;
 
   pin.style.cssText = `
     width:${size}px;height:${size}px;border-radius:50%;
@@ -203,15 +203,15 @@ function createRichPopupHtml(props: {
       : props.t("contactForPricing");
   const distStr = formatDistance(props.distanceKm);
 
-  const NAVY = "rgb(11,37,69)";
+  const BRAND = "rgb(36,85,141)";
   const MUTED = "#64748b";
   const BORDER = "#e2e8f0";
   const prefix = `/${props.locale}`;
 
   const starsHtml =
     props.rating > 0
-      ? `<span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:600;color:${NAVY}">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="${NAVY}" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      ? `<span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:600;color:${BRAND}">
+           <svg width="12" height="12" viewBox="0 0 24 24" fill="${BRAND}" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
            ${props.rating.toFixed(1)}
          </span>
          <span style="font-size:11px;color:${MUTED}">(${props.reviewCount} ${props.t("reviews")})</span>`
@@ -225,8 +225,8 @@ function createRichPopupHtml(props: {
     : "";
 
   const verifiedBadge = props.verified
-    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:${NAVY}">
-         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${NAVY}" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:${BRAND}">
+         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${BRAND}" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
          ${props.t("verified")}
        </span>`
     : "";
@@ -237,7 +237,7 @@ function createRichPopupHtml(props: {
 
   const specialtiesList = props.specialties
     ? props.specialties.split(", ").slice(0, 3).map(s =>
-        `<span style="display:inline-block;font-size:10px;font-weight:500;color:${NAVY};background:rgba(11,37,69,0.06);border:1px solid ${BORDER};border-radius:4px;padding:1px 6px">${s}</span>`
+        `<span style="display:inline-block;font-size:10px;font-weight:500;color:${BRAND};background:rgba(36,85,141,0.06);border:1px solid ${BORDER};border-radius:4px;padding:1px 6px">${s}</span>`
       ).join(" ")
     : `<span style="font-size:10px;font-weight:500;color:${MUTED}">${props.specialty}</span>`;
 
@@ -251,12 +251,12 @@ function createRichPopupHtml(props: {
       <div style="padding:14px 14px 10px;display:flex;gap:12px;align-items:flex-start">
         <div style="position:relative;flex-shrink:0">
           <img src="${props.avatarUrl}" alt="${props.name}"
-            style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${NAVY}"
+            style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}"
             onerror="this.style.display='none'" />
         </div>
         <div style="min-width:0;flex:1">
           <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            <p style="margin:0;font-size:14px;font-weight:700;color:${NAVY};line-height:1.2">${props.name}</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.2">${props.name}</p>
             ${verifiedBadge}
           </div>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:3px">
@@ -275,11 +275,11 @@ function createRichPopupHtml(props: {
 
       <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
         <div>
-          <p style="margin:0;font-size:15px;font-weight:800;color:${NAVY}">${rateStr}</p>
+          <p style="margin:0;font-size:15px;font-weight:800;color:${BRAND}">${rateStr}</p>
           <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("rwfPerConsult")}</p>
         </div>
         <div style="text-align:right">
-          <p style="margin:0;font-size:12px;font-weight:600;color:${NAVY}">${distStr}</p>
+          <p style="margin:0;font-size:12px;font-weight:600;color:${BRAND}">${distStr}</p>
           <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("km")} ${props.t("away")}</p>
         </div>
       </div>
@@ -292,18 +292,18 @@ function createRichPopupHtml(props: {
 
       <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;gap:6px">
         <a href="${prefix}/lawyers/${props.lawyerId}"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:white;background:${NAVY};border-radius:8px;text-decoration:none;transition:opacity 0.15s"
+          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:white;background:${BRAND};border-radius:8px;text-decoration:none;transition:opacity 0.15s"
           onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
           ${props.t("viewProfile")}
         </a>
         <a href="${prefix}/lawyers/${props.lawyerId}/book"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:${NAVY};background:transparent;border:1.5px solid ${NAVY};border-radius:8px;text-decoration:none;transition:background 0.15s"
+          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:${BRAND};background:transparent;border:1.5px solid ${BRAND};border-radius:8px;text-decoration:none;transition:background 0.15s"
           onmouseover="this.style.background='rgb(248,250,252)'" onmouseout="this.style.background='transparent'">
           ${props.t("bookConsultation")}
         </a>
         <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLine || props.city || "Kigali")}"
           target="_blank" rel="noopener noreferrer"
-          style="display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;font-size:12px;font-weight:600;color:${NAVY};background:transparent;border:1.5px solid ${NAVY};border-radius:8px;text-decoration:none;transition:background 0.15s"
+          style="display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;font-size:12px;font-weight:600;color:${BRAND};background:transparent;border:1.5px solid ${BRAND};border-radius:8px;text-decoration:none;transition:background 0.15s"
           onmouseover="this.style.background='rgb(248,250,252)'" onmouseout="this.style.background='transparent'">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
         </a>
@@ -323,7 +323,7 @@ function createHoverTooltipHtml(props: {
   const el = document.createElement("div");
   el.style.cssText = `
     position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);
-    background:rgb(11,37,69);color:white;
+    background:rgb(36,85,141);color:white;
     border-radius:10px;padding:8px 12px;white-space:nowrap;
     box-shadow:0 4px 12px rgba(0,0,0,0.3);
     pointer-events:none;opacity:0;transition:opacity 0.15s ease;
@@ -470,7 +470,7 @@ export function MapView({
           source: "experts",
           filter: ["has", "point_count"],
           paint: {
-            "circle-color": "rgb(11,37,69)",
+            "circle-color": "rgb(36,85,141)",
             "circle-radius": [
               "step",
               ["get", "point_count"],
@@ -630,15 +630,15 @@ export function MapView({
       if (existing) {
         const pin = existing.pin;
         const size = isSelected ? 44 : 36;
-        const NAVY = "rgb(11,37,69)";
-        const bg = isSelected ? NAVY : "white";
+        const BRAND = "rgb(36,85,141)";
+        const bg = isSelected ? BRAND : "white";
         const border = isSelected
           ? "3px solid white"
-          : `2.5px solid ${NAVY}`;
+          : `2.5px solid ${BRAND}`;
         const shadow = isSelected
           ? "0 4px 16px rgba(0,0,0,0.35)"
           : "0 2px 10px rgba(0,0,0,0.2)";
-        const textColor = isSelected ? "white" : NAVY;
+        const textColor = isSelected ? "white" : BRAND;
 
         pin.style.width = `${size}px`;
         pin.style.height = `${size}px`;
@@ -823,8 +823,8 @@ export function MapView({
     const size = 200;
     el.style.cssText = `
       width:${size}px;height:${size}px;border-radius:50%;
-      border:2px solid rgb(11,37,69);
-      background:rgba(11,37,69,0.06);
+      border:2px solid rgb(36,85,141);
+      background:rgba(36,85,141,0.06);
       pointer-events:none;
     `;
 
@@ -864,7 +864,7 @@ export function MapView({
         source: "experts",
         filter: ["has", "point_count"],
         paint: {
-          "circle-color": "rgb(11,37,69)",
+          "circle-color": "rgb(36,85,141)",
           "circle-radius": ["step", ["get", "point_count"], 20, 10, 28, 30, 36],
           "circle-stroke-color": "white",
           "circle-stroke-width": 3,

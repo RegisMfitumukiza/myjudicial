@@ -6,6 +6,9 @@
 #   docker compose logs -f
 #   docker compose down
 #
+# Config: ALL services read their environment from the ROOT .env file
+# (see .env.example). The per-service .env files are local-dev only.
+#
 # Services:
 #   - frontend  (Next.js, port 3000)
 #   - backend   (Express, port 4000)
@@ -51,14 +54,59 @@ services:
     restart: unless-stopped
     ports:
       - "4000:4000"
-    env_file:
-      - ./myjudicial-backend/.env
+    # All backend vars come from the ROOT .env (single source of truth).
     environment:
       - NODE_ENV=production
       - TZ=Africa/Kigali
+      - PORT=4000
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      - CORS_ORIGIN=${FRONTEND_URL:-http://localhost:3000}
-      - AI_SERVICE_URL=http://ai:5000
+      - CORS_ORIGIN=${CORS_ORIGIN:-${FRONTEND_URL:-http://localhost:3000}}
+      - BASE_URL=${BASE_URL:-http://localhost:4000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai:5000}
+      - AI_SERVICE_KEY=${AI_SERVICE_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_WEBHOOK_SECRET=${SUPABASE_WEBHOOK_SECRET}
+      - REDIS_URL=${REDIS_URL}
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-MyJudicial}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS:-noreply@myjudicial.com}
+      - EMAIL_REPLY_TO=${EMAIL_REPLY_TO:-support@myjudicial.com}
+      - EMAIL_LOGO_URL=${EMAIL_LOGO_URL}
+      - LIVEKIT_URL=${LIVEKIT_URL}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - LIVEKIT_HOST=${LIVEKIT_HOST}
+      - PLATFORM_COMMISSION=${PLATFORM_COMMISSION:-0.15}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_FULL_NAME=${ADMIN_FULL_NAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - AZAMPAY_ENV=${AZAMPAY_ENV:-sandbox}
+      - AZAMPAY_APP_NAME=${AZAMPAY_APP_NAME}
+      - AZAMPAY_CLIENT_ID=${AZAMPAY_CLIENT_ID}
+      - AZAMPAY_CLIENT_SECRET=${AZAMPAY_CLIENT_SECRET}
+      - AZAMPAY_API_KEY=${AZAMPAY_API_KEY}
+      - AZAMPAY_WEBHOOK_SECRET=${AZAMPAY_WEBHOOK_SECRET}
+      - AZAMPAY_DISBURSEMENT_ENABLED=${AZAMPAY_DISBURSEMENT_ENABLED:-false}
+      - AZAMPAY_SOURCE_COUNTRY_CODE=${AZAMPAY_SOURCE_COUNTRY_CODE:-RW}
+      - AZAMPAY_SOURCE_FULL_NAME=${AZAMPAY_SOURCE_FULL_NAME:-MyJudicial Platform}
+      - AZAMPAY_SOURCE_BANK_NAME=${AZAMPAY_SOURCE_BANK_NAME:-Platform Wallet}
+      - AZAMPAY_SOURCE_ACCOUNT_NUMBER=${AZAMPAY_SOURCE_ACCOUNT_NUMBER}
+      - AZAMPAY_DEST_COUNTRY_CODE=${AZAMPAY_DEST_COUNTRY_CODE:-RW}
+      - OCI_ENDPOINT=${OCI_ENDPOINT}
+      - OCI_BUCKET_NAME=${OCI_BUCKET_NAME:-myjudicial-vault}
+      - OCI_REGION=${OCI_REGION:-us-ashburn-1}
+      - OCI_ACCESS_KEY_ID=${OCI_ACCESS_KEY_ID}
+      - OCI_SECRET_ACCESS_KEY=${OCI_SECRET_ACCESS_KEY}
+      - OCI_KMS_ENDPOINT=${OCI_KMS_ENDPOINT}
+      - OCI_KMS_MASTER_KEY_ID=${OCI_KMS_MASTER_KEY_ID}
+      - OCI_SIGNED_URL_EXPIRY_SECONDS=${OCI_SIGNED_URL_EXPIRY_SECONDS:-900}
+      - AUDIT_LOG_RETENTION_DAYS=${AUDIT_LOG_RETENTION_DAYS:-90}
+      - DB_POOL_MAX=${DB_POOL_MAX:-15}
     networks:
       - myjudicial-network
     depends_on:
@@ -85,14 +133,41 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
-    env_file:
-      - ./myjudicial-ai-service/.env
+    # All AI vars come from the ROOT .env (single source of truth).
     environment:
+      - HOST=0.0.0.0
+      - PORT=5000
       - BACKEND_URL=http://backend:4000
       - FRONTEND_URL=http://frontend:3000
       - DATABASE_URL=${DATABASE_URL}
-      - WHISPER_DEVICE=cpu
-      - LLM_PROVIDER=groq
+      - API_KEY=${AI_SERVICE_KEY}
+      - DEBUG=${DEBUG:-false}
+      - APP_NAME=${APP_NAME:-MyJudicial AI Triage Service}
+      - LLM_PROVIDER=${LLM_PROVIDER:-groq}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-8b-instant}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://localhost:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:latest}
+      - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT:-60}
+      - WHISPER_MODEL=${WHISPER_MODEL:-base.en}
+      - WHISPER_DEVICE=${WHISPER_DEVICE:-cpu}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      - EMBEDDING_DIM=${EMBEDDING_DIM:-384}
+      - EMBEDDING_DEVICE=${EMBEDDING_DEVICE:-cpu}
+      - EMBEDDING_BATCH_SIZE=${EMBEDDING_BATCH_SIZE:-32}
+      - VECTOR_SEARCH_LIMIT=${VECTOR_SEARCH_LIMIT:-50}
+      - SIMILARITY_THRESHOLD=${SIMILARITY_THRESHOLD:-0.5}
+      - SCORE_WEIGHT_SIMILARITY=${SCORE_WEIGHT_SIMILARITY:-0.40}
+      - SCORE_WEIGHT_RATING=${SCORE_WEIGHT_RATING:-0.25}
+      - SCORE_WEIGHT_BUDGET=${SCORE_WEIGHT_BUDGET:-0.15}
+      - SCORE_WEIGHT_REVIEWS=${SCORE_WEIGHT_REVIEWS:-0.10}
+      - SCORE_WEIGHT_EXPERIENCE=${SCORE_WEIGHT_EXPERIENCE:-0.05}
+      - SCORE_WEIGHT_SPECIALTY=${SCORE_WEIGHT_SPECIALTY:-0.05}
+      - RECOMMENDATION_LIMIT=${RECOMMENDATION_LIMIT:-10}
+      - MIN_RECOMMENDATION_SCORE=${MIN_RECOMMENDATION_SCORE:-0.3}
+      - EXPLANATION_LEVEL=${EXPLANATION_LEVEL:-detailed}
+      - CACHE_EMBEDDINGS=${CACHE_EMBEDDINGS:-true}
+      - CACHE_SIZE=${CACHE_SIZE:-1000}
       - TZ=Africa/Kigali
     networks:
       - myjudicial-network

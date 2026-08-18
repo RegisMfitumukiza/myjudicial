@@ -4,12 +4,15 @@
 # ============================================
 
 # --- Build stage ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies for native modules (sharp, bcryptjs)
-RUN apk add --no-cache python3 make g++
+# Install build dependencies for native modules
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files first for layer caching
 COPY package*.json ./
@@ -22,19 +25,23 @@ RUN npm ci
 COPY . .
 
 # Generate Prisma client and build TypeScript (build script includes prisma generate)
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npm run build
 
 # --- Production stage ---
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
 # Install runtime dependencies (dumb-init for signal handling, curl for healthcheck)
-RUN apk add --no-cache dumb-init curl
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    dumb-init curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN groupadd -g 1001 -r nodejs && \
+    useradd -r -g nodejs -u 1001 nodejs
 
 # Copy package files for production install
 COPY package*.json ./

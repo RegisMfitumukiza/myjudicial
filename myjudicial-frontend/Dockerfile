@@ -4,13 +4,13 @@
 # ============================================
 
 # --- Dependencies stage ---
-FROM node:20-alpine AS deps
+FROM node:20-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
 # --- Build stage ---
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 
 # Build-time env vars (NEXT_PUBLIC_* are inlined at build time by Next.js)
@@ -39,15 +39,15 @@ COPY . .
 RUN npm run build
 
 # --- Production stage ---
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd -g 1001 -r nodejs && \
+    useradd -r -g nodejs -u 1001 nextjs
 
 # Copy public assets
 COPY --from=builder /app/public ./public

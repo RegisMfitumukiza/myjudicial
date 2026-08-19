@@ -14,28 +14,23 @@ myjudicial.com {
 	# Reverse proxy to Next.js frontend
 	reverse_proxy frontend:3000
 
+	# Use internal CA (Caddy-managed self-signed).
+	# For real Let's Encrypt certificates, set Cloudflare DNS records
+	# for @ and api to DNS-only (gray cloud) so HTTP-01 challenge can reach Caddy.
+	# Then remove the `tls internal` line below.
+	tls internal
+
 	# Compression
 	encode gzip
-
-	# Security headers
 	header {
-		# HTTPS enforcement (Caddy sets this automatically, but explicit for clarity)
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		# Prevent MIME-type sniffing
 		X-Content-Type-Options "nosniff"
-		# Prevent clickjacking
 		X-Frame-Options "DENY"
-		# XSS protection
 		X-XSS-Protection "1; mode=block"
-		# Referrer policy
 		Referrer-Policy "strict-origin-when-cross-origin"
-		# Hide Caddy version
 		-Server
 	}
-
-	# Log errors
 	log {
-		# Output to stdout for Docker logging
 		output stdout
 		format json
 	}
@@ -43,13 +38,9 @@ myjudicial.com {
 
 # Backend API
 api.myjudicial.com {
-	# Reverse proxy to Express backend
 	reverse_proxy backend:4000
-
-	# Compression
+	tls internal
 	encode gzip
-
-	# Security headers
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
@@ -58,8 +49,6 @@ api.myjudicial.com {
 		Referrer-Policy "strict-origin-when-cross-origin"
 		-Server
 	}
-
-	# Log access
 	log {
 		output stdout
 		format json

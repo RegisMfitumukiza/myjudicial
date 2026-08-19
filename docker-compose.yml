@@ -10,16 +10,40 @@
 # (see .env.example). The per-service .env files are local-dev only.
 #
 # Services:
-#   - frontend  (Next.js, port 3000)
-#   - backend   (Express, port 4000)
-#   - ai        (FastAPI, port 5000)
-#   - postgres  (optional, comment out if using Supabase)
+#   - caddy       (reverse proxy + HTTPS, ports 80/443)
+#   - frontend    (Next.js, internal port 3000)
+#   - backend     (Express, internal port 4000)
+#   - ai          (FastAPI, internal port 5000)
 # ============================================
 
 services:
   # ============================================
+  # Caddy (Reverse Proxy + HTTPS)
+  # ============================================
+  # Caddy is the ONLY service directly exposed to the internet.
+  # It terminates TLS (auto Let's Encrypt) and reverse-proxies to
+  # frontend and backend. AI stays internal.
+  caddy:
+    image: caddy:2-alpine
+    container_name: myjudicial-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - myjudicial-network
+    depends_on:
+      - frontend
+      - backend
+
+  # ============================================
   # Frontend (Next.js 16)
   # ============================================
+  # No public ports — accessible only via Caddy at https://myjudicial.com
   frontend:
     build:
       context: ./myjudicial-frontend
@@ -35,8 +59,6 @@ services:
         AUTH_SECRET: ${AUTH_SECRET}
     container_name: myjudicial-frontend
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     networks:
       - myjudicial-network
     depends_on:
@@ -46,14 +68,13 @@ services:
   # ============================================
   # Backend (Express 5 + Prisma)
   # ============================================
+  # No public ports — accessible via Caddy at https://api.myjudicial.com
   backend:
     build:
       context: ./myjudicial-backend
       dockerfile: Dockerfile
     container_name: myjudicial-backend
     restart: unless-stopped
-    ports:
-      - "4000:4000"
     # All backend vars come from the ROOT .env (single source of truth).
     environment:
       - NODE_ENV=production
@@ -125,14 +146,13 @@ services:
   # ============================================
   # AI Service (FastAPI + Whisper + Embeddings)
   # ============================================
+  # No public ports — accessible ONLY via backend at http://ai:5000 (internal Docker network)
   ai:
     build:
       context: ./myjudicial-ai-service
       dockerfile: Dockerfile
     container_name: myjudicial-ai
     restart: unless-stopped
-    ports:
-      - "5000:5000"
     # All AI vars come from the ROOT .env (single source of truth).
     environment:
       - HOST=0.0.0.0
@@ -226,6 +246,10 @@ volumes:
   uploads_data:
     driver: local
   whisper_cache:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
   # postgres_data:
   #   driver: local

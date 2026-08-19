@@ -1,0 +1,67 @@
+# ============================================
+# MyJudicial Caddyfile
+# Reverse Proxy with Automatic HTTPS
+# ============================================
+# Caddy automatically obtains and renews TLS certificates
+# from Let's Encrypt. No manual certificate configuration needed.
+#
+# Cloudflare DNS: Point A @ and A api records to this VPS IP
+# (DNS-only / gray cloud) so Caddy can complete HTTP-01 challenges.
+# ============================================
+
+# Main frontend
+myjudicial.com {
+	# Reverse proxy to Next.js frontend
+	reverse_proxy frontend:3000
+
+	# Compression
+	encode gzip
+
+	# Security headers
+	header {
+		# HTTPS enforcement (Caddy sets this automatically, but explicit for clarity)
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		# Prevent MIME-type sniffing
+		X-Content-Type-Options "nosniff"
+		# Prevent clickjacking
+		X-Frame-Options "DENY"
+		# XSS protection
+		X-XSS-Protection "1; mode=block"
+		# Referrer policy
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Hide Caddy version
+		-Server
+	}
+
+	# Log errors
+	log {
+		# Output to stdout for Docker logging
+		output stdout
+		format json
+	}
+}
+
+# Backend API
+api.myjudicial.com {
+	# Reverse proxy to Express backend
+	reverse_proxy backend:4000
+
+	# Compression
+	encode gzip
+
+	# Security headers
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Log access
+	log {
+		output stdout
+		format json
+	}
+}

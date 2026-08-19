@@ -11,7 +11,7 @@ WORKDIR /app
 # Install build dependencies for native modules
 RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && apt-get install -y --no-install-recommends \
-    python3 make g++ \
+    python3 make g++ openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package files first for layer caching
@@ -36,7 +36,7 @@ WORKDIR /app
 # Install runtime dependencies (dumb-init for signal handling, curl for healthcheck)
 RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && apt-get install -y --no-install-recommends \
-    dumb-init curl \
+    dumb-init curl openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

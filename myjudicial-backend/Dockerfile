@@ -21,12 +21,12 @@ COPY prisma ./prisma/
 # Install ALL dependencies (including dev for TypeScript build)
 RUN npm ci
 
-# Copy source code
+# Copy source code (includes pre-generated Prisma client in src/generated/prisma/)
 COPY . .
 
-# Generate Prisma client and build TypeScript (build script includes prisma generate)
-ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npm run build
+# Skip prisma generate (pre-generated client copied from host) - VPS cannot reach Prisma CDN
+# Build TypeScript only
+RUN npx tsc
 
 # --- Production stage ---
 FROM node:20-slim
@@ -50,9 +50,9 @@ COPY prisma ./prisma/
 # Install production dependencies only
 RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy built application and generated Prisma client from builder
+# Copy built application from builder
+# (Prisma client is pre-generated and compiled into dist/generated/prisma/)
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Create logs and uploads directories
 RUN mkdir -p /app/logs /app/uploads

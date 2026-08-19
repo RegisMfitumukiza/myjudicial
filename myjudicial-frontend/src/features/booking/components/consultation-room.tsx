@@ -52,7 +52,9 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
   useEffect(() => {
     if (!localVideoTrack || !localVideoRef.current) return;
     localVideoTrack.attach(localVideoRef.current);
-    return () => localVideoTrack.detach();
+    return () => {
+      localVideoTrack.detach();
+    };
   }, [localVideoTrack]);
 
   useEffect(() => {

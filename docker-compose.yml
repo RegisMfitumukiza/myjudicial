@@ -24,7 +24,9 @@ services:
   # It terminates TLS (auto Let's Encrypt) and reverse-proxies to
   # frontend and backend. AI stays internal.
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
     container_name: myjudicial-caddy
     restart: unless-stopped
     ports:

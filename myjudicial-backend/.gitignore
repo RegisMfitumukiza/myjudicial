@@ -28,4 +28,5 @@ Thumbs.db
 coverage/
 
 # Local filesystem fallback for OCI object storage (dev-only, when OCI isn't configured)
-storage/
+# Use /storage/ to only match root-level directory, not src/infrastructure/storage/
+/storage/

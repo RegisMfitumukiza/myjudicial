@@ -51,6 +51,21 @@ docker compose up -d --build
 
 `scripts/vps-init.sh` performs steps 1-2 (plus Docker Compose) and warns about missing `.env` files.
 
+## Database Migrations
+
+The migration history is a single **baseline** (`00000000000000_baseline`) generated from
+`schema.prisma` (2026-08 rebase: the previous chain never captured years of out-of-band
+`db push` changes, so fresh databases failed mid-chain). The pre-baseline migrations and the
+`prisma/migrations/manual_*.sql` files are historical reference only — see git history.
+
+- **Fresh environment** (staging, new dev DB): `npx prisma migrate deploy` applies the baseline.
+- **Production**: the baseline is already recorded as applied (`migrate resolve --applied`);
+  never run anything but `migrate deploy` against it.
+- **Schema change workflow**: edit `schema.prisma`, then generate the migration against a
+  disposable database (`npx prisma migrate dev --name <change>` pointed at staging/dev —
+  **not** production) and commit the new folder. Never use `db push` on shared databases;
+  it bypasses migration history and is exactly what caused the drift above.
+
 ## Environment File Required
 
 One file configures the whole stack. `docker-compose.yml` reads every service's
@@ -166,6 +181,7 @@ cp ~/.cloudflared/<STAGING_ID>.json caddy/staging-credentials.json
 
 # 3. Migrations against the STAGING database only
 cd myjudicial-backend && npx prisma migrate deploy && cd ..
+# (applies the single 00000000000000_baseline migration - see Database Migrations)
 
 # 4. Start (pull-only; no compilers needed)
 docker compose pull && docker compose up -d

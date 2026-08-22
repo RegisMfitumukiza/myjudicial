@@ -73,7 +73,10 @@ npm ci
 npx prisma migrate deploy
 ```
 
-For local development, `prisma db push` is available as `npm run db:push` for rapid schema iteration.
+For schema changes: edit `schema.prisma`, generate a migration against your **local/dev**
+database with `npx prisma migrate dev --name <change>`, and commit the new folder under
+`prisma/migrations/`. Avoid `db push` on any shared database — it bypasses migration
+history (see `DEPLOY_SETUP.md > Database Migrations` for how drift bit us before).
 
 ## Testing
 

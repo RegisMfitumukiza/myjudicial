@@ -56,7 +56,7 @@ echo ""
 echo "=== Init complete. Remaining manual steps ==="
 cat <<EOF
   1. Fill in .env:            nano $APP_DIR/.env
-  2. Quay login (for pulls):  echo "<QUAY_TOKEN>" | docker login quay.io -u "<robot-username>" --password-stdin
+  2. Docker Hub login (pulls): echo "<DOCKERHUB_TOKEN>" | docker login docker.io -u mfitumukiza250 --password-stdin
      (skip if images are public; CI falls back to building on-VPS without it)
   3. Migrations (once):       cd $APP_DIR/myjudicial-backend && npm ci && npx prisma migrate deploy && cd ..
   4. Start stack:             cd $APP_DIR && docker compose pull && docker compose up -d

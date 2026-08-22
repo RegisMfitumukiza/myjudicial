@@ -51,7 +51,7 @@ services:
   # ============================================
   # No public ports — accessible only via Cloudflare Tunnel at https://myjudicial.com
   frontend:
-    image: quay.io/regismfitumukiza/myjudicial-frontend:${FRONTEND_TAG:-latest}
+    image: docker.io/mfitumukiza250/myjudicial:frontend-${FRONTEND_TAG:-latest}
     build:
       context: ./myjudicial-frontend
       dockerfile: Dockerfile
@@ -76,7 +76,7 @@ services:
   # ============================================
   # No public ports — accessible via Cloudflare Tunnel at https://api.myjudicial.com
   backend:
-    image: quay.io/regismfitumukiza/myjudicial-backend:${BACKEND_TAG:-latest}
+    image: docker.io/mfitumukiza250/myjudicial:backend-${BACKEND_TAG:-latest}
     build:
       context: ./myjudicial-backend
       dockerfile: Dockerfile
@@ -154,7 +154,7 @@ services:
   # ============================================
   # No public ports — accessible ONLY via backend at http://ai:5000 (internal Docker network)
   ai:
-    image: quay.io/regismfitumukiza/myjudicial-ai:${AI_TAG:-latest}
+    image: docker.io/mfitumukiza250/myjudicial:ai-${AI_TAG:-latest}
     build:
       context: ./myjudicial-ai-service
       dockerfile: Dockerfile
@@ -255,3 +255,4 @@ volumes:
     driver: local
   # postgres_data:
   #   driver: local
+

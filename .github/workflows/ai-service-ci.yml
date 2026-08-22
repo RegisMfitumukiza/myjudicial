@@ -23,7 +23,7 @@ permissions:
   packages: write
 
 env:
-  IMAGE: quay.io/regismfitumukiza/myjudicial-ai
+  IMAGE: docker.io/mfitumukiza250/myjudicial
 
 jobs:
   checks:
@@ -63,12 +63,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Quay.io
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push image
         uses: docker/build-push-action@v6
@@ -77,8 +77,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            ${{ env.IMAGE }}:${{ github.sha }}
-            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:ai-${{ github.sha }}
+            ${{ env.IMAGE }}:ai-latest
           cache-from: type=gha,scope=ai
           cache-to: type=gha,mode=max,scope=ai
 
@@ -100,8 +100,15 @@ jobs:
               echo "AI_TAG=${{ github.sha }}" >> .env
             fi
 
-            if ! docker compose pull ai; then
-              echo "WARN: pull failed - falling back to building on VPS"
+            # Retry pulls - the VPS's international route is lossy
+            pulled=0
+            for attempt in 1 2 3 4 5; do
+              if docker compose pull ai; then pulled=1; break; fi
+              echo "pull attempt $attempt failed, retrying in 10s..."
+              sleep 10
+            done
+            if [ "$pulled" != "1" ]; then
+              echo "WARN: pull failed after retries - falling back to building on VPS"
               docker compose build ai
             fi
             docker compose up -d ai
@@ -117,4 +124,5 @@ jobs:
               exit 1
             fi
             echo "AI service deployed and healthy."
+
 

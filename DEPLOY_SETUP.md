@@ -1,4 +1,4 @@
-# MyJudicial — VPS Setup & CI/CD Guide
+# MyJudicial â€” VPS Setup & CI/CD Guide
 
 ## Repository Structure
 
@@ -6,13 +6,13 @@ Single monorepo repo. One clone on the VPS contains everything:
 
 ```
 ~/myjudicial/                    # monorepo clone (APP_DIR)
-├── docker-compose.yml           # Full-stack orchestration
-├── .env.example                 # Root env (compose interpolation + frontend build args)
-├── scripts/
-│   └── vps-init.sh              # One-time VPS bootstrap
-├── myjudicial-backend/          # Express API (also has its own deploy/health/maintenance scripts)
-├── myjudicial-frontend/         # Next.js app
-└── myjudicial-ai-service/       # FastAPI service
+â”œâ”€â”€ docker-compose.yml           # Full-stack orchestration
+â”œâ”€â”€ .env.example                 # Root env (compose interpolation + frontend build args)
+â”œâ”€â”€ scripts/
+â”‚   â””â”€â”€ vps-init.sh              # One-time VPS bootstrap
+â”œâ”€â”€ myjudicial-backend/          # Express API (also has its own deploy/health/maintenance scripts)
+â”œâ”€â”€ myjudicial-frontend/         # Next.js app
+â””â”€â”€ myjudicial-ai-service/       # FastAPI service
 ```
 
 ## One-Time VPS Setup
@@ -35,7 +35,7 @@ cp .env.example .env
 nano .env
 
 # The per-service .env.example files (myjudicial-backend/, myjudicial-ai-service/)
-# are for LOCAL development only — docker compose does not read them.
+# are for LOCAL development only â€” docker compose does not read them.
 # Keep myjudicial-backend/.env locally if you run backend migrations via
 # `npx prisma migrate deploy` from that directory.
 
@@ -87,21 +87,20 @@ Configure these on the monorepo repo in **Settings > Secrets and variables > Act
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon key (public by design) |
 | `NEXT_PUBLIC_LIVEKIT_URL` | LiveKit URL |
 | `AUTH_SECRET` | NextAuth secret used by the frontend |
-| `QUAY_USERNAME` | Quay robot account, e.g. `regismfitumukiza+myjudicial-ci` |
-| `QUAY_TOKEN` | Quay robot account token (shown once at creation) |
+| `DOCKERHUB_USERNAME` | Docker Hub username, e.g. `mfitumukiza250` |
+| `DOCKERHUB_TOKEN` | Docker Hub personal access token (Read & Write) |
 
-> **Why quay.io and not ghcr.io?** The VPS's network path to ghcr.io's
-> Azure-hosted edge drops ~50% of connections (Oracle↔Azure routing).
-> quay.io is reliably reachable from the VPS and offers free private repos.
+> **Registry choice:** the VPS's route to ghcr.io's Azure edge drops ~50% of
+> connections; GitLab's registry is similarly flaky. Docker Hub and AWS are
+> stable. All three services share ONE private repo (`mfitumukiza250/myjudicial`)
+> to fit Docker Hub's free plan â€” services differ by tag prefix
+> (`backend-<sha>` / `frontend-<sha>` / `ai-<sha>`).
 
-### One-time VPS: authenticate to Quay
-
-Images are pushed by CI as **private** repositories. The VPS pulls them with
-the same robot account:
+### One-time VPS: authenticate to Docker Hub
 
 ```bash
 ssh user@vps
-echo "<QUAY_TOKEN>" | docker login quay.io -u "regismfitumukiza+myjudicial-ci" --password-stdin
+echo "<DOCKERHUB_TOKEN>" | docker login docker.io -u mfitumukiza250 --password-stdin
 ```
 
 Until this is done, deploy workflows automatically fall back to building
@@ -121,7 +120,7 @@ Three path-filtered workflows live in `.github/workflows/`:
 
 | Workflow | Triggers on changes to | Checks | Ships |
 |----------|------------------------|--------|-------|
-| `backend-ci.yml` | `myjudicial-backend/**` | tests (+coverage gate locally via npm script) | image to quay.io (`sha` + `latest`, linux/arm64), then pulls onto VPS |
+| `backend-ci.yml` | `myjudicial-backend/**` | tests (+coverage gate locally via npm script) | images to Docker Hub (`backend-<sha>` tags, linux/arm64), then pulls onto VPS, then pulls onto VPS |
 | `frontend-ci.yml` | `myjudicial-frontend/**` | tsc, lint, vitest | same, with prod build args from repo secrets |
 | `ai-service-ci.yml` | `myjudicial-ai-service/**` | flake8, pytest | same |
 
@@ -131,7 +130,7 @@ Workflow files and `docker-compose.yml` also trigger all workflows (a compose ch
 
 1. Push to `main`
 2. GitHub Actions runs checks for affected services
-3. Passing builds are pushed to `quay.io/regismfitumukiza/myjudicial-{backend,frontend,ai}` tagged with the commit SHA + `latest` (arm64)
+3. Passing builds are pushed to `docker.io/mfitumukiza250/myjudicial` tagged `backend-<sha>` / `frontend-<sha>` / `ai-<sha>` (arm64)
 4. The deploy step SSHes to the VPS: `git pull`, pins `<SVC>_TAG=<sha>` in `.env`, `docker compose pull <svc> && up -d <svc>`
 5. A post-deploy health gate fails the workflow if the container never becomes healthy
 6. Deploys are serialized per service via concurrency groups (no racing pulls)
@@ -195,16 +194,16 @@ Startup order is enforced by `depends_on`: `ai` must be healthy before `backend`
 
 ## Production Ingress (Cloudflare Tunnel)
 
-Ingress is handled by the `cloudflared` service in `docker-compose.yml` — no
+Ingress is handled by the `cloudflared` service in `docker-compose.yml` â€” no
 host reverse proxy, no open web ports, no certificate management:
 
 - TLS terminates at the Cloudflare edge; origins are plain HTTP over the tunnel
 - Routing lives in `caddy/config.yml`, credentials in `caddy/credentials.json`
-  (git-ignored — never commit or copy it anywhere)
+  (git-ignored â€” never commit or copy it anywhere)
 - Cloudflare DNS: proxied CNAME records for `@`, `www`, `api` pointing at
   `<TUNNEL_ID>.cfargotunnel.com`
 
-If you change routing, edit `caddy/config.yml` and push — the
+If you change routing, edit `caddy/config.yml` and push â€” the
 `tunnel-deploy.yml` workflow recreates the tunnel container automatically.
 
 > Historical note: earlier versions used a host-level Caddy reverse proxy on
@@ -224,3 +223,4 @@ sudo ufw enable
 
 Nothing else needs opening: all services communicate over the internal
 Docker network, and public traffic enters exclusively through the tunnel.
+

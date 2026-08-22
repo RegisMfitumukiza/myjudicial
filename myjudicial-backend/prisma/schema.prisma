@@ -382,7 +382,7 @@ model Booking {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([expertId, scheduledStart], name: "unique_active_booking_per_expert_slot", where: raw("status NOT IN ('CANCELLED', 'REFUNDED')"))
+  @@unique([expertId, scheduledStart], name: "unique_active_booking_per_expert_slot", where: raw("status <> ALL (ARRAY['CANCELLED'::\"BookingStatus\", 'REFUNDED'::\"BookingStatus\"])"))
   @@index([citizenId])
   @@index([expertId])
   @@index([serviceId])

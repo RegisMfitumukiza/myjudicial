@@ -87,17 +87,21 @@ Configure these on the monorepo repo in **Settings > Secrets and variables > Act
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon key (public by design) |
 | `NEXT_PUBLIC_LIVEKIT_URL` | LiveKit URL |
 | `AUTH_SECRET` | NextAuth secret used by the frontend |
+| `QUAY_USERNAME` | Quay robot account, e.g. `regismfitumukiza+myjudicial-ci` |
+| `QUAY_TOKEN` | Quay robot account token (shown once at creation) |
 
-### One-time VPS: authenticate to GHCR
+> **Why quay.io and not ghcr.io?** The VPS's network path to ghcr.io's
+> Azure-hosted edge drops ~50% of connections (Oracle↔Azure routing).
+> quay.io is reliably reachable from the VPS and offers free private repos.
 
-Images are pushed to GitHub Container Registry by CI as **private** packages.
-The VPS needs a read-only token to pull them:
+### One-time VPS: authenticate to Quay
+
+Images are pushed by CI as **private** repositories. The VPS pulls them with
+the same robot account:
 
 ```bash
-# On GitHub: Settings > Developer settings > PATs (classic) > Generate:
-#   scopes: read:packages   -> use this token below
 ssh user@vps
-echo "<PAT>" | docker login ghcr.io -u <github-username> --password-stdin
+echo "<QUAY_TOKEN>" | docker login quay.io -u "regismfitumukiza+myjudicial-ci" --password-stdin
 ```
 
 Until this is done, deploy workflows automatically fall back to building
@@ -117,7 +121,7 @@ Three path-filtered workflows live in `.github/workflows/`:
 
 | Workflow | Triggers on changes to | Checks | Ships |
 |----------|------------------------|--------|-------|
-| `backend-ci.yml` | `myjudicial-backend/**` | tests (+coverage gate locally via npm script) | image to GHCR (`sha` + `latest`, linux/arm64), then pulls onto VPS |
+| `backend-ci.yml` | `myjudicial-backend/**` | tests (+coverage gate locally via npm script) | image to quay.io (`sha` + `latest`, linux/arm64), then pulls onto VPS |
 | `frontend-ci.yml` | `myjudicial-frontend/**` | tsc, lint, vitest | same, with prod build args from repo secrets |
 | `ai-service-ci.yml` | `myjudicial-ai-service/**` | flake8, pytest | same |
 
@@ -127,7 +131,7 @@ Workflow files and `docker-compose.yml` also trigger all workflows (a compose ch
 
 1. Push to `main`
 2. GitHub Actions runs checks for affected services
-3. Passing builds are pushed to `ghcr.io/regismfitumukiza/myjudicial-{backend,frontend,ai}` tagged with the commit SHA + `latest` (arm64)
+3. Passing builds are pushed to `quay.io/regismfitumukiza/myjudicial-{backend,frontend,ai}` tagged with the commit SHA + `latest` (arm64)
 4. The deploy step SSHes to the VPS: `git pull`, pins `<SVC>_TAG=<sha>` in `.env`, `docker compose pull <svc> && up -d <svc>`
 5. A post-deploy health gate fails the workflow if the container never becomes healthy
 6. Deploys are serialized per service via concurrency groups (no racing pulls)

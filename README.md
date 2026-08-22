@@ -86,10 +86,10 @@ For local development, `prisma db push` is available as `npm run db:push` for ra
 ## Deployment
 
 Production runs on a single VPS from the same `docker-compose.yml`. CI builds
-images to GHCR and the VPS only pulls. See `DEPLOY_SETUP.md`:
+images to quay.io and the VPS only pulls. See `DEPLOY_SETUP.md`:
 
 1. Provision the VPS with `scripts/vps-init.sh` (Docker, swap, clone)
-2. Create the root `.env`, log in to GHCR, apply Prisma migrations once
+2. Create the root `.env`, log in to quay.io, apply Prisma migrations once
 3. `docker compose pull && docker compose up -d`
 4. Public traffic enters via Cloudflare Tunnel (no open web ports)
 
@@ -97,6 +97,6 @@ images to GHCR and the VPS only pulls. See `DEPLOY_SETUP.md`:
 
 Each service has its own GitHub Actions workflow. Merging to `main` runs
 checks (build, tests, coverage), pushes a SHA-tagged image to
-`ghcr.io/regismfitumukiza/*`, then SSHes into the VPS: pins the tag in `.env`,
+`quay.io/regismfitumukiza/*`, then SSHes into the VPS: pins the tag in `.env`,
 pulls, restarts the affected service only, and gates on its healthcheck.
 Rollback = re-pin the previous SHA (see DEPLOY_SETUP.md).

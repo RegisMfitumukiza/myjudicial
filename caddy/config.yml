@@ -1,0 +1,22 @@
+# ============================================
+# Cloudflare Tunnel Configuration
+# ============================================
+# Routes traffic from Cloudflare edge to Docker services.
+# Cloudflare edge terminates TLS; origins are HTTP.
+# ============================================
+tunnel: 49c1d00f-b8b0-41bc-8387-cb38dd3ebbbf
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # Frontend
+  - hostname: myjudicial.com
+    service: http://frontend:3000
+  - hostname: www.myjudicial.com
+    service: http://frontend:3000
+
+  # Backend API
+  - hostname: api.myjudicial.com
+    service: http://backend:4000
+
+  # Catch-all for unmatched traffic (health checks etc.)
+  - service: http_status:404

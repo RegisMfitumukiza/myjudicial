@@ -1,23 +1,22 @@
 # ============================================
 # Cloudflare Tunnel Configuration - STAGING
 # ============================================
-# Separate tunnel from production so local/staging work can never hijack
-# myjudicial.com traffic. Create it once:
+# Tunnel: myjudicial-staging
+# ID:     468c4c90-445d-460c-9995-4351ce99a07c
+# Credentials live on the VPS at ~/.cloudflared/468c4c90-445d-460c-9995-4351ce99a07c.json
+# (created via `docker run cloudflare/cloudflared tunnel create` with the origin cert;
+#  never commit the credentials file).
 #
-#   cloudflared tunnel login                     # browser auth (once)
-#   cloudflared tunnel create myjudicial-staging # prints the tunnel ID
-#   cp ~/.cloudflared/<ID>.json caddy/staging-credentials.json
-#
-# Then create proxied CNAME records in Cloudflare DNS:
-#   staging.myjudicial.com      -> <STAGING_TUNNEL_ID>.cfargotunnel.com
-#   api.staging.myjudicial.com  -> <STAGING_TUNNEL_ID>.cfargotunnel.com
+# DNS (proxied CNAMEs, auto-created via `tunnel route dns`):
+#   staging.myjudicial.com      -> 468c4c90-445d-460c-9995-4351ce99a07c.cfargotunnel.com
+#   api.staging.myjudicial.com  -> 468c4c90-445d-460c-9995-4351ce99a07c.cfargotunnel.com
 #
 # Mount points used by docker-compose (staging project):
-#   ./caddy/staging-config.yml       -> /etc/cloudflared/config.yml
-#   ./caddy/staging-credentials.json -> /etc/cloudflared/credentials.json
+#   ./caddy/staging-config.yml                        -> /etc/cloudflared/config.yml
+#   ~/.cloudflared/468c4c90-...json                   -> /etc/cloudflared/credentials.json
 # ============================================
 
-tunnel: REPLACE_WITH_STAGING_TUNNEL_ID
+tunnel: 468c4c90-445d-460c-9995-4351ce99a07c
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:

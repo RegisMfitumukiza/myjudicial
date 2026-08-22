@@ -1,0 +1,29 @@
+# ============================================
+# Cloudflare Tunnel Configuration - STAGING
+# ============================================
+# Separate tunnel from production so local/staging work can never hijack
+# myjudicial.com traffic. Create it once:
+#
+#   cloudflared tunnel login                     # browser auth (once)
+#   cloudflared tunnel create myjudicial-staging # prints the tunnel ID
+#   cp ~/.cloudflared/<ID>.json caddy/staging-credentials.json
+#
+# Then create proxied CNAME records in Cloudflare DNS:
+#   staging.myjudicial.com      -> <STAGING_TUNNEL_ID>.cfargotunnel.com
+#   api.staging.myjudicial.com  -> <STAGING_TUNNEL_ID>.cfargotunnel.com
+#
+# Mount points used by docker-compose (staging project):
+#   ./caddy/staging-config.yml       -> /etc/cloudflared/config.yml
+#   ./caddy/staging-credentials.json -> /etc/cloudflared/credentials.json
+# ============================================
+
+tunnel: REPLACE_WITH_STAGING_TUNNEL_ID
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  - hostname: staging.myjudicial.com
+    service: http://frontend:3000
+  - hostname: api.staging.myjudicial.com
+    service: http://backend:4000
+  # Catch-all for unmatched traffic
+  - service: http_status:404

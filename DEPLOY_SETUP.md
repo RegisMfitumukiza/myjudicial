@@ -81,6 +81,27 @@ Configure these on the monorepo repo in **Settings > Secrets and variables > Act
 | `VPS_SSH_KEY` | Private SSH key (ed25519 or RSA) |
 | `VPS_PORT` | SSH port (default: `22`) |
 | `APP_DIR` | Absolute path to the monorepo clone (e.g., `/home/ubuntu/myjudicial`) |
+| `NEXT_PUBLIC_APP_URL` | `https://myjudicial.com` (inlined into frontend bundle at CI build time) |
+| `NEXT_PUBLIC_API_URL` | `https://api.myjudicial.com` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Production Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production Supabase anon key (public by design) |
+| `NEXT_PUBLIC_LIVEKIT_URL` | LiveKit URL |
+| `AUTH_SECRET` | NextAuth secret used by the frontend |
+
+### One-time VPS: authenticate to GHCR
+
+Images are pushed to GitHub Container Registry by CI as **private** packages.
+The VPS needs a read-only token to pull them:
+
+```bash
+# On GitHub: Settings > Developer settings > PATs (classic) > Generate:
+#   scopes: read:packages   -> use this token below
+ssh user@vps
+echo "<PAT>" | docker login ghcr.io -u <github-username> --password-stdin
+```
+
+Until this is done, deploy workflows automatically fall back to building
+images on the VPS (slower, uses disk). After it, the VPS only ever pulls.
 
 ### Generating an SSH Key for CI/CD
 
@@ -92,23 +113,68 @@ ssh-keygen -t ed25519 -f myjudicial-cd -N ""
 
 ## CI/CD Workflows
 
-Three path-filtered workflows live in `.github/workflows/` — GitHub Actions only reads workflows at the repo root:
+Three path-filtered workflows live in `.github/workflows/`:
 
-| Workflow | Triggers on changes to | Checks | Deploys |
-|----------|------------------------|--------|---------|
-| `backend-ci.yml` | `myjudicial-backend/**` | build, tests, coverage gate (lines >= 40%, funcs >= 30%, branches >= 70%) | `docker compose build/up backend` |
-| `frontend-ci.yml` | `myjudicial-frontend/**` | tsc, lint, vitest | `docker compose build/up frontend` |
-| `ai-service-ci.yml` | `myjudicial-ai-service/**` | flake8, pytest | `docker compose build/up ai` |
+| Workflow | Triggers on changes to | Checks | Ships |
+|----------|------------------------|--------|-------|
+| `backend-ci.yml` | `myjudicial-backend/**` | tests (+coverage gate locally via npm script) | image to GHCR (`sha` + `latest`, linux/arm64), then pulls onto VPS |
+| `frontend-ci.yml` | `myjudicial-frontend/**` | tsc, lint, vitest | same, with prod build args from repo secrets |
+| `ai-service-ci.yml` | `myjudicial-ai-service/**` | flake8, pytest | same |
 
 Workflow files and `docker-compose.yml` also trigger all workflows (a compose change rebuilds everything).
 
 ## How Deployment Works
 
-1. Developer pushes to `main` on the monorepo repo
-2. GitHub Actions runs the checks for the affected service(s)
-3. If checks pass, the deploy job SSHes into the VPS
-4. On VPS: `git pull origin main` in the monorepo clone, then `docker compose build <service>` and `docker compose up -d <service>`
-5. The service restarts with the new code; other services stay up
+1. Push to `main`
+2. GitHub Actions runs checks for affected services
+3. Passing builds are pushed to `ghcr.io/regismfitumukiza/myjudicial-{backend,frontend,ai}` tagged with the commit SHA + `latest` (arm64)
+4. The deploy step SSHes to the VPS: `git pull`, pins `<SVC>_TAG=<sha>` in `.env`, `docker compose pull <svc> && up -d <svc>`
+5. A post-deploy health gate fails the workflow if the container never becomes healthy
+6. Deploys are serialized per service via concurrency groups (no racing pulls)
+
+**Build once, run anywhere:** images are built in CI for `linux/arm64`; the
+VPS never compiles code again. Disk stays flat; deploys take seconds.
+
+## Rollback
+
+Every deploy is an immutable SHA tag. To roll back any service:
+
+```bash
+cd ~/myjudicial
+sed -i 's/^BACKEND_TAG=.*/BACKEND_TAG=<previous-sha>/' .env   # or FRONTEND_TAG / AI_TAG
+docker compose pull backend && docker compose up -d backend
+```
+
+## Staging Environment
+
+Staging lives in a second clone + second Cloudflare tunnel so experiments can
+never touch production traffic or data. Full checklist in `.env.staging.example`.
+
+```bash
+# 1. Second clone
+git clone <repo> ~/myjudicial-staging && cd ~/myjudicial-staging
+cp ~/myjudicial/.env .env && nano .env   # apply overrides from .env.staging.example
+
+# 2. Separate tunnel (NEVER reuse production credentials)
+cloudflared tunnel login
+cloudflared tunnel create myjudicial-staging
+cp ~/.cloudflared/<STAGING_ID>.json caddy/staging-credentials.json
+# point staging compose at caddy/staging-config.yml + staging credentials
+
+# 3. Migrations against the STAGING database only
+cd myjudicial-backend && npx prisma migrate deploy && cd ..
+
+# 4. Start (pull-only; no compilers needed)
+docker compose pull && docker compose up -d
+```
+
+Create proxied DNS records: `staging.myjudicial.com` and
+`api.staging.myjudicial.com` -> `<STAGING_TUNNEL_ID>.cfargotunnel.com`.
+
+Local development uses the same separation: `docker compose up` merges
+`docker-compose.override.yml` (localhost ports, tunnel disabled); copy
+`.env.local` over your root `.env` values so local runs hit a dev database,
+not production Supabase.
 
 ## Manually Deploying All Services
 
@@ -116,52 +182,41 @@ Workflow files and `docker-compose.yml` also trigger all workflows (a compose ch
 ssh user@vps
 cd /home/user/myjudicial
 git pull origin main
-docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
-Startup order is enforced by `depends_on`: `ai` must be healthy before `backend` starts, and `backend` before `frontend`. On a first deploy run `docker compose up -d --build` (not per-service) so dependency ordering is respected.
+Startup order is enforced by `depends_on`: `ai` must be healthy before `backend` starts, and `backend` before `frontend`.
 
-`myjudicial-backend/deploy-oci.sh` automates the whole first-time bootstrap on a fresh Ubuntu box: system update, Docker + Compose install, monorepo clone (`./deploy-oci.sh <repo-url>`), env-file checks, and `docker compose up -d --build`.
+`myjudicial-backend/deploy-oci.sh` automates the whole first-time bootstrap on a fresh Ubuntu box: system update, Docker + Compose install, monorepo clone (`./deploy-oci.sh <repo-url>`), env-file checks, and `docker compose up -d`.
 
-## Production Reverse Proxy (Recommended)
+## Production Ingress (Cloudflare Tunnel)
 
-The compose stack exposes raw ports (3000/4000/5000). For production with HTTPS, put a reverse proxy in front. Only ports 22/80/443 should be open on the instance firewall; keep 3000/4000/5000 internal (especially the AI port).
+Ingress is handled by the `cloudflared` service in `docker-compose.yml` — no
+host reverse proxy, no open web ports, no certificate management:
 
-```bash
-# Install Caddy (auto HTTPS)
-sudo apt install -y caddy
-sudo tee /etc/caddy/Caddyfile > /dev/null <<'EOF'
-your-domain.com {
-    handle {
-        reverse_proxy localhost:3000
-    }
-}
-api.your-domain.com {
-    handle {
-        reverse_proxy localhost:4000
-    }
-}
-ai.your-domain.com {
-    handle {
-        reverse_proxy localhost:5000
-    }
-}
-EOF
-sudo systemctl restart caddy
-```
+- TLS terminates at the Cloudflare edge; origins are plain HTTP over the tunnel
+- Routing lives in `caddy/config.yml`, credentials in `caddy/credentials.json`
+  (git-ignored — never commit or copy it anywhere)
+- Cloudflare DNS: proxied CNAME records for `@`, `www`, `api` pointing at
+  `<TUNNEL_ID>.cfargotunnel.com`
 
-Then update root `.env` so URLs match:
-- `FRONTEND_URL=https://your-domain.com`
-- `BACKEND_URL=https://api.your-domain.com` (also used by the frontend build args)
+If you change routing, edit `caddy/config.yml` and push — the
+`tunnel-deploy.yml` workflow recreates the tunnel container automatically.
 
-With Cloudflare: create A records for `@` and `api` pointing at the VPS IP, set SSL mode to **Full (strict)** with a Cloudflare Origin certificate installed on the proxy.
+> Historical note: earlier versions used a host-level Caddy reverse proxy on
+> ports 80/443. That setup was replaced by the tunnel; the `caddy/` directory
+> name only remains for legacy reasons.
 
 ## Firewall
 
+cloudflared makes only OUTBOUND connections (QUIC/7844 to Cloudflare edge),
+so the VPS needs no inbound web ports at all:
+
 ```bash
-# Only allow SSH, HTTP/HTTPS, and the docker network (block direct access to app ports)
 sudo ufw allow OpenSSH
-sudo ufw allow 80,443/tcp
 sudo ufw default deny incoming
 sudo ufw enable
 ```
+
+Nothing else needs opening: all services communicate over the internal
+Docker network, and public traffic enters exclusively through the tunnel.

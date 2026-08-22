@@ -34,24 +34,24 @@ Service-to-service calls run over an internal Docker network: `frontend -> backe
 - PostgreSQL (via Supabase or self-hosted) with pgvector if the AI embedding features are used
 - API keys for the external providers you enable (Supabase, Redis, Brevo, Flutterwave/AzamPay, WhatsApp, LiveKit, Groq)
 
-## Quick Start
+## Quick Start (local)
 
 ```bash
 # 1. Configure env files
 cp .env.example .env                                   # root env (compose interpolation)
-cp myjudicial-backend/.env.example myjudicial-backend/.env
-cp myjudicial-ai-service/.env.example myjudicial-ai-service/.env
+cp .env.local.example .env.local                       # optional localhost overrides
 
 # 2. Fill in real values (see "Environment Files" below)
 
 # 3. Build and start everything
-docker compose up -d --build
-
-# 4. Check health
-curl -s http://localhost:4000/health
+docker compose up -d --build        # auto-merges docker-compose.override.yml:
+                                    # publishes 3000/4000/5000, disables cloudflared
 ```
 
 Frontend: http://localhost:3000 — Backend API: http://localhost:4000 (Swagger at `/api-docs`).
+
+> Local runs should point at a dev database, never production Supabase —
+> see `.env.local` / DEPLOY_SETUP.md ("Staging Environment").
 
 ## Environment Files
 
@@ -85,14 +85,18 @@ For local development, `prisma db push` is available as `npm run db:push` for ra
 
 ## Deployment
 
-Production uses the same `docker-compose.yml` on a single VPS. See `DEPLOY_SETUP.md` for the full guide:
+Production runs on a single VPS from the same `docker-compose.yml`. CI builds
+images to GHCR and the VPS only pulls. See `DEPLOY_SETUP.md`:
 
-1. Provision the VPS with `scripts/vps-init.sh`
-2. Create the three `.env` files on the server
-3. Apply Prisma migrations once
-4. `docker compose up -d --build`
-5. Put a reverse proxy (Caddy or nginx) in front with HTTPS and Cloudflare DNS, exposing only ports 80/443
+1. Provision the VPS with `scripts/vps-init.sh` (Docker, swap, clone)
+2. Create the root `.env`, log in to GHCR, apply Prisma migrations once
+3. `docker compose pull && docker compose up -d`
+4. Public traffic enters via Cloudflare Tunnel (no open web ports)
 
 ### CI/CD
 
-Each service has its own GitHub Actions workflow. Merging to `main` runs checks (build, tests, coverage) and, on success, SSHes into the VPS and redeploys the affected service. Required repository secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_PORT`, `APP_DIR`.
+Each service has its own GitHub Actions workflow. Merging to `main` runs
+checks (build, tests, coverage), pushes a SHA-tagged image to
+`ghcr.io/regismfitumukiza/*`, then SSHes into the VPS: pins the tag in `.env`,
+pulls, restarts the affected service only, and gates on its healthcheck.
+Rollback = re-pin the previous SHA (see DEPLOY_SETUP.md).

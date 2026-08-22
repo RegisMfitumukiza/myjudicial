@@ -14,6 +14,17 @@ on:
       - 'docker-compose.yml'
       - '.github/workflows/ai-service-ci.yml'
 
+concurrency:
+  group: ai-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/regismfitumukiza/myjudicial-ai
+
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -47,7 +58,31 @@ jobs:
     needs: checks
     runs-on: ubuntu-latest
     steps:
-      - name: SSH into VPS and deploy
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: myjudicial-ai-service
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha,scope=ai
+          cache-to: type=gha,mode=max,scope=ai
+
+      - name: Deploy pinned tag to VPS
         uses: appleboy/ssh-action@v1.2.1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -55,9 +90,30 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22' }}
           script: |
-            echo "=== Deploying AI service ==="
+            set -e
             cd ${{ secrets.APP_DIR }}
             git pull origin main
-            docker compose build ai
+
+            if grep -q '^AI_TAG=' .env; then
+              sed -i "s|^AI_TAG=.*|AI_TAG=${{ github.sha }}|" .env
+            else
+              echo "AI_TAG=${{ github.sha }}" >> .env
+            fi
+
+            if ! docker compose pull ai; then
+              echo "WARN: pull failed - falling back to building on VPS"
+              docker compose build ai
+            fi
             docker compose up -d ai
-            echo "AI service deployed successfully."
+
+            ok=0
+            for i in $(seq 1 40); do
+              if docker compose ps ai | grep -q '(healthy)'; then ok=1; break; fi
+              sleep 5
+            done
+            if [ "$ok" != "1" ]; then
+              echo "ERROR: ai did not become healthy after deploy"
+              docker compose logs --tail 50 ai
+              exit 1
+            fi
+            echo "AI service deployed and healthy."

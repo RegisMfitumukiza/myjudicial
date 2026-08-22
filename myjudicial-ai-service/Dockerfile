@@ -2,33 +2,53 @@
 # MyJudicial AI Service Dockerfile
 # Python 3.11 + Whisper + Sentence Transformers
 # ============================================
+# Multi-stage: compilers live ONLY in the builder stage; the runtime image
+# ships just the venv + ffmpeg/libsndfile. Cuts image size roughly in half
+# and removes gcc from production surface.
+# ============================================
 
-FROM python:3.11-slim AS base
+# --- Builder: compile native deps into an isolated venv ---
+FROM python:3.11-slim AS builder
 
-# Prevent Python from writing .pyc files and enable unbuffered stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Install system dependencies required by:
-# - ffmpeg (audio processing for Whisper)
-# - libsndfile1 (soundfile/audio loading)
-# - build-essential (compiling native extensions)
 RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    libsndfile1 \
     build-essential \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install Python dependencies (separate layer for caching)
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir "setuptools<80" && \
-    pip install --no-cache-dir --no-build-isolation openai-whisper==20240930 && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install "setuptools<80" && \
+    pip install --no-build-isolation openai-whisper==20240930 && \
+    pip install -r requirements.txt
+
+# --- Runtime: audio libs + venv, no compilers ---
+FROM python:3.11-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# ffmpeg (audio processing for Whisper)
+# libsndfile1 (soundfile/audio loading)
+# curl (healthcheck)
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libsndfile1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+WORKDIR /app
 
 # Copy application code
 COPY app/ ./app/

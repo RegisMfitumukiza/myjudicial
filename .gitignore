@@ -3,6 +3,12 @@
 .env.*
 !.env.example
 
+# ---- Cloudflare Tunnel credentials (never commit) ----
+caddy/credentials.json
+
+# ---- Local-only dev files (never reach the VPS via git pull) ----
+docker-compose.override.yml
+
 # ---- Node / dependencies ----
 node_modules/
 

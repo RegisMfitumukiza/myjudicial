@@ -2,15 +2,21 @@
 # MyJudicial Platform - Docker Compose
 # ============================================
 # Usage:
-#   docker compose up -d --build
-#   docker compose logs -f
-#   docker compose down
+#   LOCAL DEV (auto-merges docker-compose.override.yml):
+#     docker compose up -d --build
+#
+#   VPS / PRODUCTION (registry images built by GitHub Actions):
+#     docker compose pull && docker compose up -d
+#
+#   Per-service deploy tags are pinned via FRONTEND_TAG / BACKEND_TAG /
+#   AI_TAG (git SHA) written into .env by CI. Roll back = set previous SHA,
+#   then `docker compose pull <svc> && docker compose up -d <svc>`.
 #
 # Config: ALL services read their environment from the ROOT .env file
 # (see .env.example). The per-service .env files are local-dev only.
 #
 # Services:
-#   - caddy       (reverse proxy + HTTPS, ports 80/443)
+#   - cloudflared (tunnel + HTTPS via Cloudflare edge)
 #   - frontend    (Next.js, internal port 3000)
 #   - backend     (Express, internal port 4000)
 #   - ai          (FastAPI, internal port 5000)
@@ -18,24 +24,22 @@
 
 services:
   # ============================================
-  # Caddy (Reverse Proxy + HTTPS)
+  # Cloudflare Tunnel (Ingress + HTTPS Termination)
   # ============================================
-  # Caddy is the ONLY service directly exposed to the internet.
-  # It terminates TLS (auto Let's Encrypt) and reverse-proxies to
-  # frontend and backend. AI stays internal.
-  caddy:
+  # Replaces Caddy: tunnel runs outbound (no OCI firewall changes needed).
+  # Cloudflare edge terminates TLS and routes to services below.
+  cloudflared:
     build:
       context: ./caddy
-      dockerfile: Dockerfile
-    container_name: myjudicial-caddy
+      dockerfile: cloudflared.Dockerfile
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy/config.yml:/etc/cloudflared/config.yml:ro
+      - ./caddy/credentials.json:/etc/cloudflared/credentials.json:ro
     networks:
       - myjudicial-network
     depends_on:
@@ -45,8 +49,9 @@ services:
   # ============================================
   # Frontend (Next.js 16)
   # ============================================
-  # No public ports — accessible only via Caddy at https://myjudicial.com
+  # No public ports — accessible only via Cloudflare Tunnel at https://myjudicial.com
   frontend:
+    image: ghcr.io/regismfitumukiza/myjudicial-frontend:${FRONTEND_TAG:-latest}
     build:
       context: ./myjudicial-frontend
       dockerfile: Dockerfile
@@ -59,7 +64,6 @@ services:
         NEXT_PUBLIC_LIVEKIT_URL: ${LIVEKIT_URL}
         AUTH_URL: ${FRONTEND_URL:-http://localhost:3000}
         AUTH_SECRET: ${AUTH_SECRET}
-    container_name: myjudicial-frontend
     restart: unless-stopped
     networks:
       - myjudicial-network
@@ -70,12 +74,12 @@ services:
   # ============================================
   # Backend (Express 5 + Prisma)
   # ============================================
-  # No public ports — accessible via Caddy at https://api.myjudicial.com
+  # No public ports — accessible via Cloudflare Tunnel at https://api.myjudicial.com
   backend:
+    image: ghcr.io/regismfitumukiza/myjudicial-backend:${BACKEND_TAG:-latest}
     build:
       context: ./myjudicial-backend
       dockerfile: Dockerfile
-    container_name: myjudicial-backend
     restart: unless-stopped
     # All backend vars come from the ROOT .env (single source of truth).
     environment:
@@ -150,10 +154,10 @@ services:
   # ============================================
   # No public ports — accessible ONLY via backend at http://ai:5000 (internal Docker network)
   ai:
+    image: ghcr.io/regismfitumukiza/myjudicial-ai:${AI_TAG:-latest}
     build:
       context: ./myjudicial-ai-service
       dockerfile: Dockerfile
-    container_name: myjudicial-ai
     restart: unless-stopped
     # All AI vars come from the ROOT .env (single source of truth).
     environment:
@@ -248,10 +252,6 @@ volumes:
   uploads_data:
     driver: local
   whisper_cache:
-    driver: local
-  caddy_data:
-    driver: local
-  caddy_config:
     driver: local
   # postgres_data:
   #   driver: local

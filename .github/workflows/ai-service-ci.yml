@@ -42,9 +42,10 @@ jobs:
         run: |
           pip install --upgrade pip
           # openai-whisper ships as a legacy sdist whose setup.py imports
-          # pkg_resources; pip >= 25 no longer provides setuptools for such
-          # builds automatically.
+          # pkg_resources. Build it without PEP 517 isolation (as the
+          # Dockerfile does) against a setuptools that still ships it.
           pip install "setuptools<81" wheel
+          pip install --no-build-isolation openai-whisper==20240930
           pip install flake8
           pip install pytest
           pip install -r requirements.txt

@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/routing";
 import { MapPin, ArrowRight } from "lucide-react";
 import { StarRating } from "@/shared/components/star-rating";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { useNewestExperts, useMostBookedExperts, useHighestRatedExperts, useAvailableTodayExperts } from "@/lib/api/landing";
 import { useTranslations } from "next-intl";
 
@@ -16,20 +17,13 @@ function humanizeSpecialty(s: string): string {
 
 function ExpertCard({ expert }: { expert: { id: string; name: string; specialty: string | null; rating: number | null; reviewCount: number; city: string | null; flatFee: number | null; currency: string; avatarUrl: string | null } }) {
   const t = useTranslations("expertDashboard_featured-experts");
-  const initials = expert.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   return (
     <Link
       href={`/lawyers/${expert.id}`}
       className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-brand-dark/5">
-        {expert.avatarUrl ? (
-          <img src={expert.avatarUrl} alt={expert.name} className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-brand-dark text-2xl font-bold text-on-brand">
-            {initials}
-          </div>
-        )}
+        <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-full w-full rounded-none" />
         {expert.rating !== null && (
           <div className="absolute right-2.5 top-2.5 rounded-full bg-background/95 px-2 py-1 shadow-sm backdrop-blur">
             <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" />

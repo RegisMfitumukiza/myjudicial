@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Briefcase, ArrowRight, ExternalLink } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { StarRating } from "@/shared/components/star-rating";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import type { ExpertRecommendation } from "../types";
 
 type AiRecommendationCardProps = {
@@ -30,11 +31,6 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
   const t = useTranslations("ai");
 
   const matchPercent = Math.round(recommendation.score * 100);
-  const initials = recommendation.expert.full_name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2);
 
   return (
     <div
@@ -46,17 +42,7 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
     >
       <div className="flex items-start gap-3">
         <div className="relative">
-          {recommendation.expert.profile_image_url ? (
-            <img
-              src={recommendation.expert.profile_image_url}
-              alt={recommendation.expert.full_name}
-              className="h-12 w-12 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-dark text-sm font-semibold text-on-brand">
-              {initials}
-            </div>
-          )}
+          <ExpertAvatar src={recommendation.expert.profile_image_url} name={recommendation.expert.full_name} size="md" />
           {rank != null && (
             <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-[10px] font-bold text-on-brand">
               {rank}

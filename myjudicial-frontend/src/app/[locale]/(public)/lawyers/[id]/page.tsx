@@ -10,6 +10,7 @@ import {
   ThumbsUp, ThumbsDown, Flag, Send, Loader2, X, Reply, MessageSquare,
 } from "lucide-react";
 import { StarRating } from "@/shared/components/star-rating";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -198,7 +199,6 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
   }
 
   const specialties = [expert.specialty || "Legal Services"];
-  const avatarUrl = expert.avatarUrl || null;
   const initials = expert.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
   const tagsList = specialties.slice(0, 3);
 
@@ -221,17 +221,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                 <div className="flex flex-col items-start gap-6 sm:flex-row">
                   <div className="relative shrink-0">
                     <div className="overflow-hidden rounded-2xl ring-4 ring-brand-border/20 shadow-lg">
-                      {avatarUrl ? (
-                        <img
-                          src={avatarUrl}
-                          alt={expert.name}
-                          className="h-28 w-28 object-cover object-top lg:h-32 lg:w-32"
-                        />
-                      ) : (
-                        <div className="flex h-28 w-28 items-center justify-center bg-brand-dark lg:h-32 lg:w-32">
-                          <span className="text-3xl font-bold text-white lg:text-4xl">{initials}</span>
-                        </div>
-                      )}
+                      <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-28 w-28 rounded-none lg:h-32 lg:w-32" />
                     </div>
                     {expert.verified && (
                       <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-brand-dark shadow-md ring-2 ring-white">

@@ -249,10 +249,11 @@ function createRichPopupHtml(props: {
     <div style="padding:0;min-width:280px;max-width:320px;font-family:system-ui,-apple-system,sans-serif;overflow:hidden">
 
       <div style="padding:14px 14px 10px;display:flex;gap:12px;align-items:flex-start">
-        <div style="position:relative;flex-shrink:0">
-          <img src="${props.avatarUrl}" alt="${props.name}"
-            style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}"
-            onerror="this.style.display='none'" />
+        <div style="position:relative;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:${BRAND};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">
+          ${props.avatarUrl
+            ? `<img src="${props.avatarUrl}" alt="${props.name}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}" onerror="this.parentElement.innerHTML='${props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()}'" />`
+            : props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()
+          }
         </div>
         <div style="min-width:0;flex:1">
           <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">

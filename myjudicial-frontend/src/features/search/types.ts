@@ -14,7 +14,7 @@ export type Lawyer = {
   district: string;
   lat: number;
   lng: number;
-  avatarUrl: string;
+  avatarUrl: string | null;
   distanceKm: number;
   yearsExperience?: number | null;
   languages?: string[];

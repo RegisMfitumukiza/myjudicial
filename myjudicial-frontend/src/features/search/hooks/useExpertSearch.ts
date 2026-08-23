@@ -81,7 +81,7 @@ function mapApiExpertToLawyer(expert: ApiExpert): Lawyer {
     district: expert.city || "Rwanda",
     lat: expert.latitude ?? 0,
     lng: expert.longitude ?? 0,
-    avatarUrl: expert.avatarUrl || expert.avatarObjectKey || `https://i.pravatar.cc/300?u=${expert.id}`,
+    avatarUrl: expert.avatarUrl || expert.avatarObjectKey || null,
     distanceKm: expert.distanceKm ?? expert.distance ?? 0,
     yearsExperience: expert.yearsOfExperience ?? expert.yearsExperience ?? null,
     languages: expert.languages ?? [],

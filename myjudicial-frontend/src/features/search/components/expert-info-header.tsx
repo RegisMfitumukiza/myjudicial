@@ -1,6 +1,7 @@
 import { MapPin, Briefcase, CheckCircle, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StarRating } from "@/shared/components/star-rating";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 
 type ExpertInfoHeaderProps = {
   displayName: string;
@@ -29,13 +30,7 @@ export function ExpertInfoHeader({
   return (
     <div>
       <div className="flex items-start gap-4">
-        {avatarUrl && (
-          <img
-            src={avatarUrl}
-            alt={displayName}
-            className="h-16 w-16 shrink-0 rounded-full object-cover object-top ring-2 ring-brand-border/20"
-          />
-        )}
+        <ExpertAvatar src={avatarUrl} name={displayName} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

@@ -31,7 +31,7 @@ export type ExpertProfileData = {
   languages: string[];
   bio: string;
   verified: boolean;
-  avatarUrl: string;
+  avatarUrl: string | null;
   barNumber: string | null;
   phone: string | null;
   firmName: string | null;
@@ -67,7 +67,7 @@ function toExpertProfileData(raw: ExpertProfile, rating: number, reviewCount: nu
     languages: raw.languages ?? [],
     bio: raw.bio ?? "",
     verified: raw.status === "VERIFIED",
-    avatarUrl: (raw as any).profileImageUrl ?? "",
+    avatarUrl: (raw as any).profileImageUrl ?? null,
     barNumber: (raw as any).barNumber ?? null,
     phone: user?.phone ?? null,
     firmName: (raw as any).firmName ?? null,

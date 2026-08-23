@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { MapPin, ShieldCheck, BadgeCheck, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StarRating } from "@/shared/components/star-rating";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import type { Lawyer } from "../types";
 
 type LawyerCardProps = {
@@ -14,12 +15,6 @@ type LawyerCardProps = {
 
 export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
   const t = useTranslations("search");
-  const initials = lawyer.name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
   return (
     <div
@@ -32,18 +27,7 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
     >
       {/* Avatar */}
       <div className="relative shrink-0">
-        {lawyer.avatarUrl ? (
-          <img
-            src={lawyer.avatarUrl}
-            alt={lawyer.name}
-            className="h-14 w-14 rounded-full object-cover ring-2 ring-border"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-lg font-bold text-muted-foreground/50">
-            {initials}
-          </div>
-        )}
+        <ExpertAvatar src={lawyer.avatarUrl} name={lawyer.name} size="lg" />
         {lawyer.online && (
           <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-card bg-green-500" />
         )}

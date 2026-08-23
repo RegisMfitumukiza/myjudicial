@@ -17,6 +17,7 @@ import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { ProfileMenu } from "@/shared/components/profile-menu";
 import { Logo } from "@/shared/components/logo";
 import { MapView } from "@/features/search/components/map-view";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { useExpertSearch } from "@/features/search/hooks/useExpertSearch";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 import { usePracticeAreas } from "@/lib/api/landing";
@@ -64,13 +65,7 @@ function ExpertCard({ expert, selected, onSelect }: { expert: Lawyer; selected: 
       }`}
     >
       <div className="relative aspect-square w-full overflow-hidden bg-brand-dark/5">
-        {expert.avatarUrl ? (
-          <img src={expert.avatarUrl} alt={expert.name} className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-brand-dark/10 text-5xl font-bold text-brand-dark/30">
-            {expert.name.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-full w-full rounded-none" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         {expert.verified && (
           <div className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 shadow-sm backdrop-blur">
@@ -470,7 +465,7 @@ export function ExpertsClient() {
                   >
                     <Link href={`/lawyers/${selected.id}`}
                       className="flex items-center gap-3 rounded-2xl border border-border bg-background p-3 shadow-xl">
-                      <img src={selected.avatarUrl} alt={selected.name} className="h-12 w-12 shrink-0 rounded-full object-cover" />
+                      <ExpertAvatar src={selected.avatarUrl} name={selected.name} size="md" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold text-foreground">{selected.name}</p>
                         <p className="truncate text-[11px] text-muted-foreground">{selected.specialtyLabel}</p>

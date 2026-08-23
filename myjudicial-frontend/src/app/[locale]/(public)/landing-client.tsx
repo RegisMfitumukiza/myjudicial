@@ -13,6 +13,7 @@ import {
   Mail, ExternalLink, ChevronRight
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { StarRating } from "@/shared/components/star-rating";
 import {
   usePracticeAreas,
@@ -113,25 +114,13 @@ const PARTNERS = [
 
 function ExpertCard({ expert }: { expert: ExpertSummary }) {
   const t = useTranslations("landing");
-  const initials = expert.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const isOnline = expert.presenceStatus === "ONLINE";
 
   return (
     <Link href={`/lawyers/${expert.id}`} className="group block">
       {/* Photo */}
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
-        {expert.avatarUrl ? (
-          <img
-            src={expert.avatarUrl}
-            alt={expert.name}
-            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-muted-foreground/30">
-            {initials}
-          </div>
-        )}
+        <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-full w-full rounded-none" />
 
         {/* Verified badge */}
         {expert.verified && (

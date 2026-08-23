@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { signOut } from "next-auth/react";
 import { useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import {
   LayoutDashboard,
   Users,
@@ -200,13 +201,7 @@ function ProfileDropdown({
     >
         <div className="px-3 py-2">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-white dark:bg-white dark:text-black overflow-hidden">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                getInitials(user.firstName + " " + user.lastName)
-              )}
-            </div>
+            <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                 {user.firstName} {user.lastName}
@@ -468,17 +463,13 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
             /* ── Collapsed footer ── */
             <div className="flex flex-col items-center gap-2 py-3">
               <div className="relative">
-                <button
-                  onClick={() => setProfileOpen((p) => !p)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-white transition-colors hover:opacity-80 dark:bg-white dark:text-black overflow-hidden"
-                  aria-label="Open profile menu"
-                  title={user.firstName + " " + user.lastName}
-                >
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    getInitials(user.firstName + " " + user.lastName)
-                  )}
+                  <button
+                    onClick={() => setProfileOpen((p) => !p)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:opacity-80"
+                    aria-label="Open profile menu"
+                    title={user.firstName + " " + user.lastName}
+                  >
+                    <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
                 </button>
                 <ProfileDropdown
                   open={profileOpen}
@@ -507,13 +498,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                     aria-expanded={profileOpen}
                     aria-haspopup="true"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-white dark:bg-white dark:text-black overflow-hidden">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        getInitials(user.firstName + " " + user.lastName)
-                      )}
-                    </div>
+                    <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
                     <div className="min-w-0 flex-1 text-left">
                       <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
                         {user.firstName} {user.lastName}

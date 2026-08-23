@@ -56,6 +56,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Free runner disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghc /opt/hostedtoolcache/CodeQL || true
+          df -h /
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -124,5 +129,6 @@ jobs:
               exit 1
             fi
             echo "Backend deployed and healthy."
+
 
 

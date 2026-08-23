@@ -65,6 +65,11 @@ services:
         AUTH_URL: ${FRONTEND_URL:-http://localhost:3000}
         AUTH_SECRET: ${AUTH_SECRET}
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - TZ=Africa/Kigali
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=${FRONTEND_URL:-http://localhost:3000}
     networks:
       - myjudicial-network
     depends_on:

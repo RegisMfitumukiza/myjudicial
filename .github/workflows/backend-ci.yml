@@ -41,6 +41,10 @@ jobs:
         working-directory: myjudicial-backend
         run: npm ci
 
+      - name: Generate Prisma client
+        working-directory: myjudicial-backend
+        run: npx prisma generate
+
       - name: Test
         working-directory: myjudicial-backend
         run: npm test

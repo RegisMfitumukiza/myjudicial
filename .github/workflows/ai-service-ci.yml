@@ -41,6 +41,10 @@ jobs:
         working-directory: myjudicial-ai-service
         run: |
           pip install --upgrade pip
+          # openai-whisper ships as a legacy sdist whose setup.py imports
+          # pkg_resources; pip >= 25 no longer provides setuptools for such
+          # builds automatically.
+          pip install "setuptools<81" wheel
           pip install flake8
           pip install pytest
           pip install -r requirements.txt

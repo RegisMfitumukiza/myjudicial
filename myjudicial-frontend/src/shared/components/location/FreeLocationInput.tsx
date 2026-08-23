@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   MapPinIcon, 
   MagnifyingGlassIcon, 
@@ -102,7 +102,9 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
       .finally(() => setLandmarksLoading(false));
   }, []);
 
-  const searchAddresses = useCallback(
+  // Lazy useState initializer: the debounced function is created exactly once,
+  // instead of a fresh (timer-mutating) instance on every render.
+  const [searchAddresses] = useState(() =>
     debounce(async (query: string) => {
       if (query.length < 2) {
         setSuggestions([]);
@@ -112,7 +114,7 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
       setIsLoading(true);
       try {
         const { data } = await (apiFetchEnvelope(`geocoding/suggestions?query=${encodeURIComponent(query)}`) as Promise<any>);
-        
+
         if (data.success) {
           setSuggestions(data.data || []);
         }
@@ -121,8 +123,7 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
       } finally {
         setIsLoading(false);
       }
-    }, 300),
-    []
+    }, 300)
   );
 
   const selectSuggestion = async (suggestion: AddressSuggestion) => {

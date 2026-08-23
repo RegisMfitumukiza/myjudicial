@@ -256,7 +256,7 @@ export default function ServicesPage() {
       {isUnverified && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-400">
           <AlertTriangle size={16} className="inline mr-1" />
-          Your profile is not yet verified. You can manage services, but they won't be visible to clients until verification is complete.
+          Your profile is not yet verified. You can manage services, but they won&apos;t be visible to clients until verification is complete.
         </div>
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
@@ -138,9 +138,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const queryClient = useQueryClient();
   const t = useTranslations("features.experts");
 
-  // Restore saved progress or start fresh
-  const saved = useRef(loadProgress());
-  const [currentStep, setCurrentStep] = useState(saved.current?.currentStep ?? 1);
+  // Restore saved progress or start fresh.
+  // Lazy useState initializer runs exactly once (unlike useRef(loadProgress()),
+  // which read localStorage during every render).
+  const [initialProgress] = useState(() => loadProgress());
+  const [currentStep, setCurrentStep] = useState(initialProgress?.currentStep ?? 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPhotoUploading, setIsPhotoUploading] = useState(false);
   
@@ -184,11 +186,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   };
 
   const [formData, setFormData] = useState<OnboardingData>(
-    saved.current?.formData ?? defaultFormData
+    initialProgress?.formData ?? defaultFormData
   );
-
-  // Clear saved reference after initial load
-  saved.current = null;
 
   // Auto-save to localStorage on every change (debounced)
   useEffect(() => {

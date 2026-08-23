@@ -44,6 +44,10 @@ export function useRoomConnection(bookingId: string) {
   const generationRef = useRef(0);
   const rejoinCountRef = useRef(0);
   const rejoinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Latest attemptJoin, for self-referential retry scheduling. The timer
+  // callback resolves it at fire time instead of capturing the variable
+  // before its own declaration completes.
+  const attemptJoinRef = useRef<((gen: number, isInitial?: boolean) => Promise<void>) | null>(null);
 
   const updateParticipants = useCallback((r: Room | null) => {
     if (!r) return;
@@ -70,7 +74,7 @@ export function useRoomConnection(bookingId: string) {
           rejoinCountRef.current += 1;
           setRejoinAttempt(rejoinCountRef.current);
           rejoinTimerRef.current = setTimeout(() => {
-            attemptJoin(gen).catch(() => {});
+            void attemptJoinRef.current?.(gen).catch(() => {});
           }, REJOIN_DELAY_MS);
         } else {
           setError("connectionLost");
@@ -125,6 +129,13 @@ export function useRoomConnection(bookingId: string) {
     },
     [bookingId, getLocalTracks, joinConsultation, updateParticipants]
   );
+
+  useEffect(() => {
+    attemptJoinRef.current = attemptJoin;
+    return () => {
+      attemptJoinRef.current = null;
+    };
+  }, [attemptJoin]);
 
   useEffect(() => {
     const gen = ++generationRef.current;

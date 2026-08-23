@@ -43,7 +43,7 @@ function CancelledContent() {
           The payment was cancelled before completion. This could be because you:
         </p>
         <ul className="mt-2 list-inside list-disc space-y-1 text-[13px] text-brand-dark/70 dark:text-white/70">
-          <li>Clicked "Cancel" on the payment screen</li>
+          <li>Clicked &quot;Cancel&quot; on the payment screen</li>
           <li>Closed the payment window</li>
           <li>Experienced a connection timeout</li>
         </ul>

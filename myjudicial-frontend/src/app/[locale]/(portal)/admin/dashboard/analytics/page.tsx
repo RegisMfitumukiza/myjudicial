@@ -631,7 +631,7 @@ export default function AnalyticsPage() {
           {revenueComp?.data?.comparisons && (
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-                Revenue Comparison (RWF '000)
+                Revenue Comparison (RWF &apos;000)
               </h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">

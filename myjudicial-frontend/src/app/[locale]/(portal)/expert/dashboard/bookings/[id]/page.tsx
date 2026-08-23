@@ -645,7 +645,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                 <CheckCircle size={28} className="text-brand-dark/40 dark:text-white/40 mx-auto mb-2" />
                 <p className="text-[14px] font-semibold text-brand-dark dark:text-white">Summary sent to client</p>
                 <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mt-1">
-                  The consultation summary has been delivered to the client's inbox.
+                  The consultation summary has been delivered to the client&apos;s inbox.
                 </p>
               </div>
             )}

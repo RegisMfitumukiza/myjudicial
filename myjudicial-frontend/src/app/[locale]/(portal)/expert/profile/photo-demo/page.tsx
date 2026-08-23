@@ -137,7 +137,7 @@ export default function PhotoReminderDemo() {
         <h2 className="text-xl font-semibold text-gray-800">Success State</h2>
         
         <PhotoUploadSuccess
-          photoUrl="/myjudicial-logo.svg"
+          photoUrl="/myjudicial-logo.png"
           onChangePhoto={() => console.log('Change photo clicked')}
         />
       </section>

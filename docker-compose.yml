@@ -70,6 +70,12 @@ services:
       - TZ=Africa/Kigali
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_URL=${FRONTEND_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+      - NEXT_PUBLIC_API_PREFIX=/api/v1
+      - NEXT_PUBLIC_APP_URL=${FRONTEND_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_LIVEKIT_URL=${LIVEKIT_URL}
     networks:
       - myjudicial-network
     depends_on:

@@ -248,7 +248,7 @@ export default function OnboardingDemoPage() {
                 <div>
                   <h4 className="font-medium mb-3">Success State</h4>
                   <PhotoUploadSuccess
-                    photoUrl="/myjudicial-logo.svg"
+                    photoUrl="/myjudicial-logo.png"
                     onChangePhoto={() => console.log('Change photo clicked')}
                   />
                 </div>

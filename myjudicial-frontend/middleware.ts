@@ -15,10 +15,16 @@ const SECURITY_HEADERS: Record<string, string> = {
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Skip i18n routing for API routes, NextAuth, and internal Next.js paths.
+  // Skip i18n routing for API routes, NextAuth, internal Next.js paths,
+  // and static assets (files with extensions like .png, .ico, .js, etc.).
   // Without this guard the i18n middleware redirects /api/auth/session to
-  // /en/api/auth/session (404), causing next-auth ClientFetchError.
-  if (pathname.startsWith('/api/') || pathname.startsWith('/_next/')) {
+  // /en/api/auth/session (404), and static files like /myjudicial-logo.png
+  // to /en/myjudicial-logo.png (also 404).
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.includes('.')
+  ) {
     const response = NextResponse.next();
     response.headers.set("x-request-id", request.headers.get("x-request-id") ?? crypto.randomUUID());
     for (const [key, value] of Object.entries(SECURITY_HEADERS)) {

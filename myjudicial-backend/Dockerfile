@@ -21,10 +21,13 @@ COPY prisma ./prisma/
 # Install ALL dependencies (including dev for TypeScript build)
 RUN npm ci
 
-# Copy source code (includes pre-generated Prisma client in src/generated/prisma/)
+# Generate the Prisma client - src/generated/ is gitignored, so fresh
+# checkouts (CI) must regenerate it before tsc can resolve its types.
+RUN npx prisma generate
+
+# Copy source code
 COPY . .
 
-# Skip prisma generate (pre-generated client copied from host) - VPS cannot reach Prisma CDN
 # Build TypeScript only
 RUN npx tsc
 

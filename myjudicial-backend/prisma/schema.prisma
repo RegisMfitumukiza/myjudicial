@@ -1,8 +1,14 @@
 generator client {
-  provider        = "prisma-client"
-  output          = "../src/generated/prisma"
-  engine          = "client"
-  previewFeatures = ["postgresqlExtensions", "partialIndexes"]
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  engine              = "client"
+  previewFeatures     = ["postgresqlExtensions", "partialIndexes"]
+  // Pin output shape - auto-detection differs between local (tsconfig.json
+  // present) and Docker builder (only package.json + prisma/ copied when
+  // `prisma generate` runs), which made CI emit ".ts" import specifiers that
+  // break at runtime after tsc compilation.
+  moduleFormat        = "esm"
+  importFileExtension = "js"
 }
 
 datasource db {

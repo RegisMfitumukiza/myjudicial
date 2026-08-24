@@ -1,19 +1,35 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+// Server-side (NextAuth route handlers run on the server). Must use a
+// non-public env var: Next.js statically inlines NEXT_PUBLIC_* at BUILD time,
+// which baked the public Cloudflare URL into the bundle. Containers cannot
+// egress to Cloudflare, so verification timed out -> "invalid or expired".
+const BACKEND_URL =
+  process.env.AUTH_API_URL ??
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:4000");
 const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX ?? "/api/v1";
 
 async function fetchBackend<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(`${BACKEND_URL}${API_PREFIX}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${BACKEND_URL}${API_PREFIX}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    // Network-level failure (DNS, connection refused, TLS) — log loudly so
+    // misconfigured BACKEND_URL is obvious in server logs instead of surfacing
+    // as a generic "code invalid or expired" to users.
+    console.error(`[auth] Cannot reach backend at ${BACKEND_URL}${API_PREFIX}${path}:`, err);
+    throw err;
+  }
 
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
     const message = payload?.message ?? payload?.error?.message ?? "Authentication failed";
+    console.error(`[auth] Backend ${path} responded ${response.status}: ${message}`);
     throw new Error(message);
   }
 

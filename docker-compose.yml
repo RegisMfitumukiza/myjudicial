@@ -70,6 +70,11 @@ services:
       - TZ=Africa/Kigali
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_URL=${FRONTEND_URL:-http://localhost:3000}
+      # Server-only backend URL for NextAuth (auth.ts). Must NOT be NEXT_PUBLIC_*
+      # — Next.js inlines those at build time, which baked the public URL into
+      # the bundle and broke server-side OTP verification (egress to Cloudflare
+      # times out from inside the container).
+      - AUTH_API_URL=http://backend:4000
       - NEXT_PUBLIC_API_URL=http://backend:4000
       - NEXT_PUBLIC_API_PREFIX=/api/v1
       - NEXT_PUBLIC_APP_URL=${FRONTEND_URL:-http://localhost:3000}

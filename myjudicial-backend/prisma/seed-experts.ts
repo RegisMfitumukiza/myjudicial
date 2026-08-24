@@ -18,9 +18,19 @@ try {
   config({ path: path.resolve(process.cwd(), "../.env") });
 } catch { /* env already set */ }
 import ws from "ws";
+import { createClient } from "@supabase/supabase-js";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client.js";
+// Load PrismaClient — works both locally (src/) and in Docker (dist/)
 import { Pool } from "pg";
+
+let PrismaClientClass: any;
+try {
+  const mod = await import("../src/generated/prisma/client.js");
+  PrismaClientClass = mod.PrismaClient;
+} catch {
+  const mod = await import("../dist/generated/prisma/client.js");
+  PrismaClientClass = mod.PrismaClient;
+}
 
 /* ── Validate ── */
 const REQUIRED = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "DATABASE_URL"];
@@ -32,17 +42,35 @@ for (const key of REQUIRED) {
 }
 
 /* ── Clients ── */
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+const SUPABASE_URL = process.env.SUPABASE_URL!;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
   realtime: { transport: ws as unknown as typeof WebSocket },
 });
+
+// Raw fetch wrapper for Supabase Auth API (bypasses undici timeout in tsx)
+async function supabaseCreateUser(email: string, metadata: Record<string, any>) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+    },
+    body: JSON.stringify({ email, email_confirm: true, user_metadata: metadata }),
+  });
+  const data = await res.json();
+  if (!res.ok) return { data: null, error: { message: data.msg || data.error_description || "Unknown error" } };
+  return { data: { user: data }, error: null };
+}
 
 const pool = new Pool({
   connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+const prisma = new PrismaClientClass({ adapter: new PrismaPg(pool) });
 
 /* ── Expert Data ── */
 type ExpertSeed = {
@@ -67,11 +95,11 @@ type ExpertSeed = {
 
 const EXPERTS: ExpertSeed[] = [
   {
-    email: "francois.mugenzi@myjudicial.rw",
-    firstName: "Francois",
-    lastName: "Mugenzi",
+    email: "mfitumukizaregis4@gmail.com",
+    firstName: "Regis",
+    lastName: "Mfitumukiza",
     phone: "+250788100001",
-    displayName: "Mugenzi Francois",
+    displayName: "Mfitumukiza Regis",
     bio: "Experienced family law attorney specializing in divorce proceedings, child custody disputes, and inheritance matters. Deep understanding of Rwandan family law traditions combined with modern legal practice.",
     barNumber: "RBA-2019-0142",
     primarySpecialty: "FAMILY_LAW",
@@ -86,11 +114,11 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "alain.mugabo@myjudicial.rw",
-    firstName: "Alain",
-    lastName: "Mugabo",
+    email: "mfitumukizaregis077@gmail.com",
+    firstName: "Aline",
+    lastName: "Mukamurera",
     phone: "+250788100002",
-    displayName: "Alain Mugabo",
+    displayName: "Mukamurera Aline",
     bio: "Commercial law specialist with 6 years of experience advising SMEs on contracts, corporate governance, and business formation across East Africa.",
     barNumber: "RBA-2018-0287",
     primarySpecialty: "COMMERCIAL_LAW",
@@ -105,11 +133,11 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "claire.uwimana@myjudicial.rw",
-    firstName: "Claire",
-    lastName: "Uwimana",
+    email: "mfitumukizaregis7@gmail.com",
+    firstName: "Claude",
+    lastName: "Hakizimana",
     phone: "+250788100003",
-    displayName: "Uwimana Claire",
+    displayName: "Hakizimana Claude",
     bio: "Criminal defense attorney with a strong track record in white-collar crime, fraud cases, and human rights litigation. Former public defender.",
     barNumber: "RBA-2016-0098",
     primarySpecialty: "CRIMINAL_LAW",
@@ -124,7 +152,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "OFFLINE",
   },
   {
-    email: "patrick.niyonzima@myjudicial.rw",
+    email: "odamuka35@gmail.com",
     firstName: "Patrick",
     lastName: "Niyonzima",
     phone: "+250788100004",
@@ -143,7 +171,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "diane.mukamana@myjudicial.rw",
+    email: "mfitumukizaregis90@gmail.com",
     firstName: "Diane",
     lastName: "Mukamana",
     phone: "+250788100005",
@@ -162,7 +190,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "BUSY",
   },
   {
-    email: "jean.habimana@myjudicial.rw",
+    email: "cedrokami179@gmail.com",
     firstName: "Jean Baptiste",
     lastName: "Habimana",
     phone: "+250788100006",
@@ -181,7 +209,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "grace.uwera@myjudicial.rw",
+    email: "gravityuserinspace@gmail.com",
     firstName: "Grace",
     lastName: "Uwera",
     phone: "+250788100007",
@@ -200,7 +228,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "emmanuel.nsengiyumva@myjudicial.rw",
+    email: "antigravityearth4@gmail.com",
     firstName: "Emmanuel",
     lastName: "Nsengiyumva",
     phone: "+250788100008",
@@ -219,7 +247,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "OFFLINE",
   },
   {
-    email: "alice.karangwa@myjudicial.rw",
+    email: "antigravityearth5@gmail.com",
     firstName: "Alice",
     lastName: "Karangwa",
     phone: "+250788100009",
@@ -238,7 +266,7 @@ const EXPERTS: ExpertSeed[] = [
     presenceStatus: "ONLINE",
   },
   {
-    email: "samuel.mugiraneza@myjudicial.rw",
+    email: "antigravityearth6@gmail.com",
     firstName: "Samuel",
     lastName: "Mugiraneza",
     phone: "+250788100010",
@@ -255,82 +283,6 @@ const EXPERTS: ExpertSeed[] = [
     longitude: 29.8798,
     officeAddress: "KN 5 Rd, Kigali",
     presenceStatus: "ONLINE",
-  },
-  {
-    email: "josiane.imanishimwe@myjudicial.rw",
-    firstName: "Josiane",
-    lastName: "Imanishimwe",
-    phone: "+250788100011",
-    displayName: "Imanishimwe Josiane",
-    bio: "Family law attorney based in Musanze serving the Northern Province. Specializes in mediation and amicable dispute resolution to minimize conflict for families.",
-    barNumber: "RBA-2020-0256",
-    primarySpecialty: "FAMILY_LAW",
-    specialties: ["FAMILY_LAW"],
-    languages: ["en", "rw"],
-    yearsExperience: 4,
-    baseConsultationFee: 20000,
-    city: "Musanze",
-    latitude: -1.4994,
-    longitude: 29.6344,
-    officeAddress: "KN 12 Rd, Musanze",
-    presenceStatus: "OFFLINE",
-  },
-  {
-    email: "eric.ndayisaba@myjudicial.rw",
-    firstName: "Eric",
-    lastName: "Ndayisaba",
-    phone: "+250788100012",
-    displayName: "Ndayisaba Eric",
-    bio: "Criminal law practitioner in Rubavu with expertise in cross-border legal matters near the DRC border. Fluent in French and Kinyarwanda.",
-    barNumber: "RBA-2018-0234",
-    primarySpecialty: "CRIMINAL_LAW",
-    specialties: ["CRIMINAL_LAW"],
-    languages: ["en", "fr", "rw"],
-    yearsExperience: 6,
-    baseConsultationFee: 25000,
-    city: "Rubavu",
-    latitude: -1.6714,
-    longitude: 29.2524,
-    officeAddress: "KN 1 Rd, Rubavu",
-    presenceStatus: "ONLINE",
-  },
-  {
-    email: "chantal.nyirahabimana@myjudicial.rw",
-    firstName: "Chantal",
-    lastName: "Nyirahabimana",
-    phone: "+250788100013",
-    displayName: "Nyirahabimana Chantal",
-    bio: "Senior land law attorney with 11 years resolving complex property disputes, boundary issues, and land titling across Rwanda.",
-    barNumber: "RBA-2013-0067",
-    primarySpecialty: "LAND_LAW",
-    specialties: ["LAND_LAW"],
-    languages: ["en", "fr", "rw"],
-    yearsExperience: 11,
-    baseConsultationFee: 30000,
-    city: "Kigali",
-    latitude: -1.9456,
-    longitude: 29.8812,
-    officeAddress: "KG 7 Ave, Kigali",
-    presenceStatus: "ONLINE",
-  },
-  {
-    email: "issa.nkurunziza@myjudicial.rw",
-    firstName: "Issa",
-    lastName: "Nkurunziza",
-    phone: "+250788100014",
-    displayName: "Nkurunziza Issa",
-    bio: "Commercial law expert advising startups and tech companies on funding agreements, IP protection, and regulatory compliance. Arabic, English, and Kinyarwanda speaker.",
-    barNumber: "RBA-2016-0145",
-    primarySpecialty: "COMMERCIAL_LAW",
-    specialties: ["COMMERCIAL_LAW", "INTELLECTUAL_PROPERTY"],
-    languages: ["en", "rw"],
-    yearsExperience: 8,
-    baseConsultationFee: 40000,
-    city: "Kigali",
-    latitude: -1.9434,
-    longitude: 29.8767,
-    officeAddress: "KN 5 Rd, Kigali",
-    presenceStatus: "OFFLINE",
   },
 ];
 
@@ -355,12 +307,51 @@ async function main() {
   if (expertUsers.length > 0) {
     console.log(`   Found ${expertUsers.length} existing experts — deleting...`);
     for (const user of expertUsers) {
-      const { error } = await supabase.auth.admin.deleteUser(user.id);
-      if (error) {
-        console.warn(`   ⚠️  Supabase delete failed for ${user.email}: ${error.message}`);
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${SUPABASE_KEY}`, apikey: SUPABASE_KEY },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.warn(`   ⚠️  Supabase delete failed for ${user.email}: ${JSON.stringify(err)}`);
       }
     }
-    // PostgreSQL cascade deletes via onDelete: Cascade
+    // Delete all dependent records using raw SQL — leaf-first order
+    const expertIds = expertUsers.map((u) => u.id);
+    const idList = expertIds.map((id) => `'${id}'`).join(",");
+
+    // Find ExpertProfile IDs
+    const expertProfiles = await prisma.expertProfile.findMany({
+      where: { userId: { in: expertIds } },
+      select: { id: true },
+    });
+    const profileIds = expertProfiles.map((p) => p.id);
+    const profileIdList = profileIds.map((id) => `'${id}'`).join(",");
+    const allExpertIdList = profileIdList ? `${idList},${profileIdList}` : idList;
+
+    // 1. payments (blocks bookings via bookingId Restrict)
+    await prisma.$executeRawUnsafe(`DELETE FROM payments WHERE "bookingId" IN (SELECT id FROM bookings WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList}))`);
+    // 2. documents.bookingId (blocks bookings via bookingId Restrict)
+    //    document_audits and document_shares cascade from documents, no need to delete separately
+    await prisma.$executeRawUnsafe(`DELETE FROM documents WHERE "ownerId" IN (${idList}) OR "bookingId" IN (SELECT id FROM bookings WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList}))`);
+    // 3. reviews (blocks bookings via reviewId on Booking? No — reviews.bookingId has Cascade)
+    //    But reviews.block expertId (Restrict) and citizenId (Restrict)
+    //    And review children: expert_replies, review_reports, review_reactions all reference reviews (Cascade)
+    await prisma.$executeRawUnsafe(`DELETE FROM expert_replies WHERE "expertId" IN (${profileIdList || "''"}) OR "reviewId" IN (SELECT id FROM reviews WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList}))`);
+    await prisma.$executeRawUnsafe(`DELETE FROM review_reports WHERE "reportedBy" IN (${idList}) OR "reviewId" IN (SELECT id FROM reviews WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList}))`);
+    await prisma.$executeRawUnsafe(`DELETE FROM review_reactions WHERE "userId" IN (${idList}) OR "reviewId" IN (SELECT id FROM reviews WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList}))`);
+    await prisma.$executeRawUnsafe(`DELETE FROM reviews WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList})`);
+    // 4. bookings (expertId Restrict, citizenId Restrict, serviceId Restrict — services still exist)
+    await prisma.$executeRawUnsafe(`DELETE FROM bookings WHERE "expertId" IN (${profileIdList || "''"}) OR "citizenId" IN (${idList})`);
+    // 5. admin_actions (expertId Restrict, adminUserId Restrict)
+    await prisma.$executeRawUnsafe(`DELETE FROM admin_actions WHERE "expert_id" IN (${profileIdList || "''"}) OR "admin_user_id" IN (${idList})`);
+    // 6. expert_verifications (reviewedById Restrict)
+    await prisma.$executeRawUnsafe(`DELETE FROM expert_verifications WHERE "reviewedById" IN (${idList})`);
+    // 7. audit_logs (actorId Restrict)
+    await prisma.$executeRawUnsafe(`DELETE FROM audit_logs WHERE "actorId" IN (${idList})`);
+    // 8. messages (senderId Restrict)
+    await prisma.$executeRawUnsafe(`DELETE FROM messages WHERE "senderId" IN (${idList})`);
+    // 9. Now safe — User delete cascades ExpertProfile → services, availability, etc.
     await prisma.user.deleteMany({ where: { role: "EXPERT" } });
     console.log(`   ✅ Deleted ${expertUsers.length} experts from Supabase Auth + PostgreSQL\n`);
   } else {
@@ -374,16 +365,12 @@ async function main() {
     const [firstName, lastName] = splitName(expert.firstName + " " + expert.lastName);
 
     // 1. Create Supabase Auth user
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: expert.email,
-      email_confirm: true,
-      user_metadata: {
-        full_name: expert.displayName,
-        role: "EXPERT",
-        first_name: firstName,
-        last_name: lastName,
-        phone: expert.phone,
-      },
+    const { data: authData, error: authError } = await supabaseCreateUser(expert.email, {
+      full_name: expert.displayName,
+      role: "EXPERT",
+      first_name: firstName,
+      last_name: lastName,
+      phone: expert.phone,
     });
 
     if (authError || !authData.user) {
@@ -444,16 +431,13 @@ async function main() {
       },
     });
 
-    // 5. Create MapMarker (visible)
-    await prisma.mapMarker.create({
-      data: {
-        expertId: profile.id,
-        latitude: expert.latitude,
-        longitude: expert.longitude,
-        location: `SRID=4326;POINT(${expert.longitude} ${expert.latitude})` as any,
-        isVisible: true,
-      },
-    });
+    // 5. Create MapMarker (visible) — raw SQL because PostGIS geography type is Unsupported in Prisma
+    const markerId = crypto.randomUUID();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO map_markers (id, "expertId", latitude, longitude, location, "isVisible", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($4, $3), 4326)::geography, true, NOW(), NOW())`,
+      markerId, profile.id, expert.latitude, expert.longitude,
+    );
 
     // 6. Create weekday availability (9am - 5pm)
     for (const day of WEEKDAYS) {

@@ -1,9 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { AppSidebar } from "./app-sidebar";
 import { ConsumerHeader } from "./consumer-header";
 import { useAuth } from "@/providers/auth-provider";
+import { usePathname } from "@/i18n/routing";
 import { UserRole } from "@/features/auth/types";
 import type { PublicUser } from "@/features/auth/types";
 

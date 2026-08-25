@@ -89,18 +89,20 @@
   --color-brand-alert:  248 113 113;
   --color-brand-green:  255 255 255;
 
-  /* Neutral scale — dark: blue-tinted charcoal with a real elevation ladder */
-  --mj-neutral-50:  27 30 37;
-  --mj-neutral-100: 33 37 45;
-  --mj-neutral-200: 44 49 58;
-  --mj-neutral-300: 61 67 78;
-  --mj-neutral-400: 112 120 132;
-  --mj-neutral-500: 140 148 159;
-  --mj-neutral-600: 168 175 185;
-  --mj-neutral-700: 55 61 71;
-  --mj-neutral-800: 31 35 43;
-  --mj-neutral-900: 23 26 32;
-  --mj-neutral-950: 13 15 19;
+  /* Neutral scale — dark: monotonic blue-tinted charcoal (darkest at 950,
+     lightest at 50) so `dark:text-gray-N` stays LIGHT text while
+     `dark:bg-gray-800/900` remain elevated surfaces. */
+  --mj-neutral-50:  240 243 247;
+  --mj-neutral-100: 225 229 235;
+  --mj-neutral-200: 205 210 218;
+  --mj-neutral-300: 176 183 193;
+  --mj-neutral-400: 148 156 168;
+  --mj-neutral-500: 122 130 142;
+  --mj-neutral-600: 96 104 116;
+  --mj-neutral-700: 43 49 59;
+  --mj-neutral-800: 26 30 37;
+  --mj-neutral-900: 17 20 25;
+  --mj-neutral-950: 10 12 16;
 
   /* Brand-tinted blue scale — dark (lighter blues read as accents) */
   --mj-blue-50:  34 41 51;
@@ -156,33 +158,33 @@ body {
    both modes. These rules retune those to the dark elevation ladder so they
    remain consistent with token-styled surfaces. */
 .dark .bg-white {
-  background-color: rgb(23 26 32);
+  background-color: rgb(21 24 30);
 }
 
 .dark .bg-slate-50,
 .dark .bg-gray-50 {
-  background-color: rgb(27 30 37);
+  background-color: rgb(26 30 37);
 }
 
 .dark .bg-slate-100,
 .dark .bg-gray-100 {
-  background-color: rgb(33 37 45);
+  background-color: rgb(31 36 44);
 }
 
 /* Dark mode border overrides */
 .dark .border-slate-100,
 .dark .border-slate-200 {
-  border-color: rgb(44 49 58);
+  border-color: rgb(42 48 58);
 }
 
 .dark .border-gray-100,
 .dark .border-gray-200 {
-  border-color: rgb(44 49 58);
+  border-color: rgb(42 48 58);
 }
 
 .dark .divide-slate-200 > * + *,
 .dark .divide-gray-200 > * + * {
-  border-color: rgb(44 49 58);
+  border-color: rgb(42 48 58);
 }
 
 /* Dark mode text overrides — blue-tinted off-white, never pure white */

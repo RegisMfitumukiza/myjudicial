@@ -228,7 +228,8 @@ export default function ExpertDashboardPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       {/* Welcome banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark via-brand-blue to-brand-dark p-6 shadow-lg lg:p-8">
+      {/* Welcome banner — fixed navy gradient so text stays legible in both themes */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#16324f] via-[#24558d] to-[#0d2238] p-6 shadow-lg lg:p-8">
         <div className="absolute right-0 top-0 h-80 w-80 translate-x-20 -translate-y-20 rounded-full bg-white/[0.05] blur-3xl" />
         <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-12 translate-y-12 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10">

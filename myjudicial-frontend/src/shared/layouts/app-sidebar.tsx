@@ -401,12 +401,12 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                       aria-current={active ? "page" : undefined}
                       role="listitem"
                       className={`
-                        group relative flex items-center rounded-lg text-sm font-medium transition-all duration-150
+                        group relative flex items-center rounded-lg text-sm transition-all duration-150
                         ${collapsed ? "justify-center py-2.5" : "gap-3 px-3 py-2.5"}
                         ${
                           active
-                            ? "bg-brand-dark text-on-brand shadow-sm"
-                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                            ? "bg-primary font-semibold text-primary-foreground shadow-sm"
+                            : "font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                         }
                       `}
                     >

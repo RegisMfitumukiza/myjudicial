@@ -17,8 +17,8 @@ const SECURITY_HEADERS: Record<string, string> = {
 const ADMIN_HOST = (process.env.ADMIN_PORTAL_HOST ?? "admin.myjudicial.com").toLowerCase();
 const MAIN_HOSTS = ["myjudicial.com", "www.myjudicial.com"];
 const LOCALES = routing.locales.join("|");
-const RE_ADMIN_PATH = new RegExp(`^\\/(?:${LOCALES}\\/)?admin(\\/|$)`);
-const RE_AUTH_PAGE = new RegExp(`^\\/(?:${LOCALES}\\/)?(sign-in|sign-up|post-auth)(\\/|$)`);
+const RE_ADMIN_PATH = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?admin(\\/|$)`);
+const RE_AUTH_PAGE = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?(sign-in|sign-up|post-auth)(\\/|$)`);
 
 function requestHost(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0];

@@ -14,6 +14,10 @@ ingress:
   - hostname: www.myjudicial.com
     service: http://frontend:3000
 
+  # Admin portal (separate host so admin/expert sessions coexist in one browser)
+  - hostname: admin.myjudicial.com
+    service: http://frontend:3000
+
   # Backend API
   - hostname: api.myjudicial.com
     service: http://backend:4000

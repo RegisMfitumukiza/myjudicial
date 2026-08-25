@@ -12,8 +12,35 @@ const SECURITY_HEADERS: Record<string, string> = {
   "x-dns-prefetch-control": "off",
 };
 
+// Admin portal lives on its own host so an admin session and an expert/citizen
+// session can coexist in the same browser (NextAuth cookies are host-scoped).
+const ADMIN_HOST = (process.env.ADMIN_PORTAL_HOST ?? "admin.myjudicial.com").toLowerCase();
+const MAIN_HOSTS = ["myjudicial.com", "www.myjudicial.com"];
+const LOCALES = routing.locales.join("|");
+const RE_ADMIN_PATH = new RegExp(`^\\/(?:${LOCALES}\\/)?admin(\\/|$)`);
+const RE_AUTH_PAGE = new RegExp(`^\\/(?:${LOCALES}\\/)?(sign-in|sign-up|post-auth)(\\/|$)`);
+
+function requestHost(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0];
+  const host = (forwarded ?? request.headers.get("host") ?? "").toLowerCase();
+  return host.replace(/:\d+$/, "");
+}
+
+function withSecurityHeaders(response: NextResponse, requestId: string): NextResponse {
+  response.headers.set("x-request-id", requestId);
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
+  }
+  return response;
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const search = request.nextUrl.search;
+  const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
 
   // Skip i18n routing for API routes, NextAuth, internal Next.js paths,
   // and static assets (files with extensions like .png, .ico, .js, etc.).
@@ -25,28 +52,44 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next/') ||
     pathname.includes('.')
   ) {
-    const response = NextResponse.next();
-    response.headers.set("x-request-id", request.headers.get("x-request-id") ?? crypto.randomUUID());
-    for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
-      response.headers.set(key, value);
+    return withSecurityHeaders(NextResponse.next(), requestId);
+  }
+
+  const host = requestHost(request);
+  const isMainHost = MAIN_HOSTS.includes(host);
+  const isAdminPortal = host === ADMIN_HOST;
+
+  if (isMainHost || isAdminPortal) {
+    const httpsBase = `https://${host}`;
+
+    // Main site: /admin/* belongs on the admin portal.
+    if (isMainHost && RE_ADMIN_PATH.test(pathname)) {
+      return withSecurityHeaders(
+        NextResponse.redirect(`https://${ADMIN_HOST}${pathname}${search}`),
+        requestId
+      );
     }
-    return response;
+
+    // Admin portal: root goes to the dashboard; non-admin pages go back to
+    // the main site. Auth pages (/sign-in, /post-auth) stay for admin login.
+    if (isAdminPortal) {
+      if (pathname === "/" || pathname === "") {
+        return withSecurityHeaders(
+          NextResponse.redirect(`${httpsBase}/en/admin/dashboard`),
+          requestId
+        );
+      }
+      if (!RE_ADMIN_PATH.test(pathname) && !RE_AUTH_PAGE.test(pathname)) {
+        return withSecurityHeaders(
+          NextResponse.redirect(`https://www.myjudicial.com${pathname}${search}`),
+          requestId
+        );
+      }
+    }
   }
 
   const i18nResponse = handleI18nRouting(request);
-
-  const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
-  i18nResponse.headers.set("x-request-id", requestId);
-
-  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
-    i18nResponse.headers.set(key, value);
-  }
-
-  if (process.env.NODE_ENV === "production") {
-    i18nResponse.headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
-  }
-
-  return i18nResponse;
+  return withSecurityHeaders(i18nResponse, requestId);
 }
 
 export const config = {

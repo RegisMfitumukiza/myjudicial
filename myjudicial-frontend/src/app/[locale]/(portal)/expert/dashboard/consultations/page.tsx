@@ -5,13 +5,21 @@ import { CalendarClock, History, XCircle, Video } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
 import { useTranslations } from "next-intl";
+import {
+  PageHeader,
+  EmptyState,
+  SkeletonList,
+  ErrorState,
+  StatusBadge,
+  type StatusTone,
+} from "@/shared/components/dashboard";
 
 type Tab = "upcoming" | "past" | "cancelled";
 
-const STATUS_STYLE: Record<string, string> = {
-  Upcoming: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  Completed: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-  Cancelled: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+const STATUS_TONE: Record<"Upcoming" | "Completed" | "Cancelled", StatusTone> = {
+  Upcoming: "active",
+  Completed: "success",
+  Cancelled: "destructive",
 };
 
 const TAB_ICON: Record<Tab, React.ElementType> = {
@@ -53,40 +61,37 @@ export default function ConsultationsPage() {
 
   return (
     <div className="flex h-full flex-col p-6 lg:p-8">
-      <div className="mb-6 shrink-0">
-        <h1 className="text-[22px] font-bold text-brand-dark capitalize">{t("title")}</h1>
-        <p className="mt-1 text-sm text-slate-500">{t("subtitle")}</p>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        className="capitalize"
+      />
 
-      <div className="mb-6 flex gap-6 border-b border-brand-border/10 dark:border-gray-700">
-        {TABS.map(({ key, labelKey }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={`pb-3 text-sm font-medium transition ${
-              activeTab === key
-                ? "border-b-2 border-brand-blue text-brand-blue"
-                : "text-gray-500 hover:text-brand-dark dark:text-gray-400 dark:hover:text-gray-100"
-            }`}
-          >
-            {t(labelKey)}
-            <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
-              {grouped[key].length}
-            </span>
-          </button>
-        ))}
+      <div className="mb-6 mt-6 shrink-0">
+        <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+          {TABS.map(({ key, labelKey }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={
+                activeTab === key
+                  ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
+                  : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              }
+            >
+              {t(labelKey)}
+              <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary dark:bg-white/10 dark:text-white">
+                {grouped[key].length}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl border border-brand-border/20 bg-gray-100 dark:border-gray-700 dark:bg-gray-800" />
-          ))}
-        </div>
+        <SkeletonList count={3} itemClassName="h-24" />
       ) : isError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-          {t("failedToLoad")}
-        </div>
+        <ErrorState message={t("failedToLoad")} />
       ) : items.length > 0 ? (
         <div className="flex flex-col gap-4">
           {items.map((c) => {
@@ -104,31 +109,27 @@ export default function ConsultationsPage() {
             return (
               <div
                 key={c.id}
-                className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-900"
+                className="rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-blue text-sm font-bold text-white">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary dark:bg-primary/20">
                     {initials}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">{clientName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{c.service?.name ?? t("serviceFallback")}</p>
+                    <p className="text-sm font-semibold text-foreground">{clientName}</p>
+                    <p className="text-xs text-muted-foreground">{c.service?.name ?? t("serviceFallback")}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-brand-dark dark:text-gray-100">
+                    <p className="text-xs font-medium text-foreground">
                       {scheduled.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       {scheduled.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
-                  <span
-                    className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLE[statusRaw]}`}
-                  >
-                    {status}
-                  </span>
+                  <StatusBadge tone={STATUS_TONE[statusRaw]}>{status}</StatusBadge>
                 </div>
-                <div className="mt-3 flex items-center gap-3 border-t border-brand-border/10 pt-3 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                <div className="mt-3 flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
                   <Video size={14} />
                   <span>{t("videoConsult")}</span>
                 </div>
@@ -137,21 +138,17 @@ export default function ConsultationsPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-brand-border/20 bg-white p-8 shadow-md dark:border-gray-700 dark:bg-gray-900">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 shadow-sm dark:bg-gray-800">
-            <Icon size={28} className="text-gray-400" />
-          </div>
-          <h2 className="mb-1 text-base font-bold text-brand-dark dark:text-gray-100">
-            {t("noTitle", { tab: t(`tab${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` as any) })}
-          </h2>
-          <p className="max-w-sm text-center text-sm text-gray-500 dark:text-gray-400">
-            {activeTab === "upcoming"
+        <EmptyState
+          icon={Icon}
+          title={t("noTitle", { tab: t(`tab${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` as any) })}
+          description={
+            activeTab === "upcoming"
               ? t("noUpcoming")
               : activeTab === "past"
                 ? t("noPast")
-                : t("noCancelled")}
-          </p>
-        </div>
+                : t("noCancelled")
+          }
+        />
       )}
     </div>
   );

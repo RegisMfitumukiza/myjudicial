@@ -3,11 +3,13 @@
 import { use, useState, useCallback } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import {
-  CalendarDays, Clock, Loader2, AlertCircle,
+  CalendarDays, Loader2,
   ArrowLeft, Video, XCircle, CheckCircle, MessageSquare, User, CalendarClock,
   FileText, CreditCard, Stethoscope, Brain, Sparkles, Send,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { StatusBadge, LoadingSpinner, ErrorState, type StatusTone } from "@/shared/components/dashboard";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
 import { useCancelBooking } from "@/features/booking/hooks/useCancelBooking";
@@ -21,6 +23,7 @@ import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { usePostChatMessages } from "@/api/generated";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
 import type { CaseAnalysis } from "@/features/ai/types";
+import { getErrorMessage } from "@/lib/utils";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -46,13 +49,13 @@ const STATUS_ORDER: Record<string, number> = {
   PENDING: 1, CONFIRMED: 2, ACTIVE: 3, COMPLETED: 4, CANCELLED: -1, REFUNDED: -1,
 };
 
-const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 ring-amber-600/20",
-  CONFIRMED: "bg-blue-50 text-blue-700 ring-blue-600/20",
-  ACTIVE: "bg-green-50 text-green-700 ring-green-600/20",
-  COMPLETED: "bg-brand-dark/5 text-brand-dark dark:bg-white/10 dark:text-white ring-brand-dark/20",
-  CANCELLED: "bg-red-50 text-red-700 ring-red-600/20",
-  REFUNDED: "bg-purple-50 text-purple-700 ring-purple-600/20",
+const STATUS_TONE: Record<string, StatusTone> = {
+  PENDING: "pending",
+  CONFIRMED: "active",
+  ACTIVE: "active",
+  COMPLETED: "success",
+  CANCELLED: "destructive",
+  REFUNDED: "destructive",
 };
 
 export default function ExpertBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -129,7 +132,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             toast.success("Consultation summary sent to client.");
           },
           onError: (err) => {
-            toast.error(err.message || "Failed to send summary.");
+            toast.error(getErrorMessage(err, "Failed to send summary."));
           },
         },
       );
@@ -157,21 +160,24 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
+      <div className="flex h-full items-center justify-center">
+        <LoadingSpinner />
       </div>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className="flex h-full flex-col items-center justify-center bg-white dark:bg-black px-6">
-        <AlertCircle className="h-10 w-10 text-brand-alert mb-4" />
-        <p className="text-brand-alert font-medium">Failed to load booking</p>
-        <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 mb-6">{error?.message ?? "Booking not found"}</p>
-        <Button asChild variant="outline" className="border-brand-border/20 text-xs">
-          <Link href="/expert/dashboard/bookings">Back to Bookings</Link>
-        </Button>
+      <div className="flex h-full items-center justify-center px-6">
+        <ErrorState
+          title="Failed to load booking"
+          message="Booking not found"
+          action={
+            <Button variant="outline" asChild>
+              <Link href="/expert/dashboard/bookings">Back to bookings</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -189,7 +195,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     if (!booking || !declineReason.trim() || declineReason.trim().length < 5) return;
     cancelBooking({ bookingId: booking.id, reason: declineReason.trim() }, {
       onSuccess: () => { setShowDecline(false); setDeclineReason(""); },
-      onError: (err: Error) => toast.error(`Failed to decline: ${err.message}`),
+      onError: (err) => toast.error(getErrorMessage(err, "Failed to decline booking.")),
     });
   }
 
@@ -209,36 +215,27 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const clientInitials = clientName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <main className="flex h-full flex-col bg-white dark:bg-black overflow-y-auto">
+    <main className="flex h-full flex-col overflow-y-auto bg-background">
       <div className="mx-auto w-full max-w-[780px] flex-1 px-6 py-8">
         {/* Back */}
-        <Link
-          href="/expert/dashboard/bookings"
-          className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/50 hover:text-brand-dark dark:text-white/50 dark:hover:text-white mb-6 transition-colors"
-        >
-          <ArrowLeft size={14} />
-          Back to Bookings
-        </Link>
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-6 text-muted-foreground">
+          <Link href="/expert/dashboard/bookings">
+            <ArrowLeft />
+            Back to Bookings
+          </Link>
+        </Button>
 
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-[24px] font-extrabold text-brand-dark dark:text-white tracking-tight">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {booking.service?.name ?? "Consultation"}
             </h1>
-            <p className="mt-1.5 text-[14px] text-brand-dark/50 dark:text-white/50">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               with {clientName}
             </p>
           </div>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ring-1 ring-inset ${STATUS_STYLE[booking.status] ?? STATUS_STYLE.PENDING}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${
-              booking.status === "ACTIVE" ? "bg-green-500 animate-pulse" :
-              booking.status === "CONFIRMED" ? "bg-blue-500" :
-              booking.status === "PENDING" ? "bg-amber-500" :
-              "bg-current"
-            }`} />
-            {booking.status}
-          </span>
+          <StatusBadge tone={STATUS_TONE[booking.status] ?? "pending"}>{booking.status}</StatusBadge>
         </div>
 
         {/* Pending Reschedule Banner */}
@@ -262,8 +259,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Status Timeline */}
         {!isCancelledOrRefunded && (
-          <div className="mb-8 rounded-2xl border border-brand-border/15 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-black">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40 mb-5">Progress</h2>
+          <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-5">Progress</h2>
             <div className="flex items-center gap-0">
               {STATUS_STEPS.map((step, i) => {
                 const isReached = currentOrder >= step.order;
@@ -271,24 +268,24 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                 return (
                   <div key={step.key} className="flex items-center flex-1 last:flex-none">
                     <div className="flex items-center gap-2.5">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold transition-all ${
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold transition-all ${
                         isCurrent
-                          ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-md"
+                          ? "bg-primary text-on-brand shadow-md"
                           : isReached
-                            ? "bg-brand-dark text-white dark:bg-white dark:text-black"
-                            : "bg-brand-dark/8 text-brand-dark/30 dark:bg-white/8 dark:text-white/30"
+                            ? "bg-primary text-on-brand"
+                            : "bg-muted text-muted-foreground"
                       }`}>
                         {isReached ? <CheckCircle size={14} /> : step.order}
                       </div>
-                      <span className={`text-[12px] font-semibold hidden sm:inline whitespace-nowrap ${
-                        isCurrent ? "text-brand-dark dark:text-white" : isReached ? "text-brand-dark/70 dark:text-white/70" : "text-brand-dark/30 dark:text-white/30"
+                      <span className={`text-xs font-medium hidden sm:inline whitespace-nowrap ${
+                        isCurrent ? "text-foreground" : isReached ? "text-muted-foreground" : "text-muted-foreground/60"
                       }`}>
                         {step.label}
                       </span>
                     </div>
                     {i < STATUS_STEPS.length - 1 && (
                       <div className={`flex-1 h-px mx-3 ${
-                        currentOrder > step.order ? "bg-brand-dark dark:bg-white" : "bg-brand-dark/10 dark:bg-white/10"
+                        currentOrder > step.order ? "bg-primary" : "bg-border"
                       }`} />
                     )}
                   </div>
@@ -300,17 +297,17 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Cancelled/Refunded info */}
         {isCancelledOrRefunded && (
-          <div className="mb-8 rounded-2xl border border-red-200/60 bg-red-50/50 p-5 dark:border-red-900/30 dark:bg-red-950/20">
+          <div className="mb-8 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                <XCircle className="h-4 w-4 text-red-500" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <XCircle className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-[13px] font-bold text-red-800 dark:text-red-300">
+                <h3 className="text-sm font-semibold text-destructive">
                   {booking.status === "CANCELLED" ? "Booking Cancelled" : "Booking Refunded"}
                 </h3>
                 {booking.cancellationReason && (
-                  <p className="mt-1 text-[12px] text-red-600/80 dark:text-red-400/80">{booking.cancellationReason}</p>
+                  <p className="mt-1 text-xs text-destructive/80">{booking.cancellationReason}</p>
                 )}
               </div>
             </div>
@@ -320,24 +317,24 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         {/* Info Grid */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-8">
           {/* Schedule */}
-          <div className="rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                <CalendarDays size={14} className="text-brand-dark/60 dark:text-white/60" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <CalendarDays size={14} />
               </div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Schedule</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Schedule</h3>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">{formatDate(booking.scheduledStart)}</p>
-                <p className="text-[12px] text-brand-dark/40 dark:text-white/40 mt-0.5">Date</p>
+                <p className="text-sm font-semibold text-foreground">{formatDate(booking.scheduledStart)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Date</p>
               </div>
-              <div className="h-px bg-brand-border/10 dark:bg-white/10" />
+              <div className="h-px bg-border" />
               <div>
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                <p className="text-sm font-semibold text-foreground">
                   {formatTime(booking.scheduledStart)} — {formatTime(booking.scheduledEnd)}
                 </p>
-                <p className="text-[12px] text-brand-dark/40 dark:text-white/40 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Duration: {formatDuration(booking.scheduledStart, booking.scheduledEnd)}
                 </p>
               </div>
@@ -345,70 +342,70 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {/* Client */}
-          <div className="rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                <User size={14} className="text-brand-dark/60 dark:text-white/60" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <User size={14} />
               </div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Client</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client</h3>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-dark/8 dark:bg-white/8 text-[13px] font-bold text-brand-dark/60 dark:text-white/60">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary dark:bg-primary/20">
                 {clientInitials}
               </div>
               <div>
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">{clientName}</p>
+                <p className="text-sm font-semibold text-foreground">{clientName}</p>
                 {booking.citizen?.email && (
-                  <p className="text-[12px] text-brand-dark/40 dark:text-white/40 mt-0.5">{booking.citizen.email}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{booking.citizen.email}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Service */}
-          <div className="rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                <Stethoscope size={14} className="text-brand-dark/60 dark:text-white/60" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <Stethoscope size={14} />
               </div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Service</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Service</h3>
             </div>
-            <p className="text-[14px] font-semibold text-brand-dark dark:text-white">{booking.service?.name ?? "Consultation"}</p>
-            <p className="text-[13px] font-bold text-brand-dark/70 dark:text-white/70 mt-1">
+            <p className="text-sm font-semibold text-foreground">{booking.service?.name ?? "Consultation"}</p>
+            <p className="text-sm font-medium text-foreground mt-1">
               RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
             </p>
           </div>
 
           {/* Payment */}
-          <div className="rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                <CreditCard size={14} className="text-brand-dark/60 dark:text-white/60" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <CreditCard size={14} />
               </div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Payment</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Payment</h3>
             </div>
             <div className="space-y-2.5">
               {booking.paymentStatus === "NOT_REQUIRED" ? (
-                <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                <p className="text-xs text-muted-foreground">
                   Payment will be requested once you confirm this booking.
                 </p>
               ) : (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-brand-dark/40 dark:text-white/40">Status</span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset ${
-                      booking.paymentStatus === "PAID" ? "bg-green-50 text-green-700 ring-green-600/20" :
-                      "bg-amber-50 text-amber-700 ring-amber-600/20"
-                    }`}>
+                    <span className="text-xs text-muted-foreground">Status</span>
+                    <StatusBadge
+                      tone={booking.paymentStatus === "PAID" ? "success" : "pending"}
+                      className="px-2 py-0.5 text-[10px]"
+                    >
                       {booking.paymentStatus}
-                    </span>
+                    </StatusBadge>
                   </div>
                   {booking.expertPayout != null && (
                     <>
-                      <div className="h-px bg-brand-border/10 dark:bg-white/10" />
+                      <div className="h-px bg-border" />
                       <div className="flex items-center justify-between">
-                        <span className="text-[12px] text-brand-dark/40 dark:text-white/40">Your Payout</span>
-                        <span className="text-[14px] font-bold text-brand-dark dark:text-white">
+                        <span className="text-xs text-muted-foreground">Your Payout</span>
+                        <span className="text-sm font-semibold text-foreground">
                           RWF {Number(booking.expertPayout).toLocaleString()}
                         </span>
                       </div>
@@ -422,27 +419,24 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Client notes + AI analysis */}
         {booking.citizenNotes && (
-          <div className="mb-8 rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="mb-8 rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                  <FileText size={14} className="text-brand-dark/60 dark:text-white/60" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  <FileText size={14} />
                 </div>
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Client Notes</h3>
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client Notes</h3>
               </div>
               {!aiAnalysis && !analyzeMutation.isPending && (
-                <button
-                  onClick={handleAnalyzeCase}
-                  className="flex items-center gap-1.5 rounded-lg bg-brand-dark/10 px-3 py-1.5 text-[12px] font-semibold text-brand-dark transition-colors hover:bg-brand-dark/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
-                >
+                <Button size="sm" onClick={handleAnalyzeCase}>
                   <Sparkles size={12} />
                   AI Analysis
-                </button>
+                </Button>
               )}
             </div>
-            <p className="text-[13px] leading-relaxed text-brand-dark/70 dark:text-white/70">{booking.citizenNotes}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">{booking.citizenNotes}</p>
             {analyzeMutation.isPending && (
-              <div className="flex items-center gap-2 mt-3 py-3 text-[13px] text-brand-dark/50 dark:text-white/50">
+              <div className="flex items-center gap-2 mt-3 py-3 text-sm text-muted-foreground">
                 <Loader2 size={14} className="animate-spin" />
                 Analyzing case with AI...
               </div>
@@ -453,7 +447,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
             {aiError && (
-              <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{aiError}</p>
+              <p className="text-xs text-destructive mt-2">{aiError}</p>
             )}
           </div>
         )}
@@ -462,7 +456,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         <div className="flex flex-wrap gap-3">
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (
             <Button
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-6 py-3 text-[13px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
+              size="lg"
               disabled={!canJoin}
               onClick={() => router.push(`/expert/dashboard/consultations/${booking.id}/join`)}
             >
@@ -473,7 +467,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           {canMessage && (
             <Button
               variant="outline"
-              className="inline-flex items-center gap-2 rounded-xl border-brand-border/20 px-6 py-3 text-[13px] font-semibold text-brand-dark dark:text-white"
+              size="lg"
               disabled={isResolvingChat}
               onClick={handleMessageClient}
             >
@@ -484,7 +478,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           {["CONFIRMED", "COMPLETED"].includes(booking.status) && (
             <Button
               variant="outline"
-              className="inline-flex items-center gap-2 rounded-xl border-brand-border/20 px-6 py-3 text-[13px] font-semibold text-brand-dark dark:text-white"
+              size="lg"
               onClick={() => downloadICS({
                 id: booking.id,
                 expertName: clientName,
@@ -500,7 +494,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           {canReschedule && !showReschedule && (
             <Button
               variant="outline"
-              className="inline-flex items-center gap-2 rounded-xl border-brand-border/20 px-6 py-3 text-[13px] font-semibold text-brand-dark dark:text-white"
+              size="lg"
               onClick={() => setShowReschedule(true)}
             >
               <CalendarClock size={15} />
@@ -510,7 +504,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           {canDecline && !showDecline && (
             <Button
               variant="outline"
-              className="inline-flex items-center gap-2 rounded-xl border-red-200 px-6 py-3 text-[13px] font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+              size="lg"
+              className="border-destructive/30 text-destructive hover:bg-destructive/10"
               onClick={() => setShowDecline(true)}
             >
               <XCircle size={15} />
@@ -521,28 +516,23 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Decline Panel */}
         {showDecline && (
-          <div className="mt-4 rounded-2xl border border-red-200/60 bg-red-50/50 p-5 dark:border-red-900/30 dark:bg-red-950/20">
-            <h3 className="text-[14px] font-bold text-red-800 dark:text-red-300 mb-3">Decline this booking?</h3>
-            <textarea
+          <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
+            <h3 className="text-sm font-semibold text-destructive mb-3">Decline this booking?</h3>
+            <Textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
               placeholder="Reason for declining (min. 5 characters)"
               rows={3}
-              className="w-full rounded-xl border border-red-200/60 bg-white px-4 py-3 text-[13px] text-brand-dark outline-none placeholder:text-brand-dark/30 focus:border-red-400 dark:border-red-900/30 dark:bg-black dark:text-white"
             />
             <div className="mt-3 flex gap-2">
               <Button
-                className="rounded-xl bg-red-600 px-5 py-2.5 text-[12px] font-semibold text-white hover:bg-red-700 disabled:opacity-40"
+                variant="destructive"
                 disabled={isCancelling || declineReason.trim().length < 5}
                 onClick={handleDecline}
               >
                 {isCancelling ? "Declining..." : "Confirm Decline"}
               </Button>
-              <Button
-                variant="outline"
-                className="rounded-xl border-brand-border/20 px-5 py-2.5 text-[12px] font-semibold"
-                onClick={() => { setShowDecline(false); setDeclineReason(""); }}
-              >
+              <Button variant="outline" onClick={() => { setShowDecline(false); setDeclineReason(""); }}>
                 Keep Booking
               </Button>
             </div>
@@ -551,32 +541,31 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Post-Consultation Notes + Summary (only for COMPLETED) */}
         {booking.status === "COMPLETED" && (
-          <div className="mt-6 rounded-2xl border border-brand-border/15 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+          <div className="mt-6 rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/5 dark:bg-white/5">
-                <MessageSquare size={14} className="text-brand-dark/60 dark:text-white/60" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <MessageSquare size={14} />
               </div>
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-dark/40 dark:text-white/40">Post-Consultation Summary</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Post-Consultation Summary</h3>
             </div>
 
             {/* Step 1: Draft raw notes */}
             {!notesAnalysis && (
               <>
-                <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mb-3">
+                <p className="text-xs text-muted-foreground mb-3">
                   Step 1: Write your consultation notes. AI will structure them into a professional summary for the client.
                 </p>
-                <textarea
+                <Textarea
                   value={consultationNotes}
                   onChange={(e) => setConsultationNotes(e.target.value)}
                   placeholder="Write your consultation notes here - key issues discussed, advice given, follow-up actions, etc."
                   rows={5}
-                  className="w-full rounded-xl border border-brand-border/20 bg-brand-dark/3 px-4 py-3 text-[13px] text-brand-dark outline-none placeholder:text-brand-dark/30 focus:border-brand-dark/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30 dark:focus:border-white/20"
                 />
                 <div className="mt-3 flex items-center gap-3">
-                  <button
+                  <Button
+                    size="sm"
                     onClick={handleAnalyzeNotes}
                     disabled={!consultationNotes.trim() || notesMutation.isPending}
-                    className="flex items-center gap-1.5 rounded-lg bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40 dark:bg-white dark:text-brand-dark"
                   >
                     {notesMutation.isPending ? (
                       <Loader2 size={12} className="animate-spin" />
@@ -584,16 +573,16 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                       <Brain size={12} />
                     )}
                     {notesMutation.isPending ? "Generating Summary..." : "Generate Summary"}
-                  </button>
+                  </Button>
                 </div>
                 {notesMutation.isPending && (
-                  <div className="flex items-center gap-2 mt-3 py-3 text-[13px] text-brand-dark/50 dark:text-white/50">
+                  <div className="flex items-center gap-2 mt-3 py-3 text-sm text-muted-foreground">
                     <Loader2 size={14} className="animate-spin" />
                     AI is structuring your notes into a professional summary...
                   </div>
                 )}
                 {notesError && (
-                  <p className="text-[12px] text-red-600 dark:text-red-400 mt-2">{notesError}</p>
+                  <p className="text-xs text-destructive mt-2">{notesError}</p>
                 )}
               </>
             )}
@@ -601,26 +590,26 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {/* Step 2: Review & edit the AI-generated summary */}
             {notesAnalysis && !summarySent && (
               <>
-                <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mb-2">
+                <p className="text-xs text-muted-foreground mb-2">
                   Step 2: Review the AI-generated summary below. Edit as needed, then send to client.
                 </p>
                 <AiAnalysisCard analysis={notesAnalysis} />
                 <div className="mt-4">
-                  <label className="text-[10px] font-semibold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-1 block">
+                  <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1 block">
                     Editable Summary (will be sent to client)
                   </label>
-                  <textarea
+                  <Textarea
                     value={summaryText}
                     onChange={(e) => setSummaryText(e.target.value)}
                     rows={10}
-                    className="w-full rounded-xl border border-brand-border/20 bg-brand-dark/3 px-4 py-3 text-[13px] text-brand-dark outline-none placeholder:text-brand-dark/30 focus:border-brand-dark/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30 dark:focus:border-white/20 font-mono"
+                    className="font-mono"
                   />
                 </div>
                 <div className="mt-3 flex items-center gap-3">
-                  <button
+                  <Button
+                    size="sm"
                     onClick={handleSendSummary}
                     disabled={!summaryText.trim() || isSendingSummary}
-                    className="flex items-center gap-1.5 rounded-lg bg-brand-dark px-5 py-2.5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40 dark:bg-white dark:text-brand-dark"
                   >
                     {isSendingSummary ? (
                       <Loader2 size={12} className="animate-spin" />
@@ -628,23 +617,24 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                       <Send size={12} />
                     )}
                     {isSendingSummary ? "Sending..." : "Send Consultation Summary"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => { setNotesAnalysis(null); setSummaryText(""); }}
-                    className="rounded-lg border border-brand-border/20 px-4 py-2.5 text-[12px] font-semibold text-brand-dark/60 dark:text-white/60 transition-colors hover:bg-brand-dark/5 dark:hover:bg-white/5"
                   >
                     Start Over
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
 
             {/* Step 3: Confirmation */}
             {summarySent && (
-              <div className="rounded-xl bg-brand-dark/5 px-5 py-6 dark:bg-white/5 text-center">
-                <CheckCircle size={28} className="text-brand-dark/40 dark:text-white/40 mx-auto mb-2" />
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">Summary sent to client</p>
-                <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mt-1">
+              <div className="rounded-xl bg-muted px-5 py-6 text-center">
+                <CheckCircle size={28} className="text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-semibold text-foreground">Summary sent to client</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   The consultation summary has been delivered to the client&apos;s inbox.
                 </p>
               </div>

@@ -4,6 +4,9 @@ import { ChevronRight, Clock, AlertCircle } from "lucide-react";
 import { PracticeSession } from "@/features/experts/dashboard-types";
 import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/routing";
+import { Button } from "@/shared/components/ui/button";
+
 interface BookingQueueProps {
   sessions: PracticeSession[];
 }
@@ -11,71 +14,73 @@ interface BookingQueueProps {
 export function BookingQueue({ sessions }: BookingQueueProps) {
   const t = useTranslations("expertDashboard");
   return (
-    <div className="rounded-xl border border-brand-border bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
-      <div className="flex items-start justify-between">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{t("priorityQueue")}</p>
+          <p className="text-base font-semibold tracking-tight text-foreground">{t("priorityQueue")}</p>
           <span className="inline-flex items-center gap-1 rounded-full bg-brand-alert px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" aria-hidden="true" />
             {t("live")}
           </span>
         </div>
-        <button className="flex items-center gap-1 rounded-lg border border-brand-border px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:shadow-sm dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800">
-          {t("viewAll")} <ChevronRight size={13} />
-        </button>
+        <Button asChild variant="outline" size="xs">
+          <Link href="/expert/dashboard/bookings">
+            {t("viewAll")} <ChevronRight size={13} aria-hidden="true" />
+          </Link>
+        </Button>
       </div>
       {sessions.length === 0 ? (
-        <p className="mt-6 py-4 text-center text-sm text-gray-400 dark:text-gray-500">
+        <p className="mt-6 py-4 text-center text-sm text-muted-foreground">
           {t("noBookings")}
         </p>
       ) : (
-      <div className="mt-4">
+      <div className="mt-4 overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-800">
+            <tr className="border-b border-border">
               {[t("columns.client"), t("columns.case"), t("columns.time"), t("columns.status")].map((h, i) => (
-                <th key={i} className="pb-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                <th key={i} className="pb-2 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+          <tbody className="divide-y divide-border">
             {sessions.map((s) => (
-              <tr key={s.id} className="transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+              <tr key={s.id} className="transition-colors hover:bg-muted/50">
                 <td className="py-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue/20 text-xs font-bold text-brand-blue">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                       {s.client.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{s.client}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{s.clientCode}</p>
+                      <p className="text-sm font-semibold text-foreground">{s.client}</p>
+                      <p className="text-xs text-muted-foreground">{s.clientCode}</p>
                     </div>
                   </div>
                 </td>
                 <td className="py-3">
-                  <span className="rounded-full border border-gray-200 px-2.5 py-1 text-xs text-gray-600 dark:border-gray-600 dark:text-gray-400">
+                  <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                     {s.caseNature}
                   </span>
                 </td>
-                <td className={`py-3 text-xs font-semibold ${s.urgent ? "text-brand-alert" : "text-gray-500 dark:text-gray-400"}`}>
+                <td className={`py-3 text-xs font-semibold ${s.urgent ? "text-destructive" : "text-muted-foreground"}`}>
                   <span className="flex items-center gap-1">
-                    <Clock size={11} />
+                    <Clock size={11} aria-hidden="true" />
                     {s.timeLabel}
                   </span>
                 </td>
                 <td className="py-3">
-                  <span className={`flex items-center gap-1 text-xs font-bold uppercase ${
-                    s.status === "URGENT" ? "text-brand-alert" :
-                    s.status === "CONFIRMED" ? "text-green-600 dark:text-green-400" :
-                    "text-gray-400 dark:text-gray-500"
+                  <span className={`flex items-center gap-1 text-xs font-semibold uppercase ${
+                    s.status === "URGENT" ? "text-destructive" :
+                    s.status === "CONFIRMED" ? "text-primary" :
+                    "text-warning"
                   }`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${
-                      s.status === "URGENT" ? "bg-brand-alert" :
-                      s.status === "CONFIRMED" ? "bg-green-500" :
-                      "bg-gray-300 dark:bg-gray-600"
-                    }`} />
+                      s.status === "URGENT" ? "bg-destructive" :
+                      s.status === "CONFIRMED" ? "bg-primary" :
+                      "bg-warning"
+                    }`} aria-hidden="true" />
                     {s.status}
                   </span>
                 </td>
@@ -86,8 +91,8 @@ export function BookingQueue({ sessions }: BookingQueueProps) {
       </div>
       )}
       {sessions.length > 0 && (
-        <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-          <AlertCircle size={12} />
+        <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
+          <AlertCircle size={12} aria-hidden="true" />
           {t("urgentAttention", { count: sessions.filter((s) => s.urgent).length })}
         </div>
       )}

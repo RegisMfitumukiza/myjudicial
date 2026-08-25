@@ -27,6 +27,8 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { getErrorMessage } from "@/lib/utils";
 import {
   getOverrides,
   createOverride,
@@ -72,7 +74,7 @@ export default function AvailabilityOverridesPage() {
       toast.success(message);
     },
     onError: (error: any) => {
-      toast.error(error?.message || t("overrideCreateFailed"));
+      toast.error(getErrorMessage(error, t("overrideCreateFailed")));
     },
   });
 
@@ -85,7 +87,7 @@ export default function AvailabilityOverridesPage() {
       toast.success(t("overrideDeletedSuccess"));
     },
     onError: (error: any) => {
-      toast.error(error?.message || t("overrideDeleteFailed"));
+      toast.error(getErrorMessage(error, t("overrideDeleteFailed")));
     },
   });
 
@@ -99,7 +101,7 @@ export default function AvailabilityOverridesPage() {
       toast.success(message);
     },
     onError: (error: any) => {
-      toast.error(error?.message || t("overridesCreateFailed"));
+      toast.error(getErrorMessage(error, t("overridesCreateFailed")));
     },
   });
 
@@ -133,21 +135,19 @@ export default function AvailabilityOverridesPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-brand-dark">{t("pageTitle")}</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            {t("pageDescription")}
-          </p>
-        </div>
-        <Button onClick={() => setShowBulkModal(true)}>
-          <CalendarDays className="mr-2 h-4 w-4" />
-          {t("vacationModeBtn")}
-        </Button>
-      </div>
+      <PageHeader
+        title={t("pageTitle")}
+        description={t("pageDescription")}
+        actions={
+          <Button onClick={() => setShowBulkModal(true)}>
+            <CalendarDays className="mr-2 h-4 w-4" />
+            {t("vacationModeBtn")}
+          </Button>
+        }
+      />
 
       {/* Info Alert */}
-      <Alert>
+      <Alert variant="info">
         <Info className="h-4 w-4" />
         <AlertDescription>
           {t("infoAlert")}
@@ -164,25 +164,21 @@ export default function AvailabilityOverridesPage() {
       )}
 
       {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner />}
 
       {/* Calendar */}
       {!isLoading && !error && (
-        <div className="rounded-lg border border-brand-border bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10">
-                <CalendarIcon className="h-5 w-5 text-brand-blue" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <CalendarIcon className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold text-brand-dark">
+                <h2 className="font-semibold text-foreground">
                   {format(currentMonth, "MMMM yyyy")}
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   {t("overridesCount", { count: overrides.length })}
                 </p>
               </div>
@@ -207,16 +203,16 @@ export default function AvailabilityOverridesPage() {
               override: overrides.map((o) => parseISO(o.date)),
             }}
             modifiersClassNames={{
-              override: "bg-red-100 text-red-900 font-bold",
+              override: "bg-destructive/15 text-destructive font-bold",
             }}
-            className="rounded-md border"
+            className="rounded-md border border-border"
           />
 
           {/* Legend */}
           <div className="mt-4 flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded bg-red-100 border border-red-200"></div>
-              <span className="text-slate-600">{t("hasOverrideLegend")}</span>
+              <div className="h-4 w-4 rounded bg-destructive/15 border border-destructive/30"></div>
+              <span className="text-muted-foreground">{t("hasOverrideLegend")}</span>
             </div>
           </div>
         </div>
@@ -420,13 +416,13 @@ function ViewOverrideModal({
 
         <div className="space-y-4">
           <div>
-            <Label className="text-xs text-slate-600">{t("typeLabel")}</Label>
+            <Label className="text-xs text-muted-foreground">{t("typeLabel")}</Label>
             <p className="text-sm font-medium">{getTypeLabel(override.overrideType)}</p>
           </div>
 
           {override.overrideType === "CUSTOM_HOURS" && override.startTime && override.endTime && (
             <div>
-              <Label className="text-xs text-slate-600">{t("hoursLabel")}</Label>
+              <Label className="text-xs text-muted-foreground">{t("hoursLabel")}</Label>
               <p className="text-sm font-medium">
                 {override.startTime} - {override.endTime}
               </p>
@@ -435,14 +431,14 @@ function ViewOverrideModal({
 
           {override.overrideType === "REDUCED_CAPACITY" && override.maxBookings && (
             <div>
-              <Label className="text-xs text-slate-600">{t("maxBookingsLabel")}</Label>
+              <Label className="text-xs text-muted-foreground">{t("maxBookingsLabel")}</Label>
               <p className="text-sm font-medium">{override.maxBookings} {t("bookingsCount")}</p>
             </div>
           )}
 
           {override.reason && (
             <div>
-              <Label className="text-xs text-slate-600">{t("reasonLabel")}</Label>
+              <Label className="text-xs text-muted-foreground">{t("reasonLabel")}</Label>
               <p className="text-sm">{override.reason}</p>
             </div>
           )}
@@ -516,7 +512,7 @@ function BulkCreateModal({
               selected={dateRange as { from: Date; to?: Date }}
               onSelect={setDateRange as any}
               numberOfMonths={1}
-              className="rounded-md border"
+              className="rounded-md border border-border"
             />
           </div>
 
@@ -532,7 +528,7 @@ function BulkCreateModal({
           </div>
 
           {dateRange.from && dateRange.to && (
-            <Alert>
+            <Alert variant="info">
               <Info className="h-4 w-4" />
               <AlertDescription>
                 {t("blocksCount", { count: Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1 })}

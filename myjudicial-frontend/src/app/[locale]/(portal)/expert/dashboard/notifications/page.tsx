@@ -5,7 +5,6 @@ import {
   Bell,
   Calendar,
   DollarSign,
-  Shield,
   Star,
   MessageSquare,
   FileText,
@@ -20,6 +19,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import {
+  PageHeader,
+  EmptyState,
+  ErrorState,
+  LoadingSpinner,
+} from "@/shared/components/dashboard";
+import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type NotificationEvent =
   | "OTP_SENT"
@@ -155,60 +162,50 @@ export default function NotificationsPage() {
   const notifications = notifsData?.data ?? [];
   const pagination = notifsData?.pagination;
   const unreadCount = unreadData?.data?.count ?? 0;
+  const hasUnread = unreadCount > 0;
 
   return (
     <div className="p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-brand-dark dark:text-gray-100">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {unreadCount > 0
-              ? t("unreadCount", { count: unreadCount })
-              : t("stayUpdated")}
-          </p>
-        </div>
-        {unreadCount > 0 && (
-          <button
+      <PageHeader
+        title={t("title")}
+        description={
+          hasUnread
+            ? t("unreadCount", { count: unreadCount })
+            : t("stayUpdated")
+        }
+        className="mb-6"
+        actions={
+          <Button
+            size="sm"
             onClick={() => markAllReadMutation.mutate()}
-            disabled={markAllReadMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
+            disabled={!hasUnread || markAllReadMutation.isPending}
           >
             {markAllReadMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <CheckCheck size={16} />
+              <CheckCheck size={14} />
             )}
             Mark all as read
-          </button>
-        )}
-      </div>
+          </Button>
+        }
+      />
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
+        <LoadingSpinner />
       ) : error ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-brand-border bg-white py-20 shadow-md dark:border-gray-700 dark:bg-gray-900">
-          <Bell className="mb-4 h-12 w-12 text-gray-400 dark:text-gray-600" />
-          <p className="mb-1 text-lg font-medium text-brand-dark dark:text-gray-100">
-            {t("failedToLoad")}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("tryAgainLater")}
-          </p>
-        </div>
+        <ErrorState
+          title={t("failedToLoad")}
+          message={t("tryAgainLater")}
+          onRetry={() =>
+            queryClient.invalidateQueries({ queryKey: ["notifications", page] })
+          }
+        />
       ) : notifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-brand-border bg-white py-20 shadow-md dark:border-gray-700 dark:bg-gray-900">
-          <Bell className="mb-4 h-12 w-12 text-gray-400 dark:text-gray-600" />
-          <p className="mb-1 text-lg font-medium text-brand-dark dark:text-gray-100">
-            {t("noNotifications")}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("willSeeHere")}
-          </p>
-        </div>
+        <EmptyState
+          icon={Bell}
+          title={t("noNotifications")}
+          description={t("willSeeHere")}
+        />
       ) : (
         <>
           <div className="space-y-3">
@@ -221,36 +218,38 @@ export default function NotificationsPage() {
                   onClick={() => {
                     if (isUnread) markReadMutation.mutate(n.id);
                   }}
-                  className={`flex cursor-pointer items-start gap-4 rounded-xl border p-5 shadow-md transition-colors ${
+                  className={cn(
+                    "flex cursor-pointer items-start gap-4 rounded-xl border p-5 shadow-sm transition-colors",
                     isUnread
-                      ? "border-brand-blue/20 bg-blue-50/50 dark:border-blue-800/30 dark:bg-blue-950/20"
-                      : "border-brand-border bg-white dark:border-gray-700 dark:bg-gray-900"
-                  }`}
+                      ? "border-primary/25 bg-primary/5 dark:border-white/10 dark:bg-white/5"
+                      : "border-border bg-card"
+                  )}
                 >
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
                       isUnread
-                        ? "bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20 dark:text-blue-300"
-                        : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
-                    }`}
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    )}
                   >
                     <Icon size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-brand-dark dark:text-gray-100">
+                    <p className="text-sm font-medium text-foreground">
                       {n.subject || EVENT_LABELS[n.event] || n.event}
                     </p>
                     {n.body && (
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {n.body}
                       </p>
                     )}
-                    <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {formatTime(n.createdAt, t)}
                     </p>
                   </div>
                   {isUnread && (
-                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-blue" />
+                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
                   )}
                 </div>
               );
@@ -258,27 +257,29 @@ export default function NotificationsPage() {
           </div>
 
           {pagination && pagination.totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-between border-t border-brand-border pt-4 dark:border-gray-700">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+              <p className="text-sm text-muted-foreground">
                 {t("pageOf", { page: pagination.page, totalPages: pagination.totalPages, total: pagination.total })}
               </p>
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
-                  className="inline-flex items-center gap-1 rounded-lg border border-brand-border bg-white px-3 py-1.5 text-sm font-medium text-brand-dark hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   <ChevronLeft size={14} />
                   {t("previous")}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setPage(page + 1)}
                   disabled={page >= pagination.totalPages}
-                  className="inline-flex items-center gap-1 rounded-lg border border-brand-border bg-white px-3 py-1.5 text-sm font-medium text-brand-dark hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   {t("next")}
                   <ChevronRight size={14} />
-                </button>
+                </Button>
               </div>
             </div>
           )}

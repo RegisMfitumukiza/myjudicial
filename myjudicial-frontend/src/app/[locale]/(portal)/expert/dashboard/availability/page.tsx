@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { AlertCircle, Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import {
   useGetExpertsAvailability,
   usePatchExpertsAvailability,
@@ -10,6 +10,14 @@ import {
 } from "@/api/generated";
 import { useQueryClient } from "@tanstack/react-query";
 import { Switch } from "@/shared/components/ui/switch";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import {
+  PageHeader,
+  SkeletonList,
+  ErrorState,
+} from "@/shared/components/dashboard";
+import { getErrorMessage } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
@@ -73,7 +81,7 @@ export default function AvailabilityPage() {
           queryClient.invalidateQueries({ queryKey: getGetExpertsAvailabilityQueryKey() });
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("saveError"));
+          toast.error(getErrorMessage(error, t("saveError")));
         },
       }
     );
@@ -81,81 +89,67 @@ export default function AvailabilityPage() {
 
   return (
     <div className="flex h-full flex-col p-6 lg:p-8">
-      <div className="mb-6 flex shrink-0 items-start justify-between">
-        <div>
-          <h1 className="text-[22px] font-bold text-brand-dark dark:text-white">{t("title")}</h1>
-          <p className="mt-1 text-sm text-brand-dark/60 dark:text-white/60">
-            {t("subtitle")}
-          </p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving || isLoading || isError}
-          className="flex items-center gap-2 rounded-lg bg-brand-blue px-4 py-2 text-sm font-semibold text-white hover:bg-brand-blue/90 disabled:opacity-60"
-        >
-          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-          {t("saveSchedule")}
-        </button>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        className="mb-6 shrink-0"
+        actions={
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving || isLoading || isError}
+          >
+            {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
+            {t("saveSchedule")}
+          </Button>
+        }
+      />
 
-      <div className="rounded-xl border border-brand-border/20 bg-white p-2 shadow-md dark:border-white/20 dark:bg-black">
-        {isLoading ? (
-          <div className="space-y-2 p-4">
-            {DAYS.map((d) => (
-              <div key={d} className="h-12 animate-pulse rounded-lg bg-brand-dark/5 dark:bg-white/5" />
-            ))}
-          </div>
-        ) : isError ? (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <AlertCircle className="h-8 w-8 text-brand-alert" />
-            <p className="text-sm font-medium text-brand-dark dark:text-white">
-              {t("loadError")}
-            </p>
-            <p className="text-sm text-brand-dark/60 dark:text-white/60">
-              {t("loadErrorDesc")}
-            </p>
-            <button
-              onClick={() => refetch()}
-              className="rounded-lg border border-brand-border/30 px-4 py-2 text-sm font-semibold text-brand-dark hover:bg-brand-dark/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
-            >
-              {t("tryAgain")}
-            </button>
-          </div>
-        ) : (
-          <div className="divide-y divide-brand-border/10 dark:divide-white/10">
+      {isLoading ? (
+        <SkeletonList count={7} itemClassName="h-14" />
+      ) : isError ? (
+        <ErrorState
+          title={t("loadError")}
+          message={t("loadErrorDesc")}
+          retryLabel={t("tryAgain")}
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <div className="rounded-xl border border-border bg-card shadow-sm">
+          <div className="divide-y divide-border">
             {schedule.map((d) => (
               <div key={d.dayOfWeek} className="flex flex-wrap items-center gap-4 px-4 py-3">
                 <Switch
                   checked={d.isAvailable}
                   onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
                 />
-                <span className="w-24 shrink-0 text-sm font-semibold text-brand-dark dark:text-white">
+                <span className="w-24 shrink-0 text-sm font-semibold text-foreground">
                   {t(d.dayOfWeek.toLowerCase() as any)}
                 </span>
                 {d.isAvailable ? (
                   <div className="flex items-center gap-2 text-sm">
-                    <input
+                    <Input
                       type="time"
                       value={d.startTime}
                       onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
-                      className="rounded-lg border border-brand-border/30 bg-white px-2 py-1 text-sm text-brand-dark outline-none focus:border-brand-blue dark:border-white/20 dark:bg-black dark:text-white dark:focus:border-white"
+                      className="h-8 w-32 px-2"
                     />
-                    <span className="text-brand-dark/40 dark:text-white/40">{t("to")}</span>
-                    <input
+                    <span className="text-muted-foreground">{t("to")}</span>
+                    <Input
                       type="time"
                       value={d.endTime}
                       onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
-                      className="rounded-lg border border-brand-border/30 bg-white px-2 py-1 text-sm text-brand-dark outline-none focus:border-brand-blue dark:border-white/20 dark:bg-black dark:text-white dark:focus:border-white"
+                      className="h-8 w-32 px-2"
                     />
                   </div>
                 ) : (
-                  <span className="text-sm text-brand-dark/40 dark:text-white/40">{t("unavailable")}</span>
+                  <span className="text-sm text-muted-foreground">{t("unavailable")}</span>
                 )}
               </div>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

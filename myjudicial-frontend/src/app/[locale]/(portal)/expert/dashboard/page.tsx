@@ -5,6 +5,14 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { Activity, Banknote, CalendarCheck, MessageSquare, Star } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import {
+  EmptyState,
+  SkeletonCard,
+  StatCard,
+} from "@/shared/components/dashboard";
+import { getErrorMessage } from "@/lib/utils";
 import {
   useGetExpertsStatistics,
   useGetExpertsEarnings,
@@ -126,7 +134,7 @@ export default function ExpertDashboardPage() {
           queryClient.invalidateQueries({ queryKey: getGetExpertsAvailabilityQueryKey() });
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("profileUpdateFailed"));
+          toast.error(getErrorMessage(error, t("profileUpdateFailed")));
         },
       }
     );
@@ -217,30 +225,31 @@ export default function ExpertDashboardPage() {
 
   const isLoading = statsLoading || earningsLoading || complianceLoading || bookingsLoading || profileLoading;
 
-  const SkeletonCard = () => (
-    <div className="h-32 animate-pulse rounded-xl border border-brand-border bg-gray-100 dark:border-gray-700 dark:bg-gray-800" />
-  );
-
   return (
     <div className="space-y-6 p-6 lg:p-8">
       {/* Welcome banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark via-brand-blue to-brand-dark p-8 shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-dark via-brand-blue to-brand-dark p-6 shadow-lg lg:p-8">
         <div className="absolute right-0 top-0 h-80 w-80 translate-x-20 -translate-y-20 rounded-full bg-white/[0.05] blur-3xl" />
         <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-12 translate-y-12 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  isOnline 
-                    ? "bg-green-500/20 text-green-300 animate-pulse" 
-                    : "bg-gray-500/20 text-gray-300"
-                }`}>
-                  <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-green-400" : "bg-gray-400"}`} />
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    isOnline ? "bg-white/15 text-white" : "bg-white/10 text-white/70"
+                  }`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      isOnline ? "bg-white animate-pulse" : "bg-white/50"
+                    }`}
+                    aria-hidden="true"
+                  />
                   {isOnline ? t("onlineAvailable") : t("offline")}
-                </div>
+                </span>
                 {(stats?.activeConsultations || 0) > 0 && (
-                  <div className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300">
+                  <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
                     {stats?.activeConsultations || 0} {t("activeSessions", { count: stats?.activeConsultations || 0, plural: (stats?.activeConsultations || 0) !== 1 ? "s" : "" })}
                   </div>
                 )}
@@ -257,17 +266,17 @@ export default function ExpertDashboardPage() {
             
             {/* Quick Actions */}
             <div className="hidden lg:flex flex-col gap-2">
-              <button
+              <Button
                 onClick={() => handleToggleAvailable(!isOnline)}
                 disabled={isTogglingAvailable}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                className={
                   isOnline
-                    ? "bg-white/10 text-white hover:bg-white/20"
-                    : "bg-green-500 text-white hover:bg-green-600"
-                }`}
+                    ? "bg-white/10 text-white shadow-none hover:bg-white/20"
+                    : "bg-white text-brand-dark hover:bg-white/90"
+                }
               >
                 {isTogglingAvailable ? "..." : isOnline ? t("goOffline") : t("goOnline")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -305,23 +314,23 @@ export default function ExpertDashboardPage() {
             <ProfileCompletionCard hasAvailability={availability.length > 0} />
           </div>
           <div className="space-y-4">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
-              <h4 className="font-semibold text-slate-900 dark:text-white">{t("whyCompleteProfile")}</h4>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <div className="rounded-xl border border-border bg-muted/50 p-4">
+              <h4 className="text-base font-semibold tracking-tight text-foreground">{t("whyCompleteProfile")}</h4>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-blue">•</span>
+                  <span className="text-primary">•</span>
                   <span>{t("appearInSearch")}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-blue">•</span>
+                  <span className="text-primary">•</span>
                   <span>{t("receiveBookings")}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-blue">•</span>
+                  <span className="text-primary">•</span>
                   <span>{t("accessEarnings")}</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-blue">•</span>
+                  <span className="text-primary">•</span>
                   <span>{t("buildReputation")}</span>
                 </li>
               </ul>
@@ -351,41 +360,30 @@ export default function ExpertDashboardPage() {
               
               {/* Quick Stats Row */}
               <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-brand-dark dark:text-gray-100">
-                      {stats?.completedConsultations ?? 0}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("performance.consultations")}</p>
-                  </div>
-                </div>
-                
-                <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {earnings?.netRevenue ? `${(earnings.netRevenue / 1000).toFixed(0)}K` : "0"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("performance.revenue")}</p>
-                  </div>
-                </div>
-                
-                <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-blue-600">
-                      {stats?.averageRating ? stats.averageRating.toFixed(1) : "—"}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("performance.rating")}</p>
-                  </div>
-                </div>
-                
-                <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {stats?.reviewCount ?? 0}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("performance.reviews")}</p>
-                  </div>
-                </div>
+                <StatCard
+                  label={t("performance.consultations")}
+                  value={stats?.completedConsultations ?? 0}
+                  icon={CalendarCheck}
+                />
+                <StatCard
+                  label={t("performance.revenue")}
+                  value={
+                    earnings?.netRevenue
+                      ? `${(earnings.netRevenue / 1000).toFixed(0)}K`
+                      : "0"
+                  }
+                  icon={Banknote}
+                />
+                <StatCard
+                  label={t("performance.rating")}
+                  value={stats?.averageRating ? stats.averageRating.toFixed(1) : "—"}
+                  icon={Star}
+                />
+                <StatCard
+                  label={t("performance.reviews")}
+                  value={stats?.reviewCount ?? 0}
+                  icon={MessageSquare}
+                />
               </div>
             </div>
 
@@ -400,13 +398,16 @@ export default function ExpertDashboardPage() {
             <BookingQueue sessions={queueSessions} />
             
             {/* Recent Activity - placeholder until real activity feed endpoint */}
-            <div className="rounded-xl border border-brand-border/20 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-brand-dark dark:text-gray-100">{t("activity.recentActivity")}</h3>
+            <div className="rounded-xl border border-border bg-card shadow-sm">
+              <div className="flex items-center justify-between p-5 pb-0">
+                <h3 className="text-base font-semibold tracking-tight text-foreground">{t("activity.recentActivity")}</h3>
               </div>
-              <div className="flex items-center justify-center py-12 text-sm text-gray-400 dark:text-gray-500">
-                {t("activity.comingSoon")}
-              </div>
+              <EmptyState
+                icon={Activity}
+                title={t("activity.recentActivity")}
+                description={t("activity.comingSoon")}
+                className="border-none bg-transparent shadow-none"
+              />
             </div>
           </div>
         </>

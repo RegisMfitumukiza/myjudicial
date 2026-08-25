@@ -14,16 +14,16 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
   if (bookings.length === 0) return null;
 
   return (
-    <div className="rounded-xl border-2 border-dashed border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <CalendarClock size={18} className="text-amber-600 dark:text-amber-400" />
-          <h3 className="text-sm font-bold text-amber-800 dark:text-amber-300">
+          <CalendarClock size={18} className="text-warning" aria-hidden="true" />
+          <h3 className="text-base font-semibold tracking-tight text-warning">
             {t("title", { count: bookings.length })}
           </h3>
         </div>
-        <span className="flex items-center gap-1 rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-800 dark:text-amber-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+        <span className="flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-warning">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" aria-hidden="true" />
           {t("actionNeeded")}
         </span>
       </div>
@@ -40,19 +40,19 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
             <Link
               key={b.id}
               href={`/expert/dashboard/bookings/${b.id}`}
-              className="flex items-center justify-between rounded-lg border border-amber-200 bg-white p-3 transition-colors hover:bg-amber-50 dark:border-amber-800 dark:bg-black dark:hover:bg-amber-950/50"
+              className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/50"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-brand-dark dark:text-white truncate">
+                <p className="truncate text-sm font-semibold text-foreground">
                   {clientName}
                 </p>
-                <p className="text-xs text-brand-dark/50 dark:text-white/50">
+                <p className="text-xs text-muted-foreground">
                   {b.service?.name ?? t("defaultServiceName")}
                 </p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-brand-dark/60 dark:text-white/60">
+                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                   <span>{currentDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
-                  <ArrowRight size={10} />
-                  <span className="font-semibold text-amber-700 dark:text-amber-400">
+                  <ArrowRight size={10} aria-hidden="true" />
+                  <span className="font-semibold text-warning">
                     {t("proposedTime", {
                       date: pendingDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
                       time: pendingDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
@@ -60,7 +60,7 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
                   </span>
                 </div>
               </div>
-              <ArrowRight size={16} className="text-amber-500 dark:text-amber-400 shrink-0 ml-3" />
+              <ArrowRight size={16} className="ml-3 shrink-0 text-warning" aria-hidden="true" />
             </Link>
           );
         })}

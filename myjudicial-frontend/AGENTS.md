@@ -61,6 +61,12 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 
 ## Progress
 ### Done
+- Expert Dashboard design-system overhaul (all pages): variable-driven neutral/blue scales in `tailwind.config.js` + `globals.css` (gray/slate/blue flip automatically in dark mode), semantic tokens (`--destructive`, `--secondary`, `--input`, `--success`, `--warning`, `--radius`), dark-mode elevation ladder (canvas 6% → card 9% → popover 12%, blue-tinted charcoal, never pure black)
+- Shared UI primitives rebuilt in Tailwind v3 syntax (old files were v4-authored and silently unstyled under v3: `ring-3`, `rounded-4xl`, `has-data-[...]`, undefined tokens): button.tsx, badge.tsx, card.tsx, alert.tsx (variants default/info/success/warning/destructive), input.tsx, textarea.tsx, select.tsx, dialog.tsx, switch.tsx; sonner toast vars fixed with hsl() wrappers
+- New shared dashboard kit at `src/shared/components/dashboard/`: PageHeader, EmptyState, StatCard, StatusBadge (tones: neutral/pending/active/success/destructive/warning/info), LoadingSpinner/SkeletonList/SkeletonCard, ErrorState; `getErrorMessage()` in `src/lib/utils.ts` for safe toasts
+- All expert dashboard pages refined onto the kit (home, bookings + detail + requests, calendar, consultations, availability ×3, schedule-settings, services, earnings, reviews, setup, verification, profile, notifications, meetings, help, getting-started, join, compliance, quotations, change-password, 8 stubs)
+- AI pages deduplicated via new `src/features/ai/components/ai-analysis-form.tsx` shared form (ai-case/ai-research/ai-contract/ai-scope now use it); all four are functional (`POST /ai/analyze|transcribe|translate|recommend`) — no "coming soon" stubs exist
+- Radix open/close animations implemented as plain CSS keyed off `[data-slot][data-state]` (tw-animate-css is Tailwind v4-only and cannot be used with v3)
 - All Orval API refactoring (see previous sessions)
 - Admin dashboard data extraction fixes (all 16 pages audited)
 - Admin page production-quality implementations (finance, settings, change-password, notifications, documents)
@@ -88,6 +94,12 @@ Auth-aware dropdown for public pages. Shows Dashboard/Settings/Sign Out when aut
 - **`expert-map.tsx`** — pins and popup use hardcoded light-mode colors
 
 ## Key Decisions
+- Design tokens: `gray`/`slate` Tailwind scales are CSS-variable driven (`--mj-neutral-*`) and flip in dark mode globally — pages using `bg-white dark:bg-gray-900` style pairs inherit correct dark surfaces without per-file edits; do not hardcode neutral hex values
+- Semantic status convention: pending/attention = `warning` token, active/confirmed/success = brand blue (`primary`) tokens, errors/destructive = red only; use `StatusBadge` tones instead of raw color classes
+- Standard segmented tab control (bookings/calendar/consultations/profile): container `rounded-lg border border-border bg-muted p-0.5`, active item `bg-card shadow-sm text-foreground`
+- Buttons must always be the shared `<Button>` component; text on brand backgrounds uses `text-on-brand`
+- Never render `error.message` to users — always `getErrorMessage(err, "fallback")` from `@/lib/utils`
+- Expert AI entry points are currently orphaned routes (no sidebar/nav links) but fully functional; floating-ai-chat is only mounted on public layouts by design
 - Map canvas (OSM tiles) is always light — map DOM elements (markers, tooltips, popups) must use hardcoded colors, not CSS variables
 - `text-on-brand` is the preferred utility for buttons on brand-dark backgrounds (handles dark mode contrast automatically)
 - Popups are always light-themed (white bg, brand blue text) since they float on a light map canvas

@@ -22,6 +22,8 @@ import {
   updateScheduleSettings,
   type UpdateScheduleSettingsDto,
 } from "@/api/schedule-settings";
+import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { getErrorMessage } from "@/lib/utils";
 
 // Common timezone options
 const TIMEZONES = [
@@ -80,7 +82,7 @@ export default function ScheduleSettingsPage() {
       toast.success(t("settingsUpdatedSuccess"));
     },
     onError: (error: any) => {
-      toast.error(error?.message || t("settingsUpdateFailed"));
+      toast.error(getErrorMessage(error, t("settingsUpdateFailed")));
     },
   });
 
@@ -113,12 +115,10 @@ export default function ScheduleSettingsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-brand-dark">{t("scheduleSettingsTitle")}</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {t("scheduleSettingsDesc")}
-        </p>
-      </div>
+      <PageHeader
+        title={t("scheduleSettingsTitle")}
+        description={t("scheduleSettingsDesc")}
+      />
 
       {/* Error State */}
       {error && (
@@ -130,24 +130,20 @@ export default function ScheduleSettingsPage() {
       )}
 
       {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner />}
 
       {/* Settings Form */}
       {!isLoading && !error && settings && (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Timezone Section */}
-          <div className="rounded-lg border border-brand-border bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10">
-                <Globe className="h-5 w-5 text-brand-blue" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Globe className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold text-brand-dark">{t("timezoneTitle")}</h2>
-                <p className="text-sm text-slate-600">
+                <h2 className="font-semibold text-foreground">{t("timezoneTitle")}</h2>
+                <p className="text-sm text-muted-foreground">
                   {t("timezoneDesc")}
                 </p>
               </div>
@@ -177,14 +173,14 @@ export default function ScheduleSettingsPage() {
 
 
           {/* Booking Rules Section */}
-          <div className="rounded-lg border border-brand-border bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10">
-                <Clock className="h-5 w-5 text-brand-blue" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Clock className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold text-brand-dark">{t("bookingRulesTitle")}</h2>
-                <p className="text-sm text-slate-600">
+                <h2 className="font-semibold text-foreground">{t("bookingRulesTitle")}</h2>
+                <p className="text-sm text-muted-foreground">
                   {t("bookingRulesDesc")}
                 </p>
               </div>
@@ -209,12 +205,12 @@ export default function ScheduleSettingsPage() {
                     })
                   }
                 />
-                <div className="flex items-start gap-2 rounded-md bg-blue-50 p-3">
-                  <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                  <p className="text-sm text-blue-900">
+                <Alert variant="info" className="mt-3">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
                     {t("bufferTimeInfo")}
-                  </p>
-                </div>
+                  </AlertDescription>
+                </Alert>
               </div>
 
               {/* Advance Notice */}
@@ -235,12 +231,12 @@ export default function ScheduleSettingsPage() {
                     })
                   }
                 />
-                <div className="flex items-start gap-2 rounded-md bg-blue-50 p-3">
-                  <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                  <p className="text-sm text-blue-900">
+                <Alert variant="info" className="mt-3">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
                     {t("advanceNoticeInfo")}
-                  </p>
-                </div>
+                  </AlertDescription>
+                </Alert>
               </div>
 
               {/* Booking Window */}
@@ -261,12 +257,12 @@ export default function ScheduleSettingsPage() {
                     })
                   }
                 />
-                <div className="flex items-start gap-2 rounded-md bg-blue-50 p-3">
-                  <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                  <p className="text-sm text-blue-900">
+                <Alert variant="info" className="mt-3">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
                     {t("bookingWindowInfo")}
-                  </p>
-                </div>
+                  </AlertDescription>
+                </Alert>
               </div>
 
 
@@ -277,7 +273,7 @@ export default function ScheduleSettingsPage() {
                     <Label htmlFor="dailyLimitToggle">
                       {t("dailyLimitToggleLabel")}
                     </Label>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-muted-foreground">
                       {t("dailyLimitToggleDesc")}
                     </p>
                   </div>
@@ -320,16 +316,16 @@ export default function ScheduleSettingsPage() {
           </div>
 
           {/* Behavior Settings */}
-          <div className="rounded-lg border border-brand-border bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10">
-                <Settings className="h-5 w-5 text-brand-blue" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Settings className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold text-brand-dark">
+                <h2 className="font-semibold text-foreground">
                   {t("behaviorSettingsTitle")}
                 </h2>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   {t("behaviorSettingsDesc")}
                 </p>
               </div>
@@ -340,7 +336,7 @@ export default function ScheduleSettingsPage() {
                 <Label htmlFor="respectPresence">
                   {t("respectPresenceLabel")}
                 </Label>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-muted-foreground">
                   {t("respectPresenceDesc")}
                 </p>
               </div>

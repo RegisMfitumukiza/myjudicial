@@ -3,11 +3,12 @@
 import { useState, useMemo } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import {
-  ChevronLeft, ChevronRight, Clock, Video, Loader2, AlertCircle,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
+import { PageHeader, LoadingSpinner, ErrorState } from "@/shared/components/dashboard";
 
 type ViewMode = "week" | "month";
 
@@ -39,13 +40,17 @@ function formatTime(iso: string): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-amber-100 border-l-amber-500 text-amber-800 dark:bg-amber-900/20 dark:border-l-amber-400 dark:text-amber-300",
-  CONFIRMED: "bg-blue-100 border-l-blue-500 text-blue-800 dark:bg-blue-900/20 dark:border-l-blue-400 dark:text-blue-300",
-  ACTIVE: "bg-green-100 border-l-green-500 text-green-800 dark:bg-green-900/20 dark:border-l-green-400 dark:text-green-300",
-  COMPLETED: "bg-gray-100 border-l-gray-400 text-gray-600 dark:bg-gray-800 dark:border-l-gray-500 dark:text-gray-400",
-  CANCELLED: "bg-red-50 border-l-red-400 text-red-600 dark:bg-red-900/10 dark:border-l-red-500 dark:text-red-400",
-  REFUNDED: "bg-purple-50 border-l-purple-400 text-purple-600 dark:bg-purple-900/10 dark:border-l-purple-500 dark:text-purple-400",
+  PENDING: "bg-warning/15 border-l-warning text-foreground dark:bg-warning/10",
+  RESCHEDULE_REQUESTED: "bg-warning/15 border-l-warning text-foreground dark:bg-warning/10",
+  CONFIRMED: "bg-primary/10 border-l-primary text-foreground",
+  ACTIVE: "bg-primary/10 border-l-primary text-foreground",
+  COMPLETED: "bg-muted border-l-muted-foreground/50 text-muted-foreground",
+  CANCELLED: "bg-destructive/10 border-l-destructive/70 text-muted-foreground",
+  REFUNDED: "bg-destructive/10 border-l-destructive/70 text-muted-foreground",
 };
+
+const FALLBACK_CHIP =
+  "bg-muted border-l-transparent text-muted-foreground";
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -103,17 +108,16 @@ export default function CalendarPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
+      <div className="flex h-full items-center justify-center">
+        <LoadingSpinner label="Loading calendar" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center bg-white dark:bg-black px-6">
-        <AlertCircle className="h-10 w-10 text-brand-alert mb-4" />
-        <p className="text-brand-alert font-medium">Failed to load calendar</p>
+      <div className="flex h-full items-center justify-center px-6">
+        <ErrorState title="Failed to load calendar" />
       </div>
     );
   }
@@ -121,72 +125,72 @@ export default function CalendarPage() {
   return (
     <div className="p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-brand-dark dark:text-gray-100">Calendar</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">View your consultation schedule</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-lg border border-brand-border/20 dark:border-gray-700">
-            <button
-              onClick={() => setViewMode("week")}
-              className={`px-3 py-1.5 text-xs font-semibold ${
-                viewMode === "week"
-                  ? "bg-brand-dark text-white dark:bg-white dark:text-black"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              Week
-            </button>
-            <button
-              onClick={() => setViewMode("month")}
-              className={`px-3 py-1.5 text-xs font-semibold ${
-                viewMode === "month"
-                  ? "bg-brand-dark text-white dark:bg-white dark:text-black"
-                  : "text-gray-500 dark:text-gray-400"
-              }`}
-            >
-              Month
-            </button>
-          </div>
-          <Button variant="outline" size="sm" onClick={goToday} className="text-xs">
-            Today
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Calendar"
+        description="View your consultation schedule"
+        actions={
+          <>
+            <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+              <button
+                onClick={() => setViewMode("week")}
+                className={
+                  viewMode === "week"
+                    ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
+                    : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                }
+              >
+                Week
+              </button>
+              <button
+                onClick={() => setViewMode("month")}
+                className={
+                  viewMode === "month"
+                    ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
+                    : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                }
+              >
+                Month
+              </button>
+            </div>
+            <Button variant="outline" size="sm" onClick={goToday}>
+              Today
+            </Button>
+          </>
+        }
+      />
 
       {/* Navigation */}
-      <div className="mb-4 flex items-center justify-between">
-        <button onClick={prevPeriod} className="flex h-8 w-8 items-center justify-center rounded-lg border border-brand-border/20 hover:bg-brand-canvas dark:border-gray-700">
-          <ChevronLeft size={16} />
-        </button>
-        <p className="text-sm font-bold text-brand-dark dark:text-gray-100">
+      <div className="mb-4 mt-6 flex items-center justify-between">
+        <Button variant="outline" size="icon-sm" onClick={prevPeriod} aria-label="Previous period">
+          <ChevronLeft />
+        </Button>
+        <p className="text-sm font-semibold text-foreground">
           {viewMode === "week"
             ? `${MONTH_NAMES[weekStart.getMonth()]} ${weekStart.getDate()} - ${MONTH_NAMES[addDays(weekStart, 6).getMonth()]} ${addDays(weekStart, 6).getDate()}, ${weekStart.getFullYear()}`
             : `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`
           }
         </p>
-        <button onClick={nextPeriod} className="flex h-8 w-8 items-center justify-center rounded-lg border border-brand-border/20 hover:bg-brand-canvas dark:border-gray-700">
-          <ChevronRight size={16} />
-        </button>
+        <Button variant="outline" size="icon-sm" onClick={nextPeriod} aria-label="Next period">
+          <ChevronRight />
+        </Button>
       </div>
 
       {/* Week View */}
       {viewMode === "week" && (
-        <div className="grid grid-cols-7 gap-px rounded-xl border border-brand-border/20 bg-brand-border/10 dark:border-gray-700 dark:bg-gray-700">
+        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border border-border bg-border">
           {weekDays.map((day, i) => {
             const dayBookings = getBookingsForDay(day);
             const isToday = isSameDay(day, today);
             return (
-              <div key={i} className="min-h-[200px] bg-white p-2 dark:bg-gray-900">
+              <div key={i} className="min-h-[200px] bg-card p-2">
                 <div className={`mb-2 flex items-center justify-between`}>
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                    isToday ? "text-brand-blue" : "text-gray-400 dark:text-gray-500"
+                  <span className={`text-[10px] font-semibold uppercase tracking-wider ${
+                    isToday ? "text-primary" : "text-muted-foreground"
                   }`}>
                     {DAY_NAMES[day.getDay()]}
                   </span>
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-                    isToday ? "bg-brand-dark text-white dark:bg-white dark:text-black" : "text-gray-600 dark:text-gray-400"
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
+                    isToday ? "bg-primary text-on-brand" : "text-foreground"
                   }`}>
                     {day.getDate()}
                   </span>
@@ -196,8 +200,8 @@ export default function CalendarPage() {
                     <Link
                       key={b.id}
                       href={`/expert/dashboard/bookings/${b.id}`}
-                      className={`block rounded-md border-l-2 px-2 py-1 text-[10px] font-medium transition-colors hover:opacity-80 ${
-                        STATUS_COLORS[b.status] ?? "bg-gray-50 border-l-gray-300 text-gray-500"
+                      className={`block rounded-md border-l-2 px-2 py-1 text-[10px] font-medium transition-opacity hover:opacity-80 ${
+                        STATUS_COLORS[b.status] ?? FALLBACK_CHIP
                       }`}
                     >
                       <p className="truncate font-semibold">{formatTime(b.scheduledStart)}</p>
@@ -213,24 +217,24 @@ export default function CalendarPage() {
 
       {/* Month View */}
       {viewMode === "month" && (
-        <div className="rounded-xl border border-brand-border/20 bg-white dark:border-gray-700 dark:bg-gray-900">
-          <div className="grid grid-cols-7 gap-px bg-brand-border/10 dark:bg-gray-700">
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="grid grid-cols-7 gap-px bg-border">
             {DAY_NAMES.map((d) => (
-              <div key={d} className="bg-white px-2 py-2 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:bg-gray-900 dark:text-gray-500">
+              <div key={d} className="bg-card px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {d}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-px bg-brand-border/10 dark:bg-gray-700">
+          <div className="grid grid-cols-7 gap-px bg-border">
             {monthDays.map((day, i) => {
-              if (!day) return <div key={`pad-${i}`} className="bg-white dark:bg-gray-900" />;
+              if (!day) return <div key={`pad-${i}`} className="bg-card" />;
               const dayBookings = getBookingsForDay(day);
               const isToday = isSameDay(day, today);
               return (
-                <div key={i} className="min-h-[100px] bg-white p-1.5 dark:bg-gray-900">
+                <div key={i} className="min-h-[100px] bg-card p-1.5">
                   <div className={`mb-1 flex items-center justify-end`}>
-                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
-                      isToday ? "bg-brand-dark text-white dark:bg-white dark:text-black" : "text-gray-500 dark:text-gray-400"
+                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
+                      isToday ? "bg-primary text-on-brand" : "text-foreground"
                     }`}>
                       {day.getDate()}
                     </span>
@@ -240,15 +244,15 @@ export default function CalendarPage() {
                       <Link
                         key={b.id}
                         href={`/expert/dashboard/bookings/${b.id}`}
-                        className={`block truncate rounded border-l-2 px-1 py-0.5 text-[9px] font-medium transition-colors hover:opacity-80 ${
-                          STATUS_COLORS[b.status] ?? "bg-gray-50 border-l-gray-300 text-gray-500"
+                        className={`block truncate rounded border-l-2 px-1 py-0.5 text-[9px] font-medium transition-opacity hover:opacity-80 ${
+                          STATUS_COLORS[b.status] ?? FALLBACK_CHIP
                         }`}
                       >
                         {formatTime(b.scheduledStart)} {b.citizen?.firstName ?? ""}
                       </Link>
                     ))}
                     {dayBookings.length > 3 && (
-                      <p className="text-center text-[9px] text-gray-400">+{dayBookings.length - 3} more</p>
+                      <p className="text-center text-[9px] text-muted-foreground">+{dayBookings.length - 3} more</p>
                     )}
                   </div>
                 </div>

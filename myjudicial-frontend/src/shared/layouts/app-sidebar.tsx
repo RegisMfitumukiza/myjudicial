@@ -405,8 +405,8 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                         ${collapsed ? "justify-center py-2.5" : "gap-3 px-3 py-2.5"}
                         ${
                           active
-                            ? "bg-brand-dark text-white dark:bg-white dark:text-black"
-                            : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                            ? "bg-brand-dark text-on-brand shadow-sm"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                         }
                       `}
                     >
@@ -421,7 +421,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                       <Icon
                         size={20}
                         className={`shrink-0 ${
-                          active ? "text-white dark:text-black" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
+                          active ? "" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
                         }`}
                       />
                       {item.label === "Messages" && chatUnreadCount > 0 && (

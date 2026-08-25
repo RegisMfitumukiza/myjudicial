@@ -37,6 +37,12 @@ import {
 } from "@/shared/components/ui/select";
 import { Link } from "@/i18n/routing";
 import {
+  LoadingSpinner,
+  ErrorState,
+  PageHeader,
+} from "@/shared/components/dashboard";
+import { getErrorMessage } from "@/lib/utils";
+import {
   getExpertsAvailabilityWithBlocks,
   patchExpertsAvailabilityWithBlocks,
   type TimeBlock as APITimeBlock,
@@ -115,7 +121,7 @@ export default function AvailabilityCalendarPage() {
       toast.success(t("profileUpdated"));
     },
     onError: (error: any) => {
-      toast.error(error?.message || t("profileUpdateFailed"));
+      toast.error(getErrorMessage(error, t("profileUpdateFailed")));
     },
   });
 
@@ -318,7 +324,7 @@ export default function AvailabilityCalendarPage() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -326,16 +332,11 @@ export default function AvailabilityCalendarPage() {
   if (isError) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
-        <AlertCircle className="h-12 w-12 text-brand-alert" />
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-brand-dark dark:text-white">
-            Failed to load availability
-          </h2>
-          <p className="text-sm text-brand-dark/60 dark:text-white/60">
-            There was an error loading your schedule
-          </p>
-        </div>
-        <Button onClick={() => refetch()}>Try Again</Button>
+        <ErrorState
+          title="Failed to load availability"
+          message="There was an error loading your schedule"
+          onRetry={() => refetch()}
+        />
       </div>
     );
   }
@@ -343,65 +344,62 @@ export default function AvailabilityCalendarPage() {
   return (
     <div className="flex h-full flex-col p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6 flex shrink-0 items-start justify-between">
-        <div>
-          <h1 className="text-[22px] font-bold text-brand-dark dark:text-white">
-            Availability Calendar
-          </h1>
-          <p className="mt-1 text-sm text-brand-dark/60 dark:text-white/60">
-            Set your weekly schedule with multiple time blocks per day
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setShowTemplateModal(true)}
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Templates
-          </Button>
-          <Button onClick={handleSave} disabled={saveMutation.isPending}>
-            {saveMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save Schedule
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Availability Calendar"
+        description="Set your weekly schedule with multiple time blocks per day"
+        className="mb-6 shrink-0"
+        actions={
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTemplateModal(true)}
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Templates
+            </Button>
+            <Button onClick={handleSave} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save Schedule
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-brand-border/20 bg-white p-4 dark:border-white/20 dark:bg-black">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-brand-blue" />
+            <CalendarIcon className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-brand-dark/60 dark:text-white/60">Total Hours/Week</p>
-              <p className="text-2xl font-bold text-brand-dark dark:text-white">
+              <p className="text-sm text-muted-foreground">Total Hours/Week</p>
+              <p className="text-2xl font-bold text-foreground">
                 {calculateTotalHours().toFixed(1)}h
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-brand-border/20 bg-white p-4 dark:border-white/20 dark:bg-black">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-brand-blue" />
+            <Clock className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-brand-dark/60 dark:text-white/60">Available Days</p>
-              <p className="text-2xl font-bold text-brand-dark dark:text-white">
+              <p className="text-sm text-muted-foreground">Available Days</p>
+              <p className="text-2xl font-bold text-foreground">
                 {schedule.filter(d => d.isAvailable).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-brand-border/20 bg-white p-4 dark:border-white/20 dark:bg-black">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
           <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-brand-blue" />
+            <Clock className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-brand-dark/60 dark:text-white/60">Time Blocks</p>
-              <p className="text-2xl font-bold text-brand-dark dark:text-white">
+              <p className="text-sm text-muted-foreground">Time Blocks</p>
+              <p className="text-2xl font-bold text-foreground">
                 {schedule.reduce((sum, d) => sum + d.timeBlocks.length, 0)}
               </p>
             </div>
@@ -410,7 +408,7 @@ export default function AvailabilityCalendarPage() {
       </div>
 
       {/* Info Alert */}
-      <Alert className="mb-6">
+      <Alert variant="info" className="mb-6">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Click a day to add or edit time blocks. You can have multiple blocks per day (e.g., morning and afternoon with lunch break).
@@ -494,16 +492,16 @@ function DayCard({
   onCopyToWeek
 }: DayCardProps) {
   return (
-    <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/20 dark:bg-black">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <Switch checked={schedule.isAvailable} onCheckedChange={onToggle} />
           <div>
-            <h3 className="font-semibold text-brand-dark dark:text-white">
+            <h3 className="font-semibold text-foreground">
               {DAY_LABELS[day]}
             </h3>
             {schedule.isAvailable && schedule.timeBlocks.length > 0 && (
-              <p className="text-sm text-brand-dark/60 dark:text-white/60">
+              <p className="text-sm text-muted-foreground">
                 {schedule.timeBlocks.length} block{schedule.timeBlocks.length > 1 ? 's' : ''}
               </p>
             )}
@@ -525,7 +523,7 @@ function DayCard({
       {schedule.isAvailable && (
         <div className="mt-4 space-y-2">
           {schedule.timeBlocks.length === 0 ? (
-            <p className="text-sm text-brand-dark/40 dark:text-white/40">
+            <p className="text-sm text-muted-foreground">
               No time blocks. Click + to add one.
             </p>
           ) : (
@@ -553,15 +551,15 @@ interface TimeBlockItemProps {
 
 function TimeBlockItem({ block, onUpdate, onRemove }: TimeBlockItemProps) {
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-brand-border/20 bg-brand-dark/5 p-2 dark:border-white/10 dark:bg-white/5">
-      <Clock className="h-4 w-4 text-brand-dark/40 dark:text-white/40" />
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-2">
+      <Clock className="h-4 w-4 text-muted-foreground" />
       <Input
         type="time"
         value={block.start}
         onChange={(e) => onUpdate({ start: e.target.value })}
         className="h-8 w-24 text-sm"
       />
-      <span className="text-sm text-brand-dark/40 dark:text-white/40">to</span>
+      <span className="text-sm text-muted-foreground">to</span>
       <Input
         type="time"
         value={block.end}
@@ -570,11 +568,12 @@ function TimeBlockItem({ block, onUpdate, onRemove }: TimeBlockItemProps) {
       />
       <Button
         variant="ghost"
-        size="sm"
+        size="icon-sm"
         onClick={onRemove}
-        className="ml-auto h-8 w-8 p-0"
+        aria-label="Remove time block"
+        className="ml-auto"
       >
-        <Trash2 className="h-3 w-3 text-red-600" />
+        <Trash2 className="h-3 w-3 text-destructive" />
       </Button>
     </div>
   );

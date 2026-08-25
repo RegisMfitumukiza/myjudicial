@@ -6,7 +6,6 @@ import {
   Copy,
   Check,
   RefreshCw,
-  Loader2,
   Users,
   Share2,
   Mail,
@@ -16,6 +15,8 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
+import { Button } from "@/shared/components/ui/button";
+import { ErrorState, LoadingSpinner, PageHeader } from "@/shared/components/dashboard";
 
 interface ReferralData {
   data: {
@@ -79,135 +80,101 @@ export default function JoinPage() {
 
   return (
     <div className="p-6 lg:p-8">
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20 dark:text-blue-300">
-            <Users size={20} />
+      <PageHeader
+        title="Invite & Earn"
+        description="Share your referral link to invite clients and colleagues"
+      />
+
+      <div className="mt-6">
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <ErrorState message="Failed to load referral info. Please try again." />
+        ) : referral ? (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <Link2 size={16} className="text-primary" aria-hidden="true" />
+                <p className="text-sm font-semibold text-foreground">Your referral link</p>
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-2">
+                <code className="flex-1 truncate font-mono text-sm text-foreground">
+                  {referral.link}
+                </code>
+                <Button size="xs" onClick={handleCopy}>
+                  {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Users size={18} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Signups</p>
+                    <p className="text-xl font-bold text-foreground">{referral.signups}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <RefreshCw size={18} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Referral Code</p>
+                    <p className="text-xl font-bold text-foreground">{referral.code}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <Share2 size={16} className="text-primary" aria-hidden="true" />
+                <p className="text-sm font-semibold text-foreground">Share via</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" size="sm" onClick={() => handleShare("email")}>
+                  <Mail size={16} className="text-muted-foreground" aria-hidden="true" />
+                  Email
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleShare("whatsapp")}>
+                  <MessageCircle size={16} className="text-muted-foreground" aria-hidden="true" />
+                  WhatsApp
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={referral.link} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink size={16} className="text-muted-foreground" aria-hidden="true" />
+                    Open link
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={() => regenerateMutation.mutate()}
+                disabled={regenerateMutation.isPending}
+              >
+                {regenerateMutation.isPending ? (
+                  <RefreshCw size={14} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <RefreshCw size={14} aria-hidden="true" />
+                )}
+                Regenerate code
+              </Button>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-brand-dark dark:text-gray-100">
-              Invite & Earn
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Share your referral link to invite clients and colleagues
-            </p>
-          </div>
-        </div>
+        ) : null}
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
-      ) : error ? (
-        <div className="rounded-xl border border-brand-border bg-white p-8 text-center shadow-md dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm text-red-600 dark:text-red-400">
-            Failed to load referral info. Please try again.
-          </p>
-        </div>
-      ) : referral ? (
-        <div className="space-y-6">
-          <div className="rounded-xl border border-brand-border bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
-            <div className="mb-4 flex items-center gap-2">
-              <Link2 size={16} className="text-brand-blue" />
-              <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">
-                Your referral link
-              </p>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg border border-brand-border/30 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-800">
-              <code className="flex-1 truncate text-sm text-brand-dark dark:text-gray-100">
-                {referral.link}
-              </code>
-              <button
-                onClick={handleCopy}
-                className="flex shrink-0 items-center gap-1 rounded-lg bg-brand-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-blue/90"
-              >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-brand-border bg-white p-5 shadow-md dark:border-gray-700 dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20 dark:text-blue-300">
-                  <Users size={18} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Signups</p>
-                  <p className="text-xl font-bold text-brand-dark dark:text-gray-100">
-                    {referral.signups}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-brand-border bg-white p-5 shadow-md dark:border-gray-700 dark:bg-gray-900">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue dark:bg-brand-blue/20 dark:text-blue-300">
-                  <RefreshCw size={18} />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Referral Code</p>
-                  <p className="text-xl font-bold text-brand-dark dark:text-gray-100">
-                    {referral.code}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-brand-border bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
-            <div className="mb-4 flex items-center gap-2">
-              <Share2 size={16} className="text-brand-blue" />
-              <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">
-                Share via
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => handleShare("email")}
-                className="flex items-center gap-2 rounded-lg border border-brand-border/30 px-4 py-2 text-sm font-medium text-brand-dark hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                <Mail size={16} className="text-gray-400" />
-                Email
-              </button>
-              <button
-                onClick={() => handleShare("whatsapp")}
-                className="flex items-center gap-2 rounded-lg border border-brand-border/30 px-4 py-2 text-sm font-medium text-brand-dark hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                <MessageCircle size={16} className="text-gray-400" />
-                WhatsApp
-              </button>
-              <a
-                href={referral.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border border-brand-border/30 px-4 py-2 text-sm font-medium text-brand-dark hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                <ExternalLink size={16} className="text-gray-400" />
-                Open link
-              </a>
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              onClick={() => regenerateMutation.mutate()}
-              disabled={regenerateMutation.isPending}
-              className="flex items-center gap-1.5 rounded-lg border border-brand-border/30 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
-            >
-              {regenerateMutation.isPending ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <RefreshCw size={14} />
-              )}
-              Regenerate code
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

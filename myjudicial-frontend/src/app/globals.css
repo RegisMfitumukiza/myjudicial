@@ -2,7 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   MyJudicial Design Tokens
+
+   Light mode: white surfaces on a cool canvas, brand-blue primary.
+   Dark mode: an intentional elevation ladder (canvas → card → popover),
+   never pure black, with blue-tinted charcoal for a professional SaaS feel.
+
+   Neutral (gray/slate) and blue scales are CSS-variable driven so they flip
+   automatically in dark mode — every page inherits correct dark theming.
+   ──────────────────────────────────────────────────────────────────────────── */
+
 :root {
+  /* Brand */
   --color-brand-blue:   36 85 141;
   --color-brand-dark:   36 85 141;
   --color-brand-border: 226 232 240;
@@ -10,44 +22,127 @@
   --color-brand-alert:  220 38 38;
   --color-brand-green:  36 85 141;
 
+  /* Neutral scale — light (slate-based) */
+  --mj-neutral-50:  248 250 252;
+  --mj-neutral-100: 241 245 249;
+  --mj-neutral-200: 226 232 240;
+  --mj-neutral-300: 203 213 225;
+  --mj-neutral-400: 148 163 184;
+  --mj-neutral-500: 100 116 139;
+  --mj-neutral-600: 71 85 105;
+  --mj-neutral-700: 51 65 85;
+  --mj-neutral-800: 30 41 59;
+  --mj-neutral-900: 15 23 42;
+  --mj-neutral-950: 2 6 23;
+
+  /* Brand-tinted blue scale — light */
+  --mj-blue-50:  238 243 249;
+  --mj-blue-100: 217 230 241;
+  --mj-blue-200: 179 204 227;
+  --mj-blue-300: 133 173 210;
+  --mj-blue-400: 84 130 183;
+  --mj-blue-500: 36 85 141;
+  --mj-blue-600: 30 74 123;
+  --mj-blue-700: 24 61 102;
+  --mj-blue-800: 19 47 78;
+  --mj-blue-900: 13 34 56;
+  --mj-blue-950: 7 21 35;
+
+  /* Semantic */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 222 47% 11%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover-foreground: 222 47% 11%;
   --primary: 212 59% 35%;
   --primary-foreground: 210 40% 98%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --border: 214.3 31.8% 91.4%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 95%;
+  --accent-foreground: 212 59% 30%;
+  --destructive: 0 72% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 212 59% 35%;
+  --success-foreground: 210 40% 98%;
+  --warning: 32 62% 42%;
+  --warning-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 88%;
   --ring: 212 59% 35%;
+  --radius: 0.5rem;
+
+  /* Charts */
+  --chart-1: 212 59% 35%;
+  --chart-2: 212 40% 60%;
+  --chart-3: 215 20% 65%;
 }
 
 .dark {
-  --color-brand-blue:   255 255 255;
+  /* Brand flips to light-on-dark, as established platform-wide */
+  --color-brand-blue:   248 250 252;
   --color-brand-dark:   248 250 252;
-  --color-brand-border: 64 64 64;
-  --color-brand-canvas: 10 10 10;
+  --color-brand-border: 46 51 60;
+  --color-brand-canvas: 13 15 19;
   --color-brand-alert:  248 113 113;
   --color-brand-green:  255 255 255;
 
-  --background: 10 10% 4%;
-  --foreground: 210 40% 98%;
-  --card: 10 10% 4%;
-  --card-foreground: 210 40% 98%;
-  --popover: 10 10% 4%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 0 0% 100%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --border: 0 0% 15%;
-  --accent: 0 0% 15%;
-  --accent-foreground: 210 40% 98%;
-  --ring: 0 0% 15%;
+  /* Neutral scale — dark: blue-tinted charcoal with a real elevation ladder */
+  --mj-neutral-50:  27 30 37;
+  --mj-neutral-100: 33 37 45;
+  --mj-neutral-200: 44 49 58;
+  --mj-neutral-300: 61 67 78;
+  --mj-neutral-400: 112 120 132;
+  --mj-neutral-500: 140 148 159;
+  --mj-neutral-600: 168 175 185;
+  --mj-neutral-700: 55 61 71;
+  --mj-neutral-800: 31 35 43;
+  --mj-neutral-900: 23 26 32;
+  --mj-neutral-950: 13 15 19;
+
+  /* Brand-tinted blue scale — dark (lighter blues read as accents) */
+  --mj-blue-50:  34 41 51;
+  --mj-blue-100: 41 51 63;
+  --mj-blue-200: 53 66 82;
+  --mj-blue-300: 137 170 203;
+  --mj-blue-400: 108 145 182;
+  --mj-blue-500: 96 148 205;
+  --mj-blue-600: 120 162 210;
+  --mj-blue-700: 144 180 220;
+  --mj-blue-800: 168 196 230;
+  --mj-blue-900: 192 214 238;
+  --mj-blue-950: 23 31 41;
+
+  /* Semantic — dark hierarchy: canvas < card < popover */
+  --background: 220 16% 6%;
+  --foreground: 214 20% 93%;
+  --card: 220 14% 9%;
+  --card-foreground: 214 20% 93%;
+  --popover: 220 15% 12%;
+  --popover-foreground: 214 20% 93%;
+  --primary: 213 28% 92%;
+  --primary-foreground: 220 18% 9%;
+  --secondary: 220 13% 17%;
+  --secondary-foreground: 214 20% 90%;
+  --muted: 220 13% 16%;
+  --muted-foreground: 215 12% 64%;
+  --accent: 220 13% 19%;
+  --accent-foreground: 214 20% 92%;
+  --destructive: 0 68% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 213 28% 82%;
+  --success-foreground: 220 18% 9%;
+  --warning: 35 55% 62%;
+  --warning-foreground: 220 18% 9%;
+  --border: 220 12% 18%;
+  --input: 220 12% 24%;
+  --ring: 213 28% 78%;
+
+  --chart-1: 213 28% 80%;
+  --chart-2: 213 20% 55%;
+  --chart-3: 215 12% 40%;
 }
 
 body {
@@ -56,83 +151,73 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Dark mode background overrides */
+/* ─── Dark-mode compatibility layer ─────────────────────────────────────────
+   Many existing pages style elements with `bg-white` / `bg-slate-50` etc. in
+   both modes. These rules retune those to the dark elevation ladder so they
+   remain consistent with token-styled surfaces. */
 .dark .bg-white {
-  background-color: rgb(18 18 18);
+  background-color: rgb(23 26 32);
 }
 
 .dark .bg-slate-50,
 .dark .bg-gray-50 {
-  background-color: rgb(28 28 28);
+  background-color: rgb(27 30 37);
 }
 
 .dark .bg-slate-100,
 .dark .bg-gray-100 {
-  background-color: rgb(38 38 38);
-}
-
-.dark .bg-blue-50 {
-  background-color: rgb(255 255 255 / 0.05);
-}
-
-.dark .bg-blue-100 {
-  background-color: rgb(255 255 255 / 0.1);
+  background-color: rgb(33 37 45);
 }
 
 /* Dark mode border overrides */
 .dark .border-slate-100,
 .dark .border-slate-200 {
-  border-color: rgb(48 48 48);
+  border-color: rgb(44 49 58);
 }
 
 .dark .border-gray-100,
 .dark .border-gray-200 {
-  border-color: rgb(48 48 48);
+  border-color: rgb(44 49 58);
 }
 
 .dark .divide-slate-200 > * + *,
 .dark .divide-gray-200 > * + * {
-  border-color: rgb(48 48 48);
+  border-color: rgb(44 49 58);
 }
 
-/* Dark mode text overrides — subtle, not pure white */
+/* Dark mode text overrides — blue-tinted off-white, never pure white */
 .dark .text-slate-900,
 .dark .text-gray-900 {
-  color: rgb(240 240 240);
+  color: rgb(232 236 241);
 }
 
 .dark .text-slate-800,
 .dark .text-gray-800 {
-  color: rgb(220 220 220);
+  color: rgb(216 221 228);
 }
 
 .dark .text-slate-700,
 .dark .text-gray-700 {
-  color: rgb(200 200 200);
+  color: rgb(196 202 211);
 }
 
 .dark .text-slate-600,
 .dark .text-gray-600 {
-  color: rgb(150 150 150);
+  color: rgb(160 167 178);
 }
 
 .dark .text-slate-500,
 .dark .text-gray-500 {
-  color: rgb(120 120 120);
+  color: rgb(138 146 158);
 }
 
 .dark .text-slate-400,
 .dark .text-gray-400 {
-  color: rgb(90 90 90);
-}
-
-/* Auth forms — clean card look, no heavy shadow */
-.auth-card {
-  @apply rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-700/60;
+  color: rgb(114 122 134);
 }
 
 /* Semantic utility classes */
-.text-on-brand { color: white; }
+.text-on-brand { color: hsl(var(--primary-foreground)); }
 .dark .text-on-brand { color: black; }
 
 .bg-on-brand { background-color: white; }
@@ -140,6 +225,11 @@ body {
 
 .border-on-brand { border-color: rgb(255 255 255); }
 .dark .border-on-brand { border-color: rgb(0 0 0); }
+
+/* Auth forms — clean card look, no heavy shadow */
+.auth-card {
+  @apply rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 dark:bg-slate-900 dark:ring-slate-700/60;
+}
 
 /* Native time input icon — recolor the browser-default clock glyph so it
    reads as navy/white instead of the browser's own gray, which otherwise
@@ -157,6 +247,65 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(350%); }
+}
+
+/* Radix overlay/portal open-close animations (plain CSS — replaces the
+   Tailwind v4-only tw-animate-css plugin). Opacity-only to avoid clashing
+   with centering transforms. */
+@keyframes mj-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mj-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+[data-slot="dialog-overlay"][data-state="open"],
+[data-slot="alert-dialog-overlay"][data-state="open"],
+[data-slot="sheet-overlay"][data-state="open"] {
+  animation: mj-fade-in 150ms ease-out;
+}
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="alert-dialog-overlay"][data-state="closed"],
+[data-slot="sheet-overlay"][data-state="closed"] {
+  animation: mj-fade-out 150ms ease-in;
+}
+[data-slot="dialog-content"][data-state="open"],
+[data-slot="alert-dialog-content"][data-state="open"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="popover-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="sheet-content"][data-state="open"] {
+  animation: mj-fade-in 150ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slot][data-state] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Refined scrollbars for dashboard panels */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--mj-neutral-300)) transparent;
+}
+.dark * {
+  scrollbar-color: rgb(var(--mj-neutral-700)) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--mj-neutral-300));
+  border-radius: 8px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--mj-neutral-700));
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* MapLibre popup theming — always light theme since it sits on map canvas */

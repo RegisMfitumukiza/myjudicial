@@ -25,10 +25,18 @@ import type {
 import type { ExpertProfile } from "@/features/experts/types";
 import { LegalSpecialty, LEGAL_SPECIALTY_LABELS, EXPERT_STATUS_CONFIG } from "@/features/experts/types";
 import { apiFetch } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/utils";
 import { ExpertPhotoUploader } from "@/shared/components/photo-upload";
 import { useAuth } from "@/providers/auth-provider";
 import { EXPERT_PHOTO_URL_QUERY_KEY, useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
+import {
+  PageHeader,
+  StatusBadge,
+  EmptyState,
+  ErrorState,
+  LoadingSpinner,
+} from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -36,6 +44,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -360,8 +369,8 @@ export default function ExpertProfilePage() {
       setNewPassword("");
       setConfirmPassword("");
       toast.success(t("passwordChanged"));
-    } catch (err: any) {
-      setPasswordError(err?.message ?? t("failedChangePassword"));
+    } catch (err: unknown) {
+      setPasswordError(getErrorMessage(err, t("failedChangePassword")));
     } finally {
       setChangingPassword(false);
     }
@@ -462,15 +471,10 @@ export default function ExpertProfilePage() {
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
-      <div>
-        <h1 className="text-xl font-bold text-brand-dark dark:text-gray-100">{t("profileTitle")}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {t("profileSubtitle")}
-        </p>
-      </div>
+      <PageHeader title={t("profileTitle")} description={t("profileSubtitle")} />
 
       {/* Name + role banner */}
-      <div className="flex items-center gap-4 rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
+      <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
         <ExpertPhotoUploader
           currentImageUrl={displayPhotoUrl}
           userName={profile?.displayName || session?.user?.name || "?"}
@@ -478,29 +482,29 @@ export default function ExpertProfilePage() {
           onSuccess={handlePhotoSuccess}
         />
         <div>
-          <p className="text-base font-semibold text-gray-900 dark:text-white">
+          <p className="text-base font-semibold text-foreground">
             {profile?.displayName || session?.user?.name || t("defaultExpertName")}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
-          <span className="mt-1 inline-block rounded-full bg-brand-dark/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-brand-dark dark:bg-white/10 dark:text-white">
+          <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+          <span className="mt-1 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
             {t("expertBadge")}
           </span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-brand-border/20 bg-white p-1 shadow-md dark:bg-gray-900">
+      <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => handleTabClick(id)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               activeTab === id
-                ? "bg-brand-dark text-white shadow-sm dark:bg-white dark:text-black"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Icon size={16} />
+            <Icon size={14} />
             <span className="hidden sm:inline">{(t as any)(`tabs.${id}`)}</span>
           </button>
         ))}
@@ -518,37 +522,36 @@ export default function ExpertProfilePage() {
               </div>
             </div>
           ) : error ? (
-            <div className="rounded-xl border border-brand-border/20 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-900">
-              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                {error instanceof Error && error.message.toLowerCase().includes("not found")
-                  ? t("createProfilePrompt")
-                  : t("failedLoadProfile")}
-              </p>
-              {error instanceof Error && error.message.toLowerCase().includes("not found") ? (
-                <Button onClick={handleCreateProfile}>{t("createProfileBtn")}</Button>
-              ) : (
-                <Button variant="outline" onClick={() => queryClient.invalidateQueries({ queryKey: ["expert-profile"] })}>
-                  {t("retryBtn")}
-                </Button>
-              )}
-            </div>
+            error instanceof Error && error.message.toLowerCase().includes("not found") ? (
+              <EmptyState
+                icon={User}
+                title={t("createProfilePrompt")}
+                action={<Button onClick={handleCreateProfile}>{t("createProfileBtn")}</Button>}
+              />
+            ) : (
+              <ErrorState
+                message={t("failedLoadProfile")}
+                onRetry={() => queryClient.invalidateQueries({ queryKey: ["expert-profile"] })}
+                retryLabel={t("retryBtn")}
+              />
+            )
           ) : (
             <>
               {statusConfig && (
-                <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
+                <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                   <div className="flex items-center gap-3">
                     <Badge variant={statusConfig.variant}>
                       {statusConfig.label}
                     </Badge>
                     {profile?.statusMessage && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{profile.statusMessage}</p>
+                      <p className="text-sm text-muted-foreground">{profile.statusMessage}</p>
                     )}
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="rounded-xl border border-brand-border/20 bg-white p-6 shadow-md dark:bg-gray-900 lg:col-span-1">
+                <div className="rounded-xl border border-border bg-card p-6 shadow-sm lg:col-span-1">
                   <div className="flex flex-col items-center">
                     <div className="mb-4">
                       <ExpertPhotoUploader
@@ -559,28 +562,28 @@ export default function ExpertProfilePage() {
                       />
                     </div>
                     <div className="flex items-center justify-center gap-1.5">
-                      <h2 className="text-center text-lg font-bold text-brand-dark dark:text-gray-100">
+                      <h2 className="text-center text-lg font-bold text-foreground">
                         {editing ? form.displayName || t("unnamed") : profile?.displayName || t("unnamed")}
                       </h2>
                       {!editing && profile?.status === "VERIFIED" && (
-                        <div title={t("verifiedExpert")} className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                        <StatusBadge tone="active" dot={false} title={t("verifiedExpert")} className="px-1.5 py-0.5">
                           <Check size={12} className="stroke-[3]" />
-                        </div>
+                        </StatusBadge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{session?.user?.email || ""}</p>
+                    <p className="text-sm text-muted-foreground">{session?.user?.email || ""}</p>
                     {!editing && profile?.user?.phone && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{profile.user.phone}</p>
+                      <p className="text-sm text-muted-foreground">{profile.user.phone}</p>
                     )}
                     {!editing && profile && (
                       <div className="mt-4 flex flex-wrap justify-center gap-1.5">
                         {profile.specialties?.slice(0, 3).map((s) => (
-                          <Badge key={s} variant="secondary" className="text-[10px]">
+                          <Badge key={s} variant="secondary" className="text-xs">
                             {LEGAL_SPECIALTY_LABELS[s] || s}
                           </Badge>
                         ))}
                         {(profile.specialties?.length || 0) > 3 && (
-                          <Badge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="text-xs">
                             +{profile.specialties.length - 3}
                           </Badge>
                         )}
@@ -589,11 +592,11 @@ export default function ExpertProfilePage() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-brand-border/20 bg-white shadow-md dark:bg-gray-900 lg:col-span-2">
-                  <div className="flex items-center justify-between border-b border-brand-border/10 px-5 py-4">
+                <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
+                  <div className="flex items-center justify-between border-b border-border px-5 py-4">
                     <div>
-                      <h2 className="text-base font-bold text-brand-dark dark:text-gray-100">{t("professionalDetailsTitle")}</h2>
-                      <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                      <h2 className="text-base font-bold text-foreground">{t("professionalDetailsTitle")}</h2>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
                         {editing ? t("editProfessionalDetailsDesc") : t("professionalDetailsDesc")}
                       </p>
                     </div>
@@ -714,11 +717,11 @@ export default function ExpertProfilePage() {
 
                         <div className="space-y-1.5">
                           <Label>Additional Specialties</Label>
-                          <div className="grid grid-cols-2 gap-2 rounded-lg border border-brand-border/20 dark:border-gray-700 p-3 sm:grid-cols-3">
+                          <div className="grid grid-cols-2 gap-2 rounded-lg border border-border p-3 sm:grid-cols-3">
                             {Object.entries(LEGAL_SPECIALTY_LABELS).map(([value, label]) => {
                               const checked = form.specialties.includes(value as LegalSpecialty);
                               return (
-                                <label key={value} className="flex items-center gap-2 text-sm text-brand-dark dark:text-gray-100">
+                                <label key={value} className="flex items-center gap-2 text-sm text-foreground">
                                   <input
                                     type="checkbox"
                                     checked={checked}
@@ -757,7 +760,7 @@ export default function ExpertProfilePage() {
                               onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))}
                               placeholder="en, fr, rw"
                             />
-                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Use short language codes: en (English), fr (French), rw (Kinyarwanda), sw (Swahili)
                             </p>
                           </div>
@@ -794,7 +797,7 @@ export default function ExpertProfilePage() {
                         </div>
                       </div>
                     ) : profile ? (
-                      <div className="divide-y divide-brand-border/10">
+                      <div className="divide-y divide-border">
                         <FieldRow icon={User} label="Display Name" value={profile.displayName || "—"} />
                         <FieldRow icon={FileText} label="Bio" value={profile.bio || "—"} />
                         <FieldRowWithIcon icon={Building2} label="Firm" value={profile.firmName || "—"} />
@@ -805,12 +808,12 @@ export default function ExpertProfilePage() {
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {profile.specialties?.length ? (
                               profile.specialties.map((s) => (
-                                <Badge key={s} variant="secondary" className="text-[11px]">
+                                <Badge key={s} variant="secondary" className="text-xs">
                                   {LEGAL_SPECIALTY_LABELS[s] || s}
                                 </Badge>
                               ))
                             ) : (
-                              <span className="text-sm text-gray-500 dark:text-gray-400">—</span>
+                              <span className="text-sm text-muted-foreground">—</span>
                             )}
                           </div>
                         </FieldRowWithIcon>
@@ -820,7 +823,7 @@ export default function ExpertProfilePage() {
                         <FieldRow icon={DollarSign} label="Consultation Fee" value={profile.baseConsultationFee != null ? `${profile.baseConsultationFee.toLocaleString()} ${profile.currency}` : "—"} />
                       </div>
                     ) : (
-                      <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <p className="py-8 text-center text-sm text-muted-foreground">
                         No profile data yet. Click &quot;Create Profile&quot; to get started.
                       </p>
                     )}
@@ -835,132 +838,120 @@ export default function ExpertProfilePage() {
       {/* ── Account Tab ── */}
       {activeTab === "account" && (
         <div className="space-y-4">
-          <form onSubmit={handleChangePassword} className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
-            <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">Change Password</h3>
-            <div className="space-y-4 max-w-md">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="ac-current-pw">
+          <form onSubmit={handleChangePassword} className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-bold text-foreground">Change Password</h3>
+            <div className="max-w-md space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="ac-current-pw">
                   Current Password
-                </label>
-                <input
+                </Label>
+                <Input
                   id="ac-current-pw"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-brand-border/20 bg-white px-4 text-sm dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="ac-new-pw">
+              <div className="space-y-1.5">
+                <Label htmlFor="ac-new-pw">
                   New Password
-                </label>
-                <input
+                </Label>
+                <Input
                   id="ac-new-pw"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-brand-border/20 bg-white px-4 text-sm dark:bg-gray-800 dark:text-gray-100"
                 />
                 {newPassword && newPassword.length < 8 && (
-                  <p className="mt-1 text-xs text-red-500">Minimum 8 characters</p>
+                  <p className="text-xs text-destructive">Minimum 8 characters</p>
                 )}
               </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="ac-confirm-pw">
+              <div className="space-y-1.5">
+                <Label htmlFor="ac-confirm-pw">
                   Confirm New Password
-                </label>
-                <input
+                </Label>
+                <Input
                   id="ac-confirm-pw"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-brand-border/20 bg-white px-4 text-sm dark:bg-gray-800 dark:text-gray-100"
                 />
                 {confirmPassword && newPassword !== confirmPassword && (
-                  <p className="mt-1 text-xs text-red-500">Passwords do not match</p>
+                  <p className="text-xs text-destructive">Passwords do not match</p>
                 )}
               </div>
             </div>
 
             {passwordError && (
-              <div className="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                 <AlertTriangle size={15} className="mt-0.5 shrink-0" />
                 {passwordError}
               </div>
             )}
 
             {passwordSuccess && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
-                <CheckCircle size={15} />
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
+                <CheckCircle size={15} className="text-primary" />
                 Password updated successfully
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={changingPassword || !currentPassword || newPassword.length < 8 || newPassword !== confirmPassword}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark/80 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/80"
-            >
+            <Button type="submit" className="mt-4" disabled={changingPassword || !currentPassword || newPassword.length < 8 || newPassword !== confirmPassword}>
               {changingPassword ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
               Update Password
-            </button>
+            </Button>
           </form>
 
-          <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
-            <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">Active Sessions</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-bold text-foreground">Active Sessions</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
               Devices and sessions currently logged into your account
             </p>
             {loadingSessions ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 size={20} className="animate-spin text-gray-400" />
-              </div>
+              <LoadingSpinner />
             ) : sessionsError ? (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-brand-border/20 py-8 text-sm text-gray-400">
+              <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
                 <AlertTriangle size={18} className="mr-2" />
                 {sessionsError}
               </div>
             ) : sessions.length === 0 ? (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-brand-border/20 py-8 text-sm text-gray-400">
-                <Monitor size={18} className="mr-2" />
-                No active sessions
-              </div>
+              <EmptyState icon={Monitor} title="No active sessions" className="py-8" />
             ) : (
-              <div className="space-y-3">
+              <div className="divide-y divide-border">
                 {sessions.map((s) => (
                   <div
                     key={s.id}
-                    className={`flex items-center justify-between rounded-lg border px-4 py-3 ${
-                      s.isCurrent
-                        ? "border-brand-dark/30 bg-brand-dark/5 dark:border-white/20 dark:bg-white/5"
-                        : "border-brand-border/20 dark:border-gray-800"
+                    className={`flex items-center justify-between gap-4 py-3 ${
+                      s.isCurrent ? "rounded-md bg-primary/5 px-3" : "px-1"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Monitor size={18} className="shrink-0 text-gray-400" />
+                      <Monitor size={18} className="shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {s.device || "Unknown device"}
                           {s.isCurrent && (
-                            <span className="ml-2 rounded-full bg-brand-dark/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-brand-dark dark:bg-white/10 dark:text-white">
+                            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase text-primary">
                               Current
                             </span>
                           )}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {s.browser && `${s.browser} · `}{s.ip && `${s.ip} · `}
                           Last active: {s.lastActive ? new Date(s.lastActive).toLocaleDateString() : "N/A"}
                         </p>
                       </div>
                     </div>
                     {!s.isCurrent && (
-                      <button
+                      <Button
+                        variant="outline"
+                        size="xs"
                         onClick={() => handleRevokeSession(s.id)}
                         disabled={revokingSessionId === s.id}
-                        className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/20"
+                        className="shrink-0 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       >
                         {revokingSessionId === s.id ? <Loader2 size={14} className="animate-spin" /> : "Revoke"}
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ))}
@@ -973,135 +964,93 @@ export default function ExpertProfilePage() {
       {/* ── Preferences Tab ── */}
       {activeTab === "preferences" && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
-            <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">Appearance</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Choose how the platform looks for you</p>
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-bold text-foreground">Appearance</h3>
+            <p className="mb-4 text-sm text-muted-foreground">Choose how the platform looks for you</p>
             <div className="flex items-center gap-4">
               <ThemeToggle />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Toggle light / dark mode</span>
+              <span className="text-sm text-foreground">Toggle light / dark mode</span>
             </div>
           </div>
 
-          <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
-            <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">Language</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Select your preferred interface language</p>
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-bold text-foreground">Language</h3>
+            <p className="mb-4 text-sm text-muted-foreground">Select your preferred interface language</p>
             <div className="flex items-center gap-4">
-              <Globe size={18} className="text-gray-400" />
+              <Globe size={18} className="text-muted-foreground" />
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as keyof typeof UpdateMeDtoPreferredLanguage)}
-                className="h-11 max-w-xs rounded-xl border border-brand-border/20 bg-white px-4 text-sm dark:bg-gray-800 dark:text-gray-100"
+                className="h-10 max-w-xs rounded-lg border border-border bg-card px-3 text-sm text-foreground"
               >
                 <option value="en">English</option>
                 <option value="fr">French</option>
                 <option value="rw">Kinyarwanda</option>
               </select>
             </div>
-            <button
-              onClick={handleSaveLanguage}
-              disabled={savingLanguage}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark/80 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/80"
-            >
+            <Button onClick={handleSaveLanguage} disabled={savingLanguage} className="mt-4">
               {savingLanguage ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               Save Language Preference
-            </button>
+            </Button>
           </div>
 
-          <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:bg-gray-900">
-            <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">Notification Preferences</h3>
-            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Control which notifications you receive</p>
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-4 text-base font-bold text-foreground">Notification Preferences</h3>
+            <p className="mb-4 text-sm text-muted-foreground">Control which notifications you receive</p>
             {loadingNotifs ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 size={20} className="animate-spin text-gray-400" />
-              </div>
+              <LoadingSpinner />
             ) : (
               <div className="space-y-4">
-                <label className="flex items-center justify-between rounded-lg border border-brand-border/20 px-4 py-3 dark:border-gray-800">
+                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                    <p className="text-xs text-gray-500">Receive updates via email</p>
+                    <p className="text-sm font-medium text-foreground">Email Notifications</p>
+                    <p className="text-xs text-muted-foreground">Receive updates via email</p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={notifEmail}
-                    onClick={() => setNotifEmail(!notifEmail)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-                      notifEmail ? "bg-brand-dark dark:bg-white" : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      notifEmail ? "translate-x-6" : "translate-x-1"
-                    }`} />
-                  </button>
-                </label>
-                <label className="flex items-center justify-between rounded-lg border border-brand-border/20 px-4 py-3 dark:border-gray-800">
+                  <Switch
+                    checked={notifEmail}
+                    onCheckedChange={(v) => setNotifEmail(v)}
+                    aria-label="Email Notifications"
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">WhatsApp Notifications</p>
-                    <p className="text-xs text-gray-500">Receive updates via WhatsApp (Meta Cloud API)</p>
+                    <p className="text-sm font-medium text-foreground">WhatsApp Notifications</p>
+                    <p className="text-xs text-muted-foreground">Receive updates via WhatsApp (Meta Cloud API)</p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={notifWhatsapp}
-                    onClick={() => setNotifWhatsapp(!notifWhatsapp)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-                      notifWhatsapp ? "bg-brand-dark dark:bg-white" : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      notifWhatsapp ? "translate-x-6" : "translate-x-1"
-                    }`} />
-                  </button>
-                </label>
-                <label className="flex items-center justify-between rounded-lg border border-brand-border/20 px-4 py-3 dark:border-gray-800">
+                  <Switch
+                    checked={notifWhatsapp}
+                    onCheckedChange={(v) => setNotifWhatsapp(v)}
+                    aria-label="WhatsApp Notifications"
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Push Notifications</p>
-                    <p className="text-xs text-gray-500">Receive push notifications for booking state changes</p>
+                    <p className="text-sm font-medium text-foreground">Push Notifications</p>
+                    <p className="text-xs text-muted-foreground">Receive push notifications for booking state changes</p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={notifPush}
-                    onClick={() => setNotifPush(!notifPush)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-                      notifPush ? "bg-brand-dark dark:bg-white" : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      notifPush ? "translate-x-6" : "translate-x-1"
-                    }`} />
-                  </button>
-                </label>
-                <label className="flex items-center justify-between rounded-lg border border-brand-border/20 px-4 py-3 dark:border-gray-800">
+                  <Switch
+                    checked={notifPush}
+                    onCheckedChange={(v) => setNotifPush(v)}
+                    aria-label="Push Notifications"
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">In-App Notifications</p>
-                    <p className="text-xs text-gray-500">Receive notifications inside the platform</p>
+                    <p className="text-sm font-medium text-foreground">In-App Notifications</p>
+                    <p className="text-xs text-muted-foreground">Receive notifications inside the platform</p>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={notifInApp}
-                    onClick={() => setNotifInApp(!notifInApp)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors ${
-                      notifInApp ? "bg-brand-dark dark:bg-white" : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      notifInApp ? "translate-x-6" : "translate-x-1"
-                    }`} />
-                  </button>
-                </label>
-                <button
-                  onClick={handleSaveNotifPrefs}
-                  disabled={savingNotifs}
-                  className="inline-flex items-center gap-2 rounded-lg bg-brand-dark px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark/80 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/80"
-                >
+                  <Switch
+                    checked={notifInApp}
+                    onCheckedChange={(v) => setNotifInApp(v)}
+                    aria-label="In-App Notifications"
+                  />
+                </div>
+                <Button onClick={handleSaveNotifPrefs} disabled={savingNotifs} className="mt-4">
                   {savingNotifs ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                   Save Notification Preferences
-                </button>
+                </Button>
                 {notifsError && (
-                  <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                  <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                     <AlertTriangle size={15} className="mt-0.5 shrink-0" />
                     {notifsError}
                   </div>
@@ -1116,17 +1065,17 @@ export default function ExpertProfilePage() {
 }
 
 function FieldRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value: string }) {
-  return FieldRowWithIcon({ icon: Icon, label, value: <span className="font-medium text-brand-dark break-words dark:text-white">{value}</span> });
+  return FieldRowWithIcon({ icon: Icon, label, value: <span className="font-medium text-foreground break-words">{value}</span> });
 }
 
 function FieldRowWithIcon({ icon: Icon, label, value, children }: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; value?: string | React.ReactNode; children?: React.ReactNode }) {
   return (
     <div className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 text-brand-blue">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Icon size={15} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark/50 dark:text-white/50">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
         {children ?? value}
       </div>
     </div>

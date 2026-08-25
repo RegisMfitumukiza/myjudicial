@@ -7,19 +7,43 @@ import { useGetExpertsCompliance } from "@/api/generated";
 import { ExpertStatus } from "@/api/generated";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
-import {
-  CheckCircle2,
-  ArrowRight,
-  ShieldCheck,
-  Camera,
-  User,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Camera, User } from "lucide-react";
 import { useTranslations } from "next-intl";
+import {
+  PageHeader,
+  SkeletonList,
+  StatusBadge,
+  type StatusTone,
+} from "@/shared/components/dashboard";
+import { cn } from "@/lib/utils";
 
 type OnboardingData = {
   photoStatus: {
     hasPhoto: boolean;
   };
+};
+
+type ItemStatus = "done" | "pending" | "pending-review" | "rejected";
+
+const ROW_CLASS: Record<ItemStatus, string> = {
+  done: "border-primary/30 bg-primary/5",
+  rejected: "border-destructive/30 bg-destructive/5",
+  "pending-review": "border-border bg-card",
+  pending: "border-border bg-card",
+};
+
+const ICON_CHIP_CLASS: Record<ItemStatus, string> = {
+  done: "bg-primary/10 text-primary",
+  rejected: "bg-destructive/10 text-destructive",
+  "pending-review": "bg-warning/10 text-warning",
+  pending: "bg-muted text-muted-foreground",
+};
+
+const STATUS_TONE: Record<ItemStatus, StatusTone | null> = {
+  done: "active",
+  rejected: "destructive",
+  "pending-review": "pending",
+  pending: null,
 };
 
 export default function SetupPage() {
@@ -78,66 +102,42 @@ export default function SetupPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-brand-dark dark:text-white">{t("title")}</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {t("progress", { done: doneCount, total: totalCount })}{doneCount === totalCount ? t("allSet") : ""}
-        </p>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={`${t("progress", { done: doneCount, total: totalCount })}${doneCount === totalCount ? t("allSet") : ""}`}
+      />
 
       {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
-          ))}
-        </div>
+        <SkeletonList count={3} itemClassName="h-24" />
       ) : (
         <div className="space-y-3">
           {items.map((item) => {
             const Icon = item.icon;
-            const isItemDone = item.status === "done";
-            const isRejected = item.status === "rejected";
-            const isUnderReview = item.status === "pending-review";
+            const tone = STATUS_TONE[item.status];
 
             return (
               <Link key={item.key} href={item.href}>
                 <div
-                  className={`flex items-center gap-4 rounded-xl border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
-                    isItemDone
-                      ? "border-green-200 dark:border-green-800"
-                      : isRejected
-                        ? "border-red-200 dark:border-red-800"
-                        : "border-slate-200 dark:border-slate-700"
-                  }`}
+                  className={cn(
+                    "flex items-center gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/50",
+                    ROW_CLASS[item.status]
+                  )}
                 >
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                      isItemDone
-                        ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                        : isRejected
-                          ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                          : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
-                    }`}
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                      ICON_CHIP_CLASS[item.status]
+                    )}
                   >
                     <Icon size={18} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">{item.label}</p>
-                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+                    <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {isItemDone && (
-                      <span className="text-xs font-medium text-green-600 dark:text-green-400">{t("complete")}</span>
-                    )}
-                    {isUnderReview && (
-                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400">{t("underReview")}</span>
-                    )}
-                    {isRejected && (
-                      <span className="text-xs font-medium text-red-600 dark:text-red-400">{t("actionRequired")}</span>
-                    )}
-                    {!isItemDone && !isUnderReview && !isRejected && (
-                      <ArrowRight size={16} className="text-gray-400" />
-                    )}
+                    {tone && <StatusBadge tone={tone}>{tone === "active" ? t("complete") : tone === "pending" ? t("underReview") : t("actionRequired")}</StatusBadge>}
+                    {!tone && <ArrowRight size={16} className="text-muted-foreground" />}
                   </div>
                 </div>
               </Link>

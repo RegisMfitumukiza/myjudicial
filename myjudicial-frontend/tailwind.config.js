@@ -19,6 +19,10 @@ module.exports = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -35,23 +39,68 @@ module.exports = {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
-        border: "hsl(var(--border))",
-        ring: "hsl(var(--ring))",
-        
-        // Redefine standard colors to brand blue, black, white, and grays
-        blue: {
-          50: '#eef3f9',
-          100: '#d9e6f1',
-          200: '#b3cce3',
-          300: '#85add2',
-          400: '#5482b7',
-          500: '#24558d', // brand blue
-          600: '#1e4a7b',
-          700: '#183d66',
-          800: '#132f4e',
-          900: '#0d2238',
-          950: '#071523',
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+
+        // Neutral scales are driven by CSS variables that flip in dark mode
+        // (see globals.css). This gives every page a consistent, intentional
+        // dark-mode elevation ladder without per-file overrides.
+        gray: {
+          50: "rgb(var(--mj-neutral-50) / <alpha-value>)",
+          100: "rgb(var(--mj-neutral-100) / <alpha-value>)",
+          200: "rgb(var(--mj-neutral-200) / <alpha-value>)",
+          300: "rgb(var(--mj-neutral-300) / <alpha-value>)",
+          400: "rgb(var(--mj-neutral-400) / <alpha-value>)",
+          500: "rgb(var(--mj-neutral-500) / <alpha-value>)",
+          600: "rgb(var(--mj-neutral-600) / <alpha-value>)",
+          700: "rgb(var(--mj-neutral-700) / <alpha-value>)",
+          800: "rgb(var(--mj-neutral-800) / <alpha-value>)",
+          900: "rgb(var(--mj-neutral-900) / <alpha-value>)",
+          950: "rgb(var(--mj-neutral-950) / <alpha-value>)",
+        },
+        slate: {
+          50: "rgb(var(--mj-neutral-50) / <alpha-value>)",
+          100: "rgb(var(--mj-neutral-100) / <alpha-value>)",
+          200: "rgb(var(--mj-neutral-200) / <alpha-value>)",
+          300: "rgb(var(--mj-neutral-300) / <alpha-value>)",
+          400: "rgb(var(--mj-neutral-400) / <alpha-value>)",
+          500: "rgb(var(--mj-neutral-500) / <alpha-value>)",
+          600: "rgb(var(--mj-neutral-600) / <alpha-value>)",
+          700: "rgb(var(--mj-neutral-700) / <alpha-value>)",
+          800: "rgb(var(--mj-neutral-800) / <alpha-value>)",
+          900: "rgb(var(--mj-neutral-900) / <alpha-value>)",
+          950: "rgb(var(--mj-neutral-950) / <alpha-value>)",
+        },
+        // Brand-tinted blue scale, adjusted for dark mode via variables.
+        blue: {
+          50: "rgb(var(--mj-blue-50) / <alpha-value>)",
+          100: "rgb(var(--mj-blue-100) / <alpha-value>)",
+          200: "rgb(var(--mj-blue-200) / <alpha-value>)",
+          300: "rgb(var(--mj-blue-300) / <alpha-value>)",
+          400: "rgb(var(--mj-blue-400) / <alpha-value>)",
+          500: "rgb(var(--mj-blue-500) / <alpha-value>)",
+          600: "rgb(var(--mj-blue-600) / <alpha-value>)",
+          700: "rgb(var(--mj-blue-700) / <alpha-value>)",
+          800: "rgb(var(--mj-blue-800) / <alpha-value>)",
+          900: "rgb(var(--mj-blue-900) / <alpha-value>)",
+          950: "rgb(var(--mj-blue-950) / <alpha-value>)",
+        },
+
+        // Status hues are intentionally remapped to the restricted platform
+        // palette (brand blue + neutrals). Only red stays real for errors.
         green: {
           50: '#f8fafc',
           100: '#f1f5f9',
@@ -148,6 +197,11 @@ module.exports = {
           800: '#051426',
           900: '#000000',
         },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
     },
   },

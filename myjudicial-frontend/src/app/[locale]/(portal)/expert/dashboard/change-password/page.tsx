@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { toast } from "sonner";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 
 export default function ChangePasswordPage() {
   const [current, setCurrent] = useState("");
@@ -36,8 +38,8 @@ export default function ChangePasswordPage() {
       setCurrent("");
       setNewPass("");
       setConfirm("");
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to change password");
+    } catch {
+      setError("Failed to change password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -46,19 +48,19 @@ export default function ChangePasswordPage() {
   return (
     <div className="p-6 lg:p-8">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-brand-dark dark:text-gray-100">Change Password</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Update your account password</p>
+        <h1 className="text-xl font-bold text-foreground">Change Password</h1>
+        <p className="text-sm text-muted-foreground">Update your account password</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-md space-y-5">
         {(["current", "new", "confirm"] as const).map((field) => (
           <div key={field}>
-            <label className="mb-1.5 block text-xs font-medium text-gray-600 dark:text-gray-400">
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
               {field === "current" ? "Current Password" : field === "new" ? "New Password" : "Confirm New Password"}
             </label>
             <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
                 type={show[field] ? "text" : "password"}
                 value={field === "current" ? current : field === "new" ? newPass : confirm}
                 onChange={(e) => {
@@ -67,7 +69,7 @@ export default function ChangePasswordPage() {
                   else if (field === "new") setNewPass(v);
                   else setConfirm(v);
                 }}
-                className="h-11 w-full rounded-xl border border-brand-border/20 bg-white px-4 pl-10 pr-10 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
+                className="h-11 rounded-xl pl-10 pr-10"
                 placeholder={
                   field === "current" ? "Enter current password" : field === "new" ? "Enter new password" : "Confirm new password"
                 }
@@ -75,28 +77,22 @@ export default function ChangePasswordPage() {
               <button
                 type="button"
                 onClick={() => setShow({ ...show, [field]: !show[field] })}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                {show[field] ? <EyeOff size={16} /> : <Eye size={16} />}
+                {show[field] ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
               </button>
             </div>
           </div>
         ))}
 
         {error && (
-          <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+          <p className="text-sm text-destructive">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={!allFilled || loading}
-          className={`flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-medium text-white ${
-            allFilled && !loading ? "bg-brand-blue hover:bg-brand-blue/90" : "cursor-not-allowed bg-gray-300 dark:bg-gray-600"
-          }`}
-        >
-          {loading && <Loader2 size={16} className="animate-spin" />}
+        <Button type="submit" disabled={!allFilled || loading} className="w-full">
+          {loading && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
           Update Password
-        </button>
+        </Button>
       </form>
     </div>
   );

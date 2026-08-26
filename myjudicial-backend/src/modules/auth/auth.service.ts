@@ -52,6 +52,28 @@ function generateStrongPassword(): string {
 }
 
 /**
+ * Retry a transient-failure-prone async call (network blips between our
+ * container and Supabase/Upstash are observed in production). Retries only
+ * network-ish errors; API-level rejections surface immediately.
+ */
+async function withRetry<T>(fn: () => Promise<T>, label: string, attempts = 3): Promise<T> {
+  let lastError: unknown;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      const isTransient = /fetch failed|timeout|ECONNRESET|ECONNREFUSED|UND_ERR|network/i.test(msg);
+      if (!isTransient || i === attempts) throw err;
+      logger.warn(`Transient failure on ${label} (attempt ${i}/${attempts}) — retrying`, { error: msg });
+      await new Promise((r) => setTimeout(r, 800 * i));
+    }
+  }
+  throw lastError;
+}
+
+/**
  * Locate a Supabase Auth user by email with bounded pagination.
  * Only used on the rare "auth identity exists without PG record" path.
  */
@@ -141,18 +163,22 @@ export const AuthService = {
     const [firstName, ...rest] = dto.fullName.trim().split(" ");
     const lastName = rest.join(" ") || firstName;
 
-    // Create new Supabase Auth user
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: dto.email,
-      email_confirm: true,
-      user_metadata: {
-        full_name: dto.fullName,
-        role: dto.role,
-        first_name: firstName,
-        last_name: lastName,
-        phone: dto.phone,
-      },
-    });
+    // Create new Supabase Auth user (retried — transient network failures
+    // between the container and Supabase are observed in production)
+    const { data, error } = await withRetry(
+      () => supabaseAdmin.auth.admin.createUser({
+        email: dto.email,
+        email_confirm: true,
+        user_metadata: {
+          full_name: dto.fullName,
+          role: dto.role,
+          first_name: firstName,
+          last_name: lastName,
+          phone: dto.phone,
+        },
+      }),
+      "supabase createUser"
+    );
 
     let supabaseUser: { id: string; email?: string } | null = data?.user ?? null;
 
@@ -178,16 +204,20 @@ export const AuthService = {
 
     try {
       // Create PostgreSQL record via sync service
-      await SupabaseSyncService.syncFromSupabaseAuth(
-        supabaseUser.id,
-        supabaseUser.email || dto.email,
-        {
-          full_name: dto.fullName,
-          role: dto.role,
-          first_name: firstName,
-          last_name: lastName,
-          phone: dto.phone,
-        }
+      await withRetry(
+        () =>
+          SupabaseSyncService.syncFromSupabaseAuth(
+            supabaseUser.id,
+            supabaseUser.email || dto.email,
+            {
+              full_name: dto.fullName,
+              role: dto.role,
+              first_name: firstName,
+              last_name: lastName,
+              phone: dto.phone,
+            }
+          ),
+        "syncFromSupabaseAuth"
       );
     } catch (syncError) {
       // Do not leave a half-created auth identity behind: roll the Supabase
@@ -238,7 +268,10 @@ export const AuthService = {
       // User exists - send actual OTP
       const otp = await CustomOtpService.generate(dto.email);
       const userLanguage = user.preferredLanguage || 'en';
-      await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage as 'en' | 'fr' | 'rw');
+      await withRetry(
+        () => CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage as 'en' | 'fr' | 'rw'),
+        "sendOtpEmail"
+      );
       
       logger.info("Custom OTP generated and sent", {
         email: dto.email,
@@ -372,10 +405,13 @@ export const AuthService = {
     // This is more reliable than generateLink + verifyOtp for custom OTP flows
     const otp = generateStrongPassword();
     
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(dbUser.id, {
-      password: otp,
-    });
-    
+    const { error: updateError } = await withRetry(
+      () => supabaseAdmin.auth.admin.updateUserById(dbUser.id, {
+        password: otp,
+      }),
+      "updateUserById (otp login)"
+    );
+
     if (updateError) {
       logger.error("Failed to set temporary password", {
         email: dto.email,
@@ -383,12 +419,15 @@ export const AuthService = {
       });
       throw new ServiceUnavailableError(getErrorMessage('SERVER_ERROR'));
     }
-    
+
     // Sign in with the one-time password
-    const { data: sessionData, error: sessionError } = await supabaseAnon.auth.signInWithPassword({
-      email: dto.email,
-      password: otp,
-    });
+    const { data: sessionData, error: sessionError } = await withRetry(
+      () => supabaseAnon.auth.signInWithPassword({
+        email: dto.email,
+        password: otp,
+      }),
+      "signInWithPassword (otp login)"
+    );
     
     if (sessionError || !sessionData?.session) {
       logger.error("Failed to create session with temporary password", {

@@ -53,32 +53,52 @@ function generateStrongPassword(): string {
 
 /**
  * Retry a transient-failure-prone async call. Supabase-js does NOT throw on
- * network errors — it returns them via `{ error }` — so callers pass a
- * classifier that inspects the result and returns true when the attempt
- * failed transiently and should be retried.
+ * network errors — it returns them via `{ error }` — so the classifier
+ * inspects the result and returns true when the attempt failed transiently
+ * and should be retried.
  */
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const isTransientMessage = (msg: string): boolean =>
   /fetch failed|timeout|ECONNRESET|ECONNREFUSED|UND_ERR|socket|network|502|503|504/i.test(msg);
 
 async function retrySupabase<T>(
-  fn: () => Promise<{ error: { message: string; status?: number } | null } & Record<string, unknown>>,
+  fn: () => Promise<T>,
   label: string,
   attempts = 3
-): Promise<{ error: { message: string; status?: number } | null } & Record<string, unknown>> {
-  let last: { error: { message: string; status?: number } | null } & Record<string, unknown> = { error: null };
+): Promise<T> {
+  let last!: T;
   for (let i = 1; i <= attempts; i++) {
     last = await fn();
-    if (!last.error) return last;
-    const msg = `${last.error.message ?? ""} ${last.error.status ?? ""}`;
-    if (!isTransientMessage(msg)) break;
+    const errObj = (last as unknown as { error?: { message?: string; status?: number } | null })?.error;
+    if (!errObj) return last;
+    const msg = `${errObj.message ?? ""} ${errObj.status ?? ""}`;
+    if (!isTransientMessage(msg)) return last;
     logger.warn(`Transient supabase failure on ${label} (attempt ${i}/${attempts}) — retrying`, {
-      error: last.error.message,
-      status: last.error.status,
+      error: errObj.message,
+      status: errObj.status,
     });
     if (i < attempts) await sleep(800 * i);
   }
   return last;
+}
+
+/**
+ * Retry a throwing function for transient network errors.
+ */
+async function withRetry<T>(fn: () => Promise<T>, label: string, attempts = 3): Promise<T> {
+  let lastErr!: unknown;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!isTransientMessage(msg)) throw err;
+      logger.warn(`Transient failure on ${label} (attempt ${i}/${attempts}) — retrying`, { error: msg });
+      if (i < attempts) await sleep(800 * i);
+    }
+  }
+  throw lastErr;
 }
 
 /**

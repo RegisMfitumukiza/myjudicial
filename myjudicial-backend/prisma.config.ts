@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 // Use DIRECT_URL for migrations (requires DDL support).

@@ -52,25 +52,33 @@ function generateStrongPassword(): string {
 }
 
 /**
- * Retry a transient-failure-prone async call (network blips between our
- * container and Supabase/Upstash are observed in production). Retries only
- * network-ish errors; API-level rejections surface immediately.
+ * Retry a transient-failure-prone async call. Supabase-js does NOT throw on
+ * network errors — it returns them via `{ error }` — so callers pass a
+ * classifier that inspects the result and returns true when the attempt
+ * failed transiently and should be retried.
  */
-async function withRetry<T>(fn: () => Promise<T>, label: string, attempts = 3): Promise<T> {
-  let lastError: unknown;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const isTransientMessage = (msg: string): boolean =>
+  /fetch failed|timeout|ECONNRESET|ECONNREFUSED|UND_ERR|socket|network|502|503|504/i.test(msg);
+
+async function retrySupabase<T>(
+  fn: () => Promise<{ error: { message: string; status?: number } | null } & Record<string, unknown>>,
+  label: string,
+  attempts = 3
+): Promise<{ error: { message: string; status?: number } | null } & Record<string, unknown>> {
+  let last: { error: { message: string; status?: number } | null } & Record<string, unknown> = { error: null };
   for (let i = 1; i <= attempts; i++) {
-    try {
-      return await fn();
-    } catch (err) {
-      lastError = err;
-      const msg = err instanceof Error ? err.message : String(err);
-      const isTransient = /fetch failed|timeout|ECONNRESET|ECONNREFUSED|UND_ERR|network/i.test(msg);
-      if (!isTransient || i === attempts) throw err;
-      logger.warn(`Transient failure on ${label} (attempt ${i}/${attempts}) — retrying`, { error: msg });
-      await new Promise((r) => setTimeout(r, 800 * i));
-    }
+    last = await fn();
+    if (!last.error) return last;
+    const msg = `${last.error.message ?? ""} ${last.error.status ?? ""}`;
+    if (!isTransientMessage(msg)) break;
+    logger.warn(`Transient supabase failure on ${label} (attempt ${i}/${attempts}) — retrying`, {
+      error: last.error.message,
+      status: last.error.status,
+    });
+    if (i < attempts) await sleep(800 * i);
   }
-  throw lastError;
+  return last;
 }
 
 /**
@@ -165,7 +173,7 @@ export const AuthService = {
 
     // Create new Supabase Auth user (retried — transient network failures
     // between the container and Supabase are observed in production)
-    const { data, error } = await withRetry(
+    const { data, error } = await retrySupabase(
       () => supabaseAdmin.auth.admin.createUser({
         email: dto.email,
         email_confirm: true,
@@ -268,10 +276,18 @@ export const AuthService = {
       // User exists - send actual OTP
       const otp = await CustomOtpService.generate(dto.email);
       const userLanguage = user.preferredLanguage || 'en';
-      await withRetry(
-        () => CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage as 'en' | 'fr' | 'rw'),
+      const sent = await retrySupabase(
+        async () => {
+          try {
+            await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage as 'en' | 'fr' | 'rw');
+            return { error: null };
+          } catch (err) {
+            return { error: { message: err instanceof Error ? err.message : String(err) } };
+          }
+        },
         "sendOtpEmail"
       );
+      if (sent.error) throw new ServiceUnavailableError(`Email delivery failed: ${sent.error.message}`);
       
       logger.info("Custom OTP generated and sent", {
         email: dto.email,
@@ -405,7 +421,7 @@ export const AuthService = {
     // This is more reliable than generateLink + verifyOtp for custom OTP flows
     const otp = generateStrongPassword();
     
-    const { error: updateError } = await withRetry(
+    const { error: updateError } = await retrySupabase(
       () => supabaseAdmin.auth.admin.updateUserById(dbUser.id, {
         password: otp,
       }),
@@ -421,7 +437,7 @@ export const AuthService = {
     }
 
     // Sign in with the one-time password
-    const { data: sessionData, error: sessionError } = await withRetry(
+    const { data: sessionData, error: sessionError } = await retrySupabase(
       () => supabaseAnon.auth.signInWithPassword({
         email: dto.email,
         password: otp,

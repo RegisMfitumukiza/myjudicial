@@ -1,63 +1,59 @@
 "use client";
 
 import { useMemo } from "react";
-import type { LucideIcon } from "lucide-react";
 import {
-  Users, BadgeCheck, TrendingUp, DollarSign, Loader2, AlertCircle,
-  UserCheck, Briefcase, Activity, ShieldAlert,
+  Users, BadgeCheck, DollarSign, AlertCircle,
+  UserCheck, Briefcase, ShieldAlert, FileCheck,
+  Star, Clock, ArrowRight,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
-import { useGetAdminAnalyticsSummary, useGetAdminAnalyticsRevenue, type GetAdminAnalyticsSummary200Data } from "@/api/generated";
+import { Link } from "@/i18n/routing";
+import { useGetAdminAnalyticsSummary, useGetAdminAnalyticsRevenue, useGetAdminVerificationQueue } from "@/api/generated";
 import { useTranslations } from "next-intl";
+import { PageHeader } from "@/shared/components/dashboard";
+import { StatCard } from "@/shared/components/dashboard";
+import { LoadingSpinner } from "@/shared/components/dashboard";
+import { ErrorState } from "@/shared/components/dashboard";
+import { EmptyState } from "@/shared/components/dashboard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
 
-interface CardConfig {
-  labelKey: string;
-  subtitleKey: string;
-  icon: LucideIcon;
-  path: string[];
-  format?: (v: number) => string;
-}
-
-const cardConfigs: CardConfig[] = [
-  { labelKey: "totalUsers",     subtitleKey: "totalUsersDesc",   icon: Users,      path: ["platform", "totalUsers"] },
-  { labelKey: "clients",         subtitleKey: "clientsDesc", icon: UserCheck,  path: ["platform", "totalClients"] },
-  { labelKey: "lawyers",         subtitleKey: "lawyersDesc",  icon: Briefcase,  path: ["platform", "totalExperts"] },
-  { labelKey: "verifiedLawyers", subtitleKey: "verifiedLawyersDesc",   icon: BadgeCheck, path: ["platform", "verifiedExperts"] },
-  { labelKey: "newToday",       subtitleKey: "newTodayDesc",       icon: Activity,   path: ["platform", "newUsersToday"] },
-  { labelKey: "newThisMonth",  subtitleKey: "newThisMonthDesc",            icon: TrendingUp, path: ["platform", "newUsersThisMonth"] },
-  { labelKey: "suspended",       subtitleKey: "suspendedDesc",          icon: ShieldAlert,path: ["platform", "suspendedExperts"] },
-  { labelKey: "platformRevenue", subtitleKey: "platformRevenueDesc",     icon: DollarSign, path: ["revenue", "totalRevenue"],
-    format: (v) => `RWF ${(v / 1000).toFixed(1)}k` },
-];
-
-function resolveValue(summary: GetAdminAnalyticsSummary200Data, path: string[]): number | null {
-  let obj: any = summary;
+function resolveValue(obj: any, path: string[]): number | null {
+  let current = obj;
   for (const key of path) {
-    if (obj == null || typeof obj !== "object") return null;
-    obj = obj[key];
+    if (current == null || typeof current !== "object") return null;
+    current = current[key];
   }
-  return typeof obj === "number" ? obj : null;
+  return typeof current === "number" ? current : null;
 }
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin.dashboard");
-  const { data: summaryRes, isLoading: summaryLoading, isError: summaryError } = useGetAdminAnalyticsSummary();
-  const { data: revenueRes, isLoading: revenueLoading, isError: revenueError } = useGetAdminAnalyticsRevenue();
+  const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
+  const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
+  const { data: verifRes, isLoading: verifLoading } = useGetAdminVerificationQueue();
 
   const summary = summaryRes?.status === 200 ? summaryRes.data.data : null;
   const revenue = revenueRes?.status === 200 ? revenueRes.data.data : null;
+  const verifQueue = (verifRes as any)?.status === 200 ? (verifRes as any).data.data : [];
+  const pendingVerifications = Array.isArray(verifQueue) ? verifQueue.filter((v: any) => v.status === "PENDING").length : 0;
 
-  const stats = useMemo(() =>
-    cardConfigs.map((cfg) => {
-      const raw = summary ? resolveValue(summary, cfg.path) : null;
-      const value = raw !== null ? (cfg.format ? cfg.format(raw) : raw.toLocaleString()) : "—";
-      return { label: t(cfg.labelKey), subtitle: t(cfg.subtitleKey), value, icon: cfg.icon };
-    }),
-    [summary, t]
-  );
+  const platformStats = useMemo(() => {
+    if (!summary) return null;
+    return {
+      totalUsers: resolveValue(summary, ["platform", "totalUsers"]) ?? 0,
+      totalExperts: resolveValue(summary, ["platform", "totalExperts"]) ?? 0,
+      verifiedExperts: resolveValue(summary, ["platform", "verifiedExperts"]) ?? 0,
+      totalClients: resolveValue(summary, ["platform", "totalClients"]) ?? 0,
+      suspendedExperts: resolveValue(summary, ["platform", "suspendedExperts"]) ?? 0,
+      newUsersToday: resolveValue(summary, ["platform", "newUsersToday"]) ?? 0,
+      newUsersThisMonth: resolveValue(summary, ["platform", "newUsersThisMonth"]) ?? 0,
+      totalRevenue: resolveValue(summary, ["revenue", "totalRevenue"]) ?? 0,
+    };
+  }, [summary]);
 
   const chartData = useMemo(() => {
     if (!revenue?.timeSeries) return [];
@@ -71,100 +67,156 @@ export default function AdminDashboardPage() {
   const hasError = summaryError || revenueError;
 
   if (isLoading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-      </div>
-    );
+    return <LoadingSpinner label={t("unableToFetch")} />;
   }
 
   if (hasError) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <AlertCircle className="h-12 w-12 text-gray-400" />
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t("failedToLoad")}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{t("unableToFetch")}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 rounded-lg bg-brand-dark px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
-          Retry
-        </button>
+      <div className="space-y-6 p-6 lg:p-8">
+        <PageHeader title={t("welcome")} description={t("subtitle")} />
+        <ErrorState
+          title={t("failedToLoad")}
+          message={t("unableToFetch")}
+          onRetry={() => { refetchSummary(); refetchRevenue(); }}
+        />
       </div>
     );
   }
 
+  const hasData = platformStats && (platformStats.totalUsers > 0 || platformStats.totalExperts > 0);
+
   return (
-    <div className="mx-auto max-w-[1280px] space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-6 lg:p-8">
+      <PageHeader title={t("welcome")} description={t("subtitle")} />
 
-      {/* Welcome banner */}
-      <div className="relative overflow-hidden rounded-xl bg-brand-dark p-6 lg:p-8">
-        <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/[0.03] blur-3xl" />
-        <div className="absolute bottom-0 left-0 h-48 w-48 -translate-x-8 translate-y-8 rounded-full bg-brand-blue/10 blur-3xl" />
-        <div className="relative">
-          <h1 className="text-2xl font-bold text-white lg:text-3xl">
-            {t("welcome")}
-          </h1>
-          <p className="mt-1.5 text-sm text-white/60 lg:text-base">
-            {t("subtitle")}
-          </p>
-        </div>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {stats.map(({ label, subtitle, value, icon: Icon }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue dark:bg-white/10 dark:text-white">
-              <Icon size={18} />
+      {/* Action Required - only show if there are items needing attention */}
+      {(pendingVerifications > 0 || (platformStats?.suspendedExperts ?? 0) > 0) && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertCircle className="h-4 w-4 text-warning" />
+              {t("actionRequired")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {pendingVerifications > 0 && (
+                <Link href="/admin/dashboard/verifications">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileCheck className="h-4 w-4" />
+                    {pendingVerifications} {t("pendingVerifications")}
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              )}
+              {(platformStats?.suspendedExperts ?? 0) > 0 && (
+                <Link href="/admin/dashboard/experts?tab=suspended">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ShieldAlert className="h-4 w-4" />
+                    {platformStats!.suspendedExperts} {t("suspendedExperts")}
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              )}
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-            <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{label}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
-          </div>
-        ))}
-      </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Revenue chart */}
-      {chartData.length > 0 && (
-        <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-          <h3 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">
-            {t("revenueLast7Days")}
-          </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--color-brand-border))" />
-                <XAxis dataKey="day" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid rgb(var(--color-brand-border))",
-                    backgroundColor: "#fff",
-                    fontSize: "13px",
-                  }}
-                  formatter={(value: number) => [`RWF ${value.toLocaleString()}`, t("revenue")]}
-                />
-                <Bar dataKey="amount" fill="rgb(var(--color-brand-blue))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      {/* Platform Overview */}
+      {hasData && (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <StatCard
+            label={t("totalUsers")}
+            value={platformStats!.totalUsers.toLocaleString()}
+            icon={Users}
+            hint={`${platformStats!.newUsersToday} ${t("newTodayDesc")}`}
+          />
+          <StatCard
+            label={t("verifiedLawyers")}
+            value={platformStats!.verifiedExperts.toLocaleString()}
+            icon={BadgeCheck}
+            hint={`${platformStats!.totalExperts} ${t("lawyersDesc")}`}
+          />
+          <StatCard
+            label={t("clients")}
+            value={platformStats!.totalClients.toLocaleString()}
+            icon={UserCheck}
+          />
+          <StatCard
+            label={t("platformRevenue")}
+            value={`RWF ${platformStats!.totalRevenue.toLocaleString()}`}
+            icon={DollarSign}
+          />
         </div>
+      )}
+
+      {/* Secondary Stats */}
+      {hasData && (platformStats!.newUsersThisMonth > 0 || pendingVerifications > 0) && (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          <StatCard
+            label={t("newThisMonth")}
+            value={platformStats!.newUsersThisMonth.toLocaleString()}
+            icon={Briefcase}
+          />
+          <StatCard
+            label={t("suspended")}
+            value={platformStats!.suspendedExperts.toLocaleString()}
+            icon={ShieldAlert}
+          />
+          <StatCard
+            label={t("pendingVerifications")}
+            value={pendingVerifications.toLocaleString()}
+            icon={Clock}
+            action={
+              pendingVerifications > 0 ? (
+                <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
+                  {t("review")} <ArrowRight className="inline h-3 w-3" />
+                </Link>
+              ) : undefined
+            }
+          />
+        </div>
+      )}
+
+      {/* Revenue Chart */}
+      {chartData.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">{t("revenueLast7Days")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="day" fontSize={12} axisLine={false} tickLine={false} className="text-muted-foreground" />
+                  <YAxis fontSize={12} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} className="text-muted-foreground" />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: "hsl(var(--card))",
+                      color: "hsl(var(--card-foreground))",
+                      fontSize: "13px",
+                    }}
+                    formatter={(value: number) => [`RWF ${value.toLocaleString()}`, t("revenue")]}
+                  />
+                  <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Empty state */}
-      {!summary && chartData.length === 0 && (
-        <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-10 text-center shadow-md">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("noData")}
-          </p>
-        </div>
+      {!hasData && chartData.length === 0 && (
+        <EmptyState
+          title={t("noData")}
+          description={t("unableToFetch")}
+        />
       )}
-
     </div>
   );
 }

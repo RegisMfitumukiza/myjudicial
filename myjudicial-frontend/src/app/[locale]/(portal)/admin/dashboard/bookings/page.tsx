@@ -6,14 +6,9 @@ import {
   Calendar,
   Clock,
   DollarSign,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Loader2,
-  Filter,
-  RefreshCw,
-  Ban,
   CheckCheck,
+  Search,
+  Filter,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -29,28 +24,56 @@ import {
 import { format } from "date-fns";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 
+import { PageHeader } from "@/shared/components/dashboard/page-header";
+import { StatCard } from "@/shared/components/dashboard/stat-card";
+import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
+import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { ErrorState } from "@/shared/components/dashboard/error-state";
+import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
+
 type StatusFilter = GetAdminBookingsStatus | "ALL";
 
 // Helper functions
-const getStatusBadge = (status: Booking["status"]) => {
-  const configs = {
-    PENDING: { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400", icon: Clock, label: "Pending" },
-    CONFIRMED: { color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", icon: CheckCircle, label: "Confirmed" },
-    ACTIVE: { color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", icon: RefreshCw, label: "Active" },
-    COMPLETED: { color: "bg-brand-green/10 text-brand-green", icon: CheckCheck, label: "Completed" },
-    CANCELLED: { color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400", icon: Ban, label: "Cancelled" },
-    REFUNDED: { color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400", icon: XCircle, label: "Refunded" },
+const getStatusTone = (status: Booking["status"]): StatusTone => {
+  const map: Record<Booking["status"], StatusTone> = {
+    PENDING: "pending",
+    CONFIRMED: "info",
+    ACTIVE: "active",
+    COMPLETED: "success",
+    CANCELLED: "neutral",
+    REFUNDED: "destructive",
   };
+  return map[status] ?? "neutral";
+};
 
-  const config = configs[status];
-  const Icon = config.icon;
-
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}>
-      <Icon size={12} />
-      {config.label}
-    </span>
-  );
+const getStatusLabel = (status: Booking["status"]): string => {
+  const map: Record<Booking["status"], string> = {
+    PENDING: "Pending",
+    CONFIRMED: "Confirmed",
+    ACTIVE: "Active",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled",
+    REFUNDED: "Refunded",
+  };
+  return map[status] ?? status;
 };
 
 const formatCurrency = (amount: number, currency = "RWF") => {
@@ -216,178 +239,165 @@ export default function BookingsPage() {
 
   if (loadingBookings || loadingStats) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading bookings...</p>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <LoadingSpinner label="Loading bookings..." />
       </div>
     );
   }
 
   if (bookingsError) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load bookings</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {bookingsError instanceof Error ? bookingsError.message : "Unknown error occurred"}
-          </p>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <PageHeader title="Bookings Management" description="Manage all platform consultations and bookings" />
+        <ErrorState
+          title="Failed to load bookings"
+          message={bookingsError instanceof Error ? bookingsError.message : "Unknown error occurred"}
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Bookings Management</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Manage all platform consultations and bookings</p>
-      </div>
+      <PageHeader
+        title="Bookings Management"
+        description="Manage all platform consultations and bookings"
+      />
 
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue">
-              <Calendar size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalBookings.toLocaleString()}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Total</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-amber-600/10 text-amber-600">
-              <Clock size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.counts.PENDING.toLocaleString()}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Pending</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600">
-              <CheckCircle size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.counts.CONFIRMED.toLocaleString()}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Confirmed</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10 text-green-600">
-              <CheckCheck size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.counts.COMPLETED.toLocaleString()}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Completed</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-green/10 text-brand-green">
-              <DollarSign size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(stats.totalRevenue)}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Revenue</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-600/10 text-red-600">
-              <XCircle size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.counts.REFUNDED.toLocaleString()}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Refunded</p>
-          </div>
+          <StatCard
+            label="Total"
+            value={stats.totalBookings.toLocaleString()}
+            icon={Calendar}
+          />
+          <StatCard
+            label="Pending"
+            value={stats.counts.PENDING.toLocaleString()}
+            icon={Clock}
+          />
+          <StatCard
+            label="Confirmed"
+            value={stats.counts.CONFIRMED.toLocaleString()}
+            icon={CheckCheck}
+          />
+          <StatCard
+            label="Completed"
+            value={stats.counts.COMPLETED.toLocaleString()}
+            icon={CheckCheck}
+          />
+          <StatCard
+            label="Revenue"
+            value={formatCurrency(stats.totalRevenue)}
+            icon={DollarSign}
+          />
+          <StatCard
+            label="Refunded"
+            value={stats.counts.REFUNDED.toLocaleString()}
+            icon={DollarSign}
+          />
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-4 rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-4 shadow-md lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <Filter size={16} className="text-gray-400" />
-          <select
-            className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as StatusFilter);
-              setPage(1);
-            }}
-          >
-            <option value="ALL">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="CONFIRMED">Confirmed</option>
-            <option value="ACTIVE">Active</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
-            <option value="REFUNDED">Refunded</option>
-          </select>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-            className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none dark:bg-gray-800 dark:text-gray-100"
-            placeholder="From"
-          />
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-            className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none dark:bg-gray-800 dark:text-gray-100"
-            placeholder="To"
-          />
-        </div>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by client or expert name..."
-          className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-blue focus:outline-none dark:bg-gray-800 dark:text-gray-100 lg:w-64"
-        />
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <Filter size={16} className="shrink-0 text-muted-foreground" />
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value as StatusFilter);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectItem value="REFUNDED">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                placeholder="From"
+              />
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                placeholder="To"
+              />
+            </div>
+            <Input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by client or expert name..."
+              className="lg:w-64"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Bookings Table */}
-      <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 shadow-md">
+      <Card>
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 border-b border-brand-border/10 bg-brand-blue/5 px-6 py-3">
-            <span className="text-sm font-medium text-brand-dark dark:text-gray-100">{selectedIds.size} selected</span>
+          <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-6 py-3">
+            <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
             {bulkCompletable.length > 0 && (
-              <button
+              <Button
+                size="xs"
+                variant="default"
                 onClick={handleBulkComplete}
                 disabled={completeMutation.isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
               >
                 <CheckCheck size={14} />
                 Complete ({bulkCompletable.length})
-              </button>
+              </Button>
             )}
             {!isBookingFirst && bulkRefundable.length > 0 && (
-              <button
+              <Button
+                size="xs"
+                variant="destructive"
                 onClick={handleBulkRefund}
                 disabled={refundMutation.isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
               >
-                <XCircle size={14} />
+                <DollarSign size={14} />
                 Refund ({bulkRefundable.length})
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              size="xs"
+              variant="ghost"
               onClick={() => setSelectedIds(new Set())}
-              className="ml-auto text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              className="ml-auto"
             >
               Clear selection
-            </button>
+            </Button>
           </div>
         )}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-brand-border/10 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <th className="w-10 px-4 py-4">
                   <input
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-input"
                   />
                 </th>
                 <th className="px-6 py-4">Client</th>
@@ -399,13 +409,15 @@ export default function BookingsPage() {
                 <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border/10">
+            <tbody className="divide-y divide-border">
               {bookings.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {search.trim() ? "No bookings match your search." : "No bookings found."}
-                    </p>
+                    <EmptyState
+                      icon={Calendar}
+                      title={search.trim() ? "No bookings match your search." : "No bookings found."}
+                      description={search.trim() ? "Try adjusting your search criteria." : "There are no bookings yet."}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -414,76 +426,82 @@ export default function BookingsPage() {
                   const { amount, currency } = bookingAmount(booking);
 
                   return (
-                    <tr key={booking.id} className="transition-colors hover:bg-brand-canvas dark:hover:bg-gray-800">
+                    <tr key={booking.id} className="transition-colors hover:bg-muted/50">
                       <td className="px-4 py-4">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(booking.id)}
                           onChange={() => toggleSelect(booking.id)}
                           disabled={!["ACTIVE", "CONFIRMED"].includes(booking.status)}
-                          className="h-4 w-4 rounded border-gray-300 disabled:opacity-30"
+                          className="h-4 w-4 rounded border-input disabled:opacity-30"
                         />
                       </td>
                       <td className="px-6 py-4">
                         <Link href={`/admin/dashboard/bookings/${booking.id}`} className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-blue/10 text-xs text-brand-blue">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs text-primary">
                             {name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100 hover:underline">{name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{booking.citizen?.email ?? "—"}</p>
+                            <p className="font-medium text-foreground hover:underline">{name}</p>
+                            <p className="text-xs text-muted-foreground">{booking.citizen?.email ?? "\u2014"}</p>
                           </div>
                         </Link>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-600/10 text-xs text-green-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-xs text-success">
                             {(booking.expert?.displayName ?? "E").charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
+                            <p className="font-medium text-foreground">
                               {booking.expert?.displayName ?? "Expert"}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{booking.expert?.user?.email ?? "—"}</p>
+                            <p className="text-xs text-muted-foreground">{booking.expert?.user?.email ?? "\u2014"}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                        <p className="font-medium text-foreground">
                           {booking.service?.name ?? "Consultation"}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="text-gray-900 dark:text-gray-100">{formatDateTime(booking.scheduledStart)}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">to {formatDateTime(booking.scheduledEnd)}</p>
+                          <p className="text-foreground">{formatDateTime(booking.scheduledStart)}</p>
+                          <p className="text-xs text-muted-foreground">to {formatDateTime(booking.scheduledEnd)}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">{getStatusBadge(booking.status)}</td>
                       <td className="px-6 py-4">
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(amount, currency)}</span>
+                        <StatusBadge tone={getStatusTone(booking.status)}>
+                          {getStatusLabel(booking.status)}
+                        </StatusBadge>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-foreground">{formatCurrency(amount, currency)}</span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {booking.status === "ACTIVE" && (
-                            <button
+                            <Button
+                              size="xs"
+                              variant="default"
                               onClick={() => handleComplete(booking)}
                               disabled={completeMutation.isPending}
-                              className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
                             >
                               <CheckCheck size={14} />
                               Complete
-                            </button>
+                            </Button>
                           )}
                           {!isBookingFirst && (booking.status === "CONFIRMED" || booking.status === "COMPLETED") && (
-                            <button
+                            <Button
+                              size="xs"
+                              variant="destructive"
                               onClick={() => handleRefund(booking)}
                               disabled={refundMutation.isPending}
-                              className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                             >
-                              <XCircle size={14} />
+                              <DollarSign size={14} />
                               Refund
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </td>
@@ -497,177 +515,168 @@ export default function BookingsPage() {
 
         {/* Pagination */}
         {pagination && pagination.pages > 1 && (
-          <div className="flex items-center justify-between border-t border-brand-border/10 px-6 py-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-between border-t border-border px-6 py-4">
+            <p className="text-sm text-muted-foreground">
               Page {pagination.page} of {pagination.pages} ({pagination.total} total)
             </p>
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Previous
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.pages}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Refund Modal */}
-      {showRefundModal && selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Process Refund</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Refund booking for <span className="font-medium">{clientName(selectedBooking)}</span>
-            </p>
+      <Dialog open={showRefundModal} onOpenChange={setShowRefundModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Process Refund</DialogTitle>
+            <DialogDescription>
+              Refund booking for <span className="font-medium text-foreground">{selectedBooking ? clientName(selectedBooking) : ""}</span>
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Refund Amount *
-                </label>
-                <div className="mt-1 flex gap-3">
-                  {(() => {
-                    const { amount, currency } = bookingAmount(selectedBooking);
-                    return (
-                      <>
-                        <button
-                          onClick={() => setRefundPercentage(50)}
-                          className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                            refundPercentage === 50
-                              ? "border-brand-blue bg-brand-blue text-white"
-                              : "border-brand-border bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          50% ({formatCurrency(amount * 0.5, currency)})
-                        </button>
-                        <button
-                          onClick={() => setRefundPercentage(100)}
-                          className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                            refundPercentage === 100
-                              ? "border-brand-blue bg-brand-blue text-white"
-                              : "border-brand-border bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                          }`}
-                        >
-                          100% ({formatCurrency(amount, currency)})
-                        </button>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Reason for refund *
-                </label>
-                <textarea
-                  className="mt-1 w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-                  rows={4}
-                  placeholder="Provide a detailed reason for the refund..."
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value)}
-                />
-                <p className="mt-1 text-xs text-gray-500">Minimum 5 characters required</p>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">
+                Refund Amount *
+              </label>
+              <div className="mt-2 flex gap-3">
+                {(() => {
+                  if (!selectedBooking) return null;
+                  const { amount, currency } = bookingAmount(selectedBooking);
+                  return (
+                    <>
+                      <Button
+                        variant={refundPercentage === 50 ? "default" : "outline"}
+                        className="flex-1"
+                        onClick={() => setRefundPercentage(50)}
+                      >
+                        50% ({formatCurrency(amount * 0.5, currency)})
+                      </Button>
+                      <Button
+                        variant={refundPercentage === 100 ? "default" : "outline"}
+                        className="flex-1"
+                        onClick={() => setRefundPercentage(100)}
+                      >
+                        100% ({formatCurrency(amount, currency)})
+                      </Button>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowRefundModal(false);
-                  setRefundReason("");
-                  setRefundPercentage(100);
-                  setSelectedBooking(null);
-                }}
-                className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmRefund}
-                disabled={refundReason.trim().length < 5 || refundMutation.isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-              >
-                {refundMutation.isPending ? "Processing..." : "Confirm Refund"}
-              </button>
+            <div>
+              <label className="text-sm font-medium text-foreground">
+                Reason for refund *
+              </label>
+              <textarea
+                className="mt-2 flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+                rows={4}
+                placeholder="Provide a detailed reason for the refund..."
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Minimum 5 characters required</p>
             </div>
           </div>
-        </div>
-      )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRefundModal(false);
+                setRefundReason("");
+                setRefundPercentage(100);
+                setSelectedBooking(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmRefund}
+              disabled={refundReason.trim().length < 5 || refundMutation.isPending}
+            >
+              {refundMutation.isPending ? "Processing..." : "Confirm Refund"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bulk Refund Modal */}
-      {showBulkRefundModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Bulk Refund</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Refund <span className="font-medium">{bulkRefundable.length}</span> booking(s)
-            </p>
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Refund Amount *</label>
-                <div className="mt-1 flex gap-3">
-                  <button
-                    onClick={() => setBulkRefundPercentage(50)}
-                    className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                      bulkRefundPercentage === 50
-                        ? "border-brand-blue bg-brand-blue text-white"
-                        : "border-brand-border bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300"
-                    }`}
-                  >
-                    50%
-                  </button>
-                  <button
-                    onClick={() => setBulkRefundPercentage(100)}
-                    className={`flex-1 rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                      bulkRefundPercentage === 100
-                        ? "border-brand-blue bg-brand-blue text-white"
-                        : "border-brand-border bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300"
-                    }`}
-                  >
-                    100%
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Reason for refund *</label>
-                <textarea
-                  className="mt-1 w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none dark:bg-gray-800 dark:text-gray-100"
-                  rows={4}
-                  placeholder="Provide a detailed reason for the refund..."
-                  value={bulkRefundReason}
-                  onChange={(e) => setBulkRefundReason(e.target.value)}
-                />
+      <Dialog open={showBulkRefundModal} onOpenChange={setShowBulkRefundModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk Refund</DialogTitle>
+            <DialogDescription>
+              Refund <span className="font-medium text-foreground">{bulkRefundable.length}</span> booking(s)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">Refund Amount *</label>
+              <div className="mt-2 flex gap-3">
+                <Button
+                  variant={bulkRefundPercentage === 50 ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setBulkRefundPercentage(50)}
+                >
+                  50%
+                </Button>
+                <Button
+                  variant={bulkRefundPercentage === 100 ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setBulkRefundPercentage(100)}
+                >
+                  100%
+                </Button>
               </div>
             </div>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                onClick={() => { setShowBulkRefundModal(false); setBulkRefundReason(""); setBulkRefundPercentage(100); }}
-                className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmBulkRefund}
-                disabled={bulkRefundReason.trim().length < 5 || refundMutation.isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {refundMutation.isPending ? "Processing..." : `Refund ${bulkRefundable.length} Booking(s)`}
-              </button>
+            <div>
+              <label className="text-sm font-medium text-foreground">Reason for refund *</label>
+              <textarea
+                className="mt-2 flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+                rows={4}
+                placeholder="Provide a detailed reason for the refund..."
+                value={bulkRefundReason}
+                onChange={(e) => setBulkRefundReason(e.target.value)}
+              />
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setShowBulkRefundModal(false); setBulkRefundReason(""); setBulkRefundPercentage(100); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmBulkRefund}
+              disabled={bulkRefundReason.trim().length < 5 || refundMutation.isPending}
+            >
+              {refundMutation.isPending ? "Processing..." : `Refund ${bulkRefundable.length} Booking(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

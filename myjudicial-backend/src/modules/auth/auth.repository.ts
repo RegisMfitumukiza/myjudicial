@@ -154,7 +154,7 @@ export const AuthRepository = {
       where: { userId },
       update: {},
       create: { userId },
-      select: { email: true, whatsapp: true, push: true, inApp: true },
+      select: { email: true, push: true, inApp: true },
     });
   },
 
@@ -163,7 +163,6 @@ export const AuthRepository = {
    */
   updateNotificationPreferences: async (userId: string, data: {
     email: boolean;
-    whatsapp: boolean;
     push: boolean;
     inApp: boolean;
   }) => {
@@ -171,7 +170,7 @@ export const AuthRepository = {
       where: { userId },
       update: data,
       create: { userId, ...data },
-      select: { email: true, whatsapp: true, push: true, inApp: true },
+      select: { email: true, push: true, inApp: true },
     });
   },
 };

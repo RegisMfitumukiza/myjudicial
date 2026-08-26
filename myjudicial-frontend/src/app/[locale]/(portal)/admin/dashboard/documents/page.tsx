@@ -4,16 +4,20 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   FileText,
-  Loader2,
-  RefreshCw,
   Download,
   Eye,
-  AlertTriangle,
   Search,
   Filter,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
+import { PageHeader } from "@/shared/components/dashboard/page-header";
+import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { ErrorState } from "@/shared/components/dashboard/error-state";
+import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
 
 interface Document {
   id: string;
@@ -77,167 +81,152 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {t("title")}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("subtitle")}
-          </p>
-        </div>
-        {!isLoading && backendMissing && (
-          <button
-            onClick={() => refetch()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-border/20 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-          >
-            <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} />{" "}
-            {t("retry")}
-          </button>
-        )}
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          !isLoading && backendMissing ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+            >
+              <Download size={13} className={isFetching ? "animate-spin" : ""} />{" "}
+              {t("retry")}
+            </Button>
+          ) : undefined
+        }
+      />
 
-      {isLoading && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-brand-blue" />
-        </div>
-      )}
+      {isLoading && <LoadingSpinner label="Loading documents..." />}
 
       {backendMissing && !isLoading && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-amber-200 bg-amber-50 py-20 dark:border-amber-800 dark:bg-amber-900/20">
-          <AlertTriangle size={28} className="mb-3 text-amber-500" />
-          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-            {t("notAvailable")}
-          </p>
-          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-            {t("notAvailableDesc")}
-          </p>
-        </div>
+        <ErrorState
+          title={t("notAvailable")}
+          message={t("notAvailableDesc")}
+          onRetry={() => refetch()}
+          retryLabel={t("retry")}
+        />
       )}
 
       {!isLoading && !backendMissing && documents.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-brand-border/20 bg-white py-20 shadow-md dark:bg-gray-900">
-          <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-canvas dark:bg-gray-800">
-            <FileText size={28} className="text-gray-400" />
-          </div>
-          <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-gray-100">
-            {t("noDocuments")}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t("noDocumentsDesc")}
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title={t("noDocuments")}
+          description={t("noDocumentsDesc")}
+        />
       )}
 
       {!isLoading && !backendMissing && documents.length > 0 && (
         <>
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-xs">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative max-w-xs flex-1">
               <Search
                 size={15}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
               />
-              <input
+              <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("searchFiles")}
-                className="w-full rounded-lg border border-brand-border/30 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-blue dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                className="pl-9"
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <Filter size={14} className="text-gray-400" />
+              <Filter size={14} className="text-muted-foreground" />
               {CATEGORIES.map((cat) => (
-                <button
+                <Button
                   key={cat}
+                  variant={category === cat ? "default" : "ghost"}
+                  size="sm"
                   onClick={() => setCategory(cat)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                    category === cat
-                      ? "bg-brand-blue text-white"
-                      : "text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                  }`}
                 >
                   {cat}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-brand-border/20 bg-white shadow-md dark:bg-gray-900">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-brand-border/10 bg-brand-canvas dark:bg-gray-800">
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    {t("fileName")}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    {t("category")}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    {t("uploadedBy")}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    {t("size")}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    {t("date")}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((doc) => (
-                  <tr
-                    key={doc.id}
-                    className="border-b border-brand-border/10 last:border-0"
-                  >
-                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
-                      {doc.fileName}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
-                      {doc.category}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
-                      {doc.uploadedBy}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
-                      {formatBytes(doc.fileSize)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
-                      {new Date(doc.uploadedAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="rounded p-1 text-gray-400 hover:text-brand-blue"
-                          title="View"
-                        >
-                          <Eye size={14} />
-                        </button>
-                        <button
-                          className="rounded p-1 text-gray-400 hover:text-brand-blue"
-                          title="Download"
-                        >
-                          <Download size={14} />
-                        </button>
-                      </div>
-                    </td>
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      {t("fileName")}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      {t("category")}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      {t("uploadedBy")}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      {t("size")}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      {t("date")}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-muted-foreground">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-10 text-center text-sm text-gray-400 dark:text-gray-500"
+                </thead>
+                <tbody>
+                  {filtered.map((doc) => (
+                    <tr
+                      key={doc.id}
+                      className="border-b border-border last:border-0"
                     >
-                      {t("noSearchResults")}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      <td className="px-4 py-3 font-medium text-foreground">
+                        {doc.fileName}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {doc.category}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {doc.uploadedBy}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatBytes(doc.fileSize)}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {new Date(doc.uploadedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title="View"
+                          >
+                            <Eye size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title="Download"
+                          >
+                            <Download size={14} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-4 py-10 text-center text-sm text-muted-foreground"
+                      >
+                        {t("noSearchResults")}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </>
       )}
     </div>

@@ -55,6 +55,11 @@ const ERROR_MESSAGES = {
     fr: "Trop de tentatives de vérification. Veuillez demander un nouveau code",
     rw: "Bikemera byinshi byabaye mu kugenzura. Nyamuneka saba kode nshya",
   },
+  PHONE_IN_USE: {
+    en: "This phone number is already registered. Please use a different number or sign in",
+    fr: "Ce numéro de téléphone est déjà enregistré. Veuillez utiliser un autre numéro ou vous connecter",
+    rw: "Iyi nimero ya telephone isanzwe iyandikishijwe. Koresha indi nimero cyangwa winjire",
+  },
   
   // Booking Errors
   BOOKING_UNAVAILABLE: {

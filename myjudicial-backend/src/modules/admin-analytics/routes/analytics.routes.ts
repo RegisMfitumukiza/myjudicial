@@ -76,7 +76,7 @@ router.get("/reviews", asyncHandler(AnalyticsController.getReviews));
 
 /**
  * GET /api/v1/admin/analytics/communications
- * Communication analytics (chat, WhatsApp, email)
+ * Communication analytics (chat, email)
  * Query params: period, startDate, endDate, timezone
  */
 router.get("/communications", asyncHandler(AnalyticsController.getCommunications));

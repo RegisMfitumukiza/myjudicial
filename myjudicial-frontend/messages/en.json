@@ -2040,8 +2040,6 @@
     "notifsDesc": "Control which notifications you receive",
     "emailNotifs": "Email Notifications",
     "emailNotifsDesc": "Receive updates via email",
-    "whatsappNotifs": "WhatsApp Notifications",
-    "whatsappNotifsDesc": "Receive updates via WhatsApp (Meta Cloud API)",
     "pushNotifs": "Push Notifications",
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",
@@ -3261,7 +3259,9 @@
       "role": "Choose Role",
       "intake": "Your Needs",
       "account": "Create Account",
-      "verify": "Verify Email"
+      "verify": "Verify Email",
+      "area": "Focus area",
+      "needs": "Your situation"
     },
     "practiceArea": {
       "title": "What area of law do you need help with?",
@@ -3281,7 +3281,8 @@
       "verifiedRedirect": "Welcome to MyJudicial. Redirecting you to your dashboard…",
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
-      "codeExpired": "Code expired. Please request a new one."
+      "codeExpired": "Code expired. Please request a new one.",
+      "validFor15m": "Your code is valid for 15 minutes."
     },
     "nav": {
       "back": "Back",
@@ -3297,7 +3298,12 @@
     "errors": {
       "general": "Something went wrong. Please try again.",
       "emailExists": "An account with this email already exists.",
-      "invalidOtp": "Invalid verification code. Please try again."
+      "invalidOtp": "Invalid verification code. Please try again.",
+      "firstNameMin": "First name must be at least 2 characters.",
+      "lastNameMin": "Last name must be at least 2 characters.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneInvalid": "Enter a valid international phone number (e.g. +250788000000).",
+      "termsRequired": "You must accept the Terms of Service to continue."
     },
     "header": {
       "alreadyHaveAccount": "Already have an account?",
@@ -3438,7 +3444,8 @@
       "emailVerified": "Email verified! Welcome to MyJudicial.",
       "verificationFailed": "Verification failed.",
       "newCodeSent": "New verification code sent!",
-      "resendFailed": "Failed to resend code."
+      "resendFailed": "Failed to resend code.",
+      "sendFailedUseResend": "We couldn't send the code automatically. Use Resend in a moment."
     }
   },
   "legalPages": {

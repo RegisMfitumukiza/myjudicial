@@ -125,6 +125,7 @@ model User {
   lastLoginAt       DateTime?
   passwordChangedAt DateTime?
   preferredLanguage String     @default("en")
+  onboarding        Json?
 
   expertProfile            ExpertProfile?
   citizenBookings          Booking[]                 @relation("CitizenBookings")
@@ -141,7 +142,6 @@ model User {
   sharedDocuments          DocumentShare[]           @relation("SharedDocuments")
   notificationLogs         NotificationLog[]
   notificationPreference   NotificationPreference?
-  whatsappQueue            WhatsAppQueue[]
   adminActions             AdminAction[]             @relation("AdminUser")
   conversationParticipants ConversationParticipant[]
   sentMessages             Message[]                 @relation("SentMessages")
@@ -630,7 +630,6 @@ enum NotificationEvent {
 
 enum NotificationChannel {
   EMAIL
-  WHATSAPP
   SMS
   PUSH
 }
@@ -999,7 +998,6 @@ model NotificationPreference {
   userId   String  @unique
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   email    Boolean @default(true)
-  whatsapp Boolean @default(true)
   push     Boolean @default(true)
   inApp    Boolean @default(true)
 
@@ -1022,12 +1020,6 @@ model NotificationLog {
   readAt    DateTime?           @map("read_at")
   errorMsg  String?             @map("error_msg")
 
-  // WhatsApp-specific fields
-  whatsappId     String? @map("whatsapp_id") // Meta message ID
-  templateId     String? @map("template_id") // Template identifier
-  templateParams Json?   @map("template_params") // Template parameters
-  deliveryStatus String? @map("delivery_status") // sent, delivered, read, failed
-
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1035,7 +1027,6 @@ model NotificationLog {
   @@index([userId])
   @@index([channel])
   @@index([event])
-  @@index([whatsappId])
   @@index([userId, readAt])
   @@map("notification_logs")
 }
@@ -1067,50 +1058,6 @@ model ReferralCode {
   updatedAt DateTime      @updatedAt
 
   @@map("referral_codes")
-}
-
-model WhatsAppTemplate {
-  id         String   @id @default(uuid())
-  name       String   @unique // OTP_TEMPLATE, BOOKING_CONFIRMATION_TEMPLATE
-  metaId     String // Meta template ID from WhatsApp Business API
-  language   String   @default("en")
-  parameters String[] // Parameter names for the template
-  bodyText   String // Reference text for the template
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  @@index([name])
-  @@index([isActive])
-  @@map("whatsapp_templates")
-}
-
-model WhatsAppQueue {
-  id             String    @id @default(uuid())
-  userId         String?   @map("user_id") // Optional - for tracking
-  recipient      String // Phone number in E.164 format
-  messageType    String    @map("message_type") // 'template' | 'text'
-  templateName   String?   @map("template_name") // Template identifier
-  templateParams Json?     @map("template_params") // Parameters for template
-  textMessage    String?   @map("text_message") // For plain text messages
-  priority       Int       @default(0) // Higher number = higher priority
-  status         String    @default("queued") // queued, processing, sent, failed
-  attempts       Int       @default(0) // Retry attempt count
-  maxAttempts    Int       @default(3) @map("max_attempts")
-  scheduledAt    DateTime  @default(now()) @map("scheduled_at")
-  processedAt    DateTime? @map("processed_at")
-  whatsappId     String?   @map("whatsapp_id") // Meta message ID when sent
-  errorMessage   String?   @map("error_message")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([status])
-  @@index([scheduledAt])
-  @@index([priority])
-  @@index([recipient])
-  @@map("whatsapp_queue")
 }
 
 // ─── Chat System ─────────────────────────────────────────────────────────────
@@ -1233,4 +1180,25 @@ model SavedExpert {
   @@index([userId])
   @@index([expertId])
   @@map("saved_experts")
+}
+
+// ─── Email Logs ────────────────────────────────────────────────────────────────
+
+model EmailLog {
+  id       String         @id @default(cuid())
+  toEmail  String         @map("to_email")
+  subject  String?
+  template String?
+  status   EmailLogStatus @default(SENT)
+  error    String?
+  sentAt   DateTime       @default(now()) @map("sent_at")
+
+  @@index([sentAt])
+  @@index([status])
+  @@map("email_logs")
+}
+
+enum EmailLogStatus {
+  SENT
+  FAILED
 }

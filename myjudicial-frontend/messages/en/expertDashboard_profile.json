@@ -90,8 +90,6 @@
   "notifsDesc": "Control which notifications you receive",
   "emailNotifs": "Email Notifications",
   "emailNotifsDesc": "Receive updates via email",
-  "whatsappNotifs": "WhatsApp Notifications",
-  "whatsappNotifsDesc": "Receive updates via WhatsApp (Meta Cloud API)",
   "pushNotifs": "Push Notifications",
   "pushNotifsDesc": "Receive push notifications for booking state changes",
   "inAppNotifs": "In-App Notifications",

@@ -7,7 +7,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { toast } from "sonner";
 import {
-  ArrowLeft,
   Mail,
   Phone,
   MapPin,
@@ -18,13 +17,10 @@ import {
   Briefcase,
   Globe,
   Star,
-  Clock,
   Shield,
   FileText,
   AlertTriangle,
   ShieldCheck,
-  Loader2,
-  User,
   ExternalLink,
   Bell,
   RefreshCw,
@@ -34,6 +30,23 @@ import {
   TrendingUp,
   Hash,
 } from "lucide-react";
+
+import { PageHeader } from "@/shared/components/dashboard/page-header";
+import { StatCard } from "@/shared/components/dashboard/stat-card";
+import { StatusBadge } from "@/shared/components/dashboard/status-badge";
+import { ErrorState } from "@/shared/components/dashboard/error-state";
+import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 
 // ── Types ──
 
@@ -74,14 +87,12 @@ interface ExpertDetail {
   lastLoginAt?: string;
   verified: boolean;
   profileImageObjectKey?: string | null;
-  // Verification fields
   verificationId: string | null;
   verificationStatus: VerificationStatus;
   rejectionReason?: string | null;
   identityDocumentObjectKey?: string | null;
   barCertificateObjectKey?: string | null;
   additionalDocumentKeys: string[];
-  // Pre-signed URLs
   barCertificateUrl?: string | null;
   identityDocumentUrl?: string | null;
   recentBookings: {
@@ -136,15 +147,14 @@ async function resetToDraft(expertUserId: string) {
   return apiFetch(`/admin/experts/${expertUserId}/reset-to-resubmit`, { method: "PATCH" });
 }
 
-
 async function getDocumentStream(verificationId: string, objectKey: string): Promise<{ url: string; mimeType: string }> {
   const blob = await apiFetchBlob(
     `/admin-verification/${verificationId}/document-stream?key=${encodeURIComponent(objectKey)}`,
     { method: "GET" }
   );
-  return { 
-    url: URL.createObjectURL(blob), 
-    mimeType: blob.type 
+  return {
+    url: URL.createObjectURL(blob),
+    mimeType: blob.type
   };
 }
 
@@ -154,13 +164,35 @@ function formatSpecialty(s: string) {
   return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string; Icon: any }> = {
-  DRAFT:               { color: "text-slate-600",  bg: "bg-slate-100  dark:bg-slate-800/50 dark:text-slate-400",  label: "Draft",           Icon: Clock        },
-  PENDING_VERIFICATION:{ color: "text-amber-700",  bg: "bg-amber-100  dark:bg-amber-900/30 dark:text-amber-400",  label: "Pending Review",  Icon: Clock        },
-  VERIFIED:            { color: "text-green-700",  bg: "bg-green-100  dark:bg-green-900/30 dark:text-green-400",  label: "Verified",        Icon: BadgeCheck   },
-  REJECTED:            { color: "text-red-700",    bg: "bg-red-100    dark:bg-red-900/30   dark:text-red-400",    label: "Rejected",        Icon: XCircle      },
-  SUSPENDED:           { color: "text-red-700",    bg: "bg-red-100    dark:bg-red-900/30   dark:text-red-400",    label: "Suspended",       Icon: Ban          },
-};
+function expertStatusTone(status: ExpertStatus): "neutral" | "pending" | "success" | "destructive" {
+  switch (status) {
+    case "VERIFIED":             return "success";
+    case "PENDING_VERIFICATION": return "pending";
+    case "REJECTED":
+    case "SUSPENDED":            return "destructive";
+    default:                     return "neutral";
+  }
+}
+
+function expertStatusLabel(status: ExpertStatus): string {
+  switch (status) {
+    case "VERIFIED":             return "Verified";
+    case "PENDING_VERIFICATION": return "Pending Review";
+    case "REJECTED":             return "Rejected";
+    case "SUSPENDED":            return "Suspended";
+    default:                     return "Draft";
+  }
+}
+
+function bookingStatusTone(status: string): "success" | "destructive" | "warning" | "neutral" {
+  switch (status) {
+    case "COMPLETED":  return "success";
+    case "CANCELLED":  return "destructive";
+    case "CONFIRMED":
+    case "IN_PROGRESS": return "warning";
+    default:           return "neutral";
+  }
+}
 
 // ── Document Viewer Sheet ──
 
@@ -186,7 +218,6 @@ function DocumentViewer({
       .catch(() => { setError(true); setLoading(false); });
 
     return () => {
-      // Cleanup blob URL when modal closes
       if (url) URL.revokeObjectURL(url);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,16 +228,16 @@ function DocumentViewer({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
+      <div className="relative flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-card border border-border shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue/10">
-              <FileText size={17} className="text-brand-blue" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+              <FileText size={17} className="text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white">{label}</h3>
-              <p className="text-xs text-slate-500 font-mono truncate max-w-xs">{objectKey}</p>
+              <h3 className="font-semibold text-foreground">{label}</h3>
+              <p className="text-xs text-muted-foreground font-mono truncate max-w-xs">{objectKey}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -216,35 +247,36 @@ function DocumentViewer({
                 target="_blank"
                 rel="noreferrer"
                 download={objectKey.split('/').pop()}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-border px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
               >
                 <Download size={14} /> Download
               </a>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="icon-sm"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X size={18} />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex flex-1 items-center justify-center overflow-auto p-4">
           {loading && (
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 size={32} className="animate-spin text-brand-blue" />
-              <p className="text-sm text-slate-500">Loading document…</p>
-            </div>
+            <LoadingSpinner label="Loading document..." />
           )}
           {error && (
             <div className="text-center">
-              <AlertTriangle size={40} className="mx-auto mb-3 text-red-400" />
-              <p className="text-sm text-slate-600">Could not load document.</p>
-              <a href={url ?? "#"} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-brand-blue hover:underline">
-                <ExternalLink size={12} /> Open in new tab
-              </a>
+              <AlertTriangle size={40} className="mx-auto mb-3 text-destructive" />
+              <p className="text-sm text-foreground">Could not load document.</p>
+              {url && (
+                <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                  <ExternalLink size={12} /> Open in new tab
+                </a>
+              )}
             </div>
           )}
           {url && !loading && !error && (
@@ -255,11 +287,10 @@ function DocumentViewer({
               <iframe src={url} className="h-full w-full rounded-lg" title={label} />
             ) : (
               <div className="text-center">
-                <FileText size={48} className="mx-auto mb-4 text-slate-300" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Preview not available for this file type.</p>
-                <a href={url} download={objectKey.split('/').pop()} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90">
+                <FileText size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Preview not available for this file type.</p>
+                <a href={url} download={objectKey.split('/').pop()} className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
                   <ExternalLink size={13} /> Download File
-
                 </a>
               </div>
             )
@@ -288,32 +319,34 @@ function DocRow({
 
   return (
     <>
-      <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0 dark:border-slate-800">
+      <div className="flex items-center justify-between py-3 border-b border-border last:border-0">
         <div className="flex items-center gap-3">
           {submitted ? (
             <CheckCircle size={15} className="shrink-0 text-green-500" />
           ) : (
-            <XCircle size={15} className={`shrink-0 ${required ? "text-red-400" : "text-slate-300 dark:text-slate-600"}`} />
+            <XCircle size={15} className={`shrink-0 ${required ? "text-destructive" : "text-muted-foreground"}`} />
           )}
-          <span className={`text-sm ${submitted ? "text-slate-700 dark:text-slate-300" : required ? "font-medium text-red-600 dark:text-red-400" : "text-slate-400 dark:text-slate-500"}`}>
+          <span className={`text-sm ${submitted ? "text-foreground" : required ? "font-medium text-destructive" : "text-muted-foreground"}`}>
             {label}
           </span>
           {required && !submitted && (
-            <span className="rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-500 dark:bg-red-950/30 dark:text-red-400">
+            <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
               Required
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {submitted && verificationId && objectKey && (
-            <button
+            <Button
+              variant="ghost"
+              size="xs"
               onClick={() => setViewerOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-brand-blue hover:bg-blue-50 transition-colors dark:hover:bg-blue-950/20"
+              className="text-primary hover:bg-primary/5"
             >
               <ExternalLink size={11} /> View
-            </button>
+            </Button>
           )}
-          <span className={`text-xs font-medium ${submitted ? "text-green-600 dark:text-green-400" : "text-slate-400 dark:text-slate-500"}`}>
+          <span className={`text-xs font-medium ${submitted ? "text-green-600" : "text-muted-foreground"}`}>
             {submitted ? "Submitted" : "Missing"}
           </span>
         </div>
@@ -328,18 +361,6 @@ function DocRow({
         />
       )}
     </>
-  );
-}
-
-// ── Stat Card ──
-
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
-      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-slate-400">{sub}</p>}
-    </div>
   );
 }
 
@@ -416,34 +437,38 @@ export default function ExpertDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+      <div className="space-y-6 p-6 lg:p-8">
+        <LoadingSpinner label="Loading expert details..." />
       </div>
     );
   }
 
   if (error || !expert) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="mx-auto mb-3 h-12 w-12 text-red-400" />
-          <p className="text-lg font-semibold text-slate-900 dark:text-white">Expert not found</p>
-          <Link href="/admin/dashboard/experts" className="mt-4 inline-flex items-center gap-2 text-sm text-brand-blue hover:underline">
-            <ArrowLeft size={14} /> Back to Experts
-          </Link>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <PageHeader
+          title="Expert Details"
+          backHref="/admin/dashboard/experts"
+          backLabel="Expert Management"
+        />
+        <ErrorState
+          title="Expert not found"
+          message={(error as Error)?.message ?? "The expert you are looking for does not exist."}
+          action={
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/dashboard/experts">Back to Experts</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
 
   // ── Derived state ──
 
-  const statusCfg = STATUS_CONFIG[expert.expertStatus] ?? STATUS_CONFIG.DRAFT;
-  const StatusIcon = statusCfg.Icon;
   const displayName = expert.fullName || `${expert.firstName ?? ""} ${expert.lastName ?? ""}`.trim() || expert.email;
   const isSuspended = expert.accountStatus === "SUSPENDED";
 
-  // Build document checklist
   const requiredDocs = [
     { label: "Identity Document", key: expert.identityDocumentObjectKey, required: true },
     { label: "Bar Certificate",   key: expert.barCertificateObjectKey,   required: true },
@@ -465,105 +490,91 @@ export default function ExpertDetailPage() {
   const isRejected = expert.expertStatus === "REJECTED";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
-      {/* ── Top bar ── */}
-      <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-gray-900">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin/dashboard/experts"
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              >
-                <ArrowLeft size={15} /> Expert Management
-              </Link>
-              <span className="text-slate-300 dark:text-slate-700">/</span>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">{displayName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {isSuspended ? (
-                <button
-                  onClick={() => activateMutation.mutate()}
-                  disabled={activateMutation.isPending}
-                  id="btn-activate-expert"
-                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                >
-                  {activateMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
-                  Activate Account
-                </button>
-              ) : (
-                <button
-                  onClick={() => setShowSuspendModal(true)}
-                  id="btn-suspend-expert"
-                  className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                >
-                  <Ban size={14} /> Suspend Account
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-6 p-6 lg:p-8">
+      {/* Page Header */}
+      <PageHeader
+        title={displayName}
+        backHref="/admin/dashboard/experts"
+        backLabel="Expert Management"
+        actions={
+          isSuspended ? (
+            <Button
+              onClick={() => activateMutation.mutate()}
+              disabled={activateMutation.isPending}
+              id="btn-activate-expert"
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              <CheckCircle size={14} /> Activate Account
+            </Button>
+          ) : (
+            <Button
+              variant="destructive"
+              onClick={() => setShowSuspendModal(true)}
+              id="btn-suspend-expert"
+            >
+              <Ban size={14} /> Suspend Account
+            </Button>
+          )
+        }
+      />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
 
-          {/* ══ LEFT COLUMN ══ */}
-          <div className="space-y-5 lg:col-span-1">
+        {/* LEFT COLUMN */}
+        <div className="space-y-5 lg:col-span-1">
 
-            {/* Expert Overview Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-gray-900">
+          {/* Expert Overview Card */}
+          <Card>
+            <CardContent className="pt-5">
               {/* Avatar / Photo */}
-              <div className="flex flex-col items-center gap-3 pb-5 border-b border-slate-100 dark:border-slate-800">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-brand-blue to-blue-400 flex items-center justify-center text-3xl font-bold text-white shadow">
+              <div className="flex flex-col items-center gap-3 pb-5 border-b border-border">
+                <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-primary-foreground shadow">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-center">
-                  <h1 className="text-xl font-bold text-slate-900 dark:text-white">{displayName}</h1>
+                  <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
                   {expert.displayName && expert.displayName !== displayName && (
-                    <p className="text-sm text-slate-500">{expert.displayName}</p>
+                    <p className="text-sm text-muted-foreground">{expert.displayName}</p>
                   )}
                   {expert.firmName && (
-                    <p className="mt-1 flex items-center justify-center gap-1 text-sm text-slate-500">
+                    <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
                       <Briefcase size={12} /> {expert.firmName}
                     </p>
                   )}
                 </div>
                 {/* Status badges */}
                 <div className="flex flex-wrap justify-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${statusCfg.bg} ${statusCfg.color}`}>
-                    <StatusIcon size={11} /> {statusCfg.label}
-                  </span>
+                  <StatusBadge tone={expertStatusTone(expert.expertStatus)}>
+                    {expertStatusLabel(expert.expertStatus)}
+                  </StatusBadge>
                   {isSuspended && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                      <Ban size={11} /> Suspended
-                    </span>
+                    <StatusBadge tone="destructive">Suspended</StatusBadge>
                   )}
                 </div>
                 {expert.avgRating != null && (
-                  <div className="flex items-center gap-1 text-amber-500">
+                  <div className="flex items-center gap-1 text-yellow-500">
                     <Star size={14} className="fill-current" />
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">{expert.avgRating.toFixed(1)}</span>
-                    <span className="text-xs text-slate-400">({expert.totalReviews} reviews)</span>
+                    <span className="text-sm font-semibold text-foreground">{expert.avgRating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">({expert.totalReviews} reviews)</span>
                   </div>
                 )}
               </div>
 
               {/* Contact */}
               <div className="mt-5 space-y-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Contact</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contact</h3>
                 <div className="space-y-2.5 text-sm">
-                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-400">
-                    <Mail size={13} className="shrink-0 text-slate-400" /> {expert.email}
+                  <div className="flex items-center gap-2.5 text-muted-foreground">
+                    <Mail size={13} className="shrink-0 text-muted-foreground" /> {expert.email}
                   </div>
                   {expert.phone && (
-                    <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-400">
-                      <Phone size={13} className="shrink-0 text-slate-400" /> {expert.phone}
+                    <div className="flex items-center gap-2.5 text-muted-foreground">
+                      <Phone size={13} className="shrink-0 text-muted-foreground" /> {expert.phone}
                     </div>
                   )}
                   {expert.officeAddress && (
-                    <div className="flex items-start gap-2.5 text-slate-600 dark:text-slate-400">
-                      <MapPin size={13} className="shrink-0 mt-0.5 text-slate-400" />
+                    <div className="flex items-start gap-2.5 text-muted-foreground">
+                      <MapPin size={13} className="shrink-0 mt-0.5 text-muted-foreground" />
                       <span>{expert.officeAddress}{expert.city ? `, ${expert.city}` : ""}{expert.country ? `, ${expert.country}` : ""}</span>
                     </div>
                   )}
@@ -572,32 +583,32 @@ export default function ExpertDetailPage() {
 
               {/* Professional Details */}
               <div className="mt-5 space-y-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Professional</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Professional</h3>
                 <div className="space-y-2 text-sm">
                   {expert.barNumber && (
                     <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-slate-500"><Hash size={12} /> Bar Number</span>
-                      <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200">{expert.barNumber}</span>
+                      <span className="flex items-center gap-1.5 text-muted-foreground"><Hash size={12} /> Bar Number</span>
+                      <span className="font-mono text-xs font-semibold text-foreground">{expert.barNumber}</span>
                     </div>
                   )}
                   {expert.yearsOfExperience != null && (
                     <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-slate-500"><Briefcase size={12} /> Experience</span>
-                      <span className="text-slate-800 dark:text-slate-200">{expert.yearsOfExperience} yrs</span>
+                      <span className="flex items-center gap-1.5 text-muted-foreground"><Briefcase size={12} /> Experience</span>
+                      <span className="text-foreground">{expert.yearsOfExperience} yrs</span>
                     </div>
                   )}
                   {expert.baseConsultationFee != null && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Base Fee</span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                      <span className="text-muted-foreground">Base Fee</span>
+                      <span className="font-semibold text-foreground">
                         {expert.baseConsultationFee.toLocaleString()} {expert.currency ?? "RWF"}
                       </span>
                     </div>
                   )}
                   {expert.primarySpecialty && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Primary</span>
-                      <span className="text-xs font-medium text-brand-blue">{formatSpecialty(expert.primarySpecialty)}</span>
+                      <span className="text-muted-foreground">Primary</span>
+                      <span className="text-xs font-medium text-primary">{formatSpecialty(expert.primarySpecialty)}</span>
                     </div>
                   )}
                 </div>
@@ -606,10 +617,10 @@ export default function ExpertDetailPage() {
               {/* Specialties */}
               {expert.specialties.length > 0 && (
                 <div className="mt-5 space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Specialties</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Specialties</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {expert.specialties.map((s) => (
-                      <span key={s} className="rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-xs font-medium text-brand-blue">
+                      <span key={s} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                         {formatSpecialty(s)}
                       </span>
                     ))}
@@ -620,10 +631,10 @@ export default function ExpertDetailPage() {
               {/* Languages */}
               {expert.languages.length > 0 && (
                 <div className="mt-5 space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Languages</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Languages</h3>
                   <div className="flex flex-wrap gap-1.5">
                     {expert.languages.map((l) => (
-                      <span key={l} className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+                      <span key={l} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                         <Globe size={10} /> {l}
                       </span>
                     ))}
@@ -632,7 +643,7 @@ export default function ExpertDetailPage() {
               )}
 
               {/* Account Meta */}
-              <div className="mt-5 space-y-2 border-t border-slate-100 pt-4 dark:border-slate-800 text-xs text-slate-400">
+              <div className="mt-5 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1"><Calendar size={11} /> Joined</span>
                   <span>{new Date(expert.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
@@ -645,319 +656,319 @@ export default function ExpertDetailPage() {
                 )}
                 <div className="flex items-center justify-between">
                   <span>Expert ID</span>
-                  <span className="font-mono">{expert.id.slice(0, 8)}…</span>
+                  <span className="font-mono">{expert.id.slice(0, 8)}...</span>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Bio */}
-            {expert.bio && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-gray-900">
-                <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">Bio</h3>
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">{expert.bio}</p>
-              </div>
-            )}
+          {/* Bio */}
+          {expert.bio && (
+            <Card>
+              <CardHeader>
+                <h3 className="text-sm font-semibold text-foreground">Bio</h3>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm leading-relaxed text-muted-foreground">{expert.bio}</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="space-y-5 lg:col-span-2">
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="Total Bookings" value={expert.totalBookings} />
+            <StatCard label="Total Reviews" value={expert.totalReviews} />
+            <StatCard
+              label="Avg Rating"
+              value={expert.avgRating != null ? expert.avgRating.toFixed(1) : "--"}
+              hint="out of 5"
+            />
+            <StatCard
+              label="Total Earnings"
+              value={`${(expert.totalEarnings ?? 0).toLocaleString()} ${expert.currency ?? "RWF"}`}
+            />
           </div>
 
-          {/* ══ RIGHT COLUMN ══ */}
-          <div className="space-y-5 lg:col-span-2">
-
-            {/* Stats row */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <StatCard label="Total Bookings"  value={expert.totalBookings}  />
-              <StatCard label="Total Reviews"   value={expert.totalReviews}   />
-              <StatCard label="Avg Rating"      value={expert.avgRating != null ? expert.avgRating.toFixed(1) : "—"} sub="out of 5" />
-              <StatCard label="Total Earnings"  value={`${(expert.totalEarnings ?? 0).toLocaleString()} ${expert.currency ?? "RWF"}`} />
+          {/* VERIFICATION PANEL */}
+          <Card>
+            {/* Panel header */}
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Shield size={16} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-foreground">Verification</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {expert.verificationStatus
+                      ? `Status: ${expert.verificationStatus}`
+                      : "No verification submitted"}
+                  </p>
+                </div>
+              </div>
+              {isVerified && (
+                <StatusBadge tone="success">Verified</StatusBadge>
+              )}
             </div>
 
-            {/* ══ VERIFICATION PANEL ══ */}
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-gray-900 overflow-hidden">
-              {/* Panel header */}
-              <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-blue/10">
-                    <Shield size={16} className="text-brand-blue" />
-                  </div>
-                  <div>
-                    <h2 className="font-semibold text-slate-900 dark:text-white">Verification</h2>
-                    <p className="text-xs text-slate-500">
-                      {expert.verificationStatus
-                        ? `Status: ${expert.verificationStatus}`
-                        : "No verification submitted"}
-                    </p>
-                  </div>
-                </div>
-                {isVerified && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                    <BadgeCheck size={12} /> Verified
-                  </span>
-                )}
-              </div>
+            <CardContent className="space-y-6 pt-5">
 
-              <div className="p-6 space-y-6">
-
-                {/* Document checklist */}
-                <section>
-                  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-white">
-                    <FileText size={14} className="text-brand-blue" /> Document Checklist
-                  </h3>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-800 dark:bg-slate-900/50">
-                    {allDocs.map((doc) => (
-                      <DocRow
-                        key={doc.label}
-                        label={doc.label}
-                        objectKey={doc.key}
-                        required={doc.required}
-                        verificationId={expert.verificationId}
-                      />
-                    ))}
-                  </div>
-                </section>
-
-                {/* Missing documents banner */}
-                {!isVerified && missingRequired.length > 0 && (
-                  <section className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/20">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" />
-                      <div>
-                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Missing Required Documents</p>
-                        <ul className="mt-1.5 space-y-1">
-                          {missingRequired.map((d) => (
-                            <li key={d} className="text-xs text-amber-700 dark:text-amber-400">• {d}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* All docs present banner */}
-                {!isVerified && allRequiredPresent && isPending && (
-                  <section className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/20">
-                    <div className="flex items-center gap-3">
-                      <ShieldCheck size={16} className="shrink-0 text-green-600" />
-                      <p className="text-sm font-semibold text-green-800 dark:text-green-200">
-                        All required documents submitted — ready for approval
-                      </p>
-                    </div>
-                  </section>
-                )}
-
-                {/* Rejection reason */}
-                {isRejected && expert.rejectionReason && (
-                  <section className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/20">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-red-500 dark:text-red-400 mb-2">Rejection Reason</p>
-                    <p className="text-sm text-red-800 dark:text-red-300">{expert.rejectionReason}</p>
-                  </section>
-                )}
-
-                {/* ══ VERIFICATION ACTIONS ══ */}
-                {!isVerified && (
-                  <section className="space-y-4">
-                    <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Actions</h3>
-
-                    {/* Primary action buttons */}
-                    <div className="flex flex-wrap gap-2">
-
-                      {/* Approve — only when all required docs present and PENDING */}
-                      {isPending && allRequiredPresent && !showRejectForm && !showCorrectionsForm && (
-                        <button
-                          onClick={() => approveMutation.mutate()}
-                          disabled={approveMutation.isPending}
-                          id="btn-approve-verification"
-                          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                        >
-                          {approveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <BadgeCheck size={14} />}
-                          Approve Verification
-                        </button>
-                      )}
-
-                      {/* Request Corrections */}
-                      {isPending && !showRejectForm && !showCorrectionsForm && (
-                        <button
-                          onClick={() => setShowCorrectionsForm(true)}
-                          id="btn-request-corrections"
-                          className="inline-flex items-center gap-2 rounded-lg border border-amber-300 px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/20"
-                        >
-                          <AlertTriangle size={14} /> Request Corrections
-                        </button>
-                      )}
-
-                      {/* Reject */}
-                      {isPending && !showRejectForm && !showCorrectionsForm && (
-                        <button
-                          onClick={() => setShowRejectForm(true)}
-                          id="btn-reject-verification"
-                          className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
-                        >
-                          <XCircle size={14} /> Reject
-                        </button>
-                      )}
-
-                      {/* Send Reminder — when docs missing */}
-                      {!isPending || missingRequired.length > 0 ? (
-                        !showRejectForm && !showCorrectionsForm && (
-                          <button
-                            onClick={() => reminderMutation.mutate()}
-                            disabled={reminderMutation.isPending}
-                            id="btn-send-reminder"
-                            className="inline-flex items-center gap-2 rounded-lg border border-brand-blue px-4 py-2 text-sm font-medium text-brand-blue hover:bg-brand-blue/5 disabled:opacity-50 dark:hover:bg-brand-blue/10"
-                          >
-                            {reminderMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
-                            Send Reminder
-                          </button>
-                        )
-                      ) : null}
-
-                      {/* Reset to Draft — when REJECTED */}
-                      {isRejected && !showRejectForm && !showCorrectionsForm && (
-                        <button
-                          onClick={() => resetMutation.mutate()}
-                          disabled={resetMutation.isPending}
-                          id="btn-reset-to-draft"
-                          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
-                        >
-                          {resetMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                          Allow Resubmission
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Reject Form */}
-                    {showRejectForm && (
-                      <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3 dark:border-red-800 dark:bg-red-950/20">
-                        <p className="text-sm font-semibold text-red-800 dark:text-red-200">Rejection reason <span className="font-normal text-red-600">(will be emailed to the expert)</span></p>
-                        <textarea
-                          rows={3}
-                          value={rejectReason}
-                          onChange={(e) => setRejectReason(e.target.value)}
-                          placeholder="e.g. The uploaded identity document is not legible. Please resubmit a clear, high-resolution scan."
-                          className="w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:bg-gray-900 dark:text-white dark:border-red-700"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => { if (rejectReason.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } rejectMutation.mutate(rejectReason.trim()); }}
-                            disabled={rejectMutation.isPending || rejectReason.trim().length < 10}
-                            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                          >
-                            {rejectMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <XCircle size={13} />}
-                            Confirm Rejection
-                          </button>
-                          <button onClick={() => { setShowRejectForm(false); setRejectReason(""); }} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400">
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Corrections Form */}
-                    {showCorrectionsForm && (
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3 dark:border-amber-800 dark:bg-amber-950/20">
-                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">Correction notes <span className="font-normal text-amber-600">(will be emailed to the expert)</span></p>
-                        <textarea
-                          rows={3}
-                          value={correctionNotes}
-                          onChange={(e) => setCorrectionNotes(e.target.value)}
-                          placeholder="e.g. Please upload a higher resolution scan of your bar certificate. The current version is too blurry to verify."
-                          className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:bg-gray-900 dark:text-white dark:border-amber-700"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => { if (correctionNotes.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } correctionsMutation.mutate(correctionNotes.trim()); }}
-                            disabled={correctionsMutation.isPending || correctionNotes.trim().length < 10}
-                            className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
-                          >
-                            {correctionsMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <AlertTriangle size={13} />}
-                            Send Corrections Request
-                          </button>
-                          <button onClick={() => { setShowCorrectionsForm(false); setCorrectionNotes(""); }} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400">
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </section>
-                )}
-              </div>
-            </div>
-
-            {/* ══ RECENT BOOKINGS ══ */}
-            {expert.recentBookings.length > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-gray-900">
-                <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4 dark:border-slate-800">
-                  <TrendingUp size={15} className="text-brand-blue" />
-                  <h2 className="font-semibold text-slate-900 dark:text-white">Recent Bookings</h2>
-                  <span className="ml-auto text-xs text-slate-400">Last {expert.recentBookings.length}</span>
-                </div>
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {expert.recentBookings.map((b) => (
-                    <div key={b.id} className="flex items-center justify-between px-6 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-slate-800 dark:text-white">{b.citizen.fullName}</p>
-                        <p className="text-xs text-slate-400">{b.citizen.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                          b.status === "COMPLETED" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : b.status === "CANCELLED" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                          : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                        }`}>
-                          {b.status}
-                        </span>
-                        <p className="mt-0.5 text-[11px] text-slate-400">
-                          {new Date(b.scheduledStart).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                        </p>
-                      </div>
-                    </div>
+              {/* Document checklist */}
+              <section>
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <FileText size={14} className="text-primary" /> Document Checklist
+                </h3>
+                <div className="rounded-xl border border-border bg-muted/50 px-4">
+                  {allDocs.map((doc) => (
+                    <DocRow
+                      key={doc.label}
+                      label={doc.label}
+                      objectKey={doc.key}
+                      required={doc.required}
+                      verificationId={expert.verificationId}
+                    />
                   ))}
                 </div>
-              </div>
-            )}
+              </section>
 
-          </div>
+              {/* Missing documents banner */}
+              {!isVerified && missingRequired.length > 0 && (
+                <section className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-950/30">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-yellow-600 dark:text-yellow-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Missing Required Documents</p>
+                      <ul className="mt-1.5 space-y-1">
+                        {missingRequired.map((d) => (
+                          <li key={d} className="text-xs text-yellow-700 dark:text-yellow-400">&bull; {d}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* All docs present banner */}
+              {!isVerified && allRequiredPresent && isPending && (
+                <section className="rounded-xl border border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-950/30">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={16} className="shrink-0 text-green-600 dark:text-green-400" />
+                    <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                      All required documents submitted — ready for approval
+                    </p>
+                  </div>
+                </section>
+              )}
+
+              {/* Rejection reason */}
+              {isRejected && expert.rejectionReason && (
+                <section className="rounded-xl border border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950/30">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-destructive mb-2">Rejection Reason</p>
+                  <p className="text-sm text-red-800 dark:text-red-300">{expert.rejectionReason}</p>
+                </section>
+              )}
+
+              {/* VERIFICATION ACTIONS */}
+              {!isVerified && (
+                <section className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground">Actions</h3>
+
+                  <div className="flex flex-wrap gap-2">
+
+                    {/* Approve */}
+                    {isPending && allRequiredPresent && !showRejectForm && !showCorrectionsForm && (
+                      <Button
+                        onClick={() => approveMutation.mutate()}
+                        disabled={approveMutation.isPending}
+                        id="btn-approve-verification"
+                        className="bg-green-600 text-white hover:bg-green-700"
+                      >
+                        <BadgeCheck size={14} /> Approve Verification
+                      </Button>
+                    )}
+
+                    {/* Request Corrections */}
+                    {isPending && !showRejectForm && !showCorrectionsForm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowCorrectionsForm(true)}
+                        id="btn-request-corrections"
+                        className="border-yellow-300 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-400 dark:hover:bg-yellow-950/20"
+                      >
+                        <AlertTriangle size={14} /> Request Corrections
+                      </Button>
+                    )}
+
+                    {/* Reject */}
+                    {isPending && !showRejectForm && !showCorrectionsForm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowRejectForm(true)}
+                        id="btn-reject-verification"
+                        className="border-red-300 text-destructive hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
+                      >
+                        <XCircle size={14} /> Reject
+                      </Button>
+                    )}
+
+                    {/* Send Reminder */}
+                    {(!isPending || missingRequired.length > 0) && !showRejectForm && !showCorrectionsForm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => reminderMutation.mutate()}
+                        disabled={reminderMutation.isPending}
+                        id="btn-send-reminder"
+                      >
+                        <Bell size={14} /> Send Reminder
+                      </Button>
+                    )}
+
+                    {/* Reset to Draft */}
+                    {isRejected && !showRejectForm && !showCorrectionsForm && (
+                      <Button
+                        variant="outline"
+                        onClick={() => resetMutation.mutate()}
+                        disabled={resetMutation.isPending}
+                        id="btn-reset-to-draft"
+                      >
+                        <RefreshCw size={14} /> Allow Resubmission
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Reject Form */}
+                  {showRejectForm && (
+                    <div className="rounded-xl border border-red-300 bg-red-50 p-4 space-y-3 dark:border-red-700 dark:bg-red-950/30">
+                      <p className="text-sm font-semibold text-red-800 dark:text-red-200">Rejection reason <span className="font-normal text-destructive">(will be emailed to the expert)</span></p>
+                      <textarea
+                        rows={3}
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        placeholder="e.g. The uploaded identity document is not legible. Please resubmit a clear, high-resolution scan."
+                        className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="destructive"
+                          onClick={() => { if (rejectReason.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } rejectMutation.mutate(rejectReason.trim()); }}
+                          disabled={rejectMutation.isPending || rejectReason.trim().length < 10}
+                        >
+                          Confirm Rejection
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowRejectForm(false); setRejectReason(""); }}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Corrections Form */}
+                  {showCorrectionsForm && (
+                    <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 space-y-3 dark:border-yellow-700 dark:bg-yellow-950/30">
+                      <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">Correction notes <span className="font-normal text-yellow-600 dark:text-yellow-400">(will be emailed to the expert)</span></p>
+                      <textarea
+                        rows={3}
+                        value={correctionNotes}
+                        onChange={(e) => setCorrectionNotes(e.target.value)}
+                        placeholder="e.g. Please upload a higher resolution scan of your bar certificate. The current version is too blurry to verify."
+                        className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => { if (correctionNotes.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } correctionsMutation.mutate(correctionNotes.trim()); }}
+                          disabled={correctionsMutation.isPending || correctionNotes.trim().length < 10}
+                          className="bg-yellow-600 text-white hover:bg-yellow-700"
+                        >
+                          Send Corrections Request
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowCorrectionsForm(false); setCorrectionNotes(""); }}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* RECENT BOOKINGS */}
+          {expert.recentBookings.length > 0 && (
+            <Card>
+              <div className="flex items-center gap-2 border-b border-border px-6 py-4">
+                <TrendingUp size={15} className="text-primary" />
+                <h2 className="font-semibold text-foreground">Recent Bookings</h2>
+                <span className="ml-auto text-xs text-muted-foreground">Last {expert.recentBookings.length}</span>
+              </div>
+              <div className="divide-y divide-border">
+                {expert.recentBookings.map((b) => (
+                  <div key={b.id} className="flex items-center justify-between px-6 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{b.citizen.fullName}</p>
+                      <p className="text-xs text-muted-foreground">{b.citizen.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <StatusBadge tone={bookingStatusTone(b.status)}>
+                        {b.status}
+                      </StatusBadge>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {new Date(b.scheduledStart).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
         </div>
       </div>
 
-      {/* ══ SUSPEND MODAL ══ */}
-      {showSuspendModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Suspend Expert Account</h3>
-            <p className="mt-1 text-sm text-slate-500">
-              You are about to suspend <span className="font-medium text-slate-800 dark:text-white">{displayName}</span>.
+      {/* SUSPEND MODAL */}
+      <Dialog open={showSuspendModal} onOpenChange={(open) => {
+        if (!open) {
+          setShowSuspendModal(false);
+          setSuspendReason("");
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspend Expert Account</DialogTitle>
+            <DialogDescription>
+              You are about to suspend <span className="font-medium text-foreground">{displayName}</span>.
               They will be hidden from the map and unable to receive new bookings.
-            </p>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Reason <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                rows={4}
-                value={suspendReason}
-                onChange={(e) => setSuspendReason(e.target.value)}
-                placeholder="Provide a detailed reason (minimum 10 characters)…"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-slate-100 dark:border-slate-700"
-              />
-            </div>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => { setShowSuspendModal(false); setSuspendReason(""); }}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => { if (suspendReason.trim().length < 10) return; suspendMutation.mutate({ reason: suspendReason }); }}
-                disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {suspendMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Ban size={14} />}
-                Confirm Suspension
-              </button>
-            </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Reason <span className="text-destructive">*</span>
+            </label>
+            <textarea
+              rows={4}
+              value={suspendReason}
+              onChange={(e) => setSuspendReason(e.target.value)}
+              placeholder="Provide a detailed reason (minimum 10 characters)..."
+              className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none"
+            />
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowSuspendModal(false); setSuspendReason(""); }}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => { if (suspendReason.trim().length < 10) return; suspendMutation.mutate({ reason: suspendReason }); }}
+              disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
+            >
+              Confirm Suspension
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

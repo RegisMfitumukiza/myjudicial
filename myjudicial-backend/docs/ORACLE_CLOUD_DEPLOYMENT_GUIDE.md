@@ -70,7 +70,6 @@
 │ • Supabase Auth     │       │ Next.js Frontend │
 │ • Brevo Email       │       └──────────────────┘
 │ • Flutterwave Pay   │
-│ • WhatsApp API      │
 └─────────────────────┘
 ```
 
@@ -96,7 +95,6 @@
 - [ ] Supabase project ([supabase.com](https://supabase.com))
 - [ ] Brevo account ([brevo.com](https://brevo.com))
 - [ ] Flutterwave account ([flutterwave.com](https://flutterwave.com))
-- [ ] Meta Business account for WhatsApp API
 - [ ] Domain name (for SSL certificates)
 
 ### Local Tools
@@ -408,7 +406,6 @@ OCI_SECRET_ACCESS_KEY=...
 # External Services
 BREVO_API_KEY=xkeysib-...
 FLW_SECRET_KEY=...
-WHATSAPP_ACCESS_TOKEN=...
 LIVEKIT_API_KEY=...
 LIVEKIT_API_SECRET=...
 
@@ -1085,7 +1082,7 @@ environment:
 - [ ] Domain DNS records pointing to OCI IP
 - [ ] Supabase project created (or PostgreSQL ready)
 - [ ] Redis instance ready (Upstash or self-hosted)
-- [ ] All external API keys obtained (Brevo, Flutterwave, WhatsApp, LiveKit)
+- [ ] All external API keys obtained (Brevo, Flutterwave, LiveKit)
 - [ ] SSH access to instance working
 
 
@@ -1118,7 +1115,6 @@ environment:
 - [ ] Webhooks configured:
   - [ ] Flutterwave payment webhook
   - [ ] LiveKit room events webhook
-  - [ ] WhatsApp Cloud API webhook
   - [ ] Supabase Auth webhook
 
 ### Security Hardening
@@ -1179,7 +1175,6 @@ After successful deployment:
    - Test end-to-end user flows
 
 2. **External Service Configuration:**
-   - Configure WhatsApp webhook URL in Meta Business Suite
    - Set up Flutterwave webhook endpoint
    - Configure LiveKit webhook for escrow release
    - Set up Supabase Auth webhook for user sync

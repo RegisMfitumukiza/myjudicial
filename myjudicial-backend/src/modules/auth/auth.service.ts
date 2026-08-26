@@ -6,6 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SupabaseSyncService } from "../../infrastructure/supabase/sync.service.js";
 import { CustomOtpService } from "./custom-otp.service.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { Prisma } from "../../generated/prisma/client.js";
 import { redisSet, redisGet, redisDel } from "../../infrastructure/redis/redis.client.js";
 import { revokeTokenAndClearCache, clearUserCache } from "../../shared/utils/cache-cleanup.js";
 import { AuthRepository } from "./auth.repository.js";
@@ -28,6 +29,7 @@ import type {
   RegisterDto,
   SendOtpDto,
   VerifyOtpDto,
+  OnboardingDto,
   MagicLinkDto,
   LoginDto,
   ChangePasswordDto,
@@ -50,82 +52,92 @@ function generateStrongPassword(): string {
 }
 
 /**
+ * Locate a Supabase Auth user by email with bounded pagination.
+ * Only used on the rare "auth identity exists without PG record" path.
+ */
+async function findAuthUserByEmail(
+  email: string,
+  maxPages = 10,
+  perPage = 200
+): Promise<{ id: string; email?: string } | null> {
+  for (let page = 1; page <= maxPages; page++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      logger.error("listUsers failed during email lookup", { error: error.message, page });
+      return null;
+    }
+    const users = data?.users ?? [];
+    const match = users.find((u) => (u.email ?? "").toLowerCase() === email.toLowerCase());
+    if (match) return { id: match.id, email: match.email ?? undefined };
+    if (users.length < perPage) break; // last page
+  }
+  return null;
+}
+
+type MinimalAuthUser = NonNullable<Awaited<ReturnType<typeof findAuthUserByEmail>>>;
+
+/**
  * AuthService — contains all authentication business logic.
  * Coordinates Supabase Auth, PostgreSQL (via AuthRepository), and Redis.
  */
 export const AuthService = {
   /**
    * Register a new user.
-   * 1. Check for conflicts in both systems (Supabase Auth and PostgreSQL)
-   * 2. Create or reuse Supabase Auth identity (passwordless — magic link / OTP based)
-   * 3. Create matching PostgreSQL user record with the same UUID via sync service
-   * 4. Write audit log
+   *
+   * Idempotent and enumeration-safe:
+   * - New email → account is created in Supabase Auth + PostgreSQL.
+   * - Existing email → nothing is created; the caller gets the exact same
+   *   response either way. The subsequent /otp/send delivers a login code to
+   *   the existing account, so the user proceeds through verification into
+   *   their account without ever learning whether the email pre-existed.
+   * - Phone already in use → explicit, mapped 409 (this is NOT an
+   *   enumeration vector: phone ownership implies prior registration).
+   *
+   * The frontend always continues to OTP verification after this call.
    */
   register: async (dto: RegisterDto, ipAddress?: string) => {
     if (!dto.role) {
       dto.role = await AdminSettingService.get("defaultRole");
     }
-    // Check for existing user in PostgreSQL first
-    const existingPgUser = await AuthRepository.findByEmail(dto.email);
-    
-    // Check if Supabase Auth already has this email
-    const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
-    const existingAuthUser = listData?.users?.find((u) => u.email === dto.email);
 
-    // Handle different conflict scenarios
-    if (existingPgUser && existingAuthUser) {
-      // Both systems have the user - this is a normal conflict
-      throw new ConflictError(getErrorMessage('VALIDATION_ERROR'));
+    // Phone uniqueness — fail fast with a friendly, mapped error.
+    if (dto.phone) {
+      const phoneOwner = await prisma.user.findUnique({
+        where: { phone: dto.phone },
+        select: { id: true },
+      });
+      if (phoneOwner) {
+        throw new ConflictError(getErrorMessage("PHONE_IN_USE"));
+      }
     }
 
-    if (existingPgUser && !existingAuthUser) {
-      // PostgreSQL has user but Supabase doesn't - data inconsistency
-      logger.warn("User exists in PostgreSQL but not in Supabase Auth - cleaning up", {
-        email: dto.email,
-        userId: existingPgUser.id
+    // Check for existing user in PostgreSQL first
+    const existingPgUser = await AuthRepository.findByEmail(dto.email);
+
+    if (existingPgUser && existingPgUser.status === "ACTIVE") {
+      // Fully registered already — respond identically, change nothing.
+      await writeAuditLog({
+        actorId: existingPgUser.id,
+        action: "CREATE",
+        resource: "USER",
+        resourceId: existingPgUser.id,
+        description: "Duplicate registration attempt for existing account",
+        ipAddress,
       });
-      
-      // Clean up orphaned PostgreSQL record
+      return { message: "Check your email for a verification code." };
+    }
+
+    if (existingPgUser) {
+      // PENDING account whose Supabase identity is gone (or never completed):
+      // stale half-finished signup — remove so a fresh one can be created.
+      logger.warn("Removing stale PENDING registration", {
+        email: dto.email,
+        userId: existingPgUser.id,
+      });
       await AuthRepository.deleteUser(existingPgUser.id);
     }
 
-    if (!existingPgUser && existingAuthUser) {
-      // Supabase has user but PostgreSQL doesn't - sync them
-      logger.info("User exists in Supabase Auth but not PostgreSQL - syncing", {
-        email: dto.email,
-        userId: existingAuthUser.id
-      });
-      
-      // Use sync service to create PostgreSQL record
-      await SupabaseSyncService.syncFromSupabaseAuth(
-        existingAuthUser.id,
-        existingAuthUser.email || dto.email,
-        {
-          full_name: dto.fullName,
-          role: dto.role,
-          phone: dto.phone,
-        }
-      );
-      
-      // Return the synced user
-      const user = await AuthRepository.findById(existingAuthUser.id);
-      if (!user) {
-        throw new ServiceUnavailableError(getErrorMessage('SERVER_ERROR'));
-      }
-
-      await writeAuditLog({
-        actorId: user.id,
-        action: "CREATE",
-        resource: "USER",
-        resourceId: user.id,
-        description: `${dto.role} account synced from Supabase Auth`,
-        ipAddress,
-      });
-
-      return user;
-    }
-
-    // No conflicts - create new user in both systems
+    // No usable account - create new user in both systems
     const [firstName, ...rest] = dto.fullName.trim().split(" ");
     const lastName = rest.join(" ") || firstName;
 
@@ -142,29 +154,64 @@ export const AuthService = {
       },
     });
 
-    if (error || !data.user) {
-      logger.error("Supabase Admin createUser failed", { error });
-      throw new ServiceUnavailableError(`Authentication service: ${error?.message || "unknown error"}`);
+    let supabaseUser: { id: string; email?: string } | null = data?.user ?? null;
+
+    if (!supabaseUser) {
+      const err = error as unknown as { code?: number | string; status?: number; message?: string } | null;
+      const alreadyRegistered =
+        !!err &&
+        (String(err.code) === "422" || err.status === 422 || /already|exists/i.test(err.message ?? ""));
+
+      if (!alreadyRegistered) {
+        logger.error("Supabase Admin createUser failed", { error });
+        throw new ServiceUnavailableError(`Authentication service: ${error?.message || "unknown error"}`);
+      }
+
+      // Auth identity exists without a usable PG record — locate it (paginated,
+      // bounded) and mirror it into PostgreSQL below.
+      logger.info("Supabase Auth identity already exists — locating for sync", { email: dto.email });
+      supabaseUser = await findAuthUserByEmail(dto.email);
+      if (!supabaseUser) {
+        throw new ServiceUnavailableError(getErrorMessage("SERVER_ERROR"));
+      }
     }
 
-    // Create PostgreSQL record via sync service
-    const user = await SupabaseSyncService.syncFromSupabaseAuth(
-      data.user.id,
-      data.user.email || dto.email,
-      {
-        full_name: dto.fullName,
-        role: dto.role,
-        first_name: firstName,
-        last_name: lastName,
-        phone: dto.phone,
+    try {
+      // Create PostgreSQL record via sync service
+      await SupabaseSyncService.syncFromSupabaseAuth(
+        supabaseUser.id,
+        supabaseUser.email || dto.email,
+        {
+          full_name: dto.fullName,
+          role: dto.role,
+          first_name: firstName,
+          last_name: lastName,
+          phone: dto.phone,
+        }
+      );
+    } catch (syncError) {
+      // Do not leave a half-created auth identity behind: roll the Supabase
+      // user back so a retry starts from a clean slate instead of hitting the
+      // "exists in Auth but not in PG" sync path forever. Only roll back when
+      // WE created the identity just now (never when it pre-existed).
+      logger.error("PostgreSQL sync failed after Supabase createUser — rolling back auth identity", {
+        email: dto.email,
+        userId: supabaseUser.id,
+        error: syncError instanceof Error ? syncError.message : syncError,
+      });
+      if (!data?.user) {
+        // pre-existing identity — never delete it; surface as service issue
+        throw new ServiceUnavailableError(getErrorMessage("SERVER_ERROR"));
       }
-    );
+      await supabaseAdmin.auth.admin.deleteUser(supabaseUser.id);
+      throw new ServiceUnavailableError(getErrorMessage("SERVER_ERROR"));
+    }
 
     await writeAuditLog({
-      actorId: user.id,
+      actorId: supabaseUser.id,
       action: "CREATE",
       resource: "USER",
-      resourceId: user.id,
+      resourceId: supabaseUser.id,
       description: `New ${dto.role} account registered`,
       ipAddress,
     });
@@ -172,7 +219,7 @@ export const AuthService = {
     // Note: Welcome email will be sent after email verification
     // This prevents double emails and confusion
 
-    return user;
+    return { message: "Check your email for a verification code." };
   },
 
   /**
@@ -206,8 +253,46 @@ export const AuthService = {
       });
     }
 
-    // Always return success - never reveal if email is registered
-    return { message: "If this email is registered, a login code has been sent" };
+    // Always return success - never reveal if email is registered.
+    // expiresAt reflects the custom OTP TTL so the UI can show a real
+    // countdown (15 minutes). Returned unconditionally to avoid enumeration.
+    return {
+      message: "If this email is registered, a login code has been sent",
+      expiresAt: new Date(Date.now() + 900_000).toISOString(),
+    };
+  },
+
+  /**
+   * Save post-verification intake details (citizen legal-needs profile or
+   * expert practice snapshot) collected during the sign-up wizard.
+   * Called once, right after the account's email is verified.
+   */
+  saveOnboarding: async (
+    userId: string,
+    dto: OnboardingDto,
+    ipAddress?: string
+  ) => {
+    const user = await AuthRepository.findById(userId);
+    if (!user) {
+      throw new AuthenticationError(getErrorMessage("UNAUTHORIZED"));
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { onboarding: dto as unknown as Prisma.InputJsonValue },
+    });
+
+    await writeAuditLog({
+      actorId: userId,
+      action: "UPDATE",
+      resource: "USER",
+      resourceId: userId,
+      description: `Onboarding details saved (${dto.role})`,
+      ipAddress,
+    });
+
+    logger.info("Onboarding details saved", { userId, role: dto.role });
+    return { saved: true };
   },
 
   /**

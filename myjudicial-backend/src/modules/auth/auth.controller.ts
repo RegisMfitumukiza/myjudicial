@@ -5,6 +5,7 @@ import type {
   RegisterDto,
   SendOtpDto,
   VerifyOtpDto,
+  OnboardingDto,
   MagicLinkDto,
   RefreshDto,
   LoginDto,
@@ -27,8 +28,8 @@ export const AuthController = {
   register: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const dto = req.body as RegisterDto;
-      const user = await AuthService.register(dto, req.ip ?? undefined);
-      sendCreated(res, user, "Account created successfully. Check your email to verify.");
+      const result = await AuthService.register(dto, req.ip ?? undefined);
+      sendCreated(res, result, "Check your email for a verification code.");
     } catch (error) {
       next(error);
     }
@@ -55,6 +56,19 @@ export const AuthController = {
       const dto = req.body as VerifyOtpDto;
       const session = await AuthService.verifyOtp(dto, req.ip ?? undefined);
       sendSuccess(res, session, "Login successful");
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /auth/onboarding — save post-verification intake details [protected]
+   */
+  saveOnboarding: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const dto = req.body as OnboardingDto;
+      const result = await AuthService.saveOnboarding(req.user!.id, dto, req.ip ?? undefined);
+      sendSuccess(res, result, "Onboarding details saved");
     } catch (error) {
       next(error);
     }

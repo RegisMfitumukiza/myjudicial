@@ -138,7 +138,7 @@ export const AnalyticsController = {
 
   /**
    * GET /api/v1/admin/analytics/communications
-   * Communication analytics (chat, WhatsApp, email)
+   * Communication analytics (chat, email)
    */
   async getCommunications(req: Request, res: Response): Promise<void> {
     try {

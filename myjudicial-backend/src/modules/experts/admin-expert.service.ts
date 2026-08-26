@@ -383,7 +383,7 @@ export const AdminExpertService = {
     ]);
 
     // TODO: Send notification if notifyExpert is true
-    // This would integrate with Brevo/WhatsApp notification system
+    // This would integrate with Brevo notification system
 
     return {
       id: updatedUser.id,

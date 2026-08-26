@@ -1,6 +1,6 @@
 /**
  * Real-time Operational Dashboard Types
- * 
+ *
  * Types for live monitoring and operational metrics
  */
 
@@ -29,7 +29,7 @@ export type LiveMetric = {
   value: number;
   unit: string;
   trend: "up" | "down" | "stable";
-  percentChange: number;
+  percentChange: number | null; // null when no reliable yesterday baseline exists
   status: "healthy" | "warning" | "critical";
   lastUpdated: string;
 };
@@ -59,56 +59,40 @@ export type OngoingConsultation = {
   scheduledDuration: number;
   actualDuration: number;
   status: "starting" | "active" | "ending";
-  participants: number;
-  quality: "excellent" | "good" | "fair" | "poor";
+  participants: number; // always 2: consultations are 1-on-1 (citizen + expert)
 };
 
 export type QueueMetrics = {
-  queueName: string;
-  totalJobs: number;
-  activeJobs: number;
-  waitingJobs: number;
-  completedJobs: number;
-  failedJobs: number;
-  avgProcessingTime: number;
-  oldestWaitingJob?: {
-    id: string;
-    age: number;
-    priority: number;
-  };
+  queueName: "email-notifications" | "booking-reminders";
+  sentToday: number;
+  failedToday: number;
+  pending: number;
 };
 
 export type SystemHealth = {
   component: string;
   status: "operational" | "degraded" | "down";
   latency?: number;
-  uptime?: number;
   lastCheck: string;
   errorRate?: number;
-  throughput?: number;
 };
 
 export type ResourceUtilization = {
   cpu: {
     usage: number;
-    trend: "increasing" | "decreasing" | "stable";
   };
   memory: {
-    used: number;
-    total: number;
+    used: number; // GB
+    total: number; // GB
     percentage: number;
   };
   database: {
     connections: number;
     maxConnections: number;
-    activeQueries: number;
-    slowQueries: number;
   };
   cache: {
-    hitRate: number;
-    missRate: number;
-    evictions: number;
-    size: number;
+    hitRate: number | null; // null when Redis stats are unavailable
+    missRate: number | null;
   };
 };
 
@@ -118,33 +102,18 @@ export type RealtimeStatistics = {
     onlineExperts: number;
     activeConsultations: number;
     pendingBookings: number;
-    queuedMessages: number;
+    pendingReminders: number;
   };
   today: {
     newUsers: number;
     newBookings: number;
     completedConsultations: number;
     revenue: number;
-    averageResponseTime: number;
   };
   lastHour: {
-    pageViews: number;
-    apiRequests: number;
-    errors: number;
     signups: number;
     bookings: number;
   };
-};
-
-export type PerformanceMetric = {
-  endpoint: string;
-  method: string;
-  avgResponseTime: number;
-  requestCount: number;
-  errorRate: number;
-  p50: number;
-  p95: number;
-  p99: number;
 };
 
 export type RealtimeDashboard = {
@@ -157,29 +126,12 @@ export type RealtimeDashboard = {
   systemHealth: SystemHealth[];
   resources: ResourceUtilization;
   statistics: RealtimeStatistics;
-  performance: PerformanceMetric[];
   refreshInterval: number; // seconds
 };
 
 export type RealtimeDashboardResponse = {
   success: true;
   data: RealtimeDashboard;
-};
-
-export type AlertAction = {
-  alertId: string;
-  action: "acknowledge" | "resolve" | "escalate";
-  performedBy: string;
-  note?: string;
-};
-
-export type AlertConfiguration = {
-  metric: string;
-  severity: AlertSeverity;
-  threshold: number;
-  comparisonOperator: "gt" | "lt" | "eq" | "gte" | "lte";
-  enabled: boolean;
-  notificationChannels: ("email" | "sms" | "webhook")[];
 };
 
 export type DashboardFilter = {

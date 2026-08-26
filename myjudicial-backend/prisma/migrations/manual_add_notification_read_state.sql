@@ -4,7 +4,7 @@
 -- dev database has migration-history drift from untracked changes applied by other
 -- contributors directly against Supabase — `prisma migrate dev` refuses to proceed
 -- without a destructive `migrate reset`, which would drop shared dev data.
--- See prisma/migrations/manual_add_whatsapp_queue.sql for the established precedent.
+-- See the baseline migration's manual-migration precedent.
 --
 -- Note: a teammate independently added the same `readAt` field to schema.prisma
 -- (on origin/main) without a matching migration file either — this script is the

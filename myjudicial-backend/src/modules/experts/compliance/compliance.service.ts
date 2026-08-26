@@ -2,7 +2,6 @@ import { getErrorMessage } from "../../../shared/utils/i18n-messages.js";
 import { ComplianceRepository } from "./compliance.repository.js";
 import { ProfileRepository } from "../profile/profile.repository.js";
 import { sendCredentialExpiryWarning } from "../../../infrastructure/email/email.service.js";
-import { WhatsAppService } from "../../whatsapp/services/whatsapp.service.js";
 import { NotFoundError, ValidationError } from "../../../shared/errors/index.js";
 import { logger } from "../../../shared/utils/logger.js";
 
@@ -86,21 +85,6 @@ export const ComplianceService = {
             expiryDate,
             expertLanguage
           );
-
-          // Send WhatsApp if phone is available
-          if (expert.user.phone) {
-            await WhatsAppService.sendCredentialExpiryWarning({
-              expertId: expert.userId,
-              phone: expert.user.phone,
-              expertName: expert.displayName,
-              expiryDate
-            }).catch(error => {
-              logger.error('Failed to send WhatsApp expiry warning', { 
-                expertId: expert.id, 
-                error 
-              });
-            });
-          }
         }
       }
 

@@ -3,7 +3,6 @@
  * 
  * Centralized type definitions for analytics module
  */
-
 export type TimePeriod = "today" | "7days" | "30days" | "90days" | "year" | "custom";
 
 export type DateRange = {
@@ -41,7 +40,6 @@ export type RevenueSummary = {
 export type ActivitySummary = {
   activeConversations: number;
   messagesToday: number;
-  whatsappSentToday: number;
   emailsSentToday: number;
 };
 
@@ -175,19 +173,8 @@ export type CommunicationAnalytics = {
     activeConversations: number;
     totalMessages: number;
   };
-  whatsapp: {
-    totalSent: number;
-    delivered: number;
-    failed: number;
-    pending: number;
-    successRate: number;
-  };
   email: {
     totalSent: number;
-    delivered: number;
-    failed: number;
-    pending: number;
-    successRate: number;
   };
 };
 

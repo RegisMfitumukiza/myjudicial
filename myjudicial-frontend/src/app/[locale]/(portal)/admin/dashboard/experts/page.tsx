@@ -2,22 +2,38 @@
 
 import { useState, useMemo, useCallback } from "react";
 import {
-  CheckCircle,
+  Users,
   Clock,
-  XCircle,
-  Star,
-  Loader2,
+  BadgeCheck,
   Search,
-  AlertCircle,
   Ban,
   CheckCheck,
   Eye,
-  BadgeCheck,
+  Star,
+  Inbox,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/routing";
+
+import { PageHeader } from "@/shared/components/dashboard/page-header";
+import { StatCard } from "@/shared/components/dashboard/stat-card";
+import { StatusBadge } from "@/shared/components/dashboard/status-badge";
+import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { ErrorState } from "@/shared/components/dashboard/error-state";
+import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 
 // ── Types ──
 
@@ -124,34 +140,28 @@ async function activateExpert(id: string) {
 
 // ── Helpers ──
 
-function StatusBadge({ expertStatus }: {
-  expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null;
-}) {
-  if (expertStatus === "SUSPENDED") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-      <Ban size={11} /> Suspended
-    </span>
-  );
-  if (expertStatus === "VERIFIED") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-      <BadgeCheck size={11} /> Verified
-    </span>
-  );
-  if (expertStatus === "PENDING_VERIFICATION") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-      <Clock size={11} /> Pending Review
-    </span>
-  );
-  if (expertStatus === "REJECTED") return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-      <XCircle size={11} /> Rejected
-    </span>
-  );
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-      <Clock size={11} /> Draft
-    </span>
-  );
+function expertStatusTone(
+  expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null,
+): "neutral" | "pending" | "success" | "destructive" {
+  switch (expertStatus) {
+    case "VERIFIED":             return "success";
+    case "PENDING_VERIFICATION": return "pending";
+    case "REJECTED":
+    case "SUSPENDED":            return "destructive";
+    default:                     return "neutral";
+  }
+}
+
+function expertStatusLabel(
+  expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null,
+): string {
+  switch (expertStatus) {
+    case "VERIFIED":             return "Verified";
+    case "PENDING_VERIFICATION": return "Pending Review";
+    case "REJECTED":             return "Rejected";
+    case "SUSPENDED":            return "Suspended";
+    default:                     return "Draft";
+  }
 }
 
 function formatSpecialty(s: LegalSpecialty) {
@@ -251,20 +261,20 @@ export default function ExpertsPage() {
 
   if (isLoading && !data) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+      <div className="space-y-6 p-6 lg:p-8">
+        <LoadingSpinner label="Loading experts..." />
       </div>
     );
   }
 
   if (error && !data) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load experts</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{(error as Error).message}</p>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <PageHeader title="Expert Management" />
+        <ErrorState
+          title="Failed to load experts"
+          message={(error as Error).message}
+        />
       </div>
     );
   }
@@ -272,237 +282,272 @@ export default function ExpertsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Expert Management</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{currentTab.description}</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Expert Management"
+        description={currentTab.description}
+      />
 
       {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: "Total Experts",       value: stats.total,     color: "text-slate-700 dark:text-white"  },
-          { label: "Pending Review",      value: stats.pending,   color: "text-amber-600 dark:text-amber-400" },
-          { label: "Verified",            value: stats.verified,  color: "text-green-600 dark:text-green-400" },
-          { label: "Suspended",           value: stats.suspended, color: "text-red-600 dark:text-red-400"   },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-brand-border bg-white p-4 dark:bg-gray-900">
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">{s.label}</p>
-            <p className={`mt-1 text-lg font-bold ${s.color}`}>{s.value.toLocaleString()}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          label="Total Experts"
+          value={stats.total.toLocaleString()}
+          icon={Users}
+        />
+        <StatCard
+          label="Pending Review"
+          value={stats.pending.toLocaleString()}
+          icon={Clock}
+        />
+        <StatCard
+          label="Verified"
+          value={stats.verified.toLocaleString()}
+          icon={BadgeCheck}
+        />
+        <StatCard
+          label="Suspended"
+          value={stats.suspended.toLocaleString()}
+          icon={Ban}
+        />
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-brand-border/20 bg-white p-1 dark:bg-gray-900">
+      <div className="flex gap-1 rounded-lg border border-border bg-muted p-0.5">
         {TABS.map((tab) => (
-          <button key={tab.id} onClick={() => handleTabChange(tab.id)}
-            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+          <Button
+            key={tab.id}
+            variant="ghost"
+            size="sm"
+            onClick={() => handleTabChange(tab.id)}
+            className={`flex-1 ${
               activeTab === tab.id
-                ? "bg-brand-dark text-white shadow-sm dark:bg-white dark:text-black"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground"
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by name or email…"
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by name or email..."
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-          className="w-full rounded-lg border border-brand-border bg-white py-2 pl-9 pr-4 text-sm focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-900 dark:text-gray-100"
+          className="pl-9"
         />
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-brand-border bg-white shadow-sm dark:bg-gray-900">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-brand-border/20 bg-gray-50 dark:bg-gray-800">
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Expert</th>
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Specialties</th>
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Rating</th>
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Joined</th>
-              <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-brand-border/10">
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="py-12 text-center">
-                  <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-blue" />
-                </td>
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Expert</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Specialties</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rating</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Joined</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
               </tr>
-            )}
-            {!isLoading && experts.length === 0 && (
-              <tr>
-                <td colSpan={6} className="py-12 text-center">
-                  <p className="text-sm text-gray-400">No experts found</p>
-                </td>
-              </tr>
-            )}
-            {experts.map((expert) => (
-              <tr key={expert.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                {/* Expert */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-sm font-bold text-brand-blue">
-                      {expert.fullName.charAt(0).toUpperCase()}
+            </thead>
+            <tbody className="divide-y divide-border">
+              {isLoading && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <LoadingSpinner />
+                  </td>
+                </tr>
+              )}
+              {!isLoading && experts.length === 0 && (
+                <tr>
+                  <td colSpan={6}>
+                    <EmptyState
+                      icon={Inbox}
+                      title="No experts found"
+                      description="No experts match your current filters."
+                    />
+                  </td>
+                </tr>
+              )}
+              {experts.map((expert) => (
+                <tr key={expert.id} className="hover:bg-muted/50 transition-colors">
+                  {/* Expert */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        {expert.fullName.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{expert.fullName}</p>
+                        <p className="text-xs text-muted-foreground">{expert.email}</p>
+                        {expert.barNumber && (
+                          <p className="text-xs font-mono text-muted-foreground">Bar #{expert.barNumber}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{expert.fullName}</p>
-                      <p className="text-xs text-gray-500">{expert.email}</p>
-                      {expert.barNumber && (
-                        <p className="text-xs font-mono text-slate-400">Bar #{expert.barNumber}</p>
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-6 py-4">
+                    <StatusBadge tone={expertStatusTone(expert.expertStatus)}>
+                      {expertStatusLabel(expert.expertStatus)}
+                    </StatusBadge>
+                  </td>
+
+                  {/* Specialties */}
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {expert.specialties.slice(0, 2).map((s) => (
+                        <span key={s} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                          {formatSpecialty(s)}
+                        </span>
+                      ))}
+                      {expert.specialties.length > 2 && (
+                        <span className="text-[11px] text-muted-foreground">+{expert.specialties.length - 2}</span>
                       )}
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                {/* Status */}
-                <td className="px-6 py-4">
-                  <StatusBadge expertStatus={expert.expertStatus} />
-                </td>
-
-                {/* Specialties */}
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {expert.specialties.slice(0, 2).map((s) => (
-                      <span key={s} className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                        {formatSpecialty(s)}
+                  {/* Rating */}
+                  <td className="px-6 py-4">
+                    {expert.avgRating != null ? (
+                      <span className="flex items-center gap-1 text-sm">
+                        <Star size={12} className="text-yellow-500" />
+                        <span className="font-medium text-foreground">{expert.avgRating.toFixed(1)}</span>
                       </span>
-                    ))}
-                    {expert.specialties.length > 2 && (
-                      <span className="text-[11px] text-gray-400">+{expert.specialties.length - 2}</span>
-                    )}
-                  </div>
-                </td>
-
-                {/* Rating */}
-                <td className="px-6 py-4">
-                  {expert.avgRating != null ? (
-                    <span className="flex items-center gap-1 text-sm">
-                      <Star size={12} className="text-amber-500" />
-                      <span className="font-medium text-gray-900 dark:text-white">{expert.avgRating.toFixed(1)}</span>
-                    </span>
-                  ) : (
-                    <span className="text-xs text-gray-400">—</span>
-                  )}
-                </td>
-
-                {/* Joined */}
-                <td className="px-6 py-4 text-xs text-gray-500">
-                  {new Date(expert.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                </td>
-
-                {/* Actions — ONLY View + Suspend/Activate */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    {expert.accountStatus === "SUSPENDED" ? (
-                      <button
-                        onClick={() => activateMutation.mutate(expert.id)}
-                        disabled={activateMutation.isPending}
-                        id={`btn-activate-${expert.id}`}
-                        className="inline-flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                      >
-                        <CheckCheck size={13} /> Activate
-                      </button>
                     ) : (
-                      <button
-                        onClick={() => { setSelectedExpert(expert); setShowSuspendModal(true); }}
-                        disabled={suspendMutation.isPending}
-                        id={`btn-suspend-${expert.id}`}
-                        className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                      >
-                        <Ban size={13} /> Suspend
-                      </button>
+                      <span className="text-xs text-muted-foreground">&mdash;</span>
                     )}
-                    <Link
-                      href={`/admin/dashboard/experts/${expert.id}`}
-                      id={`btn-view-${expert.id}`}
-                      className="inline-flex items-center gap-1 rounded-lg border border-brand-border px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                    >
-                      <Eye size={13} /> View
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+
+                  {/* Joined */}
+                  <td className="px-6 py-4 text-xs text-muted-foreground">
+                    {new Date(expert.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      {expert.accountStatus === "SUSPENDED" ? (
+                        <Button
+                          variant="default"
+                          size="xs"
+                          onClick={() => activateMutation.mutate(expert.id)}
+                          disabled={activateMutation.isPending}
+                          id={`btn-activate-${expert.id}`}
+                          className="bg-green-600 text-white hover:bg-green-700"
+                        >
+                          <CheckCheck size={13} /> Activate
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="destructive"
+                          size="xs"
+                          onClick={() => { setSelectedExpert(expert); setShowSuspendModal(true); }}
+                          disabled={suspendMutation.isPending}
+                          id={`btn-suspend-${expert.id}`}
+                        >
+                          <Ban size={13} /> Suspend
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        asChild
+                        id={`btn-view-${expert.id}`}
+                      >
+                        <Link href={`/admin/dashboard/experts/${expert.id}`}>
+                          <Eye size={13} /> View
+                        </Link>
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-brand-border/10 px-6 py-4">
-            <p className="text-sm text-gray-500">
+          <div className="flex items-center justify-between border-t border-border px-6 py-4">
+            <p className="text-sm text-muted-foreground">
               Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
             </p>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPage(page - 1)} disabled={page === 1}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
               >
                 Previous
-              </button>
-              <button onClick={() => setPage(page + 1)} disabled={page === pagination.totalPages}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page === pagination.totalPages}
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* ── Suspend Modal ── */}
-      {showSuspendModal && selectedExpert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Suspend Expert</h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              You are about to suspend <span className="font-medium text-gray-900 dark:text-white">{selectedExpert.fullName}</span>.
-            </p>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Reason <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                className="w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-                rows={4}
-                placeholder="Provide a detailed reason (min 10 characters)…"
-                value={suspendReason}
-                onChange={(e) => setSuspendReason(e.target.value)}
-              />
-            </div>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => { setShowSuspendModal(false); setSuspendReason(""); setSelectedExpert(null); }}
-                className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (!selectedExpert || !suspendReason.trim()) return;
-                  suspendMutation.mutate({ id: selectedExpert.id, reason: suspendReason });
-                }}
-                disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {suspendMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Ban size={14} />}
-                Confirm Suspension
-              </button>
-            </div>
+      {/* Suspend Modal */}
+      <Dialog open={showSuspendModal} onOpenChange={(open) => {
+        if (!open) {
+          setShowSuspendModal(false);
+          setSuspendReason("");
+          setSelectedExpert(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspend Expert</DialogTitle>
+            <DialogDescription>
+              You are about to suspend <span className="font-medium text-foreground">{selectedExpert?.fullName}</span>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Reason <span className="text-destructive">*</span>
+            </label>
+            <textarea
+              className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none"
+              rows={4}
+              placeholder="Provide a detailed reason (min 10 characters)..."
+              value={suspendReason}
+              onChange={(e) => setSuspendReason(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setShowSuspendModal(false); setSuspendReason(""); setSelectedExpert(null); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!selectedExpert || !suspendReason.trim()) return;
+                suspendMutation.mutate({ id: selectedExpert.id, reason: suspendReason });
+              }}
+              disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
+            >
+              Confirm Suspension
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -369,7 +369,7 @@ export const PredictiveAnalyticsService = {
   /**
    * Analyze platform capacity and utilization
    */
-  async analyzeCapacity(): Promise<CapacityAnalysis> {
+  async analyzeCapacity(): Promise<CapacityAnalysis & { expertSampleSize: number }> {
     const [expertStats, bookingStats, platformStats] = await Promise.all([
       this.analyzeExpertCapacity(),
       this.analyzeBookingCapacity(),
@@ -402,24 +402,19 @@ export const PredictiveAnalyticsService = {
       },
       recommendations: [
         {
-          action: "Recruit additional experts in high-demand specialties",
+          action: `Recruit additional experts — weekly expert utilization is at ${expertStats.utilization.toFixed(0)}% of capacity`,
           priority: expertStats.utilization > 80 ? "high" : "medium",
           impact: "Reduce wait times and improve client satisfaction",
           timeline: "2-4 weeks",
         },
         {
-          action: "Implement dynamic pricing during peak hours",
+          action: `Add bookable capacity — ${bookingStats.utilization.toFixed(0)}% of available slots over the next 30 days are already booked`,
           priority: bookingStats.utilization > 75 ? "high" : "low",
           impact: "Better distribute demand across time slots",
           timeline: "1-2 weeks",
         },
-        {
-          action: "Expand service offerings in underserved specialties",
-          priority: "medium",
-          impact: "Capture additional market demand",
-          timeline: "1-3 months",
-        },
       ],
+      expertSampleSize: expertStats.totalExperts,
     };
   },
 
@@ -427,10 +422,13 @@ export const PredictiveAnalyticsService = {
    * Analyze market trends and opportunities
    */
   async analyzeMarket(): Promise<MarketAnalysis> {
-    const [specialtyDemand, regionalDemand] = await Promise.all([
+    const [specialtyDemand, regionalDemand, verifiedExperts] = await Promise.all([
       this.analyzeSpecialtyDemand(),
       this.analyzeRegionalDemand(),
+      prisma.expertProfile.count({ where: { status: 'VERIFIED' } }),
     ]);
+
+    const totalDemand = specialtyDemand.reduce((sum, s) => sum + s.currentDemand, 0);
 
     return {
       demand: {
@@ -438,20 +436,9 @@ export const PredictiveAnalyticsService = {
         byRegion: regionalDemand,
       },
       competition: {
-        marketShare: 15, // Estimated based on Rwanda legal services market
-        competitiveGaps: [
-          "Limited rural coverage",
-          "Language barriers (French/English only)",
-          "High consultation fees",
-          "Poor mobile experience",
-        ],
-        opportunities: [
-          "Kinyarwanda language support",
-          "Mobile-first experience",
-          "Flat-fee transparency",
-          "Rural expert network",
-          "AI-powered triage",
-        ],
+        // Verified experts available per 100 confirmed/completed bookings over the last 90 days
+        expertSupplyDemandRatio:
+          totalDemand === 0 ? null : Number(((verifiedExperts / totalDemand) * 100).toFixed(1)),
       },
     };
   },
@@ -463,7 +450,7 @@ export const PredictiveAnalyticsService = {
     bookingForecast: BookingForecast;
     revenueForecast: RevenueForecast;
     userGrowthForecast: UserGrowthForecast;
-    capacityAnalysis: CapacityAnalysis;
+    capacityAnalysis: CapacityAnalysis & { expertSampleSize?: number };
     marketAnalysis: MarketAnalysis;
   }): Promise<PredictiveInsight[]> {
     const insights: PredictiveInsight[] = [];
@@ -471,14 +458,14 @@ export const PredictiveAnalyticsService = {
     // Detect anomalies in historical data
     const bookingTimeSeries = analytics.bookingForecast.timeSeries.filter(point => point.actual);
     const bookingAnomalies = detectAnomalies(bookingTimeSeries);
-    
+
     if (bookingAnomalies.length > 0) {
       const recentAnomalies = bookingAnomalies.slice(-3); // Last 3 anomalies
       insights.push({
         type: "anomaly",
         title: "Recent Booking Anomalies Detected",
         description: `Found ${recentAnomalies.length} unusual booking patterns: ${recentAnomalies.map(a => a.description).join('; ')}`,
-        confidence: 85,
+        confidence: confidenceFromSample(bookingTimeSeries.length),
         impact: recentAnomalies.some(a => a.severity === "high") ? "high" : "medium",
         timeframe: "Past 30 days",
         actionRequired: true,
@@ -511,11 +498,12 @@ export const PredictiveAnalyticsService = {
 
     // Revenue insights
     if (analytics.revenueForecast.growthRate.monthly > 10) {
+      const revenueSampleSize = analytics.revenueForecast.timeSeries.filter(p => p.actual).length;
       insights.push({
         type: "opportunity",
         title: "Revenue Acceleration Detected",
         description: `Monthly revenue growth of ${analytics.revenueForecast.growthRate.monthly.toFixed(1)}% indicates strong market traction.`,
-        confidence: 85,
+        confidence: confidenceFromSample(revenueSampleSize),
         impact: "high",
         timeframe: "Ongoing",
         actionRequired: false,
@@ -528,7 +516,7 @@ export const PredictiveAnalyticsService = {
         type: "risk",
         title: "Expert Capacity Constraint",
         description: `Expert utilization at ${analytics.capacityAnalysis.currentUtilization.experts}% may lead to service delays.`,
-        confidence: 90,
+        confidence: confidenceFromSample(analytics.capacityAnalysis.expertSampleSize ?? 0),
         impact: "high",
         timeframe: "Immediate",
         actionRequired: true,
@@ -543,13 +531,14 @@ export const PredictiveAnalyticsService = {
     // Market opportunities
     const highDemandSpecialties = analytics.marketAnalysis.demand.bySpecialty
       .filter(specialty => specialty.projectedGrowth > 20);
-    
+
     if (highDemandSpecialties.length > 0) {
+      const demandSampleSize = highDemandSpecialties.reduce((sum, s) => sum + s.currentDemand, 0);
       insights.push({
         type: "opportunity",
         title: "High-Growth Specialty Markets",
         description: `${highDemandSpecialties.map(s => s.specialty).join(", ")} showing strong growth potential.`,
-        confidence: 75,
+        confidence: confidenceFromSample(demandSampleSize),
         impact: "medium",
         timeframe: "3-6 months",
         actionRequired: true,
@@ -563,11 +552,12 @@ export const PredictiveAnalyticsService = {
 
     // User growth insights
     if (analytics.userGrowthForecast.segmentGrowth.experts < analytics.userGrowthForecast.segmentGrowth.clients * 0.1) {
+      const userSampleSize = analytics.userGrowthForecast.timeSeries.filter(p => p.actual).length;
       insights.push({
         type: "risk",
         title: "Expert-Client Ratio Imbalance",
         description: "Client growth significantly outpacing expert growth may create supply constraints.",
-        confidence: 80,
+        confidence: confidenceFromSample(userSampleSize),
         impact: "medium",
         timeframe: "Next 2-3 months",
         actionRequired: true,
@@ -603,7 +593,7 @@ export const PredictiveAnalyticsService = {
     const utilization = maxCapacity === 0 ? 0 : (activeBookings / maxCapacity) * 100;
     const shortfall = Math.max(0, activeBookings - maxCapacity);
 
-    return { utilization, shortfall };
+    return { utilization, shortfall, totalExperts };
   },
 
   async analyzeBookingCapacity() {
@@ -641,42 +631,142 @@ export const PredictiveAnalyticsService = {
   },
 
   async analyzeSpecialtyDemand() {
-    const specialtyStats = await prisma.booking.groupBy({
-      by: ['serviceId'],
-      _count: { id: true },
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // Last 90 days
+    const windowMs = 90 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    const [currentGroups, previousGroups] = await Promise.all([
+      prisma.booking.groupBy({
+        by: ['serviceId'],
+        _count: { id: true },
+        where: {
+          createdAt: {
+            gte: new Date(now - windowMs), // Last 90 days
+          },
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+          isDeleted: false,
         },
-        status: 'COMPLETED',
-      },
+      }),
+      prisma.booking.groupBy({
+        by: ['serviceId'],
+        _count: { id: true },
+        where: {
+          createdAt: {
+            gte: new Date(now - 2 * windowMs),
+            lt: new Date(now - windowMs),
+          },
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+          isDeleted: false,
+        },
+      }),
+    ]);
+
+    const serviceIds = [...new Set([...currentGroups, ...previousGroups].map(g => g.serviceId))];
+    if (serviceIds.length === 0) return [];
+
+    const services = await prisma.legalService.findMany({
+      where: { id: { in: serviceIds } },
+      select: { id: true, expert: { select: { primarySpecialty: true } } },
     });
+    const serviceToSpecialty = new Map(services.map(s => [s.id, s.expert.primarySpecialty]));
 
-    // Mock specialty data - in real implementation, join with LegalService table
-    const specialties = [
-      'FAMILY_LAW',
-      'COMMERCIAL_LAW',
-      'EMPLOYMENT_LAW',
-      'LAND_LAW',
-      'CRIMINAL_LAW',
-    ];
+    const currentDemand = new Map<string, number>();
+    for (const group of currentGroups) {
+      const specialty = serviceToSpecialty.get(group.serviceId);
+      if (!specialty) continue;
+      currentDemand.set(specialty, (currentDemand.get(specialty) || 0) + group._count.id);
+    }
 
-    return specialties.map(specialty => ({
-      specialty,
-      currentDemand: Math.floor(Math.random() * 100) + 50,
-      projectedGrowth: Math.floor(Math.random() * 30) + 5,
-      saturationLevel: Math.floor(Math.random() * 40) + 30,
-    }));
+    const previousDemand = new Map<string, number>();
+    for (const group of previousGroups) {
+      const specialty = serviceToSpecialty.get(group.serviceId);
+      if (!specialty) continue;
+      previousDemand.set(specialty, (previousDemand.get(specialty) || 0) + group._count.id);
+    }
+
+    const supplyBySpecialty = new Map<string, number>(
+      (
+        await prisma.expertProfile.groupBy({
+          by: ['primarySpecialty'],
+          _count: { id: true },
+          where: { status: 'VERIFIED' },
+        })
+      ).map(g => [g.primarySpecialty as string, g._count.id])
+    );
+
+    return [...currentDemand.entries()]
+      .map(([specialty, demand]) => {
+        const previous = previousDemand.get(specialty) || 0;
+        const growth = previous === 0 ? (demand > 0 ? 100 : 0) : ((demand - previous) / previous) * 100;
+        // Saturation heuristic: verified experts offering the specialty per unit of demand (×100, capped at 100)
+        const supply = supplyBySpecialty.get(specialty) || 0;
+        const saturationLevel = Math.min(100, Math.round((supply / Math.max(demand, 1)) * 100));
+        return {
+          specialty,
+          currentDemand: demand,
+          projectedGrowth: Number(growth.toFixed(1)),
+          saturationLevel,
+        };
+      })
+      .sort((a, b) => b.currentDemand - a.currentDemand)
+      .slice(0, 5);
   },
 
   async analyzeRegionalDemand() {
-    const regions = ['Kigali', 'Eastern', 'Western', 'Northern', 'Southern'];
+    const windowMs = 90 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
 
-    return regions.map(region => ({
-      region,
-      currentDemand: Math.floor(Math.random() * 200) + 100,
-      projectedGrowth: Math.floor(Math.random() * 25) + 10,
-      marketPenetration: Math.floor(Math.random() * 20) + 5,
-    }));
+    const [currentBookings, previousBookings] = await Promise.all([
+      prisma.booking.findMany({
+        where: {
+          createdAt: { gte: new Date(now - windowMs) }, // Last 90 days
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+          isDeleted: false,
+        },
+        select: { expert: { select: { city: true } } },
+      }),
+      prisma.booking.findMany({
+        where: {
+          createdAt: {
+            gte: new Date(now - 2 * windowMs),
+            lt: new Date(now - windowMs),
+          },
+          status: { in: ['CONFIRMED', 'COMPLETED'] },
+          isDeleted: false,
+        },
+        select: { expert: { select: { city: true } } },
+      }),
+    ]);
+
+    const tallyByCity = (bookings: Array<{ expert: { city: string | null } }>) => {
+      const counts = new Map<string, number>();
+      for (const booking of bookings) {
+        const region = booking.expert.city || "Unknown";
+        counts.set(region, (counts.get(region) || 0) + 1);
+      }
+      return counts;
+    };
+
+    const currentDemand = tallyByCity(currentBookings);
+    const previousDemand = tallyByCity(previousBookings);
+    const totalDemand = [...currentDemand.values()].reduce((sum, count) => sum + count, 0);
+
+    return [...currentDemand.entries()]
+      .map(([region, demand]) => {
+        const previous = previousDemand.get(region) || 0;
+        const growth = previous === 0 ? (demand > 0 ? 100 : 0) : ((demand - previous) / previous) * 100;
+        return {
+          region,
+          currentDemand: demand,
+          projectedGrowth: Number(growth.toFixed(1)),
+          marketPenetration: totalDemand === 0 ? 0 : Number(((demand / totalDemand) * 100).toFixed(1)),
+        };
+      })
+      .sort((a, b) => b.currentDemand - a.currentDemand)
+      .slice(0, 5);
   },
 };
+
+// Confidence scales with underlying sample size n: 50 + 45 * (1 - 100/(100+n)), capped at 95
+function confidenceFromSample(n: number): number {
+  return Math.min(95, Math.round(50 + 45 * (1 - 100 / (100 + n))));
+}

@@ -90,13 +90,11 @@ export const PlatformOverviewService = {
       AnalyticsRepository.getNotificationStats(dateRange),
     ]);
 
-    const whatsappSent = notificationStats.whatsappStats.reduce((sum, s) => sum + s._count, 0);
-    const emailSent = notificationStats.emailStats.reduce((sum, s) => sum + s._count, 0);
+    const emailSent = notificationStats.emailsSent;
 
     return {
       activeConversations: chatStats.activeConversations,
       messagesToday: chatStats.messageCount,
-      whatsappSentToday: whatsappSent,
       emailsSentToday: emailSent,
     };
   },

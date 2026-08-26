@@ -268,27 +268,14 @@ export const AnalyticsRepository = {
       },
     } : undefined;
 
-    const [whatsappStats, emailStats] = await Promise.all([
-      prisma.notificationLog.groupBy({
-        by: ["deliveryStatus"],
-        where: {
-          ...where,
-          channel: "WHATSAPP",
-        },
-        _count: true,
-      }),
-      
-      prisma.notificationLog.groupBy({
-        by: ["deliveryStatus"],
-        where: {
-          ...where,
-          channel: "EMAIL",
-        },
-        _count: true,
-      }),
-    ]);
+    const emailsSent = await prisma.notificationLog.count({
+      where: {
+        ...where,
+        channel: "EMAIL",
+      },
+    });
 
-    return { whatsappStats, emailStats };
+    return { emailsSent };
   },
 
   /**

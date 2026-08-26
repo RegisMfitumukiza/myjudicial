@@ -2,6 +2,10 @@
   "dashboard": {
     "welcome": "Welcome back, Admin",
     "subtitle": "Here's what's happening across MyJudicial today.",
+    "actionRequired": "Action Required",
+    "pendingVerifications": "pending verifications",
+    "suspendedExperts": "suspended experts",
+    "review": "Review",
     "totalUsers": "Total Users",
     "totalUsersDesc": "All registered accounts",
     "clients": "Clients",
@@ -18,7 +22,7 @@
     "suspendedDesc": "Flagged accounts",
     "platformRevenue": "Platform Revenue",
     "platformRevenueDesc": "Total earnings (RWF)",
-    "revenueLast7Days": "Platform Revenue — Last 7 Days",
+    "revenueLast7Days": "Platform Revenue - Last 7 Days",
     "revenue": "Revenue",
     "failedToLoad": "Failed to load dashboard",
     "unableToFetch": "Unable to fetch analytics data. Please try again later.",
@@ -286,7 +290,11 @@
     "showingDefaults": "Showing default values. Changes made here will not be saved until the settings endpoint is available.",
     "retry": "Retry",
     "settingsSaved": "Settings saved",
-    "settingsUnavailable": "Settings server is unavailable. Changes could not be persisted."
+    "settingsUnavailable": "Settings server is unavailable. Changes could not be persisted.",
+    "paymentMode": "Payment Mode",
+    "paymentModeDesc": "How payments are handled for bookings",
+    "bookingFirst": "Booking First",
+    "paymentRequired": "Payment Required"
   },
   "compliance": {
     "title": "Compliance Dashboard",

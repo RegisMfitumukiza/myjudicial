@@ -1,4 +1,5 @@
 import { brevo, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS, EMAIL_REPLY_TO } from "./email.client.js";
+import { prisma } from "../database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
 import { emailLayout } from "./templates/email-layout.js";
 import {
@@ -6,7 +7,6 @@ import {
   divider, contentBlock, badge, buildUrl, FRONTEND,
 } from "./templates/components.js";
 import { getEmailSubject, getEmailContent, EMAIL_CONTENT } from "./email-templates.i18n.js";
-import { WhatsAppService } from "../../modules/whatsapp/services/whatsapp.service.js";
 
 type Language = 'en' | 'fr' | 'rw';
 
@@ -16,6 +16,7 @@ type SendEmailParams = {
   htmlContent: string;
   textContent?: string;
   replyTo?: { email: string; name?: string };
+  template?: string;
 };
 
 /**
@@ -23,6 +24,9 @@ type SendEmailParams = {
  * Failures are logged but never thrown — email must not block the main flow.
  */
 const sendEmail = async (params: SendEmailParams): Promise<void> => {
+  let status: "SENT" | "FAILED" = "SENT";
+  let errorMessage: string | undefined;
+
   try {
     await brevo.transactionalEmails.sendTransacEmail({
       sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM_ADDRESS },
@@ -38,11 +42,28 @@ const sendEmail = async (params: SendEmailParams): Promise<void> => {
       subject: params.subject,
     });
   } catch (error) {
+    status = "FAILED";
+    errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Failed to send email", {
       to: params.to.map((r) => r.email),
       subject: params.subject,
       error,
     });
+  }
+
+  // Best-effort audit log — must never break or block sending
+  try {
+    await prisma.emailLog.create({
+      data: {
+        toEmail: params.to.map((r) => r.email).join(", "),
+        subject: params.subject,
+        template: params.template ?? null,
+        status,
+        error: errorMessage ? errorMessage.slice(0, 500) : null,
+      },
+    });
+  } catch (logError) {
+    logger.error("Failed to write email log", { error: logError });
   }
 };
 
@@ -82,6 +103,7 @@ export const sendWelcomeEmail = async (
   await sendEmail({
     to: [{ email: to, name: firstName }],
     subject: getEmailSubject('WELCOME', language),
+    template: "WELCOME",
     htmlContent: html,
     textContent:
       `${getEmailSubject('WELCOME', language)}, ${firstName}!\n\n` +
@@ -131,15 +153,10 @@ export const sendOtpEmail = async (
   await sendEmail({
     to: [{ email: to }],
     subject: getEmailSubject('OTP_CODE', language),
+    template: "OTP_CODE",
     htmlContent: html,
     textContent: `${yourCode} ${otpCode}\n\n${expiresWarning}`,
   });
-
-  if (phone && userId) {
-    await WhatsAppService.sendOtpMessage({ userId, phone, otpCode }).catch((error) => {
-      logger.error("Failed to send OTP WhatsApp (non-blocking)", { error });
-    });
-  }
 };
 
 /**
@@ -169,6 +186,7 @@ export const sendMagicLinkEmail = async (
   await sendEmail({
     to: [{ email: to }],
     subject: getEmailSubject('MAGIC_LINK', language),
+    template: "MAGIC_LINK",
     htmlContent: html,
     textContent: `${loginButton}: ${magicLink}\n\n${clickToLogin}`,
   });
@@ -221,6 +239,7 @@ export const sendBookingConfirmationEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject: getEmailSubject('BOOKING_CONFIRMED', language, details.serviceName),
+    template: "BOOKING_CONFIRMED",
     htmlContent: html,
   });
 };
@@ -273,6 +292,7 @@ export const sendExpertBookingConfirmationEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.expertName }],
     subject: getEmailSubject('BOOKING_CONFIRMED', language, details.serviceName),
+    template: "BOOKING_CONFIRMED_EXPERT",
     htmlContent: html,
   });
 };
@@ -323,6 +343,7 @@ export const sendBookingSummaryEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject: getEmailSubject('BOOKING_SUMMARY', language, details.serviceName),
+    template: "BOOKING_SUMMARY",
     htmlContent: html,
   });
 };
@@ -370,6 +391,7 @@ export const sendNewBookingRequestEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.expertName }],
     subject: getEmailSubject('NEW_BOOKING_REQUEST', language, details.serviceName),
+    template: "NEW_BOOKING_REQUEST",
     htmlContent: html,
   });
 };
@@ -437,6 +459,7 @@ export const sendBookingReminderEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "BOOKING_REMINDER",
     htmlContent: html,
   });
 };
@@ -517,6 +540,7 @@ export const sendBookingCancelledEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "BOOKING_CANCELLED",
     htmlContent: html,
   });
 };
@@ -561,6 +585,7 @@ export const sendRefundConfirmationEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "REFUND_CONFIRMED",
     htmlContent: html,
   });
 };
@@ -611,6 +636,7 @@ export const sendCredentialExpiryWarning = async (
   await sendEmail({
     to: [{ email: to, name: expertName }],
     subject,
+    template: "CREDENTIAL_EXPIRY",
     htmlContent: html,
   });
 };
@@ -665,6 +691,7 @@ export const sendReviewNotificationEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.expertName }],
     subject,
+    template: "NEW_REVIEW",
     htmlContent: html,
     textContent:
       `${title}, ${details.expertName}!\n\n` +
@@ -722,6 +749,7 @@ export const sendNewMessageEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "NEW_MESSAGE",
     htmlContent: html,
     textContent:
       `${title}, ${details.recipientName}!\n\n` +
@@ -771,6 +799,7 @@ export const sendConversationStartedEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "CHAT_AVAILABLE",
     htmlContent: html,
     textContent:
       `${title}, ${details.recipientName}!\n\n` +
@@ -868,6 +897,7 @@ export const sendRescheduleAcceptedEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "RESCHEDULE_ACCEPTED",
     htmlContent: html,
   });
 };
@@ -905,6 +935,7 @@ export const sendRescheduleDeclinedEmail = async (
   await sendEmail({
     to: [{ email: to, name: details.recipientName }],
     subject,
+    template: "RESCHEDULE_DECLINED",
     htmlContent: html,
   });
 };
@@ -936,6 +967,7 @@ export const sendApprovalEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject,
+    template: "PROFILE_APPROVED",
     htmlContent: html,
   });
 };
@@ -972,6 +1004,7 @@ export const sendRejectionEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject,
+    template: "PROFILE_REJECTED",
     htmlContent: html,
   });
 };
@@ -1005,6 +1038,7 @@ export const sendVerificationReminderEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject,
+    template: "VERIFICATION_REMINDER",
     htmlContent: html,
   });
 };
@@ -1040,6 +1074,7 @@ export const sendCorrectionsEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject,
+    template: "CORRECTIONS_REQUIRED",
     htmlContent: html,
   });
 };
@@ -1068,6 +1103,7 @@ export const sendNewVerificationRequestEmail = async (
   await sendEmail({
     to: [{ email: to, name: adminName }],
     subject: getEmailSubject('NEW_VERIFICATION_REQUEST', language),
+    template: "NEW_VERIFICATION_REQUEST_ADMIN",
     htmlContent: html,
   });
 };
@@ -1118,6 +1154,7 @@ export const sendVerificationReminderDetailedEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject: getEmailSubject('VERIFICATION_REMINDER', language),
+    template: "VERIFICATION_REMINDER_DETAILED",
     htmlContent: html,
   });
 };
@@ -1151,6 +1188,7 @@ export const sendVerificationRejectionEmail = async (
   await sendEmail({
     to: [{ email: to, name }],
     subject: "Verification Documents Require Attention - MyJudicial",
+    template: "VERIFICATION_REJECTION",
     htmlContent: html,
   });
 };
@@ -1177,6 +1215,7 @@ export const sendBroadcastEmail = async (
   await sendEmail({
     to: [{ email: to, name: firstName }],
     subject: title,
+    template: "BROADCAST",
     htmlContent: html,
   });
 };

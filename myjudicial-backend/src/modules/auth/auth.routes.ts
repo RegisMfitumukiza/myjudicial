@@ -16,6 +16,7 @@ import {
   registerSchema,
   sendOtpSchema,
   verifyOtpSchema,
+  onboardingSchema,
   magicLinkSchema,
   refreshSchema,
   loginSchema,
@@ -52,6 +53,14 @@ router.post(
   otpVerifyLimiter,
   validate(verifyOtpSchema),
   asyncHandler(AuthController.verifyOtp)
+);
+
+// POST /auth/onboarding — save intake details after verification [protected]
+router.post(
+  "/onboarding",
+  authenticate,
+  validate(onboardingSchema),
+  asyncHandler(AuthController.saveOnboarding)
 );
 
 // POST /auth/magic-link

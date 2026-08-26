@@ -2264,7 +2264,12 @@
     "errors": {
       "general": "Hari ikintu gihindutse. Nyamuneka ongera ugerageze.",
       "emailExists": "Konti ifise iyi imeri isanzwe.",
-      "invalidOtp": "Kode yo kwemeza ntiroroshye. Nyamuneka ongera ugerageze."
+      "invalidOtp": "Kode yo kwemeza ntiroroshye. Nyamuneka ongera ugerageze.",
+      "firstNameMin": "Izina rigomba kuba rifite inyuguti nibura 2.",
+      "lastNameMin": "Izina rya nyuma rigomba kuba rifite inyuguti nibura 2.",
+      "emailInvalid": "Andika imeri nyayo.",
+      "phoneInvalid": "Andika nimero ya telephone y'impaka z'isi zose (urugero: +250788000000).",
+      "termsRequired": "Kwemeranya n'amategeko ni ngombwa kugira ngo ukoze konti."
     },
     "toast": {
       "accountCreated": "Konti yarakorwe! Raba imeri yawe kugira ngo ubone kode yo kwemeza.",
@@ -2275,7 +2280,8 @@
       "emailVerified": "Imeri yemejwe! Murakaza neza kuri MyJudicial.",
       "verificationFailed": "Kwemeza byanze.",
       "newCodeSent": "Kode nshya yo kwemeza yaroherejwe!",
-      "resendFailed": "Kohereza kode byanze."
+      "resendFailed": "Kohereza kode byanze.",
+      "sendFailedUseResend": "Ntibyakunze kohereza kode. Koresha 'Ongera wohereze' ako kanya."
     },
     "practiceArea": {
       "title": "Mu bwoko bwa kihe bufasha bw'amategeko ukeneye?",
@@ -2287,7 +2293,9 @@
       "role": "Choose Role",
       "intake": "Your Needs",
       "account": "Create Account",
-      "verify": "Verify Email"
+      "verify": "Verify Email",
+      "area": "Icyo ukeneye",
+      "needs": "Uko bimeze"
     },
     "otp": {
       "title": "Verify your email",
@@ -2302,7 +2310,8 @@
       "verifiedRedirect": "Welcome to MyJudicial. Redirecting you to your dashboard…",
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
-      "codeExpired": "Code expired. Please request a new one."
+      "codeExpired": "Code expired. Please request a new one.",
+      "validFor15m": "Kode yawe yemera igihe cy'amunota 15."
     }
   },
   "onboarding": {
@@ -3613,8 +3622,6 @@
     "notifsDesc": "Control which notifications you receive",
     "emailNotifs": "Email Notifications",
     "emailNotifsDesc": "Receive updates via email",
-    "whatsappNotifs": "WhatsApp Notifications",
-    "whatsappNotifsDesc": "Receive updates via WhatsApp (Meta Cloud API)",
     "pushNotifs": "Push Notifications",
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",

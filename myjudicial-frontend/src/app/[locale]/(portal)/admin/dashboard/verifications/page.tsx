@@ -4,21 +4,30 @@ import { useState } from "react";
 import {
   FileCheck,
   CheckCircle,
-  XCircle,
-  Clock,
-  Loader2,
   Eye,
   AlertTriangle,
-  ChevronRight,
-  ArrowLeft,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import {
+  PageHeader,
+  StatCard,
+  StatusBadge,
+  EmptyState,
+  LoadingSpinner,
+} from "@/shared/components/dashboard";
 import {
   useGetAdminVerificationQueue,
-  getGetAdminVerificationQueueQueryKey,
 } from "@/api/generated";
 
 interface VerificationRecord {
@@ -56,11 +65,11 @@ function missingRequiredDocs(record: VerificationRecord): string[] {
   return missing;
 }
 
-const STATUS_BADGE: Record<string, string> = {
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800",
-  APPROVED: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800",
-  REJECTED: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800",
-  EXPIRED: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700",
+const STATUS_TONE: Record<string, "pending" | "success" | "destructive" | "neutral"> = {
+  PENDING: "pending",
+  APPROVED: "success",
+  REJECTED: "destructive",
+  EXPIRED: "neutral",
 };
 
 export default function AdminVerificationsPage() {
@@ -90,79 +99,70 @@ export default function AdminVerificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <Loader2 size={32} className="animate-spin text-brand-dark dark:text-white" />
+      <div className="space-y-6 p-6 lg:p-8">
+        <LoadingSpinner label={t("pendingReview")} />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        backHref="/admin/dashboard/experts"
+        backLabel={t("backToExperts")}
+      />
 
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <Link href="/admin/dashboard/experts" className="inline-flex items-center gap-1 hover:text-brand-blue transition-colors">
-          <ArrowLeft size={14} />
-          {t("backToExperts")}
-        </Link>
-        <span>/</span>
-        <span className="text-gray-700 dark:text-gray-200 font-medium">{t("title")}</span>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          label={t("totalRequests")}
+          value={counts.total}
+        />
+        <StatCard
+          label={t("pendingReview")}
+          value={counts.PENDING}
+        />
+        <StatCard
+          label={t("approved")}
+          value={counts.APPROVED}
+        />
+        <StatCard
+          label={t("rejected")}
+          value={counts.REJECTED}
+        />
       </div>
 
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t("title")}</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {t("subtitle")}
-        </p>
+      <div className="w-fit">
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder={t("pendingReview")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PENDING">
+              {STATUS_LABEL["PENDING"]} {counts.PENDING > 0 && `(${counts.PENDING})`}
+            </SelectItem>
+            <SelectItem value="APPROVED">
+              {STATUS_LABEL["APPROVED"]} {counts.APPROVED > 0 && `(${counts.APPROVED})`}
+            </SelectItem>
+            <SelectItem value="REJECTED">
+              {STATUS_LABEL["REJECTED"]} {counts.REJECTED > 0 && `(${counts.REJECTED})`}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: t("totalRequests"), value: counts.total, color: "text-gray-500 dark:text-gray-400" },
-          { label: t("pendingReview"), value: counts.PENDING, color: "text-amber-600 dark:text-amber-400" },
-          { label: t("approved"), value: counts.APPROVED, color: "text-green-600 dark:text-green-400" },
-          { label: t("rejected"), value: counts.REJECTED, color: "text-red-600 dark:text-red-400" },
-        ].map((stat) => (
-          <Card key={stat.label} size="sm">
-            <CardContent>
-              <p className={`text-[11px] font-medium ${stat.color}`}>{stat.label}</p>
-              <p className="mt-1 text-lg font-bold text-brand-dark dark:text-white">{stat.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Filter tabs */}
-      <div className="flex gap-1 rounded-lg border border-brand-border/20 bg-white p-1 w-fit dark:bg-gray-900">
-        {(["PENDING", "APPROVED", "REJECTED"] as const).map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`rounded-md px-4 py-1.5 text-xs font-semibold transition-colors ${
-              statusFilter === s
-                ? "bg-brand-dark text-white dark:bg-white dark:text-black"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
-          >
-            {STATUS_LABEL[s]} {counts[s] > 0 && `(${counts[s]})`}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
       {records.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-          <FileCheck size={40} className="mb-3 opacity-30" />
-          <p className="text-sm">{t("noRequests", { status: STATUS_LABEL[statusFilter]?.toLowerCase() })}</p>
-        </div>
+        <EmptyState
+          icon={FileCheck}
+          title={t("noRequests", { status: STATUS_LABEL[statusFilter]?.toLowerCase() })}
+        />
       ) : (
         <Card>
           <CardContent className="p-0">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-brand-border/10 bg-brand-canvas text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-border bg-muted/50 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <th className="px-5 py-3">{t("expert")}</th>
                   <th className="px-5 py-3">{t("specialty")}</th>
                   <th className="px-5 py-3">{t("documents")}</th>
@@ -184,48 +184,44 @@ export default function AdminVerificationsPage() {
                   return (
                     <tr
                       key={record.id}
-                      className="border-b border-brand-border/10 text-[12px] text-slate-700 last:border-0 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      className="border-b border-border text-[12px] text-foreground last:border-0 transition-colors hover:bg-muted/50"
                     >
                       <td className="px-5 py-3.5">
-                        <p className="font-semibold text-brand-dark dark:text-white">
+                        <p className="font-semibold text-foreground">
                           {record.expert.displayName}
                         </p>
-                        <p className="text-[11px] text-slate-400">{record.expert.user.email}</p>
+                        <p className="text-[11px] text-muted-foreground">{record.expert.user.email}</p>
                       </td>
-                      <td className="px-5 py-3.5 text-slate-500">
+                      <td className="px-5 py-3.5 text-muted-foreground">
                         {record.expert.primarySpecialty.replace(/_/g, " ")}
                       </td>
                       <td className="px-5 py-3.5">
                         {allReady ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-600">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary">
                             <CheckCircle size={12} /> {submittedCount} {t("submitted").toLowerCase()}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-warning">
                             <AlertTriangle size={12} /> Missing: {missing.join(", ")}
                           </span>
                         )}
                       </td>
-                      <td className="px-5 py-3.5 text-slate-400">
+                      <td className="px-5 py-3.5 text-muted-foreground">
                         {new Date(record.createdAt).toLocaleDateString("en-GB", {
                           day: "numeric", month: "short", year: "numeric",
                         })}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${STATUS_BADGE[record.status] ?? "bg-slate-100 text-slate-600"}`}>
-                          {record.status === "PENDING" && <Clock size={10} />}
-                          {record.status === "APPROVED" && <CheckCircle size={10} />}
-                          {record.status === "REJECTED" && <XCircle size={10} />}
+                        <StatusBadge tone={STATUS_TONE[record.status] ?? "neutral"}>
                           {STATUS_LABEL[record.status] ?? record.status}
-                        </span>
+                        </StatusBadge>
                       </td>
                       <td className="px-5 py-3.5 text-right">
-                        <Link
-                          href={`/admin/dashboard/experts/${record.expert.id}`}
-                          className="inline-flex items-center gap-1 rounded-lg border border-brand-border px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                        >
-                          <Eye size={13} /> {t("review")} <ChevronRight size={13} />
-                        </Link>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/admin/dashboard/experts/${record.expert.id}`}>
+                            <Eye size={13} /> {t("review")}
+                          </Link>
+                        </Button>
                       </td>
                     </tr>
                   );

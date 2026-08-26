@@ -13,7 +13,6 @@ import "../../docs/booking.docs.js";
 import "../../docs/admin-booking.docs.js";
 import "../../docs/payments.docs.js";
 import "../../docs/review.docs.js";
-import "../../docs/whatsapp.docs.js";
 import "../../docs/analytics.docs.js";
 import "../../docs/chat.docs.js";
 import "../../docs/notifications.docs.js";

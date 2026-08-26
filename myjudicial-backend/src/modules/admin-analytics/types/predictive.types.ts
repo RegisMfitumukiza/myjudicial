@@ -125,9 +125,8 @@ export type MarketAnalysis = {
     }>;
   };
   competition: {
-    marketShare: number;
-    competitiveGaps: string[];
-    opportunities: string[];
+    // Verified experts available per 100 confirmed/completed bookings over the last 90 days
+    expertSupplyDemandRatio: number | null;
   };
 };
 

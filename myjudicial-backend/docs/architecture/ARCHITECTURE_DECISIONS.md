@@ -426,8 +426,7 @@ Accepted
 The client-facing in-app notification feed (`GET /notifications`, unread count, mark-as-read)
 is built on the existing `NotificationLog` table rather than a new `Notification` model.
 The table was extended with `isRead`/`readAt` columns (additive, non-breaking) via a manual
-SQL migration (`prisma/migrations/manual_add_notification_read_state.sql`), following the
-precedent already established by `manual_add_whatsapp_queue.sql`.
+SQL migration (`prisma/migrations/manual_add_notification_read_state.sql`).
 
 ## Rationale
 

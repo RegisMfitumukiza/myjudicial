@@ -32,7 +32,7 @@ Service-to-service calls run over an internal Docker network: `frontend -> backe
 
 - Docker + Docker Compose v2
 - PostgreSQL (via Supabase or self-hosted) with pgvector if the AI embedding features are used
-- API keys for the external providers you enable (Supabase, Redis, Brevo, Flutterwave/AzamPay, WhatsApp, LiveKit, Groq)
+- API keys for the external providers you enable (Supabase, Redis, Brevo, Flutterwave/AzamPay, LiveKit, Groq)
 
 ## Quick Start (local)
 

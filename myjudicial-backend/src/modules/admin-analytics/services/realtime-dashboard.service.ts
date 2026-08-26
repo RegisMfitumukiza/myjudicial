@@ -1,9 +1,10 @@
 /**
  * Real-time Operational Dashboard Service
- * 
+ *
  * Live monitoring and operational metrics
  */
 
+import os from "os";
 import { prisma } from "../../../infrastructure/database/prisma.js";
 import { redis } from "../../../infrastructure/redis/redis.client.js";
 import { logger } from "../../../shared/utils/logger.js";
@@ -17,9 +18,10 @@ import type {
   SystemHealth,
   ResourceUtilization,
   RealtimeStatistics,
-  PerformanceMetric,
   DashboardFilter,
 } from "../types/realtime.types.js";
+
+const REMINDER_WINDOW_HOURS = 2;
 
 export const RealtimeDashboardService = {
   /**
@@ -35,7 +37,6 @@ export const RealtimeDashboardService = {
       systemHealth,
       resources,
       statistics,
-      performance,
     ] = await Promise.all([
       this.getActiveAlerts(filter),
       this.getLiveMetrics(),
@@ -45,7 +46,6 @@ export const RealtimeDashboardService = {
       this.getSystemHealth(),
       this.getResourceUtilization(),
       this.getRealtimeStatistics(),
-      this.getPerformanceMetrics(),
     ]);
 
     return {
@@ -58,7 +58,6 @@ export const RealtimeDashboardService = {
       systemHealth,
       resources,
       statistics,
-      performance,
       refreshInterval: 30, // Refresh every 30 seconds
     };
   },
@@ -122,28 +121,6 @@ export const RealtimeDashboardService = {
       });
     }
 
-    // Check system errors
-    const recentErrors = await this.countRecentErrors();
-    if (recentErrors > 50) {
-      alerts.push({
-        id: `alert-errors-${Date.now()}`,
-        severity: recentErrors > 100 ? "critical" : "warning",
-        status: "active",
-        title: "High Error Rate",
-        description: `${recentErrors} errors in the last hour`,
-        metric: "error_rate",
-        currentValue: recentErrors,
-        threshold: 50,
-        timestamp: now.toISOString(),
-        actionRequired: true,
-        suggestedActions: [
-          "Check server logs",
-          "Review recent deployments",
-          "Monitor database performance",
-        ],
-      });
-    }
-
     // Check database connections
     const dbConnections = await this.getDatabaseConnections();
     if (dbConnections > 80) {
@@ -178,27 +155,52 @@ export const RealtimeDashboardService = {
    * Get live platform metrics
    */
   async getLiveMetrics(): Promise<LiveMetric[]> {
+    const nowMs = Date.now();
+    const windowMs = 30 * 60 * 1000;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    const yesterdayStart = new Date(nowMs - dayMs - windowMs);
+    const yesterdayEnd = new Date(nowMs - dayMs);
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const yesterdayDayStart = new Date(todayStart.getTime() - dayMs);
+
     const [
       activeUsers,
+      activeUsersYesterday,
       activeConsultations,
       todayRevenue,
-      responseTime,
+      yesterdayRevenue,
       cacheHitRate,
     ] = await Promise.all([
       this.getActiveUserCount(),
+      prisma.user.count({
+        where: { lastLoginAt: { gte: yesterdayStart, lt: yesterdayEnd } },
+      }),
       this.getActiveConsultationCount(),
       this.getTodayRevenue(),
-      this.getAverageResponseTime(),
+      prisma.booking.aggregate({
+        where: {
+          status: 'COMPLETED',
+          completedAt: { gte: yesterdayDayStart, lt: todayStart },
+        },
+        _sum: { platformFee: true },
+      }),
       this.getCacheHitRate(),
     ]);
+
+    const usersChange = percentChange(activeUsers, activeUsersYesterday);
+    const yesterdayRevenueSum = Number(yesterdayRevenue._sum?.platformFee || 0);
+    const revenueChange = percentChange(todayRevenue, yesterdayRevenueSum);
 
     return [
       {
         name: "Active Users",
         value: activeUsers,
         unit: "users",
-        trend: "stable",
-        percentChange: 0,
+        trend: trendFromChange(usersChange),
+        percentChange: usersChange,
         status: activeUsers > 100 ? "healthy" : "warning",
         lastUpdated: new Date().toISOString(),
       },
@@ -207,7 +209,7 @@ export const RealtimeDashboardService = {
         value: activeConsultations,
         unit: "sessions",
         trend: "stable",
-        percentChange: 0,
+        percentChange: null, // no reliable historical baseline for in-progress sessions
         status: "healthy",
         lastUpdated: new Date().toISOString(),
       },
@@ -215,27 +217,18 @@ export const RealtimeDashboardService = {
         name: "Today's Revenue",
         value: todayRevenue,
         unit: "RWF",
-        trend: "up",
-        percentChange: 15.3,
+        trend: trendFromChange(revenueChange),
+        percentChange: revenueChange,
         status: "healthy",
         lastUpdated: new Date().toISOString(),
       },
       {
-        name: "Avg Response Time",
-        value: responseTime,
-        unit: "ms",
-        trend: responseTime < 200 ? "down" : "up",
-        percentChange: -5.2,
-        status: responseTime < 500 ? "healthy" : responseTime < 1000 ? "warning" : "critical",
-        lastUpdated: new Date().toISOString(),
-      },
-      {
         name: "Cache Hit Rate",
-        value: cacheHitRate,
+        value: cacheHitRate ?? 0,
         unit: "%",
         trend: "stable",
-        percentChange: 2.1,
-        status: cacheHitRate > 80 ? "healthy" : "warning",
+        percentChange: null, // no historical baseline tracked
+        status: cacheHitRate !== null && cacheHitRate > 80 ? "healthy" : "warning",
         lastUpdated: new Date().toISOString(),
       },
     ];
@@ -273,7 +266,7 @@ export const RealtimeDashboardService = {
       activity: "browsing",
       startedAt: user.lastLoginAt?.toISOString() || new Date().toISOString(),
       lastActivity: new Date().toISOString(),
-      durationMinutes: user.lastLoginAt 
+      durationMinutes: user.lastLoginAt
         ? Math.floor((Date.now() - user.lastLoginAt.getTime()) / 60000)
         : 0,
     }));
@@ -321,8 +314,8 @@ export const RealtimeDashboardService = {
         (booking.scheduledEnd.getTime() - startedAt.getTime()) / 60000
       );
 
-      const serviceName = booking.legalService && 'name' in booking.legalService 
-        ? (booking.legalService as any).name 
+      const serviceName = booking.legalService && 'name' in booking.legalService
+        ? (booking.legalService as any).name
         : "General";
 
       return {
@@ -337,51 +330,83 @@ export const RealtimeDashboardService = {
         scheduledDuration,
         actualDuration,
         status: actualDuration < 5 ? "starting" : actualDuration > scheduledDuration - 5 ? "ending" : "active",
-        participants: 2,
-        quality: "good",
+        participants: 2, // Consultations are always 1-on-1 (citizen + expert)
       } as OngoingConsultation;
     });
   },
 
   /**
-   * Get queue metrics
+   * Get queue metrics from real email logs and booking reminder state
    */
   async getQueueMetrics(): Promise<QueueMetrics[]> {
-    // Mock queue metrics - in production, these would come from BullMQ or similar
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(startOfToday.getTime() + 24 * 60 * 60 * 1000);
+
+    const [emailsSent, emailsFailed, remindersSentToday, remindersPending] = await Promise.all([
+      prisma.emailLog.count({
+        where: { status: "SENT", sentAt: { gte: startOfToday } },
+      }),
+      prisma.emailLog.count({
+        where: { status: "FAILED", sentAt: { gte: startOfToday } },
+      }),
+      prisma.booking.count({
+        where: {
+          reminderSent: true,
+          scheduledStart: { gte: startOfToday, lt: endOfToday },
+        },
+      }),
+      this.getPendingReminderCount(),
+    ]);
+
     return [
       {
         queueName: "email-notifications",
-        totalJobs: 1250,
-        activeJobs: 15,
-        waitingJobs: 8,
-        completedJobs: 1220,
-        failedJobs: 7,
-        avgProcessingTime: 1.2,
-        oldestWaitingJob: {
-          id: "job-12345",
-          age: 45,
-          priority: 5,
-        },
-      },
-      {
-        queueName: "whatsapp-messages",
-        totalJobs: 850,
-        activeJobs: 3,
-        waitingJobs: 12,
-        completedJobs: 830,
-        failedJobs: 5,
-        avgProcessingTime: 0.8,
+        sentToday: emailsSent,
+        failedToday: emailsFailed,
+        pending: 0, // Emails are sent synchronously — nothing waits in a queue
       },
       {
         queueName: "booking-reminders",
-        totalJobs: 320,
-        activeJobs: 2,
-        waitingJobs: 5,
-        completedJobs: 310,
-        failedJobs: 3,
-        avgProcessingTime: 0.5,
+        sentToday: remindersSentToday,
+        failedToday: 0, // Reminder failures are not tracked
+        pending: remindersPending,
       },
     ];
+  },
+
+  /**
+   * Probe an external HTTP endpoint with a 2s timeout.
+   * Only called when the service's URL is actually configured.
+   */
+  async probeExternalService(component: string, url: string): Promise<SystemHealth> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const start = Date.now();
+
+    try {
+      const response = await fetch(url, { method: "GET", signal: controller.signal });
+      const latency = Date.now() - start;
+      return {
+        component,
+        status:
+          response.status >= 500
+            ? "down"
+            : latency > 1500
+              ? "degraded"
+              : "operational",
+        latency,
+        lastCheck: new Date().toISOString(),
+      };
+    } catch {
+      return {
+        component,
+        status: "down",
+        lastCheck: new Date().toISOString(),
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
   },
 
   /**
@@ -400,7 +425,6 @@ export const RealtimeDashboardService = {
         component: "PostgreSQL Database",
         status: latency < 100 ? "operational" : latency < 500 ? "degraded" : "down",
         latency,
-        uptime: 99.99,
         lastCheck: new Date().toISOString(),
         errorRate: 0,
       });
@@ -423,7 +447,6 @@ export const RealtimeDashboardService = {
         component: "Redis Cache",
         status: latency < 50 ? "operational" : latency < 200 ? "degraded" : "down",
         latency,
-        uptime: 99.95,
         lastCheck: new Date().toISOString(),
       });
     } catch (error) {
@@ -434,28 +457,28 @@ export const RealtimeDashboardService = {
       });
     }
 
-    // Check other services
-    health.push(
-      {
-        component: "LiveKit Video Service",
-        status: "operational",
-        latency: 85,
-        uptime: 99.9,
-        lastCheck: new Date().toISOString(),
-      },
-      {
-        component: "Azam Pay Payment Gateway",
-        status: "operational",
-        uptime: 99.8,
-        lastCheck: new Date().toISOString(),
-      },
-      {
-        component: "OCI Object Storage",
-        status: "operational",
-        uptime: 99.95,
-        lastCheck: new Date().toISOString(),
-      }
-    );
+    // External services are only reported when their endpoint is configured
+    const externalChecks: Array<Promise<SystemHealth>> = [];
+
+    if (process.env.LIVEKIT_HOST) {
+      const host = process.env.LIVEKIT_HOST;
+      const url = host.startsWith("http") ? host : `https://${host}`;
+      externalChecks.push(this.probeExternalService("LiveKit Video Service", url));
+    }
+
+    const azamPayUrl = process.env.AZAMPAY_AUTH_URL || process.env.AZAMPAY_CHECKOUT_URL;
+    if (azamPayUrl) {
+      externalChecks.push(this.probeExternalService("Azam Pay Payment Gateway", azamPayUrl));
+    }
+
+    if (process.env.OCI_ENDPOINT) {
+      const endpoint = process.env.OCI_ENDPOINT;
+      const url = endpoint.startsWith("http") ? endpoint : `https://${endpoint}`;
+      externalChecks.push(this.probeExternalService("OCI Object Storage", url));
+    }
+
+    const externalResults = await Promise.all(externalChecks);
+    health.push(...externalResults);
 
     return health;
   },
@@ -464,30 +487,33 @@ export const RealtimeDashboardService = {
    * Get resource utilization
    */
   async getResourceUtilization(): Promise<ResourceUtilization> {
-    const dbConnections = await this.getDatabaseConnections();
-    const cacheHitRate = await this.getCacheHitRate();
+    const [dbConnections, cacheHitRate] = await Promise.all([
+      this.getDatabaseConnections(),
+      this.getCacheHitRate(),
+    ]);
+
+    const cpus = os.cpus().length || 1;
+    const cpuUsage = Math.min(100, Math.max(0, (os.loadavg()[0] / cpus) * 100));
+
+    const totalMemGb = os.totalmem() / (1024 * 1024 * 1024);
+    const usedMemGb = (os.totalmem() - os.freemem()) / (1024 * 1024 * 1024);
 
     return {
       cpu: {
-        usage: 45.3,
-        trend: "stable",
+        usage: Number(cpuUsage.toFixed(1)),
       },
       memory: {
-        used: 6.2,
-        total: 16,
-        percentage: 38.75,
+        used: Number(usedMemGb.toFixed(2)),
+        total: Number(totalMemGb.toFixed(2)),
+        percentage: Number(((usedMemGb / totalMemGb) * 100).toFixed(1)),
       },
       database: {
         connections: dbConnections,
         maxConnections: 100,
-        activeQueries: 12,
-        slowQueries: 2,
       },
       cache: {
         hitRate: cacheHitRate,
-        missRate: 100 - cacheHitRate,
-        evictions: 145,
-        size: 512, // MB
+        missRate: cacheHitRate === null ? null : Number((100 - cacheHitRate).toFixed(1)),
       },
     };
   },
@@ -505,6 +531,7 @@ export const RealtimeDashboardService = {
       onlineExperts,
       activeConsultations,
       pendingBookings,
+      pendingReminders,
       todayStats,
       lastHourStats,
     ] = await Promise.all([
@@ -512,6 +539,7 @@ export const RealtimeDashboardService = {
       this.getOnlineExpertCount(),
       this.getActiveConsultationCount(),
       prisma.booking.count({ where: { status: "PENDING" } }),
+      this.getPendingReminderCount(),
       this.getTodayStatistics(todayStart),
       this.getLastHourStatistics(lastHourStart),
     ]);
@@ -522,50 +550,11 @@ export const RealtimeDashboardService = {
         onlineExperts,
         activeConsultations,
         pendingBookings,
-        queuedMessages: 25,
+        pendingReminders,
       },
       today: todayStats,
       lastHour: lastHourStats,
     };
-  },
-
-  /**
-   * Get performance metrics
-   */
-  async getPerformanceMetrics(): Promise<PerformanceMetric[]> {
-    // Mock performance data - in production, this would come from APM tools
-    return [
-      {
-        endpoint: "/api/v1/bookings",
-        method: "GET",
-        avgResponseTime: 145,
-        requestCount: 2340,
-        errorRate: 0.5,
-        p50: 120,
-        p95: 280,
-        p99: 450,
-      },
-      {
-        endpoint: "/api/v1/experts/search",
-        method: "POST",
-        avgResponseTime: 220,
-        requestCount: 1850,
-        errorRate: 1.2,
-        p50: 180,
-        p95: 420,
-        p99: 680,
-      },
-      {
-        endpoint: "/api/v1/auth/login",
-        method: "POST",
-        avgResponseTime: 180,
-        requestCount: 890,
-        errorRate: 2.1,
-        p50: 150,
-        p95: 350,
-        p99: 520,
-      },
-    ];
   },
 
   // Helper methods
@@ -586,11 +575,6 @@ export const RealtimeDashboardService = {
 
     const maxCapacity = totalExperts * 10; // 10 bookings per expert per week
     return maxCapacity === 0 ? 0 : (activeBookings / maxCapacity) * 100;
-  },
-
-  async countRecentErrors(): Promise<number> {
-    // This would query error logs from logging service
-    return Math.floor(Math.random() * 30); // Mock value
   },
 
   async getDatabaseConnections(): Promise<number> {
@@ -652,19 +636,31 @@ export const RealtimeDashboardService = {
     return Number(result._sum?.platformFee || 0);
   },
 
-  async getAverageResponseTime(): Promise<number> {
-    // Mock value - would come from APM in production
-    return 245;
+  /**
+   * CONFIRMED bookings starting within the next 2 hours that have not been reminded yet
+   */
+  async getPendingReminderCount(): Promise<number> {
+    const now = new Date();
+    return prisma.booking.count({
+      where: {
+        status: "CONFIRMED",
+        reminderSent: false,
+        scheduledStart: {
+          gte: now,
+          lte: new Date(now.getTime() + REMINDER_WINDOW_HOURS * 60 * 60 * 1000),
+        },
+      },
+    });
   },
 
-  async getCacheHitRate(): Promise<number> {
+  async getCacheHitRate(): Promise<number | null> {
     try {
       const info = await redis.info('stats');
       const lines = info.split('\r\n');
-      
+
       let hits = 0;
       let misses = 0;
-      
+
       for (const line of lines) {
         if (line.startsWith('keyspace_hits:')) {
           hits = parseInt(line.split(':')[1]);
@@ -673,11 +669,11 @@ export const RealtimeDashboardService = {
           misses = parseInt(line.split(':')[1]);
         }
       }
-      
+
       const total = hits + misses;
-      return total === 0 ? 0 : (hits / total) * 100;
+      return total === 0 ? null : Number(((hits / total) * 100).toFixed(1));
     } catch {
-      return 85; // Mock fallback
+      return null; // Redis stats unavailable — report honestly instead of guessing
     }
   },
 
@@ -703,27 +699,34 @@ export const RealtimeDashboardService = {
       newBookings,
       completedConsultations,
       revenue,
-      averageResponseTime: 245,
     };
   },
 
   async getLastHourStatistics(lastHourStart: Date) {
-    const [signups, bookings, errors] = await Promise.all([
+    const [signups, bookings] = await Promise.all([
       prisma.user.count({
         where: { createdAt: { gte: lastHourStart } },
       }),
       prisma.booking.count({
         where: { createdAt: { gte: lastHourStart } },
       }),
-      this.countRecentErrors(),
     ]);
 
     return {
-      pageViews: 4580,
-      apiRequests: 12340,
-      errors,
       signups,
       bookings,
     };
   },
 };
+
+function percentChange(current: number, previous: number): number | null {
+  if (previous === 0) return null;
+  return Number((((current - previous) / previous) * 100).toFixed(1));
+}
+
+function trendFromChange(change: number | null): "up" | "down" | "stable" {
+  if (change === null) return "stable";
+  if (change > 1) return "up";
+  if (change < -1) return "down";
+  return "stable";
+}

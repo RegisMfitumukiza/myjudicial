@@ -61,7 +61,7 @@ export default function JoinPage() {
     }
   };
 
-  const handleShare = (method: "email" | "whatsapp") => {
+  const handleShare = (method: "email") => {
     if (!referral?.link) return;
     const subject = encodeURIComponent("Join me on MyJudicial");
     const body = encodeURIComponent(
@@ -70,11 +70,6 @@ export default function JoinPage() {
 
     if (method === "email") {
       window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
-    } else if (method === "whatsapp") {
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(`${body}\n\n${referral.link}`)}`,
-        "_blank"
-      );
     }
   };
 
@@ -143,10 +138,6 @@ export default function JoinPage() {
                 <Button variant="outline" size="sm" onClick={() => handleShare("email")}>
                   <Mail size={16} className="text-muted-foreground" aria-hidden="true" />
                   Email
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleShare("whatsapp")}>
-                  <MessageCircle size={16} className="text-muted-foreground" aria-hidden="true" />
-                  WhatsApp
                 </Button>
                 <Button variant="outline" size="sm" asChild>
                   <a href={referral.link} target="_blank" rel="noopener noreferrer">

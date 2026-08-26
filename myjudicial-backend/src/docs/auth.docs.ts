@@ -314,7 +314,6 @@ const SessionInfoSchema = z
 const NotificationPreferencesSchema = z
   .object({
     email: z.boolean().describe("Email notifications enabled (Brevo)").default(true),
-    whatsapp: z.boolean().describe("WhatsApp notifications enabled (Meta Cloud API)").default(true),
     push: z.boolean().describe("Push notifications enabled").default(true),
     inApp: z.boolean().describe("In-app notifications enabled").default(true),
   })

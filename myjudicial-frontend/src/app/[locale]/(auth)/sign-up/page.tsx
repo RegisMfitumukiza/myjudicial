@@ -8,8 +8,7 @@ import {
   ArrowRight, ArrowLeft, Check, CheckCircle2,
   Users, Briefcase, Home, Building2, ShieldCheck, Globe,
   Banknote, FileText, MapPin, Video, Phone, Mail, Shield,
-  Star, Clock, Smartphone, UploadCloud, X, Camera, FileCheck2,
-  Loader2,
+  Smartphone, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -20,6 +19,7 @@ import { OtpInput } from "@/components/otp-input";
 import { useCountdown } from "@/hooks/use-countdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
+import { apiFetch } from "@/lib/api/client";
 
 /* ══════════════════════════ DATA ══════════════════════════ */
 
@@ -33,15 +33,6 @@ const PRACTICE_AREAS = [
   { id: "debt", label: "Debt & Finance", icon: Banknote, desc: "Loans, bankruptcy, recovery" },
   { id: "other", label: "Other / Unsure", icon: FileText, desc: "Help me find the right area" },
 ] as const;
-
-const EXPERT_TITLES = ["Advocate", "Notary Public", "Legal Consultant", "State Attorney", "In-House Counsel", "Other"];
-
-const EXPERIENCE_OPTIONS = [
-  { value: "0-2", label: "0 – 2 yrs" },
-  { value: "3-5", label: "3 – 5 yrs" },
-  { value: "6-10", label: "6 – 10 yrs" },
-  { value: "10+", label: "10+ yrs" },
-];
 
 const KIGALI_DISTRICTS = ["Gasabo", "Kicukiro", "Nyarugenge"];
 const OTHER_DISTRICTS = [
@@ -139,7 +130,6 @@ export default function SignUpPage() {
   const [role, setRole] = useState<Role | "">("");
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  /* (removed Apple sign-up) */
 
   /* ─── citizen intake ─── */
   const [cArea, setCArea] = useState("");
@@ -149,28 +139,15 @@ export default function SignUpPage() {
   const [cLanguage, setCLanguage] = useState("english");
   const [cConsult, setCConsult] = useState("video");
 
-  /* ─── expert intake ─── */
-  const [eAreas, setEAreas] = useState<string[]>([]);
-  const [ePrimary, setEPrimary] = useState("");
-  const [eBar, setEBar] = useState("");
-  const [eExp, setEExp] = useState("");
-  const [eTitle, setETitle] = useState("");
-  const [eFirm, setEFirm] = useState("");
-  const [eRate, setERate] = useState("");
-
-  /* ─── expert documents ─── */
-  const [ePhoto, setEPhoto] = useState<File | null>(null);
-  const [ePhotoPreview, setEPhotoPreview] = useState<string | null>(null);
-  const [ePhotoDrag, setEPhotoDrag] = useState(false);
-  const [eCV, setECV] = useState<File | null>(null);
-  const [eCVDrag, setECVDrag] = useState(false);
-
   /* ─── account creation ─── */
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [terms, setTerms] = useState(false);
+  const [triedAccountSubmit, setTriedAccountSubmit] = useState(false);
+  // Honeypot — real users never see or fill this; bots do.
+  const [companyWebsite, setCompanyWebsite] = useState("");
 
   /* ─── OTP ─── */
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -180,6 +157,7 @@ export default function SignUpPage() {
   const [otpExpiresAt, setOtpExpiresAt] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
+  const cardRef = useRef<HTMLDivElement>(null);
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
 
@@ -214,28 +192,72 @@ export default function SignUpPage() {
 
   const otpExpired = otpRemaining !== null && otpRemaining <= 0;
 
-  /* ────────── step labels ────────── */
-  const labels = [t("progress.role"), t("progress.account"), t("progress.verify")];
-  const TOTAL = 3;
-  const ACCOUNT_STEP = 2;
-  const OTP_STEP = 3;
+  /* ────────── step layout (differs by role) ────────── */
+  const isCitizenFlow = role === "CITIZEN";
+  const AREA_STEP = 2;      // citizen only
+  const NEEDS_STEP = 3;     // citizen only
+  const ACCOUNT_STEP = isCitizenFlow ? 4 : 2;
+  const OTP_STEP = ACCOUNT_STEP + 1;
+  const TOTAL = OTP_STEP;
+
+  const labels = useMemo(() => {
+    const base = [t("progress.role")];
+    if (isCitizenFlow) base.push(t("progress.area"), t("progress.needs"));
+    base.push(t("progress.account"), t("progress.verify"));
+    return base;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCitizenFlow]);
+
+  // Move focus to the card on every step change so keyboard and screen-reader
+  // users are announced into the new step.
+  useEffect(() => {
+    cardRef.current?.focus();
+  }, [step]);
+
+  /* ────────── account field validation ────────── */
+  const normalizePhoneInput = (v: string): string => {
+    let s = v.replace(/[\s().\-–—]/g, "");
+    if (s && !s.startsWith("+")) s = `+${s.replace(/^\++/, "")}`;
+    return s.slice(0, 16);
+  };
+
+  const accountErrors = {
+    firstName: firstName.trim() === "" ? "" : firstName.trim().length < 2 ? t("errors.firstNameMin") : "",
+    lastName: lastName.trim() === "" ? "" : lastName.trim().length < 2 ? t("errors.lastNameMin") : "",
+    email: email.trim() === "" ? "" : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? "" : t("errors.emailInvalid"),
+    phone: phone.trim() === "" ? "" : /^\+\d{8,15}$/.test(phone.trim()) ? "" : t("errors.phoneInvalid"),
+  };
+  const hasAccountErrors = Object.values(accountErrors).some(Boolean);
+  const showFieldErrors = triedAccountSubmit && hasAccountErrors;
+  const showTermsError = triedAccountSubmit && !terms;
 
   /* ────────── validation ────────── */
   const canNext = (): boolean => {
-    switch (step) {
-      case 1: return role !== "";
-      case 2:
-        if (!firstName.trim() || !lastName.trim()) return false;
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
-        if (!/^\+\d{8,15}$/.test(phone.trim())) return false;
-        return terms;
-      case 3: return otpCode.length === 6;
-      default: return true;
+    if (step === 1) return role !== "";
+    if (isCitizenFlow && step === AREA_STEP) return cArea !== "";
+    if (isCitizenFlow && step === NEEDS_STEP) return true; // all optional
+    if (step === ACCOUNT_STEP) {
+      return (
+        firstName.trim().length >= 2 &&
+        lastName.trim().length >= 2 &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) &&
+        /^\+\d{8,15}$/.test(phone.trim()) &&
+        terms
+      );
     }
+    if (step === OTP_STEP) return otpCode.length === 6;
+    return true;
   };
 
   /* ────────── account creation API ────────── */
   async function createAccount() {
+    // Honeypot filled → almost certainly a bot. Pretend success, do nothing.
+    if (companyWebsite.trim()) {
+      setPendingEmail(email.trim().toLowerCase());
+      setStep(OTP_STEP);
+      return;
+    }
+    setTriedAccountSubmit(true);
     setIsLoading(true);
     setApiError(null);
     const normalEmail = email.trim().toLowerCase();
@@ -247,11 +269,23 @@ export default function SignUpPage() {
         role: role as "CITIZEN" | "EXPERT",
       });
 
-      // After registration, send OTP to the email
-      const otpRes = await postAuthOtpSend({ email: normalEmail });
+      // The backend is idempotent: this succeeds whether or not the account
+      // pre-existed (existing accounts simply receive a login code), so we
+      // can always continue to verification without leaking enumeration.
+      let expiresAt: string | null = null;
+      try {
+        const otpRes = await postAuthOtpSend({ email: normalEmail });
+        expiresAt =
+          (otpRes as { data?: { expiresAt?: string } })?.data?.expiresAt ?? null;
+      } catch {
+        // Never strand the user here: they can still hit "Resend" on the
+        // next step once any rate limit or transient error clears.
+        toast.warning(t("toast.sendFailedUseResend"));
+      }
 
       setPendingEmail(normalEmail);
-      setOtpExpiresAt((otpRes as any).data?.expiresAt ?? null);
+      setOtpCode("");
+      setOtpExpiresAt(expiresAt);
       setStep(OTP_STEP);
       toast.success(t("toast.accountCreated"));
       countdown.start();
@@ -261,6 +295,30 @@ export default function SignUpPage() {
       toast.error(msg);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  /* ────────── persist citizen intake (best-effort, never blocks login) ────────── */
+  async function submitOnboarding() {
+    if (!isCitizenFlow || !cArea) return;
+    try {
+      await apiFetch("/auth/onboarding", {
+        method: "POST",
+        body: {
+          role: "CITIZEN",
+          citizen: {
+            practiceArea: cArea,
+            situation: cSituation.trim() || undefined,
+            urgency: cUrgency,
+            district: cDistrict || undefined,
+            language: cLanguage,
+            consultation: cConsult,
+          },
+        },
+      });
+    } catch (err) {
+      // Non-blocking: the account is verified; intake can be re-collected later.
+      console.warn("[signup] onboarding save failed", err);
     }
   }
 
@@ -281,6 +339,7 @@ export default function SignUpPage() {
       }
       setIsVerified(true);
       toast.success(t("toast.emailVerified"));
+      await submitOnboarding();
       setTimeout(() => router.push("/post-auth"), 1500);
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("toast.verificationFailed");
@@ -300,7 +359,7 @@ export default function SignUpPage() {
       const res = await postAuthOtpSend({ email: pendingEmail });
       setOtpCode("");
       setApiError(null);
-      setOtpExpiresAt((res as any).data?.expiresAt ?? null);
+      setOtpExpiresAt((res as { data?: { expiresAt?: string } })?.data?.expiresAt ?? null);
       toast.success(t("toast.codeResent"));
       countdown.start();
     } catch (err) {
@@ -313,12 +372,25 @@ export default function SignUpPage() {
 
   /* ────────── navigation ────────── */
   async function handleNext() {
-    if (step === ACCOUNT_STEP) { await createAccount(); return; }
+    if (step === ACCOUNT_STEP) {
+      setTriedAccountSubmit(true);
+      if (!canNext()) return;
+      await createAccount();
+      return;
+    }
     if (step === OTP_STEP) { await verifyOtp(); return; }
     setStep((s) => s + 1);
   }
 
   function handleBack() {
+    if (step === ACCOUNT_STEP && !isCitizenFlow) {
+      setRole(""); setStep(1); setApiError(null);
+      return;
+    }
+    if (step === ACCOUNT_STEP) {
+      setStep(NEEDS_STEP); setApiError(null);
+      return;
+    }
     if (step === OTP_STEP) {
       setPendingEmail(null); setOtpCode(""); setApiError(null);
       countdown.reset();
@@ -326,22 +398,6 @@ export default function SignUpPage() {
       return;
     }
     setStep((s) => Math.max(1, s - 1));
-  }
-
-  /* ────────── doc upload helpers ────────── */
-  function handlePhotoFile(file: File) {
-    if (!file.type.startsWith("image/")) return;
-    setEPhoto(file);
-    setEPhotoPreview(URL.createObjectURL(file));
-  }
-  function handleCVFile(file: File) {
-    const ok = ["application/pdf", "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.type);
-    if (!ok) return;
-    setECV(file);
-  }
-  function fmtBytes(b: number) {
-    return b > 1024 * 1024 ? `${(b / (1024 * 1024)).toFixed(1)} MB` : `${(b / 1024).toFixed(0)} KB`;
   }
 
   /* ══════════════════════════ STEP CONTENT ══════════════════════════ */
@@ -424,12 +480,11 @@ export default function SignUpPage() {
   );
 
   /* ── STEP 2 (CITIZEN) ── Practice area ── */
-  const renderCitizenStep2 = () => (
+  const renderAreaStep = () => (
     <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">Step 2 of {TOTAL}</p>
+      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: AREA_STEP, total: TOTAL })}</p>
       <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("practiceArea.title")}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{t("practiceArea.subtitle")}</p>
-      <p className="mt-6 text-sm text-muted-foreground italic">{t("practiceArea.skip")}</p>
       <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {PRACTICE_AREAS.map(({ id, label, icon, desc }) => (
           <SelectCard
@@ -445,62 +500,10 @@ export default function SignUpPage() {
     </div>
   );
 
-  /* ── STEP 2 (EXPERT) ── Specialisations ── */
-  const renderExpertStep2 = () => {
-    const toggle = (id: string) => {
-      const next = eAreas.includes(id) ? eAreas.filter((a) => a !== id) : [...eAreas, id];
-      setEAreas(next);
-      if (next.length === 1) setEPrimary(next[0]);
-      else if (!next.includes(ePrimary)) setEPrimary("");
-    };
-    return (
-      <div>
-        <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: 2, total: TOTAL })}</p>
-        <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("expert.title")}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{t("expert.subtitle")}</p>
-        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {PRACTICE_AREAS.map(({ id, label, icon, desc }) => (
-            <SelectCard
-              key={id}
-              selected={eAreas.includes(id)}
-              onClick={() => toggle(id)}
-              icon={icon}
-              label={label}
-              desc={desc}
-            />
-          ))}
-        </div>
-        {eAreas.length > 1 && (
-          <div className="mt-6">
-            <p className="mb-2.5 text-sm font-bold text-brand-dark">{t("expert.expertSpecializations")}</p>
-            <div className="flex flex-wrap gap-2">
-              {eAreas.map((id) => {
-                const area = PRACTICE_AREAS.find((a) => a.id === id);
-                if (!area) return null;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setEPrimary(id)}
-                    className={`flex items-center gap-1.5 rounded-full border-2 px-4 py-1.5 text-xs font-bold transition-all ${ePrimary === id ? "border-brand-blue bg-brand-blue text-on-brand" : "border-border bg-card text-muted-foreground hover:border-border"
-                      }`}
-                  >
-                    {ePrimary === id && <Star size={10} />} {area.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-1.5 text-[11px] text-muted-foreground">{t("expert.primarySpecializationDesc")}</p>
-          </div>
-        )}
-      </div>
-    );
-  };
-
   /* ── STEP 3 (CITIZEN) ── Situation ── */
-  const renderCitizenStep3 = () => (
+  const renderNeedsStep = () => (
     <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: 3, total: TOTAL })}</p>
+      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: NEEDS_STEP, total: TOTAL })}</p>
       <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("citizen.situation.title")}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{t("citizen.situation.subtitle")}</p>
 
@@ -599,257 +602,7 @@ export default function SignUpPage() {
     </div>
   );
 
-  /* ── STEP 3 (EXPERT) ── Background ── */
-  const renderExpertStep3 = () => (
-    <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: 3, total: TOTAL })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("expert.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("expert.subtitle")}</p>
-
-      <div className="mt-7 space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("expert.barNumber")}</label>
-            <input
-              type="text"
-              value={eBar}
-              onChange={(e) => setEBar(e.target.value)}
-              placeholder={t("expert.barPlaceholder")}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("expert.professionalTitle")}</label>
-            <select
-              value={eTitle}
-              onChange={(e) => setETitle(e.target.value)}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
-            >
-              <option value="">{t("expert.selectTitle")}</option>
-              {EXPERT_TITLES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("expert.yearsExperience")}</label>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-            {EXPERIENCE_OPTIONS.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => setEExp(o.value)}
-                className={`rounded-xl border-2 py-2.5 text-sm font-semibold transition-all ${eExp === o.value ? "border-brand-blue bg-muted text-brand-blue" : "border-border bg-background text-muted-foreground hover:border-border"
-                  }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-semibold text-brand-dark">
-            {t("expert.firm")} <span className="font-normal text-muted-foreground">({t("expert.firmOptional")})</span>
-          </label>
-          <input
-            type="text"
-            value={eFirm}
-            onChange={(e) => setEFirm(e.target.value)}
-            placeholder={t("expert.firmPlaceholder")}
-            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("expert.hourlyRate")}</label>
-          <div className="relative">
-            <span className="absolute left-4 top-3.5 text-sm font-bold text-muted-foreground">RWF</span>
-            <input
-              type="number"
-              value={eRate}
-              onChange={(e) => setERate(e.target.value)}
-              placeholder="e.g. 45000"
-              min={5000}
-              step={1000}
-              className="w-full rounded-xl border border-border bg-background py-3 pl-14 pr-4 text-sm text-brand-dark shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
-            />
-          </div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">{t("expert.platformAverage")}</p>
-        </div>
-
-        <div className="flex items-start gap-2.5 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
-          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-amber-600" />
-          <p className="text-xs leading-5 text-muted-foreground">
-            {t("expert.verificationNote")}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ── STEP 4 (EXPERT ONLY) ── Documents: photo + CV ── */
-  const renderExpertStep4Docs = () => (
-    <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: 4, total: 6 })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("documents.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {t("documents.subtitle")}
-      </p>
-
-      <div className="mt-8 space-y-8">
-
-        {/* ── Profile Photo ── */}
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-bold text-brand-dark">
-              {t("documents.profilePhoto")} <span className="text-red-500">*</span>
-            </label>
-            {ePhoto && (
-              <button
-                type="button"
-                onClick={() => { setEPhoto(null); setEPhotoPreview(null); }}
-                className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-700"
-              >
-                <X size={12} /> {t("documents.remove")}
-              </button>
-            )}
-          </div>
-
-          {ePhotoPreview ? (
-            <div className="flex items-center gap-5 rounded-2xl border-2 border-brand-blue bg-muted p-5">
-              <img
-                src={ePhotoPreview}
-                alt={t("documents.profilePreview")}
-                className="h-24 w-24 rounded-2xl object-cover ring-4 ring-brand-blue/20 shadow-md"
-              />
-              <div>
-                <div className="flex items-center gap-2">
-                  <FileCheck2 size={16} className="text-green-600" />
-                  <p className="text-sm font-bold text-brand-dark">{ePhoto!.name}</p>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{fmtBytes(ePhoto!.size)}</p>
-                <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:bg-muted">
-                  <Camera size={12} /> {t("documents.changePhoto")}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoFile(f); }}
-                  />
-                </label>
-              </div>
-            </div>
-          ) : (
-            <label
-              onDragOver={(e) => { e.preventDefault(); setEPhotoDrag(true); }}
-              onDragLeave={() => setEPhotoDrag(false)}
-              onDrop={(e) => {
-                e.preventDefault(); setEPhotoDrag(false);
-                const f = e.dataTransfer.files[0];
-                if (f) handlePhotoFile(f);
-              }}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-10 transition-colors ${ePhotoDrag ? "border-brand-blue bg-muted" : "border-border bg-muted hover:border-brand-blue hover:bg-muted/40"
-                }`}
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm">
-                <Camera size={26} className="text-brand-blue" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-brand-dark">
-                  {t("documents.photoDrag")} <span className="text-brand-blue underline">{t("documents.browse")}</span>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("documents.photoFormats")}</p>
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhotoFile(f); }}
-              />
-            </label>
-          )}
-        </div>
-
-        {/* ── CV / Résumé ── */}
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-bold text-brand-dark">
-              {t("documents.cv")} <span className="text-red-500">*</span>
-            </label>
-            {eCV && (
-              <button
-                type="button"
-                onClick={() => setECV(null)}
-                className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-700"
-              >
-                <X size={12} /> {t("documents.remove")}
-              </button>
-            )}
-          </div>
-
-          {eCV ? (
-            <div className="flex items-center gap-4 rounded-2xl border-2 border-brand-blue bg-muted px-5 py-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-blue text-on-brand shadow-md">
-                <FileCheck2 size={22} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-brand-dark">{eCV.name}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{fmtBytes(eCV.size)} · {t("documents.uploadedSuccessfully")}</p>
-              </div>
-              <label className="cursor-pointer rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-muted hover:bg-muted">
-                {t("documents.replace")}
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  className="sr-only"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCVFile(f); }}
-                />
-              </label>
-            </div>
-          ) : (
-            <label
-              onDragOver={(e) => { e.preventDefault(); setECVDrag(true); }}
-              onDragLeave={() => setECVDrag(false)}
-              onDrop={(e) => {
-                e.preventDefault(); setECVDrag(false);
-                const f = e.dataTransfer.files[0];
-                if (f) handleCVFile(f);
-              }}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-10 transition-colors ${eCVDrag ? "border-brand-blue bg-muted" : "border-border bg-muted hover:border-brand-blue hover:bg-muted/40"
-                }`}
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-background shadow-sm">
-                <UploadCloud size={26} className="text-brand-blue" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-brand-dark">
-                  {t("documents.cvDrag")} <span className="text-brand-blue underline">{t("documents.browse")}</span>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("documents.cvFormats")}</p>
-              </div>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                className="sr-only"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCVFile(f); }}
-              />
-            </label>
-          )}
-        </div>
-
-        {/* Info note */}
-        <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-muted/60 px-4 py-3">
-          <ShieldCheck size={15} className="mt-0.5 shrink-0 text-brand-blue" />
-          <p className="text-xs leading-5 text-muted-foreground">
-            {t("documents.securityNote")}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ── STEP 2 ── Create account ── */
+    /* ── Account step ── Create account ── */
   const renderStep4 = () => (
     <div>
       <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: ACCOUNT_STEP, total: TOTAL })}</p>
@@ -857,7 +610,7 @@ export default function SignUpPage() {
       <p className="mt-2 text-sm text-muted-foreground">{t("account.subtitle")}</p>
 
       {apiError && (
-        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           {apiError}
         </div>
       )}
@@ -865,54 +618,99 @@ export default function SignUpPage() {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.firstName")}</label>
+            <label htmlFor="su-first-name" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.firstName")}</label>
             <input
+              id="su-first-name"
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Jean"
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+              autoComplete="given-name"
+              maxLength={50}
+              aria-invalid={showFieldErrors && !!accountErrors.firstName}
+              aria-describedby={showFieldErrors && accountErrors.firstName ? "su-first-name-error" : undefined}
+              className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
             />
+            {showFieldErrors && accountErrors.firstName && (
+              <p id="su-first-name-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.firstName}</p>
+            )}
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.lastName")}</label>
+            <label htmlFor="su-last-name" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.lastName")}</label>
             <input
+              id="su-last-name"
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Mugisha"
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+              autoComplete="family-name"
+              maxLength={50}
+              aria-invalid={showFieldErrors && !!accountErrors.lastName}
+              aria-describedby={showFieldErrors && accountErrors.lastName ? "su-last-name-error" : undefined}
+              className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
             />
+            {showFieldErrors && accountErrors.lastName && (
+              <p id="su-last-name-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.lastName}</p>
+            )}
           </div>
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.email")}</label>
+          <label htmlFor="su-email" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.email")}</label>
           <div className="relative">
             <input
+              id="su-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full rounded-xl border border-border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+              autoComplete="email"
+              aria-invalid={showFieldErrors && !!accountErrors.email}
+              aria-describedby={showFieldErrors && accountErrors.email ? "su-email-error" : undefined}
+              className={`w-full rounded-xl border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.email ? "border-red-400" : "border-border"}`}
             />
             <Mail className="pointer-events-none absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
           </div>
+          {showFieldErrors && accountErrors.email && (
+            <p id="su-email-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.email}</p>
+          )}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.phone")}</label>
+          <label htmlFor="su-phone" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.phone")}</label>
           <div className="relative">
             <input
+              id="su-phone"
               type="tel"
+              inputMode="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(normalizePhoneInput(e.target.value))}
               placeholder="+250788000000"
-              className="w-full rounded-xl border border-border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+              autoComplete="tel"
+              aria-invalid={showFieldErrors && !!accountErrors.phone}
+              aria-describedby={`su-phone-help${showFieldErrors && accountErrors.phone ? " su-phone-error" : ""}`}
+              className={`w-full rounded-xl border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.phone ? "border-red-400" : "border-border"}`}
             />
             <Phone className="pointer-events-none absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">{t("account.phoneHelp")}</p>
+          {showFieldErrors && accountErrors.phone ? (
+            <p id="su-phone-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.phone}</p>
+          ) : (
+            <p id="su-phone-help" className="mt-1.5 text-xs text-muted-foreground">{t("account.phoneHelp")}</p>
+          )}
+        </div>
+
+        {/* Honeypot — visually hidden; bots fill it, humans never see it */}
+        <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+          <label htmlFor="su-company-website">Company website</label>
+          <input
+            id="su-company-website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={companyWebsite}
+            onChange={(e) => setCompanyWebsite(e.target.value)}
+          />
         </div>
 
         <label className="flex cursor-pointer items-start gap-3 pt-1">
@@ -920,6 +718,7 @@ export default function SignUpPage() {
             type="checkbox"
             checked={terms}
             onChange={(e) => setTerms(e.target.checked)}
+            aria-invalid={showTermsError}
             className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-border accent-brand-blue"
           />
           <span className="text-xs leading-5 text-muted-foreground">
@@ -930,6 +729,9 @@ export default function SignUpPage() {
             {t("account.ageConfirmation")}
           </span>
         </label>
+        {showTermsError && (
+          <p className="-mt-2 text-xs font-semibold text-red-600">{t("errors.termsRequired")}</p>
+        )}
 
         <div className="flex items-center justify-center gap-4 pt-1 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1"><Shield size={10} /> {t("account.sslSecure")}</span>
@@ -964,7 +766,7 @@ export default function SignUpPage() {
           </p>
 
           {apiError && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+            <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
               {apiError}
             </div>
           )}
@@ -998,12 +800,12 @@ export default function SignUpPage() {
 
             <div className="flex items-center gap-2 rounded-xl border border-border bg-muted px-4 py-3">
               <Shield className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground" aria-live="polite">
                 {otpExpired
                   ? t("errors.invalidOtp")
                   : otpRemaining !== null
                     ? t("otp.expiresIn", { time: otpRemaining >= 60 ? `${Math.floor(otpRemaining / 60)}m ${otpRemaining % 60}s` : `${otpRemaining}s` })
-                    : t("errors.general")}
+                    : t("otp.validFor15m")}
               </p>
             </div>
           </form>
@@ -1014,6 +816,8 @@ export default function SignUpPage() {
 
   const renderContent = () => {
     if (step === 1) return renderStep1();
+    if (isCitizenFlow && step === AREA_STEP) return renderAreaStep();
+    if (isCitizenFlow && step === NEEDS_STEP) return renderNeedsStep();
     if (step === ACCOUNT_STEP) {
       if (isLoading) {
         return (
@@ -1076,7 +880,11 @@ export default function SignUpPage() {
           {role && <ProgressBar step={step} labels={labels} />}
 
           {/* Content card */}
-          <div className="rounded-2xl border border-border bg-card px-6 py-8 shadow-lg sm:px-10 sm:py-10">
+          <div
+            ref={cardRef}
+            tabIndex={-1}
+            className="rounded-2xl border border-border bg-card px-6 py-8 shadow-lg outline-none sm:px-10 sm:py-10"
+          >
             {renderContent()}
 
             {/* Navigation */}
@@ -1110,16 +918,9 @@ export default function SignUpPage() {
 
           {/* Trust row */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-[11px] text-muted-foreground">
-            {[
-              [ShieldCheck, t("trust.encrypted")],
-              [Clock, t("trust.aiPowered")],
-              [Smartphone, t("trust.escrow")],
-            ].map(([Icon, label]) => (
-              <span key={label as string} className="flex items-center gap-1.5">
-                {/* @ts-expect-error dynamic icon */}
-                <Icon size={11} /> {label}
-              </span>
-            ))}
+            <span className="flex items-center gap-1.5"><ShieldCheck size={11} /> {t("trust.encrypted")}</span>
+            <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.aiPowered")}</span>
+            <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.escrow")}</span>
            </div>
         </div>
       </div>

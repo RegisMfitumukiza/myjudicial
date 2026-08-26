@@ -51,42 +51,6 @@ These variables MUST be set for the application to start:
 
 ## Optional Variables (Feature-Specific)
 
-### WhatsApp Cloud API
-**Status:** ✅ Implemented  
-**Required for:** WhatsApp notifications
-
-```env
-WHATSAPP_ACCESS_TOKEN=your_meta_access_token_here
-WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id_here
-WHATSAPP_BUSINESS_ACCOUNT_ID=your_business_account_id_here
-WHATSAPP_VERIFY_TOKEN=your_secure_random_verify_token_here
-WHATSAPP_WEBHOOK_SECRET=                # Optional but recommended
-```
-
-**Setup Guide:** `docs/prompts/phase-1/WHATSAPP_COMPLETION_REPORT.md`
-
-**How to Get:**
-1. Create Meta Business Account at https://business.facebook.com
-2. Add WhatsApp Business API
-3. Get credentials from WhatsApp Manager → API Setup
-4. Configure webhook at `https://api.yourdomain.com/api/v1/whatsapp/webhook`
-5. Submit message templates for approval (1-2 weeks)
-
-**Templates Required:**
-- otp_verification_myjudicial
-- magic_link_myjudicial
-- booking_confirmed_myjudicial
-- consultation_reminder_myjudicial
-- booking_cancelled_myjudicial
-- payment_received_myjudicial
-- escrow_released_myjudicial
-- refund_processed_myjudicial
-- credential_expiry_myjudicial
-- review_received_myjudicial
-- welcome_myjudicial
-
----
-
 ### PocketBase (Real-time Chat)
 **Status:** ✅ Implemented  
 **Required for:** Real-time WebSocket chat features
@@ -241,7 +205,6 @@ npm run dev
 
 ### 🔐 Use Strong Credentials
 
-- **WhatsApp Verify Token:** 32+ random characters
 - **PocketBase Admin Password:** 16+ characters, mixed case, numbers, symbols
 - **Access Tokens:** Rotate regularly
 - **Webhook Secrets:** 32+ random characters
@@ -272,7 +235,6 @@ For MVP deployment, configure in this order:
    - OCI Storage (Document vault)
 
 3. **Medium Priority (Notifications):**
-   - WhatsApp Cloud API
    - PocketBase
 
 4. **Optional (Future):**
@@ -303,14 +265,6 @@ curl -X POST http://localhost:3000/api/v1/auth/otp \
   -d '{"email":"test@example.com"}'
 ```
 
-**Test WhatsApp:**
-```bash
-curl -X POST http://localhost:3000/api/v1/admin/whatsapp/test \
-  -H "Authorization: Bearer YOUR_JWT" \
-  -H "Content-Type: application/json" \
-  -d '{"phone":"+250788123456","message":"Test"}'
-```
-
 ---
 
 ## Troubleshooting
@@ -335,23 +289,6 @@ npx prisma db pull
 redis-cli -u $REDIS_URL ping
 ```
 
-### Issue: WhatsApp not sending
-
-**Check:**
-1. Access token is valid
-2. Phone number ID is correct
-3. Templates are approved by Meta
-4. Webhook is configured
-
-**Debug:**
-```bash
-# Check service status
-curl http://localhost:3000/api/v1/admin/whatsapp/status
-
-# Check queue
-curl http://localhost:3000/api/v1/admin/whatsapp/queue/stats
-```
-
 ### Issue: PocketBase connection fails
 
 **Check:**
@@ -373,7 +310,6 @@ curl http://localhost:8090/api/collections
 
 ## Documentation Links
 
-- **WhatsApp Setup:** `docs/prompts/phase-1/WHATSAPP_COMPLETION_REPORT.md`
 - **PocketBase Setup:** `docs/prompts/phase-1/POCKETBASE_SETUP_GUIDE.md`
 - **Chat Implementation:** `docs/prompts/phase-1/POCKETBASE_CHAT_COMPLETION_REPORT.md`
 - **Project Onboarding:** `docs/prompts/00_Project_Onboarding.md`
@@ -393,7 +329,6 @@ curl http://localhost:8090/api/collections
 - ✅ Authentication: Configured
 - ✅ Email: Configured
 - ✅ Redis: Configured
-- 🔜 WhatsApp: Awaiting Meta credentials
 - 🔜 PocketBase: Awaiting deployment
 - ✅ LiveKit: Configured
 - ✅ OCI Storage: Configured

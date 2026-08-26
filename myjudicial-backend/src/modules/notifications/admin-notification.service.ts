@@ -164,7 +164,6 @@ export const AdminNotificationService = {
         sent: log.sent,
         sentAt: log.sentAt,
         errorMsg: log.errorMsg,
-        deliveryStatus: log.deliveryStatus,
         createdAt: log.createdAt,
         user: log.user,
       })),
@@ -210,10 +209,6 @@ export const AdminNotificationService = {
       sent: log.sent,
       sentAt: log.sentAt,
       errorMsg: log.errorMsg,
-      whatsappId: log.whatsappId,
-      templateId: log.templateId,
-      templateParams: log.templateParams,
-      deliveryStatus: log.deliveryStatus,
       createdAt: log.createdAt,
       user: log.user,
     };

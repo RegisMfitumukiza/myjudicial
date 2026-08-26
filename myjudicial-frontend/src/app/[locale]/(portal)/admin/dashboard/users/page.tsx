@@ -6,14 +6,9 @@ import {
   UserCheck,
   Briefcase,
   Shield,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  AlertCircle,
   Search,
   Filter,
   Eye,
-  Ban,
   Trash2,
   Mail,
   Phone,
@@ -21,6 +16,31 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { format } from "date-fns";
+
+import { PageHeader } from "@/shared/components/dashboard/page-header";
+import { StatCard } from "@/shared/components/dashboard/stat-card";
+import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
+import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { ErrorState } from "@/shared/components/dashboard/error-state";
+import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/shared/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 
 // Types
 type UserRole = "CITIZEN" | "EXPERT" | "ADMIN";
@@ -97,41 +117,42 @@ const deleteUser = async (userId: string, reason: string) => {
 };
 
 // Helper functions
-const getRoleBadge = (role: UserRole) => {
-  const configs = {
-    CITIZEN: { color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400", icon: Users, label: "Citizen" },
-    EXPERT: { color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", icon: Briefcase, label: "Expert" },
-    ADMIN: { color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400", icon: Shield, label: "Admin" },
+const getRoleTone = (role: UserRole): StatusTone => {
+  const map: Record<UserRole, StatusTone> = {
+    CITIZEN: "info",
+    EXPERT: "active",
+    ADMIN: "warning",
   };
-
-  const config = configs[role];
-  const Icon = config.icon;
-
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}>
-      <Icon size={12} />
-      {config.label}
-    </span>
-  );
+  return map[role];
 };
 
-const getStatusBadge = (status: AccountStatus) => {
-  const configs = {
-    ACTIVE: { color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400", icon: CheckCircle, label: "Active" },
-    INACTIVE: { color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400", icon: XCircle, label: "Inactive" },
-    SUSPENDED: { color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400", icon: Ban, label: "Suspended" },
-    DELETED: { color: "bg-black/10 text-black dark:bg-white/10 dark:text-white", icon: Trash2, label: "Deleted" },
+const getRoleLabel = (role: UserRole) => {
+  const labels: Record<UserRole, string> = {
+    CITIZEN: "Citizen",
+    EXPERT: "Expert",
+    ADMIN: "Admin",
   };
+  return labels[role];
+};
 
-  const config = configs[status];
-  const Icon = config.icon;
+const getStatusTone = (status: AccountStatus): StatusTone => {
+  const map: Record<AccountStatus, StatusTone> = {
+    ACTIVE: "active",
+    INACTIVE: "neutral",
+    SUSPENDED: "destructive",
+    DELETED: "neutral",
+  };
+  return map[status];
+};
 
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}>
-      <Icon size={12} />
-      {config.label}
-    </span>
-  );
+const getStatusLabel = (status: AccountStatus) => {
+  const labels: Record<AccountStatus, string> = {
+    ACTIVE: "Active",
+    INACTIVE: "Inactive",
+    SUSPENDED: "Suspended",
+    DELETED: "Deleted",
+  };
+  return labels[status];
 };
 
 const formatDate = (dateString: string | null) => {
@@ -232,136 +253,128 @@ export default function UsersPage() {
 
   if (loadingStats || loadingUsers) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading users...</p>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <LoadingSpinner label="Loading users..." />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center p-6 lg:p-8" style={{ minHeight: "60vh" }}>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load users</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {error instanceof Error ? error.message : "Unknown error occurred"}
-          </p>
-        </div>
+      <div className="space-y-6 p-6 lg:p-8">
+        <PageHeader title="User Management" description="Manage all platform users and accounts" />
+        <ErrorState
+          title="Failed to load users"
+          message={error instanceof Error ? error.message : "Unknown error occurred"}
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Manage all platform users and accounts</p>
-      </div>
+      <PageHeader
+        title="User Management"
+        description="Manage all platform users and accounts"
+      />
 
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-blue/10 text-brand-blue">
-              <Users size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalUsers}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Total Users</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600">
-              <UserCheck size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.byRole.citizens}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Citizens</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10 text-green-600">
-              <Briefcase size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.byRole.experts}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Experts</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600/10 text-purple-600">
-              <Shield size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.byRole.admins}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Admins</p>
-          </div>
-
-          <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-5 shadow-md">
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-600/10 text-green-600">
-              <CheckCircle size={18} />
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.byStatus.active}</p>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Active</p>
-          </div>
+          <StatCard
+            label="Total Users"
+            value={stats.totalUsers}
+            icon={Users}
+          />
+          <StatCard
+            label="Citizens"
+            value={stats.byRole.citizens}
+            icon={UserCheck}
+          />
+          <StatCard
+            label="Experts"
+            value={stats.byRole.experts}
+            icon={Briefcase}
+          />
+          <StatCard
+            label="Admins"
+            value={stats.byRole.admins}
+            icon={Shield}
+          />
+          <StatCard
+            label="Active"
+            value={stats.byStatus.active}
+            icon={UserCheck}
+          />
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-4 rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 p-4 shadow-md lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 items-center gap-2">
-          <Search size={18} className="text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            className="flex-1 border-0 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-1 items-center gap-2">
+              <Search size={18} className="shrink-0 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by name or email..."
+                className="border-0 bg-transparent shadow-none focus-visible:ring-0"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
 
-        <div className="flex items-center gap-3">
-          <Filter size={16} className="text-gray-400" />
-          <select
-            className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-            value={roleFilter}
-            onChange={(e) => {
-              setRoleFilter(e.target.value as typeof roleFilter);
-              setPage(1);
-            }}
-          >
-            <option value="ALL">All Roles</option>
-            <option value="CITIZEN">Citizens</option>
-            <option value="EXPERT">Experts</option>
-            <option value="ADMIN">Admins</option>
-          </select>
+            <div className="flex items-center gap-3">
+              <Filter size={16} className="shrink-0 text-muted-foreground" />
+              <Select
+                value={roleFilter}
+                onValueChange={(value) => {
+                  setRoleFilter(value as typeof roleFilter);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Roles</SelectItem>
+                  <SelectItem value="CITIZEN">Citizens</SelectItem>
+                  <SelectItem value="EXPERT">Experts</SelectItem>
+                  <SelectItem value="ADMIN">Admins</SelectItem>
+                </SelectContent>
+              </Select>
 
-          <select
-            className="rounded-lg border border-brand-border bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as typeof statusFilter);
-              setPage(1);
-            }}
-          >
-            <option value="ALL">All Status</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-            <option value="SUSPENDED">Suspended</option>
-          </select>
-        </div>
-      </div>
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value as typeof statusFilter);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Users Table */}
-      <div className="rounded-xl border border-brand-border/20 bg-white dark:bg-gray-900 shadow-md">
+      <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-brand-border/10 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-4">User</th>
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Status</th>
@@ -370,29 +383,33 @@ export default function UsersPage() {
                 <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border/10">
+            <tbody className="divide-y divide-border">
               {users.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No users found.</p>
+                    <EmptyState
+                      icon={Users}
+                      title="No users found"
+                      description="No users match your current filters."
+                    />
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="transition-colors hover:bg-brand-canvas dark:hover:bg-gray-800">
+                  <tr key={user.id} className="transition-colors hover:bg-muted/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                           {user.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{user.fullName}</p>
-                          <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <p className="font-medium text-foreground">{user.fullName}</p>
+                          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                             <Mail size={10} />
                             {user.email}
                           </div>
                           {user.phone && (
-                            <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                               <Phone size={10} />
                               {user.phone}
                             </div>
@@ -400,38 +417,48 @@ export default function UsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">{getRoleBadge(user.role)}</td>
-                    <td className="px-6 py-4">{getStatusBadge(user.accountStatus)}</td>
                     <td className="px-6 py-4">
-                      <span className="text-gray-700 dark:text-gray-300">{formatDate(user.createdAt)}</span>
+                      <StatusBadge tone={getRoleTone(user.role)}>
+                        {getRoleLabel(user.role)}
+                      </StatusBadge>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-gray-700 dark:text-gray-300">{formatDate(user.lastLoginAt)}</span>
+                      <StatusBadge tone={getStatusTone(user.accountStatus)}>
+                        {getStatusLabel(user.accountStatus)}
+                      </StatusBadge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-muted-foreground">{formatDate(user.createdAt)}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-muted-foreground">{formatDate(user.lastLoginAt)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {user.accountStatus !== "DELETED" && (
                           <>
-                            <button
+                            <Button
+                              size="xs"
+                              variant="default"
                               onClick={() => handleChangeStatus(user)}
                               disabled={updateStatusMutation.isPending}
-                              className="inline-flex items-center gap-1 rounded-lg bg-brand-blue px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-blue/90 disabled:opacity-50"
                             >
                               {user.accountStatus === "ACTIVE" ? "Deactivate" : "Activate"}
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                              size="xs"
+                              variant="destructive"
                               onClick={() => handleDelete(user)}
                               disabled={deleteMutation.isPending}
-                              className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                             >
                               <Trash2 size={14} />
                               Delete
-                            </button>
+                            </Button>
                           </>
                         )}
-                        <button className="rounded-lg border border-brand-border px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800">
+                        <Button size="icon-xs" variant="outline">
                           <Eye size={14} />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -443,117 +470,118 @@ export default function UsersPage() {
 
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-brand-border/10 px-6 py-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-between border-t border-border px-6 py-4">
+            <p className="text-sm text-muted-foreground">
               Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
             </p>
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Previous
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
-                className="rounded-lg border border-brand-border px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Status Change Modal */}
-      {showStatusModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Change User Status</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Change status for <span className="font-medium">{selectedUser.fullName}</span> to{" "}
-              <span className="font-medium">{newStatus}</span>?
-            </p>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Reason (optional)
-              </label>
-              <textarea
-                className="mt-1 w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-                rows={3}
-                placeholder="Provide a reason for status change..."
-                value={actionReason}
-                onChange={(e) => setActionReason(e.target.value)}
-              />
-            </div>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowStatusModal(false);
-                  setActionReason("");
-                  setSelectedUser(null);
-                }}
-                className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmStatusChange}
-                disabled={updateStatusMutation.isPending}
-                className="rounded-lg bg-brand-blue px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-blue/90 disabled:opacity-50"
-              >
-                {updateStatusMutation.isPending ? "Changing..." : "Confirm"}
-              </button>
-            </div>
+      <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Status</DialogTitle>
+            <DialogDescription>
+              Change status for <span className="font-medium text-foreground">{selectedUser?.fullName}</span> to{" "}
+              <span className="font-medium text-foreground">{newStatus}</span>?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Reason (optional)
+            </label>
+            <textarea
+              className="flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+              rows={3}
+              placeholder="Provide a reason for status change..."
+              value={actionReason}
+              onChange={(e) => setActionReason(e.target.value)}
+            />
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowStatusModal(false);
+                setActionReason("");
+                setSelectedUser(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmStatusChange}
+              disabled={updateStatusMutation.isPending}
+            >
+              {updateStatusMutation.isPending ? "Changing..." : "Confirm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Modal */}
-      {showDeleteModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Delete User Account</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              You are about to delete <span className="font-medium">{selectedUser.fullName}</span>. This action cannot be easily reversed.
-            </p>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Reason for deletion *
-              </label>
-              <textarea
-                className="mt-1 w-full rounded-lg border border-brand-border px-3 py-2 text-sm text-gray-900 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue dark:bg-gray-800 dark:text-gray-100"
-                rows={4}
-                placeholder="Provide a detailed reason for deletion..."
-                value={actionReason}
-                onChange={(e) => setActionReason(e.target.value)}
-              />
-              <p className="mt-1 text-xs text-gray-500">Minimum 10 characters required</p>
-            </div>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setActionReason("");
-                  setSelectedUser(null);
-                }}
-                className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={actionReason.trim().length < 10 || deleteMutation.isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-              >
-                {deleteMutation.isPending ? "Deleting..." : "Delete Account"}
-              </button>
-            </div>
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User Account</DialogTitle>
+            <DialogDescription>
+              You are about to delete <span className="font-medium text-foreground">{selectedUser?.fullName}</span>. This action cannot be easily reversed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Reason for deletion *
+            </label>
+            <textarea
+              className="flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
+              rows={4}
+              placeholder="Provide a detailed reason for deletion..."
+              value={actionReason}
+              onChange={(e) => setActionReason(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Minimum 10 characters required</p>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setActionReason("");
+                setSelectedUser(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={actionReason.trim().length < 10 || deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Account"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

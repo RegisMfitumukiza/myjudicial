@@ -110,7 +110,7 @@ export const CustomOtpService = {
 
   /**
    * Send OTP via email using the centralized email service.
-   * Delegates to email.service.ts for consistent branding and WhatsApp support.
+   * Delegates to email.service.ts for consistent branding.
    * 
    * @param email - Recipient email address
    * @param otp - OTP code to send

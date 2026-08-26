@@ -2264,7 +2264,12 @@
     "errors": {
       "general": "Une erreur s'est produite. Veuillez réessayer.",
       "emailExists": "Un compte avec cet e-mail existe déjà.",
-      "invalidOtp": "Code de vérification invalide. Veuillez réessayer."
+      "invalidOtp": "Code de vérification invalide. Veuillez réessayer.",
+      "firstNameMin": "Le prénom doit contenir au moins 2 caractères.",
+      "lastNameMin": "Le nom doit contenir au moins 2 caractères.",
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+      "phoneInvalid": "Saisissez un numéro de téléphone international valide (ex. +250788000000).",
+      "termsRequired": "Vous devez accepter les Conditions d'utilisation pour continuer."
     },
     "toast": {
       "accountCreated": "Compte créé ! Vérifiez votre e-mail pour le code de vérification.",
@@ -2275,7 +2280,8 @@
       "emailVerified": "E-mail vérifié ! Bienvenue sur MyJudicial.",
       "verificationFailed": "Échec de la vérification.",
       "newCodeSent": "Nouveau code de vérification envoyé !",
-      "resendFailed": "Échec de l'envoi du code."
+      "resendFailed": "Échec de l'envoi du code.",
+      "sendFailedUseResend": "Nous n'avons pas pu envoyer le code automatiquement. Utilisez « Renvoyer » dans un instant."
     },
     "practiceArea": {
       "title": "Dans quel domaine de droit avez-vous besoin d'aide ?",
@@ -2287,7 +2293,9 @@
       "role": "Choose Role",
       "intake": "Your Needs",
       "account": "Create Account",
-      "verify": "Verify Email"
+      "verify": "Verify Email",
+      "area": "Domaine",
+      "needs": "Votre situation"
     },
     "otp": {
       "title": "Verify your email",
@@ -2302,7 +2310,8 @@
       "verifiedRedirect": "Welcome to MyJudicial. Redirecting you to your dashboard…",
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
-      "codeExpired": "Code expired. Please request a new one."
+      "codeExpired": "Code expired. Please request a new one.",
+      "validFor15m": "Votre code est valable 15 minutes."
     }
   },
   "onboarding": {
@@ -3613,8 +3622,6 @@
     "notifsDesc": "Control which notifications you receive",
     "emailNotifs": "Email Notifications",
     "emailNotifsDesc": "Receive updates via email",
-    "whatsappNotifs": "WhatsApp Notifications",
-    "whatsappNotifsDesc": "Receive updates via WhatsApp (Meta Cloud API)",
     "pushNotifs": "Push Notifications",
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",

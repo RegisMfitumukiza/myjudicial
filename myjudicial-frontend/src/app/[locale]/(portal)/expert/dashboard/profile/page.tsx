@@ -176,7 +176,6 @@ export default function ExpertProfilePage() {
 
   /* Notification preferences */
   const [notifEmail, setNotifEmail] = useState(true);
-  const [notifWhatsapp, setNotifWhatsapp] = useState(true);
   const [notifPush, setNotifPush] = useState(true);
   const [notifInApp, setNotifInApp] = useState(true);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
@@ -429,7 +428,6 @@ export default function ExpertProfilePage() {
       const res: any = await apiFetch("/auth/me/notification-preferences");
       const prefs = res.data?.data ?? res.data ?? {};
       setNotifEmail(prefs.email ?? true);
-      setNotifWhatsapp(prefs.whatsapp ?? true);
       setNotifPush(prefs.push ?? true);
       setNotifInApp(prefs.inApp ?? true);
     } catch {
@@ -451,7 +449,7 @@ export default function ExpertProfilePage() {
     try {
       await apiFetch("/auth/me/notification-preferences", {
         method: "PUT",
-        body: { email: notifEmail, whatsapp: notifWhatsapp, push: notifPush, inApp: notifInApp },
+        body: { email: notifEmail, push: notifPush, inApp: notifInApp },
       });
       toast.success(t("notifsSaved"));
     } catch {
@@ -1010,17 +1008,6 @@ export default function ExpertProfilePage() {
                     checked={notifEmail}
                     onCheckedChange={(v) => setNotifEmail(v)}
                     aria-label="Email Notifications"
-                  />
-                </div>
-                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">WhatsApp Notifications</p>
-                    <p className="text-xs text-muted-foreground">Receive updates via WhatsApp (Meta Cloud API)</p>
-                  </div>
-                  <Switch
-                    checked={notifWhatsapp}
-                    onCheckedChange={(v) => setNotifWhatsapp(v)}
-                    aria-label="WhatsApp Notifications"
                   />
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">

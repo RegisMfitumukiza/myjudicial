@@ -92,7 +92,6 @@ export const updateMeSchema = z.object({
 /** PUT /auth/me/notification-preferences */
 export const notificationPreferencesSchema = z.object({
   email: z.boolean().default(true),
-  whatsapp: z.boolean().default(true),
   push: z.boolean().default(true),
   inApp: z.boolean().default(true),
 });
@@ -112,7 +111,34 @@ export const resetPasswordSchema = z.object({
   password: z.string().min(12, "Password must be at least 12 characters"),
 });
 
+/** POST /auth/onboarding — post-verification intake details */
+export const onboardingSchema = z.object({
+  role: z.enum(["CITIZEN", "EXPERT"]),
+  citizen: z
+    .object({
+      practiceArea: z.string().trim().min(1).max(50),
+      situation: z.string().trim().max(500).optional(),
+      urgency: z.enum(["not-urgent", "moderate", "urgent", "emergency"]).optional(),
+      district: z.string().trim().max(50).optional(),
+      language: z.enum(["kinyarwanda", "english", "french"]).optional(),
+      consultation: z.enum(["video", "phone", "inperson"]).optional(),
+    })
+    .optional(),
+  expert: z
+    .object({
+      practiceAreas: z.array(z.string().trim().min(1).max(50)).max(10).optional(),
+      primaryArea: z.string().trim().max(50).optional(),
+      barRegistration: z.string().trim().max(50).optional(),
+      experience: z.enum(["0-2", "3-5", "6-10", "10+"]).optional(),
+      title: z.string().trim().max(50).optional(),
+      firm: z.string().trim().max(100).optional(),
+      hourlyRate: z.string().trim().max(20).optional(),
+    })
+    .optional(),
+});
+
 export type RegisterDto = z.infer<typeof registerSchema>;
+export type OnboardingDto = z.infer<typeof onboardingSchema>;
 export type LoginDto = z.infer<typeof loginSchema>;
 export type SendOtpDto = z.infer<typeof sendOtpSchema>;
 export type VerifyOtpDto = z.infer<typeof verifyOtpSchema>;

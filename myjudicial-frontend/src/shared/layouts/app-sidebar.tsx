@@ -30,6 +30,9 @@ import {
   Key,
   Palette,
   ShieldCheck,
+  FileCheck,
+  ClipboardList,
+  FolderOpen,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -59,11 +62,18 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       ],
     },
     {
-      group: "Management",
+      group: "Marketplace",
       items: [
-        { href: "/admin/dashboard/users", icon: Users, label: "Users" },
         { href: "/admin/dashboard/experts", icon: BadgeCheck, label: "Experts" },
+        { href: "/admin/dashboard/users", icon: Users, label: "Users" },
         { href: "/admin/dashboard/bookings", icon: Calendar, label: "Bookings" },
+      ],
+    },
+    {
+      group: "Trust & Safety",
+      items: [
+        { href: "/admin/dashboard/verifications", icon: FileCheck, label: "Verifications" },
+        { href: "/admin/dashboard/reviews", icon: Star, label: "Reviews" },
         { href: "/admin/dashboard/compliance", icon: Shield, label: "Compliance" },
       ],
     },
@@ -74,11 +84,17 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       ],
     },
     {
-      group: "System",
+      group: "Operations",
       items: [
-        { href: "/admin/dashboard/audit-logs", icon: FileText, label: "Audit Logs" },
-        { href: "/admin/dashboard/messages", icon: MessageSquare, label: "Messages" },
         { href: "/admin/dashboard/notifications", icon: Bell, label: "Notifications" },
+        { href: "/admin/dashboard/documents", icon: FolderOpen, label: "Documents" },
+        { href: "/admin/dashboard/audit-logs", icon: ClipboardList, label: "Audit Logs" },
+        { href: "/admin/dashboard/messages", icon: MessageSquare, label: "Messages" },
+      ],
+    },
+    {
+      group: "Configuration",
+      items: [
         { href: "/admin/dashboard/settings", icon: Settings, label: "Settings" },
       ],
     },

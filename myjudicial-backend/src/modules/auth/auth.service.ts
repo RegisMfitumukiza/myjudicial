@@ -292,7 +292,9 @@ export const AuthService = {
     // Check if user exists in our database (but don't reveal it in the response)
     const user = await AuthRepository.findByEmail(dto.email);
     
-    if (user) {
+    // Admin accounts sign in exclusively through the password-based admin login
+    // page; never grant them OTP-based access.
+    if (user && user.role !== "ADMIN") {
       // User exists - send actual OTP
       const otp = await CustomOtpService.generate(dto.email);
       const userLanguage = user.preferredLanguage || 'en';
@@ -316,9 +318,10 @@ export const AuthService = {
         expiresAt: new Date(sendTime.getTime() + 900000).toISOString(), // 15 minutes
       });
     } else {
-      // User doesn't exist - don't send OTP (but don't reveal this)
-      logger.info("OTP requested for non-existent email", {
+      // User is unregistered or an admin - don't send OTP (but don't reveal this)
+      logger.info("OTP requested for unavailable email", {
         email: dto.email,
+        isAdmin: user?.role === "ADMIN",
       });
     }
 
@@ -369,6 +372,13 @@ export const AuthService = {
    * Uses the anon client so Supabase actually delivers the email through Brevo.
    */
   sendMagicLink: async (dto: MagicLinkDto) => {
+    // Admin accounts sign in exclusively through the password-based admin login
+    // page; never send magic links to them.
+    const user = await AuthRepository.findByEmail(dto.email);
+    if (user && user.role === "ADMIN") {
+      logger.info("Magic link requested for admin account", { email: dto.email });
+      return { message: "If this email is registered, a magic link has been sent" };
+    }
     const { error } = await supabaseAnon.auth.signInWithOtp({
       email: dto.email,
       options: {

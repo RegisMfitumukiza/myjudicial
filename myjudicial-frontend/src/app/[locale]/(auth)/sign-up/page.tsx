@@ -54,7 +54,7 @@ function ProgressBar({
   step, labels,
 }: { step: number; labels: string[] }) {
   return (
-    <div className="mb-8">
+    <div className="mb-4">
       <div className="flex items-center">
         {labels.map((label, i) => {
           const n = i + 1;
@@ -62,14 +62,14 @@ function ProgressBar({
           const act = step === n;
           return (
             <div key={label} className="flex flex-1 items-center">
-              <div className="flex flex-col items-center gap-1">
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${done ? "bg-brand-blue text-on-brand"
+              <div className="flex flex-col items-center gap-0.5">
+                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all ${done ? "bg-brand-blue text-on-brand"
                   : act ? "border-2 border-brand-blue bg-background text-brand-blue shadow-sm"
                     : "border-2 border-border bg-background text-muted-foreground"
                   }`}>
-                  {done ? <Check size={13} /> : n}
+                  {done ? <Check size={12} /> : n}
                 </div>
-                <span className={`hidden whitespace-nowrap text-[10px] font-semibold sm:block ${act ? "text-brand-blue" : done ? "text-muted-foreground" : "text-muted-foreground"}`}>
+                <span className={`hidden whitespace-nowrap text-[9px] font-semibold sm:block ${act ? "text-brand-blue" : "text-muted-foreground"}`}>
                   {label}
                 </span>
               </div>
@@ -605,20 +605,20 @@ export default function SignUpPage() {
     /* ── Account step ── Create account ── */
   const renderStep4 = () => (
     <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: ACCOUNT_STEP, total: TOTAL })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("account.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("account.subtitle")}</p>
+      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: ACCOUNT_STEP, total: TOTAL })}</p>
+      <h1 className="text-xl font-extrabold text-brand-dark sm:text-2xl">{t("account.title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("account.subtitle")}</p>
 
       {apiError && (
-        <div role="alert" aria-live="assertive" className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div role="alert" aria-live="assertive" className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
           {apiError}
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="mt-4 space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="su-first-name" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.firstName")}</label>
+            <label htmlFor="su-first-name" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.firstName")}</label>
             <input
               id="su-first-name"
               type="text"
@@ -629,14 +629,14 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.firstName}
               aria-describedby={showFieldErrors && accountErrors.firstName ? "su-first-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.firstName && (
-              <p id="su-first-name-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.firstName}</p>
+              <p id="su-first-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.firstName}</p>
             )}
           </div>
           <div>
-            <label htmlFor="su-last-name" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.lastName")}</label>
+            <label htmlFor="su-last-name" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.lastName")}</label>
             <input
               id="su-last-name"
               type="text"
@@ -647,16 +647,16 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.lastName}
               aria-describedby={showFieldErrors && accountErrors.lastName ? "su-last-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-4 py-3 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.lastName && (
-              <p id="su-last-name-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.lastName}</p>
+              <p id="su-last-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.lastName}</p>
             )}
           </div>
         </div>
 
         <div>
-          <label htmlFor="su-email" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.email")}</label>
+          <label htmlFor="su-email" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.email")}</label>
           <div className="relative">
             <input
               id="su-email"
@@ -667,17 +667,17 @@ export default function SignUpPage() {
               autoComplete="email"
               aria-invalid={showFieldErrors && !!accountErrors.email}
               aria-describedby={showFieldErrors && accountErrors.email ? "su-email-error" : undefined}
-              className={`w-full rounded-xl border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.email ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.email ? "border-red-400" : "border-border"}`}
             />
-            <Mail className="pointer-events-none absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+            <Mail className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
           {showFieldErrors && accountErrors.email && (
-            <p id="su-email-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.email}</p>
+            <p id="su-email-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.email}</p>
           )}
         </div>
 
         <div>
-          <label htmlFor="su-phone" className="mb-1.5 block text-sm font-semibold text-brand-dark">{t("account.phone")}</label>
+          <label htmlFor="su-phone" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.phone")}</label>
           <div className="relative">
             <input
               id="su-phone"
@@ -689,14 +689,14 @@ export default function SignUpPage() {
               autoComplete="tel"
               aria-invalid={showFieldErrors && !!accountErrors.phone}
               aria-describedby={`su-phone-help${showFieldErrors && accountErrors.phone ? " su-phone-error" : ""}`}
-              className={`w-full rounded-xl border bg-background py-3 pl-4 pr-11 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.phone ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.phone ? "border-red-400" : "border-border"}`}
             />
-            <Phone className="pointer-events-none absolute right-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+            <Phone className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
           {showFieldErrors && accountErrors.phone ? (
-            <p id="su-phone-error" className="mt-1.5 text-xs font-semibold text-red-600">{accountErrors.phone}</p>
+            <p id="su-phone-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.phone}</p>
           ) : (
-            <p id="su-phone-help" className="mt-1.5 text-xs text-muted-foreground">{t("account.phoneHelp")}</p>
+            <p id="su-phone-help" className="mt-1 text-xs text-muted-foreground">{t("account.phoneHelp")}</p>
           )}
         </div>
 
@@ -713,7 +713,7 @@ export default function SignUpPage() {
           />
         </div>
 
-        <label className="flex cursor-pointer items-start gap-3 pt-1">
+        <label className="flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
             checked={terms}
@@ -724,7 +724,7 @@ export default function SignUpPage() {
           <span className="text-xs leading-5 text-muted-foreground">
             {t("account.terms")}{' '}
             <Link href="/terms" className="font-semibold text-brand-blue hover:underline">{t("account.termsLink")}</Link>{' '}
-            {t("account.and")}{' '}
+            {t("account.and")}{''}
             <Link href="/privacy-policy" className="font-semibold text-brand-blue hover:underline">{t("account.privacyLink")}</Link>.
             {t("account.ageConfirmation")}
           </span>
@@ -733,7 +733,7 @@ export default function SignUpPage() {
           <p className="-mt-2 text-xs font-semibold text-red-600">{t("errors.termsRequired")}</p>
         )}
 
-        <div className="flex items-center justify-center gap-4 pt-1 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1"><Shield size={10} /> {t("account.sslSecure")}</span>
           <span className="flex items-center gap-1"><ShieldCheck size={10} /> {t("account.noSpam")}</span>
           <span className="flex items-center gap-1"><Smartphone size={10} /> {t("account.momoPayments")}</span>
@@ -873,7 +873,7 @@ export default function SignUpPage() {
       </header>
 
       {/* ── Wizard body ── */}
-      <div className="flex flex-1 justify-center px-4 py-10 sm:px-6">
+      <div className="flex flex-1 justify-center px-4 py-4 sm:px-6">
         <div className="w-full max-w-3xl">
 
           {/* Progress */}
@@ -883,18 +883,18 @@ export default function SignUpPage() {
           <div
             ref={cardRef}
             tabIndex={-1}
-            className="rounded-2xl border border-border bg-card px-6 py-8 shadow-lg outline-none sm:px-10 sm:py-10"
+            className="rounded-2xl border border-border bg-card px-5 py-5 shadow-lg outline-none sm:px-8 sm:py-6"
           >
             {renderContent()}
 
             {/* Navigation */}
-            <div className="mt-10 flex items-center justify-between border-t border-border pt-6">
+            <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
               {showNextButton() && (
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={step === 1}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-0"
+                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-0"
                 >
                   <ArrowLeft size={15} /> Back
                 </button>
@@ -904,7 +904,7 @@ export default function SignUpPage() {
                   type="button"
                   onClick={handleNext}
                   disabled={!canNext() || isLoading}
-                  className="flex items-center gap-2 rounded-xl bg-brand-blue px-7 py-3 text-sm font-bold text-on-brand transition hover:bg-brand-blue/90 disabled:opacity-40"
+                  className="flex items-center gap-2 rounded-xl bg-brand-blue px-6 py-2.5 text-sm font-bold text-on-brand transition hover:bg-brand-blue/90 disabled:opacity-40"
                 >
                   {isLoading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" /> {nextLabel()}</>
@@ -917,7 +917,7 @@ export default function SignUpPage() {
           </div>
 
           {/* Trust row */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-[11px] text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-5 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1.5"><ShieldCheck size={11} /> {t("trust.encrypted")}</span>
             <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.aiPowered")}</span>
             <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.escrow")}</span>

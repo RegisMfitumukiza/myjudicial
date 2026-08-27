@@ -132,6 +132,7 @@ export const FRONTEND = {
   expertBookings: "/expert/dashboard/bookings",
   adminDashboard: "/admin/dashboard",
   adminVerifications: "/admin/dashboard/verifications",
+  adminExperts: "/admin/dashboard/experts",
   clientDashboard: "/client/dashboard",
   clientConsultations: "/client/dashboard/consultations",
   clientPayments: "/client/dashboard/payments",

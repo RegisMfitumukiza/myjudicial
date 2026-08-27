@@ -1109,6 +1109,36 @@ export const sendNewVerificationRequestEmail = async (
 };
 
 /**
+ * Send notification to admins when a new expert registers.
+ */
+export const sendNewExpertRegistrationEmail = async (
+  to: string,
+  adminName: string,
+  expertName: string,
+  expertEmail: string,
+  language: Language = 'en'
+): Promise<void> => {
+  const expertsUrl = buildUrl(FRONTEND.adminExperts);
+  const t = (key: string) => getEmailContent('NEW_EXPERT_REGISTRATION', key, language, expertName, expertEmail);
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(t('message')),
+      paragraph(t('nextSteps')),
+      button(t('viewButton'), expertsUrl),
+    )}
+  `, { previewText: `New expert registered: ${expertName}` });
+
+  await sendEmail({
+    to: [{ email: to, name: adminName }],
+    subject: getEmailSubject('NEW_EXPERT_REGISTRATION', language),
+    template: "NEW_EXPERT_REGISTRATION",
+    htmlContent: html,
+  });
+};
+
+/**
  * Send verification reminder with missing documents list.
  */
 export const sendVerificationReminderDetailedEmail = async (

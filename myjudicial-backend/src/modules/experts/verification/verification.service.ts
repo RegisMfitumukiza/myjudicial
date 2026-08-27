@@ -38,6 +38,21 @@ export const VerificationService = {
       throw new ConflictError("A verification request is already pending.");
     }
 
+    // Guard: profile must be complete enough for meaningful verification
+    const missingFields: string[] = [];
+    if (!profile.displayName?.trim()) missingFields.push("display name");
+    if (!profile.barNumber?.trim()) missingFields.push("bar number");
+    if (!profile.primarySpecialty) missingFields.push("primary specialty");
+    if (!profile.languages?.length) missingFields.push("languages");
+    if (!profile.bio?.trim()) missingFields.push("bio");
+    if (!profile.officeAddress?.trim() && !profile.city?.trim()) missingFields.push("office location");
+
+    if (missingFields.length > 0) {
+      throw new ValidationError(
+        `Please complete your profile before submitting verification. Missing: ${missingFields.join(", ")}.`
+      );
+    }
+
     const bucketName = getDefaultBucketName();
     let identityDocumentKey: string | undefined;
     let barCertificateKey: string | undefined;

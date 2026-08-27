@@ -118,6 +118,11 @@ export const EMAIL_SUBJECTS = {
     fr: "Nouvelle demande de vérification d'expert",
     rw: "Icyifuzo gishya cyo kwemeza umwarimu",
   },
+  NEW_EXPERT_REGISTRATION: {
+    en: "New expert registered on MyJudicial",
+    fr: "Nouvel expert inscrit sur MyJudicial",
+    rw: "Uwarimu mushya wiyandikishye kuri MyJudicial",
+  },
 } as const;
 
 /**
@@ -698,6 +703,29 @@ export const EMAIL_CONTENT = {
       en: "Review Request",
       fr: "Examiner la demande",
       rw: "Reba icyifuzo",
+    },
+  },
+
+  NEW_EXPERT_REGISTRATION: {
+    title: {
+      en: "New Expert Registration",
+      fr: "Nouvel enregistrement d'expert",
+      rw: "Kwiyandikisha kw'umwarimu mushya",
+    },
+    message: {
+      en: (expertName: string, expertEmail: string) => `A new expert <strong>${expertName}</strong> (${expertEmail}) has registered on MyJudicial.`,
+      fr: (expertName: string, expertEmail: string) => `Un nouvel expert <strong>${expertName}</strong> (${expertEmail}) s'est inscrit sur MyJudicial.`,
+      rw: (expertName: string, expertEmail: string) => `Uwarimu mushya <strong>${expertName}</strong> (${expertEmail}) yiyandikishye kuri MyJudicial.`,
+    },
+    nextSteps: {
+      en: "The expert will complete their profile and submit verification documents. You will be notified when verification documents are submitted for review.",
+      fr: "L'expert complétera son profil et soumettra les documents de vérification. Vous serez notifié lorsque les documents de vérification seront soumis pour examen.",
+      rw: "Uwarimu azuzaza umwirondoro we kandi azohereza ibyangombwa byemeza. Uzabumbwa icyitso ubona ibyangombwa byemeza byoherejwe.",
+    },
+    viewButton: {
+      en: "View Experts",
+      fr: "Voir les experts",
+      rw: "Reba abarimu",
     },
   },
 

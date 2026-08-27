@@ -11,7 +11,8 @@ import { redisSet, redisGet, redisDel } from "../../infrastructure/redis/redis.c
 import { revokeTokenAndClearCache, clearUserCache } from "../../shared/utils/cache-cleanup.js";
 import { AuthRepository } from "./auth.repository.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
-import { sendWelcomeEmail } from "../../infrastructure/email/email.service.js";
+import { sendWelcomeEmail, sendNewExpertRegistrationEmail } from "../../infrastructure/email/email.service.js";
+import { NotificationRepository } from "../notifications/notification.repository.js";
 import {
   uploadObject,
   getSignedDownloadUrl,
@@ -273,6 +274,34 @@ export const AuthService = {
       description: `New ${dto.role} account registered`,
       ipAddress,
     });
+
+    // Notify all admins when a new expert registers
+    if (dto.role === "EXPERT") {
+      try {
+        const admins = await prisma.user.findMany({
+          where: { role: "ADMIN" },
+          select: { id: true, email: true, firstName: true, lastName: true, preferredLanguage: true },
+        });
+        for (const admin of admins) {
+          const adminName = `${admin.firstName} ${admin.lastName}`;
+          const adminLanguage = (admin.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+          await sendNewExpertRegistrationEmail(admin.email, adminName, dto.fullName, dto.email, adminLanguage).catch((error) => {
+            logger.error("Failed to send new expert registration email to admin", { adminId: admin.id, error });
+          });
+          await NotificationRepository.create({
+            userId: admin.id,
+            event: "WELCOME" as any,
+            recipient: admin.email,
+            subject: "New expert registered",
+            body: `Expert ${dto.fullName} (${dto.email}) has registered on MyJudicial.`,
+          }).catch((error) => {
+            logger.error("Failed to write new expert registration notification to admin", { adminId: admin.id, error });
+          });
+        }
+      } catch (error) {
+        logger.error("Failed to notify admins about new expert registration", { email: dto.email, error });
+      }
+    }
 
     // Note: Welcome email will be sent after email verification
     // This prevents double emails and confusion

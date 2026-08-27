@@ -41,20 +41,15 @@ import {
 const STORAGE_KEY = "mj_expert_onboarding";
 const STORAGE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-// Backend specialties - must match backend enum
-const SPECIALTY_OPTIONS = [
-  { value: "FAMILY_LAW", label: "Family Law" },
-  { value: "COMMERCIAL_LAW", label: "Commercial Law" },
-  { value: "EMPLOYMENT_LAW", label: "Employment Law" },
-  { value: "LAND_LAW", label: "Land & Property Law" },
-  { value: "CRIMINAL_LAW", label: "Criminal Law" },
-  { value: "TAX_LAW", label: "Tax Law" },
-  { value: "IMMIGRATION_LAW", label: "Immigration Law" },
-  { value: "CORPORATE_LAW", label: "Corporate Law" },
-  { value: "CONTRACT_LAW", label: "Contract Law" },
-  { value: "INTELLECTUAL_PROPERTY", label: "Intellectual Property" },
-  { value: "OTHER", label: "Other" },
-] as const;
+// Map specialty slug from API to LegalSpecialty enum value
+function slugToEnum(slug: string): string {
+  return slug.toUpperCase().replace(/-/g, "_");
+}
+
+// Map LegalSpecialty enum value back to slug for API matching
+function enumToSlug(enumVal: string): string {
+  return enumVal.toLowerCase().replace(/_/g, "-");
+}
 
 // ISO 639-1 language codes (2 chars) - matches backend validation max 10 chars
 const LANGUAGES = [
@@ -170,12 +165,29 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
   const onboardingData = onboardingRes?.data ?? null;
 
+  // Fetch specialties dynamically from the API
+  const { data: specialtiesRes, isLoading: specialtiesLoading } = useQuery({
+    queryKey: ["specialties"],
+    queryFn: async () => {
+      const res = await apiFetch<{ data: Array<{ id: string; slug: string; label: string; group: string }> }>("/specialties");
+      return res.data.map(s => ({
+        value: slugToEnum(s.slug),
+        label: s.label,
+        group: s.group,
+        slug: s.slug,
+      }));
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes
+  });
+
+  const specialtyOptions = specialtiesRes ?? [];
+
   const defaultFormData: OnboardingData = {
     displayName: fullName,
     barNumber: "",
     yearsExperience: "",
     firmName: "",
-    primarySpecialty: "FAMILY_LAW",
+    primarySpecialty: specialtyOptions.length > 0 ? specialtyOptions[0].value : "",
     specialties: [],
     bio: "",
     languages: ["en"],
@@ -233,7 +245,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       case 1:
         return formData.displayName.trim() && formData.barNumber.trim() && formData.yearsExperience !== "";
       case 2:
-        return formData.primarySpecialty;
+        return formData.primarySpecialty && specialtyOptions.length > 0;
       case 3:
         return formData.location || (formData.officeAddress.trim() && formData.city.trim());
       case 4:
@@ -497,72 +509,91 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="primarySpecialty">Primary Specialty *</Label>
-                <select
-                  id="primarySpecialty"
-                  value={formData.primarySpecialty}
-                  onChange={(e) => updateField("primarySpecialty", e.target.value)}
-                  className="mt-1 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm"
-                >
-                  {SPECIALTY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="mt-1 text-xs text-slate-500">
-                  Your main area of legal expertise
-                </p>
-              </div>
-
-              <div>
-                <Label>Additional Specialties <span className="text-slate-400">(optional)</span></Label>
-                <p className="mt-1 text-xs text-slate-500 mb-3">
-                  Select any additional areas where you have expertise
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {SPECIALTY_OPTIONS.map((opt) => {
-                    const selected = formData.specialties.includes(opt.value);
-                    const isPrimary = formData.primarySpecialty === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => !isPrimary && toggleArrayItem("specialties", opt.value)}
-                        disabled={isPrimary}
-                        className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
-                          isPrimary
-                            ? "border-slate-200 bg-slate-100 opacity-50 cursor-not-allowed"
-                            : selected
-                            ? "border-brand-blue bg-blue-50"
-                            : "border-slate-200 bg-white hover:border-slate-300"
-                        }`}
-                      >
-                        <div
-                          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                            selected
-                              ? "border-brand-blue bg-brand-blue"
-                              : "border-slate-300 bg-white"
-                          }`}
-                        >
-                          {selected && <Check className="h-3 w-3 text-white" />}
-                        </div>
-                        <span
-                          className={`text-sm font-semibold ${
-                            selected ? "text-brand-blue" : "text-slate-700"
-                          }`}
-                        >
-                          {opt.label}
-                        </span>
-                      </button>
-                    );
-                  })}
+              {specialtiesLoading ? (
+                <div className="space-y-4">
+                  <div className="h-10 w-full animate-pulse rounded-lg bg-slate-100" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="h-16 animate-pulse rounded-lg bg-slate-100" />
+                    ))}
+                  </div>
                 </div>
-                <p className="mt-3 text-sm text-slate-500">
-                  Selected: {formData.specialties.length} additional area{formData.specialties.length !== 1 ? "s" : ""}
-                </p>
-              </div>
+              ) : specialtyOptions.length === 0 ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm text-amber-900">
+                    Practice areas are being configured. Please try again later or contact support.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="primarySpecialty">Primary Specialty *</Label>
+                    <select
+                      id="primarySpecialty"
+                      value={formData.primarySpecialty}
+                      onChange={(e) => updateField("primarySpecialty", e.target.value)}
+                      className="mt-1 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm"
+                    >
+                      {specialtyOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Your main area of legal expertise
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label>Additional Specialties <span className="text-slate-400">(optional)</span></Label>
+                    <p className="mt-1 text-xs text-slate-500 mb-3">
+                      Select any additional areas where you have expertise
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {specialtyOptions.map((opt) => {
+                        const selected = formData.specialties.includes(opt.value);
+                        const isPrimary = formData.primarySpecialty === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => !isPrimary && toggleArrayItem("specialties", opt.value)}
+                            disabled={isPrimary}
+                            className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
+                              isPrimary
+                                ? "border-slate-200 bg-slate-100 opacity-50 cursor-not-allowed"
+                                : selected
+                                ? "border-brand-blue bg-blue-50"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                          >
+                            <div
+                              className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                                selected
+                                  ? "border-brand-blue bg-brand-blue"
+                                  : "border-slate-300 bg-white"
+                              }`}
+                            >
+                              {selected && <Check className="h-3 w-3 text-white" />}
+                            </div>
+                            <span
+                              className={`text-sm font-semibold ${
+                                selected ? "text-brand-blue" : "text-slate-700"
+                              }`}
+                            >
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-3 text-sm text-slate-500">
+                      Selected: {formData.specialties.length} additional area{formData.specialties.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

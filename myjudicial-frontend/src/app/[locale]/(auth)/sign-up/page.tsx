@@ -8,7 +8,11 @@ import {
   ArrowRight, ArrowLeft, Check, CheckCircle2,
   Users, Briefcase, Home, Building2, ShieldCheck, Globe,
   Banknote, FileText, MapPin, Video, Phone, Mail, Shield,
-  Smartphone, Loader2,
+  Smartphone, Loader2, Heart, Scroll, ShoppingBag, Monitor,
+  AlertTriangle, Building, Gavel, Landmark, Lightbulb, Calculator,
+  BarChart, Handshake, HardHat, Stethoscope, GraduationCap, Film,
+  Trophy, Mountain, Zap, Radio, Lock, Ship, Wheat, HelpCircle,
+  Scale, Leaf, Truck, Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -23,16 +27,13 @@ import { apiFetch } from "@/lib/api/client";
 
 /* ══════════════════════════ DATA ══════════════════════════ */
 
-const PRACTICE_AREAS = [
-  { id: "family", label: "Family Law", icon: Users, desc: "Divorce, custody, adoption" },
-  { id: "property", label: "Property & Land", icon: Home, desc: "Land disputes, titles, tenancy" },
-  { id: "criminal", label: "Criminal Defense", icon: ShieldCheck, desc: "Representation & appeals" },
-  { id: "business", label: "Business Law", icon: Building2, desc: "Contracts, company formation" },
-  { id: "employment", label: "Employment", icon: Briefcase, desc: "Dismissal, workplace disputes" },
-  { id: "immigration", label: "Immigration", icon: Globe, desc: "Visas, permits, citizenship" },
-  { id: "debt", label: "Debt & Finance", icon: Banknote, desc: "Loans, bankruptcy, recovery" },
-  { id: "other", label: "Other / Unsure", icon: FileText, desc: "Help me find the right area" },
-] as const;
+const ICON_MAP: Record<string, React.ElementType> = {
+  Users, Briefcase, Home, Building2, ShieldCheck, Globe, Banknote, FileText,
+  Heart, Shield, Scroll, ShoppingBag, Monitor, AlertTriangle, Building: Building2,
+  Gavel, Landmark, Lightbulb, Calculator, BarChart, Handshake, HardHat,
+  Stethoscope, GraduationCap, Film, Trophy, Mountain, Zap, Radio, Lock,
+  Ship, Wheat, HelpCircle, Scale, Leaf, MapPin, Truck, Search,
+};
 
 const KIGALI_DISTRICTS = ["Gasabo", "Kicukiro", "Nyarugenge"];
 const OTHER_DISTRICTS = [
@@ -138,6 +139,22 @@ export default function SignUpPage() {
   const [cDistrict, setCDistrict] = useState("");
   const [cLanguage, setCLanguage] = useState("english");
   const [cConsult, setCConsult] = useState("video");
+
+  /* ─── dynamic specialties ─── */
+  type Specialty = { id: string; slug: string; label: string; description: string | null; icon: string | null; group: string | null };
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [specialtiesLoading, setSpecialtiesLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000"}${process.env.NEXT_PUBLIC_API_PREFIX ?? "/api/v1"}/specialties`)
+      .then((r) => r.json())
+      .then((res) => {
+        const items = res?.data ?? res;
+        if (Array.isArray(items)) setSpecialties(items);
+      })
+      .catch(() => {})
+      .finally(() => setSpecialtiesLoading(false));
+  }, []);
 
   /* ─── account creation ─── */
   const [firstName, setFirstName] = useState("");
@@ -482,21 +499,32 @@ export default function SignUpPage() {
   /* ── STEP 2 (CITIZEN) ── Practice area ── */
   const renderAreaStep = () => (
     <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: AREA_STEP, total: TOTAL })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("practiceArea.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("practiceArea.subtitle")}</p>
-      <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {PRACTICE_AREAS.map(({ id, label, icon, desc }) => (
-          <SelectCard
-            key={id}
-            selected={cArea === id}
-            onClick={() => setCArea(id)}
-            icon={icon}
-            label={label}
-            desc={desc}
-          />
-        ))}
-      </div>
+      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: AREA_STEP, total: TOTAL })}</p>
+      <h1 className="text-xl font-extrabold text-brand-dark sm:text-2xl">{t("practiceArea.title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t("practiceArea.subtitle")}</p>
+      {specialtiesLoading ? (
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-28 animate-pulse rounded-2xl border border-border bg-muted" />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {specialties.map((s) => {
+            const Icon = ICON_MAP[s.icon ?? ""] ?? FileText;
+            return (
+              <SelectCard
+                key={s.slug}
+                selected={cArea === s.slug}
+                onClick={() => setCArea(s.slug)}
+                icon={Icon}
+                label={s.label}
+                desc={s.description ?? undefined}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 

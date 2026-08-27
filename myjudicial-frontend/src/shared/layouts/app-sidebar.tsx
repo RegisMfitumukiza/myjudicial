@@ -33,6 +33,7 @@ import {
   FileCheck,
   ClipboardList,
   FolderOpen,
+  Scale,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -95,6 +96,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
     {
       group: "Configuration",
       items: [
+        { href: "/admin/dashboard/specialties", icon: Scale, label: "Practice Areas" },
         { href: "/admin/dashboard/settings", icon: Settings, label: "Settings" },
       ],
     },

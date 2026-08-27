@@ -14,6 +14,11 @@ dist
 build
 *.log
 
+# Prisma generated client (gitignored; never ship a stale one in build context —
+# the Dockerfile regenerates it after COPY, and keeping it out prevents a stale
+# copy from shadowing the fresh client)
+src/generated/
+
 # IDE and editor files
 .vscode
 .idea

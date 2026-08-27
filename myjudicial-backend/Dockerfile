@@ -21,12 +21,15 @@ COPY prisma ./prisma/
 # Install ALL dependencies (including dev for TypeScript build)
 RUN npm ci
 
-# Generate the Prisma client - src/generated/ is gitignored, so fresh
-# checkouts (CI) must regenerate it before tsc can resolve its types.
-RUN npx prisma generate
-
 # Copy source code
 COPY . .
+
+# Generate the Prisma client AFTER the source copy so any stale generated
+# client present in the build context (e.g. leftover src/generated/ on a
+# machine that previously built locally) can NEVER shadow the fresh one.
+# This is the last write to src/generated/ before tsc, so it always matches
+# the schema snapshot being compiled.
+RUN npx prisma generate
 
 # Build TypeScript only
 RUN npx tsc

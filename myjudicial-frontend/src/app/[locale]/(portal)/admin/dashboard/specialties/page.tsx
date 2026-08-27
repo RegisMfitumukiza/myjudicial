@@ -50,7 +50,7 @@ export default function SpecialtiesPage() {
     if (filterGroup !== "all") params.set("group", filterGroup);
     params.set("limit", "100");
 
-    apiFetch<{ data: Specialty[]; meta?: { total: number } }>(`/admin/specialties?${params}`)
+    apiFetch<{ data: Specialty[]; meta?: { total: number } }>(`/specialties/admin?${params}`)
       .then((res) => {
         const items = res?.data ?? [];
         setSpecialties(Array.isArray(items) ? items : []);
@@ -103,10 +103,10 @@ export default function SpecialtiesPage() {
         group: form.group || undefined,
       };
       if (editing) {
-        await apiFetch(`/admin/specialties/${editing.id}`, { method: "PUT", body });
+        await apiFetch(`/specialties/admin/${editing.id}`, { method: "PUT", body });
         toast.success("Specialty updated");
       } else {
-        await apiFetch("/admin/specialties", { method: "POST", body });
+        await apiFetch("/specialties/admin", { method: "POST", body });
         toast.success("Specialty created");
       }
       setDialogOpen(false);
@@ -121,7 +121,7 @@ export default function SpecialtiesPage() {
 
   async function handleToggle(id: string) {
     try {
-      await apiFetch(`/admin/specialties/${id}/toggle`, { method: "PATCH" });
+      await apiFetch(`/specialties/admin/${id}/toggle`, { method: "PATCH" });
       loadSpecialties();
     } catch {
       toast.error("Failed to toggle");
@@ -130,7 +130,7 @@ export default function SpecialtiesPage() {
 
   async function handleDelete(id: string) {
     try {
-      await apiFetch(`/admin/specialties/${id}`, { method: "DELETE" });
+      await apiFetch(`/specialties/admin/${id}`, { method: "DELETE" });
       toast.success("Specialty deleted");
       setDeleteConfirm(null);
       loadSpecialties();

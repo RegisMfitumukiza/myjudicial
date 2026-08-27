@@ -1,10 +1,10 @@
 -- Remove WhatsApp feature
--- Drops WhatsApp tables, columns, indexes, and enum value.
+-- Drops WhatsApp tables, columns, and indexes.
+-- NOTE: The enum value 'WHATSAPP' is intentionally left in place — the
+-- Supabase connection pooler does not support ALTER TYPE ... DROP VALUE.
 
--- Delete logs sent via WhatsApp so the enum value can be dropped
+-- Delete logs sent via WhatsApp (no-op; enum value kept)
 DELETE FROM "notification_logs" WHERE "channel" = 'WHATSAPP';
-
-ALTER TYPE "NotificationChannel" DROP VALUE IF EXISTS 'WHATSAPP';
 
 -- Drop WhatsApp tables (FK whatsapp_queue_user_id_fkey is dropped with the table)
 DROP TABLE IF EXISTS "whatsapp_queue";

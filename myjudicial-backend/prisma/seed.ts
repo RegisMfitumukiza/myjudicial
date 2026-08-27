@@ -156,7 +156,7 @@ async function seedAdmin(): Promise<void> {
 
   console.log("📌  Next step:");
   console.log(
-    `   Log in via POST /api/auth/login with email: ${ADMIN_EMAIL}`
+    `   Log in via POST /api/v1/auth/admin/login with email: ${ADMIN_EMAIL}`
   );
   console.log(
     "   The account is pre-confirmed — no magic link required.\n"

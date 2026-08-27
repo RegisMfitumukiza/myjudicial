@@ -198,7 +198,7 @@ export function SignInForm() {
         if (code === "TooManyLoginAttempts") {
           throw new Error(t("loginTooManyAttempts"));
         }
-        throw new Error(code === "CredentialsSignin" ? t("invalidCredentials") : code);
+        throw new Error(code === "CredentialsSignin" ? t("invalidCredentials") : t("adminSignInFailed"));
       }
       toast.success(t("signedInAsAdmin"));
       router.push(postAuthPath);
@@ -350,7 +350,7 @@ export function SignInForm() {
                   <Input
                     id="admin-email"
                     type="email"
-                    placeholder="admin@myjudicial.com"
+                    placeholder="support@myjudicial.com"
                     disabled={isLoading}
                     className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-brand-blue/20"
                     {...form.register("email")}

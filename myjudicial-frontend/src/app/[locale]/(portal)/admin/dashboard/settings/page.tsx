@@ -54,8 +54,8 @@ export default function SettingsPage() {
   const loadSettings = () => {
     setLoading(true);
     setBackendUnreachable(false);
-    apiFetch("/admin/settings")
-      .then((res: any) => {
+    apiFetch<{ data?: { data?: SettingsData } }>("/admin/settings")
+      .then((res) => {
         const d = (res.data?.data ?? res.data) as SettingsData;
         setPlatformName(d.platformName ?? DEFAULTS.platformName);
         setMaintenanceMode(d.maintenanceMode ?? DEFAULTS.maintenanceMode);

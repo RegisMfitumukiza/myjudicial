@@ -1202,3 +1202,18 @@ enum EmailLogStatus {
   SENT
   FAILED
 }
+
+model Specialty {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique
+  label       String
+  description String?
+  icon        String?
+  group       String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("specialties")
+}

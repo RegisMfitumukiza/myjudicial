@@ -24,6 +24,7 @@ import adminSettingRoutes from "../../modules/settings/admin-setting.routes.js";
 import publicSettingRoutes from "../../modules/settings/public-setting.routes.js";
 import aiRoutes from "../../modules/ai/ai.routes.js";
 import savedExpertRoutes from "../../modules/saved-experts/saved-expert.routes.js";
+import specialtyRoutes from "../../modules/specialties/specialty.routes.js";
 
 const router = Router();
 
@@ -61,5 +62,6 @@ router.use("/admin/settings", adminSettingRoutes);
 router.use("/settings", publicSettingRoutes);
 router.use("/ai", aiRoutes);
 router.use("/saved-experts", savedExpertRoutes);
+router.use("/specialties", specialtyRoutes);
 
 export default router;

@@ -93,6 +93,11 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.APP_DIR }}
+
+            # Free disk space: old tagged images accumulate across deployments.
+            docker system prune -af || true
+            docker builder prune -af || true
+
             git pull origin main
 
             # Pin the deployed tag so reboots/recreates survive rollbacks

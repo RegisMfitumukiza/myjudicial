@@ -25,6 +25,10 @@ import { postAuthOtpSend } from "@/api/generated";
 import { useCountdown } from "@/hooks/use-countdown";
 import { useTranslations } from "next-intl";
 
+const ADMIN_PORTAL_HOST = (process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com")
+  .replace(/^https?:\/\//, "")
+  .toLowerCase();
+
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address.").trim().toLowerCase(),
 });
@@ -187,6 +191,15 @@ export function SignInForm() {
   async function handleAdminSignIn(e: React.FormEvent) {
     e.preventDefault();
     if (isVerifyingRef.current) return;
+    if (process.env.NODE_ENV === "production" && typeof window !== "undefined") {
+      const currentHost = window.location.hostname.toLowerCase();
+      if (currentHost !== ADMIN_PORTAL_HOST) {
+        const locale = window.location.pathname.split("/")[1] || "en";
+        const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
+        window.location.href = `https://${ADMIN_PORTAL_HOST}/${locale}/sign-in?admin=1${cb}`;
+        return;
+      }
+    }
     isVerifyingRef.current = true;
     setIsLoading(true);
     setError(null);

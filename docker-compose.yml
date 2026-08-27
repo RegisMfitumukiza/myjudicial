@@ -62,6 +62,7 @@ services:
         NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
         NEXT_PUBLIC_LIVEKIT_URL: ${LIVEKIT_URL}
+        NEXT_PUBLIC_ADMIN_PORTAL_HOST: ${ADMIN_PORTAL_HOST:-admin.myjudicial.com}
         AUTH_URL: ${FRONTEND_URL:-http://localhost:3000}
         AUTH_SECRET: ${AUTH_SECRET}
     restart: unless-stopped
@@ -81,6 +82,7 @@ services:
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
       - NEXT_PUBLIC_LIVEKIT_URL=${LIVEKIT_URL}
+      - NEXT_PUBLIC_ADMIN_PORTAL_HOST=${ADMIN_PORTAL_HOST:-admin.myjudicial.com}
     networks:
       - myjudicial-network
     depends_on:

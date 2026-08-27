@@ -49,6 +49,10 @@ RUN groupadd -g 1001 -r nodejs && \
 # Copy package files for production install
 COPY package*.json ./
 COPY prisma ./prisma/
+# Prisma 7 keeps no url in schema.prisma (datasource block) — the URL is
+# resolved from env via prisma.config.ts, required for migrate/stuate commands
+# at deploy time.
+COPY prisma.config.ts ./
 
 # Install production dependencies only
 RUN npm ci --omit=dev && npm cache clean --force

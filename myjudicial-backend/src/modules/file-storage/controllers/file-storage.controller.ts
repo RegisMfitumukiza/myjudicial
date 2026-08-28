@@ -60,6 +60,7 @@ export const FileStorageController = {
         sensitivity: (body.sensitivity ?? "PRIVATE")        as FileSensitivity,
         ownerId:     String(body.ownerId    ?? req.user.id),
         ownerType:   (body.ownerType  ?? "USER")            as FileOwnerType,
+        bookingId:   body.bookingId ? String(body.bookingId) : undefined,
       };
 
       const stored = await FileStorageService.uploadFile(
@@ -67,7 +68,8 @@ export const FileStorageController = {
         req.file.buffer,
         req.user.id,
         req.ip,
-        req.get("user-agent")
+        req.get("user-agent"),
+        getRequester(req.user)
       );
 
       sendCreated(res, stored, "File uploaded successfully");
@@ -141,6 +143,88 @@ export const FileStorageController = {
           hasPrev:    result.hasPrev,
         },
         "Files retrieved"
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/files/by-booking/:bookingId
+   *
+   * List documents attached to a booking/case (participants + ADMIN only).
+   */
+  listBookingDocuments: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+
+      const { bookingId } = req.params;
+      if (!bookingId || !/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(String(bookingId))) {
+        return next(new ValidationError("Invalid bookingId — must be a valid UUID"));
+      }
+
+      const query = req.validatedQuery as { page: number; limit: number };
+
+      const result = await FileStorageService.listBookingDocuments(
+        String(bookingId),
+        getRequester(req.user),
+        query.page,
+        query.limit
+      );
+
+      sendPaginated(
+        res,
+        result.files,
+        {
+          page:       result.page,
+          limit:      result.limit,
+          total:      result.total,
+          totalPages: result.totalPages,
+          hasNext:    result.hasNext,
+          hasPrev:    result.hasPrev,
+        },
+        "Booking documents retrieved"
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/admin/documents
+   *
+   * Admin-only, paginated documents listing with role / ownerType / sensitivity
+   * / search filters and sorting. RBAC enforced by requireAdmin middleware.
+   */
+  adminListDocuments: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+
+      const query = req.validatedQuery as {
+        page:         number;
+        limit:        number;
+        role?:        "CLIENT" | "EXPERT";
+        ownerType?:   FileOwnerType;
+        sensitivity?: FileSensitivity;
+        search?:      string;
+        sortBy:       "createdAt" | "fileName" | "fileSize";
+        order:        "asc" | "desc";
+      };
+
+      const result = await FileStorageService.adminListDocuments(query);
+
+      sendPaginated(
+        res,
+        result.documents,
+        {
+          page:       result.page,
+          limit:      result.limit,
+          total:      result.total,
+          totalPages: result.totalPages,
+          hasNext:    result.hasNext,
+          hasPrev:    result.hasPrev,
+        },
+        "Documents retrieved"
       );
     } catch (error) {
       next(error);

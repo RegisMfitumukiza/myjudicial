@@ -24,6 +24,7 @@ import { usePostChatMessages } from "@/api/generated";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
 import type { CaseAnalysis } from "@/features/ai/types";
 import { getErrorMessage } from "@/lib/utils";
+import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -512,6 +513,11 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               Decline
             </Button>
           )}
+        </div>
+
+        {/* Case Documents */}
+        <div className="mt-6">
+          <CaseDocumentsCard bookingId={booking.id} canUpload />
         </div>
 
         {/* Decline Panel */}

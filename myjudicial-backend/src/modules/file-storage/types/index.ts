@@ -110,6 +110,7 @@ export type StoredFileMetadata = {
   id:                  string;
   ownerId:             string;
   ownerType:           FileOwnerType;
+  bookingId:           string | null;
   bucketName:          string;
   objectKey:           string;
   fileName:            string;
@@ -126,6 +127,34 @@ export type StoredFileMetadata = {
   uploadedById:        string | null;
   createdAt:           Date;
   updatedAt:           Date;
+};
+
+// ─── Admin Document View (files listing for the Admin Dashboard) ──────────────
+
+/**
+ * Lean document record for the admin documents page.
+ * Includes the uploader identity (joined from User) so the UI can display
+ * "Clients vs Expert" data with a single paginated, sortable query.
+ * Never exposes objectKey / bucketName or any decryption material.
+ */
+export type AdminDocumentView = {
+  id:           string;
+  fileName:     string;
+  mimeType:     string;
+  fileSize:     number;
+  sensitivity:  FileSensitivity;
+  ownerType:    FileOwnerType;
+  bookingId:    string | null;
+  uploadedById: string | null;
+  createdAt:    Date;
+  updatedAt:    Date;
+  uploadedBy: {
+    id:        string;
+    email:     string;
+    firstName: string;
+    lastName:  string;
+    role:      "CITIZEN" | "EXPERT" | "ADMIN";
+  } | null;
 };
 
 // ─── Signed URL Result ────────────────────────────────────────────────────────

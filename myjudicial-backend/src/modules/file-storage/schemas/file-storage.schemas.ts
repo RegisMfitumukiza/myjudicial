@@ -73,6 +73,14 @@ export const uploadFileSchema = z.object({
    */
   ownerId:   z.string().uuid("ownerId must be a valid UUID"),
   ownerType: z.enum(fileOwnerTypeValues).default("USER"),
+
+  /**
+   * Optional booking/case this document belongs to.
+   * Only settable for case-attachment / case-evidence categories, and only by
+   * a participant of the booking (citizen or assigned expert). Recorded on the
+   * Document so both participants can list the case's files.
+   */
+  bookingId: z.string().uuid("bookingId must be a valid UUID").optional(),
 });
 
 export type UploadFileSchema = z.infer<typeof uploadFileSchema>;
@@ -114,6 +122,31 @@ export const listFilesQuerySchema = z.object({
 });
 
 export type ListFilesQuerySchema = z.infer<typeof listFilesQuerySchema>;
+
+// ─── Admin Documents List Query Schema ────────────────────────────────────────
+
+/**
+ * Query schema for GET /admin/documents.
+ *
+ * role        — "CLIENT" (uploader is a CITIZEN) | "EXPERT" (uploader is an EXPERT)
+ * ownerType   — direct filter on the polymorphic owner discriminator
+ * sensitivity — PRIVATE / CONFIDENTIAL / PUBLIC
+ * search      — case-insensitive match against fileName or uploader email/name
+ * sortBy      — createdAt | fileName | fileSize
+ * order       — asc | desc
+ */
+export const adminListDocumentsQuerySchema = z.object({
+  page:        z.coerce.number().int().min(1).default(1),
+  limit:       z.coerce.number().int().min(1).max(100).default(20),
+  role:        z.enum(["CLIENT", "EXPERT"]).optional(),
+  ownerType:   z.enum(fileOwnerTypeValues).optional(),
+  sensitivity: z.enum(fileSensitivityValues).optional(),
+  search:      z.string().trim().max(255).optional(),
+  sortBy:      z.enum(["createdAt", "fileName", "fileSize"]).default("createdAt"),
+  order:       z.enum(["asc", "desc"]).default("desc"),
+});
+
+export type AdminListDocumentsQuerySchema = z.infer<typeof adminListDocumentsQuerySchema>;
 
 // ─── URL Param Schema ─────────────────────────────────────────────────────────
 

@@ -62,6 +62,20 @@ router.get(
 );
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   BOOKING (CASE) DOCUMENTS
+   Lists every document attached to a booking/case.
+   Participants (citizen + assigned expert) and ADMINs only.
+   Service layer enforces the authorization.
+═══════════════════════════════════════════════════════════════════════════ */
+
+router.get(
+  "/by-booking/:bookingId",
+  authenticate,
+  validateQuery(listFilesQuerySchema),
+  asyncHandler(FileStorageController.listBookingDocuments)
+);
+
+/* ═══════════════════════════════════════════════════════════════════════════
    LOCAL DEV DOWNLOAD
    Serves files from the local filesystem when OCI is not configured.
    DEVELOPMENT ONLY — not for production use.

@@ -139,6 +139,7 @@ model User {
   verificationReviews      ExpertVerification[]      @relation("VerificationReviews")
   triageSessions           TriageSession[]
   ownedDocuments           Document[]                @relation("OwnedDocuments")
+  uploadedDocuments        Document[]                @relation("UploadedDocuments")
   sharedDocuments          DocumentShare[]           @relation("SharedDocuments")
   notificationLogs         NotificationLog[]
   notificationPreference   NotificationPreference?
@@ -945,6 +946,7 @@ model Document {
   deletedAt DateTime?
 
   uploadedById String?
+  uploadedBy   User?   @relation("UploadedDocuments", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   shares    DocumentShare[]
   auditLogs DocumentAudit[]
@@ -955,6 +957,8 @@ model Document {
   @@index([ownerId])
   @@index([ownerType])
   @@index([sensitivity])
+  @@index([bookingId])
+  @@index([uploadedById])
   @@index([isDeleted])
   @@map("documents")
 }

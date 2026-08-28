@@ -7,7 +7,7 @@
  */
 
 import { prisma } from "../../../infrastructure/database/prisma.js";
-import type { FileOwnerType, FileSensitivity, StoredFileMetadata } from "../types/index.js";
+import type { FileOwnerType, FileSensitivity, StoredFileMetadata, AdminDocumentView } from "../types/index.js";
 import type { Prisma } from "../../../generated/prisma/client.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -21,6 +21,7 @@ const documentSelect = {
   id:                  true,
   ownerId:             true,
   ownerType:           true,
+  bookingId:           true,
   bucketName:          true,
   objectKey:           true,
   fileName:            true,
@@ -55,6 +56,7 @@ export type CreateDocumentData = {
   mimeType:            string;
   fileSize:            number;
   sensitivity:         FileSensitivity;
+  bookingId?:          string;
   encryptedAesKey?:    string;
   iv?:                 string;
   encryptionAlgorithm?: string;
@@ -192,6 +194,95 @@ export const FileStorageRepository = {
       records: shares.map((s) => s.document) as StoredFileMetadata[],
       total,
     };
+  },
+
+  /**
+   * Paginated list of non-deleted documents attached to a booking/case.
+   * Access is enforced at the service layer (participants only).
+   */
+  findByBooking: async (
+    bookingId: string,
+    page:      number,
+    limit:     number
+  ): Promise<{ records: StoredFileMetadata[]; total: number }> => {
+    const where: Prisma.DocumentWhereInput = {
+      bookingId,
+      isDeleted: false,
+    };
+
+    const [records, total] = await prisma.$transaction([
+      prisma.document.findMany({
+        where,
+        select:  documentSelect,
+        skip:    (page - 1) * limit,
+        take:    limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.document.count({ where }),
+    ]);
+
+    return { records: records as StoredFileMetadata[], total };
+  },
+
+  /**
+   * Admin documents list — global paginated query over all non-deleted files
+   * with role (uploader CITIZEN/EXPERT), ownerType, sensitivity, free-text
+   * search and sorting. Used by GET /admin/documents.
+   */
+  findAdminDocuments: async (filters: {
+    page:         number;
+    limit:        number;
+    role?:        "CLIENT" | "EXPERT";
+    ownerType?:   FileOwnerType;
+    sensitivity?: FileSensitivity;
+    search?:      string;
+    sortBy:       "createdAt" | "fileName" | "fileSize";
+    order:        "asc" | "desc";
+  }): Promise<{ records: AdminDocumentView[]; total: number }> => {
+    const where: Prisma.DocumentWhereInput = {
+      isDeleted: false,
+      ...(filters.ownerType && { ownerType: filters.ownerType }),
+      ...(filters.sensitivity && { sensitivity: filters.sensitivity }),
+      ...(filters.role && {
+        uploadedBy: { role: filters.role === "CLIENT" ? "CITIZEN" : "EXPERT" },
+      }),
+      ...(filters.search && {
+        OR: [
+          { fileName: { contains: filters.search, mode: "insensitive" } },
+          { uploadedBy: { email: { contains: filters.search, mode: "insensitive" } } },
+          { uploadedBy: { firstName: { contains: filters.search, mode: "insensitive" } } },
+          { uploadedBy: { lastName: { contains: filters.search, mode: "insensitive" } } },
+        ],
+      }),
+    };
+
+    const orderBy: Prisma.DocumentOrderByWithRelationInput = {
+      [filters.sortBy]: filters.order,
+    };
+
+    const [records, total] = await prisma.$transaction([
+      prisma.document.findMany({
+        where,
+        select: {
+          ...documentSelect,
+          uploadedBy: {
+            select: {
+              id:        true,
+              email:     true,
+              firstName: true,
+              lastName:  true,
+              role:      true,
+            },
+          },
+        },
+        skip:    (filters.page - 1) * filters.limit,
+        take:    filters.limit,
+        orderBy,
+      }),
+      prisma.document.count({ where }),
+    ]);
+
+    return { records: records as unknown as AdminDocumentView[], total };
   },
 
   // ─── Update ────────────────────────────────────────────────────────────────

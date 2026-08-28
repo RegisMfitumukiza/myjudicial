@@ -22,6 +22,7 @@ import { getChatConversationsByBookingBookingId } from "@/api/generated";
 import type { Booking } from "@/api/generated";
 import type { ServiceNested } from "@/api/generated";
 import { useTranslations } from "next-intl";
+import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 
 type BookingWithService = Booking & {
   service?: ServiceNested & { description?: string; durationMin?: number };
@@ -499,6 +500,11 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               {t("addToCalendar")}
             </Button>
           )}
+        </div>
+
+        {/* Case Documents */}
+        <div className="mt-6">
+          <CaseDocumentsCard bookingId={booking.id} canUpload />
         </div>
 
         {/* Cancel Modal */}

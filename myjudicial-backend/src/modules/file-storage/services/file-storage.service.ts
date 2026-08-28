@@ -24,6 +24,7 @@ import {
   getDefaultBucketName,
 } from "../../../infrastructure/storage/oci-object-storage.service.js";
 import { FileStorageRepository } from "../repositories/file-storage.repository.js";
+import { BookingRepository } from "../../bookings/booking.repository.js";
 import { writeAuditLog } from "../../../shared/utils/audit.js";
 import { wrapKey, unwrapKey, getMasterKeyId } from "../../../infrastructure/kms/oci-kms.service.js";
 import { encryptBuffer, decryptBuffer } from "../../../shared/utils/crypto.js";
@@ -50,6 +51,8 @@ import type {
   UploadFileDto,
   ShareFileDto,
   PaginatedFiles,
+  AdminListDocumentsDto,
+  PaginatedAdminDocuments,
 } from "../dto/upload-file.dto.ts";
 
 // ─── Object Key Builder ────────────────────────────────────────────────────────
@@ -105,6 +108,19 @@ const canAccess = async (
 ): Promise<boolean> => {
   if (requester.role === "ADMIN") return true;
   if (doc.sensitivity === "PUBLIC") return true;
+
+  // Case documents: the booking's citizen and its assigned expert may access
+  // every document attached to that booking (both sides' uploads).
+  if (doc.bookingId) {
+    const booking = await BookingRepository.findById(doc.bookingId);
+    if (
+      booking &&
+      (booking.citizenId === requester.userId ||
+        booking.expertId === requester.expertProfileId)
+    ) {
+      return true;
+    }
+  }
 
   // Direct ownership
   if (doc.ownerType === "USER"   && doc.ownerId === requester.userId)             return true;
@@ -174,9 +190,31 @@ export const FileStorageService = {
     buffer:      Buffer,
     uploadedBy:  string,
     ipAddress?:  string,
-    userAgent?:  string
+    userAgent?:  string,
+    requester?:  RequesterContext
   ): Promise<StoredFileMetadata> => {
     validateUpload(dto, buffer);
+
+    // Case documents must target an existing booking and may only be uploaded
+    // by one of its participants (citizen or assigned expert).
+    if (dto.bookingId) {
+      if (!["case-attachment", "case-evidence"].includes(dto.category)) {
+        throw new FileUploadError(
+          "bookingId may only be set for 'case-attachment' or 'case-evidence' uploads"
+        );
+      }
+      const booking = await BookingRepository.findById(dto.bookingId);
+      if (!booking) {
+        throw new FileUploadError("Booking not found for this case document upload");
+      }
+      const isParticipant =
+        requester?.role === "ADMIN" ||
+        booking.citizenId === requester?.userId ||
+        booking.expertId === requester?.expertProfileId;
+      if (!isParticipant) {
+        throw new FileAccessDeniedError("You must be a participant of the booking to upload case documents");
+      }
+    }
 
     const objectKey  = buildObjectKey(dto.category, dto.ownerId);
     const bucketName = getDefaultBucketName();
@@ -216,6 +254,7 @@ export const FileStorageService = {
       stored = await FileStorageRepository.create({
         ownerId:             dto.ownerId,
         ownerType:           dto.ownerType,
+        bookingId:           dto.bookingId,
         bucketName,
         objectKey,
         fileName:            dto.fileName,
@@ -372,6 +411,65 @@ export const FileStorageService = {
       totalPages,
       hasNext:    page < totalPages,
       hasPrev:    page > 1,
+    };
+  },
+
+  // ── Booking Documents ─────────────────────────────────────────────────────
+
+  /**
+   * List all documents attached to a booking/case.
+   * Only the booking's citizen, its assigned expert, or an ADMIN may list.
+   * This is the "case documents" view — lets each participant see the other
+   * side's case-attachment / case-evidence uploads for that booking.
+   */
+  listBookingDocuments: async (
+    bookingId: string,
+    requester: RequesterContext,
+    page:      number,
+    limit:     number
+  ): Promise<PaginatedFiles> => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new FileNotFoundError();
+
+    const canView =
+      requester.role === "ADMIN" ||
+      booking.citizenId === requester.userId ||
+      booking.expertId === requester.expertProfileId;
+    if (!canView) throw new FileAccessDeniedError();
+
+    const { records, total } = await FileStorageRepository.findByBooking(bookingId, page, limit);
+
+    const totalPages = Math.ceil(total / limit);
+    return {
+      files:      records,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext:    page < totalPages,
+      hasPrev:    page > 1,
+    };
+  },
+
+  // ── Admin List ────────────────────────────────────────────────────────────
+
+  /**
+   * Global, paginated documents listing for the Admin Dashboard.
+   * RBAC is enforced by the requireAdmin middleware; this method applies
+   * the role/ownerType/sensitivity/search filters and sorting.
+   */
+  adminListDocuments: async (dto: AdminListDocumentsDto): Promise<PaginatedAdminDocuments> => {
+    const { records, total } = await FileStorageRepository.findAdminDocuments(dto);
+
+    const totalPages = Math.ceil(total / dto.limit);
+    return {
+      documents:  records,
+      total,
+      page:       dto.page,
+      limit:      dto.limit,
+      totalPages,
+      hasNext:    dto.page < totalPages,
+      hasPrev:    dto.page > 1,
     };
   },
 

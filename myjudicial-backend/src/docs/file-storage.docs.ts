@@ -46,6 +46,30 @@ const StoredFileMetadataDoc = z.object({
 
 registry.register("StoredFileMetadata", StoredFileMetadataDoc);
 
+const UploadedByUserDoc = z.object({
+  id: uuidField,
+  email: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  role: z.enum(["CITIZEN", "EXPERT", "ADMIN"]),
+}).openapi("UploadedByUser");
+
+const AdminDocumentViewDoc = z.object({
+  id: uuidField,
+  fileName: z.string(),
+  mimeType: z.string(),
+  fileSize: z.number(),
+  sensitivity: z.string(),
+  ownerType: z.string(),
+  bookingId: z.string().nullable(),
+  uploadedById: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  uploadedBy: UploadedByUserDoc.nullable(),
+}).openapi("AdminDocumentView");
+
+registry.register("AdminDocumentView", AdminDocumentViewDoc);
+
 const FileSignedUrlResultDoc = z.object({
   url: z.string(),
   expiresAt: z.string(),
@@ -71,11 +95,11 @@ registry.registerPath({
           schema: {
             type: "object",
             properties: {
-              file: { type: "string", format: "binary", description: "The encrypted file payload" },
-              metadata: { 
-                type: "string", 
-                description: 'JSON string containing UploadFileDto: { fileName, mimeType, category, sensitivity, ownerId, ownerType, encryption: { encryptionAlgorithm, keyVersion, encryptedAt, encryptedAesKey, iv } }' 
-              },
+file: { type: "string", format: "binary", description: "The encrypted file payload" },
+               metadata: { 
+                 type: "string", 
+                 description: 'JSON string containing UploadFileDto: { fileName, mimeType, category, sensitivity, ownerId, ownerType, bookingId?, encryption: { encryptionAlgorithm, keyVersion, encryptedAt, encryptedAesKey, iv } }' 
+               },
             },
           },
         },
@@ -197,6 +221,81 @@ registry.registerPath({
   request: { params: z.object({ fileId: uuidField }).openapi("DeleteFileParams") },
   responses: {
     204: { description: "No Content (Deleted)" },
+    ...errResponses,
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/files/by-booking/{bookingId}",
+  tags: ["File Storage & Vault"],
+  summary: "List booking (case) documents",
+  description: "Lists every non-deleted document attached to a booking/case. Only the booking's citizen, its assigned expert, or an ADMIN may list.",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({ bookingId: uuidField }).openapi("ListBookingDocumentsParams"),
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }).openapi("ListBookingDocumentsQuery"),
+  },
+  responses: {
+    200: {
+      description: "Paginated booking documents",
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.literal(true),
+            message: z.string(),
+            data: z.array(StoredFileMetadataDoc),
+            meta: z.object({
+              page: z.number(), limit: z.number(), total: z.number(),
+              totalPages: z.number(), hasNext: z.boolean(), hasPrev: z.boolean(),
+            }),
+          }),
+        },
+      },
+    },
+    ...errResponses,
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/admin/documents",
+  tags: ["Admin • Documents"],
+  summary: "List all documents (admin)",
+  description: "Global paginated documents listing with uploader-role (CLIENT/EXPERT), ownerType, sensitivity and free-text filters plus sorting. Requires ADMIN session.",
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+      role: z.enum(["CLIENT", "EXPERT"]).optional(),
+      ownerType: z.enum(["USER", "EXPERT", "CASE", "COMPLIANCE"]).optional(),
+      sensitivity: z.enum(["PUBLIC", "PRIVATE", "CONFIDENTIAL"]).optional(),
+      search: z.string().optional(),
+      sortBy: z.enum(["createdAt", "fileName", "fileSize"]).optional(),
+      order: z.enum(["asc", "desc"]).optional(),
+    }).openapi("AdminListDocumentsQuery"),
+  },
+  responses: {
+    200: {
+      description: "Paginated admin documents list",
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.literal(true),
+            message: z.string(),
+            data: z.array(AdminDocumentViewDoc),
+            meta: z.object({
+              page: z.number(), limit: z.number(), total: z.number(),
+              totalPages: z.number(), hasNext: z.boolean(), hasPrev: z.boolean(),
+            }),
+          }),
+        },
+      },
+    },
     ...errResponses,
   },
 });

@@ -12,6 +12,7 @@ import type {
   FileCategory,
   EncryptionMetadata,
   StoredFileMetadata,
+  AdminDocumentView,
 } from "../types/index.js";
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
@@ -36,6 +37,8 @@ export type UploadFileDto = {
   /** Polymorphic owner reference */
   ownerId:     string;
   ownerType:   FileOwnerType;
+  /** Booking/case the document belongs to (case-attachment / case-evidence only) */
+  bookingId?:  string;
 };
 
 // ─── Signed URL Request ────────────────────────────────────────────────────────
@@ -74,4 +77,35 @@ export type PaginatedFiles = {
   totalPages: number;
   hasNext:    boolean;
   hasPrev:    boolean;
+};
+
+// ─── Admin List ───────────────────────────────────────────────────────────────
+
+export type AdminListDocumentsDto = {
+  page:         number;
+  limit:        number;
+  /** "CLIENT" filters to uploaders with role CITIZEN; "EXPERT" to role EXPERT */
+  role?:        "CLIENT" | "EXPERT";
+  ownerType?:   FileOwnerType;
+  sensitivity?: FileSensitivity;
+  search?:      string;
+  sortBy:       "createdAt" | "fileName" | "fileSize";
+  order:        "asc" | "desc";
+};
+
+export type PaginatedAdminDocuments = {
+  documents:  AdminDocumentView[];
+  total:      number;
+  page:       number;
+  limit:      number;
+  totalPages: number;
+  hasNext:    boolean;
+  hasPrev:    boolean;
+};
+
+// ─── Booking Documents ─────────────────────────────────────────────────────────
+
+export type BookingDocumentsDto = {
+  page:  number;
+  limit: number;
 };

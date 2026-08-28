@@ -12,6 +12,7 @@ import mapSearchRoutes from "../../modules/map-search/routes/map-search.routes.j
 import userRoutes from "../../modules/users/user.routes.js";
 import adminUserRoutes from "../../modules/users/admin-user.routes.js";
 import fileStorageRoutes from "../../modules/file-storage/routes/file-storage.routes.js";
+import adminDocumentRoutes from "../../modules/file-storage/routes/admin-document.routes.js";
 import reviewRoutes from "../../modules/reviews/review.routes.js";
 import adminReviewRoutes from "../../modules/reviews/admin-review.routes.js";
 import chatRoutes from "../../modules/chat/routes/index.js";
@@ -54,6 +55,7 @@ router.use("/map-search", mapSearchRoutes);
 router.use("/search", mapSearchRoutes);
 router.use("/search-map", mapSearchRoutes);
 router.use("/files", fileStorageRoutes);
+router.use("/admin/documents", adminDocumentRoutes);
 router.use("/", reviewRoutes);
 router.use("/chat", chatRoutes);
 router.use("/admin/reviews", adminReviewRoutes);

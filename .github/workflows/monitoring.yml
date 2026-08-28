@@ -1,0 +1,109 @@
+name: VPS Health Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/monitor.sh'
+      - '.github/workflows/monitoring.yml'
+
+# issues: write lets the probe open/close a single tracked alert issue.
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe VPS health (host, containers, public ingress)
+        id: probe
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set +e
+          report="$RUNNER_TEMP/monitor-report.txt"
+          echo "report_path=$report" >> "$GITHUB_OUTPUT"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/monitor_key
+          chmod 600 ~/.ssh/monitor_key
+          port="${{ secrets.VPS_PORT || '22' }}"
+          # Stream the CURRENT monitor.sh from this repo over stdin so the
+          # VPS never needs to wait for a deploy to ship the new probe, and
+          # a missing repo copy can't silently skip the check.
+          ssh -i ~/.ssh/monitor_key \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o ConnectTimeout=25 \
+              -o ServerAliveInterval=10 \
+              -p "$port" \
+              "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+              "cd ${{ secrets.APP_DIR }} && bash -s" < scripts/monitor.sh > "$report" 2>&1
+          rc=$?
+          if [ "$rc" -ne 0 ] && ! grep -qE '^(OK|WARN|CRIT)' "$report"; then
+            # The probe never produced structured output (ssh refused, host
+            # down, app dir missing, ...). Surface that as a CRIT directly.
+            {
+              printf 'CRIT probe failed before reporting: ssh exit=%s\n' "$rc"
+              tail -c 4000 "$report"
+            } >> "$report"
+          fi
+          # The monitor script's own exit already stays 1 on any CRIT; an
+          # aborted probe becomes CRIT above. Drive the step outcome from the
+          # report so this step fails => run is red => incident is received.
+          if grep -qE '^CRIT' "$report"; then
+            cat "$report"
+            echo "::error::VPS health probe reported CRIT - open/update alert issue"
+            exit 1
+          fi
+          cat "$report"
+          exit 0
+
+      - name: Open/update or clear the alert issue
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          report="${{ steps.probe.outputs.report_path }}"
+          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          label="monitoring"
+          open_id="$(gh issue list --repo "$GITHUB_REPOSITORY" --label "$label" --state open --json number -q '.[0].number // empty' 2>/dev/null || true)"
+
+          if grep -qE '^CRIT' "$report"; then
+            body="$(cat "$report")"
+            if [ -z "$open_id" ]; then
+              gh issue create --repo "$GITHUB_REPOSITORY" \
+                --title "[monitor] Service degraded $now" \
+                --label "$label" \
+                --body "$body"
+              echo "created alert issue"
+            else
+              # Burst dedupe: only refresh an existing issue if its last
+              # activity is older than 15 minutes.
+              last="$(gh issue view "$open_id" --repo "$GITHUB_REPOSITORY" --json updatedAt -q .updatedAt 2>/dev/null || true)"
+              if [ -n "$last" ]; then
+                last_epoch="$(date -u -d "$last" +%s)" || last_epoch=0
+                now_epoch="$(date -u +%s)"
+                if [ $(( now_epoch - last_epoch )) -ge 900 ]; then
+                  gh issue comment "$open_id" --repo "$GITHUB_REPOSITORY" --body "$body" >/dev/null
+                  echo "commented on alert issue $open_id"
+                else
+                  echo "alert issue $open_id already active (silence window)"
+                fi
+              fi
+            fi
+          else
+            if [ -n "$open_id" ]; then
+              gh issue comment "$open_id" --repo "$GITHUB_REPOSITORY" --body "Recovered $now - all probes OK" >/dev/null || true
+              gh issue close "$open_id" --repo "$GITHUB_REPOSITORY" || true
+              echo "closed alert issue $open_id (recovered)"
+            else
+              echo "healthy - no alert issue"
+            fi
+          fi

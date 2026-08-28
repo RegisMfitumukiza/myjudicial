@@ -11,6 +11,11 @@ on:
 
 jobs:
   deploy:
+    # Shared across all push deploy workflows (frontend/backend/ai/tunnel):
+    # queued, never cancelled.
+    concurrency:
+      group: vps-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: SSH into VPS and deploy tunnel
@@ -23,7 +28,11 @@ jobs:
           script: |
             echo "=== Deploying Cloudflare Tunnel ==="
             cd ${{ secrets.APP_DIR }}
-            git pull origin main
+
+            exec 9> /tmp/myjudicial-deploy.lock
+            flock -x 9 || { echo "ERROR: could not acquire deploy lock"; exit 1; }
+
+            git pull --ff-only origin main
             docker compose build cloudflared
             docker compose up -d --force-recreate cloudflared
             echo "Cloudflare Tunnel deployed successfully."

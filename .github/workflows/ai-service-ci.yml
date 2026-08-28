@@ -59,6 +59,11 @@ jobs:
         run: pytest tests/ -v
 
   deploy:
+    # Shared across all push deploy workflows (frontend/backend/ai/tunnel):
+    # queued, never cancelled, so each service's tagged image still lands.
+    concurrency:
+      group: vps-deploy
+      cancel-in-progress: false
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
@@ -103,11 +108,14 @@ jobs:
             set -e
             cd ${{ secrets.APP_DIR }}
 
+            exec 9> /tmp/myjudicial-deploy.lock
+            flock -x 9 || { echo "ERROR: could not acquire deploy lock"; exit 1; }
+
             # Free disk space: old tagged images accumulate across deployments.
             docker system prune -af || true
             docker builder prune -af || true
 
-            git pull origin main
+            git pull --ff-only origin main
 
             if grep -q '^AI_TAG=' .env; then
               sed -i "s|^AI_TAG=.*|AI_TAG=${{ github.sha }}|" .env

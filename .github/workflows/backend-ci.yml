@@ -50,6 +50,13 @@ jobs:
         run: npm test
 
   deploy:
+    # Deploys are serialized across ALL push workflows (frontend/backend/ai/
+    # tunnel) so concurrent runs cannot corrupt .env, race `git pull`, or
+    # thrash Docker during prunes. `cancel-in-progress: false` queues, never
+    # cancels (each service must still land its tag).
+    concurrency:
+      group: vps-deploy
+      cancel-in-progress: false
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
@@ -94,11 +101,20 @@ jobs:
             set -e
             cd ${{ secrets.APP_DIR }}
 
+            # In-band lock in addition to the GitHub-level vps-deploy
+            # concurrency group: also covers manual deploys and keeps
+            # .env/git/daemon operations atomic. Auto-released when the
+            # SSH session exits. `&&` chaining keeps set -e semantics.
+            exec 9> /tmp/myjudicial-deploy.lock
+            flock -x 9 || { echo "ERROR: could not acquire deploy lock"; exit 1; }
+
             # Free disk space: old tagged images accumulate across deployments.
             docker system prune -af || true
             docker builder prune -af || true
 
-            git pull origin main
+            # --ff-only: single deploy at a time, so any divergence is a real
+            # conflict (e.g. local edits on the VPS) and must fail loudly.
+            git pull --ff-only origin main
 
             # Pin the deployed tag so reboots/recreates survive rollbacks
             if grep -q '^BACKEND_TAG=' .env; then

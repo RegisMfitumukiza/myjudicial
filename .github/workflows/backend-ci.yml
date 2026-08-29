@@ -49,6 +49,15 @@ jobs:
         working-directory: myjudicial-backend
         run: npm test
 
+      # OpenAPI-first guardrail: the committed spec snapshot (../openapi/api-docs.json)
+      # must always match the registry. If code changed docs and forgot to run
+      # `npm run export:openapi`, this step fails loudly and blocks the merge.
+      - name: OpenAPI spec drift check
+        working-directory: myjudicial-backend
+        run: |
+          npm run export:openapi
+          git diff --exit-code -- ../openapi/api-docs.json
+
   deploy:
     # Deploy jobs are serialized on the VPS by an in-band flock(1) lock
     # (/tmp/myjudicial-deploy.lock, held for the whole SSH session). We do NOT

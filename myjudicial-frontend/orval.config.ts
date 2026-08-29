@@ -3,7 +3,9 @@ import { defineConfig } from "orval";
 export default defineConfig({
   myjudicial: {
     input: {
-      target: "http://localhost:4000/api-docs.json",
+      // Canonical snapshot exported from the backend:
+      //   myjudicial-backend: npm run export:openapi
+      target: "../openapi/api-docs.json",
     },
     output: {
       target: "./src/api/generated.ts",

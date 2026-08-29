@@ -17,10 +17,10 @@ import "../../docs/analytics.docs.js";
 import "../../docs/chat.docs.js";
 import "../../docs/notifications.docs.js";
 
-export function setupSwagger(app: Express): void {
+export function buildOpenApiSpec() {
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
-  const spec = generator.generateDocument({
+  return generator.generateDocument({
     openapi: "3.0.0",
     info: {
       title: "MyJudicial API",
@@ -42,12 +42,16 @@ export function setupSwagger(app: Express): void {
             ? "Production"
             : "Development",
       },
-            {
-        url: "https://myjudicial-backend.onrender.com/api-docs/api/v1",
+      {
+        url: "https://api.myjudicial.com/api/v1",
         description: "Production server",
-      }
+      },
     ],
   });
+}
+
+export function setupSwagger(app: Express): void {
+  const spec = buildOpenApiSpec();
   app.get("/api-docs", (req, res, next) => {
     const urlWithoutQuery = req.originalUrl.split("?")[0];
     if (urlWithoutQuery === "/api-docs") {

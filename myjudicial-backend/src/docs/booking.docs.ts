@@ -105,6 +105,7 @@ const ServiceNestedSchema = z
     name: z.string(),
     flatFee: z.number().describe("Flat fee in RWF"),
     currency: z.string().default("RWF"),
+    durationMin: z.number().int().describe("Duration in minutes"),
   })
   .openapi("ServiceNested");
 
@@ -151,6 +152,10 @@ export const BookingSchema = z
     citizenNotes: z.string().optional().nullable(),
     escrowLockedAt: isoDateTimeField.optional().nullable(),
     escrowReleasedAt: isoDateTimeField.optional().nullable(),
+    pendingRescheduleStart: isoDateTimeField.optional().nullable().describe("Requested reschedule window start"),
+    pendingRescheduleEnd: isoDateTimeField.optional().nullable().describe("Requested reschedule window end"),
+    pendingRescheduleReason: z.string().optional().nullable().describe("Why the reschedule was requested"),
+    pendingRescheduleRequestedBy: z.string().optional().nullable().describe("Who requested: CITIZEN or EXPERT"),
     platformFee: z.number().optional().nullable(),
     expertPayout: z.number().optional().nullable(),
     completedAt: isoDateTimeField.optional().nullable(),

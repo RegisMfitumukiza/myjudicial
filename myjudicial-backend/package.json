@@ -15,7 +15,8 @@
     "db:seed:experts": "tsx prisma/seed-experts.ts",
     "fix:role": "tsx scripts/fix-user-role.ts",
     "test": "node tests/run.mjs",
-    "test:coverage": "c8 --all --include=src --exclude=src/generated --reporter=text --reporter=lcov --check-coverage --lines=40 --statements=40 --functions=30 --branches=70 npm test"
+    "test:coverage": "c8 --all --include=src --exclude=src/generated --reporter=text --reporter=lcov --check-coverage --lines=40 --statements=40 --functions=30 --branches=70 npm test",
+    "export:openapi": "node --import tsx scripts/export-openapi.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

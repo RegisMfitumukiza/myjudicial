@@ -50,13 +50,12 @@ jobs:
         run: npm test
 
   deploy:
-    # Deploys are serialized across ALL push workflows (frontend/backend/ai/
-    # tunnel) so concurrent runs cannot corrupt .env, race `git pull`, or
-    # thrash Docker during prunes. `cancel-in-progress: false` queues, never
-    # cancels (each service must still land its tag).
-    concurrency:
-      group: vps-deploy
-      cancel-in-progress: false
+    # Deploy jobs are serialized on the VPS by an in-band flock(1) lock
+    # (/tmp/myjudicial-deploy.lock, held for the whole SSH session). We do NOT
+    # use a GitHub concurrency group here: group semantics cancel older queued
+    # jobs in favor of newer ones ("higher priority waiting request"), which
+    # would silently drop a service's deploy. flock keeps every deploy running
+    # until the lock is free, and `-w` turns any starvation into a loud error.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
@@ -101,12 +100,13 @@ jobs:
             set -e
             cd ${{ secrets.APP_DIR }}
 
-            # In-band lock in addition to the GitHub-level vps-deploy
-            # concurrency group: also covers manual deploys and keeps
-            # .env/git/daemon operations atomic. Auto-released when the
-            # SSH session exits. `&&` chaining keeps set -e semantics.
+            # In-band lock serializes ALL deploys (backend/frontend/ai/tunnel)
+            # plus manual deploys: one SSH session holds /tmp/myjudicial-deploy.lock
+            # until it exits, so .env/git/daemon operations are atomic. `-w 1200`
+            # aborts after 20min of starvation with a loud error instead of
+            # hanging the job forever.
             exec 9> /tmp/myjudicial-deploy.lock
-            flock -x 9 || { echo "ERROR: could not acquire deploy lock"; exit 1; }
+            flock -x -w 1200 9 || { echo "ERROR: deploy lock busy > 20min"; exit 1; }
 
             # Free disk space: old tagged images accumulate across deployments.
             docker system prune -af || true

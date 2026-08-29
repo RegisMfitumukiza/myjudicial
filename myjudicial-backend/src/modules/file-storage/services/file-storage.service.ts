@@ -45,8 +45,8 @@ import type {
   FileOwnerType,
   FileSensitivity,
   StoredFileMetadata,
-  FileSignedUrlResult,
 } from "../types/index.js";
+import { isBookingParticipant, isOwner, type RequesterContext } from "../access-rules.js";
 import type {
   UploadFileDto,
   ShareFileDto,
@@ -85,12 +85,6 @@ const buildObjectKey = (category: FileCategory, ownerId: string): string => {
 
 // ─── Authorization Checks ──────────────────────────────────────────────────────
 
-type RequesterContext = {
-  userId:          string;
-  role:            "CITIZEN" | "EXPERT" | "ADMIN";
-  expertProfileId: string | null;
-};
-
 /**
  * Resolves whether a requester may access a given document.
  * Returns true if access is granted, false otherwise.
@@ -98,9 +92,10 @@ type RequesterContext = {
  * Rules:
  * 1. ADMIN can access everything.
  * 2. PUBLIC files are accessible by any authenticated user.
- * 3. Owner matches ownerId (for USER owner type).
- * 4. Expert matches expertProfileId (for EXPERT owner type).
- * 5. Check DocumentShare for shared access.
+ * 3. Booking participants (citizen + assigned expert) may access all the
+ *    booking's case documents.
+ * 4. Owner matches ownerId (for USER/EXPERT/COMPLIANCE owner types).
+ * 5. Explicit DocumentShare grants access.
  */
 const canAccess = async (
   doc:       StoredFileMetadata,
@@ -109,25 +104,13 @@ const canAccess = async (
   if (requester.role === "ADMIN") return true;
   if (doc.sensitivity === "PUBLIC") return true;
 
-  // Case documents: the booking's citizen and its assigned expert may access
-  // every document attached to that booking (both sides' uploads).
   if (doc.bookingId) {
     const booking = await BookingRepository.findById(doc.bookingId);
-    if (
-      booking &&
-      (booking.citizenId === requester.userId ||
-        booking.expertId === requester.expertProfileId)
-    ) {
-      return true;
-    }
+    if (isBookingParticipant(doc, booking, requester)) return true;
   }
 
-  // Direct ownership
-  if (doc.ownerType === "USER"   && doc.ownerId === requester.userId)             return true;
-  if (doc.ownerType === "EXPERT" && doc.ownerId === requester.expertProfileId)     return true;
-  if (doc.ownerType === "COMPLIANCE" && doc.ownerId === requester.expertProfileId) return true;
+  if (isOwner(doc, requester)) return true;
 
-  // Share grant
   const hasShare = await FileStorageRepository.findActiveShare(doc.id, requester.userId);
   return hasShare;
 };
@@ -138,10 +121,7 @@ const canAccess = async (
  */
 const canDelete = (doc: StoredFileMetadata, requester: RequesterContext): boolean => {
   if (requester.role === "ADMIN") return true;
-  if (doc.ownerType === "USER"   && doc.ownerId === requester.userId)             return true;
-  if (doc.ownerType === "EXPERT" && doc.ownerId === requester.expertProfileId)    return true;
-  if (doc.ownerType === "COMPLIANCE" && doc.ownerId === requester.expertProfileId) return true;
-  return false;
+  return isOwner(doc, requester);
 };
 
 // ─── Validation ────────────────────────────────────────────────────────────────

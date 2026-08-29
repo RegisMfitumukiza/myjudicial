@@ -1,0 +1,41 @@
+name: Production Smoke
+
+on:
+  schedule:
+    # Hourly sanity check of the public surface: catches nobody-noticed
+    # regressions (frontend down, API unhealthy through the tunnel, routes
+    # missing/opened up) between deploy pushes.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/smoke.mjs'
+      - '.github/workflows/smoke.yml'
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run production smoke tests
+        env:
+          SMOKE_API_URL: 'https://api.myjudicial.com'
+          SMOKE_WEB_URL: 'https://myjudicial.com'
+        run: |
+          # Three global rounds with a wait: a push-triggered run can race the
+          # deploy pipeline (backend image roll takes minutes). Each round
+          # already retries individual checks, and the rounds give a deploy in
+          # flight up to ~7 minutes to finish before we call it failed.
+          for round in 1 2 3; do
+            echo "=== smoke round $round/3 ==="
+            if node scripts/smoke.mjs; then exit 0; fi
+            [ "$round" -lt 3 ] && sleep 120
+          done
+          exit 1

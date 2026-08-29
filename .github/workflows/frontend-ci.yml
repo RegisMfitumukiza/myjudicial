@@ -54,11 +54,10 @@ jobs:
         run: npm run test
 
   deploy:
-    # Shared across all push deploy workflows (frontend/backend/ai/tunnel):
-    # queued, never cancelled, so each service's tagged image still lands.
-    concurrency:
-      group: vps-deploy
-      cancel-in-progress: false
+    # Deploy jobs are serialized on the VPS by an in-band flock(1) lock. A
+    # GitHub concurrency group is deliberately NOT used here: group semantics
+    # cancel older queued jobs when a newer one arrives, silently dropping a
+    # service's deploy. flock keeps every deploy running into completion.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
@@ -130,7 +129,7 @@ jobs:
             cd ${{ secrets.APP_DIR }}
 
             exec 9> /tmp/myjudicial-deploy.lock
-            flock -x 9 || { echo "ERROR: could not acquire deploy lock"; exit 1; }
+            flock -x -w 1200 9 || { echo "ERROR: deploy lock busy > 20min"; exit 1; }
 
             # Free disk space: old tagged images accumulate across deployments.
             docker system prune -af || true

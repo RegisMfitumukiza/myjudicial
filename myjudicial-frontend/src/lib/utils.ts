@@ -25,3 +25,17 @@ export function getErrorMessage(error: unknown, fallback?: string): string {
   // Never surface raw exception text (stack traces, JSON, network jargon).
   return generic
 }
+
+/**
+ * Formats an amount of Rwandan Francs for concise dashboard display.
+ * - < 1000 → exact full value (e.g. "RWF 845")
+ * - >= 1000 → compact thousands (e.g. "RWF 1.2k", "RWF 15.0k")
+ * - 0 / missing → "RWF 0" (never a confusing "RWF 0.0k")
+ */
+export function formatRWF(amount?: number | null): string {
+  const value = typeof amount === "number" && Number.isFinite(amount) ? amount : 0
+  if (value < 1000) {
+    return `RWF ${Math.round(value).toLocaleString()}`
+  }
+  return `RWF ${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`
+}

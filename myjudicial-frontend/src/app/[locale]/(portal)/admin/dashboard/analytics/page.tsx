@@ -44,6 +44,7 @@ import {
   useGetAdminAnalyticsCompliance,
 } from "@/api/generated";
 import { apiFetch } from "@/lib/api/client";
+import { formatRWF } from "@/lib/utils";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
@@ -367,7 +368,7 @@ export default function AnalyticsPage() {
         />
         <StatCard
           label="Total Revenue"
-          value={`RWF ${((revenue?.totals?.totalRevenue || 0) / 1000).toFixed(1)}k`}
+          value={formatRWF(revenue?.totals?.totalRevenue)}
           icon={DollarSign}
         />
       </div>
@@ -1054,17 +1055,17 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <StatCard
           label="Platform Fees"
-          value={`RWF ${((revenue?.totals?.platformFees || 0) / 1000).toFixed(1)}k`}
+          value={formatRWF(revenue?.totals?.platformFees)}
           icon={BarChart3}
         />
         <StatCard
           label="Expert Payouts"
-          value={`RWF ${((revenue?.totals?.expertPayouts || 0) / 1000).toFixed(1)}k`}
+          value={formatRWF(revenue?.totals?.expertPayouts)}
           icon={DollarSign}
         />
         <StatCard
           label="Escrow Locked"
-          value={`RWF ${((revenue?.totals?.escrowLocked || 0) / 1000).toFixed(1)}k`}
+          value={formatRWF(revenue?.totals?.escrowLocked)}
           icon={Clock}
         />
       </div>

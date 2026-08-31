@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   Users, BadgeCheck, DollarSign, AlertCircle,
   UserCheck, Briefcase, ShieldAlert, FileCheck,
-  Star, Clock, ArrowRight,
+  Clock, ArrowRight, Plus,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar,
@@ -20,6 +20,7 @@ import { ErrorState } from "@/shared/components/dashboard";
 import { EmptyState } from "@/shared/components/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
+import { formatRWF } from "@/lib/utils";
 
 function resolveValue(obj: any, path: string[]): number | null {
   let current = obj;
@@ -34,11 +35,14 @@ export default function AdminDashboardPage() {
   const t = useTranslations("admin.dashboard");
   const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
   const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
-  const { data: verifRes, isLoading: verifLoading } = useGetAdminVerificationQueue();
+  const { data: verifRes } = useGetAdminVerificationQueue();
 
   const summary = summaryRes?.status === 200 ? summaryRes.data.data : null;
   const revenue = revenueRes?.status === 200 ? revenueRes.data.data : null;
-  const verifQueue = (verifRes as any)?.status === 200 ? (verifRes as any).data.data : [];
+  const verifQueue = useMemo(
+    () => ((verifRes as any)?.status === 200 ? (verifRes as any).data.data : []),
+    [verifRes]
+  );
   const pendingVerifications = Array.isArray(verifQueue) ? verifQueue.filter((v: any) => v.status === "PENDING").length : 0;
 
   const platformStats = useMemo(() => {
@@ -63,6 +67,15 @@ export default function AdminDashboardPage() {
     }));
   }, [revenue]);
 
+  // Most recent verification activity (newest first) for the activity feed
+  const recentVerifications = useMemo(() => {
+    return Array.isArray(verifQueue)
+      ? [...verifQueue]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5)
+      : [];
+  }, [verifQueue]);
+
   const isLoading = summaryLoading || revenueLoading;
   const hasError = summaryError || revenueError;
 
@@ -84,6 +97,34 @@ export default function AdminDashboardPage() {
   }
 
   const hasData = platformStats && (platformStats.totalUsers > 0 || platformStats.totalExperts > 0);
+
+  const quickActions = [
+    {
+      href: "/admin/dashboard/experts",
+      icon: Plus,
+      label: t("addExpert"),
+      desc: t("addExpertDesc"),
+    },
+    {
+      href: "/admin/dashboard/verifications",
+      icon: FileCheck,
+      label: t("reviewVerifications"),
+      desc: t("reviewVerificationsDesc"),
+      badge: pendingVerifications > 0 ? pendingVerifications : undefined,
+    },
+    {
+      href: "/admin/dashboard/users",
+      icon: UserCheck,
+      label: t("manageUsers"),
+      desc: t("manageUsersDesc"),
+    },
+    {
+      href: "/admin/dashboard/finance",
+      icon: DollarSign,
+      label: t("viewFinance"),
+      desc: t("viewFinanceDesc"),
+    },
+  ];
 
   return (
     <div className="space-y-6 p-6 lg:p-8">
@@ -123,95 +164,182 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* Platform Overview */}
-      {hasData && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard
-            label={t("totalUsers")}
-            value={platformStats!.totalUsers.toLocaleString()}
-            icon={Users}
-            hint={`${platformStats!.newUsersToday} ${t("newTodayDesc")}`}
-          />
-          <StatCard
-            label={t("verifiedLawyers")}
-            value={platformStats!.verifiedExperts.toLocaleString()}
-            icon={BadgeCheck}
-            hint={`${platformStats!.totalExperts} ${t("lawyersDesc")}`}
-          />
-          <StatCard
-            label={t("clients")}
-            value={platformStats!.totalClients.toLocaleString()}
-            icon={UserCheck}
-          />
-          <StatCard
-            label={t("platformRevenue")}
-            value={`RWF ${platformStats!.totalRevenue.toLocaleString()}`}
-            icon={DollarSign}
-          />
-        </div>
-      )}
+      {/* Platform Overview - stable KPI grid */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <StatCard
+          label={t("totalUsers")}
+          value={(platformStats?.totalUsers ?? 0).toLocaleString()}
+          icon={Users}
+          hint={`${platformStats?.newUsersToday ?? 0} ${t("newTodayDesc")}`}
+        />
+        <StatCard
+          label={t("verifiedLawyers")}
+          value={(platformStats?.verifiedExperts ?? 0).toLocaleString()}
+          icon={BadgeCheck}
+          hint={`${platformStats?.totalExperts ?? 0} ${t("lawyersDesc")}`}
+        />
+        <StatCard
+          label={t("clients")}
+          value={(platformStats?.totalClients ?? 0).toLocaleString()}
+          icon={UserCheck}
+        />
+        <StatCard
+          label={t("platformRevenue")}
+          value={formatRWF(platformStats?.totalRevenue)}
+          icon={DollarSign}
+        />
+      </div>
 
-      {/* Secondary Stats */}
-      {hasData && (platformStats!.newUsersThisMonth > 0 || pendingVerifications > 0) && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          <StatCard
-            label={t("newThisMonth")}
-            value={platformStats!.newUsersThisMonth.toLocaleString()}
-            icon={Briefcase}
-          />
-          <StatCard
-            label={t("suspended")}
-            value={platformStats!.suspendedExperts.toLocaleString()}
-            icon={ShieldAlert}
-          />
-          <StatCard
-            label={t("pendingVerifications")}
-            value={pendingVerifications.toLocaleString()}
-            icon={Clock}
-            action={
-              pendingVerifications > 0 ? (
-                <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
-                  {t("review")} <ArrowRight className="inline h-3 w-3" />
-                </Link>
-              ) : undefined
-            }
-          />
-        </div>
-      )}
+      {/* Secondary Stats - stable, always rendered */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <StatCard
+          label={t("newThisMonth")}
+          value={(platformStats?.newUsersThisMonth ?? 0).toLocaleString()}
+          icon={Briefcase}
+          hint={t("newThisMonthDesc")}
+        />
+        <StatCard
+          label={t("suspended")}
+          value={(platformStats?.suspendedExperts ?? 0).toLocaleString()}
+          icon={ShieldAlert}
+          hint={t("suspendedDesc")}
+        />
+        <StatCard
+          label={t("pendingVerifications")}
+          value={pendingVerifications.toLocaleString()}
+          icon={Clock}
+          hint={t("reviewVerificationsDesc")}
+          action={
+            pendingVerifications > 0 ? (
+              <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
+                {t("review")} <ArrowRight className="inline h-3 w-3" />
+              </Link>
+            ) : undefined
+          }
+        />
+      </div>
 
-      {/* Revenue Chart */}
-      {chartData.length > 0 && (
-        <Card>
+      {/* Quick Actions */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold tracking-tight text-foreground">{t("quickActions")}</h2>
+            <p className="text-xs text-muted-foreground">{t("quickActionsDesc")}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {quickActions.map((qa) => (
+            <Link
+              key={qa.href}
+              href={qa.href}
+              className="group rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <qa.icon className="h-4 w-4" aria-hidden="true" />
+                </div>
+                {qa.badge !== undefined && qa.badge > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive">
+                    {qa.badge}
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-sm font-semibold text-foreground">{qa.label}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">{qa.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Two-column: Recent verifications + Revenue chart */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* Recent Verifications */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">{t("recentVerifications")}</CardTitle>
+              <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
+                {t("viewAll")}
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground">{t("recentVerificationsDesc")}</p>
+          </CardHeader>
+          <CardContent>
+            {recentVerifications.length > 0 ? (
+              <ul className="divide-y divide-border">
+                {recentVerifications.map((record) => (
+                  <li key={record.id} className="flex items-center gap-3 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <BadgeCheck className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {record.expert?.displayName ?? "Expert"}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {record.expert?.primarySpecialty?.replace(/_/g, " ") ?? record.status}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        record.status === "APPROVED"
+                          ? "bg-primary/10 text-primary"
+                          : record.status === "REJECTED"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-warning/15 text-warning"
+                      }`}
+                    >
+                      {record.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                {t("noVerificationsYet")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Revenue Chart */}
+        <Card className="lg:col-span-3">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">{t("revenueLast7Days")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="day" fontSize={12} axisLine={false} tickLine={false} className="text-muted-foreground" />
-                  <YAxis fontSize={12} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`} className="text-muted-foreground" />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      border: "1px solid hsl(var(--border))",
-                      backgroundColor: "hsl(var(--card))",
-                      color: "hsl(var(--card-foreground))",
-                      fontSize: "13px",
-                    }}
-                    formatter={(value: number) => [`RWF ${value.toLocaleString()}`, t("revenue")]}
-                  />
-                  <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {chartData.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="day" fontSize={12} axisLine={false} tickLine={false} className="text-muted-foreground" />
+                    <YAxis fontSize={12} axisLine={false} tickLine={false} tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : `${v}`)} className="text-muted-foreground" />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "hsl(var(--card))",
+                        color: "hsl(var(--card-foreground))",
+                        fontSize: "13px",
+                      }}
+                      formatter={(value: number) => [formatRWF(value), t("revenue")]}
+                    />
+                    <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {t("noData")}
+              </p>
+            )}
           </CardContent>
         </Card>
-      )}
+      </div>
 
-      {/* Empty state */}
-      {!hasData && chartData.length === 0 && (
+      {/* Empty state when there is no data at all */}
+      {!hasData && recentVerifications.length === 0 && chartData.length === 0 && (
         <EmptyState
           title={t("noData")}
           description={t("unableToFetch")}

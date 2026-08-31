@@ -61,13 +61,14 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Specialty */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("specialtyLabel")}</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="group" aria-label={t("specialtyLabel")}>
               {specialties.map((s) => {
                 const active = filters.specialties.includes(s.value);
                 return (
                   <button
                     key={s.value}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => toggleSpecialty(s.value)}
                     className={cn(
                       "rounded-full px-3 py-1.5 text-xs font-medium transition",
@@ -97,6 +98,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
               max={200000}
               step={5000}
               value={filters.maxBudgetRwf}
+              aria-label={t("budgetLabel")}
               onChange={(e) => onChange((prev) => ({ ...prev, maxBudgetRwf: Number(e.target.value) }))}
               className="w-full accent-brand-dark"
             />
@@ -110,11 +112,13 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Rating */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("minRatingLabel")}</p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-label={t("minRatingLabel")}>
               {RATING_OPTIONS.map((val) => (
                 <button
                   key={val}
                   type="button"
+                  role="radio"
+                  aria-checked={filters.minRating === val}
                   onClick={() => onChange((prev) => ({ ...prev, minRating: val }))}
                   className={cn(
                     "flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold transition",
@@ -133,11 +137,13 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Experience */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("experienceLabel")}</p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-label={t("experienceLabel")}>
               {EXPERIENCE_OPTIONS.map((val) => (
                 <button
                   key={val}
                   type="button"
+                  role="radio"
+                  aria-checked={filters.minYearsExperience === val}
                   onClick={() => onChange((prev) => ({ ...prev, minYearsExperience: val }))}
                   className={cn(
                     "flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold transition",
@@ -156,11 +162,13 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Proximity */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("proximityLabel")}</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t("proximityLabel")}>
               {PROXIMITY_OPTIONS.map((p) => (
                 <button
                   key={p.value}
                   type="button"
+                  role="radio"
+                  aria-checked={filters.proximity === p.value}
                   onClick={() => onChange((prev) => ({ ...prev, proximity: p.value }))}
                   className={cn(
                     "rounded-lg py-2 text-xs font-semibold transition",

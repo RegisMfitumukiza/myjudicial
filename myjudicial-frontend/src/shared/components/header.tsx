@@ -5,17 +5,11 @@ import { useRouter, usePathname, Link } from "@/i18n/routing";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
-import { Globe, ChevronDown, Menu, Bot, HelpCircle, Info, Search, Scale, Heart, Briefcase, Users, Building2, Shield, Landmark, Gavel, Lightbulb } from "lucide-react";
+import { ChevronDown, Menu, Bot, HelpCircle, Info, Search, Scale } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ProfileMenu } from "./profile-menu";
 import { usePracticeAreas } from "@/lib/api/landing";
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  FAMILY_LAW: Heart, COMMERCIAL_LAW: Briefcase, EMPLOYMENT_LAW: Users,
-  LAND_LAW: Building2, CRIMINAL_LAW: Shield, TAX_LAW: Landmark,
-  IMMIGRATION_LAW: Globe, CORPORATE_LAW: Scale, CONTRACT_LAW: Gavel,
-  INTELLECTUAL_PROPERTY: Lightbulb,
-};
+import { SPECIALTY_ICON_MAP } from "@/shared/constants/marketplace";
 
 export function Header() {
   const [practiceOpen, setPracticeOpen] = useState(false);
@@ -65,8 +59,8 @@ export function Header() {
                 </button>
                 {practiceOpen && (
                   <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-[70vh] overflow-y-auto">
-                    {practiceAreas?.map((area) => {
-                      const Icon = ICON_MAP[area.specialty] ?? Scale;
+                  {practiceAreas?.map((area) => {
+                    const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
                       return (
                         <Link
                           key={area.specialty}

@@ -53,7 +53,7 @@ export function StarRating({
         <>
           <Star
             size={starSize}
-            className="fill-amber-400 text-amber-400"
+            className="fill-brand-dark text-brand-dark dark:fill-white dark:text-white"
           />
           <span className={`${textSize} font-bold text-foreground`}>
             {displayRating}

@@ -45,11 +45,13 @@ export function SearchTopBar({
             onChange={(e) => onSearchQueryChange(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
             placeholder={t("searchPlaceholder")}
+            aria-label={t("searchPlaceholder")}
             className="flex-1 bg-transparent px-4 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
             onClick={onSearch}
+            aria-label={t("searchPlaceholder")}
             className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
           >
             <Search size={14} strokeWidth={2.5} />

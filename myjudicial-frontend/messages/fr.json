@@ -2004,8 +2004,8 @@
       "realReviews": "Real Reviews"
     },
     "sections": {
-      "recommended": "Recommended for You",
-      "recommendedSub": "Top-rated legal experts on the platform",
+      "recommended": "Experts Vedettes",
+      "recommendedSub": "Les experts juridiques les mieux notés de la plateforme",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
       "browseAreas": "Browse by Practice Area",
@@ -2014,9 +2014,11 @@
       "mostBookedSub": "Experts trusted by the most clients",
       "topRated": "Top Rated",
       "topRatedSub": "Highest reviewed legal professionals",
-      "browseServices": "Browse Legal Services",
-      "browseServicesSub": "Ready-to-book services from verified lawyers",
-      "viewAll": "View all"
+      "browseServices": "Services Juridiques",
+      "browseServicesSub": "Services de réservation proints d'avocats vérifiés",
+      "reviews": "Ce que Disent les Clients",
+      "reviewsSub": "Vrais avis de consultations vérifiées",
+      "viewAll": "Voir tout"
     },
     "aiCta": {
       "title": "Not sure which lawyer you need?",

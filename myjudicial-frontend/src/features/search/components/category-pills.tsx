@@ -23,9 +23,10 @@ export function CategoryPills({ filters, onChange, specialties }: CategoryPillsP
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-border bg-background px-3 py-2.5 scrollbar-hide sm:px-4 lg:px-6">
+    <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-border bg-background px-3 py-2.5 scrollbar-hide sm:px-4 lg:px-6" role="group" aria-label={t("all")}>
       <button
         type="button"
+        aria-pressed={filters.specialties.length === 0}
         onClick={() => onChange((prev) => ({ ...prev, specialties: [] }))}
         className={cn(
           "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:px-4",
@@ -42,6 +43,7 @@ export function CategoryPills({ filters, onChange, specialties }: CategoryPillsP
           <button
             key={s.value}
             type="button"
+            aria-pressed={active}
             onClick={() => toggleSpecialty(s.value)}
             className={cn(
               "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:px-4",

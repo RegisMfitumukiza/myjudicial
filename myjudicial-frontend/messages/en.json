@@ -3147,7 +3147,7 @@
       "realReviews": "Real Reviews"
     },
     "sections": {
-      "recommended": "Recommended for You",
+      "recommended": "Featured Experts",
       "recommendedSub": "Top-rated legal experts on the platform",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
@@ -3159,6 +3159,8 @@
       "topRatedSub": "Highest reviewed legal professionals",
       "browseServices": "Browse Legal Services",
       "browseServicesSub": "Ready-to-book services from verified lawyers",
+      "reviews": "What Clients Say",
+      "reviewsSub": "Real reviews from verified consultations",
       "viewAll": "View all"
     },
     "aiCta": {

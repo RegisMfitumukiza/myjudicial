@@ -15,6 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { StarRating } from "@/shared/components/star-rating";
+import { SPECIALTY_ICON_MAP, SPECIALTY_ICON_CHIP } from "@/shared/constants/marketplace";
 import {
   usePracticeAreas,
   useRecommendedExperts,
@@ -22,34 +23,16 @@ import {
   useHighestRatedExperts,
   useAvailableTodayExperts,
   useLegalServices,
+  useFeaturedReviews,
   type ExpertSummary,
   type LegalServiceSummary,
   type PracticeArea,
+  type FeaturedReview,
 } from "@/lib/api/landing";
 import { useExpertSearch } from "@/features/search/hooks/useExpertSearch";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  FAMILY_LAW: Heart, COMMERCIAL_LAW: Briefcase, EMPLOYMENT_LAW: Users,
-  LAND_LAW: Building2, CRIMINAL_LAW: Shield, TAX_LAW: Landmark,
-  IMMIGRATION_LAW: Globe, CORPORATE_LAW: Scale, CONTRACT_LAW: Gavel,
-  INTELLECTUAL_PROPERTY: Lightbulb,
-};
-
-const PRACTICE_AREA_COLORS: Record<string, string> = {
-  FAMILY_LAW: "bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300",
-  COMMERCIAL_LAW: "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
-  EMPLOYMENT_LAW: "bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
-  LAND_LAW: "bg-green-50 text-green-700 dark:bg-green-950/50 dark:text-green-300",
-  CRIMINAL_LAW: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-  TAX_LAW: "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300",
-  IMMIGRATION_LAW: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-300",
-  CORPORATE_LAW: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300",
-  CONTRACT_LAW: "bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
-  INTELLECTUAL_PROPERTY: "bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300",
-};
 
 const SORT_KEYS = [
   { value: "NEAREST", key: "sort.nearest" },
@@ -117,7 +100,7 @@ function ExpertCard({ expert }: { expert: ExpertSummary }) {
   const isOnline = expert.presenceStatus === "ONLINE";
 
   return (
-    <Link href={`/lawyers/${expert.id}`} className="group block">
+    <Link href={`/lawyers/${expert.id}`} className="group block rounded-2xl border border-transparent transition-all duration-200 hover:border-brand-dark/20 hover:shadow-md hover:shadow-brand-dark/5">
       {/* Photo */}
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted">
         <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-full w-full rounded-none" />
@@ -228,6 +211,34 @@ function ExpertCardSkeleton() {
   );
 }
 
+function PracticeAreaSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-border bg-card p-4">
+      <div className="h-10 w-10 rounded-xl bg-muted" />
+      <div className="mt-3 h-4 w-3/4 rounded bg-muted" />
+      <div className="mt-1.5 h-3 w-1/2 rounded bg-muted" />
+    </div>
+  );
+}
+
+function ServiceCardSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-muted" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="h-3 w-1/2 rounded bg-muted" />
+        </div>
+      </div>
+      <div className="mt-3 space-y-1.5">
+        <div className="h-3 w-full rounded bg-muted" />
+        <div className="h-3 w-2/3 rounded bg-muted" />
+      </div>
+    </div>
+  );
+}
+
 function ExpertHorizontalRow({
   experts,
   isLoading,
@@ -253,8 +264,7 @@ function ExpertHorizontalRow({
 // ─── Practice Area Card ───────────────────────────────────────────────────────
 
 function PracticeAreaCard({ area, active, onClick }: { area: PracticeArea; active: boolean; onClick: () => void }) {
-  const Icon = ICON_MAP[area.specialty] ?? Scale;
-  const colorClass = PRACTICE_AREA_COLORS[area.specialty] ?? "bg-muted text-foreground";
+  const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
   return (
     <button
       onClick={onClick}
@@ -264,7 +274,7 @@ function PracticeAreaCard({ area, active, onClick }: { area: PracticeArea; activ
           : "border-border bg-card hover:border-brand-dark/30 hover:shadow-sm"
       }`}
     >
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-white/20" : colorClass}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-white/20" : SPECIALTY_ICON_CHIP}`}>
         <Icon size={20} />
       </div>
       <div>
@@ -283,7 +293,7 @@ function ServiceCard({ service }: { service: LegalServiceSummary }) {
   const t = useTranslations("landing");
   const DeliveryIcon = DELIVERY_ICONS[service.deliveryMode] ?? Video;
   return (
-    <Link href={`/lawyers/${service.expertId}`} className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md">
+    <Link href={`/lawyers/${service.expertId}`} className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:border-brand-dark/20 hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[14px] font-semibold text-foreground line-clamp-2 leading-snug">{service.name}</p>
         <span className="shrink-0 flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -344,6 +354,7 @@ export default function LandingPage() {
   const { data: mostBooked, isLoading: bookedLoading } = useMostBookedExperts(5);
   const { data: topRated, isLoading: ratedLoading } = useHighestRatedExperts(5);
   const { data: services, isLoading: servicesLoading } = useLegalServices(8);
+  const { data: reviews, isLoading: reviewsLoading } = useFeaturedReviews(6);
 
   // Whether each data section should be visible
   const showRecommended = !recLoading && recommended && recommended.length > 0;
@@ -352,6 +363,7 @@ export default function LandingPage() {
   const showMostBooked = !bookedLoading && mostBooked && mostBooked.length > 0;
   const showTopRated = !ratedLoading && topRated && topRated.length > 0;
   const showServices = !servicesLoading && services && services.length > 0;
+  const showReviews = !reviewsLoading && reviews && reviews.length > 0;
 
   // Search results (only when user is actively exploring)
   const { data: searchResults, isLoading: searchLoading } = useExpertSearch(
@@ -427,7 +439,7 @@ export default function LandingPage() {
   }, [router]);
 
   const activeLabel = practiceAreas?.find((a) => a.specialty === activeSpecialty)?.label ?? t("card.allExperts");
-  const ActiveIcon = activeSpecialty ? (ICON_MAP[activeSpecialty] ?? Scale) : LayoutGrid;
+  const ActiveIcon = activeSpecialty ? (SPECIALTY_ICON_MAP[activeSpecialty] ?? Scale) : LayoutGrid;
   const currentSortKey = SORT_KEYS.find((o) => o.value === sort) ?? SORT_KEYS[1];
   const displayExperts = isExploring ? (searchResults?.lawyers ?? []) : [];
   const hasFilters = isExploring;
@@ -444,6 +456,9 @@ export default function LandingPage() {
             <div className="relative shrink-0">
               <button
                 onClick={() => setCategoryOpen((v) => !v)}
+                aria-expanded={categoryOpen}
+                aria-haspopup="listbox"
+                aria-label={t("sections.browseAreas")}
                 className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
               >
                 <ActiveIcon size={14} />
@@ -451,18 +466,22 @@ export default function LandingPage() {
                 <ChevronDown size={12} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
               </button>
               {categoryOpen && (
-                <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-72 overflow-y-auto">
+                <div role="listbox" aria-label={t("sections.browseAreas")} className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-72 overflow-y-auto">
                   <button
+                    role="option"
+                    aria-selected={activeSpecialty === null}
                     onClick={() => { setActiveSpecialty(null); setCategoryOpen(false); activateExplore(); }}
                     className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === null ? "bg-accent font-bold" : "hover:bg-accent"}`}
                   >
                     <LayoutGrid size={14} /> {t("card.allExperts")}
                   </button>
                   {practiceAreas?.map((area) => {
-                    const Icon = ICON_MAP[area.specialty] ?? Scale;
+                    const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
                     return (
                       <button
                         key={area.specialty}
+                        role="option"
+                        aria-selected={activeSpecialty === area.specialty}
                         onClick={() => { setActiveSpecialty(area.specialty); setCategoryOpen(false); activateExplore(); }}
                         className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === area.specialty ? "bg-accent font-bold" : "hover:bg-accent"}`}
                       >
@@ -479,6 +498,7 @@ export default function LandingPage() {
               <input
                 type="text"
                 placeholder={t("search.placeholder")}
+                aria-label={t("search.placeholder")}
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); if (e.target.value) activateExplore(); }}
                 onKeyDown={(e) => { if (e.key === "Enter") activateExplore(); }}
@@ -486,6 +506,7 @@ export default function LandingPage() {
               />
               <button
                 onClick={activateExplore}
+                aria-label={t("search.placeholder")}
                 className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white dark:text-black transition hover:opacity-90"
               >
                 <Search size={14} strokeWidth={2.5} />
@@ -499,16 +520,21 @@ export default function LandingPage() {
             <div className="relative shrink-0" ref={sortRef}>
               <button
                 onClick={() => setSortOpen((v) => !v)}
+                aria-expanded={sortOpen}
+                aria-haspopup="listbox"
+                aria-label={t(currentSortKey.key)}
                 className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
               >
                 <ArrowUpDown size={13} />
                 <span className="hidden sm:inline">{t(currentSortKey.key)}</span>
               </button>
               {sortOpen && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
+                <div role="listbox" aria-label={t(currentSortKey.key)} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
                   {SORT_KEYS.map((opt) => (
                     <button
                       key={opt.value}
+                      role="option"
+                      aria-selected={sort === opt.value}
                       onClick={() => { setSort(opt.value); setSortOpen(false); activateExplore(); }}
                       className={`flex w-full items-center gap-2 px-4 py-2 text-sm transition ${sort === opt.value ? "bg-accent font-bold" : "hover:bg-accent"}`}
                     >
@@ -523,6 +549,8 @@ export default function LandingPage() {
             {/* Available Today toggle */}
             <button
               onClick={() => { setAvailToday(!availToday); activateExplore(); }}
+              aria-pressed={availToday}
+              aria-label={t("search.availableToday")}
               className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-[13px] font-semibold shadow-sm transition ${
                 availToday
                   ? "border-brand-dark bg-brand-dark text-white dark:border-white dark:bg-white dark:text-brand-dark"
@@ -633,7 +661,13 @@ export default function LandingPage() {
           )}
 
           {/* 3. Practice Areas */}
-          {showPracticeAreas && (
+          {areasLoading ? (
+            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
+              </div>
+            </SectionRow>
+          ) : showPracticeAreas && (
             <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {practiceAreas.map((area) => (
@@ -666,10 +700,42 @@ export default function LandingPage() {
           )}
 
           {/* 6. Legal Services */}
-          {showServices && (
+          {servicesLoading ? (
+            <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => <ServiceCardSkeleton key={i} />)}
+              </div>
+            </SectionRow>
+          ) : showServices && (
             <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {services.map((s) => <ServiceCard key={s.id} service={s} />)}
+              </div>
+            </SectionRow>
+          )}
+
+          {/* 6b. Client Reviews */}
+          {showReviews && (
+            <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {reviews.map((review) => (
+                  <div key={review.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+                    <div className="flex items-center gap-3">
+                      <StarRating rating={review.rating} showCount={false} size="md" />
+                      <span className="text-sm font-semibold text-foreground">{review.expertName}</span>
+                    </div>
+                    {review.title && (
+                      <p className="text-sm font-semibold text-foreground">{review.title}</p>
+                    )}
+                    {review.comment && (
+                      <p className="text-sm text-muted-foreground line-clamp-3">{review.comment}</p>
+                    )}
+                    <div className="mt-auto flex items-center justify-between pt-2 border-t border-border">
+                      <span className="text-xs text-muted-foreground">{review.clientName}</span>
+                      <span className="text-xs text-muted-foreground">{review.expertSpecialty?.replace(/_/g, " ")}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </SectionRow>
           )}

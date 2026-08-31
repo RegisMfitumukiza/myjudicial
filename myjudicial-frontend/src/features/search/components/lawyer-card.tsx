@@ -19,6 +19,9 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
   return (
     <div
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       className={`flex gap-3 rounded-xl border p-3 transition-all duration-200 ${
         selected
           ? "border-brand-dark bg-accent shadow-md ring-1 ring-brand-dark/20 dark:border-white dark:ring-white/20"
@@ -55,7 +58,7 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
             {lawyer.specialtyLabel}
           </span>
           {lawyer.verified && (
-            <span className="flex items-center gap-0.5 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:text-green-400">
+            <span className="flex items-center gap-0.5 rounded-full bg-brand-dark/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-dark dark:bg-white/10 dark:text-white">
               <BadgeCheck className="h-3 w-3" />
               {t("verified")}
             </span>

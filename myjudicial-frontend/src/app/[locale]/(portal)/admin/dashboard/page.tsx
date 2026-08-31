@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import {
   Users, BadgeCheck, DollarSign, AlertCircle,
   UserCheck, Briefcase, ShieldAlert, FileCheck,
-  Clock, ArrowRight, Plus,
+  ArrowRight, Plus,
 } from "lucide-react";
 import {
   ResponsiveContainer, BarChart, Bar,
@@ -103,26 +103,21 @@ export default function AdminDashboardPage() {
       href: "/admin/dashboard/experts",
       icon: Plus,
       label: t("addExpert"),
-      desc: t("addExpertDesc"),
-    },
-    {
-      href: "/admin/dashboard/verifications",
-      icon: FileCheck,
-      label: t("reviewVerifications"),
-      desc: t("reviewVerificationsDesc"),
-      badge: pendingVerifications > 0 ? pendingVerifications : undefined,
     },
     {
       href: "/admin/dashboard/users",
       icon: UserCheck,
       label: t("manageUsers"),
-      desc: t("manageUsersDesc"),
     },
     {
       href: "/admin/dashboard/finance",
       icon: DollarSign,
       label: t("viewFinance"),
-      desc: t("viewFinanceDesc"),
+    },
+    {
+      href: "/admin/dashboard/specialties",
+      icon: FileCheck,
+      label: t("manageSpecialties"),
     },
   ];
 
@@ -191,7 +186,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Secondary Stats - stable, always rendered */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
         <StatCard
           label={t("newThisMonth")}
           value={(platformStats?.newUsersThisMonth ?? 0).toLocaleString()}
@@ -203,19 +198,6 @@ export default function AdminDashboardPage() {
           value={(platformStats?.suspendedExperts ?? 0).toLocaleString()}
           icon={ShieldAlert}
           hint={t("suspendedDesc")}
-        />
-        <StatCard
-          label={t("pendingVerifications")}
-          value={pendingVerifications.toLocaleString()}
-          icon={Clock}
-          hint={t("reviewVerificationsDesc")}
-          action={
-            pendingVerifications > 0 ? (
-              <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
-                {t("review")} <ArrowRight className="inline h-3 w-3" />
-              </Link>
-            ) : undefined
-          }
         />
       </div>
 
@@ -238,14 +220,8 @@ export default function AdminDashboardPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <qa.icon className="h-4 w-4" aria-hidden="true" />
                 </div>
-                {qa.badge !== undefined && qa.badge > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive/10 px-1.5 text-xs font-semibold text-destructive">
-                    {qa.badge}
-                  </span>
-                )}
               </div>
               <p className="mt-3 text-sm font-semibold text-foreground">{qa.label}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">{qa.desc}</p>
             </Link>
           ))}
         </div>
@@ -253,14 +229,28 @@ export default function AdminDashboardPage() {
 
       {/* Two-column: Recent verifications + Revenue chart */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        {/* Recent Verifications */}
+        {/* Recent Verifications - single verification hub */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">{t("recentVerifications")}</CardTitle>
-              <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
-                {t("viewAll")}
-              </Link>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base">{t("recentVerifications")}</CardTitle>
+                {pendingVerifications > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-warning/15 px-1.5 text-xs font-semibold text-warning">
+                    {pendingVerifications}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                {pendingVerifications > 0 && (
+                  <Link href="/admin/dashboard/verifications" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                    {t("review")} <ArrowRight className="h-3 w-3" />
+                  </Link>
+                )}
+                <Link href="/admin/dashboard/verifications" className="text-xs text-primary hover:underline">
+                  {t("viewAll")}
+                </Link>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground">{t("recentVerificationsDesc")}</p>
           </CardHeader>

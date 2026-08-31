@@ -28,7 +28,21 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
+      getMessageFallback={({ namespace, key }) =>
+        // Graceful fallback: never surface the raw dot-notation path if a
+        // translation is missing. Derive a readable title-case label instead.
+        key
+          .split(".")
+          .filter(Boolean)
+          .pop()
+          ?.replace(/([A-Z])/g, " $1")
+          .replace(/^./, (c) => c.toUpperCase()) ||
+        `${namespace}.${key}`
+      }
+    >
       {children}
       <Toaster position="top-right" richColors closeButton />
     </NextIntlClientProvider>

@@ -1,7 +1,7 @@
-import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { IntlProvider } from "@/i18n/intl-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export function generateStaticParams() {
@@ -28,23 +28,9 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider
-      locale={locale}
-      messages={messages}
-      getMessageFallback={({ namespace, key }) =>
-        // Graceful fallback: never surface the raw dot-notation path if a
-        // translation is missing. Derive a readable title-case label instead.
-        key
-          .split(".")
-          .filter(Boolean)
-          .pop()
-          ?.replace(/([A-Z])/g, " $1")
-          .replace(/^./, (c) => c.toUpperCase()) ||
-        `${namespace}.${key}`
-      }
-    >
+    <IntlProvider locale={locale} messages={messages}>
       {children}
       <Toaster position="top-right" richColors closeButton />
-    </NextIntlClientProvider>
+    </IntlProvider>
   );
 }

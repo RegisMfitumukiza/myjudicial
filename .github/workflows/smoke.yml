@@ -24,18 +24,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run production smoke tests
-        env:
-          SMOKE_API_URL: 'https://api.myjudicial.com'
-          SMOKE_WEB_URL: 'https://myjudicial.com'
-        run: |
-          # Three global rounds with a wait: a push-triggered run can race the
-          # deploy pipeline (backend image roll takes minutes). Each round
-          # already retries individual checks, and the rounds give a deploy in
-          # flight up to ~7 minutes to finish before we call it failed.
-          for round in 1 2 3; do
-            echo "=== smoke round $round/3 ==="
-            if node scripts/smoke.mjs; then exit 0; fi
-            [ "$round" -lt 3 ] && sleep 120
-          done
-          exit 1
+      - name: Run production smoke tests (internal — bypasses Cloudflare bot challenge)
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
+          script: |
+            set -e
+            cd ${{ secrets.APP_DIR }}
+            # Ensure the smoke script is current (VPS repo may lag behind push)
+            git pull --ff-only origin main || true
+            # Three global rounds: a push-triggered run can race the deploy
+            # (frontend/backend roll takes minutes). Each round already retries
+            # individual checks; outer rounds give deploy up to ~7m to settle.
+            for round in 1 2 3; do
+              echo "=== smoke round $round/3 (internal network) ==="
+              if docker run --rm \
+                --network myjudicial_myjudicial-network \
+                -e SMOKE_API_URL=http://backend:4000 \
+                -e SMOKE_WEB_URL=http://frontend:3000 \
+                -v "$(pwd)/scripts/smoke.mjs:/smoke.mjs:ro" \
+                node:20-slim node /smoke.mjs; then
+                exit 0
+              fi
+              [ "$round" -lt 3 ] && sleep 120
+            done
+            exit 1

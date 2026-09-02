@@ -144,7 +144,7 @@ export function ProfileCompletionCard({
 
       {!isFullyComplete && (
         <Link href="/expert/onboarding">
-          <Button className="mt-6 w-full bg-brand-blue hover:bg-blue-700 text-white">
+          <Button className="mt-6 w-full bg-brand-dark text-on-brand hover:bg-brand-dark/90">
             {t("profileCompletion.title")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

@@ -17,10 +17,10 @@ const STATE_STYLE: Record<Exclude<VerificationStatus, "VERIFIED">, {
 }> = {
   DRAFT: {
     icon: ShieldAlert,
-    border: "border-brand-blue/30",
-    bg: "bg-blue-50 dark:bg-blue-950/20",
-    iconBg: "bg-brand-blue/10 text-brand-blue",
-    cta: "bg-brand-blue text-white hover:bg-brand-blue/90",
+    border: "border-brand-dark/30",
+    bg: "bg-brand-dark/5 dark:bg-white/5",
+    iconBg: "bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white",
+    cta: "bg-brand-dark text-on-brand hover:bg-brand-dark/90",
     href: "/expert/dashboard/verification",
   },
   PENDING_VERIFICATION: {
@@ -28,7 +28,7 @@ const STATE_STYLE: Record<Exclude<VerificationStatus, "VERIFIED">, {
     border: "border-amber-300 dark:border-amber-700",
     bg: "bg-amber-50 dark:bg-amber-950/20",
     iconBg: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-    cta: "bg-amber-600 text-white hover:bg-amber-700",
+    cta: "bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600",
     href: "/expert/dashboard/verification",
   },
   REJECTED: {
@@ -36,7 +36,7 @@ const STATE_STYLE: Record<Exclude<VerificationStatus, "VERIFIED">, {
     border: "border-red-300 dark:border-red-700",
     bg: "bg-red-50 dark:bg-red-950/20",
     iconBg: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-    cta: "bg-red-600 text-white hover:bg-red-700",
+    cta: "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600",
     href: "/expert/dashboard/verification",
   },
   SUSPENDED: {
@@ -44,7 +44,7 @@ const STATE_STYLE: Record<Exclude<VerificationStatus, "VERIFIED">, {
     border: "border-red-300 dark:border-red-700",
     bg: "bg-red-50 dark:bg-red-950/20",
     iconBg: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-    cta: "bg-red-600 text-white hover:bg-red-700",
+    cta: "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600",
     href: "/expert/dashboard/verification",
   },
 };
@@ -68,14 +68,14 @@ export function VerificationPrompt() {
         </div>
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">
+            <p className="text-sm font-semibold text-foreground">
               {t(`verificationPrompt.${status.toLowerCase()}.title` as any)}
             </p>
-            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               {t(`verificationPrompt.${status.toLowerCase()}.body` as any)}
             </p>
             {compliance?.statusMessage && compliance.status !== "DRAFT" && (
-              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{compliance.statusMessage}</p>
+              <p className="mt-1 text-xs text-muted-foreground/70">{compliance.statusMessage}</p>
             )}
           </div>
           <Link href={cfg.href}>

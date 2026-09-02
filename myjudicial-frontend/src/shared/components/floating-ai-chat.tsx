@@ -42,7 +42,7 @@ export function FloatingAiChat() {
             {/* Dismiss button */}
             <button
               onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
-              className="absolute right-2 top-2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="absolute right-2 top-2 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               aria-label="Dismiss AI assistant"
             >
               <X size={14} />
@@ -66,10 +66,10 @@ export function FloatingAiChat() {
 
             {/* Card body */}
             <div className="px-4 py-4">
-              <p className="text-[13px] leading-relaxed text-muted-foreground">
+              <p className="text-[13px] leading-relaxed text-foreground">
                 {t("aiChat.previewMessage")}
               </p>
-              <p className="mt-2 text-[11px] italic text-muted-foreground/70">
+              <p className="mt-2 text-[11px] italic text-muted-foreground">
                 {t("aiChat.previewExample")}
               </p>
             </div>

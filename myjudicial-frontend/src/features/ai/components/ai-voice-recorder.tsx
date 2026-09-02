@@ -75,18 +75,21 @@ export function AiVoiceRecorder({ onRecordingComplete, disabled, isTranscribing 
       disabled={disabled || showLoader}
       onClick={isRecording ? stopRecording : startRecording}
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+        "relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200",
         isRecording
-          ? "bg-red-500 text-white animate-pulse"
+          ? "bg-red-700 text-white shadow-lg shadow-red-700/30"
           : showLoader
             ? "bg-brand-dark text-on-brand"
-            : "bg-muted text-muted-foreground hover:bg-muted/80",
+            : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         (disabled || showLoader) && "opacity-50 cursor-not-allowed"
       )}
       title={isRecording ? t("stop") : showLoader ? t("processing") : t("recording")}
     >
+      {isRecording && (
+        <span className="absolute inset-0 animate-ping rounded-full bg-red-500/30" aria-hidden="true" />
+      )}
       {isRecording ? (
-        <div className="flex items-center gap-1.5">
+        <div className="relative z-10 flex items-center gap-1.5">
           <Square className="h-3.5 w-3.5" fill="currentColor" />
           <span className="text-xs font-mono">{formatDuration(duration)}</span>
         </div>

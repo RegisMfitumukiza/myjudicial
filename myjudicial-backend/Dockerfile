@@ -38,11 +38,6 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install runtime dependencies (dumb-init for signal handling, curl for healthcheck)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    dumb-init curl openssl \
-    && rm -rf /var/lib/apt/lists/*
-
 # Create non-root user
 RUN groupadd -g 1001 -r nodejs && \
     useradd -r -g nodejs -u 1001 nodejs
@@ -73,5 +68,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD node -e "fetch('http://localhost:4000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"
 
-ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/interfaces/http/server.js"]

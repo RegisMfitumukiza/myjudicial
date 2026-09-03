@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
-import { authenticate } from "../../shared/middleware/authenticate.js";
 import { aiLimiter } from "../../shared/middleware/rateLimiting.js";
 import {
   analyzeCase,
@@ -13,10 +12,13 @@ import {
 
 const router = Router();
 
+// AI endpoints are public — anyone can use triage without signing up.
+// Rate limiting (aiLimiter) prevents abuse. Auth is only required for
+// booking an expert, which is a separate endpoint.
 router.get("/health", asyncHandler(aiHealthCheck));
-router.post("/analyze", authenticate, aiLimiter, asyncHandler(analyzeCase));
-router.post("/transcribe", authenticate, aiLimiter, aiMultipartUpload.single("audio"), asyncHandler(transcribeAudio));
-router.post("/translate", authenticate, aiLimiter, asyncHandler(translateText));
-router.post("/recommend", authenticate, aiLimiter, asyncHandler(getRecommendations));
+router.post("/analyze", aiLimiter, asyncHandler(analyzeCase));
+router.post("/transcribe", aiLimiter, aiMultipartUpload.single("audio"), asyncHandler(transcribeAudio));
+router.post("/translate", aiLimiter, asyncHandler(translateText));
+router.post("/recommend", aiLimiter, asyncHandler(getRecommendations));
 
 export default router;

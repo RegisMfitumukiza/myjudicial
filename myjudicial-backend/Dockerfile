@@ -9,8 +9,7 @@ FROM node:20-slim AS builder
 WORKDIR /app
 
 # Install build dependencies for native modules
-RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 make g++ openssl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,8 +39,7 @@ FROM node:20-slim
 WORKDIR /app
 
 # Install runtime dependencies (dumb-init for signal handling, curl for healthcheck)
-RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     dumb-init curl openssl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -55,8 +53,6 @@ COPY prisma ./prisma/
 # Prisma 7 keeps no url in schema.prisma (datasource block) — the URL is
 # resolved from env via prisma.config.ts, required for migrate/stuate commands
 # at deploy time.
-COPY prisma.config.ts ./
-
 # Install production dependencies only
 RUN npm ci --omit=dev && npm cache clean --force
 

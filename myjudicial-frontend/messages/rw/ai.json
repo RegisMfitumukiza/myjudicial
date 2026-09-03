@@ -53,7 +53,9 @@
     "recording": "Birimo kwandika...",
     "stop": "Hagarika kwandika",
     "processing": "Birimo gutunganya amajwi...",
-    "error": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi."
+    "error": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi.",
+    "signInRequired": "Nyamuneka injira kugira ngo ushindure amajwi.",
+    "stopHint": "Kanda kuri mikirifoni yo guhagarika"
   },
   "files": {
     "dropHere": "Tega aha dosiye",

@@ -147,9 +147,14 @@ export function AiWorkspace() {
     [handleSubmit]
   );
 
+  const [recording, setRecording] = useState(false);
+  const [recordDuration, setRecordDuration] = useState(0);
+
   const handleVoiceRecording = useCallback(
     async (blob: Blob) => {
       setError(null);
+      setRecording(false);
+      setRecordDuration(0);
       try {
         const result = await transcribeMutation.mutateAsync({ audioBlob: blob });
         const data = result as unknown as Record<string, unknown>;
@@ -157,8 +162,13 @@ export function AiWorkspace() {
         if (transcribedText) {
           setInput((prev) => (prev ? `${prev} ${transcribedText}` : transcribedText));
         }
-      } catch {
-        setError(t("voice.error"));
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "";
+        if (msg.includes("401") || msg.includes("Authentication") || msg.includes("expired")) {
+          setError(t("voice.signInRequired") || "Please sign in to use voice features.");
+        } else {
+          setError(t("voice.error"));
+        }
       }
     },
     [transcribeMutation, t]
@@ -289,11 +299,11 @@ export function AiWorkspace() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t("input.placeholder")}
+              placeholder={recording ? t("voice.recording") || "Listening..." : t("input.placeholder")}
               rows={1}
-              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
+              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
               style={{ minHeight: "44px", maxHeight: "120px" }}
-              disabled={isProcessing}
+              disabled={isProcessing || recording}
             />
           </div>
 
@@ -301,15 +311,19 @@ export function AiWorkspace() {
             onRecordingComplete={handleVoiceRecording}
             disabled={isProcessing}
             isTranscribing={transcribeMutation.isPending}
+            isRecording={recording}
+            onRecordingStateChange={setRecording}
+            duration={recordDuration}
+            onDurationChange={setRecordDuration}
           />
 
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!input.trim() || isProcessing}
+            disabled={!input.trim() || isProcessing || recording}
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
-              input.trim() && !isProcessing
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors",
+              input.trim() && !isProcessing && !recording
                 ? "bg-brand-dark text-on-brand hover:bg-brand-dark/90"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
@@ -317,6 +331,15 @@ export function AiWorkspace() {
             <Send className="h-4 w-4" />
           </button>
         </div>
+
+        {recording && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+            <span>{Math.floor(recordDuration / 60)}:{(recordDuration % 60).toString().padStart(2, "0")}</span>
+            <span className="text-muted-foreground/60">|</span>
+            <span>{t("voice.stopHint") || "Click mic to stop"}</span>
+          </div>
+        )}
       </div>
     </div>
   );

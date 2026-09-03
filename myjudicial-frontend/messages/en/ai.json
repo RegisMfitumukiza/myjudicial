@@ -53,7 +53,9 @@
     "recording": "Recording...",
     "stop": "Stop recording",
     "processing": "Processing audio...",
-    "error": "Could not process audio. Please try again."
+    "error": "Could not process audio. Please try again.",
+    "signInRequired": "Please sign in to use voice features.",
+    "stopHint": "Click mic to stop"
   },
   "files": {
     "dropHere": "Drop files here",

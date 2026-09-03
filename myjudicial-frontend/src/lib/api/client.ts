@@ -4,6 +4,7 @@ export type ApiFetchOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   token?: string;
   skipRefresh?: boolean; // Prevent infinite refresh loops
+  skipLogoutOn401?: boolean; // Don't redirect to login on 401 (public pages)
 };
 
 // Token refresh state management
@@ -215,9 +216,11 @@ async function fetchWithRefresh<T>(
   const newAccessToken = await refreshAccessToken();
 
   if (!newAccessToken) {
-    console.warn("Token refresh failed, logging out...");
+    console.warn("Token refresh failed");
+    if (options.skipLogoutOn401) return response;
+    console.warn("Logging out...");
     await handleLogout();
-    return response; // Return the 401 response
+    return response;
   }
 
   // Retry the original request with the new token

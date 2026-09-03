@@ -7,6 +7,7 @@ import type {
 } from "@/features/ai/types";
 
 const AI_PREFIX = "/ai";
+const PUBLIC_AI_OPTS = { skipLogoutOn401: true } as const;
 
 function detectLanguage(): string {
   try {
@@ -24,6 +25,7 @@ export async function analyzeCase(text: string, language?: string): Promise<Case
   const response = await apiFetch<{ data: CaseAnalysisResponse }>(`${AI_PREFIX}/analyze`, {
     method: "POST",
     body: { text, language: language ?? detectLanguage() },
+    ...PUBLIC_AI_OPTS,
   });
   return response.data as CaseAnalysisResponse;
 }
@@ -41,6 +43,7 @@ export async function transcribeAudio(
     {
       method: "POST",
       body: formData as unknown as BodyInit,
+      ...PUBLIC_AI_OPTS,
     }
   );
   return response.data as unknown as TranslationResponse;
@@ -54,6 +57,7 @@ export async function translateText(
   const response = await apiFetch<{ data: TranslationResponse }>(`${AI_PREFIX}/translate`, {
     method: "POST",
     body: { text, source_language: sourceLanguage, target_language: targetLanguage },
+    ...PUBLIC_AI_OPTS,
   });
   return response.data as TranslationResponse;
 }
@@ -76,6 +80,7 @@ export async function getRecommendations(
       specialty: options?.specialty,
       limit: options?.limit ?? 5,
     },
+    ...PUBLIC_AI_OPTS,
   });
   return response.data as RecommendationResponse;
 }

@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     
     # Groq (Alternative LLM provider)
     GROQ_API_KEY: str = ""  # Optional: Get from https://console.groq.com
-    GROQ_MODEL: str = "openai/gpt-oss-20b"  # Migrated from deprecated llama-3.1-8b-instant
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
+    GROQ_FALLBACK_MODELS: str = "qwen/qwen3.6-27b,openai/gpt-oss-120b"  # Comma-separated fallback chain
     
     # Whisper
     WHISPER_MODEL: str = "base.en"  # base, small, medium, large

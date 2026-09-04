@@ -189,7 +189,7 @@ services:
       - APP_NAME=${APP_NAME:-MyJudicial AI Triage Service}
       - LLM_PROVIDER=${LLM_PROVIDER:-groq}
       - GROQ_API_KEY=${GROQ_API_KEY}
-      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-8b-instant}
+      - GROQ_MODEL=${GROQ_MODEL:-openai/gpt-oss-20b}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://localhost:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:latest}
       - OLLAMA_TIMEOUT=${OLLAMA_TIMEOUT:-60}

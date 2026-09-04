@@ -119,7 +119,10 @@ async def startup_event():
     """Initialize services on startup"""
     logger.info(f"Starting {settings.APP_NAME} v{settings.VERSION}")
     logger.info(f"Whisper model: {settings.WHISPER_MODEL} on {settings.WHISPER_DEVICE}")
-    logger.info(f"LLM model: {settings.OLLAMA_MODEL} at {settings.OLLAMA_BASE_URL}")
+    if settings.LLM_PROVIDER == "groq":
+        logger.info(f"LLM model: {settings.GROQ_MODEL} (Groq)")
+    else:
+        logger.info(f"LLM model: {settings.OLLAMA_MODEL} at {settings.OLLAMA_BASE_URL}")
     logger.info(f"Embedding model: {settings.EMBEDDING_MODEL} ({settings.EMBEDDING_DIM} dimensions)")
     logger.info("Whisper will be loaded on first transcription request (lazy loading)")
     logger.info("Embedding model will be loaded on first search request (lazy loading)")

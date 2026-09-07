@@ -4016,6 +4016,7 @@
     "aiChat": {
       "title": "AI Legal Assistant",
       "online": "Online",
+      "offline": "Offline",
       "previewMessage": "Need help finding the right lawyer? Describe your legal issue and our AI will match you instantly.",
       "previewExample": "e.g. \"My landlord refuses to return my deposit.\"",
       "tryAi": "Try AI Assistant"

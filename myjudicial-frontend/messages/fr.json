@@ -1671,10 +1671,11 @@
     },
     "aiChat": {
       "title": "AI Legal Assistant",
-      "online": "Online",
-      "previewMessage": "Need help finding the right lawyer? Describe your legal issue and our AI will match you instantly.",
-      "previewExample": "e.g. \"My landlord refuses to return my deposit.\"",
-      "tryAi": "Try AI Assistant"
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "previewMessage": "Besoin d'aide pour trouver le bon avocat ? Décrivez votre problème juridique et notre IA vous mettra en correspondance instantanément.",
+      "previewExample": "ex. « Mon refus de restitution du dépôt de garantie. »",
+      "tryAi": "Essayer l'IA"
     }
   },
   "search": {

@@ -1671,10 +1671,11 @@
     },
     "aiChat": {
       "title": "AI Legal Assistant",
-      "online": "Online",
-      "previewMessage": "Need help finding the right lawyer? Describe your legal issue and our AI will match you instantly.",
-      "previewExample": "e.g. \"My landlord refuses to return my deposit.\"",
-      "tryAi": "Try AI Assistant"
+      "online": "Iri kuri Interineti",
+      "offline": "Ntibiri kuri Interineti",
+      "previewMessage": "Ushaka ubufasha bwo kubona umwanditsi w'amategeko ujyanye n'ibibazo byawe? Andika ibibazo byawe kandi AI yacu iza kukubonaniraho amase.",
+      "previewExample": "urugero: \"Nyene inzu yanjye adashaka kugarura ingendo.\"",
+      "tryAi": "Gerageza AI"
     }
   },
   "search": {

@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 type AiStatus = "online" | "offline";
 
 const HEALTH_POLL_INTERVAL_MS = 30_000;
+const INDUSTRIAL_BLUE = "#24558d";
 
 async function checkAiHealth(): Promise<AiStatus> {
   try {
@@ -61,7 +62,7 @@ export function FloatingAiChat() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Preview card */}
+      {/* Preview card — industrial: tight radius, hard border, no theme-following header */}
       <AnimatePresence>
         {hovered && (
           <motion.div
@@ -69,58 +70,63 @@ export function FloatingAiChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.18 }}
-            className="relative w-72 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            className="relative w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/[0.06] dark:!border-[#2a303a] dark:!bg-[#1a1e26] dark:ring-white/5"
           >
-            {/* Dismiss button */}
+            {/* Dismiss — always on industrial blue header */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setDismissed(true);
               }}
-              className="absolute right-2 top-2 z-10 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white dark:text-muted-foreground dark:hover:bg-brand-dark/10 dark:hover:text-foreground"
+              className="absolute right-2 top-2 z-10 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               aria-label="Dismiss AI assistant"
             >
               <X size={14} />
             </button>
 
-            {/* Card header — light: blue bg / dark: white bg */}
-            <div className="flex items-center gap-3 bg-brand-dark px-4 py-3 dark:bg-white">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 dark:bg-brand-dark/10">
-                <Bot size={16} className="text-white dark:text-brand-dark" />
+            {/* Header — HARD-ANCHORED industrial blue, never flips with theme.
+                Previous bug: bg-brand-dark (→ 248,250,252 in dark) + dark:bg-white
+                with dark:text-brand-dark (also 248,250,252) = white-on-white. */}
+            <div
+              className="flex items-center gap-3 px-4 py-3"
+              style={{ backgroundColor: INDUSTRIAL_BLUE }}
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/10">
+                <Bot size={16} className="text-white" />
               </div>
               <div>
-                {/* Title: white on blue (light), brand-dark on white (dark) */}
-                <p className="text-[13px] font-semibold text-white dark:text-brand-dark">
+                <p className="text-[13px] font-semibold tracking-[-0.01em] text-white">
                   {t("aiChat.title")}
                 </p>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
+                  {/* Real green for Online (not the remapped emerald→slate), gray for Offline */}
                   <span
-                    className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                      isOnline ? "bg-emerald-400" : "bg-gray-400"
-                    }`}
+                    className={isOnline ? "h-1.5 w-1.5 animate-pulse rounded-full shadow-[0_0_0_3px_rgba(34,197,94,0.25)]" : "h-1.5 w-1.5 rounded-full"}
+                    style={{ backgroundColor: isOnline ? "#22c55e" : "#9aa0a6" }}
                   />
-                  <span className="text-[11px] text-white/60 dark:text-muted-foreground">
+                  <span className="text-[11px] font-medium tracking-wide text-white/70">
                     {isOnline ? t("aiChat.online") : t("aiChat.offline")}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Card body */}
+            {/* Body — respects card theme (white / dark charcoal) */}
             <div className="px-4 py-4">
-              <p className="text-[13px] leading-relaxed text-foreground">
+              <p className="text-[13px] font-[450] leading-[1.6] text-slate-900 dark:text-[#e8ecef]">
                 {t("aiChat.previewMessage")}
               </p>
-              <p className="mt-2 text-[11px] italic text-muted-foreground">
+              <p className="mt-2 text-[11px] italic leading-relaxed text-slate-500 dark:text-[#8a9099]">
                 {t("aiChat.previewExample")}
               </p>
             </div>
 
-            {/* CTA */}
-            <div className="border-t border-border px-4 py-3">
+            {/* CTA — industrial: always brand blue, never flips to white in dark */}
+            <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3 dark:border-[#232830] dark:bg-[#1f242e]/60">
               <Link
                 href="/ai"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-on-brand transition-colors hover:bg-brand-dark/90 dark:bg-brand-dark dark:text-on-brand dark:hover:bg-brand-dark/80"
+                className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-all hover:brightness-[1.08] active:scale-[0.98]"
+                style={{ backgroundColor: INDUSTRIAL_BLUE }}
               >
                 {t("aiChat.tryAi")}
                 <ArrowRight size={14} />
@@ -130,23 +136,26 @@ export function FloatingAiChat() {
         )}
       </AnimatePresence>
 
-      {/* FAB button */}
+      {/* FAB — industrial: constant brand blue, status dot with adaptive border */}
       <motion.div
-        whileHover={{ scale: 1.08 }}
+        whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.96 }}
         transition={{ type: "spring", stiffness: 400, damping: 20 }}
       >
         <Link
           href="/ai"
           aria-label={t("aiChat.title")}
-          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-brand-dark shadow-lg shadow-brand-dark/30 transition-shadow hover:shadow-xl hover:shadow-brand-dark/40"
+          className="relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
+          style={{ backgroundColor: INDUSTRIAL_BLUE }}
         >
-          <Bot size={24} className="text-on-brand" />
-          {/* Online/offline indicator dot on the FAB */}
+          <Bot size={24} className="text-white" />
+          {/* System status dot — mirrors header indicator; border adapts to canvas */}
           <span
-            className={`absolute right-0 top-0 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-card ${
-              isOnline ? "bg-emerald-400" : "bg-gray-400"
-            }`}
+            className={`absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 ${isOnline ? "shadow-[0_0_6px_rgba(34,197,94,0.6)]" : ""}`}
+            style={{
+              backgroundColor: isOnline ? "#22c55e" : "#9aa0a6",
+              borderColor: "white",
+            }}
           />
         </Link>
       </motion.div>

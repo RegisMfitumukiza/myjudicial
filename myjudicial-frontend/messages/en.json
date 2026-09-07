@@ -3076,24 +3076,6 @@
       "title": "MyJudicial | Find Verified Legal Experts in Rwanda",
       "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
     },
-    "hero": {
-      "badge": "Rwanda's Trusted Legal Marketplace",
-      "headline": "Find the Right Legal Expert",
-      "subheadline": "Browse verified lawyers, compare fixed fees, and book instantly.",
-      "searchPlaceholder": "What legal matter do you need help with?",
-      "locationPlaceholder": "Kigali, Rwanda",
-      "searchBtn": "Search Lawyers",
-      "orTryAi": "or",
-      "tryAi": "Use AI Assistant",
-      "trust1": "BAR Certified",
-      "trust2": "Identity Verified",
-      "trust3": "Fixed Transparent Fees",
-      "stats": {
-        "experts": "Verified Experts",
-        "consultations": "Consultations Completed",
-        "clients": "Happy Clients"
-      }
-    },
     "practiceAreas": {
       "title": "Browse by Practice Area",
       "subtitle": "Find a specialist for your exact legal need",

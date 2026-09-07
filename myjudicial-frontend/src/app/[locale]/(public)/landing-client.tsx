@@ -8,7 +8,7 @@ import {
   Lightbulb, Landmark, Building2, LayoutGrid,
   Users, Gavel, ArrowRight, Search, ChevronDown,
   ArrowUpDown, Navigation, Loader2, X, Briefcase,
-  CheckCircle2, Bot, FileText, Clock, BadgeCheck,
+  Bot, FileText, Clock, BadgeCheck,
   Banknote, ThumbsUp, CalendarCheck, Video, Phone,
   Mail, ExternalLink, ChevronRight
 } from "lucide-react";
@@ -445,7 +445,7 @@ export default function LandingPage() {
   const hasFilters = isExploring;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-[calc(100vh-4rem)]">
       {/* ── STICKY SEARCH ZONE ───────────────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">

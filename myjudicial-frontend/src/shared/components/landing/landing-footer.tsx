@@ -114,7 +114,7 @@ export default function LandingFooter() {
   ];
 
   return (
-    <footer className="bg-background border-t border-border">
+    <footer className="border-t border-border bg-muted/30">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-12 border-b border-border">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           {FOOTER_COLS.map((col) => (

@@ -23,7 +23,6 @@ import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 import { usePracticeAreas } from "@/lib/api/landing";
 import type { Lawyer } from "@/features/search/types";
 import { useTranslations, useLocale } from "next-intl";
-import HeroSection from "@/shared/components/landing/hero-section";
 import TrustIndicators from "@/shared/components/landing/trust-indicators";
 import HowItWorks from "@/shared/components/landing/how-it-works";
 import WhyMyJudicial from "@/shared/components/landing/why-myjudicial";
@@ -352,11 +351,6 @@ export function ExpertsClient() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* Hero — hidden when map is open on mobile for more screen real estate */}
-      <div className={mobileMapOpen ? "hidden lg:block" : ""}>
-        <HeroSection />
       </div>
 
       {/* Main content: list + map */}

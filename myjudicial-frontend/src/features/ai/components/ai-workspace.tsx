@@ -186,7 +186,7 @@ export function AiWorkspace() {
   const isProcessing = analyzeMutation.isPending || recommendMutation.isPending || transcribeMutation.isPending;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col px-4 py-8 sm:px-6">
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col px-4 py-8 sm:px-6">
       <div className="mb-6 space-y-2 text-center">
         <h1 className="text-xl font-bold text-foreground sm:text-2xl">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
@@ -198,9 +198,9 @@ export function AiWorkspace() {
 
       <div className="flex-1 space-y-4 overflow-y-auto">
         {!hasStarted && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-dark/10">
-              <Bot className="h-8 w-8 text-brand-dark" />
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10">
+              <Bot className="h-8 w-8 text-brand-dark dark:text-white" />
             </div>
             <h2 className="text-lg font-semibold text-foreground">{t("empty.title")}</h2>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">{t("empty.description")}</p>
@@ -259,7 +259,7 @@ export function AiWorkspace() {
               <Bot className="h-4 w-4" />
             </div>
             <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-3">
-              <Loader2 className="h-4 w-4 animate-spin text-brand-dark" />
+              <Loader2 className="h-4 w-4 animate-spin text-brand-dark dark:text-white" />
               <span className="text-sm text-muted-foreground">
                 {analyzeMutation.isPending
                   ? t("input.placeholder")
@@ -281,7 +281,7 @@ export function AiWorkspace() {
           <button
             type="button"
             onClick={handleViewAllResults}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-dark bg-brand-dark/5 px-4 py-3 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-dark/10"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-dark bg-brand-dark/5 px-4 py-3 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-dark/10 dark:border-white dark:text-white dark:hover:bg-white/10"
           >
             {t("redirect.button")}
             <ArrowRight className="h-4 w-4" />

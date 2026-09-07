@@ -42,24 +42,24 @@ export function FloatingAiChat() {
             {/* Dismiss button */}
             <button
               onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
-              className="absolute right-2 top-2 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              className="absolute right-2 top-2 rounded-full p-1 text-white/70 dark:text-muted-foreground transition-colors hover:bg-white/10 hover:text-white dark:hover:bg-brand-dark/10 dark:hover:text-foreground"
               aria-label="Dismiss AI assistant"
             >
               <X size={14} />
             </button>
 
             {/* Card header */}
-            <div className="flex items-center gap-3 bg-brand-dark px-4 py-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                <Bot size={16} className="text-white" />
+            <div className="flex items-center gap-3 bg-brand-dark px-4 py-3 dark:bg-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 dark:bg-brand-dark/10">
+                <Bot size={16} className="text-white dark:text-brand-dark" />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-white">
+                <p className="text-[13px] font-semibold text-white dark:text-brand-dark">
                   {t("aiChat.title")}
                 </p>
                 <div className="flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                  <span className="text-[11px] text-white/60">{t("aiChat.online")}</span>
+                  <span className="text-[11px] text-white/60 dark:text-muted-foreground">{t("aiChat.online")}</span>
                 </div>
               </div>
             </div>
@@ -78,7 +78,7 @@ export function FloatingAiChat() {
             <div className="border-t border-border px-4 py-3">
               <Link
                 href="/ai"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-on-brand transition-colors hover:bg-brand-dark/90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-on-brand transition-colors hover:bg-brand-dark/90 dark:bg-brand-dark dark:hover:bg-brand-dark/80"
               >
                 {t("aiChat.tryAi")}
                 <ArrowRight size={14} />

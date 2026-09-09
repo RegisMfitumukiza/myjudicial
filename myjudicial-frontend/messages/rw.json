@@ -2025,12 +2025,14 @@
     },
     "sections": {
       "recommended": "Abashinzwe",
+      "recommendedAlt": "Abashinzwe washyizweho",
       "recommendedSub": "Abashinzwe bo mu bushynshi bwinshi kuri urubuga",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
       "browseAreas": "Browse by Practice Area",
       "browseAreasSub": "Find an expert in the area of law you need",
       "mostBooked": "Most Booked",
+      "mostBookedAlt": "Imyanya Y'Ingenzi",
       "mostBookedSub": "Experts trusted by the most clients",
       "topRated": "Top Rated",
       "topRatedSub": "Highest reviewed legal professionals",
@@ -2038,6 +2040,10 @@
       "browseServicesSub": "Serivisi zo gutangira gufata agakero ku bakorere neza",
       "reviews": "Ivyo Abakiriya Bavuga",
       "reviewsSub": "Ivyiyumviro vy'ukuri vy'agakero yakoreshejwe",
+      "recentlyViewed": "Uraraba Vyo",
+      "recentlyViewedSub": "Abashinzwe wararaba vyo vya",
+      "savedExperts": "Abashinzwe Wabitswe",
+      "savedExpertsSub": "Abashinzwe bw'amategeko wakunze",
       "viewAll": "Raba Vyose"
     },
     "aiCta": {
@@ -2047,18 +2053,7 @@
     },
     "popularSearches": {
       "title": "Uburikirane bw'amategeko bukunzwe",
-      "subtitle": "Kwinjira vuba ku bibazo by'amategeko bisabwa cyane",
-      "items": {
-        "family": "Amategeko y'umuryango",
-        "criminal": "Amategeko y'ubusambano",
-        "property": "Ubwoko n'ubukerarugendo",
-        "employment": "Amategeko y'akazi",
-        "business": "Ibikorwa n'inkande",
-        "immigration": "Kwinjira mu gihugu",
-        "tax": "Amategeko y'imisoro",
-        "divorce": "Kwibuka",
-        "inheritance": "Ubufatanye"
-      }
+      "subtitle": "Kwinjira vuba ku bibazo by'amategeko bisabwa cyane"
     },
     "resources": {
       "title": "Legal Resources",

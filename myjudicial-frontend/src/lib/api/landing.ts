@@ -65,6 +65,20 @@ export type FeaturedReview = {
   serviceName: string | null;
 };
 
+export type PopularSearch = {
+  specialty: string;
+  label: string;
+  count: number;
+};
+
+export type SectionSource = "real_metrics" | "curated" | "disabled";
+
+export type SectionResponse<T> = {
+  data: T[];
+  source: SectionSource;
+  isEmpty: boolean;
+};
+
 type ApiResponse<T> = {
   success: boolean;
   data: T;
@@ -97,7 +111,7 @@ export function useRecommendedExperts(limit = 8) {
   return useQuery({
     queryKey: ["landing", "recommended", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<ExpertSummary[]>>(`/experts/recommended?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/recommended?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -108,7 +122,7 @@ export function useNewestExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "newest", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<ExpertSummary[]>>(`/experts/newest?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/newest?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -119,7 +133,7 @@ export function useMostBookedExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "most-booked", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<MostBookedExpert[]>>(`/experts/most-booked?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<MostBookedExpert>>>(`/experts/most-booked?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -130,7 +144,7 @@ export function useHighestRatedExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "highest-rated", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<ExpertSummary[]>>(`/experts/highest-rated?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/highest-rated?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -141,7 +155,7 @@ export function useAvailableTodayExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "available-today", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<ExpertSummary[]>>(`/experts/available-today?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/available-today?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 2 * 60 * 1000,
@@ -152,7 +166,7 @@ export function useLegalServices(limit = 8) {
   return useQuery({
     queryKey: ["landing", "legal-services", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<LegalServiceSummary[]>>(`/experts/legal-services?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<LegalServiceSummary>>>(`/experts/legal-services?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -163,7 +177,18 @@ export function useFeaturedReviews(limit = 6) {
   return useQuery({
     queryKey: ["landing", "featured-reviews", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<FeaturedReview[]>>(`/experts/reviews/featured?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<FeaturedReview>>>(`/experts/reviews/featured?limit=${limit}`, { method: "GET" });
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function usePopularSearches(limit = 6) {
+  return useQuery({
+    queryKey: ["landing", "popular-searches", limit],
+    queryFn: async () => {
+      const res = await apiFetch<ApiResponse<SectionResponse<PopularSearch>>>(`/experts/popular-searches?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,

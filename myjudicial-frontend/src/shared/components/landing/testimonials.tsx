@@ -69,7 +69,8 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
 
 export default function Testimonials() {
   const t = useTranslations("public");
-  const { data: reviews, isLoading } = useFeaturedReviews(6);
+  const { data: reviewsSection, isLoading } = useFeaturedReviews(6);
+  const reviews = reviewsSection?.data ?? [];
 
   if (isLoading) {
     return (

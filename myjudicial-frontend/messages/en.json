@@ -3149,12 +3149,14 @@
     },
     "sections": {
       "recommended": "Featured Experts",
+      "recommendedAlt": "Recommended Experts",
       "recommendedSub": "Top-rated legal experts on the platform",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
       "browseAreas": "Browse by Practice Area",
       "browseAreasSub": "Find an expert in the area of law you need",
       "mostBooked": "Most Booked",
+      "mostBookedAlt": "Top Specialties",
       "mostBookedSub": "Experts trusted by the most clients",
       "topRated": "Top Rated",
       "topRatedSub": "Highest reviewed legal professionals",
@@ -3162,6 +3164,10 @@
       "browseServicesSub": "Ready-to-book services from verified lawyers",
       "reviews": "What Clients Say",
       "reviewsSub": "Real reviews from verified consultations",
+      "recentlyViewed": "Recently Viewed",
+      "recentlyViewedSub": "Experts you recently looked at",
+      "savedExperts": "Saved Experts",
+      "savedExpertsSub": "Your favorited legal experts",
       "viewAll": "View all"
     },
     "aiCta": {
@@ -3171,18 +3177,7 @@
     },
     "popularSearches": {
       "title": "Popular Legal Searches",
-      "subtitle": "Quick access to the most searched legal topics",
-      "items": {
-        "family": "Family Law",
-        "criminal": "Criminal Defense",
-        "property": "Property & Land",
-        "employment": "Employment Law",
-        "business": "Business & Corporate",
-        "immigration": "Immigration",
-        "tax": "Tax Advisory",
-        "divorce": "Divorce",
-        "inheritance": "Inheritance"
-      }
+      "subtitle": "Quick access to the most searched legal topics"
     },
     "resources": {
       "title": "Legal Resources",

@@ -24,6 +24,7 @@ import {
   useAvailableTodayExperts,
   useLegalServices,
   useFeaturedReviews,
+  usePopularSearches,
   type ExpertSummary,
   type LegalServiceSummary,
   type PracticeArea,
@@ -31,6 +32,9 @@ import {
 } from "@/lib/api/landing";
 import { useExpertSearch } from "@/features/search/hooks/useExpertSearch";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
+import { useRecentlyViewed, trackExpertView } from "@/features/search/hooks/use-recently-viewed";
+import { useSavedExperts } from "@/features/search/hooks/use-saved-experts";
+import { SectionBoundary } from "@/shared/components/section-boundary";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,18 +54,6 @@ const TRUST_BAR_KEYS = [
 ];
 
 const TRUST_ITEMS = TRUST_BAR_KEYS;
-
-const POPULAR_SEARCH_ITEMS = [
-  { key: "popularSearches.items.family", href: "/search?specialty=FAMILY_LAW" },
-  { key: "popularSearches.items.criminal", href: "/search?specialty=CRIMINAL_LAW" },
-  { key: "popularSearches.items.property", href: "/search?specialty=LAND_LAW" },
-  { key: "popularSearches.items.employment", href: "/search?specialty=EMPLOYMENT_LAW" },
-  { key: "popularSearches.items.business", href: "/search?specialty=COMMERCIAL_LAW" },
-  { key: "popularSearches.items.immigration", href: "/search?specialty=IMMIGRATION_LAW" },
-  { key: "popularSearches.items.tax", href: "/search?specialty=TAX_LAW" },
-  { key: "popularSearches.items.divorce", href: "/search?specialty=FAMILY_LAW&q=divorce" },
-  { key: "popularSearches.items.inheritance", href: "/search?specialty=FAMILY_LAW&q=inheritance" },
-];
 
 const RESOURCE_ITEMS = [
   { labelKey: "resources.items.helpCenter", href: "/help", descKey: "resources.items.helpCenterDesc" },
@@ -102,6 +94,7 @@ function ExpertCard({ expert }: { expert: ExpertSummary }) {
   return (
     <Link
       href={`/lawyers/${expert.id}`}
+      onClick={() => trackExpertView(expert)}
       className="group flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
       {/* Header: Avatar + Name + Rating */}
@@ -360,21 +353,43 @@ export default function LandingPage() {
   const geo = useGeolocation();
 
   const { data: practiceAreas, isLoading: areasLoading } = usePracticeAreas();
-  const { data: recommended, isLoading: recLoading } = useRecommendedExperts(5);
-  const { data: availableToday, isLoading: availLoading } = useAvailableTodayExperts(5);
-  const { data: mostBooked, isLoading: bookedLoading } = useMostBookedExperts(5);
-  const { data: topRated, isLoading: ratedLoading } = useHighestRatedExperts(5);
-  const { data: services, isLoading: servicesLoading } = useLegalServices(8);
-  const { data: reviews, isLoading: reviewsLoading } = useFeaturedReviews(6);
+  const { data: recSection, isLoading: recLoading } = useRecommendedExperts(5);
+  const { data: availSection, isLoading: availLoading } = useAvailableTodayExperts(5);
+  const { data: bookedSection, isLoading: bookedLoading } = useMostBookedExperts(5);
+  const { data: ratedSection, isLoading: ratedLoading } = useHighestRatedExperts(5);
+  const { data: servicesSection, isLoading: servicesLoading } = useLegalServices(8);
+  const { data: reviewsSection, isLoading: reviewsLoading } = useFeaturedReviews(6);
+  const { data: popularSection, isLoading: popularLoading } = usePopularSearches(6);
+
+  // Extract data + source from SectionResponse wrappers
+  const recommended = recSection?.data ?? [];
+  const availableToday = availSection?.data ?? [];
+  const mostBooked = bookedSection?.data ?? [];
+  const topRated = ratedSection?.data ?? [];
+  const services = servicesSection?.data ?? [];
+  const reviews = reviewsSection?.data ?? [];
+  const popularSearches = popularSection?.data ?? [];
+
+  // Cold-start source labels
+  const mostBookedLabel = bookedSection?.source === "curated" ? t("sections.mostBookedAlt") : t("sections.mostBooked");
 
   // Whether each data section should be visible
-  const showRecommended = !recLoading && recommended && recommended.length > 0;
-  const showAvailableToday = !availLoading && availableToday && availableToday.length > 0;
+  const showRecommended = !recLoading && recSection?.source !== "disabled" && recommended.length > 0;
+  const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
   const showPracticeAreas = !areasLoading && practiceAreas && practiceAreas.length > 0;
-  const showMostBooked = !bookedLoading && mostBooked && mostBooked.length > 0;
-  const showTopRated = !ratedLoading && topRated && topRated.length > 0;
-  const showServices = !servicesLoading && services && services.length > 0;
-  const showReviews = !reviewsLoading && reviews && reviews.length > 0;
+  const showMostBooked = !bookedLoading && bookedSection?.source !== "disabled" && mostBooked.length > 0;
+  const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
+  const showServices = !servicesLoading && servicesSection?.source !== "disabled" && services.length > 0;
+  const showReviews = !reviewsLoading && reviewsSection?.source !== "disabled" && reviews.length > 0;
+  const showPopular = !popularLoading && popularSection?.source !== "disabled" && popularSearches.length > 0;
+
+  // Recently viewed (localStorage, no API call)
+  const recentlyViewed = useRecentlyViewed();
+  const showRecentlyViewed = recentlyViewed.length > 0;
+
+  // Saved experts (localStorage, no API call)
+  const { saved } = useSavedExperts();
+  const showSaved = saved.length > 0;
 
   // Search results (only when user is actively exploring)
   const { data: searchResults, isLoading: searchLoading } = useExpertSearch(
@@ -655,9 +670,11 @@ export default function LandingPage() {
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : showRecommended && (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
-              <ExpertHorizontalRow experts={recommended} isLoading={false} />
-            </SectionRow>
+            <SectionBoundary>
+              <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+                <ExpertHorizontalRow experts={recommended} isLoading={false} />
+              </SectionRow>
+            </SectionBoundary>
           )}
 
           {/* 2. Available Today */}
@@ -666,9 +683,11 @@ export default function LandingPage() {
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : showAvailableToday && (
-            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
-              <ExpertHorizontalRow experts={availableToday} isLoading={false} />
-            </SectionRow>
+            <SectionBoundary>
+              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
+                <ExpertHorizontalRow experts={availableToday} isLoading={false} />
+              </SectionRow>
+            </SectionBoundary>
           )}
 
           {/* 3. Practice Areas */}
@@ -688,13 +707,13 @@ export default function LandingPage() {
             </SectionRow>
           )}
 
-          {/* 4. Most Booked */}
+          {/* 4. Most Booked — cold-start: shows "Top Specialties" when no real booking data */}
           {bookedLoading ? (
             <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : showMostBooked && (
-            <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
+            <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
               <ExpertHorizontalRow experts={mostBooked} isLoading={false} />
             </SectionRow>
           )}
@@ -718,18 +737,21 @@ export default function LandingPage() {
               </div>
             </SectionRow>
           ) : showServices && (
-            <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {services.map((s) => <ServiceCard key={s.id} service={s} />)}
-              </div>
-            </SectionRow>
+            <SectionBoundary>
+              <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {services.map((s) => <ServiceCard key={s.id} service={s} />)}
+                </div>
+              </SectionRow>
+            </SectionBoundary>
           )}
 
           {/* 6b. Client Reviews */}
           {showReviews && (
-            <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {reviews.map((review) => (
+            <SectionBoundary>
+              <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {reviews.map((review) => (
                   <div key={review.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
                     <div className="flex items-center gap-3">
                       <StarRating rating={review.rating} showCount={false} size="md" />
@@ -749,6 +771,7 @@ export default function LandingPage() {
                 ))}
               </div>
             </SectionRow>
+            </SectionBoundary>
           )}
 
           {/* 7. AI Assistant CTA */}
@@ -772,25 +795,45 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 8. Popular Searches */}
-          <SectionRow
-            title={t("popularSearches.title")}
-            subtitle={t("popularSearches.subtitle")}
-            className="bg-muted/40"
-          >
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {POPULAR_SEARCH_ITEMS.map((item) => (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-3 text-[13px] font-medium text-foreground transition hover:border-brand-dark/30 hover:shadow-sm"
-                >
-                  <span className="line-clamp-1">{t(item.key)}</span>
-                  <ExternalLink size={11} className="shrink-0 text-muted-foreground" />
-                </Link>
-              ))}
-            </div>
-          </SectionRow>
+          {/* 8. Recently Viewed — localStorage, no API call, 7-day expiry */}
+          {showRecentlyViewed && (
+            <SectionBoundary>
+              <SectionRow title={t("sections.recentlyViewed")} subtitle={t("sections.recentlyViewedSub")}>
+                <ExpertHorizontalRow experts={recentlyViewed} isLoading={false} />
+              </SectionRow>
+            </SectionBoundary>
+          )}
+
+          {/* 8b. Saved Experts — localStorage favorites */}
+          {showSaved && (
+            <SectionBoundary>
+              <SectionRow title={t("sections.savedExperts")} subtitle={t("sections.savedExpertsSub")}>
+                <ExpertHorizontalRow experts={saved} isLoading={false} />
+              </SectionRow>
+            </SectionBoundary>
+          )}
+
+          {/* 9. Popular Searches — from API (aggregated booking data or cold-start fallback) */}
+          {showPopular && (
+            <SectionRow
+              title={t("popularSearches.title")}
+              subtitle={t("popularSearches.subtitle")}
+              className="bg-muted/40"
+            >
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                {popularSearches.map((item) => (
+                  <Link
+                    key={item.specialty}
+                    href={`/search?specialty=${item.specialty}`}
+                    className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-3 text-[13px] font-medium text-foreground transition hover:border-brand-dark/30 hover:shadow-sm"
+                  >
+                    <span className="line-clamp-1">{item.label}</span>
+                    <ExternalLink size={11} className="shrink-0 text-muted-foreground" />
+                  </Link>
+                ))}
+              </div>
+            </SectionRow>
+          )}
 
           {/* 9. Legal Resources */}
           <SectionRow

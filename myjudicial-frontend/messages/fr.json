@@ -2025,12 +2025,14 @@
     },
     "sections": {
       "recommended": "Experts Vedettes",
+      "recommendedAlt": "Experts Recommandés",
       "recommendedSub": "Les experts juridiques les mieux notés de la plateforme",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
       "browseAreas": "Browse by Practice Area",
       "browseAreasSub": "Find an expert in the area of law you need",
       "mostBooked": "Most Booked",
+      "mostBookedAlt": "Top Spécialités",
       "mostBookedSub": "Experts trusted by the most clients",
       "topRated": "Top Rated",
       "topRatedSub": "Highest reviewed legal professionals",
@@ -2038,6 +2040,10 @@
       "browseServicesSub": "Services de réservation proints d'avocats vérifiés",
       "reviews": "Ce que Disent les Clients",
       "reviewsSub": "Vrais avis de consultations vérifiées",
+      "recentlyViewed": "Récemment Consultés",
+      "recentlyViewedSub": "Les experts que vous avez récemment consultés",
+      "savedExperts": "Experts Enregistrés",
+      "savedExpertsSub": "Vos experts juridiques favoris",
       "viewAll": "Voir tout"
     },
     "aiCta": {
@@ -2047,18 +2053,7 @@
     },
     "popularSearches": {
       "title": "Recherches juridiques populaires",
-      "subtitle": "Acces rapide aux sujets juridiques les plus recherches",
-      "items": {
-        "family": "Droit de la famille",
-        "criminal": "Droit penal",
-        "property": "Propriete et foncier",
-        "employment": "Droit du travail",
-        "business": "Entreprises et societes",
-        "immigration": "Immigration",
-        "tax": "Fiscalite",
-        "divorce": "Divorce",
-        "inheritance": "Succession"
-      }
+      "subtitle": "Acces rapide aux sujets juridiques les plus recherches"
     },
     "resources": {
       "title": "Legal Resources",

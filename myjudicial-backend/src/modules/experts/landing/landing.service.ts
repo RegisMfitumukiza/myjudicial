@@ -25,6 +25,18 @@ const SPECIALTY_LABELS: Record<string, string> = {
   OTHER: "Other",
 };
 
+export type SectionSource = "real_metrics" | "curated" | "disabled";
+
+export type SectionResponse<T> = {
+  data: T[];
+  source: SectionSource;
+  isEmpty: boolean;
+};
+
+function wrapSection<T>(data: T[], source: SectionSource): SectionResponse<T> {
+  return { data, source, isEmpty: data.length === 0 };
+}
+
 function toExpertSummary(e: any, avatarUrl: string | null) {
   return {
     id: e.id,
@@ -109,7 +121,7 @@ export const LandingService = {
     }));
   },
 
-  getNewest: async (limit = 6) => {
+  getNewest: async (limit = 6): Promise<SectionResponse<any>> => {
     const experts = await prisma.expertProfile.findMany({
       where: { status: "VERIFIED" },
       orderBy: { createdAt: "desc" },
@@ -117,15 +129,16 @@ export const LandingService = {
       select: BASE_SELECT,
     });
 
-    return Promise.all(
+    const results = await Promise.all(
       experts.map(async (e) =>
         toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
       )
     );
+    return wrapSection(results, "real_metrics");
   },
 
   /** Recommended: Bayesian-weighted blend of rating, reviews, and verification. */
-  getRecommended: async (limit = 8) => {
+  getRecommended: async (limit = 8): Promise<SectionResponse<any>> => {
     const C = 3; // Bayesian constant (minimum reviews for full weight)
     const m = 3.5; // prior mean rating (global average estimate)
 
@@ -150,14 +163,23 @@ export const LandingService = {
     scored.sort((a, b) => b.score - a.score);
     const top = scored.slice(0, limit);
 
-    return Promise.all(
+    const results = await Promise.all(
       top.map(async ({ expert: e }) =>
         toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
       )
     );
+    return wrapSection(results, "real_metrics");
   },
 
-  getMostBooked: async (limit = 6) => {
+  getMostBooked: async (limit = 6): Promise<SectionResponse<any>> => {
+    // Cold-start: check if any bookings exist in last 30 days
+    const recentBookingCount = await prisma.booking.count({
+      where: {
+        status: "COMPLETED",
+        completedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+    });
+
     const expertsWithCounts = await prisma.expertProfile.findMany({
       where: { status: "VERIFIED" },
       select: {
@@ -170,15 +192,18 @@ export const LandingService = {
       .sort((a, b) => ((b as any)._count?.bookings ?? 0) - ((a as any)._count?.bookings ?? 0))
       .slice(0, limit);
 
-    return Promise.all(
+    const source: SectionSource = recentBookingCount > 0 ? "real_metrics" : "curated";
+
+    const results = await Promise.all(
       sorted.map(async (e) => ({
         ...toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey)),
         completedBookings: (e as any)._count?.bookings ?? 0,
       }))
     );
+    return wrapSection(results, source);
   },
 
-  getHighestRated: async (limit = 6) => {
+  getHighestRated: async (limit = 6): Promise<SectionResponse<any>> => {
     const MIN_REVIEWS = 2;
     const C = 3;
     const m = 3.5;
@@ -205,18 +230,19 @@ export const LandingService = {
     scored.sort((a, b) => b.score - a.score);
     const top = scored.slice(0, limit);
 
-    return Promise.all(
+    const results = await Promise.all(
       top.map(async ({ expert: e }) =>
         toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
       )
     );
+    return wrapSection(results, "real_metrics");
   },
 
   /**
    * Available Today: experts with an availability slot for today's day-of-week
    * and who are not marked as BUSY/ON_LEAVE in their latest presence status.
    */
-  getAvailableToday: async (limit = 6) => {
+  getAvailableToday: async (limit = 6): Promise<SectionResponse<any>> => {
     const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
     const dayOfWeek = days[new Date().getDay()] as any;
 
@@ -235,17 +261,18 @@ export const LandingService = {
       select: BASE_SELECT,
     });
 
-    return Promise.all(
+    const results = await Promise.all(
       experts.map(async (e) =>
         toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
       )
     );
+    return wrapSection(results, "real_metrics");
   },
 
   /**
    * Legal Services: active services grouped by category
    */
-  getLegalServices: async (limit = 8) => {
+  getLegalServices: async (limit = 8): Promise<SectionResponse<any>> => {
     const services = await prisma.legalService.findMany({
       where: { isActive: true },
       orderBy: [{ isDefault: "desc" }, { sortOrder: "asc" }],
@@ -272,7 +299,7 @@ export const LandingService = {
       },
     });
 
-    return services.map((s) => ({
+    const results = services.map((s) => ({
       id: s.id,
       name: s.name,
       description: s.description,
@@ -291,9 +318,10 @@ export const LandingService = {
         : null,
       expertCity: s.expert.city,
     }));
+    return wrapSection(results, "real_metrics");
   },
 
-  getFeaturedReviews: async (limit = 6) => {
+  getFeaturedReviews: async (limit = 6): Promise<SectionResponse<any>> => {
     const reviews = await prisma.review.findMany({
       where: {
         status: "PUBLISHED",
@@ -330,7 +358,7 @@ export const LandingService = {
       },
     });
 
-    return reviews.map((r) => ({
+    const results = reviews.map((r) => ({
       id: r.id,
       rating: r.rating,
       title: r.title,
@@ -344,5 +372,63 @@ export const LandingService = {
       expertSpecialty: r.expert.primarySpecialty,
       serviceName: r.booking?.service?.name || null,
     }));
+    return wrapSection(results, "real_metrics");
+  },
+
+  /**
+   * Popular Searches: aggregate specialties from completed bookings + active services
+   * over the last 30 days. Falls back to all verified expert specialties if no bookings.
+   */
+  getPopularSearches: async (limit = 6): Promise<SectionResponse<{ specialty: string; label: string; count: number }>> => {
+    // Try to derive from recent booking service categories
+    const recentBookings = await prisma.booking.findMany({
+      where: {
+        status: "COMPLETED",
+        completedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+      include: {
+        service: { select: { category: true } },
+        expert: { select: { primarySpecialty: true } },
+      },
+    });
+
+    if (recentBookings.length > 0) {
+      // Aggregate from booking service categories
+      const categoryCounts = new Map<string, number>();
+      for (const booking of recentBookings) {
+        const cat = booking.service?.category || booking.expert?.primarySpecialty;
+        if (cat) {
+          categoryCounts.set(cat, (categoryCounts.get(cat) || 0) + 1);
+        }
+      }
+
+      const sorted = [...categoryCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit)
+        .map(([specialty, count]) => ({
+          specialty,
+          label: SPECIALTY_LABELS[specialty] || specialty,
+          count,
+        }));
+
+      return wrapSection(sorted, "real_metrics");
+    }
+
+    // Cold-start: fall back to verified expert specialty counts
+    const rows = await prisma.$queryRaw<{ specialty: string; count: bigint }[]>`
+      SELECT s AS specialty, COUNT(*)::bigint AS count
+      FROM experts e, UNNEST(e.specialties) AS s
+      WHERE e.status = 'VERIFIED'
+      GROUP BY s
+      ORDER BY count DESC
+      LIMIT ${limit}
+    `;
+
+    const results = rows.map((r) => ({
+      specialty: r.specialty,
+      label: SPECIALTY_LABELS[r.specialty] || r.specialty,
+      count: Number(r.count),
+    }));
+    return wrapSection(results, results.length > 0 ? "curated" : "disabled");
   },
 };

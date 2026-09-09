@@ -129,15 +129,15 @@ function ExpertGrid({ title, description, experts, isLoading }: {
 
 export default function FeaturedExperts() {
   const t = useTranslations("expertDashboard_featured-experts");
-  const { data: newest, isLoading: newestLoading } = useNewestExperts(6);
-  const { data: mostBooked, isLoading: mostBookedLoading } = useMostBookedExperts(6);
-  const { data: highestRated, isLoading: highestRatedLoading } = useHighestRatedExperts(6);
-  const { data: availableToday, isLoading: availableTodayLoading } = useAvailableTodayExperts(6);
+  const { data: newestSection, isLoading: newestLoading } = useNewestExperts(6);
+  const { data: mostBookedSection, isLoading: mostBookedLoading } = useMostBookedExperts(6);
+  const { data: highestRatedSection, isLoading: highestRatedLoading } = useHighestRatedExperts(6);
+  const { data: availableTodaySection, isLoading: availableTodayLoading } = useAvailableTodayExperts(6);
 
-  const newestList = newest ?? [];
-  const mostBookedList = mostBooked ?? [];
-  const highestRatedList = highestRated ?? [];
-  const availableTodayList = availableToday ?? [];
+  const newestList = newestSection?.data ?? [];
+  const mostBookedList = mostBookedSection?.data ?? [];
+  const highestRatedList = highestRatedSection?.data ?? [];
+  const availableTodayList = availableTodaySection?.data ?? [];
 
   // Deduplicate: track seen IDs across all sections
   const seen = new Set<string>();

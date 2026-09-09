@@ -233,6 +233,17 @@ router.get("/legal-services", asyncHandler(async (req, res, next) => {
   }
 }));
 
+// GET /experts/popular-searches — aggregated search categories for landing page
+router.get("/popular-searches", asyncHandler(async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit as string, 10) || 6;
+    const searches = await LandingService.getPopularSearches(limit);
+    sendSuccess(res, searches, "Popular searches retrieved");
+  } catch (error) {
+    next(error);
+  }
+}));
+
 
 /* ═══════════════════════════════════════════
    PUBLIC ROUTES — no auth required

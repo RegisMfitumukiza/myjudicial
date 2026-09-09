@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/routing";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, BadgeCheck } from "lucide-react";
 import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { useNewestExperts, useMostBookedExperts, useHighestRatedExperts, useAvailableTodayExperts } from "@/lib/api/landing";
@@ -15,57 +15,63 @@ function humanizeSpecialty(s: string): string {
     .join(" ");
 }
 
-function ExpertCard({ expert }: { expert: { id: string; name: string; specialty: string | null; rating: number | null; reviewCount: number; city: string | null; flatFee: number | null; currency: string; avatarUrl: string | null } }) {
+function ExpertCard({ expert }: { expert: { id: string; name: string; specialty: string | null; rating: number | null; reviewCount: number; city: string | null; flatFee: number | null; currency: string; avatarUrl: string | null; verified?: boolean } }) {
   const t = useTranslations("expertDashboard_featured-experts");
   return (
     <Link
       href={`/lawyers/${expert.id}`}
-      className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-brand-dark/5">
-        <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="xl" className="h-full w-full rounded-none" />
-        {expert.rating !== null && (
-          <div className="absolute right-2.5 top-2.5 rounded-full bg-background/95 px-2 py-1 shadow-sm backdrop-blur">
-            <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" />
+      {/* Header: Avatar + Name */}
+      <div className="flex items-start gap-3 p-4 pb-0">
+        <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="md" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-bold leading-tight text-foreground line-clamp-1">{expert.name}</p>
+            {expert.verified && (
+              <BadgeCheck size={13} className="shrink-0 text-brand-dark dark:text-white" />
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="space-y-1.5 p-3">
-        <p className="truncate text-[13px] font-bold leading-tight text-foreground">{expert.name}</p>
-
-        <div className="flex items-center justify-between gap-2">
-          {expert.specialty && (
-            <span className="truncate rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              {humanizeSpecialty(expert.specialty)}
-            </span>
-          )}
-          {expert.city && (
-            <div className="flex shrink-0 items-center gap-0.5 text-[11px] text-muted-foreground">
-              <MapPin size={10} /><span>{expert.city}</span>
+          {expert.rating !== null && (
+            <div className="mt-0.5">
+              <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" />
             </div>
           )}
         </div>
+      </div>
 
-        <div className="flex items-baseline justify-between border-t border-border/50 pt-1.5">
-          {expert.flatFee !== null ? (
-            <p className="text-[13px] text-foreground">
-              <span className="font-bold">{expert.flatFee.toLocaleString()}</span>{" "}
-              <span className="font-normal text-muted-foreground">{expert.currency}</span>
-            </p>
-          ) : (
-            <p className="text-[13px] text-muted-foreground">{t("feeNotSet")}</p>
-          )}
-          <span className="text-[11px] font-semibold text-brand-dark opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            {t("view")}
+      {/* Body: Tags */}
+      <div className="flex flex-wrap items-center gap-1.5 px-4 pt-2.5">
+        {expert.specialty && (
+          <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {humanizeSpecialty(expert.specialty)}
           </span>
-        </div>
+        )}
+        {expert.city && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+            <MapPin size={9} />{expert.city}
+          </span>
+        )}
+      </div>
+
+      {/* Footer: Price */}
+      <div className="mt-auto flex items-end justify-between gap-2 border-t border-border/50 px-4 pt-3 pb-4">
+        {expert.flatFee !== null ? (
+          <div>
+            <p className="text-base font-bold text-foreground">{expert.flatFee.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{expert.currency}</span></p>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("feeNotSet")}</p>
+        )}
+        <span className="text-xs font-semibold text-brand-dark dark:text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          {t("view")}
+        </span>
       </div>
     </Link>
   );
 }
 
-type ExpertItem = { id: string; name: string; specialty: string | null; rating: number | null; reviewCount: number; city: string | null; flatFee: number | null; currency: string; avatarUrl: string | null };
+type ExpertItem = { id: string; name: string; specialty: string | null; rating: number | null; reviewCount: number; city: string | null; flatFee: number | null; currency: string; avatarUrl: string | null; verified?: boolean };
 
 function ExpertGrid({ title, description, experts, isLoading }: {
   title: string;
@@ -82,11 +88,20 @@ function ExpertGrid({ title, description, experts, isLoading }: {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-3 lg:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-square w-full rounded-2xl bg-muted" />
-              <div className="mt-3 space-y-2">
-                <div className="h-3 w-3/4 rounded bg-muted" />
-                <div className="h-3 w-1/2 rounded bg-muted" />
+            <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-4 w-3/4 rounded bg-muted" />
+                  <div className="h-3 w-1/2 rounded bg-muted" />
+                </div>
+              </div>
+              <div className="mt-3 flex gap-1.5">
+                <div className="h-5 w-16 rounded-full bg-muted" />
+                <div className="h-5 w-12 rounded-full bg-muted" />
+              </div>
+              <div className="mt-3 border-t border-border/50 pt-3">
+                <div className="h-5 w-20 rounded bg-muted" />
               </div>
             </div>
           ))}
@@ -160,11 +175,20 @@ export default function FeaturedExperts() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-3 lg:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square w-full rounded-2xl bg-muted" />
-                <div className="mt-3 space-y-2">
-                  <div className="h-3 w-3/4 rounded bg-muted" />
-                  <div className="h-3 w-1/2 rounded bg-muted" />
+              <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-4 w-3/4 rounded bg-muted" />
+                    <div className="h-3 w-1/2 rounded bg-muted" />
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-1.5">
+                  <div className="h-5 w-16 rounded-full bg-muted" />
+                  <div className="h-5 w-12 rounded-full bg-muted" />
+                </div>
+                <div className="mt-3 border-t border-border/50 pt-3">
+                  <div className="h-5 w-20 rounded bg-muted" />
                 </div>
               </div>
             ))}

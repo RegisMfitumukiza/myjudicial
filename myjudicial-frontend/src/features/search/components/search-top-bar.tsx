@@ -1,9 +1,6 @@
 "use client";
 
 import { Search, SlidersHorizontal, Map as MapIcon, List } from "lucide-react";
-import { ThemeToggle } from "@/shared/components/theme-toggle";
-import { Logo } from "@/shared/components/logo";
-import { ProfileMenu } from "@/shared/components/profile-menu";
 import { useTranslations } from "next-intl";
 
 type SearchTopBarProps = {
@@ -30,13 +27,8 @@ export function SearchTopBar({
   const t = useTranslations("search");
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex max-w-[1400px] h-16 items-center gap-3 px-4 sm:px-6">
-      {/* Logo */}
-      <div className="flex shrink-0 items-center">
-        <Logo iconSize={22} fontSize="text-[18px]" />
-      </div>
-
+    <div className="sticky top-16 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex max-w-[1400px] h-14 items-center gap-3 px-4 sm:px-6">
       {/* Search Pill */}
       <div className="flex flex-1 items-center justify-center">
         <div className="flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm transition-shadow focus-within:border-brand-dark focus-within:ring-1 focus-within:ring-brand-dark/20 hover:shadow-md">
@@ -86,13 +78,8 @@ export function SearchTopBar({
             {viewMode === "map" ? t("useList") : t("useMap")}
           </button>
         )}
-
-        <div className="flex items-center gap-1.5 border-l border-border pl-2 sm:pl-3">
-          <ThemeToggle />
-          <ProfileMenu />
-        </div>
       </div>
       </div>
-    </header>
+    </div>
   );
 }

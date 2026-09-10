@@ -30,6 +30,14 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setPracticeOpen(false); setMobileOpen(false); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   const navLinkClass = (href: string) =>

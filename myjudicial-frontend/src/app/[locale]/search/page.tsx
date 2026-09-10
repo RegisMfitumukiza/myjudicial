@@ -13,11 +13,9 @@ export const metadata: Metadata = {
 
 export default function SearchPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <Suspense fallback={<SearchPageFallback />}>
-        <SearchPageClient />
-      </Suspense>
-    </main>
+    <Suspense fallback={<SearchPageFallback />}>
+      <SearchPageClient />
+    </Suspense>
   );
 }
 

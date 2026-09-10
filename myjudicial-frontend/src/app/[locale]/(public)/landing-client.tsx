@@ -528,19 +528,19 @@ export default function LandingPage() {
               )}
             </div>
 
-            {/* Search input */}
+            {/* Search input — navigates to /search */}
             <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-sm hover:shadow-md transition-shadow max-w-md">
               <input
                 type="text"
                 placeholder={t("search.placeholder")}
                 aria-label={t("search.placeholder")}
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); if (e.target.value) activateExplore(); }}
-                onKeyDown={(e) => { if (e.key === "Enter") activateExplore(); }}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
                 className="flex-1 min-w-0 bg-transparent px-4 py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
               />
               <button
-                onClick={activateExplore}
+                onClick={() => { if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
                 aria-label={t("search.placeholder")}
                 className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white dark:text-black transition hover:opacity-90"
               >
@@ -690,13 +690,13 @@ export default function LandingPage() {
         <>
           {/* 1. Recommended — Bayesian-weighted blend of rating, reviews, bookings */}
           {recLoading ? (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showRecommended}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
                   <ExpertHorizontalRow experts={recommended} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
@@ -705,13 +705,13 @@ export default function LandingPage() {
 
           {/* 2. Available Today */}
           {availLoading ? (
-            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
+            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showAvailableToday}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
+                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-muted/40">
                   <ExpertHorizontalRow experts={availableToday} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
@@ -720,7 +720,7 @@ export default function LandingPage() {
 
           {/* 3. Practice Areas */}
           {areasLoading ? (
-            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
+            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search?specialty=all" className="bg-background">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
               </div>
@@ -728,7 +728,7 @@ export default function LandingPage() {
           ) : (
             <SectionFadeIn show={showPracticeAreas}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
+                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search?specialty=all" className="bg-background">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {practiceAreas?.map((area) => (
                       <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
@@ -741,13 +741,13 @@ export default function LandingPage() {
 
           {/* 4. Most Booked — cold-start: shows "Top Specialties" when no real booking data */}
           {bookedLoading ? (
-            <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
+            <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/search?sort=MOST_REVIEWED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showMostBooked}>
               <SectionRetryBoundary>
-                <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
+                <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/search?sort=MOST_REVIEWED" className="bg-muted/40">
                   <ExpertHorizontalRow experts={mostBooked} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
@@ -756,13 +756,13 @@ export default function LandingPage() {
 
           {/* 5. Top Rated */}
           {ratedLoading ? (
-            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showTopRated}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
                   <ExpertHorizontalRow experts={topRated} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>

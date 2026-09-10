@@ -57,7 +57,7 @@ export default function PracticeAreasPage() {
                 return (
                   <Link
                     key={area.specialty}
-                    href={`/experts?specialty=${area.specialty}`}
+                    href={`/?specialty=${area.specialty}`}
                     className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-dark/30 hover:shadow-lg"
                   >
                     <div>

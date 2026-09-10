@@ -15,6 +15,7 @@ export function Header() {
   const [practiceOpen, setPracticeOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const practiceRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const t = useTranslations("header");
 
@@ -23,20 +24,31 @@ export function Header() {
   const isHomePage = pathname === "/";
 
   useEffect(() => {
+    if (!practiceOpen) return;
     const handler = (e: MouseEvent) => {
       if (practiceRef.current && !practiceRef.current.contains(e.target as Node)) setPracticeOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  }, [practiceOpen]);
 
   useEffect(() => {
+    if (!mobileOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!practiceOpen && !mobileOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") { setPracticeOpen(false); setMobileOpen(false); }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  }, [practiceOpen, mobileOpen]);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
@@ -128,7 +140,7 @@ export function Header() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden border-t border-border bg-background px-4 py-4 space-y-1">
+          <div ref={mobileRef} className="lg:hidden border-t border-border bg-background px-4 py-4 space-y-1">
             <Link href="/" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
               <Search size={15} /> {t("findLawyer")}
             </Link>

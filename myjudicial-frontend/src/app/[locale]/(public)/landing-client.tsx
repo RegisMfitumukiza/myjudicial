@@ -34,7 +34,8 @@ import { useExpertSearch } from "@/features/search/hooks/useExpertSearch";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 import { useRecentlyViewed, trackExpertView } from "@/features/search/hooks/use-recently-viewed";
 import { useSavedExperts } from "@/features/search/hooks/use-saved-experts";
-import { SectionBoundary } from "@/shared/components/section-boundary";
+import { SectionRetryBoundary } from "@/shared/components/section-boundary";
+import { SectionFadeIn } from "@/shared/components/section-fade-in";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -376,7 +377,7 @@ export default function LandingPage() {
   // Whether each data section should be visible
   const showRecommended = !recLoading && recSection?.source !== "disabled" && recommended.length > 0;
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
-  const showPracticeAreas = !areasLoading && practiceAreas && practiceAreas.length > 0;
+  const showPracticeAreas = !areasLoading && practiceAreas !== undefined && practiceAreas !== null && practiceAreas.length > 0;
   const showMostBooked = !bookedLoading && bookedSection?.source !== "disabled" && mostBooked.length > 0;
   const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
   const showServices = !servicesLoading && servicesSection?.source !== "disabled" && services.length > 0;
@@ -388,8 +389,16 @@ export default function LandingPage() {
   const showRecentlyViewed = recentlyViewed.length > 0;
 
   // Saved experts (localStorage, no API call)
-  const { saved } = useSavedExperts();
+  const { saved, toggleSave } = useSavedExperts();
   const showSaved = saved.length > 0;
+
+  const clearRecentlyViewed = useCallback(() => {
+    try { localStorage.removeItem("mj_recently_viewed"); window.location.reload(); } catch { /* noop */ }
+  }, []);
+
+  const clearSaved = useCallback(() => {
+    saved.forEach((e) => toggleSave(e));
+  }, [saved, toggleSave]);
 
   // Search results (only when user is actively exploring)
   const { data: searchResults, isLoading: searchLoading } = useExpertSearch(
@@ -637,8 +646,23 @@ export default function LandingPage() {
             <>
               <p className="mb-4 text-sm text-muted-foreground">{t("empty.resultsCount", { count: displayExperts.length })}</p>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {displayExperts.map((e: any) => (
-                  <ExpertCard key={e.id} expert={{ ...e, specialty: e.specialties?.[0] ?? null, specialties: e.specialties ?? [], flatFee: e.baseConsultationFee ?? null } as ExpertSummary} />
+                {displayExperts.map((e) => (
+                  <ExpertCard key={e.id} expert={{
+                    id: e.id,
+                    name: e.name,
+                    specialty: e.specialties[0] ?? null,
+                    specialties: e.specialties,
+                    rating: e.rating || null,
+                    reviewCount: e.reviewCount,
+                    city: e.city ?? e.district ?? null,
+                    flatFee: e.baseConsultationFee ?? null,
+                    currency: "RWF",
+                    avatarUrl: e.avatarUrl,
+                    yearsExperience: e.yearsExperience ?? null,
+                    languages: e.languages ?? [],
+                    verified: e.verified,
+                    presenceStatus: e.presenceStatus,
+                  }} />
                 ))}
               </div>
             </>
@@ -664,17 +688,19 @@ export default function LandingPage() {
       {/* ── MARKETPLACE BODY (only when not in search mode) ────────────────── */}
       {!isExploring && (
         <>
-          {/* 1. Recommended — skeleton while loading, hide when empty */}
+          {/* 1. Recommended — Bayesian-weighted blend of rating, reviews, bookings */}
           {recLoading ? (
             <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
-          ) : showRecommended && (
-            <SectionBoundary>
-              <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
-                <ExpertHorizontalRow experts={recommended} isLoading={false} />
-              </SectionRow>
-            </SectionBoundary>
+          ) : (
+            <SectionFadeIn show={showRecommended}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+                  <ExpertHorizontalRow experts={recommended} isLoading={false} />
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 2. Available Today */}
@@ -682,12 +708,14 @@ export default function LandingPage() {
             <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
-          ) : showAvailableToday && (
-            <SectionBoundary>
-              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
-                <ExpertHorizontalRow experts={availableToday} isLoading={false} />
-              </SectionRow>
-            </SectionBoundary>
+          ) : (
+            <SectionFadeIn show={showAvailableToday}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/?availableToday=true" className="bg-muted/40">
+                  <ExpertHorizontalRow experts={availableToday} isLoading={false} />
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 3. Practice Areas */}
@@ -697,14 +725,18 @@ export default function LandingPage() {
                 {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
               </div>
             </SectionRow>
-          ) : showPracticeAreas && (
-            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {practiceAreas.map((area) => (
-                  <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
-                ))}
-              </div>
-            </SectionRow>
+          ) : (
+            <SectionFadeIn show={showPracticeAreas}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/?specialty=all" className="bg-background">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                    {practiceAreas?.map((area) => (
+                      <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
+                    ))}
+                  </div>
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 4. Most Booked — cold-start: shows "Top Specialties" when no real booking data */}
@@ -712,10 +744,14 @@ export default function LandingPage() {
             <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
-          ) : showMostBooked && (
-            <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
-              <ExpertHorizontalRow experts={mostBooked} isLoading={false} />
-            </SectionRow>
+          ) : (
+            <SectionFadeIn show={showMostBooked}>
+              <SectionRetryBoundary>
+                <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/?sort=MOST_REVIEWED" className="bg-muted/40">
+                  <ExpertHorizontalRow experts={mostBooked} isLoading={false} />
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 5. Top Rated */}
@@ -723,10 +759,14 @@ export default function LandingPage() {
             <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
-          ) : showTopRated && (
-            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
-              <ExpertHorizontalRow experts={topRated} isLoading={false} />
-            </SectionRow>
+          ) : (
+            <SectionFadeIn show={showTopRated}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/?sort=HIGHEST_RATED" className="bg-background">
+                  <ExpertHorizontalRow experts={topRated} isLoading={false} />
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 6. Legal Services */}
@@ -736,42 +776,65 @@ export default function LandingPage() {
                 {Array.from({ length: 4 }).map((_, i) => <ServiceCardSkeleton key={i} />)}
               </div>
             </SectionRow>
-          ) : showServices && (
-            <SectionBoundary>
-              <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {services.map((s) => <ServiceCard key={s.id} service={s} />)}
-                </div>
-              </SectionRow>
-            </SectionBoundary>
+          ) : (
+            <SectionFadeIn show={showServices}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {services.map((s) => <ServiceCard key={s.id} service={s} />)}
+                  </div>
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
-          {/* 6b. Client Reviews */}
-          {showReviews && (
-            <SectionBoundary>
-              <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {reviews.map((review) => (
-                  <div key={review.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
-                    <div className="flex items-center gap-3">
-                      <StarRating rating={review.rating} showCount={false} size="md" />
-                      <span className="text-sm font-semibold text-foreground">{review.expertName}</span>
+          {/* 6b. Client Reviews — with skeleton loading */}
+          {reviewsLoading ? (
+            <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+                    <div className="h-5 w-32 animate-pulse rounded bg-muted" />
+                    <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
                     </div>
-                    {review.title && (
-                      <p className="text-sm font-semibold text-foreground">{review.title}</p>
-                    )}
-                    {review.comment && (
-                      <p className="text-sm text-muted-foreground line-clamp-3">{review.comment}</p>
-                    )}
-                    <div className="mt-auto flex items-center justify-between pt-2 border-t border-border">
-                      <span className="text-xs text-muted-foreground">{review.clientName}</span>
-                      <span className="text-xs text-muted-foreground">{review.expertSpecialty?.replace(/_/g, " ")}</span>
+                    <div className="flex items-center justify-between border-t border-border pt-2">
+                      <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-16 animate-pulse rounded bg-muted" />
                     </div>
                   </div>
                 ))}
               </div>
             </SectionRow>
-            </SectionBoundary>
+          ) : (
+            <SectionFadeIn show={showReviews}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {reviews.map((review) => (
+                    <div key={review.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+                      <div className="flex items-center gap-3">
+                        <StarRating rating={review.rating} showCount={false} size="md" />
+                        <span className="text-sm font-semibold text-foreground">{review.expertName}</span>
+                      </div>
+                      {review.title && (
+                        <p className="text-sm font-semibold text-foreground">{review.title}</p>
+                      )}
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground line-clamp-3">{review.comment}</p>
+                      )}
+                      <div className="mt-auto flex items-center justify-between pt-2 border-t border-border">
+                        <span className="text-xs text-muted-foreground">{review.clientName}</span>
+                        <span className="text-xs text-muted-foreground">{review.expertSpecialty?.replace(/_/g, " ")}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionRow>
+            </SectionRetryBoundary>
+            </SectionFadeIn>
           )}
 
           {/* 7. AI Assistant CTA */}
@@ -795,45 +858,63 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 8. Recently Viewed — localStorage, no API call, 7-day expiry */}
-          {showRecentlyViewed && (
-            <SectionBoundary>
+          {/* 8. Recently Viewed — localStorage, 7-day expiry, with clear button */}
+          <SectionFadeIn show={showRecentlyViewed}>
+            <SectionRetryBoundary>
               <SectionRow title={t("sections.recentlyViewed")} subtitle={t("sections.recentlyViewedSub")}>
-                <ExpertHorizontalRow experts={recentlyViewed} isLoading={false} />
+                <div className="relative">
+                  <ExpertHorizontalRow experts={recentlyViewed} isLoading={false} />
+                  <button
+                    onClick={clearRecentlyViewed}
+                    className="absolute top-0 right-0 -mt-1 text-xs text-muted-foreground hover:text-foreground transition"
+                  >
+                    {t("sections.clearAll")}
+                  </button>
+                </div>
               </SectionRow>
-            </SectionBoundary>
-          )}
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
-          {/* 8b. Saved Experts — localStorage favorites */}
-          {showSaved && (
-            <SectionBoundary>
+          {/* 8b. Saved Experts — localStorage favorites, with clear button */}
+          <SectionFadeIn show={showSaved}>
+            <SectionRetryBoundary>
               <SectionRow title={t("sections.savedExperts")} subtitle={t("sections.savedExpertsSub")}>
-                <ExpertHorizontalRow experts={saved} isLoading={false} />
+                <div className="relative">
+                  <ExpertHorizontalRow experts={saved} isLoading={false} />
+                  <button
+                    onClick={clearSaved}
+                    className="absolute top-0 right-0 -mt-1 text-xs text-muted-foreground hover:text-foreground transition"
+                  >
+                    {t("sections.clearAll")}
+                  </button>
+                </div>
               </SectionRow>
-            </SectionBoundary>
-          )}
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
           {/* 9. Popular Searches — from API (aggregated booking data or cold-start fallback) */}
-          {showPopular && (
-            <SectionRow
-              title={t("popularSearches.title")}
-              subtitle={t("popularSearches.subtitle")}
-              className="bg-muted/40"
-            >
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                {popularSearches.map((item) => (
-                  <Link
-                    key={item.specialty}
-                    href={`/search?specialty=${item.specialty}`}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-3 text-[13px] font-medium text-foreground transition hover:border-brand-dark/30 hover:shadow-sm"
-                  >
-                    <span className="line-clamp-1">{item.label}</span>
-                    <ExternalLink size={11} className="shrink-0 text-muted-foreground" />
-                  </Link>
-                ))}
-              </div>
-            </SectionRow>
-          )}
+          <SectionFadeIn show={showPopular}>
+            <SectionRetryBoundary>
+              <SectionRow
+                title={t("popularSearches.title")}
+                subtitle={t("popularSearches.subtitle")}
+                className="bg-muted/40"
+              >
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                  {popularSearches.map((item) => (
+                    <Link
+                      key={item.specialty}
+                      href={`/search?specialty=${item.specialty}`}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-3 text-[13px] font-medium text-foreground transition hover:border-brand-dark/30 hover:shadow-sm"
+                    >
+                      <span className="line-clamp-1">{item.label}</span>
+                      <ExternalLink size={11} className="shrink-0 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
           {/* 9. Legal Resources */}
           <SectionRow

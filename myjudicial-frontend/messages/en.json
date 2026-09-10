@@ -3148,9 +3148,9 @@
       "realReviews": "Real Reviews"
     },
     "sections": {
-      "recommended": "Featured Experts",
+      "recommended": "Recommended",
       "recommendedAlt": "Recommended Experts",
-      "recommendedSub": "Top-rated legal experts on the platform",
+      "recommendedSub": "Top-rated experts by rating, reviews, and booking volume",
       "availableToday": "Available Today",
       "availableTodaySub": "Lawyers accepting consultations right now",
       "browseAreas": "Browse by Practice Area",
@@ -3168,6 +3168,7 @@
       "recentlyViewedSub": "Experts you recently looked at",
       "savedExperts": "Saved Experts",
       "savedExpertsSub": "Your favorited legal experts",
+      "clearAll": "Clear all",
       "viewAll": "View all"
     },
     "aiCta": {

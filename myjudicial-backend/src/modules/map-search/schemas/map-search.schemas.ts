@@ -53,6 +53,11 @@ export const mapSearchFiltersSchema = z.object({
     .boolean()
     .default(false)
     .describe("Include experts currently on leave"),
+
+  instantConsult: z
+    .boolean()
+    .optional()
+    .describe("Only experts with instant consultation services"),
 });
 
 // ─── Main search payload ────────────────────────────────────────────────────

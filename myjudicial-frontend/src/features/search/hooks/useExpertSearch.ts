@@ -15,6 +15,7 @@ export type ExpertSearchParams = {
   minYearsExperience?: number;
   availability?: string;
   availableToday?: boolean;
+  instantConsult?: boolean;
 };
 
 type ApiExpert = {
@@ -110,6 +111,7 @@ export function useExpertSearch(
   if (params.minYearsExperience !== undefined) queryString.append("minYearsExperience", params.minYearsExperience.toString());
   if (params.availability) queryString.append("availability", params.availability);
   if (params.availableToday) queryString.append("availableToday", "true");
+  if (params.instantConsult) queryString.append("instantConsult", "true");
 
   return useQuery({
     queryKey: ["experts", params],

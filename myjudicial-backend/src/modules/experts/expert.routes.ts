@@ -85,7 +85,7 @@ router.get("/health", (_req, res) => {
 /* ── Search/List Experts ── */
 router.get("/", asyncHandler(async (req, res, next) => {
   try {
-    const { lat, lng, radius, specialty, limit = 50, page = 1, search, sort, minRating, minYearsExperience, availableToday } = req.query;
+    const { lat, lng, radius, specialty, limit = 50, page = 1, search, sort, minRating, minYearsExperience, availableToday, instantConsult } = req.query;
 
     const dto = {
       latitude: lat ? parseFloat(lat as string) : -1.9441,
@@ -100,6 +100,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
         minRating: minRating ? parseFloat(minRating as string) : undefined,
         minYearsExperience: minYearsExperience ? parseInt(minYearsExperience as string, 10) : undefined,
         availability: availableToday === "true" ? ("AVAILABLE_TODAY" as const) : undefined,
+        instantConsult: instantConsult === "true" ? true : undefined,
       },
       search: search as string | undefined,
     };

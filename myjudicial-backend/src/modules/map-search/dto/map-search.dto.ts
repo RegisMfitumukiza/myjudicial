@@ -67,6 +67,7 @@ export interface NearbyQueryParams {
   minYearsExperience?: number;
   includeOnLeave: boolean;
   search?: string;
+  instantConsult?: boolean;
 }
 
 // ─── Raw row returned by PostGIS query ───────────────────────────────────────

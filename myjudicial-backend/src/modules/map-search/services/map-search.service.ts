@@ -63,6 +63,7 @@ export const MapSearchService = {
       minYearsExperience: dto.filters?.minYearsExperience,
       includeOnLeave: dto.filters?.includeOnLeave ?? false,
       search: dto.search,
+      instantConsult: dto.filters?.instantConsult,
     };
 
     const { rows, total } = await MapSearchRepository.searchNearby(params);

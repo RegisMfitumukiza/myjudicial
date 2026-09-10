@@ -85,6 +85,7 @@ export function SearchPageClient() {
     minYearsExperience:
       filters.minYearsExperience > 0 ? filters.minYearsExperience : undefined,
     availableToday: filters.availableToday || undefined,
+    instantConsult: filters.instantConsultOnly || undefined,
   });
 
   const allLawyers = searchResults?.lawyers ?? [];
@@ -96,10 +97,9 @@ export function SearchPageClient() {
         lawyer.startingRateRwf > filters.maxBudgetRwf
       )
         return false;
-      if (filters.instantConsultOnly && !lawyer.instantConsult) return false;
       return true;
     });
-  }, [allLawyers, filters.maxBudgetRwf, filters.instantConsultOnly]);
+  }, [allLawyers, filters.maxBudgetRwf]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;

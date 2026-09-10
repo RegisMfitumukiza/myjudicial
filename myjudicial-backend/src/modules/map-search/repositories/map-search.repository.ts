@@ -53,6 +53,7 @@ export const MapSearchRepository = {
       availability,
       includeOnLeave,
       search,
+      instantConsult,
     } = params;
 
     const radiusMeters = radiusKm * 1000;
@@ -126,6 +127,17 @@ export const MapSearchRepository = {
           u."firstName" ILIKE ${"%" + search + "%"}
           OR u."lastName" ILIKE ${"%" + search + "%"}
           OR e."displayName" ILIKE ${"%" + search + "%"}
+        )`
+      );
+    }
+
+    if (instantConsult) {
+      whereClauses.push(
+        Prisma.sql`EXISTS (
+          SELECT 1 FROM services s
+          WHERE s."expertId" = e.id
+            AND s."isActive" = true
+            AND s.name ILIKE '%instant%'
         )`
       );
     }

@@ -50,7 +50,7 @@ export function SectionRetryBoundary({ children }: { children: ReactNode }) {
     <SectionBoundary
       fallback={
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-muted-foreground">This section couldn't load.</p>
+          <p className="text-sm text-muted-foreground">This section failed to load.</p>
           <button
             onClick={retry}
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark dark:text-white hover:underline"

@@ -25,7 +25,7 @@ import {
   useLegalServices,
   useFeaturedReviews,
   usePopularSearches,
-  type ExpertSummary,
+  type LandingExpert,
   type LegalServiceSummary,
   type PracticeArea,
   type FeaturedReview,
@@ -88,7 +88,7 @@ const PARTNERS = [
 
 // ─── Expert Card ──────────────────────────────────────────────────────────────
 
-function ExpertCard({ expert }: { expert: ExpertSummary }) {
+function ExpertCard({ expert }: { expert: LandingExpert }) {
   const t = useTranslations("landing");
   const isOnline = expert.presenceStatus === "ONLINE";
 
@@ -96,6 +96,7 @@ function ExpertCard({ expert }: { expert: ExpertSummary }) {
     <Link
       href={`/lawyers/${expert.id}`}
       onClick={() => trackExpertView(expert)}
+      aria-label={`View profile of ${expert.name}`}
       className="group flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
       {/* Header: Avatar + Name + Rating */}
@@ -248,7 +249,7 @@ function ExpertHorizontalRow({
   experts,
   isLoading,
 }: {
-  experts: ExpertSummary[];
+  experts: LandingExpert[];
   isLoading: boolean;
 }) {
   if (isLoading) {

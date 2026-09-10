@@ -141,6 +141,8 @@ function createMarkerElements(props: {
   const el = document.createElement("div");
   el.style.cssText =
     "cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;";
+  el.setAttribute("role", "button");
+  el.setAttribute("aria-label", `View profile of ${props.name}`);
 
   const size = props.selected ? 44 : 36;
   const pin = document.createElement("div");

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { ExpertSummary } from "@/lib/api/landing";
+import type { LandingExpert } from "@/lib/api/landing";
 
 const RECENTLY_VIEWED_KEY = "mj_recently_viewed";
 const MAX_RECENT = 10;
@@ -16,7 +16,7 @@ type StoredExpert = {
 };
 
 export function useRecentlyViewed() {
-  const [recent, setRecent] = useState<ExpertSummary[]>([]);
+  const [recent, setRecent] = useState<LandingExpert[]>([]);
 
   useEffect(() => {
     try {
@@ -51,7 +51,7 @@ export function useRecentlyViewed() {
   return recent;
 }
 
-export function trackExpertView(expert: ExpertSummary) {
+export function trackExpertView(expert: LandingExpert) {
   try {
     const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
     const items: StoredExpert[] = raw ? JSON.parse(raw) : [];

@@ -15,7 +15,7 @@ export type PracticeArea = {
   expertCount: number;
 };
 
-export type ExpertSummary = {
+export type LandingExpert = {
   id: string;
   name: string;
   specialty: string | null;
@@ -32,7 +32,7 @@ export type ExpertSummary = {
   presenceStatus?: string;
 };
 
-export type MostBookedExpert = ExpertSummary & {
+export type MostBookedExpert = LandingExpert & {
   completedBookings: number;
 };
 
@@ -111,7 +111,7 @@ export function useRecommendedExperts(limit = 8) {
   return useQuery({
     queryKey: ["landing", "recommended", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/recommended?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<LandingExpert>>>(`/experts/recommended?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -122,7 +122,7 @@ export function useNewestExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "newest", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/newest?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<LandingExpert>>>(`/experts/newest?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -144,7 +144,7 @@ export function useHighestRatedExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "highest-rated", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/highest-rated?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<LandingExpert>>>(`/experts/highest-rated?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -155,7 +155,7 @@ export function useAvailableTodayExperts(limit = 6) {
   return useQuery({
     queryKey: ["landing", "available-today", limit],
     queryFn: async () => {
-      const res = await apiFetch<ApiResponse<SectionResponse<ExpertSummary>>>(`/experts/available-today?limit=${limit}`, { method: "GET" });
+      const res = await apiFetch<ApiResponse<SectionResponse<LandingExpert>>>(`/experts/available-today?limit=${limit}`, { method: "GET" });
       return res.data;
     },
     staleTime: 2 * 60 * 1000,

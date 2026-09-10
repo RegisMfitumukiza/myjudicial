@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import type { ExpertSummary } from "@/lib/api/landing";
+import type { LandingExpert } from "@/lib/api/landing";
 
 const SAVED_KEY = "mj_saved_experts";
 
 export function useSavedExperts() {
-  const [saved, setSaved] = useState<ExpertSummary[]>([]);
+  const [saved, setSaved] = useState<LandingExpert[]>([]);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SAVED_KEY);
       if (!raw) return;
-      const items = JSON.parse(raw) as ExpertSummary[];
+      const items = JSON.parse(raw) as LandingExpert[];
       setSaved(items);
     } catch {
       localStorage.removeItem(SAVED_KEY);
@@ -22,7 +22,7 @@ export function useSavedExperts() {
     [saved]
   );
 
-  const toggleSave = useCallback((expert: ExpertSummary) => {
+  const toggleSave = useCallback((expert: LandingExpert) => {
     setSaved((prev) => {
       const exists = prev.some((e) => e.id === expert.id);
       const next = exists

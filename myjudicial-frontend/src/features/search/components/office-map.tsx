@@ -49,6 +49,8 @@ export function OfficeMap({ latitude, longitude, label, className }: OfficeMapPr
 
     const el = document.createElement("div");
     el.className = "office-marker";
+    el.setAttribute("role", "button");
+    el.setAttribute("aria-label", label ?? "Office location");
     el.style.cssText = `
       width: 28px; height: 28px; border-radius: 50%;
       background: #24558d; border: 3px solid #fff;

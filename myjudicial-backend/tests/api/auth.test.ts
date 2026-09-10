@@ -8,16 +8,15 @@ import { AuthenticationError, AuthorizationError } from "../../src/shared/errors
 
 describe("Authentication middleware wiring", () => {
   it("rejects requests to a protected route without a token (401)", async () => {
-    const res = await request(app).post("/api/v1/ai/analyze").send({ caseDescription: "x" });
+    const res = await request(app).get("/api/v1/saved-experts");
     assert.equal(res.status, 401);
     assert.equal(res.body.success, false);
   });
 
   it("rejects requests with a malformed Authorization header (401)", async () => {
     const res = await request(app)
-      .post("/api/v1/ai/analyze")
-      .set("Authorization", "Token abc")
-      .send({ caseDescription: "x" });
+      .get("/api/v1/saved-experts")
+      .set("Authorization", "Token abc");
     assert.equal(res.status, 401);
     assert.equal(res.body.success, false);
   });

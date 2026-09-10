@@ -4,11 +4,10 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import {
-  MapPin, Star, Scale, Shield, Globe, Heart,
-  Lightbulb, Landmark, Building2, LayoutGrid,
-  Users, Gavel, ArrowRight, Search, ChevronDown,
-  ArrowUpDown, Navigation, Loader2, X, Briefcase,
-  Bot, FileText, Clock, BadgeCheck,
+  MapPin, Star, Scale, Shield, LayoutGrid,
+  ArrowRight, Search, ChevronDown,
+  ArrowUpDown, Navigation, Loader2, X,
+  Bot, FileText, BadgeCheck,
   Banknote, ThumbsUp, CalendarCheck, Video, Phone,
   Mail, ExternalLink, ChevronRight
 } from "lucide-react";
@@ -53,8 +52,6 @@ const TRUST_BAR_KEYS = [
   { icon: Bot, key: "bar.aiMatching" },
   { icon: ThumbsUp, key: "bar.realReviews" },
 ];
-
-const TRUST_ITEMS = TRUST_BAR_KEYS;
 
 const RESOURCE_ITEMS = [
   { labelKey: "resources.items.helpCenter", href: "/help", descKey: "resources.items.helpCenterDesc" },
@@ -676,7 +673,7 @@ export default function LandingPage() {
         <div className="border-b border-border bg-background">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5">
-              {TRUST_ITEMS.map(({ icon: Icon, key: key }) => (
+              {TRUST_BAR_KEYS.map(({ icon: Icon, key: key }) => (
                 <div key={key} className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground">
                   <Icon size={12} className="text-brand-dark dark:text-white" /> {t(key)}
                 </div>

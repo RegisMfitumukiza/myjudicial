@@ -54,7 +54,7 @@ function CancelledContent() {
           asChild
           className="w-full rounded-xl bg-brand-dark py-6 text-[14px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black"
         >
-          <Link href="/experts">
+          <Link href="/search">
             <ArrowLeft className="mr-2" size={16} />
             Browse Lawyers Again
           </Link>

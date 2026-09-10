@@ -60,7 +60,7 @@ export default function ResourcesPage() {
           <h2 className="text-3xl font-bold text-on-brand sm:text-4xl">{t("cta.title")}</h2>
           <div className="mt-8 flex items-center justify-center">
             <Link
-              href="/experts"
+              href="/search"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-dark shadow-lg transition hover:bg-white/90"
             >
               {t("cta.button")} <ArrowRight size={16} />

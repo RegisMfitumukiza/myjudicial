@@ -208,7 +208,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-6 lg:py-8">
         <Link
-          href="/experts"
+          href="/search"
           className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark/50 hover:text-brand-dark transition-colors"
         >
           <ChevronLeft size={16} /> Back to search results

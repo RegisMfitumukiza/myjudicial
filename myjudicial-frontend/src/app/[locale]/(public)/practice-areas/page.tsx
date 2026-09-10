@@ -98,7 +98,7 @@ export default function PracticeAreasPage() {
               {t("cta.useAi")} <ArrowRight size={16} />
             </Link>
             <Link
-              href="/experts"
+              href="/search"
               className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-8 py-3.5 text-sm font-bold text-on-brand transition hover:bg-white/10"
             >
               {t("cta.browseAll")}

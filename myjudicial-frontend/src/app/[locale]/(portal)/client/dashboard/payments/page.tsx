@@ -130,7 +130,7 @@ export default function PaymentsPage() {
           <CreditCard className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("noPayments")}</p>
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{t("bookConsultationDesc")}</p>
-          <Link href="/experts" className="mt-4 inline-block text-sm font-semibold text-brand-blue hover:underline">
+          <Link href="/search" className="mt-4 inline-block text-sm font-semibold text-brand-blue hover:underline">
             {t("browseLawyers")}
           </Link>
         </div>

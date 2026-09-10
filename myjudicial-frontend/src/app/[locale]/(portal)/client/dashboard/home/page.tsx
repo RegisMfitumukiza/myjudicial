@@ -164,7 +164,7 @@ export default function ClientHomePage() {
       {/* Quick Actions */}
       <div className="mb-8 grid grid-cols-3 gap-3">
         <Link
-          href="/experts"
+          href="/search"
           className="flex flex-col items-center gap-2 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-white/10 dark:bg-black"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10">

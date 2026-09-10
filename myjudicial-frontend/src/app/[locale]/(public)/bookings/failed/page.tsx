@@ -74,7 +74,7 @@ function FailedContent() {
         </Button>
 
         <Link
-          href="/experts"
+          href="/search"
           className="text-[13px] text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
         >
           {t("browseMoreLawyers")}

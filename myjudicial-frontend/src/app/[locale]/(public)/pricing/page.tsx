@@ -78,7 +78,7 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Link
-                href="/experts"
+                href="/search"
                 className="block w-full rounded-xl border-2 border-brand-dark px-4 py-3 text-center text-sm font-bold text-brand-dark transition hover:bg-brand-dark hover:text-on-brand"
               >
                 {t("tiers.free.cta")}
@@ -104,7 +104,7 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Link
-                href="/experts"
+                href="/search"
                 className="block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-bold text-brand-dark transition hover:bg-white/90"
               >
                 {t("tiers.consultation.cta")}
@@ -163,7 +163,7 @@ export default function PricingPage() {
           <p className="mx-auto mt-4 max-w-xl text-lg text-on-brand/70">{t("cta.subtitle")}</p>
           <div className="mt-8 flex items-center justify-center">
             <Link
-              href="/experts"
+              href="/search"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-dark shadow-lg transition hover:bg-white/90"
             >
               {t("cta.button")} <ArrowRight size={16} />

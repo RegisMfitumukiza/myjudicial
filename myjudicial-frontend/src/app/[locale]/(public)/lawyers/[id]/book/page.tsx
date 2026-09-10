@@ -101,13 +101,13 @@ function BookingError({ t, tCommon }: { t: ReturnType<typeof useTranslations>; t
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild variant="outline" className="rounded-xl border-border text-sm">
-            <Link href="/experts">
+            <Link href="/search">
               <Search size={14} className="mr-1.5" />
               {t("findSimilarLawyers")}
             </Link>
           </Button>
           <Button asChild className="rounded-xl bg-brand-dark text-sm text-on-brand hover:bg-brand-dark/90">
-            <Link href="/experts">{t("backToSearch")}</Link>
+            <Link href="/search">{t("backToSearch")}</Link>
           </Button>
         </div>
       </div>
@@ -528,7 +528,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
                 <Link href="/client/dashboard">{t("goToDashboard")}</Link>
               </Button>
               <Button asChild className="rounded-xl bg-brand-dark text-xs text-on-brand hover:bg-brand-dark/90">
-                <Link href="/experts">{t("findAnotherLawyer")}</Link>
+                <Link href="/search">{t("findAnotherLawyer")}</Link>
               </Button>
             </div>
           </div>

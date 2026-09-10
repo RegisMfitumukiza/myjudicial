@@ -102,7 +102,7 @@ export default function ConsultationsPage() {
             </p>
             {bookings.length === 0 && (
               <Link
-                href="/experts"
+                href="/search"
                 className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-6 py-3 text-[13px] font-semibold text-white hover:opacity-90 transition-opacity dark:bg-white dark:text-black"
               >
                 {t("findLawyers")} <ArrowRight size={14} />

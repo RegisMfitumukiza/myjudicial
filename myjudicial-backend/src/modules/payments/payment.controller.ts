@@ -205,6 +205,7 @@ export const PaymentController = {
                   momoNumber: true,
                   user: {
                     select: {
+                      id: true,
                       email: true,
                       phone: true,
                     },
@@ -226,7 +227,7 @@ export const PaymentController = {
 
       // Only citizen or expert of this booking can view
       const isCitizen = payment.booking.citizenId === userId;
-      const isExpert = payment.booking.expertId === userId;
+      const isExpert = (payment.booking.expert as any)?.user?.id === userId;
 
       if (!isCitizen && !isExpert) {
         res.status(403).json({
@@ -289,6 +290,7 @@ export const PaymentController = {
                   momoNumber: true,
                   user: {
                     select: {
+                      id: true,
                       email: true,
                       phone: true,
                     },
@@ -316,7 +318,7 @@ export const PaymentController = {
       }
 
       const isCitizen = payment.booking.citizenId === userId;
-      const isExpert = payment.booking.expertId === userId;
+      const isExpert = (payment.booking.expert as any)?.user?.id === userId;
 
       if (!isCitizen && !isExpert) {
         res.status(403).json({

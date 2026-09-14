@@ -70,6 +70,7 @@ const formatDate = (dateString: string) => {
 
 export default function ReviewsPage() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<ReviewStatus>("ALL");
 
   const { data: stats, isLoading: statsLoading } = useQuery<ReviewStats>({
@@ -78,10 +79,14 @@ export default function ReviewsPage() {
   });
 
   const { data: reviewsResponse, isLoading: reviewsLoading, error: reviewsError } = useQuery({
-    queryKey: ["admin-reviews", statusFilter],
+    queryKey: ["admin-reviews", statusFilter, page],
     queryFn: () =>
-      apiFetch<{ data: Review[]; pagination: { page: number; pages: number; total: number } }>(
-        `/admin/reviews?${statusFilter !== "ALL" ? `status=${statusFilter}&` : ""}limit=50`
+      apiFetch<{
+        data: Review[];
+        pagination?: { page: number; totalPages?: number; pages?: number; total: number };
+        meta?: { page: number; totalPages?: number; pages?: number; total: number };
+      }>(
+        `/admin/reviews?${statusFilter !== "ALL" ? `status=${statusFilter}&` : ""}page=${page}&limit=20`
       ),
   });
 
@@ -95,6 +100,14 @@ export default function ReviewsPage() {
   });
 
   const reviews: Review[] = reviewsResponse?.data ?? [];
+  const rawPagination = (reviewsResponse as any)?.pagination ?? (reviewsResponse as any)?.meta;
+  const pagination = rawPagination
+    ? {
+        page: rawPagination.page ?? page,
+        totalPages: rawPagination.totalPages ?? rawPagination.pages ?? 1,
+        total: rawPagination.total ?? reviews.length,
+      }
+    : undefined;
 
   if (statsLoading || reviewsLoading) {
     return (
@@ -152,7 +165,13 @@ export default function ReviewsPage() {
 
       <Card>
         <CardContent>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as ReviewStatus)}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v as ReviewStatus);
+              setPage(1);
+            }}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
@@ -263,6 +282,31 @@ export default function ReviewsPage() {
             </table>
           </div>
         </CardContent>
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-border px-6 py-4">
+            <p className="text-sm text-muted-foreground">
+              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= pagination.totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

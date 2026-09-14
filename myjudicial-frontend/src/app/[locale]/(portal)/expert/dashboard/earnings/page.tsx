@@ -7,11 +7,11 @@ import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import {
   PageHeader,
   StatCard,
-  LoadingSpinner,
   ErrorState,
   EmptyState,
 } from "@/shared/components/dashboard";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 function formatCurrency(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -50,7 +50,34 @@ export default function EarningsPage() {
       )}
 
       {isLoading ? (
-        <LoadingSpinner className="flex-1" />
+        <div className="flex min-h-0 flex-1 flex-col gap-6">
+          {/* stat card skeletons */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                <Skeleton className="mb-3 h-4 w-28" />
+                <Skeleton className="mb-2 h-7 w-36" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            ))}
+          </div>
+          {/* transaction table skeleton */}
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <div className="border-b border-border bg-muted/50 px-5 py-4">
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <div className="divide-y divide-border">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4 px-5 py-3">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : isError || !earnings ? (
         <ErrorState
           message="Failed to load earnings data. Please try again."

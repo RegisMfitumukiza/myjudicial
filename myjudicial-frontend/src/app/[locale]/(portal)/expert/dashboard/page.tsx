@@ -2,15 +2,16 @@
 
 import { useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Activity, Banknote, CalendarCheck, MessageSquare, Star } from "lucide-react";
+import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
   EmptyState,
   SkeletonCard,
   StatCard,
+  StatusBadge,
 } from "@/shared/components/dashboard";
 import { getErrorMessage } from "@/lib/utils";
 import {
@@ -223,6 +224,51 @@ export default function ExpertDashboardPage() {
     return result;
   }, [compliance, services, t]);
 
+  const availableSlotsToday = useMemo(() => {
+    if (!isOnline) return 0;
+    const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const;
+    const todayName = dayNames[new Date().getDay()];
+    const todaySlot = availability.find((s) => s.dayOfWeek === todayName && s.isAvailable);
+    if (!todaySlot || !todaySlot.startTime || !todaySlot.endTime) return 0;
+
+    const [startH, startM] = todaySlot.startTime.split(":").map(Number);
+    const [endH, endM] = todaySlot.endTime.split(":").map(Number);
+    const durationMin = services[0]?.durationMin || 60;
+    const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+    if (totalMinutes <= 0) return 0;
+
+    const totalPotentialSlots = Math.floor(totalMinutes / durationMin);
+    const now = new Date();
+    const isToday = (dateStr: string) => {
+      const d = new Date(dateStr);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    };
+
+    const bookedCount = bookings.filter(
+      (b) => isToday(b.scheduledStart) && ACTIVE_QUEUE_STATUSES.has(b.status)
+    ).length;
+
+    return Math.max(0, totalPotentialSlots - bookedCount);
+  }, [isOnline, availability, services, bookings]);
+
+  const recentActivities = useMemo(() => {
+    return bookings
+      .filter((b) => b.status === "COMPLETED" || b.status === "CONFIRMED")
+      .sort((a, b) => {
+        const timeA = new Date(a.completedAt || a.scheduledStart || a.createdAt).getTime();
+        const timeB = new Date(b.completedAt || b.scheduledStart || b.createdAt).getTime();
+        return timeB - timeA;
+      })
+      .slice(0, 5)
+      .map((b) => ({
+        id: b.id,
+        client: b.citizen ? `${b.citizen.firstName} ${b.citizen.lastName}` : "Client",
+        serviceName: b.service?.name ?? "Consultation",
+        status: b.status,
+        timestamp: b.completedAt || b.scheduledStart || b.createdAt,
+      }));
+  }, [bookings]);
+
   const isLoading = statsLoading || earningsLoading || complianceLoading || bookingsLoading || profileLoading;
 
   return (
@@ -351,7 +397,7 @@ export default function ExpertDashboardPage() {
             onToggleAvailable={handleToggleAvailable}
             isTogglingAvailable={isTogglingAvailable}
             nextBooking={nextBooking?.service ? { scheduledStart: nextBooking.scheduledStart, service: { name: nextBooking.service.name } } : null}
-            availableSlotsToday={0} // TODO: Calculate from today's schedule in Phase 2
+            availableSlotsToday={availableSlotsToday}
           />
 
           {/* Performance Metrics */}
@@ -398,17 +444,47 @@ export default function ExpertDashboardPage() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <BookingQueue sessions={queueSessions} />
             
-            {/* Recent Activity - placeholder until real activity feed endpoint */}
+            {/* Recent Activity */}
             <div className="rounded-xl border border-border bg-card shadow-sm">
               <div className="flex items-center justify-between p-5 pb-0">
                 <h3 className="text-base font-semibold tracking-tight text-foreground">{t("activity.recentActivity")}</h3>
               </div>
-              <EmptyState
-                icon={Activity}
-                title={t("activity.recentActivity")}
-                description={t("activity.comingSoon")}
-                className="border-none bg-transparent shadow-none"
-              />
+              {recentActivities.length === 0 ? (
+                <EmptyState
+                  icon={Activity}
+                  title={t("activity.recentActivity")}
+                  description="No completed consultations yet. Past sessions and milestones will appear here."
+                  className="border-none bg-transparent shadow-none"
+                />
+              ) : (
+                <div className="divide-y divide-border p-5 pt-3">
+                  {recentActivities.map((act) => (
+                    <Link
+                      key={act.id}
+                      href={`/expert/dashboard/bookings/${act.id}`}
+                      className="flex items-center justify-between py-3 transition-colors hover:bg-muted/50 rounded-lg px-2 -mx-2"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          {act.status === "COMPLETED" ? <CheckCircle2 size={15} /> : <CalendarCheck size={15} />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{act.client}</p>
+                          <p className="text-xs text-muted-foreground truncate">{act.serviceName}</p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <StatusBadge tone={act.status === "COMPLETED" ? "success" : "active"}>
+                          {act.status === "COMPLETED" ? "Completed" : "Confirmed"}
+                        </StatusBadge>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {formatRelativeTime(act.timestamp)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </>

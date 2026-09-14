@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { usePathname } from "@/i18n/routing";
 import { UserRole } from "@/features/auth/types";
 import type { PublicUser } from "@/features/auth/types";
+import { useNotificationsRealtime } from "@/features/notifications/hooks/use-notifications-realtime";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,9 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
 
   // Use prop user if provided, fallback to auth user
   const user = propUser || authUser;
+
+  // Real-time notification subscription for active user
+  useNotificationsRealtime(user?.id);
 
   if (!user) return null;
 

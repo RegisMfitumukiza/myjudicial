@@ -8,7 +8,6 @@ import {
   Shield,
   Search,
   Filter,
-  Eye,
   Trash2,
   Mail,
   Phone,
@@ -20,7 +19,7 @@ import { format } from "date-fns";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -252,11 +251,7 @@ export default function UsersPage() {
   };
 
   if (loadingStats || loadingUsers) {
-    return (
-      <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading users..." />
-      </div>
-    );
+    return <TableSkeleton statsCount={5} columns={6} />;
   }
 
   if (error) {
@@ -456,9 +451,6 @@ export default function UsersPage() {
                             </Button>
                           </>
                         )}
-                        <Button size="icon-xs" variant="outline">
-                          <Eye size={14} />
-                        </Button>
                       </div>
                     </td>
                   </tr>

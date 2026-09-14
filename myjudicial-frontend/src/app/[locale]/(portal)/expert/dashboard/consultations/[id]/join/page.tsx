@@ -11,7 +11,7 @@ import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
 import type { CaseAnalysis } from "@/features/ai/types";
 
-const BACK_HREF = "/expert/dashboard/meetings";
+const BACK_HREF = "/expert/dashboard/consultations";
 
 export default function ExpertJoinConsultationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -102,7 +102,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
   }
 
   if (joined) {
-    return <ConsultationRoom bookingId={id} onLeave={() => router.push(BACK_HREF)} />;
+    return <ConsultationRoom bookingId={id} onLeave={() => router.push(BACK_HREF)} isExpert={true} />;
   }
 
   const clientName = booking.citizen

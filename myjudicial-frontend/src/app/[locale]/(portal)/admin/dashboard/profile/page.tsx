@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { User, Key, Palette, Save, Lock, Smartphone, Globe, CheckCircle, AlertTriangle, Monitor } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { usePatchAuthMe, UpdateMeDtoPreferredLanguage } from "@/api/generated";
@@ -154,6 +154,7 @@ function AccountActivityTable({ userId }: { userId: string }) {
 
 export default function AdminProfilePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useAuth();
   const patchAuthMe = usePatchAuthMe();
 
@@ -291,6 +292,7 @@ export default function AdminProfilePage() {
     try {
       await patchAuthMe.mutateAsync({ data: { preferredLanguage: language } });
       toast.success("Preferences saved");
+      router.replace(pathname, { locale: language });
     } catch {
       toast.error("Failed to save preferences");
     } finally {
@@ -343,8 +345,12 @@ export default function AdminProfilePage() {
       setNotifEmail(prefs.email ?? true);
       setNotifPush(prefs.push ?? true);
       setNotifInApp(prefs.inApp ?? true);
-    } catch {
-      setNotifsError(null);
+    } catch (err) {
+      setNotifsError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load notification preferences",
+      );
     } finally {
       setLoadingNotifs(false);
     }

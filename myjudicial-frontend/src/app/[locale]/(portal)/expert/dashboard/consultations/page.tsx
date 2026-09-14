@@ -5,6 +5,8 @@ import { CalendarClock, History, XCircle, Video } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { Button } from "@/shared/components/ui/button";
 import {
   PageHeader,
   EmptyState,
@@ -129,9 +131,25 @@ export default function ConsultationsPage() {
                   </div>
                   <StatusBadge tone={STATUS_TONE[statusRaw]}>{status}</StatusBadge>
                 </div>
-                <div className="mt-3 flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                  <Video size={14} />
-                  <span>{t("videoConsult")}</span>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Video size={14} />
+                    <span>{t("videoConsult")}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="xs" asChild>
+                      <Link href={`/expert/dashboard/bookings/${c.id}`}>
+                        View Details
+                      </Link>
+                    </Button>
+                    {(c.status === "CONFIRMED" || c.status === "ACTIVE") && (
+                      <Button size="xs" asChild>
+                        <Link href={`/expert/dashboard/consultations/${c.id}/join`}>
+                          <Video size={12} className="mr-1" /> Join Room
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             );

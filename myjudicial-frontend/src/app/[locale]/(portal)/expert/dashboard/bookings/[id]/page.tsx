@@ -4,7 +4,7 @@ import { use, useState, useCallback } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import {
   CalendarDays, Loader2,
-  ArrowLeft, Video, XCircle, CheckCircle, MessageSquare, User, CalendarClock,
+  ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock,
   FileText, CreditCard, Stethoscope, Brain, Sparkles, Send,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -13,6 +13,8 @@ import { StatusBadge, LoadingSpinner, ErrorState, type StatusTone } from "@/shar
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
 import { useCancelBooking } from "@/features/booking/hooks/useCancelBooking";
+import { useAcceptBooking } from "@/features/booking/hooks/useAcceptBooking";
+import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import { useRescheduleBooking } from "@/features/booking/hooks/useRescheduleBooking";
 import { useApproveReschedule, useDeclineReschedule } from "@/features/booking/hooks/useApproveDeclineReschedule";
 import { RescheduleModal } from "@/features/booking/components/reschedule-modal";
@@ -63,6 +65,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const { id } = use(params);
   const router = useRouter();
   const { booking, isLoading, error } = useBooking(id);
+  const { isBookingFirst } = usePaymentMode();
+  const { mutate: acceptBooking, isPending: isAccepting } = useAcceptBooking();
   const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
   const { mutate: rescheduleBooking, isPending: isRescheduling } = useRescheduleBooking();
   const { mutate: approveReschedule, isPending: isApproving } = useApproveReschedule();
@@ -71,6 +75,18 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const [declineReason, setDeclineReason] = useState("");
   const [showReschedule, setShowReschedule] = useState(false);
   const [isResolvingChat, setIsResolvingChat] = useState(false);
+
+  function handleAccept() {
+    if (!booking) return;
+    acceptBooking(booking.id, {
+      onSuccess: () => {
+        toast.success("Booking accepted. The client has been notified.");
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err, "Failed to accept booking."));
+      },
+    });
+  }
 
   const analyzeMutation = useCaseAnalysis();
   const [aiAnalysis, setAiAnalysis] = useState<CaseAnalysis | null>(null);
@@ -281,7 +297,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                       <span className={`text-xs font-medium hidden sm:inline whitespace-nowrap ${
                         isCurrent ? "text-foreground" : isReached ? "text-muted-foreground" : "text-muted-foreground/60"
                       }`}>
-                        {step.label}
+                        {step.key === "CONFIRMED" && isBookingFirst ? "Confirmed" : step.label}
                       </span>
                     </div>
                     {i < STATUS_STEPS.length - 1 && (
@@ -455,6 +471,16 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
+          {booking.status === "PENDING" && isBookingFirst && (
+            <Button
+              size="lg"
+              disabled={isAccepting}
+              onClick={handleAccept}
+            >
+              {isAccepting ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+              Accept Booking
+            </Button>
+          )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (
             <Button
               size="lg"

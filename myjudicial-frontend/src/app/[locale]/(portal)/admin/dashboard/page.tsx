@@ -15,7 +15,7 @@ import { useGetAdminAnalyticsSummary, useGetAdminAnalyticsRevenue, useGetAdminVe
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard";
 import { StatCard } from "@/shared/components/dashboard";
-import { LoadingSpinner } from "@/shared/components/dashboard";
+import { DashboardSkeleton } from "@/shared/components/dashboard";
 import { ErrorState } from "@/shared/components/dashboard";
 import { EmptyState } from "@/shared/components/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
   const hasError = summaryError || revenueError;
 
   if (isLoading) {
-    return <LoadingSpinner label={t("unableToFetch")} />;
+    return <DashboardSkeleton />;
   }
 
   if (hasError) {

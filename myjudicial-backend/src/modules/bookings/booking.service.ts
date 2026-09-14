@@ -905,7 +905,7 @@ export const BookingService = {
       throw new ValidationError("Booking is not ready for consultation");
     }
 
-    const isExpert = booking.expertId === userId;
+    const isExpert = (booking as any).expert?.user?.id === userId;
 
     // Resolve display name from the booking record
     const displayName = isExpert

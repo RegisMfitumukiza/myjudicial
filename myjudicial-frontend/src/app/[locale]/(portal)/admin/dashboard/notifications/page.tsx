@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Bell,
   Mail,
@@ -13,9 +14,19 @@ import {
   BarChart3,
   Search,
   Filter,
+  CheckCheck,
+  Inbox,
+  ShieldCheck,
+  AlertTriangle,
+  CalendarCheck,
+  CreditCard,
+  Star,
+  MessageSquare,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
+import { getGetNotificationsUnreadCountQueryKey, useGetNotificationsUnreadCount } from "@/api/generated";
 import { format } from "date-fns";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -158,13 +169,95 @@ const AUDIENCE_LABELS: Record<string, string> = {
   ADMIN: "Admins Only",
 };
 
+function getNotificationEventIcon(event?: string) {
+  if (!event) return Bell;
+  if (event.includes("VERIF")) return ShieldCheck;
+  if (event.includes("BOOKING")) return CalendarCheck;
+  if (event.includes("PAYMENT") || event.includes("ESCROW") || event.includes("REFUND")) return CreditCard;
+  if (event.includes("REVIEW")) return Star;
+  if (event.includes("MESSAGE")) return MessageSquare;
+  if (event.includes("WARN") || event.includes("SUSPEND")) return AlertTriangle;
+  return Bell;
+}
+
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"compose" | "history">("compose");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as "inbox" | "compose" | "history") || "inbox";
+  const [activeTab, setActiveTab] = useState<"inbox" | "compose" | "history">(initialTab);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") as "inbox" | "compose" | "history" | null;
+    if (tab && ["inbox", "compose", "history"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // ── Personal Inbox State ──
+  const [inboxFilter, setInboxFilter] = useState<"all" | "unread">("all");
+  const [inboxPage, setInboxPage] = useState(1);
+
+  const { data: unreadNotifData } = useGetNotificationsUnreadCount({
+    query: { refetchInterval: 30_000 },
+  });
+  const unreadCount = unreadNotifData?.status === 200 ? unreadNotifData.data.data.count : 0;
+
+  const {
+    data: inboxData,
+    isLoading: loadingInbox,
+    error: inboxError,
+  } = useQuery({
+    queryKey: ["my-notifications", inboxPage, inboxFilter],
+    queryFn: () =>
+      apiFetch<{
+        data: Array<{
+          id: string;
+          event: string;
+          channel: string;
+          subject?: string;
+          body?: string;
+          readAt?: string | null;
+          createdAt: string;
+        }>;
+        pagination?: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      }>(
+        `/notifications?page=${inboxPage}&limit=15${inboxFilter === "unread" ? "&unreadOnly=true" : ""}`
+      ),
+    enabled: activeTab === "inbox",
+  });
+
+  const markAllReadMutation = useMutation({
+    mutationFn: () => apiFetch("/notifications/read-all", { method: "PATCH" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-notifications"] });
+      queryClient.invalidateQueries({ queryKey: getGetNotificationsUnreadCountQueryKey() });
+      toast.success("All notifications marked as read");
+    },
+    onError: () => toast.error("Failed to mark notifications as read"),
+  });
+
+  const markSingleReadMutation = useMutation({
+    mutationFn: (id: string) => apiFetch(`/notifications/${id}/read`, { method: "PATCH" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-notifications"] });
+      queryClient.invalidateQueries({ queryKey: getGetNotificationsUnreadCountQueryKey() });
+    },
+    onError: () => toast.error("Failed to mark notification as read"),
+  });
+
+  const myNotifications = inboxData?.data ?? [];
+  const inboxPagination = inboxData?.pagination;
+
+  // ── Platform Broadcast & Logs State ──
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [channelFilter, setChannelFilter] = useState<NotificationChannel | "ALL">("ALL");
-  const [sentFilter, setSentFilter] = useState<"ALL" | "SENT" | "FAILED" | "PENDING">("ALL");
+  const [sentFilter, setSentFilter] = useState<"ALL" | "SENT" | "UNSENT">("ALL");
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -181,7 +274,7 @@ export default function NotificationsPage() {
     queryFn: () => {
       let sentValue: boolean | undefined = undefined;
       if (sentFilter === "SENT") sentValue = true;
-      if (sentFilter === "FAILED" || sentFilter === "PENDING") sentValue = false;
+      if (sentFilter === "UNSENT") sentValue = false;
       return fetchLogs({
         page,
         limit: 20,
@@ -302,18 +395,170 @@ export default function NotificationsPage() {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as "compose" | "history")}
+        onValueChange={(v) => setActiveTab(v as "inbox" | "compose" | "history")}
       >
         <TabsList variant="line" className="w-full justify-start">
-          <TabsTrigger value="compose">
-            <Send size={14} />
-            Compose
+          <TabsTrigger value="inbox" className="gap-2">
+            <Inbox size={14} />
+            Inbox
+            {unreadCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="compose" className="gap-2">
+            <Send size={14} />
+            Send Broadcast
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
             <Clock size={14} />
-            History
+            System Logs
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="inbox" className="mt-6 space-y-4">
+          {/* Inbox Filter & Actions Bar */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={inboxFilter === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => { setInboxFilter("all"); setInboxPage(1); }}
+              >
+                All
+              </Button>
+              <Button
+                variant={inboxFilter === "unread" ? "default" : "outline"}
+                size="sm"
+                onClick={() => { setInboxFilter("unread"); setInboxPage(1); }}
+                className="gap-1.5"
+              >
+                Unread
+                {unreadCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 text-[10px] font-bold text-foreground">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
+            </div>
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => markAllReadMutation.mutate()}
+                disabled={markAllReadMutation.isPending}
+              >
+                <CheckCheck size={14} />
+                Mark all as read
+              </Button>
+            )}
+          </div>
+
+          {/* Inbox List */}
+          {loadingInbox ? (
+            <LoadingSpinner label="Loading personal notifications..." />
+          ) : inboxError ? (
+            <ErrorState
+              title="Failed to load notifications"
+              message={inboxError instanceof Error ? inboxError.message : "Unable to load inbox notifications."}
+              onRetry={() => queryClient.invalidateQueries({ queryKey: ["my-notifications"] })}
+            />
+          ) : myNotifications.length === 0 ? (
+            <EmptyState
+              icon={Inbox}
+              title="No notifications"
+              description={inboxFilter === "unread" ? "You have no unread notifications." : "You have no notifications yet."}
+            />
+          ) : (
+            <div className="space-y-3">
+              {myNotifications.map((n) => {
+                const EventIcon = getNotificationEventIcon(n.event);
+                const isUnread = !n.readAt;
+
+                return (
+                  <Card
+                    key={n.id}
+                    className={`transition-colors ${
+                      isUnread
+                        ? "border-primary/30 bg-primary/5 dark:bg-primary/10"
+                        : "bg-card"
+                    }`}
+                  >
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-start gap-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                          isUnread ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                        }`}>
+                          <EventIcon size={20} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            {isUnread && (
+                              <span className="h-2 w-2 rounded-full bg-brand-blue shrink-0" title="Unread" />
+                            )}
+                            <h4 className={`text-sm ${isUnread ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}`}>
+                              {n.subject || "Notification"}
+                            </h4>
+                          </div>
+                          {n.body && (
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                              {n.body}
+                            </p>
+                          )}
+                          <p className="mt-2 text-[11px] text-muted-foreground">
+                            {formatDate(n.createdAt)}
+                          </p>
+                        </div>
+                        {isUnread && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
+                            onClick={() => markSingleReadMutation.mutate(n.id)}
+                            disabled={markSingleReadMutation.isPending}
+                            title="Mark as read"
+                          >
+                            <CheckCheck size={14} className="sm:mr-1" />
+                            <span className="hidden sm:inline">Mark read</span>
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {/* Pagination */}
+              {inboxPagination && inboxPagination.pages > 1 && (
+                <div className="flex items-center justify-between border-t border-border pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Page {inboxPagination.page} of {inboxPagination.pages} ({inboxPagination.total} total)
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setInboxPage((p) => Math.max(p - 1, 1))}
+                      disabled={inboxPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setInboxPage((p) => p + 1)}
+                      disabled={inboxPage >= inboxPagination.pages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="compose" className="mt-6">
           <Card>
@@ -510,7 +755,7 @@ export default function NotificationsPage() {
                     </label>
                     <Select
                       value={sentFilter}
-                      onValueChange={(v) => setSentFilter(v as "ALL" | "SENT" | "FAILED" | "PENDING")}
+                      onValueChange={(v) => setSentFilter(v as "ALL" | "SENT" | "UNSENT")}
                     >
                       <SelectTrigger id="sent-filter" className="w-full">
                         <SelectValue placeholder="All Statuses" />
@@ -518,8 +763,7 @@ export default function NotificationsPage() {
                       <SelectContent>
                         <SelectItem value="ALL">All Statuses</SelectItem>
                         <SelectItem value="SENT">Sent</SelectItem>
-                        <SelectItem value="FAILED">Failed</SelectItem>
-                        <SelectItem value="PENDING">Pending</SelectItem>
+                        <SelectItem value="UNSENT">Unsent / Failed</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

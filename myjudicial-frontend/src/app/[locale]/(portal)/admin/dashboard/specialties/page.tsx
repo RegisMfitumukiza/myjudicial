@@ -10,11 +10,11 @@ import { apiFetch } from "@/lib/api/client";
 import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 
 interface Specialty {
   id: string;

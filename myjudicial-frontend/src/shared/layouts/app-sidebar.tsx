@@ -17,6 +17,7 @@ import {
   BarChart3,
   Calendar,
   CalendarDays,
+  Video,
   MessageSquare,
   Briefcase,
   Star,
@@ -87,7 +88,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
     {
       group: "Operations",
       items: [
-        { href: "/admin/dashboard/notifications", icon: Bell, label: "Notifications" },
+        { href: "/admin/dashboard/notifications?tab=inbox", icon: Bell, label: "Notifications" },
         { href: "/admin/dashboard/documents", icon: FolderOpen, label: "Documents" },
         { href: "/admin/dashboard/audit-logs", icon: ClipboardList, label: "Audit Logs" },
         { href: "/admin/dashboard/messages", icon: MessageSquare, label: "Messages" },
@@ -113,6 +114,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       group: "Business",
       items: [
         { href: "/expert/dashboard/bookings", icon: Calendar, label: "Bookings" },
+        { href: "/expert/dashboard/consultations", icon: Video, label: "Consultations" },
         { href: "/expert/dashboard/calendar", icon: CalendarDays, label: "Calendar" },
         { href: "/expert/dashboard/availability", icon: Clock, label: "Availability" },
         { href: "/expert/dashboard/availability-overrides", icon: CalendarDays, label: "Date Overrides" },
@@ -132,7 +134,8 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       items: [
         { href: "/expert/dashboard/setup", icon: ShieldCheck, label: "Setup" },
         { href: "/expert/dashboard/verification", icon: BadgeCheck, label: "Verification" },
-        { href: "/expert/dashboard/profile", icon: Settings, label: "Profile" },
+        { href: "/expert/dashboard/profile", icon: User, label: "Profile" },
+        { href: "/expert/dashboard/settings", icon: Settings, label: "Settings" },
         { href: "/expert/dashboard/notifications", icon: Bell, label: "Notifications" },
       ],
     },
@@ -299,10 +302,11 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
 
   const isActive = useCallback(
     (href: string) => {
-      if (href === "/admin/dashboard" || href === "/expert/dashboard") {
-        return pathname === href;
+      const cleanHref = href.split("?")[0];
+      if (cleanHref === "/admin/dashboard" || cleanHref === "/expert/dashboard") {
+        return pathname === cleanHref;
       }
-      return pathname === href || pathname.startsWith(href + "/");
+      return pathname === cleanHref || pathname.startsWith(cleanHref + "/");
     },
     [pathname],
   );

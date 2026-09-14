@@ -25,9 +25,10 @@ import { useTranslations } from "next-intl";
 interface ConsultationRoomProps {
   bookingId: string;
   onLeave: () => void;
+  isExpert?: boolean;
 }
 
-export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) {
+export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: ConsultationRoomProps) {
   const t = useTranslations("expertDashboard_consultation-room");
   const {
     status,
@@ -205,12 +206,14 @@ export function ConsultationRoom({ bookingId, onLeave }: ConsultationRoomProps) 
           </div>
         </div>
 
-        {/* Empty state if waiting for expert */}
+        {/* Empty state if waiting for other participant */}
         {remoteParticipants.length === 0 && (
           <div className="flex items-center justify-center rounded-xl bg-gray-900">
             <div className="text-center">
               <Loader2 className="h-12 w-12 animate-spin text-white/30 mx-auto mb-4" />
-              <p className="text-white/70 text-[14px]">{t("waitingForExpert")}</p>
+              <p className="text-white/70 text-[14px]">
+                {isExpert ? t("waitingForClient") : t("waitingForExpert")}
+              </p>
             </div>
           </div>
         )}

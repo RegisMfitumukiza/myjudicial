@@ -19,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import {
   PageHeader,
   EmptyState,
@@ -27,6 +28,7 @@ import {
 } from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNotificationsRealtime } from "@/features/notifications/hooks/use-notifications-realtime";
 
 type NotificationEvent =
   | "OTP_SENT"
@@ -110,7 +112,11 @@ const formatTime = (dateString: string, t: (key: string, values?: any) => string
 export default function NotificationsPage() {
   const t = useTranslations("expertDashboard_notifications");
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
   const [page, setPage] = useState(1);
+
+  // Real-time: invalidates both query keys on new broadcast
+  useNotificationsRealtime(session?.user?.id);
 
   const EVENT_LABELS: Record<NotificationEvent, string> = {
     OTP_SENT: t("otpSent"),

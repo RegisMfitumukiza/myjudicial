@@ -2,25 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { getExpertsCompliance } from "@/api/generated";
-import type { ExpertStatus } from "../types";
+import { getExpertsCompliance, type ComplianceStatus } from "@/api/generated";
 
-interface LastVerification {
-  id: string;
-  status: string;
-  rejectionReason: string | null;
-  reviewedAt: string | null;
-  createdAt: string;
-}
-
-export interface ComplianceStatus {
-  status: ExpertStatus;
-  credentialsExpiry: string | null;
-  daysUntilExpiry: number | null;
-  isExpired: boolean;
-  statusMessage: string;
-  lastVerification: LastVerification | null;
-}
+export type { ComplianceStatus };
 
 export function useCompliance() {
   const { data: session } = useSession();

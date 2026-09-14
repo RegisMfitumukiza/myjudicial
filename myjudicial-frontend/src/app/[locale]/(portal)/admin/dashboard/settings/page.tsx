@@ -50,6 +50,15 @@ export default function SettingsPage() {
   const [platformFeePercent, setPlatformFeePercent] = useState(DEFAULTS.platformFeePercent);
   const [minEscrowDurationSeconds, setMinEscrowDurationSeconds] = useState(DEFAULTS.minEscrowDurationSeconds);
   const [paymentMode, setPaymentMode] = useState<SettingsData["paymentMode"]>(DEFAULTS.paymentMode);
+  const [originalSettings, setOriginalSettings] = useState<SettingsData>(DEFAULTS);
+
+  const isDirty =
+    platformName !== originalSettings.platformName ||
+    maintenanceMode !== originalSettings.maintenanceMode ||
+    defaultRole !== originalSettings.defaultRole ||
+    platformFeePercent !== originalSettings.platformFeePercent ||
+    minEscrowDurationSeconds !== originalSettings.minEscrowDurationSeconds ||
+    paymentMode !== originalSettings.paymentMode;
 
   const loadSettings = () => {
     setLoading(true);
@@ -57,12 +66,21 @@ export default function SettingsPage() {
     apiFetch<{ data?: { data?: SettingsData } }>("/admin/settings")
       .then((res) => {
         const d = (res.data?.data ?? res.data) as SettingsData;
-        setPlatformName(d.platformName ?? DEFAULTS.platformName);
-        setMaintenanceMode(d.maintenanceMode ?? DEFAULTS.maintenanceMode);
-        setDefaultRole(d.defaultRole ?? DEFAULTS.defaultRole);
-        setPlatformFeePercent(d.platformFeePercent ?? DEFAULTS.platformFeePercent);
-        setMinEscrowDurationSeconds(d.minEscrowDurationSeconds ?? DEFAULTS.minEscrowDurationSeconds);
-        setPaymentMode(d.paymentMode ?? DEFAULTS.paymentMode);
+        const loaded: SettingsData = {
+          platformName: d.platformName ?? DEFAULTS.platformName,
+          maintenanceMode: d.maintenanceMode ?? DEFAULTS.maintenanceMode,
+          defaultRole: d.defaultRole ?? DEFAULTS.defaultRole,
+          platformFeePercent: d.platformFeePercent ?? DEFAULTS.platformFeePercent,
+          minEscrowDurationSeconds: d.minEscrowDurationSeconds ?? DEFAULTS.minEscrowDurationSeconds,
+          paymentMode: d.paymentMode ?? DEFAULTS.paymentMode,
+        };
+        setPlatformName(loaded.platformName);
+        setMaintenanceMode(loaded.maintenanceMode);
+        setDefaultRole(loaded.defaultRole);
+        setPlatformFeePercent(loaded.platformFeePercent);
+        setMinEscrowDurationSeconds(loaded.minEscrowDurationSeconds);
+        setPaymentMode(loaded.paymentMode);
+        setOriginalSettings(loaded);
         setBackendUnreachable(false);
       })
       .catch(() => {
@@ -79,6 +97,14 @@ export default function SettingsPage() {
       await apiFetch("/admin/settings", {
         method: "PUT",
         body: { platformName, maintenanceMode, defaultRole, platformFeePercent, minEscrowDurationSeconds, paymentMode },
+      });
+      setOriginalSettings({
+        platformName,
+        maintenanceMode,
+        defaultRole,
+        platformFeePercent,
+        minEscrowDurationSeconds,
+        paymentMode,
       });
       toast.success(t("settingsSaved"));
     } catch {
@@ -103,7 +129,7 @@ export default function SettingsPage() {
         title={t("title")}
         description={t("subtitle")}
         actions={
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} disabled={saving || !isDirty}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {t("saveChanges")}
           </Button>

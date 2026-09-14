@@ -3287,7 +3287,8 @@
     "qualityExcellent": "Excellent connection",
     "qualityGood": "Good connection",
     "qualityPoor": "Poor connection",
-    "qualityLost": "Connection lost"
+    "qualityLost": "Connection lost",
+    "waitingForClient": "Tegereza umukiriya yinjiye..."
   },
   "expertDashboard_consultations": {
     "title": "Consultations",

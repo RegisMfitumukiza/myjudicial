@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, usePathname } from "@/i18n/routing";
 import {
   User, Key, Palette, Loader2, Save, Lock, Globe, AlertTriangle,
   CheckCircle, Monitor, Pencil, X, Check, Building2, BookOpen,
@@ -136,6 +136,7 @@ function getInitials(first: string, last: string) {
 
 export default function ExpertProfilePage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const patchAuthMe = usePatchAuthMe();
@@ -414,6 +415,7 @@ export default function ExpertProfilePage() {
     try {
       await patchAuthMe.mutateAsync({ data: { preferredLanguage: language } });
       toast.success(t("languageSaved"));
+      router.replace(pathname, { locale: language });
     } catch {
       toast.error(t("failedSaveLanguage"));
     } finally {

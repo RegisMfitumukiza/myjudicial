@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/shared/layouts";
@@ -13,16 +14,31 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, status } = useSession();
   const { user: authUser, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (status === "unauthenticated") {
       router.replace("/sign-in");
+      return;
     }
-  }, [status, router]);
+
+    // Role guard: non-admin users must not access /admin/* routes.
+    // The backend will 403 their API calls, but we also prevent the
+    // admin UI shell from rendering to avoid information leakage.
+    const role = (session?.user as any)?.role as UserRole | undefined;
+    if (pathname.includes("/admin/") && role && role !== UserRole.ADMIN) {
+      router.replace(role === UserRole.EXPERT ? "/expert/dashboard" : "/client/dashboard");
+    }
+
+    // Role guard: non-expert users must not access /expert/* routes.
+    if (pathname.includes("/expert/") && role && role !== UserRole.EXPERT) {
+      router.replace(role === UserRole.ADMIN ? "/admin/dashboard" : "/client/dashboard");
+    }
+  }, [status, session, pathname, router]);
 
   // Show loading state while checking authentication
   if (status === "loading") {

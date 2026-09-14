@@ -47,7 +47,7 @@ import { apiFetch } from "@/lib/api/client";
 import { formatRWF } from "@/lib/utils";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { AnalyticsSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -244,11 +244,7 @@ export default function AnalyticsPage() {
     complianceLoading;
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading analytics..." />
-      </div>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   const hasError =

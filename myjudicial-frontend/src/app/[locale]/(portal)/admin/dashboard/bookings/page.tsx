@@ -27,7 +27,7 @@ import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -119,6 +119,9 @@ export default function BookingsPage() {
   const [showBulkRefundModal, setShowBulkRefundModal] = useState(false);
   const [bulkRefundReason, setBulkRefundReason] = useState("");
   const [bulkRefundPercentage, setBulkRefundPercentage] = useState<50 | 100>(100);
+  // Complete confirmation dialogs (replacing window.confirm)
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showBulkCompleteModal, setShowBulkCompleteModal] = useState(false);
 
   const listParams = {
     page: String(page),
@@ -179,10 +182,14 @@ export default function BookingsPage() {
 
   async function handleBulkComplete() {
     if (bulkCompletable.length === 0) return;
-    if (!confirm(`Mark ${bulkCompletable.length} booking(s) as completed?`)) return;
+    setShowBulkCompleteModal(true);
+  }
+
+  async function confirmBulkComplete() {
     for (const b of bulkCompletable) {
       await completeMutation.mutateAsync({ id: b.id });
     }
+    setShowBulkCompleteModal(false);
     setSelectedIds(new Set());
   }
 
@@ -219,9 +226,15 @@ export default function BookingsPage() {
   const bulkRefundable = selectedBookings.filter((b) => ["CONFIRMED", "COMPLETED"].includes(b.status));
 
   const handleComplete = (booking: Booking) => {
-    if (confirm(`Mark booking for ${clientName(booking)} as completed?`)) {
-      completeMutation.mutate({ id: booking.id });
-    }
+    setSelectedBooking(booking);
+    setShowCompleteModal(true);
+  };
+
+  const confirmComplete = () => {
+    if (!selectedBooking) return;
+    completeMutation.mutate({ id: selectedBooking.id });
+    setShowCompleteModal(false);
+    setSelectedBooking(null);
   };
 
   const handleRefund = (booking: Booking) => {
@@ -238,11 +251,7 @@ export default function BookingsPage() {
   };
 
   if (loadingBookings || loadingStats) {
-    return (
-      <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading bookings..." />
-      </div>
-    );
+    return <TableSkeleton statsCount={6} columns={6} />;
   }
 
   if (bookingsError) {
@@ -673,6 +682,68 @@ export default function BookingsPage() {
               disabled={bulkRefundReason.trim().length < 5 || refundMutation.isPending}
             >
               {refundMutation.isPending ? "Processing..." : `Refund ${bulkRefundable.length} Booking(s)`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Single Complete Confirmation Modal */}
+      <Dialog open={showCompleteModal} onOpenChange={(open) => {
+        if (!open) { setShowCompleteModal(false); setSelectedBooking(null); }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Mark as Completed</DialogTitle>
+            <DialogDescription>
+              Mark booking for{" "}
+              <span className="font-medium text-foreground">
+                {selectedBooking ? clientName(selectedBooking) : ""}
+              </span>{" "}
+              as completed? This will release escrow to the expert.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setShowCompleteModal(false); setSelectedBooking(null); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmComplete}
+              disabled={completeMutation.isPending}
+            >
+              {completeMutation.isPending ? "Processing..." : "Confirm Complete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Complete Confirmation Modal */}
+      <Dialog open={showBulkCompleteModal} onOpenChange={(open) => {
+        if (!open) setShowBulkCompleteModal(false);
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk Mark as Completed</DialogTitle>
+            <DialogDescription>
+              Mark{" "}
+              <span className="font-medium text-foreground">{bulkCompletable.length}</span>{" "}
+              booking(s) as completed? Escrow will be released for each booking.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkCompleteModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmBulkComplete}
+              disabled={completeMutation.isPending}
+            >
+              {completeMutation.isPending ? "Processing..." : `Complete ${bulkCompletable.length} Booking(s)`}
             </Button>
           </DialogFooter>
         </DialogContent>

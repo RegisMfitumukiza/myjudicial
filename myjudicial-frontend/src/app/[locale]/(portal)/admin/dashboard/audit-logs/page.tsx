@@ -12,7 +12,7 @@ import {
   Database,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api/client";
+import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { format } from "date-fns";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -145,21 +145,12 @@ const exportLogs = async (format: "csv" | "json", filters: any) => {
   if (filters.fromDate) queryParams.append("fromDate", filters.fromDate);
   if (filters.toDate) queryParams.append("toDate", filters.toDate);
 
-  const token =
-    sessionStorage.getItem("accessToken") ||
-    localStorage.getItem("accessToken");
-  const headers: Record<string, string> = {};
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const base = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
-  const prefix = (process.env.NEXT_PUBLIC_API_PREFIX ?? "/api/v1").replace(/\/+$/, "");
-
-  const response = await fetch(
-    `${base}${prefix}/admin/audit-logs/export?${queryParams.toString()}`,
-    { headers }
+  // Use apiFetchBlob which reads auth from the NextAuth cookie session —
+  // NOT from sessionStorage/localStorage (which NextAuth v5 does not use).
+  const blob = await apiFetchBlob(
+    `/admin/audit-logs/export?${queryParams.toString()}`,
   );
 
-  const blob = await response.blob();
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -167,6 +158,7 @@ const exportLogs = async (format: "csv" | "json", filters: any) => {
   document.body.appendChild(link);
   link.click();
   link.remove();
+  window.URL.revokeObjectURL(url);
 };
 
 const ACTION_LABELS: Record<AuditAction, string> = {

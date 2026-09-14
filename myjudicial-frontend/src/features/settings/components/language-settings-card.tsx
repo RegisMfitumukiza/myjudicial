@@ -1,17 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from '@/i18n/routing';
-import { useLocale, useTranslations } from 'next-intl';
+import { useRouter, usePathname } from "@/i18n/routing";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Globe, Check } from "lucide-react";
 import { useGetAuthMe, usePatchAuthMe, getGetAuthMeQueryKey } from "@/api/generated";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/shared/components/ui/button";
 
-const LANGUAGES: { value: "en" | "fr" | "rw"; label: string }[] = [
-  { value: "en", label: "English" },
-  { value: "fr", label: "French" },
-  { value: "rw", label: "Kinyarwanda" },
+const LANGUAGES: {
+  value: "en" | "fr" | "rw";
+  label: string;
+  native: string;
+  description: string;
+}[] = [
+  { value: "en", label: "English", native: "English", description: "Default / International" },
+  { value: "fr", label: "French", native: "Français", description: "Langue officielle" },
+  { value: "rw", label: "Kinyarwanda", native: "Ikinyarwanda", description: "Ururimi rw'igihugu" },
 ];
 
 export function LanguageSettingsCard() {
@@ -23,15 +29,12 @@ export function LanguageSettingsCard() {
   const { data, isLoading } = useGetAuthMe();
   const { mutate: patchMe, isPending: isSaving } = usePatchAuthMe();
 
-  const [language, setLanguage] = useState<"en" | "fr" | "rw">(currentLocale as "en" | "fr" | "rw");
-  // Adjust local state when the fetched user changes, without an effect —
-  // calling setState directly during render (guarded by comparing against
-  // the previous data) avoids the extra commit an effect-based sync would cause.
+  const [language, setLanguage] = useState<"en" | "fr" | "rw">((currentLocale as "en" | "fr" | "rw") || "en");
   const [syncedData, setSyncedData] = useState(data);
   if (data !== syncedData) {
     setSyncedData(data);
     if (data?.status === 200) {
-      const userLang = (data.data.data.preferredLanguage as "en" | "fr" | "rw") ?? "en";
+      const userLang = (data.data.data.preferredLanguage as "en" | "fr" | "rw") ?? currentLocale ?? "en";
       setLanguage(userLang);
     }
   }
@@ -43,8 +46,6 @@ export function LanguageSettingsCard() {
         onSuccess: () => {
           toast.success(t("settingsSaved"));
           queryClient.invalidateQueries({ queryKey: getGetAuthMeQueryKey() });
-          
-          // Update the locale in the URL
           router.replace(pathname, { locale: language });
         },
         onError: (error) => {
@@ -55,33 +56,69 @@ export function LanguageSettingsCard() {
   }
 
   return (
-    <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-md dark:border-gray-700 dark:bg-gray-900">
-      <h2 className="mb-4 text-sm font-semibold text-brand-dark dark:text-gray-100">{t("languageTitle")}</h2>
-      {isLoading ? (
-        <div className="h-11 w-full animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
-      ) : (
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value as "en" | "fr" | "rw")}
-          className="h-11 w-full rounded-xl border border-brand-border/20 bg-white px-4 text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100"
-        >
-          {LANGUAGES.map((l) => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
-      )}
-      <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-        {t("languageDesc")}
-      </p>
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Globe size={18} />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-foreground">{t("languageTitle")}</h2>
+          <p className="text-xs text-muted-foreground">{t("languageDesc")}</p>
+        </div>
+      </div>
 
-      <button
-        onClick={handleSave}
-        disabled={isSaving || isLoading}
-        className="mt-4 flex items-center gap-2 rounded-lg bg-brand-blue px-6 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-60"
-      >
-        {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-        {t("saveChanges")}
-      </button>
+      {isLoading ? (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {LANGUAGES.map((l) => {
+            const isSelected = language === l.value;
+            return (
+              <button
+                key={l.value}
+                type="button"
+                onClick={() => setLanguage(l.value)}
+                className={`relative flex flex-col items-start justify-between rounded-xl border p-4 text-left transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
+                    : "border-border bg-card hover:border-muted-foreground/40 hover:bg-muted/40"
+                }`}
+              >
+                <div className="flex w-full items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">{l.native}</span>
+                  {isSelected && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <Check size={12} strokeWidth={3} />
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2">
+                  <span className="text-xs font-medium text-muted-foreground">{l.label}</span>
+                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">{l.description}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+        <p className="text-xs text-muted-foreground">
+          Changes will take effect across the entire interface immediately.
+        </p>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving || isLoading}
+          size="sm"
+        >
+          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          {t("saveChanges")}
+        </Button>
+      </div>
     </div>
   );
 }

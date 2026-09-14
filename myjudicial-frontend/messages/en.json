@@ -1219,7 +1219,16 @@
     "joinNow": "Join Now",
     "quickRebook": "Quick Rebook",
     "lastConsultationDateService": "Last consultation: {date} • {serviceName}",
-    "rebook": "Rebook"
+    "rebook": "Rebook",
+    "aiAssistant": "AI Assistant",
+    "onboardingTitle": "Find the legal help you need",
+    "onboardingSubtitle": "Connect with verified legal practitioners in Rwanda or use our AI assistant to analyze your case.",
+    "aiIntakeTitle": "Describe your issue with AI",
+    "aiIntakeDesc": "Explain your situation in plain words. Our AI will analyze your case and match you with the right specialist.",
+    "aiIntakeAction": "Start AI Intake",
+    "browseLawyersTitle": "Search Legal Experts",
+    "browseLawyersDesc": "Browse verified advocates by practice area, flat fees, location, and verified client ratings.",
+    "browseLawyersAction": "Browse Lawyers"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

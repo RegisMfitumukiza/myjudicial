@@ -13,7 +13,7 @@ export default async function DashboardPage({
   const session = await requireAuth(locale);
 
   if (session.user.role === "EXPERT") redirect(`/${locale}/expert/dashboard`);
-  if (session.user.role === "ADMIN")  redirect(`/${locale}/admin`);
+  if (session.user.role === "ADMIN")  redirect(`/${locale}/admin/dashboard`);
 
   redirect(`/${locale}/client/dashboard/home`);
 }

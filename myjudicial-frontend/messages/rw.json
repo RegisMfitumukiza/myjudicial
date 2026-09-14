@@ -2855,9 +2855,18 @@
     "live": "LIVE",
     "startedTimeAmount": "Started {time} • {amount} RWF",
     "joinNow": "Join Now",
-    "quickRebook": "Quick Rebook",
-    "lastConsultationDateService": "Last consultation: {date} • {serviceName}",
-    "rebook": "Rebook"
+    "quickRebook": "Ongera utumize byihuse",
+    "lastConsultationDateService": "Inama yaherutse: {date} • {serviceName}",
+    "rebook": "Ongera utumize",
+    "aiAssistant": "Ubufasha bwa AI",
+    "onboardingTitle": "Bona ubufasha mu by'amategeko ukeneye",
+    "onboardingSubtitle": "Huza n'inzobere mu by'amategeko zizewe mu Rwanda cyangwa ukoreshe AI gusesengura ikibazo cyawe.",
+    "aiIntakeTitle": "Sobanura ikibazo cyawe ukoresheje AI",
+    "aiIntakeDesc": "Sobanura uko bimeze mu magambo asanzwe. AI yacu irasuzuma ikibazo cyawe iguhuze n'umunyamategeko ubikwiriye.",
+    "aiIntakeAction": "Tangira na AI",
+    "browseLawyersTitle": "Shakisha Abanyamategeko",
+    "browseLawyersDesc": "Shakisha mu banyamategeko barenga 100 bazwi ukurikije ubumenyi, ibiciro, aho bakorera, n'ibitekerezo by'abandi bakiriya.",
+    "browseLawyersAction": "Reba Abanyamategeko"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

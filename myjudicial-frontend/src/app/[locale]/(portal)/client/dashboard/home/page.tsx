@@ -5,8 +5,8 @@ import { Link } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import {
   CalendarDays, Clock, Search, ArrowRight,
-  CreditCard, Star, Video, ChevronRight, Loader2, AlertCircle,
-  FileText, MessageSquare,
+  Star, Video, ChevronRight, Loader2, AlertCircle,
+  FileText, MessageSquare, Sparkles,
 } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
 import { useTranslations } from "next-intl";
@@ -38,6 +38,12 @@ export default function ClientHomePage() {
   const isLoading = bookingsLoading;
   const now = new Date();
 
+  const activeSession = useMemo(() => {
+    return bookings
+      .filter(b => b.status === "ACTIVE")
+      .sort((a, b) => new Date(b.scheduledStart).getTime() - new Date(a.scheduledStart).getTime())[0] || null;
+  }, [bookings]);
+
   const upcomingConsultation = useMemo(() => {
     return bookings
       .filter(b => new Date(b.scheduledStart) > now && ["CONFIRMED", "ACTIVE"].includes(b.status))
@@ -66,12 +72,6 @@ export default function ClientHomePage() {
     return bookings.find(b => b.status === "COMPLETED" && !(b as any).hasReview && !(b as any).review) || null;
   }, [bookings]);
 
-  const activeSession = useMemo(() => {
-    return bookings
-      .filter(b => b.status === "ACTIVE")
-      .sort((a, b) => new Date(b.scheduledStart).getTime() - new Date(a.scheduledStart).getTime())[0] || null;
-  }, [bookings]);
-
   const lastConsultedExpert = useMemo(() => {
     const completed = bookings
       .filter(b => b.status === "COMPLETED" && b.expert)
@@ -98,71 +98,111 @@ export default function ClientHomePage() {
   }
 
   return (
-    <div className="px-6 py-8 lg:px-8 max-w-[960px] mx-auto">
-      {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-[28px] font-bold text-brand-dark dark:text-white">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[960px] mx-auto">
+      {/* Welcome Header */}
+      <div className="mb-6">
+        <h1 className="text-[26px] font-bold text-brand-dark dark:text-white">
           {t("welcomeBack", { firstName })}
         </h1>
-        <p className="mt-1 text-[15px] text-brand-dark/50 dark:text-white/50">
+        <p className="mt-1 text-[14px] text-brand-dark/50 dark:text-white/50">
           {t("manageConsultationsDesc")}
         </p>
       </div>
 
-      {/* Action Required */}
-      {(pendingPayment || pendingReview) && (
+      {/* PRIORITY 1: Active Video Session (Live Now) */}
+      {activeSession && (
         <div className="mb-8">
-          <div className="space-y-3">
-            {pendingPayment && (
-              <Link
-                href={`/client/dashboard/consultations/${pendingPayment.id}`}
-                className="flex items-center gap-4 rounded-xl border border-yellow-200 bg-yellow-50/50 p-4 transition-shadow hover:shadow-md dark:border-yellow-800/30 dark:bg-yellow-950/20"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-900/40">
-                  <AlertCircle size={18} className="text-yellow-600 dark:text-yellow-400" />
+          <div className="rounded-2xl border-2 border-green-500/40 bg-green-50/70 p-6 shadow-md dark:border-green-500/30 dark:bg-green-950/30">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/50">
+                  <Video size={24} className="text-green-600 dark:text-green-400 animate-pulse" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
-                    {t("completePayment", { serviceName: pendingPayment.service?.name || t("consultation") })}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[17px] font-bold text-brand-dark dark:text-white">
+                      {activeSession.service?.name || t("consultationCapitalized")}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                      <span className="h-2 w-2 rounded-full bg-white animate-ping" />
+                      {t("live")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[14px] text-brand-dark/70 dark:text-white/70">
+                    {t("withExpert", { expertName: activeSession.expert?.displayName || t("legalExpert") })}
                   </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
-                    {t("withExpertAmount", { 
-                      expertName: pendingPayment.expert?.displayName || t("expert"), 
-                      amount: pendingPayment.service?.flatFee?.toLocaleString() ?? "0" 
+                  <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
+                    {t("startedTimeAmount", {
+                      time: formatTime(activeSession.scheduledStart),
+                      amount: activeSession.service?.flatFee?.toLocaleString() ?? "0",
                     })}
                   </p>
                 </div>
-                <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30" />
-              </Link>
-            )}
-            {pendingReview && (
+              </div>
               <Link
-                href={`/client/dashboard/consultations/${pendingReview.id}/review`}
-                className="flex items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 transition-shadow hover:shadow-md dark:border-blue-800/30 dark:bg-blue-950/20"
+                href={`/client/dashboard/consultations/${activeSession.id}/join`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600 shrink-0"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40">
-                  <Star size={18} className="text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
-                    {t("leaveReview", { expertName: pendingReview.expert?.displayName || t("yourExpert") })}
-                  </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
-                    {t("serviceCompletedDate", {
-                      serviceName: pendingReview.service?.name || t("consultationCapitalized"),
-                      date: formatDate(pendingReview.scheduledStart)
-                    })}
-                  </p>
-                </div>
-                <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30" />
+                <Video size={16} />
+                {t("joinNow")}
               </Link>
-            )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="mb-8 grid grid-cols-3 gap-3">
+      {/* PRIORITY 2: Action Required (Pending review or payment) */}
+      {(pendingPayment || pendingReview) && (
+        <div className="mb-8 space-y-3">
+          {pendingPayment && (
+            <Link
+              href={`/client/dashboard/consultations/${pendingPayment.id}`}
+              className="flex items-center gap-4 rounded-xl border border-yellow-200 bg-yellow-50/50 p-4 transition-shadow hover:shadow-md dark:border-yellow-800/30 dark:bg-yellow-950/20"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-900/40">
+                <AlertCircle size={18} className="text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                  {t("completePayment", { serviceName: pendingPayment.service?.name || t("consultation") })}
+                </p>
+                <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                  {t("withExpertAmount", {
+                    expertName: pendingPayment.expert?.displayName || t("expert"),
+                    amount: pendingPayment.service?.flatFee?.toLocaleString() ?? "0",
+                  })}
+                </p>
+              </div>
+              <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30" />
+            </Link>
+          )}
+          {pendingReview && (
+            <Link
+              href={`/client/dashboard/consultations/${pendingReview.id}/review`}
+              className="flex items-center gap-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 transition-shadow hover:shadow-md dark:border-blue-800/30 dark:bg-blue-950/20"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40">
+                <Star size={18} className="text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                  {t("leaveReview", { expertName: pendingReview.expert?.displayName || t("yourExpert") })}
+                </p>
+                <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                  {t("serviceCompletedDate", {
+                    serviceName: pendingReview.service?.name || t("consultationCapitalized"),
+                    date: formatDate(pendingReview.scheduledStart),
+                  })}
+                </p>
+              </div>
+              <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30" />
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Quick Actions Bar (Balanced 4 items) */}
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Link
           href="/search"
           className="flex flex-col items-center gap-2 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-white/10 dark:bg-black"
@@ -173,13 +213,13 @@ export default function ClientHomePage() {
           <span className="text-[13px] font-semibold text-brand-dark dark:text-white">{t("bookLawyer")}</span>
         </Link>
         <Link
-          href="/client/dashboard/messages"
+          href="/ai"
           className="flex flex-col items-center gap-2 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-white/10 dark:bg-black"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10">
-            <MessageSquare size={18} className="text-brand-dark dark:text-white" />
+            <Sparkles size={18} className="text-brand-dark dark:text-white" />
           </div>
-          <span className="text-[13px] font-semibold text-brand-dark dark:text-white">{t("messages")}</span>
+          <span className="text-[13px] font-semibold text-brand-dark dark:text-white">{t("aiAssistant")}</span>
         </Link>
         <Link
           href="/client/dashboard/consultations"
@@ -190,205 +230,230 @@ export default function ClientHomePage() {
           </div>
           <span className="text-[13px] font-semibold text-brand-dark dark:text-white">{t("consultations")}</span>
         </Link>
+        <Link
+          href="/client/dashboard/messages"
+          className="flex flex-col items-center gap-2 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 dark:border-white/10 dark:bg-black"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10">
+            <MessageSquare size={18} className="text-brand-dark dark:text-white" />
+          </div>
+          <span className="text-[13px] font-semibold text-brand-dark dark:text-white">{t("messages")}</span>
+        </Link>
       </div>
 
-      {/* Stats */}
-      {!isLoading && (
-        <div className="mb-8 grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("total")}</p>
-            <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.total}</p>
-            <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
-          </div>
-          <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("completed")}</p>
-            <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.completed}</p>
-            <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
-          </div>
-          <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("upcoming")}</p>
-            <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.upcoming}</p>
-            <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
+      {/* STATE 1: Brand New Client Onboarding (0 bookings) */}
+      {!isLoading && bookings.length === 0 && (
+        <div className="mb-8 rounded-2xl border border-brand-border/20 bg-gradient-to-br from-brand-dark/[0.03] to-transparent p-6 sm:p-8 dark:border-white/10 dark:from-white/[0.02]">
+          <h2 className="text-[20px] font-bold text-brand-dark dark:text-white">
+            {t("onboardingTitle")}
+          </h2>
+          <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60 max-w-xl">
+            {t("onboardingSubtitle")}
+          </p>
+
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Pathway 1: AI Legal Triage */}
+            <Link
+              href="/ai"
+              className="group relative flex flex-col justify-between rounded-xl border border-brand-border/20 bg-white p-5 shadow-sm transition-all hover:border-brand-dark/40 hover:shadow-md dark:border-white/10 dark:bg-black"
+            >
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white mb-3">
+                  <Sparkles size={20} />
+                </div>
+                <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
+                  {t("aiIntakeTitle")}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                  {t("aiIntakeDesc")}
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark dark:text-white group-hover:underline">
+                {t("aiIntakeAction")} <ArrowRight size={14} />
+              </div>
+            </Link>
+
+            {/* Pathway 2: Browse Lawyers */}
+            <Link
+              href="/search"
+              className="group relative flex flex-col justify-between rounded-xl border border-brand-border/20 bg-white p-5 shadow-sm transition-all hover:border-brand-dark/40 hover:shadow-md dark:border-white/10 dark:bg-black"
+            >
+              <div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white mb-3">
+                  <Search size={20} />
+                </div>
+                <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
+                  {t("browseLawyersTitle")}
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                  {t("browseLawyersDesc")}
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark dark:text-white group-hover:underline">
+                {t("browseLawyersAction")} <ArrowRight size={14} />
+              </div>
+            </Link>
           </div>
         </div>
       )}
 
-      {/* Upcoming Consultation */}
-      <div className="mb-8">
-        <h2 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
-          {t("upcomingConsultation")}
-        </h2>
-        {isLoading ? (
-          <div className="flex items-center justify-center rounded-xl border border-brand-border/20 bg-white py-12 shadow-sm dark:border-white/10 dark:bg-black">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
-          </div>
-        ) : upcomingConsultation ? (
-          (() => {
-            const startsInMs = new Date(upcomingConsultation.scheduledStart).getTime() - Date.now();
-            const canJoin = upcomingConsultation.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS;
-            return (
-              <div className="rounded-xl border border-brand-border/20 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-black">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[18px] font-bold text-brand-dark dark:text-white">
-                      {upcomingConsultation.service?.name || t("consultationCapitalized")}
-                    </p>
-                    <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60">
-                      {t("withExpert", { expertName: upcomingConsultation.expert?.displayName || t("legalExpert") })}
-                    </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-[13px] text-brand-dark/50 dark:text-white/50">
-                      <span className="flex items-center gap-1.5">
-                        <CalendarDays size={14} />
-                        {formatDate(upcomingConsultation.scheduledStart)}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock size={14} />
-                        {formatTime(upcomingConsultation.scheduledStart)} — {formatTime(upcomingConsultation.scheduledEnd)}
-                      </span>
+      {/* STATE 2 & 3: Returning Client Content (has bookings) */}
+      {bookings.length > 0 && (
+        <>
+          {/* Stats Cards */}
+          {!isLoading && (
+            <div className="mb-8 grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("total")}</p>
+                <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.total}</p>
+                <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
+              </div>
+              <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("completed")}</p>
+                <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.completed}</p>
+                <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
+              </div>
+              <div className="rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-black">
+                <p className="text-[11px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">{t("upcoming")}</p>
+                <p className="mt-1 text-[22px] font-bold text-brand-dark dark:text-white">{stats.upcoming}</p>
+                <p className="text-[11px] text-brand-dark/40 dark:text-white/40">{t("consultations").toLowerCase()}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming Consultation */}
+          <div className="mb-8">
+            <h2 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
+              {t("upcomingConsultation")}
+            </h2>
+            {isLoading ? (
+              <div className="flex items-center justify-center rounded-xl border border-brand-border/20 bg-white py-12 shadow-sm dark:border-white/10 dark:bg-black">
+                <Loader2 className="h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
+              </div>
+            ) : upcomingConsultation ? (
+              (() => {
+                const startsInMs = new Date(upcomingConsultation.scheduledStart).getTime() - Date.now();
+                const canJoin = upcomingConsultation.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS;
+                return (
+                  <div className="rounded-xl border border-brand-border/20 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-black">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div>
+                        <p className="text-[18px] font-bold text-brand-dark dark:text-white">
+                          {upcomingConsultation.service?.name || t("consultationCapitalized")}
+                        </p>
+                        <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60">
+                          {t("withExpert", { expertName: upcomingConsultation.expert?.displayName || t("legalExpert") })}
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-4 text-[13px] text-brand-dark/50 dark:text-white/50">
+                          <span className="flex items-center gap-1.5">
+                            <CalendarDays size={14} />
+                            {formatDate(upcomingConsultation.scheduledStart)}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Clock size={14} />
+                            {formatTime(upcomingConsultation.scheduledStart)} — {formatTime(upcomingConsultation.scheduledEnd)}
+                          </span>
+                        </div>
+                      </div>
+                      <Link
+                        href={canJoin ? `/client/dashboard/consultations/${upcomingConsultation.id}/join` : "#"}
+                        onClick={(e) => { if (!canJoin) e.preventDefault(); }}
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-opacity shrink-0 ${
+                          canJoin
+                            ? "bg-brand-dark text-white hover:opacity-90 dark:bg-white dark:text-black"
+                            : "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500"
+                        }`}
+                      >
+                        <Video size={15} />
+                        {canJoin ? t("join") : t("notYetTime")}
+                      </Link>
                     </div>
                   </div>
+                );
+              })()
+            ) : (
+              <div className="rounded-xl border border-dashed border-brand-border/20 bg-white py-10 text-center dark:border-white/10 dark:bg-black">
+                <CalendarDays className="mx-auto mb-2 h-8 w-8 text-brand-dark/20 dark:text-white/20" />
+                <p className="text-[13px] text-brand-dark/50 dark:text-white/50">{t("noUpcomingConsultations")}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Recent Consultations */}
+          {recentConsultations.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
+                  {t("recentConsultations")}
+                </h2>
+                <Link
+                  href="/client/dashboard/consultations"
+                  className="text-[12px] font-semibold text-brand-dark/50 hover:text-brand-dark dark:text-white/50 dark:hover:text-white"
+                >
+                  {t("viewAll")}
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {recentConsultations.map((b) => (
                   <Link
-                    href={canJoin ? `/client/dashboard/consultations/${upcomingConsultation.id}/join` : "#"}
-                    onClick={(e) => { if (!canJoin) e.preventDefault(); }}
-                    className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-opacity ${
-                      canJoin
-                        ? "bg-brand-dark text-white hover:opacity-90 dark:bg-white dark:text-black"
-                        : "bg-gray-200 text-gray-500 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500"
-                    }`}
+                    key={b.id}
+                    href={`/client/dashboard/consultations/${b.id}`}
+                    className="flex items-center gap-4 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-white/10 dark:bg-black"
                   >
-                    <Video size={15} />
-                    {canJoin ? t("join") : t("notYetTime")}
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10">
+                      <FileText size={18} className="text-brand-dark dark:text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[14px] font-semibold text-brand-dark dark:text-white truncate">
+                          {b.service?.name || t("consultationCapitalized")}
+                        </p>
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_COLORS[b.status] || STATUS_COLORS.PENDING}`}>
+                          {b.status}
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                        {t("expertDate", { expertName: b.expert?.displayName || t("expert"), date: formatDate(b.scheduledStart) })}
+                      </p>
+                    </div>
+                    <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30 shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Rebook */}
+          {lastConsultedExpert && !activeSession && (
+            <div className="mb-8">
+              <h2 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
+                {t("quickRebook")}
+              </h2>
+              <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[15px] font-bold text-brand-dark dark:text-white">
+                    {(lastConsultedExpert.name || "E").split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                      {lastConsultedExpert.name}
+                    </p>
+                    <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                      {t("lastConsultationDateService", { date: formatDate(lastConsultedExpert.date), serviceName: lastConsultedExpert.service })}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/lawyers/${lastConsultedExpert.expertId}`}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black"
+                  >
+                    {t("rebook")} <ArrowRight size={13} />
                   </Link>
                 </div>
               </div>
-            );
-          })()
-        ) : (
-          <div className="rounded-xl border border-dashed border-brand-border/20 bg-white py-10 text-center dark:border-white/10 dark:bg-black">
-            <CalendarDays className="mx-auto mb-2 h-8 w-8 text-brand-dark/20 dark:text-white/20" />
-            <p className="text-[13px] text-brand-dark/50 dark:text-white/50">{t("noUpcomingConsultations")}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Recent Consultations */}
-      {recentConsultations.length > 0 && (
-        <div className="mb-8">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
-              {t("recentConsultations")}
-            </h2>
-            <Link
-              href="/client/dashboard/consultations"
-              className="text-[12px] font-semibold text-brand-dark/50 hover:text-brand-dark dark:text-white/50 dark:hover:text-white"
-            >
-              {t("viewAll")}
-            </Link>
-          </div>
-          <div className="space-y-2">
-            {recentConsultations.map((b) => (
-              <Link
-                key={b.id}
-                href={`/client/dashboard/consultations/${b.id}`}
-                className="flex items-center gap-4 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-white/10 dark:bg-black"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10">
-                  <FileText size={18} className="text-brand-dark dark:text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-[14px] font-semibold text-brand-dark dark:text-white truncate">
-                      {b.service?.name || t("consultationCapitalized")}
-                    </p>
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_COLORS[b.status] || STATUS_COLORS.PENDING}`}>
-                      {b.status}
-                    </span>
-                  </div>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
-                    {t("expertDate", { expertName: b.expert?.displayName || t("expert"), date: formatDate(b.scheduledStart) })}
-                  </p>
-                </div>
-                <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30 shrink-0" />
-              </Link>
-            ))}
-          </div>
-        </div>
+            </div>
+          )}
+        </>
       )}
-
-      {/* Active Video Session or Quick Rebook */}
-      <div className="mb-8">
-        {isLoading ? (
-          <div className="flex items-center justify-center rounded-xl border border-brand-border/20 bg-white py-10 shadow-sm dark:border-white/10 dark:bg-black">
-            <Loader2 className="h-5 w-5 animate-spin text-brand-dark/30 dark:text-white/30" />
-          </div>
-        ) : activeSession ? (
-          <div>
-            <h2 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
-              {t("activeSession")}
-            </h2>
-            <div className="rounded-xl border border-green-200 bg-green-50/50 p-6 shadow-sm dark:border-green-800/30 dark:bg-green-950/20">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/40">
-                    <Video size={22} className="text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[16px] font-bold text-brand-dark dark:text-white">
-                        {activeSession.service?.name || t("consultationCapitalized")}
-                      </p>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-900/40 dark:text-green-400">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                        {t("live")}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60">
-                      {t("withExpert", { expertName: activeSession.expert?.displayName || t("legalExpert") })}
-                    </p>
-                    <p className="mt-1 text-[12px] text-brand-dark/40 dark:text-white/40">
-                      {t("startedTimeAmount", { time: formatTime(activeSession.scheduledStart), amount: activeSession.service?.flatFee?.toLocaleString() ?? "0" })}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href={`/client/dashboard/consultations/${activeSession.id}/join`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
-                >
-                  <Video size={15} />
-                  {t("joinNow")}
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : lastConsultedExpert ? (
-          <div>
-            <h2 className="mb-3 text-[13px] font-bold uppercase tracking-widest text-brand-dark/40 dark:text-white/40">
-              {t("quickRebook")}
-            </h2>
-            <div className="rounded-xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[15px] font-bold text-brand-dark dark:text-white">
-                  {(lastConsultedExpert.name || "E").split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
-                    {lastConsultedExpert.name}
-                  </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
-                    {t("lastConsultationDateService", { date: formatDate(lastConsultedExpert.date), serviceName: lastConsultedExpert.service })}
-                  </p>
-                </div>
-                <Link
-                  href={`/lawyers/${lastConsultedExpert.expertId}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black"
-                >
-                  {t("rebook")} <ArrowRight size={13} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </div>
     </div>
   );
 }

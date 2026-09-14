@@ -404,6 +404,16 @@ export const EscrowService = {
       );
     }
 
+    const paymentMode = await AdminSettingService.get("paymentMode");
+    if (paymentMode === "BOOKING_FIRST" || !booking.payment) {
+      await BookingRepository.update(bookingId, {
+        status: "COMPLETED",
+        completedAt: new Date(),
+      });
+      logger.info("Booking marked COMPLETED without escrow payout (booking-first or non-payment)", { bookingId });
+      return;
+    }
+
     if (!booking.expert.momoNumber) {
       throw new ValidationError(
         "Expert has no MoMo number registered. Cannot release payout."

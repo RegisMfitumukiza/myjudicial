@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   Star,
   Bookmark,
+  Sparkles,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -45,7 +46,8 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const notifUnreadCount = unreadNotifData?.status === 200 ? unreadNotifData.data.data.count : 0;
 
   const navigation = [
-    { href: "/experts", label: t("findLawyers"), icon: Search },
+    { href: "/search", label: t("findLawyers"), icon: Search },
+    { href: "/ai", label: "AI Assistant", icon: Sparkles },
     { href: "/client/dashboard/consultations", label: t("consultations"), icon: Calendar },
     { href: "/client/dashboard/messages", label: t("messages"), icon: MessageSquare },
     { href: "/client/dashboard/reviews", label: "My Reviews", icon: Star },

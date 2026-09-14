@@ -148,13 +148,24 @@ export const LiveKitWebhookController = {
           });
 
           const minEscrowSec = await AdminSettingService.get("minEscrowDurationSeconds");
+          const paymentMode = await AdminSettingService.get("paymentMode");
+
           if (durationSec >= minEscrowSec) {
-            // At least the configured minimum -> complete and release escrow
-            await EscrowService.releaseEscrow(bookingId);
-            logger.info("Escrow released after consultation", { bookingId, durationSec, minEscrowSec });
+            if (paymentMode === "PAYMENT_REQUIRED" && booking.payment) {
+              // Paid mode: complete and release escrow payout
+              await EscrowService.releaseEscrow(bookingId);
+              logger.info("Escrow released after consultation", { bookingId, durationSec, minEscrowSec });
+            } else {
+              // Booking-first mode: complete booking directly
+              await BookingRepository.update(bookingId, {
+                status: "COMPLETED",
+                completedAt: now,
+              });
+              logger.info("Booking marked COMPLETED after consultation (booking-first)", { bookingId, durationSec });
+            }
           } else {
-            // Shorter than the configured minimum -> cancel and refund
-            logger.info("Consultation duration short, triggering cancel and refund", { bookingId, durationSec, minEscrowSec });
+            // Shorter than the configured minimum -> cancel
+            logger.info("Consultation duration short, triggering cancel", { bookingId, durationSec, minEscrowSec });
             await BookingService.cancelBooking(bookingId, "SYSTEM", `Consultation lasted less than ${Math.floor(minEscrowSec / 60)} minutes (${durationSec}s)`);
           }
         }

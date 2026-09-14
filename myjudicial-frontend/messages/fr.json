@@ -2855,9 +2855,18 @@
     "live": "LIVE",
     "startedTimeAmount": "Started {time} • {amount} RWF",
     "joinNow": "Join Now",
-    "quickRebook": "Quick Rebook",
-    "lastConsultationDateService": "Last consultation: {date} • {serviceName}",
-    "rebook": "Rebook"
+    "quickRebook": "Re-réservation rapide",
+    "lastConsultationDateService": "Dernière consultation: {date} • {serviceName}",
+    "rebook": "Réserver à nouveau",
+    "aiAssistant": "Assistant IA",
+    "onboardingTitle": "Trouvez l'aide juridique dont vous avez besoin",
+    "onboardingSubtitle": "Connectez-vous avec des professionnels du droit certifiés au Rwanda ou utilisez notre assistant IA pour analyser votre dossier.",
+    "aiIntakeTitle": "Décrivez votre situation avec l'IA",
+    "aiIntakeDesc": "Expliquez votre situation avec vos propres mots. Notre IA analysera votre dossier et vous mettra en relation avec le spécialiste adapté.",
+    "aiIntakeAction": "Démarrer avec l'IA",
+    "browseLawyersTitle": "Rechercher des experts juridiques",
+    "browseLawyersDesc": "Parcourez plus de 100 avocats certifiés par spécialité, honoraires, localisation et avis de clients vérifiés.",
+    "browseLawyersAction": "Parcourir les avocats"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

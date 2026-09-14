@@ -50,9 +50,9 @@ export const ReviewService = {
       );
     }
 
-    // 5. Validate payment was successful
-    if (booking.paymentStatus !== "PAID") {
-      throw new ValidationError("Can only review bookings with successful payments");
+    // 5. Validate payment was successful or not required (booking-first mode)
+    if (booking.paymentStatus !== "PAID" && booking.paymentStatus !== "NOT_REQUIRED") {
+      throw new ValidationError("Can only review bookings with successful or non-required payments");
     }
 
     // 6. Validate no existing review

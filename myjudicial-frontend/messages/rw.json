@@ -1405,7 +1405,11 @@
     "messages": "Ubutumwa",
     "profile": "Umwirondoro",
     "theme": "Insanganyamatsiro",
-    "findLawyers": "Shakisha abanditsi b'amategeko"
+    "findLawyers": "Shakisha abanditsi b'amategeko",
+    "myReviews": "Ibitekerezo byanjye",
+    "saved": "Ababitswe",
+    "documents": "Inyandiko",
+    "payments": "Kwishyura & Inyemezabwishyu"
   },
   "public": {
     "bookings": {
@@ -2339,6 +2343,7 @@
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
       "codeExpired": "Code expired. Please request a new one.",
+      "expiredMessage": "Kode yo kwemeza yarangiye. Saba indi nshya.",
       "validFor15m": "Kode yawe yemera igihe cy'amunota 15."
     }
   },

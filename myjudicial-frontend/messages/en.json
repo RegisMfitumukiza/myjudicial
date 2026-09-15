@@ -3327,6 +3327,7 @@
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
       "codeExpired": "Code expired. Please request a new one.",
+      "expiredMessage": "Verification code expired. Please request a new one.",
       "validFor15m": "Your code is valid for 15 minutes."
     },
     "nav": {
@@ -3592,7 +3593,11 @@
     "messages": "Messages",
     "profile": "Profile",
     "theme": "Theme",
-    "findLawyers": "Find Lawyers"
+    "findLawyers": "Find Lawyers",
+    "myReviews": "My Reviews",
+    "saved": "Saved",
+    "documents": "Documents",
+    "payments": "Payments & Billing"
   },
   "partnersPage": {
     "meta": {

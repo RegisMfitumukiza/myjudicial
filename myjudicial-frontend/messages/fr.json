@@ -1405,7 +1405,11 @@
     "messages": "Messages",
     "profile": "Profil",
     "theme": "Thème",
-    "findLawyers": "Trouver des avocats"
+    "findLawyers": "Trouver des avocats",
+    "myReviews": "Mes avis",
+    "saved": "Enregistrés",
+    "documents": "Documents",
+    "payments": "Paiements & Facturation"
   },
   "public": {
     "bookings": {
@@ -2339,6 +2343,7 @@
       "finalStep": "Final step",
       "expiresIn": "Your code expires in {time}. Never share it with anyone.",
       "codeExpired": "Code expired. Please request a new one.",
+      "expiredMessage": "Le code de vérification a expiré. Veuillez en demander un nouveau.",
       "validFor15m": "Votre code est valable 15 minutes."
     }
   },

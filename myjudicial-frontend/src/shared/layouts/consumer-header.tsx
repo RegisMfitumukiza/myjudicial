@@ -17,6 +17,8 @@ import {
   Star,
   Bookmark,
   Sparkles,
+  FileText,
+  CreditCard,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -47,11 +49,11 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
   const navigation = [
     { href: "/search", label: t("findLawyers"), icon: Search },
-    { href: "/ai", label: "AI Assistant", icon: Sparkles },
+    { href: "/ai", label: t("aiAssistant"), icon: Sparkles },
     { href: "/client/dashboard/consultations", label: t("consultations"), icon: Calendar },
     { href: "/client/dashboard/messages", label: t("messages"), icon: MessageSquare },
-    { href: "/client/dashboard/reviews", label: "My Reviews", icon: Star },
-    { href: "/client/dashboard/saved-experts", label: "Saved", icon: Bookmark },
+    { href: "/client/dashboard/reviews", label: t("myReviews"), icon: Star },
+    { href: "/client/dashboard/saved-experts", label: t("saved"), icon: Bookmark },
   ];
 
   const isActive = (href: string) => {
@@ -180,6 +182,22 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                         {t("profile")}
                       </Link>
                       <Link
+                        href="/client/dashboard/documents"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        <FileText size={16} className="text-gray-400" />
+                        {t("documents")}
+                      </Link>
+                      <Link
+                        href="/client/dashboard/payments"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        <CreditCard size={16} className="text-gray-400" />
+                        {t("payments")}
+                      </Link>
+                      <Link
                         href="/client/dashboard/settings"
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -242,6 +260,30 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                   </Link>
                 );
               })}
+              <Link
+                href="/client/dashboard/documents"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
+                  isActive("/client/dashboard/documents")
+                    ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900"
+                }`}
+              >
+                <FileText size={18} />
+                {t("documents")}
+              </Link>
+              <Link
+                href="/client/dashboard/payments"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
+                  isActive("/client/dashboard/payments")
+                    ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900"
+                }`}
+              >
+                <CreditCard size={18} />
+                {t("payments")}
+              </Link>
             </nav>
 
             {/* Mobile Language + Theme Toggle */}

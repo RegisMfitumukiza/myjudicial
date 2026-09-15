@@ -2,7 +2,7 @@
 
 import { LanguageSettingsCard } from "@/features/settings/components/language-settings-card";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
-import { Palette, User, Bell, Star, ArrowRight } from "lucide-react";
+import { Palette, User, Bell, Star, ArrowRight, FileText, CreditCard } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
@@ -44,9 +44,9 @@ export default function SettingsPage() {
         {/* Account & Activity Shortcuts */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-base font-semibold text-foreground mb-1">Account & Activity</h2>
-          <p className="text-xs text-muted-foreground mb-4">Quick access to personal info, notifications, and reviews</p>
+          <p className="text-xs text-muted-foreground mb-4">Quick access to personal info, files, billing, and alerts</p>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Link
               href="/client/dashboard/profile"
               className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-all"
@@ -58,6 +58,38 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">Profile</p>
                   <p className="text-xs text-muted-foreground">Personal details</p>
+                </div>
+              </div>
+              <ArrowRight size={16} className="text-muted-foreground" />
+            </Link>
+
+            <Link
+              href="/client/dashboard/documents"
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <FileText size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Documents</p>
+                  <p className="text-xs text-muted-foreground">Case & uploaded files</p>
+                </div>
+              </div>
+              <ArrowRight size={16} className="text-muted-foreground" />
+            </Link>
+
+            <Link
+              href="/client/dashboard/payments"
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <CreditCard size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Payments & Receipts</p>
+                  <p className="text-xs text-muted-foreground">Invoices & billing</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />

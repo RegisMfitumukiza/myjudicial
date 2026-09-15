@@ -84,7 +84,7 @@ export function Header() {
                       return (
                         <Link
                           key={area.specialty}
-                          href={`/?specialty=${area.specialty}`}
+                          href={`/search?specialty=${area.specialty}`}
                           onClick={() => setPracticeOpen(false)}
                           className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
                         >
@@ -95,7 +95,7 @@ export function Header() {
                     })}
                     <div className="px-2 pt-2 mt-1 border-t border-border">
                       <Link
-                        href="/?specialty=all"
+                        href="/search"
                         onClick={() => setPracticeOpen(false)}
                         className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-brand-dark dark:text-white transition-colors hover:bg-accent"
                       >

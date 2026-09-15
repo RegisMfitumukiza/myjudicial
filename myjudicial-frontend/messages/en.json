@@ -3255,7 +3255,8 @@
       "placeholder": "Search by name or specialty…",
       "nearMe": "Search near me on map",
       "clear": "Clear",
-      "availableToday": "Available Today"
+      "availableToday": "Available Today",
+      "viewAllOnSearch": "View all results"
     },
     "footer": {
       "columns": {

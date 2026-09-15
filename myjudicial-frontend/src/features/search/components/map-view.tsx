@@ -375,7 +375,6 @@ export function MapView({
   const indexRef = useRef<Supercluster | null>(null);
   const markersMapRef = useRef<Map<string, MarkerData>>(new Map());
   const userLocationMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const radiusCircleRef = useRef<maplibregl.Marker | null>(null);
   const [baseLayer, setBaseLayer] = useState<"street" | "satellite">("street");
   const [ready, setReady] = useState(false);
   const [showSearchThisArea, setShowSearchThisArea] = useState(false);
@@ -586,7 +585,6 @@ export function MapView({
       });
       markersMapRef.current.clear();
       try { userLocationMarkerRef.current?.remove(); } catch {}
-      try { radiusCircleRef.current?.remove(); } catch {}
       try { mapRef.current?.remove(); } catch {}
       mapRef.current = null;
     };
@@ -816,28 +814,6 @@ export function MapView({
       .addTo(map);
   }, [userLocation]);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || !searchRadiusKm || !center) return;
-
-    if (radiusCircleRef.current) radiusCircleRef.current.remove();
-
-    const el = document.createElement("div");
-    const size = 200;
-    el.style.cssText = `
-      width:${size}px;height:${size}px;border-radius:50%;
-      border:2px solid rgb(36,85,141);
-      background:rgba(36,85,141,0.06);
-      pointer-events:none;
-    `;
-
-    radiusCircleRef.current = new maplibregl.Marker({
-      element: el,
-      anchor: "center",
-    })
-      .setLngLat([center.lng, center.lat])
-      .addTo(map);
-  }, [searchRadiusKm, center, ready]);
 
   const prevBaseLayerRef = useRef(baseLayer);
   useEffect(() => {

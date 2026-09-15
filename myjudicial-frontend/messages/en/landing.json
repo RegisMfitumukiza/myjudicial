@@ -26,12 +26,30 @@
   },
   "trust": {
     "title": "Why Thousands Choose MyJudicial",
-    "item1": { "title": "BAR Certified", "desc": "All lawyers are verified by the Rwanda Bar Association" },
-    "item2": { "title": "Escrow Payments", "desc": "Funds held securely until your consultation is complete" },
-    "item3": { "title": "Fixed Transparent Fees", "desc": "See the full cost before you book — no surprises" },
-    "item4": { "title": "Instant Booking", "desc": "Book in minutes, not days" },
-    "item5": { "title": "Mobile Money", "desc": "Pay with MTN or Airtel Mobile Money" },
-    "item6": { "title": "Video Consultations", "desc": "Meet your lawyer from anywhere in Rwanda" }
+    "item1": {
+      "title": "BAR Certified",
+      "desc": "All lawyers are verified by the Rwanda Bar Association"
+    },
+    "item2": {
+      "title": "Escrow Payments",
+      "desc": "Funds held securely until your consultation is complete"
+    },
+    "item3": {
+      "title": "Fixed Transparent Fees",
+      "desc": "See the full cost before you book — no surprises"
+    },
+    "item4": {
+      "title": "Instant Booking",
+      "desc": "Book in minutes, not days"
+    },
+    "item5": {
+      "title": "Mobile Money",
+      "desc": "Pay with MTN or Airtel Mobile Money"
+    },
+    "item6": {
+      "title": "Video Consultations",
+      "desc": "Meet your lawyer from anywhere in Rwanda"
+    }
   },
   "partners": {
     "title": "Trusted By",
@@ -42,5 +60,8 @@
     "subtitle": "Browse verified lawyers or let our AI match you with the right specialist in seconds.",
     "findLawyer": "Find a Lawyer",
     "useAi": "Use AI Assistant"
+  },
+  "search": {
+    "viewAllOnSearch": "View all results"
   }
 }

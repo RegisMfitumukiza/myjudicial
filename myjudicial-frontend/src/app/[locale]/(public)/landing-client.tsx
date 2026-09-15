@@ -349,6 +349,7 @@ export default function LandingPage() {
   const [isExploring, setIsExploring] = useState(false); // whether user has interacted with filters
 
   const sortRef = useRef<HTMLDivElement>(null);
+  const categoryRef = useRef<HTMLDivElement>(null);
   const geo = useGeolocation();
 
   const { data: practiceAreas, isLoading: areasLoading } = usePracticeAreas();
@@ -458,6 +459,14 @@ export default function LandingPage() {
     return () => document.removeEventListener("mousedown", h);
   }, [sortOpen]);
 
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) setCategoryOpen(false);
+    };
+    if (categoryOpen) document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [categoryOpen]);
+
   const activateExplore = useCallback(() => setIsExploring(true), []);
 
   const handleAreaClick = useCallback((specialty: string | null) => {
@@ -486,7 +495,7 @@ export default function LandingPage() {
             <div className="flex flex-1 items-center gap-2 min-w-[300px] max-w-2xl">
 
             {/* Specialty picker */}
-            <div className="relative shrink-0">
+            <div className="relative shrink-0" ref={categoryRef}>
               <button
                 onClick={() => setCategoryOpen((v) => !v)}
                 aria-expanded={categoryOpen}
@@ -662,6 +671,19 @@ export default function LandingPage() {
                     presenceStatus: e.presenceStatus,
                   }} />
                 ))}
+              </div>
+              {/* Escape hatch to full search page */}
+              <div className="mt-8 flex justify-center">
+                <Link
+                  href={`/search?${[
+                    activeSpecialty ? `specialty=${encodeURIComponent(activeSpecialty)}` : "",
+                    sort && sort !== "HIGHEST_RATED" ? `sort=${encodeURIComponent(sort)}` : "",
+                    availToday ? "today=1" : "",
+                  ].filter(Boolean).join("&")}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-dark/30 bg-card px-6 py-2.5 text-sm font-semibold text-brand-dark shadow-sm transition hover:bg-brand-dark hover:text-on-brand dark:border-white/30 dark:text-white dark:hover:bg-white dark:hover:text-brand-dark"
+                >
+                  {t("search.viewAllOnSearch")} <ArrowRight size={15} />
+                </Link>
               </div>
             </>
           )}

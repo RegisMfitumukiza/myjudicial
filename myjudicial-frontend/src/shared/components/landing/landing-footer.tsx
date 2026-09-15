@@ -13,8 +13,8 @@ export default function LandingFooter() {
       heading: t("columns.browse"),
       links: [
         { label: t("links.findLawyer"), href: "/" },
-        { label: t("links.practiceAreas"), href: "/practice-areas" },
-        { label: t("links.legalServices"), href: "/practice-areas" },
+        { label: t("links.practiceAreas"), href: "/search" },
+        { label: t("links.legalServices"), href: "/search" },
         { label: t("links.howItWorks"), href: "/how-it-works" },
         { label: t("links.aiAssistant"), href: "/ai" },
       ],
@@ -26,15 +26,15 @@ export default function LandingFooter() {
         { label: t("links.payments"), href: "/client/dashboard/payments" },
         { label: t("links.messages"), href: "/client/dashboard/messages" },
         { label: t("links.leaveReview"), href: "/client/dashboard" },
-        { label: t("links.faqs"), href: "/faqs" },
+        { label: t("links.faqs"), href: "/help" },
       ],
     },
     {
       heading: t("columns.forLawyers"),
       links: [
         { label: t("links.becomeExpert"), href: "/expert/onboarding" },
-        { label: t("links.verification"), href: "/expert/verification" },
-        { label: t("links.pricing"), href: "/pricing" },
+        { label: t("links.verification"), href: "/expert/onboarding" },
+        { label: t("links.pricing"), href: "/how-it-works" },
         { label: t("links.dashboard"), href: "/expert/dashboard" },
         { label: t("links.helpCenter"), href: "/help" },
       ],
@@ -43,8 +43,8 @@ export default function LandingFooter() {
       heading: t("columns.resources"),
       links: [
         { label: t("links.helpCenter"), href: "/help" },
-        { label: t("links.blog"), href: "/blog" },
-        { label: t("links.legalGuides"), href: "/resources" },
+        { label: t("links.blog"), href: "/help" },
+        { label: t("links.legalGuides"), href: "/ai" },
         { label: t("links.aiAssistant"), href: "/ai" },
         { label: t("links.community"), href: "/help" },
       ],
@@ -52,11 +52,11 @@ export default function LandingFooter() {
     {
       heading: t("columns.company"),
       links: [
-        { label: t("links.aboutUs"), href: "/about" },
-        { label: t("links.careers"), href: "/careers" },
-        { label: t("links.partners"), href: "/partners" },
-        { label: t("links.contact"), href: "/contact" },
-        { label: t("links.newsroom"), href: "/press" },
+        { label: t("links.aboutUs"), href: "/how-it-works" },
+        { label: t("links.careers"), href: "/help" },
+        { label: t("links.partners"), href: "/help" },
+        { label: t("links.contact"), href: "/help" },
+        { label: t("links.newsroom"), href: "/help" },
       ],
     },
     {

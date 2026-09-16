@@ -718,67 +718,34 @@ export default function LandingPage() {
             </SectionFadeIn>
           )}
 
-          {/* ③ Available Today — urgency / immediate-need CTA */}
-          {availLoading ? (
-            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
-              <ExpertHorizontalRow experts={[]} isLoading />
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showAvailableToday}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
-                  <ExpertHorizontalRow experts={availableToday} isLoading={false} />
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
+          {/* ③ Available Today — urgency / immediate-need CTA (only renders when lawyers are available) */}
+          <SectionFadeIn show={showAvailableToday}>
+            <SectionRetryBoundary>
+              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
+                <ExpertHorizontalRow experts={availableToday} isLoading={false} />
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
-          {/* ④ Top Rated — credibility anchor */}
-          {ratedLoading ? (
-            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
-              <ExpertHorizontalRow experts={[]} isLoading />
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showTopRated}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
-                  <ExpertHorizontalRow experts={topRated} isLoading={false} />
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
+          {/* ④ Top Rated — credibility anchor (only renders when rated experts exist) */}
+          <SectionFadeIn show={showTopRated}>
+            <SectionRetryBoundary>
+              <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
+                <ExpertHorizontalRow experts={topRated} isLoading={false} />
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
-          {/* ⑤ What Clients Say — social proof, only when real reviews exist */}
-          {reviewsLoading ? (
-            <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
-                    <div className="h-5 w-32 animate-pulse rounded bg-muted" />
-                    <div className="h-4 w-48 animate-pulse rounded bg-muted" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 w-full animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
-                    </div>
-                    <div className="flex items-center justify-between border-t border-border pt-2">
-                      <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-16 animate-pulse rounded bg-muted" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showReviews}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
-                  </div>
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
+          {/* ⑤ What Clients Say — social proof (only renders when verified reviews exist) */}
+          <SectionFadeIn show={showReviews}>
+            <SectionRetryBoundary>
+              <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
+                </div>
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
           {/* ⑥ How It Works — always visible, 3 steps, links to full page */}
           <section className="bg-muted/40 py-10">

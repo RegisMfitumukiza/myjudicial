@@ -5,11 +5,10 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import {
   MapPin, Star, Scale, Shield, LayoutGrid,
-  ArrowRight, Search, ChevronDown,
+  ArrowRight, Search, ChevronDown, ChevronRight,
   ArrowUpDown, Navigation, Loader2, X,
-  Bot, FileText, BadgeCheck,
-  Banknote, ThumbsUp, CalendarCheck, Video, Phone,
-  Mail, ExternalLink, ChevronRight
+  Bot, BadgeCheck,
+  Banknote, ThumbsUp, CalendarCheck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
@@ -18,14 +17,10 @@ import { SPECIALTY_ICON_MAP, SPECIALTY_ICON_CHIP } from "@/shared/constants/mark
 import {
   usePracticeAreas,
   useRecommendedExperts,
-  useMostBookedExperts,
   useHighestRatedExperts,
   useAvailableTodayExperts,
-  useLegalServices,
   useFeaturedReviews,
-  usePopularSearches,
   type LandingExpert,
-  type LegalServiceSummary,
   type PracticeArea,
   type FeaturedReview,
 } from "@/lib/api/landing";
@@ -53,19 +48,6 @@ const TRUST_BAR_KEYS = [
   { icon: ThumbsUp, key: "bar.realReviews" },
 ];
 
-const RESOURCE_ITEMS = [
-  { labelKey: "resources.items.helpCenter", href: "/help", descKey: "resources.items.helpCenterDesc" },
-  { labelKey: "resources.items.legalGuides", href: "/resources", descKey: "resources.items.legalGuidesDesc" },
-  { labelKey: "resources.items.faqs", href: "/faqs", descKey: "resources.items.faqsDesc" },
-  { labelKey: "resources.items.howBooking", href: "/how-it-works", descKey: "resources.items.howBookingDesc" },
-  { labelKey: "resources.items.paymentSecurity", href: "/help", descKey: "resources.items.paymentSecurityDesc" },
-  { labelKey: "resources.items.aiGuide", href: "/ai", descKey: "resources.items.aiGuideDesc" },
-];
-
-const DELIVERY_ICONS: Record<string, React.ElementType> = {
-  VIDEO: Video, PHONE: Phone, EMAIL: Mail, IN_PERSON: MapPin,
-};
-
 const TRUST_WHY_KEYS = [
   { icon: BadgeCheck, titleKey: "trustWhy.verified.title", descKey: "trustWhy.verified.desc" },
   { icon: Shield, titleKey: "trustWhy.escrow.title", descKey: "trustWhy.escrow.desc" },
@@ -73,14 +55,6 @@ const TRUST_WHY_KEYS = [
   { icon: Star, titleKey: "trustWhy.pricing.title", descKey: "trustWhy.pricing.desc" },
   { icon: ThumbsUp, titleKey: "trustWhy.reviews.title", descKey: "trustWhy.reviews.desc" },
   { icon: CalendarCheck, titleKey: "trustWhy.sameday.title", descKey: "trustWhy.sameday.desc" },
-];
-
-const PARTNERS = [
-  { name: "MTN Mobile Money", short: "MTN" },
-  { name: "Airtel Money", short: "Airtel" },
-  { name: "AzamPay", short: "AzamPay" },
-  { name: "Rwanda Bar Association", short: "RBA" },
-  { name: "Ministry of Justice", short: "MINIJUST" },
 ];
 
 // ─── Expert Card ──────────────────────────────────────────────────────────────
@@ -224,24 +198,6 @@ function PracticeAreaSkeleton() {
   );
 }
 
-function ServiceCardSkeleton() {
-  return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-muted" />
-        <div className="flex-1 space-y-1.5">
-          <div className="h-4 w-3/4 rounded bg-muted" />
-          <div className="h-3 w-1/2 rounded bg-muted" />
-        </div>
-      </div>
-      <div className="mt-3 space-y-1.5">
-        <div className="h-3 w-full rounded bg-muted" />
-        <div className="h-3 w-2/3 rounded bg-muted" />
-      </div>
-    </div>
-  );
-}
-
 function ExpertHorizontalRow({
   experts,
   isLoading,
@@ -290,41 +246,28 @@ function PracticeAreaCard({ area, active, onClick }: { area: PracticeArea; activ
   );
 }
 
-// ─── Legal Service Card ───────────────────────────────────────────────────────
+// ─── Review Card ─────────────────────────────────────────────────────────────
 
-function ServiceCard({ service }: { service: LegalServiceSummary }) {
-  const t = useTranslations("landing");
-  const DeliveryIcon = DELIVERY_ICONS[service.deliveryMode] ?? Video;
+function ReviewCard({ review }: { review: FeaturedReview }) {
   return (
-    <Link href={`/lawyers/${service.expertId}`} className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:border-brand-dark/20 hover:shadow-md">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[14px] font-semibold text-foreground line-clamp-2 leading-snug">{service.name}</p>
-        <span className="shrink-0 flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-          <DeliveryIcon size={10} /> {service.deliveryMode.replace("_", " ")}
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-center gap-3">
+        <StarRating rating={review.rating} showCount={false} size="md" />
+        <span className="text-sm font-semibold text-foreground line-clamp-1">{review.expertName}</span>
+      </div>
+      {review.title && (
+        <p className="text-sm font-semibold text-foreground">{review.title}</p>
+      )}
+      {review.comment && (
+        <p className="flex-1 text-sm text-muted-foreground line-clamp-3">{review.comment}</p>
+      )}
+      <div className="mt-auto flex items-center justify-between border-t border-border pt-2">
+        <span className="text-xs text-muted-foreground">{review.clientName}</span>
+        <span className="text-xs text-muted-foreground capitalize">
+          {review.expertSpecialty?.replace(/_/g, " ").toLowerCase()}
         </span>
       </div>
-      {service.description && (
-        <p className="text-[13px] text-muted-foreground line-clamp-2">{service.description}</p>
-      )}
-      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
-        <div>
-          <p className="text-[12px] text-muted-foreground">{service.expertName}</p>
-          {service.expertCity && (
-            <p className="flex items-center gap-0.5 text-[11px] text-muted-foreground"><MapPin size={10} />{service.expertCity}</p>
-          )}
-        </div>
-        <div className="text-right">
-          {typeof service.flatFee === "number" ? (
-            <p className="text-[14px] font-bold text-foreground">
-              {service.flatFee.toLocaleString()} <span className="text-[11px] font-normal">{service.currency}</span>
-            </p>
-          ) : (
-            <p className="text-[12px] text-muted-foreground">{t("card.onRequest")}</p>
-          )}
-          <p className="text-[11px] text-muted-foreground">{service.durationMin} min</p>
-        </div>
-      </div>
-    </Link>
+    </div>
   );
 }
 
@@ -346,48 +289,35 @@ export default function LandingPage() {
   const [availToday, setAvailToday] = useState(initialAvailToday);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [isExploring, setIsExploring] = useState(false); // whether user has interacted with filters
+  const [isExploring, setIsExploring] = useState(false);
 
   const sortRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
   const geo = useGeolocation();
 
+  // ── Data fetching — 5 focused API calls ──────────────────────────────────
   const { data: practiceAreas, isLoading: areasLoading } = usePracticeAreas();
   const { data: recSection, isLoading: recLoading } = useRecommendedExperts(5);
   const { data: availSection, isLoading: availLoading } = useAvailableTodayExperts(5);
-  const { data: bookedSection, isLoading: bookedLoading } = useMostBookedExperts(5);
   const { data: ratedSection, isLoading: ratedLoading } = useHighestRatedExperts(5);
-  const { data: servicesSection, isLoading: servicesLoading } = useLegalServices(8);
   const { data: reviewsSection, isLoading: reviewsLoading } = useFeaturedReviews(6);
-  const { data: popularSection, isLoading: popularLoading } = usePopularSearches(6);
 
-  // Extract data + source from SectionResponse wrappers
+  // ── Derived data ─────────────────────────────────────────────────────────
   const recommended = recSection?.data ?? [];
   const availableToday = availSection?.data ?? [];
-  const mostBooked = bookedSection?.data ?? [];
   const topRated = ratedSection?.data ?? [];
-  const services = servicesSection?.data ?? [];
   const reviews = reviewsSection?.data ?? [];
-  const popularSearches = popularSection?.data ?? [];
 
-  // Cold-start source labels
-  const mostBookedLabel = bookedSection?.source === "curated" ? t("sections.mostBookedAlt") : t("sections.mostBooked");
-
-  // Whether each data section should be visible
+  // ── Visibility guards — each section hides itself when no real data ──────
+  const showPracticeAreas = !areasLoading && (practiceAreas?.length ?? 0) > 0;
   const showRecommended = !recLoading && recSection?.source !== "disabled" && recommended.length > 0;
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
-  const showPracticeAreas = !areasLoading && practiceAreas !== undefined && practiceAreas !== null && practiceAreas.length > 0;
-  const showMostBooked = !bookedLoading && bookedSection?.source !== "disabled" && mostBooked.length > 0;
   const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
-  const showServices = !servicesLoading && servicesSection?.source !== "disabled" && services.length > 0;
   const showReviews = !reviewsLoading && reviewsSection?.source !== "disabled" && reviews.length > 0;
-  const showPopular = !popularLoading && popularSection?.source !== "disabled" && popularSearches.length > 0;
 
-  // Recently viewed (localStorage, no API call)
+  // ── Personalization — localStorage, no API call ───────────────────────────
   const recentlyViewed = useRecentlyViewed();
   const showRecentlyViewed = recentlyViewed.length > 0;
-
-  // Saved experts (localStorage, no API call)
   const { saved, toggleSave } = useSavedExperts();
   const showSaved = saved.length > 0;
 
@@ -399,7 +329,7 @@ export default function LandingPage() {
     saved.forEach((e) => toggleSave(e));
   }, [saved, toggleSave]);
 
-  // Search results (only when user is actively exploring)
+  // ── Search results (only when user is actively exploring) ─────────────────
   const { data: searchResults, isLoading: searchLoading } = useExpertSearch(
     isExploring
       ? {
@@ -412,11 +342,11 @@ export default function LandingPage() {
           sort,
           availableToday: availToday || undefined,
         }
-      : { limit: 0, sort: "HIGHEST_RATED" }, // skip query when not exploring
+      : { limit: 0, sort: "HIGHEST_RATED" },
     { enabled: isExploring }
   );
 
-  // Sync state TO URL when user interacts with filters
+  // ── URL sync ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!isExploring) return;
     const params = new URLSearchParams();
@@ -427,22 +357,15 @@ export default function LandingPage() {
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [search, activeSpecialty, availToday, sort, isExploring, router]);
 
-  // Sync state FROM URL to support direct navigation (e.g. clicking View All links or Logo)
   useEffect(() => {
     if (searchParams.toString() === "") {
-      // User navigated back to bare /, reset everything
-      setSearch("");
-      setActiveSpecialty(null);
-      setAvailToday(false);
-      setSort("HIGHEST_RATED");
-      setIsExploring(false);
+      setSearch(""); setActiveSpecialty(null); setAvailToday(false);
+      setSort("HIGHEST_RATED"); setIsExploring(false);
     } else {
-      // User clicked a link with search params, sync state and explore
       const q = searchParams.get("q") || "";
       const specialty = searchParams.get("specialty");
       const avail = searchParams.get("availableToday") === "true";
       const s = searchParams.get("sort") || "HIGHEST_RATED";
-
       setSearch(q);
       setActiveSpecialty(specialty === "all" ? null : specialty);
       setAvailToday(avail);
@@ -451,6 +374,7 @@ export default function LandingPage() {
     }
   }, [searchParams]);
 
+  // ── Dropdown outside-click handlers ──────────────────────────────────────
   useEffect(() => {
     const h = (e: MouseEvent) => {
       if (sortRef.current && !sortRef.current.contains(e.target as Node)) setSortOpen(false);
@@ -488,152 +412,154 @@ export default function LandingPage() {
 
   return (
     <div className="bg-background min-h-[calc(100vh-4rem)]">
-      {/* ── STICKY SEARCH ZONE ───────────────────────────────────────────── */}
+
+      {/* ── STICKY SEARCH ZONE ────────────────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
           <div className="flex flex-wrap items-center justify-between gap-4 w-full">
             <div className="flex flex-1 items-center gap-2 min-w-[300px] max-w-2xl">
 
-            {/* Specialty picker */}
-            <div className="relative shrink-0" ref={categoryRef}>
-              <button
-                onClick={() => setCategoryOpen((v) => !v)}
-                aria-expanded={categoryOpen}
-                aria-haspopup="listbox"
-                aria-label={t("sections.browseAreas")}
-                className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
-              >
-                <ActiveIcon size={14} />
-                <span>{activeLabel}</span>
-                <ChevronDown size={12} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
-              </button>
-              {categoryOpen && (
-                <div role="listbox" aria-label={t("sections.browseAreas")} className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-72 overflow-y-auto">
-                  <button
-                    role="option"
-                    aria-selected={activeSpecialty === null}
-                    onClick={() => { setActiveSpecialty(null); setCategoryOpen(false); activateExplore(); }}
-                    className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === null ? "bg-accent font-bold" : "hover:bg-accent"}`}
-                  >
-                    <LayoutGrid size={14} /> {t("card.allExperts")}
-                  </button>
-                  {practiceAreas?.map((area) => {
-                    const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
-                    return (
-                      <button
-                        key={area.specialty}
-                        role="option"
-                        aria-selected={activeSpecialty === area.specialty}
-                        onClick={() => { setActiveSpecialty(area.specialty); setCategoryOpen(false); activateExplore(); }}
-                        className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === area.specialty ? "bg-accent font-bold" : "hover:bg-accent"}`}
-                      >
-                        <Icon size={14} /> {area.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+              {/* Specialty picker */}
+              <div className="relative shrink-0" ref={categoryRef}>
+                <button
+                  onClick={() => setCategoryOpen((v) => !v)}
+                  aria-expanded={categoryOpen}
+                  aria-haspopup="listbox"
+                  aria-label={t("sections.browseAreas")}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
+                >
+                  <ActiveIcon size={14} />
+                  <span>{activeLabel}</span>
+                  <ChevronDown size={12} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
+                </button>
+                {categoryOpen && (
+                  <div role="listbox" aria-label={t("sections.browseAreas")} className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-72 overflow-y-auto">
+                    <button
+                      role="option"
+                      aria-selected={activeSpecialty === null}
+                      onClick={() => { setActiveSpecialty(null); setCategoryOpen(false); activateExplore(); }}
+                      className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === null ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                    >
+                      <LayoutGrid size={14} /> {t("card.allExperts")}
+                    </button>
+                    {practiceAreas?.map((area) => {
+                      const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
+                      return (
+                        <button
+                          key={area.specialty}
+                          role="option"
+                          aria-selected={activeSpecialty === area.specialty}
+                          onClick={() => { setActiveSpecialty(area.specialty); setCategoryOpen(false); activateExplore(); }}
+                          className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === area.specialty ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                        >
+                          <Icon size={14} /> {area.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
-            {/* Search input — navigates to /search */}
-            <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-sm hover:shadow-md transition-shadow max-w-md">
-              <input
-                type="text"
-                placeholder={t("search.placeholder")}
-                aria-label={t("search.placeholder")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
-                className="flex-1 min-w-0 bg-transparent px-4 py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
-              />
-              <button
-                onClick={() => { if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
-                aria-label={t("search.placeholder")}
-                className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
-              >
-                <Search size={14} strokeWidth={2.5} />
-              </button>
-            </div>
+              {/* Search input */}
+              <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-sm hover:shadow-md transition-shadow max-w-md">
+                <input
+                  type="text"
+                  placeholder={t("search.placeholder")}
+                  aria-label={t("search.placeholder")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
+                  className="flex-1 min-w-0 bg-transparent px-4 py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+                />
+                <button
+                  onClick={() => { if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
+                  aria-label={t("search.placeholder")}
+                  className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
+                >
+                  <Search size={14} strokeWidth={2.5} />
+                </button>
+              </div>
             </div>
 
             {/* Filters Group */}
             <div className="flex items-center gap-2 flex-wrap">
+
               {/* Sort */}
-            <div className="relative shrink-0" ref={sortRef}>
+              <div className="relative shrink-0" ref={sortRef}>
+                <button
+                  onClick={() => setSortOpen((v) => !v)}
+                  aria-expanded={sortOpen}
+                  aria-haspopup="listbox"
+                  aria-label={t(currentSortKey.key)}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
+                >
+                  <ArrowUpDown size={13} />
+                  <span className="hidden sm:inline">{t(currentSortKey.key)}</span>
+                </button>
+                {sortOpen && (
+                  <div role="listbox" aria-label={t(currentSortKey.key)} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
+                    {SORT_KEYS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        role="option"
+                        aria-selected={sort === opt.value}
+                        onClick={() => { setSort(opt.value); setSortOpen(false); activateExplore(); }}
+                        className={`flex w-full items-center gap-2 px-4 py-2 text-sm transition ${sort === opt.value ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${sort === opt.value ? "bg-foreground" : "bg-transparent"}`} />
+                        {t(opt.key)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Available Today toggle */}
               <button
-                onClick={() => setSortOpen((v) => !v)}
-                aria-expanded={sortOpen}
-                aria-haspopup="listbox"
-                aria-label={t(currentSortKey.key)}
-                className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
+                onClick={() => { setAvailToday(!availToday); activateExplore(); }}
+                aria-pressed={availToday}
+                aria-label={t("search.availableToday")}
+                className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-[13px] font-semibold shadow-sm transition ${
+                  availToday
+                    ? "border-brand-dark bg-brand-dark text-on-brand dark:border-white dark:bg-white dark:text-brand-dark"
+                    : "border-border bg-card text-foreground hover:shadow-md"
+                }`}
               >
-                <ArrowUpDown size={13} />
-                <span className="hidden sm:inline">{t(currentSortKey.key)}</span>
+                <CalendarCheck size={13} /> {t("search.availableToday")}
               </button>
-              {sortOpen && (
-                <div role="listbox" aria-label={t(currentSortKey.key)} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
-                  {SORT_KEYS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      role="option"
-                      aria-selected={sort === opt.value}
-                      onClick={() => { setSort(opt.value); setSortOpen(false); activateExplore(); }}
-                      className={`flex w-full items-center gap-2 px-4 py-2 text-sm transition ${sort === opt.value ? "bg-accent font-bold" : "hover:bg-accent"}`}
-                    >
-                      <span className={`h-1.5 w-1.5 rounded-full ${sort === opt.value ? "bg-foreground" : "bg-transparent"}`} />
-                      {t(opt.key)}
-                    </button>
-                  ))}
-                </div>
+
+              {/* Geolocation */}
+              {geo.permission !== "denied" && (
+                <button
+                  onClick={() => {
+                    if (geo.loading) return;
+                    if (geo.permission === "granted" && geo.lat && geo.lng) {
+                      router.push(`/search?sort=NEAREST&lat=${geo.lat}&lng=${geo.lng}`);
+                    } else {
+                      geo.requestLocation((lat, lng) => {
+                        router.push(`/search?sort=NEAREST&lat=${lat}&lng=${lng}`);
+                      });
+                    }
+                  }}
+                  className="flex items-center justify-center h-9 w-9 rounded-full border border-border bg-card shadow-sm text-foreground transition hover:shadow-md"
+                  title={t("search.nearMe")}
+                >
+                  {geo.loading ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
+                </button>
               )}
-            </div>
 
-            {/* Available Today toggle */}
-            <button
-              onClick={() => { setAvailToday(!availToday); activateExplore(); }}
-              aria-pressed={availToday}
-              aria-label={t("search.availableToday")}
-              className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-[13px] font-semibold shadow-sm transition ${
-                availToday
-                   ? "border-brand-dark bg-brand-dark text-on-brand dark:border-white dark:bg-white dark:text-brand-dark"
-                  : "border-border bg-card text-foreground hover:shadow-md"
-              }`}
-            >
-              <CalendarCheck size={13} /> {t("search.availableToday")}
-            </button>
-
-            {/* Geolocation → opens unified Search Experience */}
-            {geo.permission !== "denied" && (
-              <button
-                onClick={() => {
-                  if (geo.loading) return;
-                  if (geo.permission === "granted" && geo.lat && geo.lng) {
-                    router.push(`/search?sort=NEAREST&lat=${geo.lat}&lng=${geo.lng}`);
-                  } else {
-                    geo.requestLocation((lat, lng) => {
-                      router.push(`/search?sort=NEAREST&lat=${lat}&lng=${lng}`);
-                    });
-                  }
-                }}
-                className="flex items-center justify-center h-9 w-9 rounded-full border border-border bg-card shadow-sm text-foreground transition hover:shadow-md"
-                title={t("search.nearMe")}
-              >
-                {geo.loading ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
-              </button>
-            )}
-
-            {/* Clear filters */}
-            {hasFilters && (
-              <button onClick={clearFilters} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition">
-                <X size={13} /> {t("search.clear")}
-              </button>
-            )}
+              {/* Clear filters */}
+              {hasFilters && (
+                <button onClick={clearFilters} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition">
+                  <X size={13} /> {t("search.clear")}
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── ACTIVE SEARCH RESULTS ─────────────────────────────────────────── */}
+      {/* ── ACTIVE SEARCH RESULTS (when user is exploring from landing) ──── */}
       {isExploring && (
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
           {searchLoading ? (
@@ -672,7 +598,6 @@ export default function LandingPage() {
                   }} />
                 ))}
               </div>
-              {/* Escape hatch to full search page */}
               <div className="mt-8 flex justify-center">
                 <Link
                   href={`/search?${[
@@ -690,12 +615,12 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ── TRUST INDICATORS (compact) ────────────────────────────────────── */}
+      {/* ── TRUST BAR — quick 1-line social proof ────────────────────────── */}
       {!isExploring && (
         <div className="border-b border-border bg-background">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5">
-              {TRUST_BAR_KEYS.map(({ icon: Icon, key: key }) => (
+              {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
                 <div key={key} className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground">
                   <Icon size={12} className="text-brand-dark dark:text-white" /> {t(key)}
                 </div>
@@ -705,42 +630,12 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ── MARKETPLACE BODY (only when not in search mode) ────────────────── */}
+      {/* ── MARKETPLACE BODY (hidden while user is filtering) ────────────── */}
       {!isExploring && (
         <>
-          {/* 1. Recommended — Bayesian-weighted blend of rating, reviews, bookings */}
-          {recLoading ? (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
-              <ExpertHorizontalRow experts={[]} isLoading />
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showRecommended}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
-                  <ExpertHorizontalRow experts={recommended} isLoading={false} />
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
-
-          {/* 2. Available Today */}
-          {availLoading ? (
-            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-muted/40">
-              <ExpertHorizontalRow experts={[]} isLoading />
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showAvailableToday}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-muted/40">
-                  <ExpertHorizontalRow experts={availableToday} isLoading={false} />
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
-
-          {/* 3. Practice Areas */}
+          {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
           {areasLoading ? (
-            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search?specialty=all" className="bg-background">
+            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search" className="bg-background">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
               </div>
@@ -748,7 +643,7 @@ export default function LandingPage() {
           ) : (
             <SectionFadeIn show={showPracticeAreas}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search?specialty=all" className="bg-background">
+                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search" className="bg-background">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {practiceAreas?.map((area) => (
                       <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
@@ -759,56 +654,52 @@ export default function LandingPage() {
             </SectionFadeIn>
           )}
 
-          {/* 4. Most Booked — cold-start: shows "Top Specialties" when no real booking data */}
-          {bookedLoading ? (
-            <SectionRow title={t("sections.mostBooked")} subtitle={t("sections.mostBookedSub")} viewAllHref="/search?sort=MOST_REVIEWED" className="bg-muted/40">
+          {/* ② Recommended experts — Bayesian blend of rating + reviews + bookings */}
+          {recLoading ? (
+            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
-            <SectionFadeIn show={showMostBooked}>
+            <SectionFadeIn show={showRecommended}>
               <SectionRetryBoundary>
-                <SectionRow title={mostBookedLabel} subtitle={t("sections.mostBookedSub")} viewAllHref="/search?sort=MOST_REVIEWED" className="bg-muted/40">
-                  <ExpertHorizontalRow experts={mostBooked} isLoading={false} />
+                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
+                  <ExpertHorizontalRow experts={recommended} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
             </SectionFadeIn>
           )}
 
-          {/* 5. Top Rated */}
+          {/* ③ Available Today — urgency / immediate-need CTA */}
+          {availLoading ? (
+            <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
+              <ExpertHorizontalRow experts={[]} isLoading />
+            </SectionRow>
+          ) : (
+            <SectionFadeIn show={showAvailableToday}>
+              <SectionRetryBoundary>
+                <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
+                  <ExpertHorizontalRow experts={availableToday} isLoading={false} />
+                </SectionRow>
+              </SectionRetryBoundary>
+            </SectionFadeIn>
+          )}
+
+          {/* ④ Top Rated — credibility anchor */}
           {ratedLoading ? (
-            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
+            <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showTopRated}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-background">
+                <SectionRow title={t("sections.topRated")} subtitle={t("sections.topRatedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
                   <ExpertHorizontalRow experts={topRated} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
             </SectionFadeIn>
           )}
 
-          {/* 6. Legal Services */}
-          {servicesLoading ? (
-            <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, i) => <ServiceCardSkeleton key={i} />)}
-              </div>
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showServices}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.browseServices")} subtitle={t("sections.browseServicesSub")} viewAllHref="/practice-areas" className="bg-muted/40">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {services.map((s) => <ServiceCard key={s.id} service={s} />)}
-                  </div>
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
-
-          {/* 6b. Client Reviews — with skeleton loading */}
+          {/* ⑤ What Clients Say — social proof, only when real reviews exist */}
           {reviewsLoading ? (
             <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -833,32 +724,15 @@ export default function LandingPage() {
               <SectionRetryBoundary>
                 <SectionRow title={t("sections.reviews")} subtitle={t("sections.reviewsSub")} className="bg-background">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {reviews.map((review) => (
-                    <div key={review.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
-                      <div className="flex items-center gap-3">
-                        <StarRating rating={review.rating} showCount={false} size="md" />
-                        <span className="text-sm font-semibold text-foreground">{review.expertName}</span>
-                      </div>
-                      {review.title && (
-                        <p className="text-sm font-semibold text-foreground">{review.title}</p>
-                      )}
-                      {review.comment && (
-                        <p className="text-sm text-muted-foreground line-clamp-3">{review.comment}</p>
-                      )}
-                      <div className="mt-auto flex items-center justify-between pt-2 border-t border-border">
-                        <span className="text-xs text-muted-foreground">{review.clientName}</span>
-                        <span className="text-xs text-muted-foreground">{review.expertSpecialty?.replace(/_/g, " ")}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </SectionRow>
-            </SectionRetryBoundary>
+                    {reviews.map((review) => <ReviewCard key={review.id} review={review} />)}
+                  </div>
+                </SectionRow>
+              </SectionRetryBoundary>
             </SectionFadeIn>
           )}
 
-          {/* 7. AI Assistant CTA */}
-          <section className="bg-background py-10">
+          {/* ⑥ AI Assistant CTA — core product differentiator */}
+          <section className="bg-muted/40 py-10">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-brand-dark/20 bg-brand-dark/5 dark:border-white/10 dark:bg-white/5 px-6 py-8">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark dark:bg-white">
@@ -869,8 +743,8 @@ export default function LandingPage() {
                   <p className="mt-1 text-sm text-muted-foreground">{t("aiCta.subtitle")}</p>
                 </div>
                 <Link
-                   href="/ai"
-                   className="shrink-0 flex items-center gap-2 rounded-full bg-brand-dark dark:bg-white px-6 py-2.5 text-sm font-semibold text-white dark:text-brand-dark transition hover:opacity-90"
+                  href="/ai"
+                  className="shrink-0 flex items-center gap-2 rounded-full bg-brand-dark dark:bg-white px-6 py-2.5 text-sm font-semibold text-white dark:text-brand-dark transition hover:opacity-90"
                 >
                   {t("aiCta.button")} <ArrowRight size={14} />
                 </Link>
@@ -878,10 +752,10 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 8. Recently Viewed — localStorage, 7-day expiry, with clear button */}
+          {/* ⑦ Recently Viewed — personalization, appears after first profile visit */}
           <SectionFadeIn show={showRecentlyViewed}>
             <SectionRetryBoundary>
-              <SectionRow title={t("sections.recentlyViewed")} subtitle={t("sections.recentlyViewedSub")}>
+              <SectionRow title={t("sections.recentlyViewed")} subtitle={t("sections.recentlyViewedSub")} className="bg-background">
                 <div className="relative">
                   <ExpertHorizontalRow experts={recentlyViewed} isLoading={false} />
                   <button
@@ -895,10 +769,10 @@ export default function LandingPage() {
             </SectionRetryBoundary>
           </SectionFadeIn>
 
-          {/* 8b. Saved Experts — localStorage favorites, with clear button */}
+          {/* ⑧ Saved Experts — personalization, appears after first save */}
           <SectionFadeIn show={showSaved}>
             <SectionRetryBoundary>
-              <SectionRow title={t("sections.savedExperts")} subtitle={t("sections.savedExpertsSub")}>
+              <SectionRow title={t("sections.savedExperts")} subtitle={t("sections.savedExpertsSub")} className="bg-muted/40">
                 <div className="relative">
                   <ExpertHorizontalRow experts={saved} isLoading={false} />
                   <button
@@ -912,58 +786,8 @@ export default function LandingPage() {
             </SectionRetryBoundary>
           </SectionFadeIn>
 
-          {/* 9. Popular Searches — from API (aggregated booking data or cold-start fallback) */}
-          <SectionFadeIn show={showPopular}>
-            <SectionRetryBoundary>
-              <SectionRow
-                title={t("popularSearches.title")}
-                subtitle={t("popularSearches.subtitle")}
-                className="bg-muted/40"
-              >
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                  {popularSearches.map((item) => (
-                    <Link
-                      key={item.specialty}
-                      href={`/search?specialty=${item.specialty}`}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-3 text-[13px] font-medium text-foreground transition hover:border-brand-dark/30 hover:shadow-sm"
-                    >
-                      <span className="line-clamp-1">{item.label}</span>
-                      <ExternalLink size={11} className="shrink-0 text-muted-foreground" />
-                    </Link>
-                  ))}
-                </div>
-              </SectionRow>
-            </SectionRetryBoundary>
-          </SectionFadeIn>
-
-          {/* 9. Legal Resources */}
-          <SectionRow
-            title={t("resources.title")}
-            subtitle={t("resources.subtitle")}
-            className="bg-background"
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {RESOURCE_ITEMS.map((r) => (
-                <Link
-                  key={r.labelKey}
-                  href={r.href}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                    <FileText size={18} className="text-foreground/60" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-foreground group-hover:underline">{t(r.labelKey)}</p>
-                    <p className="text-[12px] text-muted-foreground line-clamp-1">{t(r.descKey)}</p>
-                  </div>
-                  <ChevronRight size={14} className="shrink-0 text-muted-foreground" />
-                </Link>
-              ))}
-            </div>
-          </SectionRow>
-
-          {/* 10. Trust & Security */}
-          <section className="bg-muted/40 py-10">
+          {/* ⑨ Why Trust Us — final reassurance before footer, always present */}
+          <section className="bg-background py-10 border-t border-border">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
               <h2 className="mb-6 text-xl font-bold text-foreground sm:text-2xl">{t("trustWhy.title")}</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
@@ -976,24 +800,6 @@ export default function LandingPage() {
                       <p className="text-[13px] font-semibold text-foreground">{t(titleKey)}</p>
                       <p className="mt-0.5 text-[12px] text-muted-foreground leading-relaxed">{t(descKey)}</p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 11. Partners */}
-          <section className="bg-background py-10 border-b border-border">
-            <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-              <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("partnersSection")}</p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                {PARTNERS.map((p) => (
-                  <div
-                    key={p.name}
-                    title={p.name}
-                    className="flex h-12 items-center justify-center rounded-xl border border-border bg-card px-6 text-sm font-bold text-muted-foreground transition hover:text-foreground hover:border-brand-dark/30"
-                  >
-                    {p.short}
                   </div>
                 ))}
               </div>

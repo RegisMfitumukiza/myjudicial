@@ -71,7 +71,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
       aria-label={`View profile of ${expert.name}`}
       className="group flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
-      {/* Header: Avatar + Name + Rating */}
+      {/* Header: Avatar + Name + Specialty + Rating */}
       <div className="flex items-start gap-3 p-4 pb-0">
         <div className="relative shrink-0">
           <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="md" />
@@ -81,18 +81,22 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <p className="text-sm font-bold leading-tight text-foreground line-clamp-1">{expert.name}</p>
+            <p className="text-sm font-bold leading-tight text-foreground line-clamp-1" title={expert.name}>
+              {expert.name}
+            </p>
             {expert.verified && (
               <BadgeCheck size={13} className="shrink-0 text-brand-dark dark:text-white" />
             )}
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1 capitalize">
-            {expert.specialty?.replace(/_/g, " ").toLowerCase()}
-            {expert.yearsExperience ? ` · ${expert.yearsExperience}yr${expert.yearsExperience !== 1 ? "s" : ""}` : ""}
-          </p>
-        </div>
-        <div className="shrink-0">
-          <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={false} />
+          <div className="mt-1 flex items-center justify-between gap-1">
+            <p className="min-w-0 flex-1 text-xs text-muted-foreground line-clamp-1 capitalize">
+              {expert.specialty?.replace(/_/g, " ").toLowerCase()}
+              {expert.yearsExperience ? ` · ${expert.yearsExperience}yr${expert.yearsExperience !== 1 ? "s" : ""}` : ""}
+            </p>
+            <div className="shrink-0">
+              <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={false} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -416,8 +420,31 @@ export default function LandingPage() {
   return (
     <div className="bg-background min-h-[calc(100vh-4rem)]">
 
+      {/* ── HERO BANNER — value proposition for first-time visitors ───────── */}
+      {!isExploring && (
+        <div className="bg-background pt-8 pb-5 sm:pt-12 sm:pb-7">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
+            {/* Verified Network Badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3 sm:mb-4 shadow-xs">
+              <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
+              <span>{t("hero.badge")}</span>
+            </div>
+
+            {/* H1 Title */}
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              {t("hero.title")}
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mx-auto mt-2.5 sm:mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+              {t("hero.subtitle")}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── STICKY SEARCH ZONE ────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-y border-border shadow-xs">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
           <div className="flex flex-wrap items-center justify-between gap-4 w-full">
             <div className="flex flex-1 items-center gap-2 min-w-[300px] max-w-2xl">
@@ -618,63 +645,66 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ── TRUST BAR — quick 1-line social proof ────────────────────────── */}
+      {/* ── LIVE STATS & TRUST PROOF STRIP ───────────────────────────────── */}
       {!isExploring && (
-        <div className="border-b border-border bg-background">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5">
-              {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
-                <div key={key} className="flex items-center gap-1.5 text-[12px] font-medium text-muted-foreground">
-                  <Icon size={12} className="text-brand-dark dark:text-white" /> {t(key)}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── HERO — value proposition for first-time visitors ─────────────── */}
-      {!isExploring && (
-        <div className="bg-background pt-12 pb-8">
+        <div className="border-b border-border bg-card/40 py-3.5 sm:py-4">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
-              {t("hero.subtitle")}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
+              {/* Live Metric Badges */}
+              {showStats && (
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                  {publicStats!.totalLawyers > 0 && (
+                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                        <Scale size={15} />
+                      </div>
+                      <div>
+                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                          {publicStats!.totalLawyers.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
+                        </p>
+                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.lawyers")}</p>
+                      </div>
+                    </div>
+                  )}
+                  {publicStats!.totalPracticeAreas > 0 && (
+                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                        <LayoutGrid size={15} />
+                      </div>
+                      <div>
+                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                          {publicStats!.totalPracticeAreas.toLocaleString()}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.areas")}</p>
+                      </div>
+                    </div>
+                  )}
+                  {publicStats!.completedConsultations > 0 && (
+                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                        <CalendarCheck size={15} />
+                      </div>
+                      <div>
+                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                          {publicStats!.completedConsultations.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
+                        </p>
+                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.consultations")}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {/* ── LIVE STATS — real data from /experts/stats/public ── */}
-            {showStats && (
-              <div className="mt-8 flex flex-wrap gap-8">
-                {publicStats!.totalLawyers > 0 && (
-                  <div>
-                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
-                      {publicStats!.totalLawyers.toLocaleString()}
-                      <span className="text-brand-dark">+</span>
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.lawyers")}</p>
+              {/* Trust Badges */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+                {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <Icon size={13} className="text-brand-dark dark:text-white shrink-0" />
+                    <span>{t(key)}</span>
                   </div>
-                )}
-                {publicStats!.completedConsultations > 0 && (
-                  <div>
-                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
-                      {publicStats!.completedConsultations.toLocaleString()}
-                      <span className="text-brand-dark">+</span>
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.consultations")}</p>
-                  </div>
-                )}
-                {publicStats!.totalPracticeAreas > 0 && (
-                  <div>
-                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
-                      {publicStats!.totalPracticeAreas.toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.areas")}</p>
-                  </div>
-                )}
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

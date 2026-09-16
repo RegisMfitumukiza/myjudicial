@@ -180,7 +180,7 @@ export function FloatingAiChat() {
     : "/ai";
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
       {/* ── Interactive Inline Chat Drawer ─────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
@@ -189,7 +189,7 @@ export function FloatingAiChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="mb-3 flex h-[540px] w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e] sm:w-[400px]"
+            className="mb-3 flex h-[480px] sm:h-[540px] w-[calc(100vw-2rem)] max-w-[360px] sm:w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e]"
           >
             {/* Header */}
             <div
@@ -510,12 +510,13 @@ export function FloatingAiChat() {
             <button
               onClick={() => setIsOpen(true)}
               aria-label={t("aiChat.title")}
-              className="relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
+              className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
               style={{ backgroundColor: INDUSTRIAL_BLUE }}
             >
-              <Bot size={24} className="text-white" />
+              <Bot size={22} className="text-white sm:hidden" />
+              <Bot size={24} className="text-white hidden sm:block" />
               <span
-                className={`absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-white ${
+                className={`absolute right-0.5 top-0.5 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-white ${
                   isOnline ? "bg-emerald-400 shadow-[0_0_6px_rgba(34,197,94,0.6)]" : "bg-slate-400"
                 }`}
               />

@@ -69,10 +69,10 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
       href={`/lawyers/${expert.id}`}
       onClick={() => trackExpertView(expert)}
       aria-label={`View profile of ${expert.name}`}
-      className="group flex flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
+      className="group flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
-      {/* Header: Avatar + Name + Specialty + Rating */}
-      <div className="flex items-start gap-3 p-4 pb-0">
+      {/* Header: Avatar + Name + Specialty */}
+      <div className="flex items-start gap-2.5 sm:gap-3 p-3.5 sm:p-4 pb-0">
         <div className="relative shrink-0">
           <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="md" />
           {isOnline && (
@@ -80,7 +80,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <p className="text-sm font-bold leading-tight text-foreground line-clamp-1" title={expert.name}>
               {expert.name}
             </p>
@@ -88,45 +88,43 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
               <BadgeCheck size={13} className="shrink-0 text-brand-dark dark:text-white" />
             )}
           </div>
-          <div className="mt-1 flex items-center justify-between gap-1">
-            <p className="min-w-0 flex-1 text-xs text-muted-foreground line-clamp-1 capitalize">
-              {expert.specialty?.replace(/_/g, " ").toLowerCase()}
-              {expert.yearsExperience ? ` · ${expert.yearsExperience}yr${expert.yearsExperience !== 1 ? "s" : ""}` : ""}
-            </p>
-            <div className="shrink-0">
-              <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={false} />
-            </div>
-          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1 capitalize">
+            {expert.specialty?.replace(/_/g, " ").toLowerCase()}
+            {expert.yearsExperience ? ` · ${expert.yearsExperience}yr${expert.yearsExperience !== 1 ? "s" : ""}` : ""}
+          </p>
         </div>
       </div>
 
       {/* Body: Tags row */}
-      <div className="flex flex-wrap items-center gap-1.5 px-4 pt-2.5">
+      <div className="flex flex-wrap items-center gap-1.5 px-3.5 sm:px-4 pt-2.5">
         {expert.city && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] sm:text-[11px] text-muted-foreground">
             <MapPin size={9} />{expert.city}
           </span>
         )}
         {expert.languages && expert.languages.slice(0, 2).map((lang) => (
-          <span key={lang} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+          <span key={lang} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] sm:text-[11px] text-muted-foreground uppercase">
             {lang}
           </span>
         ))}
       </div>
 
-      {/* Footer: Price + CTA */}
-      <div className="mt-auto flex items-end justify-between gap-2 border-t border-border/50 px-4 pt-3 pb-4">
+      {/* Footer: Price + Star Rating */}
+      <div className="mt-auto flex items-end justify-between gap-2 border-t border-border/50 px-3.5 sm:px-4 pt-3 pb-3.5 sm:pb-4">
         {typeof expert.flatFee === "number" ? (
           <div>
-            <p className="text-base font-bold text-foreground">{expert.flatFee.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{expert.currency}</span></p>
-            <p className="text-[11px] text-muted-foreground">{t("card.consultation")}</p>
+            <p className="text-sm sm:text-base font-bold text-foreground">
+              {expert.flatFee.toLocaleString()}{" "}
+              <span className="text-[10px] sm:text-xs font-normal text-muted-foreground">{expert.currency}</span>
+            </p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground">{t("card.consultation")}</p>
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">{t("card.feeOnRequest")}</p>
         )}
-        <span className="text-xs font-semibold text-brand-dark dark:text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          {t("card.view")} <ChevronRight size={12} className="inline" />
-        </span>
+        <div className="shrink-0 pb-0.5">
+          <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={false} />
+        </div>
       </div>
     </Link>
   );
@@ -212,15 +210,23 @@ function ExpertHorizontalRow({
 }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => <ExpertCardSkeleton key={i} />)}
+      <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="w-[260px] shrink-0 sm:w-auto">
+            <ExpertCardSkeleton />
+          </div>
+        ))}
       </div>
     );
   }
   if (!experts.length) return null;
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {experts.map((e) => <ExpertCard key={e.id} expert={e} />)}
+    <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+      {experts.map((e) => (
+        <div key={e.id} className="w-[260px] shrink-0 snap-start sm:w-auto">
+          <ExpertCard expert={e} />
+        </div>
+      ))}
     </div>
   );
 }
@@ -418,7 +424,7 @@ export default function LandingPage() {
   const hasFilters = isExploring;
 
   return (
-    <div className="bg-background min-h-[calc(100vh-4rem)]">
+    <div className="bg-background min-h-[calc(100vh-4rem)] pb-12 sm:pb-8">
 
       {/* ── HERO BANNER — value proposition for first-time visitors ───────── */}
       {!isExploring && (
@@ -445,18 +451,19 @@ export default function LandingPage() {
 
       {/* ── STICKY SEARCH ZONE ────────────────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-y border-border shadow-xs">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-4 w-full">
-            <div className="flex flex-1 items-center gap-2 min-w-[300px] max-w-2xl">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-2.5 sm:py-3">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 w-full">
 
-              {/* Specialty picker */}
-              <div className="relative shrink-0" ref={categoryRef}>
+            {/* Left/Top Group: Specialty picker (sm+) + Full-Width Search Input */}
+            <div className="flex flex-1 items-center gap-2 w-full lg:max-w-2xl">
+              {/* Specialty picker (visible on sm+; on mobile it sits in the scrollable filter strip below) */}
+              <div className="relative shrink-0 hidden sm:block" ref={categoryRef}>
                 <button
                   onClick={() => setCategoryOpen((v) => !v)}
                   aria-expanded={categoryOpen}
                   aria-haspopup="listbox"
                   aria-label={t("sections.browseAreas")}
-                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md whitespace-nowrap"
                 >
                   <ActiveIcon size={14} />
                   <span>{activeLabel}</span>
@@ -490,8 +497,8 @@ export default function LandingPage() {
                 )}
               </div>
 
-              {/* Search input */}
-              <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-sm hover:shadow-md transition-shadow max-w-md">
+              {/* Search input — full width on mobile/tablet, max-w-md on desktop */}
+              <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
                 <input
                   type="text"
                   placeholder={t("search.placeholder")}
@@ -499,8 +506,17 @@ export default function LandingPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
-                  className="flex-1 min-w-0 bg-transparent px-4 py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+                  className="flex-1 min-w-0 bg-transparent px-4 py-2 sm:py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                 />
+                {search && (
+                  <button
+                    onClick={() => setSearch("")}
+                    className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
+                    aria-label="Clear search text"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
                 <button
                   onClick={() => { if (search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
                   aria-label={t("search.placeholder")}
@@ -511,8 +527,22 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Filters Group */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Filters Row — on mobile/tablet it smoothly scrolls horizontally; on lg it sits inline */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 lg:pb-0 w-full lg:w-auto shrink-0">
+              {/* Specialty picker button on small mobile screens (< sm) */}
+              <div className="relative shrink-0 sm:hidden">
+                <button
+                  onClick={() => setCategoryOpen((v) => !v)}
+                  aria-expanded={categoryOpen}
+                  aria-haspopup="listbox"
+                  aria-label={t("sections.browseAreas")}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[12px] font-semibold text-foreground shadow-xs whitespace-nowrap"
+                >
+                  <ActiveIcon size={13} />
+                  <span className="max-w-[110px] truncate">{activeLabel}</span>
+                  <ChevronDown size={11} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
 
               {/* Sort */}
               <div className="relative shrink-0" ref={sortRef}>
@@ -521,10 +551,10 @@ export default function LandingPage() {
                   aria-expanded={sortOpen}
                   aria-haspopup="listbox"
                   aria-label={t(currentSortKey.key)}
-                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md"
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold text-foreground shadow-xs transition hover:shadow-md whitespace-nowrap"
                 >
                   <ArrowUpDown size={13} />
-                  <span className="hidden sm:inline">{t(currentSortKey.key)}</span>
+                  <span>{t(currentSortKey.key)}</span>
                 </button>
                 {sortOpen && (
                   <div role="listbox" aria-label={t(currentSortKey.key)} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
@@ -544,18 +574,19 @@ export default function LandingPage() {
                 )}
               </div>
 
-              {/* Available Today toggle */}
+              {/* Available Today toggle — visible and prominent on all screen sizes */}
               <button
                 onClick={() => { setAvailToday(!availToday); activateExplore(); }}
                 aria-pressed={availToday}
                 aria-label={t("search.availableToday")}
-                className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-[13px] font-semibold shadow-sm transition ${
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold shadow-xs transition whitespace-nowrap shrink-0 ${
                   availToday
                     ? "border-brand-dark bg-brand-dark text-on-brand"
-                    : "border-border bg-card text-foreground hover:shadow-md"
+                    : "border-border bg-card text-foreground hover:shadow-xs"
                 }`}
               >
-                <CalendarCheck size={13} /> {t("search.availableToday")}
+                <CalendarCheck size={13} />
+                <span>{t("search.availableToday")}</span>
               </button>
 
               {/* Geolocation */}
@@ -571,17 +602,17 @@ export default function LandingPage() {
                       });
                     }
                   }}
-                  className="flex items-center justify-center h-9 w-9 rounded-full border border-border bg-card shadow-sm text-foreground transition hover:shadow-md"
+                  className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-border bg-card shadow-xs text-foreground transition hover:shadow-md shrink-0"
                   title={t("search.nearMe")}
                 >
-                  {geo.loading ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
+                  {geo.loading ? <Loader2 size={13} className="animate-spin" /> : <Navigation size={13} />}
                 </button>
               )}
 
               {/* Clear filters */}
               {hasFilters && (
-                <button onClick={clearFilters} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition">
-                  <X size={13} /> {t("search.clear")}
+                <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition whitespace-nowrap ml-1 shrink-0">
+                  <X size={12} /> {t("search.clear")}
                 </button>
               )}
             </div>

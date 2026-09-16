@@ -1939,22 +1939,8 @@
       "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
     },
     "hero": {
-      "badge": "Rwanda's Trusted Legal Marketplace",
-      "headline": "Find the Right Legal Expert",
-      "subheadline": "Browse verified lawyers, compare fixed fees, and book instantly.",
-      "searchPlaceholder": "What legal matter do you need help with?",
-      "locationPlaceholder": "Kigali, Rwanda",
-      "searchBtn": "Search Lawyers",
-      "orTryAi": "or",
-      "tryAi": "Use AI Assistant",
-      "trust1": "BAR Certified",
-      "trust2": "Identity Verified",
-      "trust3": "Fixed Transparent Fees",
-      "stats": {
-        "experts": "Verified Experts",
-        "consultations": "Consultations Completed",
-        "clients": "Happy Clients"
-      }
+      "title": "Shaka avoka bemejwe mu Rwanda.",
+      "subtitle": "Geranya amafaranga, soma ibitekerezo by'ukuri kandi usubike inama y'amategeko mu minota mike."
     },
     "practiceAreas": {
       "title": "Browse by Practice Area",
@@ -2127,6 +2113,21 @@
       "clear": "Clear",
       "availableToday": "Available Today",
       "viewAllOnSearch": "Reba ibisubizo byose"
+    },
+    "stats": {
+      "lawyers": "Avoka bemejwe",
+      "consultations": "Inama zarangiye",
+      "areas": "Inzego z'amategeko"
+    },
+    "howItWorks": {
+      "title": "Uburyo MyJudicial ikora",
+      "step1title": "Shakisha cyangwa baza AI",
+      "step1text": "Shakisha inzego z'amategeko cyangwa sobanura ikibazo cy'amategeko cyawe kuri AI yacu.",
+      "step2title": "Geranya inzobere",
+      "step2text": "Suzuma impamyabumenyi zemejwe, amanota y'ukuri n'amafaranga ategetswe.",
+      "step3title": "Subika mu mutekano",
+      "step3text": "Hitamo igihe, wishyure ukoresheje Mobile Money. Amafaranga afatirwa kugeza inama irangiye.",
+      "learnMore": "Menya byinshi ukuntu bikora"
     }
   },
   "expertDashboard_join": {

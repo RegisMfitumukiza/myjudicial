@@ -3297,6 +3297,25 @@
         "accessibility": "Accessibility"
       },
       "copyright": "MyJudicial, Inc. All rights reserved."
+    },
+    "hero": {
+      "title": "Find verified lawyers in Rwanda.",
+      "subtitle": "Compare fees, read real reviews, and book a legal consultation in minutes."
+    },
+    "stats": {
+      "lawyers": "Verified lawyers",
+      "consultations": "Consultations completed",
+      "areas": "Practice areas"
+    },
+    "howItWorks": {
+      "title": "How MyJudicial works",
+      "step1title": "Search or ask AI",
+      "step1text": "Browse by practice area or describe your legal issue to our AI for an instant match.",
+      "step2title": "Compare experts",
+      "step2text": "Review verified credentials, real ratings, and fixed transparent fees.",
+      "step3title": "Book securely",
+      "step3text": "Choose a time, pay via Mobile Money. Funds held in escrow until your session completes.",
+      "learnMore": "Learn more about how it works"
     }
   },
   "signup": {

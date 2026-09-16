@@ -7,7 +7,7 @@ import {
   MapPin, Star, Scale, Shield, LayoutGrid,
   ArrowRight, Search, ChevronDown, ChevronRight,
   ArrowUpDown, Navigation, Loader2, X,
-  Bot, BadgeCheck,
+  Bot, BadgeCheck, FileText,
   Banknote, ThumbsUp, CalendarCheck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -20,6 +20,7 @@ import {
   useHighestRatedExperts,
   useAvailableTodayExperts,
   useFeaturedReviews,
+  usePublicStats,
   type LandingExpert,
   type PracticeArea,
   type FeaturedReview,
@@ -295,7 +296,8 @@ export default function LandingPage() {
   const categoryRef = useRef<HTMLDivElement>(null);
   const geo = useGeolocation();
 
-  // ── Data fetching — 5 focused API calls ──────────────────────────────────
+  // ── Data fetching — 6 focused API calls ──────────────────────────────────
+  const { data: publicStats } = usePublicStats();
   const { data: practiceAreas, isLoading: areasLoading } = usePracticeAreas();
   const { data: recSection, isLoading: recLoading } = useRecommendedExperts(5);
   const { data: availSection, isLoading: availLoading } = useAvailableTodayExperts(5);
@@ -309,6 +311,7 @@ export default function LandingPage() {
   const reviews = reviewsSection?.data ?? [];
 
   // ── Visibility guards — each section hides itself when no real data ──────
+  const showStats = !!publicStats && (publicStats.totalLawyers > 0 || publicStats.completedConsultations > 0);
   const showPracticeAreas = !areasLoading && (practiceAreas?.length ?? 0) > 0;
   const showRecommended = !recLoading && recSection?.source !== "disabled" && recommended.length > 0;
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
@@ -630,6 +633,52 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* ── HERO — value proposition for first-time visitors ─────────────── */}
+      {!isExploring && (
+        <div className="bg-background pt-12 pb-8">
+          <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              {t("hero.title")}
+            </h1>
+            <p className="mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+              {t("hero.subtitle")}
+            </p>
+
+            {/* ── LIVE STATS — real data from /experts/stats/public ── */}
+            {showStats && (
+              <div className="mt-8 flex flex-wrap gap-8">
+                {publicStats!.totalLawyers > 0 && (
+                  <div>
+                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
+                      {publicStats!.totalLawyers.toLocaleString()}
+                      <span className="text-brand-dark">+</span>
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.lawyers")}</p>
+                  </div>
+                )}
+                {publicStats!.completedConsultations > 0 && (
+                  <div>
+                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
+                      {publicStats!.completedConsultations.toLocaleString()}
+                      <span className="text-brand-dark">+</span>
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.consultations")}</p>
+                  </div>
+                )}
+                {publicStats!.totalPracticeAreas > 0 && (
+                  <div>
+                    <p className="text-2xl font-bold text-foreground sm:text-3xl">
+                      {publicStats!.totalPracticeAreas.toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{t("stats.areas")}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── MARKETPLACE BODY (hidden while user is filtering) ────────────── */}
       {!isExploring && (
         <>
@@ -731,8 +780,52 @@ export default function LandingPage() {
             </SectionFadeIn>
           )}
 
-          {/* ⑥ AI Assistant CTA — core product differentiator */}
+          {/* ⑥ How It Works — always visible, 3 steps, links to full page */}
           <section className="bg-muted/40 py-10">
+            <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <h2 className="text-xl font-bold text-foreground sm:text-2xl">{t("howItWorks.title")}</h2>
+                <Link
+                  href="/how-it-works"
+                  className="shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
+                >
+                  {t("howItWorks.learnMore")} <ChevronRight size={14} />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+                    <Search size={18} className="text-brand-dark dark:text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step1title")}</p>
+                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step1text")}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+                    <FileText size={18} className="text-brand-dark dark:text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step2title")}</p>
+                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step2text")}</p>
+                  </div>
+                </div>
+                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+                    <CalendarCheck size={18} className="text-brand-dark dark:text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step3title")}</p>
+                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step3text")}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ⑦ AI Assistant CTA — core product differentiator */}
+          <section className="bg-background py-10">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-brand-dark/20 bg-brand-dark/5 dark:border-white/10 dark:bg-white/5 px-6 py-8">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark dark:bg-white">

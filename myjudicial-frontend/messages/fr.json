@@ -1939,22 +1939,8 @@
       "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
     },
     "hero": {
-      "badge": "Rwanda's Trusted Legal Marketplace",
-      "headline": "Find the Right Legal Expert",
-      "subheadline": "Browse verified lawyers, compare fixed fees, and book instantly.",
-      "searchPlaceholder": "What legal matter do you need help with?",
-      "locationPlaceholder": "Kigali, Rwanda",
-      "searchBtn": "Search Lawyers",
-      "orTryAi": "or",
-      "tryAi": "Use AI Assistant",
-      "trust1": "BAR Certified",
-      "trust2": "Identity Verified",
-      "trust3": "Fixed Transparent Fees",
-      "stats": {
-        "experts": "Verified Experts",
-        "consultations": "Consultations Completed",
-        "clients": "Happy Clients"
-      }
+      "title": "Trouvez des avocats vérifiés au Rwanda.",
+      "subtitle": "Comparez les honoraires, lisez de vrais avis et réservez une consultation juridique en quelques minutes."
     },
     "practiceAreas": {
       "title": "Browse by Practice Area",
@@ -2127,6 +2113,21 @@
       "clear": "Clear",
       "availableToday": "Available Today",
       "viewAllOnSearch": "Voir tous les résultats"
+    },
+    "stats": {
+      "lawyers": "Avocats vérifiés",
+      "consultations": "Consultations terminées",
+      "areas": "Domaines de pratique"
+    },
+    "howItWorks": {
+      "title": "Comment fonctionne MyJudicial",
+      "step1title": "Recherchez ou interrogez l'IA",
+      "step1text": "Parcourez par domaine de pratique ou décrivez votre problème juridique à notre IA.",
+      "step2title": "Comparez les experts",
+      "step2text": "Vérifiez les accréditations, les avis réels et les honoraires fixes transparents.",
+      "step3title": "Réservez en sécurité",
+      "step3text": "Choisissez un horaire, payez via Mobile Money. Fonds en fiducie jusqu'à la fin de la session.",
+      "learnMore": "En savoir plus sur son fonctionnement"
     }
   },
   "expertDashboard_join": {

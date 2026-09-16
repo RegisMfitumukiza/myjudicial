@@ -94,7 +94,7 @@ export default function SavedExpertsPage() {
           </p>
           <Link
             href="/search"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-brand-dark"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-dark px-4 py-2 text-[12px] font-semibold text-on-brand hover:opacity-90"
           >
             Find Lawyers
           </Link>

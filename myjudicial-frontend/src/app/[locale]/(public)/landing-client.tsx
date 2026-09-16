@@ -230,16 +230,16 @@ function PracticeAreaCard({ area, active, onClick }: { area: PracticeArea; activ
       onClick={onClick}
       className={`flex flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-all w-full ${
         active
-          ? "border-brand-dark bg-brand-dark text-on-brand dark:border-white dark:bg-white dark:text-brand-dark shadow-md scale-[1.02]"
+          ? "border-brand-dark bg-brand-dark text-on-brand shadow-md scale-[1.02]"
           : "border-border bg-card hover:border-brand-dark/30 hover:shadow-sm"
       }`}
     >
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-white/20 dark:bg-brand-dark/10" : SPECIALTY_ICON_CHIP}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-white/20 dark:bg-black/15" : SPECIALTY_ICON_CHIP}`}>
         <Icon size={20} />
       </div>
       <div>
-        <p className={`text-[14px] font-semibold ${active ? "text-on-brand dark:text-brand-dark" : "text-foreground"}`}>{area.label}</p>
-        <p className={`text-[12px] ${active ? "text-on-brand/70 dark:text-brand-dark/70" : "text-muted-foreground"}`}>
+        <p className={`text-[14px] font-semibold ${active ? "text-on-brand" : "text-foreground"}`}>{area.label}</p>
+        <p className={`text-[12px] ${active ? "text-on-brand/70" : "text-muted-foreground"}`}>
           {area.expertCount} expert{area.expertCount !== 1 ? "s" : ""}
         </p>
       </div>
@@ -524,7 +524,7 @@ export default function LandingPage() {
                 aria-label={t("search.availableToday")}
                 className={`hidden sm:flex items-center gap-1.5 rounded-full border px-3 py-2.5 text-[13px] font-semibold shadow-sm transition ${
                   availToday
-                    ? "border-brand-dark bg-brand-dark text-on-brand dark:border-white dark:bg-white dark:text-brand-dark"
+                    ? "border-brand-dark bg-brand-dark text-on-brand"
                     : "border-border bg-card text-foreground hover:shadow-md"
                 }`}
               >
@@ -608,7 +608,7 @@ export default function LandingPage() {
                     sort && sort !== "HIGHEST_RATED" ? `sort=${encodeURIComponent(sort)}` : "",
                     availToday ? "today=1" : "",
                   ].filter(Boolean).join("&")}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-brand-dark/30 bg-card px-6 py-2.5 text-sm font-semibold text-brand-dark shadow-sm transition hover:bg-brand-dark hover:text-on-brand dark:border-white/30 dark:text-white dark:hover:bg-white dark:hover:text-brand-dark"
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-dark/30 bg-card px-6 py-2.5 text-sm font-semibold text-brand-dark shadow-sm transition hover:bg-brand-dark hover:text-on-brand dark:border-white/30 dark:text-white dark:hover:bg-white dark:hover:text-black"
                 >
                   {t("search.viewAllOnSearch")} <ArrowRight size={15} />
                 </Link>
@@ -795,8 +795,8 @@ export default function LandingPage() {
           <section className="bg-background py-10">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
               <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-brand-dark/20 bg-brand-dark/5 dark:border-white/10 dark:bg-white/5 px-6 py-8">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark dark:bg-white">
-                  <Bot size={26} className="text-white dark:text-brand-dark" />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark text-on-brand">
+                  <Bot size={26} />
                 </div>
                 <div className="flex-1 text-center sm:text-left">
                   <h3 className="text-lg font-bold text-foreground">{t("aiCta.title")}</h3>
@@ -804,7 +804,7 @@ export default function LandingPage() {
                 </div>
                 <Link
                   href="/ai"
-                  className="shrink-0 flex items-center gap-2 rounded-full bg-brand-dark dark:bg-white px-6 py-2.5 text-sm font-semibold text-white dark:text-brand-dark transition hover:opacity-90"
+                  className="shrink-0 flex items-center gap-2 rounded-full bg-brand-dark text-on-brand px-6 py-2.5 text-sm font-semibold transition hover:opacity-90"
                 >
                   {t("aiCta.button")} <ArrowRight size={14} />
                 </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { Bot, ArrowRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -31,6 +31,7 @@ export function FloatingAiChat() {
   const [hovered, setHovered] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [aiStatus, setAiStatus] = useState<AiStatus>("offline");
+  const pathname = usePathname();
   const t = useTranslations("public");
 
   const poll = useCallback(async () => {
@@ -52,7 +53,7 @@ export function FloatingAiChat() {
     return () => window.removeEventListener("open-ai-chat", handler);
   }, []);
 
-  if (dismissed) return null;
+  if (dismissed || pathname === "/ai" || pathname?.startsWith("/ai")) return null;
 
   const isOnline = aiStatus === "online";
 

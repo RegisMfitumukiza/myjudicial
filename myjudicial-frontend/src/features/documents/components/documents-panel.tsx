@@ -265,7 +265,7 @@ export function DocumentsPanel() {
               <button
                 onClick={handleShare}
                 disabled={!shareEmail.trim() || isSharing}
-                className="flex items-center gap-1.5 rounded-xl bg-brand-dark px-5 py-2.5 text-[12px] font-semibold text-white hover:opacity-90 disabled:opacity-40 dark:bg-white dark:text-brand-dark"
+                className="flex items-center gap-1.5 rounded-xl bg-brand-dark px-5 py-2.5 text-[12px] font-semibold text-on-brand hover:opacity-90 disabled:opacity-40"
               >
                 {isSharing ? <Loader2 size={12} className="animate-spin" /> : <Share2 size={12} />}
                 {isSharing ? "Sharing..." : "Share"}

@@ -193,6 +193,46 @@ export const sendMagicLinkEmail = async (
 };
 
 /**
+ * Send password reset link.
+ * 
+ * @param language - User's preferred language (en, fr, or rw)
+ */
+export const sendPasswordResetEmail = async (
+  to: string,
+  name: string,
+  token: string,
+  language: Language = 'en'
+): Promise<void> => {
+  const resetUrl = buildUrl(FRONTEND.resetPassword(token, language));
+  const greeting = getEmailContent('PASSWORD_RESET', 'greeting', language, name);
+  const message = getEmailContent('PASSWORD_RESET', 'message', language);
+  const resetButton = getEmailContent('PASSWORD_RESET', 'resetButton', language);
+  const expiresWarning = getEmailContent('PASSWORD_RESET', 'expiresWarning', language);
+  const didntRequest = getEmailContent('PASSWORD_RESET', 'didntRequest', language);
+  const subject = getEmailSubject('PASSWORD_RESET', language);
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(subject),
+      paragraph(greeting),
+      paragraph(message),
+      button(resetButton, resetUrl),
+      alertBox(expiresWarning, "warning"),
+      divider(),
+      paragraph(didntRequest, { size: "13px", color: "#94a3b8" }),
+    )}
+  `, { previewText: `${subject}, ${name}` });
+
+  await sendEmail({
+    to: [{ email: to, name }],
+    subject,
+    template: "PASSWORD_RESET",
+    htmlContent: html,
+    textContent: `${subject}\n\n${greeting}\n\n${message}\n\n${resetButton}: ${resetUrl}\n\n${expiresWarning}\n\n${didntRequest}`,
+  });
+};
+
+/**
  * Send booking confirmation to the client after payment.
  * 
  * @param language - User's preferred language (en, fr, or rw)
@@ -983,7 +1023,7 @@ export const sendRejectionEmail = async (
   reason: string,
   language: Language = 'en'
 ): Promise<void> => {
-  const documentsUrl = buildUrl(FRONTEND.expertDocuments);
+  const documentsUrl = buildUrl(FRONTEND.expertVerification);
   const subject = getEmailSubject('PROFILE_REJECTED', language);
   const title = getEmailContent('PROFILE_REJECTED', 'title', language);
   const reviewMessage = getEmailContent('PROFILE_REJECTED', 'reviewMessage', language);
@@ -1019,7 +1059,7 @@ export const sendVerificationReminderEmail = async (
   name: string,
   language: Language = 'en'
 ): Promise<void> => {
-  const documentsUrl = buildUrl(FRONTEND.expertDocuments);
+  const documentsUrl = buildUrl(FRONTEND.expertVerification);
   const subject = getEmailSubject('VERIFICATION_REMINDER', language);
   const title = getEmailContent('VERIFICATION_REMINDER', 'title', language);
   const adminWaiting = getEmailContent('VERIFICATION_REMINDER', 'adminWaiting', language);
@@ -1054,7 +1094,7 @@ export const sendCorrectionsEmail = async (
   notes: string,
   language: Language = 'en'
 ): Promise<void> => {
-  const documentsUrl = buildUrl(FRONTEND.expertDocuments);
+  const documentsUrl = buildUrl(FRONTEND.expertVerification);
   const subject = getEmailSubject('CORRECTIONS_REQUIRED', language);
   const title = getEmailContent('CORRECTIONS_REQUIRED', 'title', language);
   const adminMessage = getEmailContent('CORRECTIONS_REQUIRED', 'adminMessage', language);

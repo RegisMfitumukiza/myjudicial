@@ -117,7 +117,15 @@ router.post(
   asyncHandler(AuthController.adminLogin)
 );
 
-// POST /auth/admin/change-password — authenticated user changes own password
+// POST /auth/change-password — authenticated user changes own password
+router.post(
+  "/change-password",
+  authenticate,
+  validate(changePasswordSchema),
+  asyncHandler(AuthController.changePassword)
+);
+
+// POST /auth/admin/change-password — legacy alias for change-password
 router.post(
   "/admin/change-password",
   authenticate,

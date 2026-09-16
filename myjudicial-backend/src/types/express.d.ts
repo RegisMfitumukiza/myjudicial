@@ -32,6 +32,8 @@ export type AuthenticatedUser = {
   expertProfileId: string | null;
   /** Expert verification status — null for clients */
   expertStatus: ExpertStatus | null;
+  /** Nested expert profile for UI status mapping */
+  expertProfile?: { id: string; status: ExpertStatus } | null;
   preferredLanguage: string;
   /** OCI object key for the user's profile photo — null if never uploaded */
   avatarObjectKey: string | null;

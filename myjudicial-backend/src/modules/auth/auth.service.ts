@@ -11,7 +11,11 @@ import { redisSet, redisGet, redisDel } from "../../infrastructure/redis/redis.c
 import { revokeTokenAndClearCache, clearUserCache } from "../../shared/utils/cache-cleanup.js";
 import { AuthRepository } from "./auth.repository.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
-import { sendWelcomeEmail, sendNewExpertRegistrationEmail } from "../../infrastructure/email/email.service.js";
+import {
+  sendWelcomeEmail,
+  sendNewExpertRegistrationEmail,
+  sendPasswordResetEmail,
+} from "../../infrastructure/email/email.service.js";
 import { NotificationRepository } from "../notifications/notification.repository.js";
 import {
   uploadObject,
@@ -564,6 +568,7 @@ export const AuthService = {
         lastName: dbUser.lastName,
         phone: dbUser.phone,
         role: dbUser.role,
+        expertProfile: dbUser.expertProfile ? { id: dbUser.expertProfile.id, status: dbUser.expertProfile.status } : null,
       },
     };
   },
@@ -676,6 +681,7 @@ export const AuthService = {
         lastName: dbUser.lastName,
         phone: dbUser.phone,
         role: dbUser.role,
+        expertProfile: null,
       },
     };
   },
@@ -713,12 +719,13 @@ export const AuthService = {
    * if they have one uploaded. Called on GET /auth/me only — not on every
    * authenticated request — to avoid an OCI signing call per API call.
    */
-  getMe: async (user: { avatarObjectKey: string | null; phone: string | null } & Record<string, unknown>) => {
+  getMe: async (user: { avatarObjectKey: string | null; phone: string | null; expertProfileId?: string | null; expertStatus?: string | null; expertProfile?: { id: string; status: string } | null } & Record<string, unknown>) => {
+    const expertProfile = user.expertProfile ?? (user.expertProfileId ? { id: user.expertProfileId, status: user.expertStatus } : null);
     if (!user.avatarObjectKey) {
-      return { ...user, avatarUrl: null };
+      return { ...user, expertProfile, avatarUrl: null };
     }
     const { url: avatarUrl } = await getSignedDownloadUrl(user.avatarObjectKey);
-    return { ...user, avatarUrl };
+    return { ...user, expertProfile, avatarUrl };
   },
 
   /**
@@ -906,6 +913,11 @@ export const AuthService = {
     const RESET_TOKEN_TTL = 15 * 60; // 15 minutes
     await redisSet(`password-reset:${resetToken}`, user.id, RESET_TOKEN_TTL);
 
+    const userLanguage = (user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+    await sendPasswordResetEmail(user.email, user.firstName, resetToken, userLanguage).catch((err) => {
+      logger.error("Failed to send password reset email", { email: user.email, error: err });
+    });
+
     // In development, return the token for easy testing
     const isDev = process.env.NODE_ENV === "development";
     if (isDev) {
@@ -915,16 +927,13 @@ export const AuthService = {
       };
     }
 
-    // TODO: Send reset email via email service
-    // await sendPasswordResetEmail(user.email, resetToken);
-
     return { message: "If an account exists with that email, a reset link has been sent." };
   },
 
   /**
    * POST /auth/reset-password
    * Verifies the reset token from Redis and updates the user's password
-   * via Supabase Admin API.
+   * via Supabase Admin API. Invalidate sessions and cache for security.
    */
   resetPassword: async (dto: ResetPasswordDto) => {
     const userId = await redisGet(`password-reset:${dto.token}`);
@@ -943,6 +952,12 @@ export const AuthService = {
       logger.error("Failed to reset password", { userId, error: error.message });
       throw new ServiceUnavailableError("Failed to reset password");
     }
+
+    // Invalidate existing sessions and clear user cache for security
+    await clearUserCache(userId);
+    await supabaseAdmin.auth.admin.signOut(userId).catch((err) => {
+      logger.warn("Supabase signOut failed on password reset", { userId, error: err });
+    });
 
     await writeAuditLog({
       actorId: userId,

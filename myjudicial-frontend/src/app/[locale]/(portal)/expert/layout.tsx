@@ -6,9 +6,12 @@ export const dynamic = "force-dynamic";
 
 export default async function ExpertLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  await requireRole([UserRole.EXPERT]);
+  const { locale } = await params;
+  await requireRole([UserRole.EXPERT], locale);
   return <>{children}</>;
 }

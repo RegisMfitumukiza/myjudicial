@@ -49,6 +49,7 @@ type BackendSession = {
       phone?: string | null;
       role: string;
       status?: string;
+      expertProfile?: { id: string; status: string } | null;
     };
   };
 };
@@ -114,6 +115,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             firstName: result.data.user.firstName,
             lastName: result.data.user.lastName,
             phone: result.data.user.phone || null,
+            expertProfile: result.data.user.expertProfile || null,
             accessToken: result.data.accessToken,
             refreshToken: result.data.refreshToken,
             tokenExpiresAt: Date.now() + (result.data.expiresIn ?? 3600) * 1000,
@@ -166,6 +168,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             firstName: result.data.user.firstName,
             lastName: result.data.user.lastName,
             phone: result.data.user.phone || null,
+            expertProfile: null,
             accessToken: result.data.accessToken,
             refreshToken: result.data.refreshToken,
             tokenExpiresAt: Date.now() + (result.data.expiresIn ?? 3600) * 1000,
@@ -193,6 +196,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         token.firstName = (user as Record<string, unknown>).firstName as string;
         token.lastName = (user as Record<string, unknown>).lastName as string;
         token.phone = (user as Record<string, unknown>).phone as string | null;
+        token.expertProfile = (user as Record<string, unknown>).expertProfile || null;
         token.tokenExpiresAt = (user as Record<string, unknown>).tokenExpiresAt as number | undefined;
         token.email = user.email;
         token.name = user.name;
@@ -206,6 +210,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         if (upd.firstName) token.firstName = upd.firstName as string;
         if (upd.lastName) token.lastName = upd.lastName as string;
         if (upd.phone !== undefined) token.phone = upd.phone as string | null;
+        if (upd.expertProfile !== undefined) token.expertProfile = upd.expertProfile;
       }
       
       return token;
@@ -227,6 +232,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         sessionAny.refreshToken = tokenAny.refreshToken;
         sessionAny.tokenExpiresAt = tokenAny.tokenExpiresAt;
         sessionAny.status = tokenAny.status ?? "ACTIVE";
+        (session.user as unknown as Record<string, unknown>).expertProfile = tokenAny.expertProfile || null;
       }
       
       return session;

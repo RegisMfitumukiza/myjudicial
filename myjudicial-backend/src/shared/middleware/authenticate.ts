@@ -138,6 +138,7 @@ export const authenticate = async (
       role: dbUser.role as Role,
       expertProfileId: dbUser.expertProfile?.id ?? null,
       expertStatus: (dbUser.expertProfile?.status as ExpertStatus) ?? null,
+      expertProfile: dbUser.expertProfile ? { id: dbUser.expertProfile.id, status: dbUser.expertProfile.status as ExpertStatus } : null,
       preferredLanguage: dbUser.preferredLanguage,
       avatarObjectKey: dbUser.avatarObjectKey,
       phone: dbUser.phone,

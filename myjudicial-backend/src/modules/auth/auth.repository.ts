@@ -69,6 +69,9 @@ export const AuthRepository = {
         role: true,
         preferredLanguage: true,
         status: true,
+        expertProfile: {
+          select: { id: true, status: true },
+        },
       },
     });
   },

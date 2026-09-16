@@ -34,6 +34,7 @@ import { ProfilePhotoReminder } from "./ProfilePhotoReminder";
 import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 import { FreeLocationInput } from "@/shared/components/location/FreeLocationInput";
 import {
+  useExpertProfile,
   EXPERT_PROFILE_QUERY_KEY,
   EXPERT_PHOTO_URL_QUERY_KEY,
 } from "@/features/experts/hooks/useExpertProfile";
@@ -141,6 +142,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPhotoUploading, setIsPhotoUploading] = useState(false);
   
+  // Existing profile query to handle resuming onboarding
+  const { data: existingProfile } = useExpertProfile();
+
   // Fetch onboarding progress from backend
   const { data: onboardingRes } = useQuery({
     queryKey: ["experts", "onboarding"],
@@ -200,6 +204,27 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const [formData, setFormData] = useState<OnboardingData>(
     initialProgress?.formData ?? defaultFormData
   );
+
+  // Prefill with existing profile data if resuming onboarding
+  useEffect(() => {
+    if (existingProfile && !initialProgress) {
+      const prof = existingProfile as any;
+      setFormData(prev => ({
+        ...prev,
+        displayName: prof.displayName || prof.name || prev.displayName,
+        barNumber: prof.barNumber || prev.barNumber,
+        yearsExperience: prof.yearsOfExperience ?? prev.yearsExperience,
+        firmName: prof.firmName || prev.firmName,
+        primarySpecialty: prof.primarySpecialty || (prof.specialties?.[0] ? slugToEnum(prof.specialties[0]) : prev.primarySpecialty),
+        specialties: prof.specialties || prev.specialties,
+        bio: prof.bio || prev.bio,
+        languages: prof.languages?.length ? prof.languages : prev.languages,
+        baseConsultationFee: prof.baseConsultationFee ?? prof.hourlyRate ?? prev.baseConsultationFee,
+        officeAddress: prof.officeAddress || prev.officeAddress,
+        city: prof.city || prev.city,
+      }));
+    }
+  }, [existingProfile, initialProgress]);
 
   // Auto-save to localStorage on every change (debounced)
   useEffect(() => {
@@ -299,9 +324,27 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
         })
       };
 
-      const response = await postExpertsProfile(payload);
-      if (response.status !== 201) {
-        throw new Error("Failed to create profile");
+      if (existingProfile) {
+        await apiFetch('/experts/profile/me', {
+          method: 'PATCH',
+          body: payload,
+        });
+      } else {
+        try {
+          const response = await postExpertsProfile(payload);
+          if (response.status !== 201) {
+            throw new Error("Failed to create profile");
+          }
+        } catch (postErr: any) {
+          if (postErr?.status === 409 || postErr?.message?.includes("already have an expert profile")) {
+            await apiFetch('/experts/profile/me', {
+              method: 'PATCH',
+              body: payload,
+            });
+          } else {
+            throw postErr;
+          }
+        }
       }
 
       // If they selected a photo, upload it NOW after profile creation
@@ -355,7 +398,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           toast.success(t("verificationSubmitted"));
         } catch (verifyError) {
           console.error("Verification submission failed:", verifyError);
-          toast.error(t("profileCreatedPhotoFailed"));
+          toast.error(verifyError instanceof Error ? verifyError.message : "Verification document upload failed");
         }
       }
 
@@ -388,7 +431,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Professional Onboarding Header */}
       <ExpertOnboardingHeader
         currentStep={currentStep}
@@ -420,13 +463,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
       {/* Content */}
       <div className="mx-auto max-w-2xl px-6 py-12">
-        <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card p-8 shadow-sm">
           {/* Step 1: Professional Details */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Professional Details</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Professional Details</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Tell us about your legal credentials and experience
                 </p>
               </div>
@@ -441,7 +484,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     onChange={(e) => updateField("displayName", e.target.value)}
                     className="mt-1"
                   />
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                     The name clients will see on your profile
                   </p>
                 </div>
@@ -455,7 +498,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     onChange={(e) => updateField("barNumber", e.target.value)}
                     className="mt-1"
                   />
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                     Your official bar registration number
                   </p>
                 </div>
@@ -472,14 +515,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     onChange={(e) => updateField("yearsExperience", e.target.value ? Number(e.target.value) : "")}
                     className="mt-1"
                   />
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                     How many years have you been practicing law?
                   </p>
                 </div>
 
                 <div>
                   <Label htmlFor="firmName">
-                    Law Firm / Organization <span className="text-slate-400">(optional)</span>
+                    Law Firm / Organization <span className="text-slate-400 dark:text-muted-foreground">(optional)</span>
                   </Label>
                   <Input
                     id="firmName"
@@ -490,8 +533,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   />
                 </div>
 
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                  <p className="text-sm text-blue-900">
+                <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
+                  <p className="text-sm text-blue-900 dark:text-blue-200">
                     <strong>Verification Process:</strong> We will verify your Bar number with the Rwanda Bar Association within 1–3 business days before your profile goes live.
                   </p>
                 </div>
@@ -503,24 +546,24 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Areas of Practice</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Areas of Practice</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Select your primary specialty and any additional areas you practice
                 </p>
               </div>
 
               {specialtiesLoading ? (
                 <div className="space-y-4">
-                  <div className="h-10 w-full animate-pulse rounded-lg bg-slate-100" />
+                  <div className="h-10 w-full animate-pulse rounded-lg bg-slate-100 dark:bg-muted" />
                   <div className="grid grid-cols-2 gap-3">
                     {[...Array(6)].map((_, i) => (
-                      <div key={i} className="h-16 animate-pulse rounded-lg bg-slate-100" />
+                      <div key={i} className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-muted" />
                     ))}
                   </div>
                 </div>
               ) : specialtyOptions.length === 0 ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                  <p className="text-sm text-amber-900">
+                <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
+                  <p className="text-sm text-amber-900 dark:text-amber-200">
                     Practice areas are being configured. Please try again later or contact support.
                   </p>
                 </div>
@@ -532,7 +575,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       id="primarySpecialty"
                       value={formData.primarySpecialty}
                       onChange={(e) => updateField("primarySpecialty", e.target.value)}
-                      className="mt-1 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm"
+                      className="mt-1 h-10 w-full rounded-lg border border-slate-300 dark:border-border bg-white dark:bg-card px-3 text-sm text-slate-900 dark:text-foreground"
                     >
                       {specialtyOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -540,14 +583,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                         </option>
                       ))}
                     </select>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                       Your main area of legal expertise
                     </p>
                   </div>
 
                   <div>
-                    <Label>Additional Specialties <span className="text-slate-400">(optional)</span></Label>
-                    <p className="mt-1 text-xs text-slate-500 mb-3">
+                    <Label>Additional Specialties <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground mb-3">
                       Select any additional areas where you have expertise
                     </p>
                     <div className="grid grid-cols-2 gap-3">
@@ -562,17 +605,17 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                             disabled={isPrimary}
                             className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
                               isPrimary
-                                ? "border-slate-200 bg-slate-100 opacity-50 cursor-not-allowed"
+                                ? "border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 opacity-50 cursor-not-allowed"
                                 : selected
-                                ? "border-brand-blue bg-blue-50"
-                                : "border-slate-200 bg-white hover:border-slate-300"
+                                ? "border-brand-blue bg-blue-50 dark:bg-blue-950/40"
+                                : "border-slate-200 dark:border-border bg-white dark:bg-card hover:border-slate-300 dark:hover:border-slate-600"
                             }`}
                           >
                             <div
                               className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
                                 selected
                                   ? "border-brand-blue bg-brand-blue"
-                                  : "border-slate-300 bg-white"
+                                  : "border-slate-300 dark:border-slate-600 bg-white dark:bg-card"
                               }`}
                             >
                               {selected && <Check className="h-3 w-3 text-white" />}
@@ -588,7 +631,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                         );
                       })}
                     </div>
-                    <p className="mt-3 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-slate-500 dark:text-muted-foreground">
                       Selected: {formData.specialties.length} additional area{formData.specialties.length !== 1 ? "s" : ""}
                     </p>
                   </div>
@@ -601,8 +644,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Office Location</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Office Location</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Help clients find you by providing your office location. This will help you appear in location-based searches.
                 </p>
               </div>
@@ -617,10 +660,10 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
               {/* Fallback manual address if location input is not used */}
               {!formData.location && (
-                <div className="mt-6 space-y-4 border-t pt-6">
+                <div className="mt-6 space-y-4 border-t border-slate-200 dark:border-border pt-6">
                   <div>
                     <Label htmlFor="officeAddressFallback">
-                      Office Address <span className="text-slate-400">(alternative)</span>
+                      Office Address <span className="text-slate-400 dark:text-muted-foreground">(alternative)</span>
                     </Label>
                     <Input
                       id="officeAddressFallback"
@@ -633,7 +676,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
                   <div>
                     <Label htmlFor="cityFallback">
-                      City <span className="text-slate-400">(alternative)</span>
+                      City <span className="text-slate-400 dark:text-muted-foreground">(alternative)</span>
                     </Label>
                     <Input
                       id="cityFallback"
@@ -646,8 +689,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 </div>
               )}
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <p className="text-sm text-blue-900">
+              <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-200">
                   <strong>Why add location?</strong> Clients prefer local lawyers. Profiles with accurate locations get 40% more bookings and appear higher in search results.
                 </p>
               </div>
@@ -658,8 +701,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 4 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Your Professional Bio</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Your Professional Bio</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Tell clients about your background and expertise
                 </p>
               </div>
@@ -674,13 +717,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   onChange={(e) => updateField("bio", e.target.value)}
                   className="mt-1"
                 />
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                   Minimum 50 characters ({formData.bio.length}/50)
                 </p>
               </div>
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <p className="text-sm text-blue-900">
+              <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-200">
                   <strong>Tip:</strong> A good bio includes your qualifications, years of
                   experience, notable achievements, and what clients can expect when working
                   with you.
@@ -693,8 +736,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 5 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Languages & Consultation Fee</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Languages & Consultation Fee</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Set your consultation language preferences and base consultation fee
                 </p>
               </div>
@@ -712,7 +755,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                         className={`rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all ${
                           selected
                             ? "border-brand-blue bg-brand-blue text-white"
-                            : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"
+                            : "border-slate-300 dark:border-border bg-white dark:bg-card text-slate-700 dark:text-foreground hover:border-slate-400 dark:hover:border-slate-600"
                         }`}
                       >
                         {lang.label}
@@ -720,7 +763,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     );
                   })}
                 </div>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                   Selected: {formData.languages.map(code => LANGUAGES.find(l => l.code === code)?.label || code).join(", ")}
                 </p>
               </div>
@@ -728,7 +771,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               <div>
                 <Label htmlFor="baseConsultationFee">Base Consultation Fee (RWF) *</Label>
                 <div className="relative mt-1">
-                  <span className="absolute left-3 top-2.5 text-sm font-semibold text-slate-500">
+                  <span className="absolute left-3 top-2.5 text-sm font-semibold text-slate-500 dark:text-muted-foreground">
                     RWF
                   </span>
                   <Input
@@ -742,13 +785,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     className="pl-14"
                   />
                 </div>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
                   Platform fee (10%) is deducted automatically. Average rate is RWF 40,000
                 </p>
               </div>
 
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <p className="text-sm text-blue-900">
+              <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-200">
                   <strong>Note:</strong> You can update your rates at any time from your dashboard. 
                   Set a competitive rate to attract clients while valuing your expertise.
                 </p>
@@ -760,8 +803,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 6 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Profile Photo</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Profile Photo</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Add a professional headshot to build trust with clients
                 </p>
               </div>
@@ -772,8 +815,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 isUploading={isPhotoUploading}
               />
 
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                <p className="text-sm text-amber-900">
+              <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
+                <p className="text-sm text-amber-900 dark:text-amber-200">
                   <strong>Optional:</strong> You can skip this step and upload your photo later from your profile settings. However, profiles with photos get 300% more client bookings.
                 </p>
               </div>
@@ -784,31 +827,31 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 7 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Verification Documents</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Verification Documents</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
                   Upload your government ID and Bar Association certificate to get verified faster
                 </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>National ID / Passport <span className="text-slate-400">(optional)</span></Label>
+                  <Label>National ID / Passport <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
                   {formData.identityFile ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-blue-500" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-slate-800">{formData.identityFile.name}</p>
-                        <p className="text-xs text-slate-500">{(formData.identityFile.size / 1024).toFixed(1)} KB</p>
+                        <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{formData.identityFile.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground">{(formData.identityFile.size / 1024).toFixed(1)} KB</p>
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, identityFile: undefined }))} className="rounded-full p-1 hover:bg-red-100">
+                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, identityFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50">
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 p-6 hover:border-blue-400 hover:bg-blue-50 transition-all h-full justify-center">
-                      <Upload className="h-8 w-8 text-slate-400" />
-                      <span className="text-xs text-slate-500 text-center"><span className="font-semibold text-blue-600">Click to upload</span> or drag &amp; drop</span>
-                      <span className="text-[11px] text-slate-400">PNG, JPG, PDF up to 10MB</span>
+                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
+                      <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
+                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag &amp; drop</span>
+                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">PNG, JPG, PDF up to 10MB</span>
                       <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, identityFile: f })); e.target.value = ""; }} />
                     </label>
@@ -816,23 +859,23 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Bar Association Certificate <span className="text-slate-400">(optional)</span></Label>
+                  <Label>Bar Association Certificate <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
                   {formData.barCertificateFile ? (
-                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-red-500" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-slate-800">{formData.barCertificateFile.name}</p>
-                        <p className="text-xs text-slate-500">{(formData.barCertificateFile.size / 1024).toFixed(1)} KB</p>
+                        <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{formData.barCertificateFile.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-muted-foreground">{(formData.barCertificateFile.size / 1024).toFixed(1)} KB</p>
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, barCertificateFile: undefined }))} className="rounded-full p-1 hover:bg-red-100">
+                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, barCertificateFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50">
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 p-6 hover:border-blue-400 hover:bg-blue-50 transition-all h-full justify-center">
-                      <Upload className="h-8 w-8 text-slate-400" />
-                      <span className="text-xs text-slate-500 text-center"><span className="font-semibold text-blue-600">Click to upload</span> or drag &amp; drop</span>
-                      <span className="text-[11px] text-slate-400">PDF, PNG, JPG up to 10MB</span>
+                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
+                      <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
+                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag &amp; drop</span>
+                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">PDF, PNG, JPG up to 10MB</span>
                       <input type="file" accept="image/*,.pdf" className="sr-only"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, barCertificateFile: f })); e.target.value = ""; }} />
                     </label>
@@ -841,19 +884,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               </div>
 
               {/* Additional Documents Section */}
-              <div className="space-y-4 pt-4 border-t border-slate-200">
+              <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-border">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Additional Documents <span className="text-slate-400 font-normal text-sm">(optional)</span></h3>
-                  <p className="text-sm text-slate-600">Upload law degrees, practice licenses, or other certificates. You can add up to 5 additional files.</p>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-foreground">Additional Documents <span className="text-slate-400 dark:text-muted-foreground font-normal text-sm">(optional)</span></h3>
+                  <p className="text-sm text-slate-600 dark:text-muted-foreground">Upload law degrees, practice licenses, or other certificates. You can add up to 5 additional files.</p>
                 </div>
 
                 {formData.additionalFiles && formData.additionalFiles.length > 0 && (
                   <div className="space-y-3">
                     {formData.additionalFiles.map((fileObj, idx) => (
-                      <div key={idx} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                        <FileText className="h-6 w-6 shrink-0 text-slate-400" />
+                      <div key={idx} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-border bg-white dark:bg-card p-3 shadow-sm">
+                        <FileText className="h-6 w-6 shrink-0 text-slate-400 dark:text-muted-foreground" />
                         <div className="min-w-0 flex-1 space-y-1">
-                          <p className="truncate text-xs font-semibold text-slate-800">{fileObj.file.name} <span className="font-normal text-slate-500">({(fileObj.file.size / 1024).toFixed(1)} KB)</span></p>
+                          <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{fileObj.file.name} <span className="font-normal text-slate-500 dark:text-muted-foreground">({(fileObj.file.size / 1024).toFixed(1)} KB)</span></p>
                           <Input 
                             size={1}
                             className="h-7 text-xs" 
@@ -870,7 +913,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                           const newFiles = [...(formData.additionalFiles || [])];
                           newFiles.splice(idx, 1);
                           setFormData(prev => ({ ...prev, additionalFiles: newFiles }));
-                        }} className="rounded-full p-2 hover:bg-red-50 mt-4">
+                        }} className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-950/50 mt-4">
                           <X className="h-4 w-4 text-red-500" />
                         </button>
                       </div>
@@ -879,9 +922,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 )}
 
                 {(!formData.additionalFiles || formData.additionalFiles.length < 5) && (
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-4 hover:border-blue-400 hover:bg-blue-50 transition-all">
-                    <Upload className="h-5 w-5 text-slate-400" />
-                    <span className="text-sm text-slate-600"><span className="font-semibold text-blue-600">Add document</span> (PDF, PNG, JPG)</span>
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all">
+                    <Upload className="h-5 w-5 text-slate-400 dark:text-muted-foreground" />
+                    <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">Add document</span> (PDF, PNG, JPG)</span>
                     <input type="file" accept="image/*,.pdf" className="sr-only" multiple
                       onChange={(e) => { 
                         const files = Array.from(e.target.files || []);
@@ -899,8 +942,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 )}
               </div>
 
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 mt-6">
-                <p className="text-sm text-amber-900">
+              <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 mt-6">
+                <p className="text-sm text-amber-900 dark:text-amber-200">
                   <strong>Optional:</strong> You can skip this and submit documents later from your dashboard under Verification. However, uploading now speeds up the review process.
                 </p>
               </div>
@@ -908,7 +951,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           )}
 
           {/* Navigation */}
-          <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
+          <div className="mt-8 flex items-center justify-between border-t border-slate-200 dark:border-border pt-6">
             <Button
               type="button"
               variant="outline"
@@ -919,7 +962,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               Back
             </Button>
 
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-slate-500 dark:text-muted-foreground">
               Step {currentStep} of {totalSteps}
             </div>
 

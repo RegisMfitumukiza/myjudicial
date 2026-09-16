@@ -28,6 +28,11 @@ export const EMAIL_SUBJECTS = {
     fr: "Votre lien de connexion MyJudicial",
     rw: "Umubare wawe wo kwinjira kuri MyJudicial",
   },
+  PASSWORD_RESET: {
+    en: "Reset your MyJudicial password",
+    fr: "Réinitialisez votre mot de passe MyJudicial",
+    rw: "Hindura ijambo ry'ibanga ryawe rya MyJudicial",
+  },
   BOOKING_CONFIRMED: {
     en: (serviceName: string) => `Booking Confirmed — ${serviceName}`,
     fr: (serviceName: string) => `Réservation confirmée — ${serviceName}`,
@@ -205,6 +210,35 @@ export const EMAIL_CONTENT = {
       en: "If you did not request this, you can safely ignore this email.",
       fr: "Si vous n'avez pas demandé cela, vous pouvez ignorer cet e-mail en toute sécurité.",
       rw: "Niba utasabye ibi, urashobora kwirengagiza ubu butumwa.",
+    },
+  },
+
+  // Password Reset
+  PASSWORD_RESET: {
+    greeting: {
+      en: (name: string) => `Hi ${name},`,
+      fr: (name: string) => `Bonjour ${name},`,
+      rw: (name: string) => `Muraho ${name},`,
+    },
+    message: {
+      en: "We received a request to reset your MyJudicial account password. Click the button below to choose a new password.",
+      fr: "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte MyJudicial. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.",
+      rw: "Twabonye icyifuzo cyo guhindura ijambo ry'ibanga rya konti yawe ya MyJudicial. Kanda kuri buto ikurikira kugira ngo uhitemo ijambo ry'ibanga rishya.",
+    },
+    resetButton: {
+      en: "Reset Password",
+      fr: "Réinitialiser le mot de passe",
+      rw: "Hindura Ijambo ry'ibanga",
+    },
+    expiresWarning: {
+      en: "This password reset link is valid for 15 minutes and can only be used once.",
+      fr: "Ce lien de réinitialisation de mot de passe est valable 15 minutes et ne peut être utilisé qu'une seule fois.",
+      rw: "Uyu mwanya wo guhindura ijambo ry'ibanga urakora mu minota 15 kandi ushobora gukoreshwa rimwe gusa.",
+    },
+    didntRequest: {
+      en: "If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.",
+      fr: "Si vous n'avez pas demandé de réinitialisation de mot de passe, vous pouvez ignorer cet e-mail en toute sécurité. Votre mot de passe restera inchangé.",
+      rw: "Niba utasabye guhindura ijambo ry'ibanga, urashobora kwirengagiza ubu butumwa mu mutekano. Ijambo ry'ibanga ryawe rizaguma rimeze nk'uko ryari rimeze.",
     },
   },
 

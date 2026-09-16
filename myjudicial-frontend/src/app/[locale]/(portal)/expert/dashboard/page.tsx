@@ -336,7 +336,7 @@ export default function ExpertDashboardPage() {
       {!profileLoading && !isIncomplete && !photoStatus.hasPhoto && (
         <CompactPhotoReminder
           photoStatus={photoStatus}
-          onUploadClick={() => router.push('/expert/profile/edit#photo')}
+          onUploadClick={() => router.push('/expert/dashboard/profile#photo')}
         />
       )}
 

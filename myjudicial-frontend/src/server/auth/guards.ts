@@ -2,7 +2,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
-import type { UserRole } from "@/features/auth/types";
+import { UserRole } from "@/features/auth/types";
 
 import { getCurrentSession } from "./session";
 
@@ -20,7 +20,14 @@ export async function requireRole(roles: UserRole[], locale?: string) {
   const session = await requireAuth(locale);
 
   if (!roles.includes(session.user.role)) {
-    redirect(locale ? `/${locale}/client/dashboard` : "/client/dashboard");
+    const targetDashboard =
+      session.user.role === UserRole.ADMIN
+        ? "/admin/dashboard"
+        : session.user.role === UserRole.EXPERT
+          ? "/expert/dashboard"
+          : "/client/dashboard";
+
+    redirect(locale ? `/${locale}${targetDashboard}` : targetDashboard);
   }
 
   return session;

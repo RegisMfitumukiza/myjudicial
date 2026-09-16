@@ -27,16 +27,22 @@ export default function PortalLayout({
     }
 
     // Role guard: non-admin users must not access /admin/* routes.
-    // The backend will 403 their API calls, but we also prevent the
-    // admin UI shell from rendering to avoid information leakage.
     const role = (session?.user as any)?.role as UserRole | undefined;
     if (pathname.includes("/admin/") && role && role !== UserRole.ADMIN) {
       router.replace(role === UserRole.EXPERT ? "/expert/dashboard" : "/client/dashboard");
+      return;
     }
 
     // Role guard: non-expert users must not access /expert/* routes.
     if (pathname.includes("/expert/") && role && role !== UserRole.EXPERT) {
       router.replace(role === UserRole.ADMIN ? "/admin/dashboard" : "/client/dashboard");
+      return;
+    }
+
+    // Role guard: non-citizen users must not access /client/* routes.
+    if (pathname.includes("/client/") && role && role !== UserRole.CITIZEN) {
+      router.replace(role === UserRole.ADMIN ? "/admin/dashboard" : "/expert/dashboard");
+      return;
     }
   }, [status, session, pathname, router]);
 
@@ -62,16 +68,16 @@ export default function PortalLayout({
   const user = authUser && !authLoading ? authUser : (sessionUser ? {
     id: sessionUser.id!,
     email: sessionUser.email!,
-    firstName: sessionUser.name?.split(' ')[0] || '',
-    lastName: sessionUser.name?.split(' ').slice(1).join(' ') || '',
+    firstName: sessionUser.name?.split(' ')[0] || (sessionUser as any).firstName || '',
+    lastName: sessionUser.name?.split(' ').slice(1).join(' ') || (sessionUser as any).lastName || '',
     role: (sessionUser as any).role as UserRole,
-    phone: null,
+    phone: (sessionUser as any).phone || null,
     preferredLanguage: 'en',
-    status: UserStatus.ACTIVE,
+    status: ((sessionUser as any).status as UserStatus) || UserStatus.ACTIVE,
     avatarObjectKey: sessionUser.image ?? null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    expertProfile: (sessionUser as any).role === UserRole.EXPERT ? { id: 'temp', status: 'PENDING_VERIFICATION' } : null,
+    expertProfile: (sessionUser as any).expertProfile ?? null,
   } : null);
 
   if (!user) {

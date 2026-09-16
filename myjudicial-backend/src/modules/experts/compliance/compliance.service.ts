@@ -14,7 +14,7 @@ export const ComplianceService = {
     const data = await ComplianceRepository.findByUserId(userId);
     if (!data) {
       return {
-        status: "PENDING_VERIFICATION",
+        status: "DRAFT",
         credentialsExpiry: null,
         daysUntilExpiry: null,
         isExpired: false,

@@ -94,10 +94,12 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         code: { label: "Code", type: "text" },
+        rememberMe: { label: "Remember Me", type: "text" },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const code = credentials?.code as string | undefined;
+        const rememberMe = credentials?.rememberMe === "true" || credentials?.rememberMe === true;
         if (!email || !code) return null;
 
         try {
@@ -119,6 +121,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             accessToken: result.data.accessToken,
             refreshToken: result.data.refreshToken,
             tokenExpiresAt: Date.now() + (result.data.expiresIn ?? 3600) * 1000,
+            rememberMe,
           };
         } catch (error) {
           throwMapAuthFailure(error);
@@ -147,10 +150,12 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        rememberMe: { label: "Remember Me", type: "text" },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
+        const rememberMe = credentials?.rememberMe === "true" || credentials?.rememberMe === true;
         if (!email || !password) return null;
 
         try {
@@ -172,6 +177,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             accessToken: result.data.accessToken,
             refreshToken: result.data.refreshToken,
             tokenExpiresAt: Date.now() + (result.data.expiresIn ?? 3600) * 1000,
+            rememberMe,
           };
         } catch (error) {
           throwMapAuthFailure(error);
@@ -187,19 +193,34 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       }
       
       if (user) {
+        const userAny = user as Record<string, unknown>;
         // Complete token replacement on new login
         token.id = user.id;
-        token.accessToken = (user as Record<string, unknown>).accessToken as string;
-        token.refreshToken = (user as Record<string, unknown>).refreshToken as string;
-        token.role = (user as Record<string, unknown>).role;
-        token.status = (user as Record<string, unknown>).status ?? "ACTIVE";
-        token.firstName = (user as Record<string, unknown>).firstName as string;
-        token.lastName = (user as Record<string, unknown>).lastName as string;
-        token.phone = (user as Record<string, unknown>).phone as string | null;
-        token.expertProfile = (user as Record<string, unknown>).expertProfile || null;
-        token.tokenExpiresAt = (user as Record<string, unknown>).tokenExpiresAt as number | undefined;
+        token.accessToken = userAny.accessToken as string;
+        token.refreshToken = userAny.refreshToken as string;
+        token.role = userAny.role;
+        token.status = userAny.status ?? "ACTIVE";
+        token.firstName = userAny.firstName as string;
+        token.lastName = userAny.lastName as string;
+        token.phone = userAny.phone as string | null;
+        token.expertProfile = userAny.expertProfile || null;
+        token.tokenExpiresAt = userAny.tokenExpiresAt as number | undefined;
         token.email = user.email;
         token.name = user.name;
+
+        const rememberMe = userAny.rememberMe === true;
+        token.rememberMe = rememberMe;
+
+        // Set dynamic session duration:
+        // - Remembered: 30 days
+        // - Unremembered: 8 hours for ADMIN, 24 hours for CITIZEN / EXPERT
+        const nowSec = Math.floor(Date.now() / 1000);
+        const durationSec = rememberMe
+          ? 30 * 24 * 60 * 60
+          : userAny.role === "ADMIN"
+            ? 8 * 60 * 60
+            : 24 * 60 * 60;
+        token.exp = nowSec + durationSec;
       }
       
       if (trigger === "update" && updateData) {
@@ -216,6 +237,9 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      if (token.exp) {
+        session.expires = new Date((token.exp as number) * 1000) as unknown as typeof session.expires;
+      }
       // Ensure session data matches token completely
       if (session.user && token.id) {
         session.user.id = String(token.id);
@@ -232,6 +256,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         sessionAny.refreshToken = tokenAny.refreshToken;
         sessionAny.tokenExpiresAt = tokenAny.tokenExpiresAt;
         sessionAny.status = tokenAny.status ?? "ACTIVE";
+        sessionAny.rememberMe = tokenAny.rememberMe ?? false;
         (session.user as unknown as Record<string, unknown>).expertProfile = tokenAny.expertProfile || null;
       }
       

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import { OtpInput } from "@/components/otp-input";
 import { postAuthOtpSend } from "@/api/generated";
 import { useCountdown } from "@/hooks/use-countdown";
@@ -63,6 +64,8 @@ export function SignInForm() {
   const [adminMode, setAdminMode] = useState(() => searchParams.get("admin") === "1");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [adminRememberMe, setAdminRememberMe] = useState(false);
 
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
@@ -147,7 +150,12 @@ export function SignInForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await authSignIn("email-otp", { email: pendingEmail, code: otpCode, redirect: false });
+      const result = await authSignIn("email-otp", {
+        email: pendingEmail,
+        code: otpCode,
+        rememberMe: String(rememberMe),
+        redirect: false,
+      });
       if (result?.error) {
         const code = result.code ?? result.error;
         if (code === "TooManyAttempts") {
@@ -205,7 +213,12 @@ export function SignInForm() {
     setError(null);
     const email = form.getValues("email").trim().toLowerCase();
     try {
-      const result = await authSignIn("admin-password", { email, password, redirect: false });
+      const result = await authSignIn("admin-password", {
+        email,
+        password,
+        rememberMe: String(adminRememberMe),
+        redirect: false,
+      });
       if (result?.error) {
         const code = result.code ?? result.error;
         if (code === "TooManyLoginAttempts") {
@@ -292,6 +305,26 @@ export function SignInForm() {
                 disabled={isOtpLoading || otpExpired}
                 error={error}
               />
+            </div>
+
+            <div className="flex items-start space-x-2.5 pt-1">
+              <Checkbox
+                id="otp-remember"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <label
+                  htmlFor="otp-remember"
+                  className="text-xs font-semibold text-foreground cursor-pointer select-none block"
+                >
+                  {t("keepMeSignedIn")}
+                </label>
+                <p className="text-[11px] text-muted-foreground select-none">
+                  {t("keepMeSignedInHint")}
+                </p>
+              </div>
             </div>
 
             <Button
@@ -403,6 +436,20 @@ export function SignInForm() {
               </FieldContent>
             </Field>
 
+            <div className="flex items-center space-x-2 py-1">
+              <Checkbox
+                id="admin-remember"
+                checked={adminRememberMe}
+                onCheckedChange={(checked) => setAdminRememberMe(Boolean(checked))}
+              />
+              <label
+                htmlFor="admin-remember"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer select-none"
+              >
+                {t("rememberMe")}
+              </label>
+            </div>
+
             <Button
               type="submit"
               disabled={isLoading || !form.getValues("email") || !password}
@@ -470,6 +517,26 @@ export function SignInForm() {
                 {form.formState.errors.email?.message}
               </FieldError>
             </Field>
+
+            <div className="flex items-start space-x-2.5 pt-1 pb-1">
+              <Checkbox
+                id="email-remember"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(Boolean(checked))}
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <label
+                  htmlFor="email-remember"
+                  className="text-xs font-semibold text-foreground cursor-pointer select-none block"
+                >
+                  {t("keepMeSignedIn")}
+                </label>
+                <p className="text-[11px] text-muted-foreground select-none">
+                  {t("keepMeSignedInHint")}
+                </p>
+              </div>
+            </div>
 
             <Button
               type="submit"

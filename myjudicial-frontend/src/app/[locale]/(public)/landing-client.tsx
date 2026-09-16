@@ -684,7 +684,7 @@ export default function LandingPage() {
         <>
           {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
           {areasLoading ? (
-            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search" className="bg-background">
+            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
               </div>
@@ -692,7 +692,7 @@ export default function LandingPage() {
           ) : (
             <SectionFadeIn show={showPracticeAreas}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/search" className="bg-background">
+                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {practiceAreas?.map((area) => (
                       <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
@@ -705,13 +705,13 @@ export default function LandingPage() {
 
           {/* ② Recommended experts — Bayesian blend of rating + reviews + bookings */}
           {recLoading ? (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
+            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showRecommended}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=HIGHEST_RATED" className="bg-muted/40">
+                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search" className="bg-muted/40">
                   <ExpertHorizontalRow experts={recommended} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>
@@ -721,7 +721,7 @@ export default function LandingPage() {
           {/* ③ Available Today — urgency / immediate-need CTA (only renders when lawyers are available) */}
           <SectionFadeIn show={showAvailableToday}>
             <SectionRetryBoundary>
-              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?availableToday=true" className="bg-background">
+              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?today=1" className="bg-background">
                 <ExpertHorizontalRow experts={availableToday} isLoading={false} />
               </SectionRow>
             </SectionRetryBoundary>

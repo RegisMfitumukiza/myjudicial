@@ -13,7 +13,7 @@ export default function LandingFooter() {
       heading: t("columns.browse"),
       links: [
         { label: t("links.findLawyer"), href: "/" },
-        { label: t("links.practiceAreas"), href: "/search" },
+        { label: t("links.practiceAreas"), href: "/practice-areas" },
         { label: t("links.legalServices"), href: "/search" },
         { label: t("links.howItWorks"), href: "/how-it-works" },
         { label: t("links.aiAssistant"), href: "/ai" },

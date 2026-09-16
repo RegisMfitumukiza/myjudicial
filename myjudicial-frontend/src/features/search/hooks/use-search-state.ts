@@ -80,7 +80,8 @@ function parseFiltersFromParams(params: URLSearchParams): SearchFilters {
     minYearsExperience: params.has("minExp")
       ? Number(params.get("minExp"))
       : 0,
-    availableToday: params.get("today") === "1",
+    availableToday:
+      params.get("today") === "1" || params.get("availableToday") === "true",
   };
 }
 

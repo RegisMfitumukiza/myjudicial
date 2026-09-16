@@ -30,19 +30,31 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
       } ${onClick ? "cursor-pointer" : ""}`}
     >
       {/* Avatar */}
-      <div className="relative shrink-0">
+      <Link
+        href={`/lawyers/${lawyer.id}`}
+        onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
+        aria-hidden="true"
+        className="relative shrink-0 block transition-opacity hover:opacity-85"
+      >
         <ExpertAvatar src={lawyer.avatarUrl} name={lawyer.name} size="lg" />
         {lawyer.online && (
           <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-card bg-green-500" />
         )}
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-1">
             <h3 className="truncate text-[15px] font-semibold text-foreground">
-              {lawyer.name}
+              <Link
+                href={`/lawyers/${lawyer.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="transition-colors hover:text-brand-dark hover:underline dark:hover:text-white"
+              >
+                {lawyer.name}
+              </Link>
             </h3>
             {lawyer.verified && (
               <ShieldCheck className="h-4 w-4 shrink-0 text-brand-dark dark:text-white" />

@@ -30,6 +30,16 @@ export function SearchPageClient() {
     isMobile,
   } = useSearchState();
 
+  const { data: practiceAreas } = usePracticeAreas();
+  const specialtyOptions = useMemo(
+    () =>
+      (practiceAreas || []).map((a) => ({
+        value: a.specialty,
+        label: a.label,
+      })),
+    [practiceAreas]
+  );
+
   const activeContext = useMemo(() => {
     if (filters.sort === "RECOMMENDED") {
       return {
@@ -52,8 +62,17 @@ export function SearchPageClient() {
         onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
       };
     }
+    if (filters.specialties.length > 0) {
+      const match = specialtyOptions.find((o) => o.value === filters.specialties[0]);
+      const label = match?.label ?? filters.specialties[0].replace(/_/g, " ");
+      return {
+        title: `${label} Specialists`,
+        desc: `Verified advocates specializing in ${label.toLowerCase()} in Rwanda.`,
+        onReset: () => setFilters((prev) => ({ ...prev, specialties: [] })),
+      };
+    }
     return null;
-  }, [filters.sort, filters.availableToday, setFilters, t]);
+  }, [filters.sort, filters.availableToday, filters.specialties, specialtyOptions, setFilters, t]);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -81,15 +100,6 @@ export function SearchPageClient() {
     };
   }, []);
 
-  const { data: practiceAreas } = usePracticeAreas();
-  const specialtyOptions = useMemo(
-    () =>
-      (practiceAreas || []).map((a) => ({
-        value: a.specialty,
-        label: a.label,
-      })),
-    [practiceAreas]
-  );
 
   const radiusKm = useMemo(() => {
     const opt = PROXIMITY_OPTIONS.find((p) => p.value === filters.proximity);

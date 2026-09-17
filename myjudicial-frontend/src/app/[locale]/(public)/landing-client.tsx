@@ -149,7 +149,7 @@ function SectionRow({
   return (
     <section className={`py-10 ${className}`}>
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-        <div className="mb-6 flex items-end justify-between gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
           <div>
             <h2 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h2>
             {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
@@ -157,7 +157,7 @@ function SectionRow({
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
+              className="self-start sm:self-auto shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
             >
               {t("sections.viewAll")} <ChevronRight size={14} />
             </Link>
@@ -811,11 +811,11 @@ export default function LandingPage() {
           {/* ⑥ How It Works — always visible, 3 steps, links to full page */}
           <section className="bg-muted/40 py-10">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-              <div className="mb-8 flex items-end justify-between gap-4">
+              <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
                 <h2 className="text-xl font-bold text-foreground sm:text-2xl">{t("howItWorks.title")}</h2>
                 <Link
                   href="/how-it-works"
-                  className="shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
+                  className="self-start sm:self-auto shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
                 >
                   {t("howItWorks.learnMore")} <ChevronRight size={14} />
                 </Link>

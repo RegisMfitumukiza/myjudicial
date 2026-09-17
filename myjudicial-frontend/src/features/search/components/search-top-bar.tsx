@@ -27,15 +27,16 @@ export function SearchTopBar({
   const t = useTranslations("search");
 
   const isSplit = viewMode === "split";
+  const isFixedLayout = isSplit || viewMode === "map";
 
   return (
     <div
       className={`z-40 border-b border-border bg-background ${
-        isSplit ? "relative" : "sticky top-16"
+        isFixedLayout ? "relative" : "sticky top-16"
       }`}
     >
       <div
-        className={`flex h-14 items-center gap-3 px-4 sm:px-6 ${
+        className={`flex h-12 sm:h-14 items-center gap-2 sm:gap-3 px-3 sm:px-6 ${
           isSplit ? "w-full" : "mx-auto max-w-[1400px]"
         }`}
       >
@@ -48,15 +49,16 @@ export function SearchTopBar({
             onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchPlaceholder")}
-            className="flex-1 bg-transparent px-4 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
             onClick={onSearch}
             aria-label={t("searchPlaceholder")}
-            className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
+            className="mr-1 flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
           >
-            <Search size={14} strokeWidth={2.5} />
+            <Search size={13} className="sm:hidden" strokeWidth={2.5} />
+            <Search size={14} className="hidden sm:block" strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -66,7 +68,7 @@ export function SearchTopBar({
         <button
           type="button"
           onClick={onOpenFilters}
-          className="relative flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-[13px] font-medium text-foreground transition hover:bg-accent hover:shadow-sm sm:px-4"
+          className="relative flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-[13px] font-medium text-foreground transition hover:bg-accent hover:shadow-sm"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">{t("filters")}</span>

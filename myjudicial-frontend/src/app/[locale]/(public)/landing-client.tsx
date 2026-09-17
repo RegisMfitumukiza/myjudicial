@@ -25,8 +25,6 @@ import {
   type FeaturedReview,
 } from "@/lib/api/landing";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
-import { useRecentlyViewed, trackExpertView } from "@/features/search/hooks/use-recently-viewed";
-import { useSavedExperts } from "@/features/search/hooks/use-saved-experts";
 import { SectionRetryBoundary } from "@/shared/components/section-boundary";
 import { SectionFadeIn } from "@/shared/components/section-fade-in";
 
@@ -65,7 +63,6 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
   return (
     <Link
       href={`/lawyers/${expert.id}`}
-      onClick={() => trackExpertView(expert)}
       aria-label={`View profile of ${expert.name}`}
       className="group flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
@@ -311,20 +308,6 @@ export default function LandingPage() {
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
   const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
   const showReviews = !reviewsLoading && reviewsSection?.source !== "disabled" && reviews.length > 0;
-
-  // ── Personalization — localStorage, no API call ───────────────────────────
-  const recentlyViewed = useRecentlyViewed();
-  const showRecentlyViewed = recentlyViewed.length > 0;
-  const { saved, toggleSave } = useSavedExperts();
-  const showSaved = saved.length > 0;
-
-  const clearRecentlyViewed = useCallback(() => {
-    try { localStorage.removeItem("mj_recently_viewed"); window.location.reload(); } catch { /* noop */ }
-  }, []);
-
-  const clearSaved = useCallback(() => {
-    saved.forEach((e) => toggleSave(e));
-  }, [saved, toggleSave]);
 
   // ── Dropdown outside-click handlers ──────────────────────────────────────
   useEffect(() => {
@@ -718,41 +701,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* ⑦ Recently Viewed — personalization, appears after first profile visit */}
-          <SectionFadeIn show={showRecentlyViewed}>
-            <SectionRetryBoundary>
-              <SectionRow title={t("sections.recentlyViewed")} subtitle={t("sections.recentlyViewedSub")} className="bg-background">
-                <div className="relative">
-                  <ExpertHorizontalRow experts={recentlyViewed} isLoading={false} />
-                  <button
-                    onClick={clearRecentlyViewed}
-                    className="absolute top-0 right-0 -mt-1 text-xs text-muted-foreground hover:text-foreground transition"
-                  >
-                    {t("sections.clearAll")}
-                  </button>
-                </div>
-              </SectionRow>
-            </SectionRetryBoundary>
-          </SectionFadeIn>
-
-          {/* ⑧ Saved Experts — personalization, appears after first save */}
-          <SectionFadeIn show={showSaved}>
-            <SectionRetryBoundary>
-              <SectionRow title={t("sections.savedExperts")} subtitle={t("sections.savedExpertsSub")} className="bg-muted/40">
-                <div className="relative">
-                  <ExpertHorizontalRow experts={saved} isLoading={false} />
-                  <button
-                    onClick={clearSaved}
-                    className="absolute top-0 right-0 -mt-1 text-xs text-muted-foreground hover:text-foreground transition"
-                  >
-                    {t("sections.clearAll")}
-                  </button>
-                </div>
-              </SectionRow>
-            </SectionRetryBoundary>
-          </SectionFadeIn>
-
-          {/* ⑨ Why Trust Us — final reassurance before footer, always present */}
+          {/* ⑦ Why Trust Us — final reassurance before footer, always present */}
           <section className="bg-background py-10 border-t border-border">
             <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
               <h2 className="mb-6 text-xl font-bold text-foreground sm:text-2xl">{t("trustWhy.title")}</h2>

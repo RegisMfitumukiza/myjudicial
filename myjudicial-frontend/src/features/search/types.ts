@@ -26,7 +26,7 @@ export type Lawyer = {
 
 export type ProximityFilter = "5km" | "10km" | "20km" | "50km" | "anywhere";
 
-export type SortOption = "NEAREST" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED";
+export type SortOption = "NEAREST" | "RECOMMENDED" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED";
 
 export type SearchFilters = {
   searchQuery: string;
@@ -49,6 +49,7 @@ export const PROXIMITY_OPTIONS: { value: ProximityFilter; km: number; labelKey: 
 ];
 
 export const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
+  { value: "RECOMMENDED", labelKey: "sortRecommended" },
   { value: "NEAREST", labelKey: "sortNearest" },
   { value: "HIGHEST_RATED", labelKey: "sortHighestRated" },
   { value: "MOST_EXPERIENCED", labelKey: "sortMostExperienced" },

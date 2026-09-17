@@ -67,15 +67,24 @@ export function SearchTopBar({
           )}
         </button>
 
-        {/* Map toggle - desktop */}
+        {/* Map / List toggle - desktop */}
         {!isMobile && (
           <button
             type="button"
             onClick={onToggleMap}
             className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-[13px] font-medium text-foreground transition hover:bg-accent hover:shadow-sm sm:px-4"
           >
-            {viewMode === "map" ? <List className="h-3.5 w-3.5" /> : <MapIcon className="h-3.5 w-3.5" />}
-            {viewMode === "map" ? t("useList") : t("useMap")}
+            {viewMode === "split" ? (
+              <>
+                <List className="h-3.5 w-3.5" />
+                <span>{t("gridDirectory")}</span>
+              </>
+            ) : (
+              <>
+                <MapIcon className="h-3.5 w-3.5" />
+                <span>{t("splitDirectory")}</span>
+              </>
+            )}
           </button>
         )}
       </div>

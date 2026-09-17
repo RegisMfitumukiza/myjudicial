@@ -110,9 +110,9 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
           <Link
             href={`/lawyers/${lawyer.id}/book`}
             onClick={(e) => e.stopPropagation()}
-            className="shrink-0 rounded-lg bg-brand-dark px-3 py-1.5 text-[12px] font-semibold text-on-brand transition hover:opacity-90"
+            className="shrink-0 rounded-lg bg-brand-dark px-3.5 py-1.5 text-[12px] font-semibold text-on-brand transition hover:opacity-90 dark:bg-white dark:text-black dark:hover:opacity-90 shadow-xs"
           >
-            {t("book")}
+            {t("bookConsultationShort")}
           </Link>
         </div>
       </div>

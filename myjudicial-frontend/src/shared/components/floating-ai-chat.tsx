@@ -179,8 +179,16 @@ export function FloatingAiChat() {
     ? `/ai?q=${encodeURIComponent(lastUserQuery)}`
     : "/ai";
 
+  const isSearchPage = pathname === "/search" || pathname?.endsWith("/search");
+
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
+    <div
+      className={`fixed z-50 flex flex-col ${
+        isSearchPage
+          ? "bottom-4 left-4 sm:bottom-6 sm:left-6 items-start"
+          : "bottom-4 right-4 sm:bottom-6 sm:right-6 items-end"
+      }`}
+    >
       {/* ── Interactive Inline Chat Drawer ─────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (

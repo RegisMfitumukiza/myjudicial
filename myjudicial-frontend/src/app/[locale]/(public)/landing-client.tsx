@@ -766,13 +766,13 @@ export default function LandingPage() {
 
           {/* ② Recommended experts — Bayesian blend of rating + reviews + bookings */}
           {recLoading ? (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search" className="bg-muted/40">
+            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
               <ExpertHorizontalRow experts={[]} isLoading />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showRecommended}>
               <SectionRetryBoundary>
-                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search" className="bg-muted/40">
+                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
                   <ExpertHorizontalRow experts={recommended} isLoading={false} />
                 </SectionRow>
               </SectionRetryBoundary>

@@ -11,6 +11,7 @@ export const AvailabilityFilterEnum = z.enum([
 
 export const SortOptionEnum = z.enum([
   "NEAREST",
+  "RECOMMENDED",
   "HIGHEST_RATED",
   "MOST_EXPERIENCED",
   "MOST_REVIEWED",

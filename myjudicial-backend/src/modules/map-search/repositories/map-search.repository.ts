@@ -14,6 +14,8 @@ import { logger } from "../../../shared/utils/logger.js";
 
 function buildOrderClause(sort: string): Prisma.Sql {
   switch (sort) {
+    case "RECOMMENDED":
+      return Prisma.sql`ORDER BY (COALESCE(e."averageRating", 0) * 0.4 + LEAST(e."reviewCount", 50) * 0.1 + COALESCE(e."yearsExperience", 0) * 0.2) DESC, "distanceKm" ASC`;
     case "HIGHEST_RATED":
       return Prisma.sql`ORDER BY e."averageRating" DESC NULLS LAST, "distanceKm" ASC`;
     case "MOST_EXPERIENCED":

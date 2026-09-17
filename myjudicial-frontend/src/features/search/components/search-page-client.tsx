@@ -12,6 +12,7 @@ import { SearchTopBar } from "./search-top-bar";
 import { useExpertSearch } from "../hooks/useExpertSearch";
 import { useSearchState } from "../hooks/use-search-state";
 import { usePracticeAreas } from "@/lib/api/landing";
+import LandingFooter from "@/shared/components/landing/landing-footer";
 import { PROXIMITY_OPTIONS } from "../types";
 import type { ProximityFilter } from "../types";
 
@@ -25,8 +26,34 @@ export function SearchPageClient() {
     viewMode,
     mapExpanded,
     setMapExpanded,
+    toggleViewMode,
     isMobile,
   } = useSearchState();
+
+  const activeContext = useMemo(() => {
+    if (filters.sort === "RECOMMENDED") {
+      return {
+        title: t("contextBannerRecommendedTitle"),
+        desc: t("contextBannerRecommendedDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
+      };
+    }
+    if (filters.availableToday) {
+      return {
+        title: t("contextBannerAvailableTodayTitle"),
+        desc: t("contextBannerAvailableTodayDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, availableToday: false })),
+      };
+    }
+    if (filters.sort === "HIGHEST_RATED") {
+      return {
+        title: t("contextBannerHighestRatedTitle"),
+        desc: t("contextBannerHighestRatedDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
+      };
+    }
+    return null;
+  }, [filters.sort, filters.availableToday, setFilters, t]);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -129,9 +156,6 @@ export function SearchPageClient() {
     []
   );
 
-  const handleToggleMap = useCallback(() => {
-    setMapExpanded((prev) => !prev);
-  }, [setMapExpanded]);
 
   const handleExpandSearch = useCallback(() => {
     setFilters((prev) => ({ ...prev, proximity: "anywhere" }));
@@ -196,7 +220,7 @@ export function SearchPageClient() {
   return (
     <div
       className={`flex w-full flex-col ${
-        showMap ? "h-screen overflow-hidden" : "min-h-screen bg-background"
+        showMap ? "h-[calc(100vh-4rem)] overflow-hidden" : "min-h-[calc(100vh-4rem)] bg-background justify-between"
       }`}
     >
       <SearchTopBar
@@ -208,7 +232,7 @@ export function SearchPageClient() {
         onOpenFilters={() => setFiltersOpen(true)}
         activeFilterCount={activeFilterCount}
         viewMode={viewMode}
-        onToggleMap={handleToggleMap}
+        onToggleMap={toggleViewMode}
         isMobile={isMobile}
       />
 
@@ -284,6 +308,8 @@ export function SearchPageClient() {
                 selectedId={selectedId}
                 onSelect={handleSelect}
                 isLoading={true}
+                viewMode={viewMode}
+                activeContext={activeContext}
               />
             ) : hasResults ? (
               <ResultsList
@@ -291,6 +317,8 @@ export function SearchPageClient() {
                 selectedId={selectedId}
                 onSelect={handleSelect}
                 isLoading={false}
+                viewMode={viewMode}
+                activeContext={activeContext}
               />
             ) : (
               <NoResultsPanel
@@ -312,8 +340,8 @@ export function SearchPageClient() {
       {isMobile && !mapExpanded && (
         <button
           type="button"
-          onClick={handleToggleMap}
-          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition hover:opacity-90"
+          onClick={toggleViewMode}
+          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition hover:opacity-90 dark:bg-white dark:text-black"
         >
           {t("showMap")}
         </button>
@@ -322,8 +350,8 @@ export function SearchPageClient() {
       {isMobile && mapExpanded && (
         <button
           type="button"
-          onClick={handleToggleMap}
-          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition hover:opacity-90"
+          onClick={toggleViewMode}
+          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition hover:opacity-90 dark:bg-white dark:text-black"
         >
           {t("showList")}
         </button>
@@ -337,6 +365,7 @@ export function SearchPageClient() {
         specialties={specialtyOptions}
       />
 
+      {!showMap && <LandingFooter />}
     </div>
   );
 }

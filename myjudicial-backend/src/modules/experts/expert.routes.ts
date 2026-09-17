@@ -93,7 +93,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
       radiusKm: radius ? parseFloat(radius as string) : 50,
       page: parseInt(page as string, 10),
       limit: parseInt(limit as string, 10),
-      sort: (sort as string || "NEAREST") as "NEAREST" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED" | "AVAILABLE_NOW",
+      sort: (sort as string || "NEAREST") as "NEAREST" | "RECOMMENDED" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED" | "AVAILABLE_NOW",
       filters: {
         specialties: specialty ? [specialty as LegalSpecialty] : undefined,
         includeOnLeave: false,

@@ -43,9 +43,27 @@ export function useSearchState() {
   );
 
   const viewParam = searchParams.get("view");
-  const viewMode = viewParam === "list" ? "list" : isMobile ? "list" : "split";
   const [mapExpanded, setMapExpanded] = useState(false);
-  const effectiveView = viewParam === "list" ? "list" : mapExpanded ? "map" : viewMode;
+
+  // Desktop: default split, toggled to list via ?view=list
+  // Mobile: default list, toggled to map via mapExpanded
+  const effectiveView: "split" | "list" | "map" = isMobile
+    ? (mapExpanded ? "map" : "list")
+    : (viewParam === "list" ? "list" : "split");
+
+  const toggleViewMode = useCallback(() => {
+    if (isMobile) {
+      setMapExpanded((prev) => !prev);
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      if (viewParam === "list") {
+        params.delete("view");
+      } else {
+        params.set("view", "list");
+      }
+      router.replace(`/search?${params.toString()}`, { scroll: false });
+    }
+  }, [isMobile, viewParam, router]);
 
   return {
     filters,
@@ -55,6 +73,7 @@ export function useSearchState() {
     viewMode: effectiveView,
     mapExpanded,
     setMapExpanded,
+    toggleViewMode,
     isMobile,
   };
 }
@@ -108,6 +127,7 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
   const existing = new URLSearchParams(window.location.search);
   if (existing.has("lat")) params.set("lat", existing.get("lat")!);
   if (existing.has("lng")) params.set("lng", existing.get("lng")!);
+  if (existing.has("view")) params.set("view", existing.get("view")!);
 
   router.replace(`/search?${params.toString()}`, { scroll: false });
 }

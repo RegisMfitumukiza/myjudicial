@@ -3676,19 +3676,43 @@
       "description": "Browse our comprehensive list of legal practice areas and find the right expert for your specific needs."
     },
     "hero": {
-      "badge": "Practice Areas",
+      "badge": "Practice Areas Directory",
       "title": "Browse by Practice Area",
-      "subtitle": "Find a specialist for your exact legal need. Our verified experts cover all major areas of Rwandan law."
+      "subtitle": "Find a specialist for your exact legal need. Our verified Rwandan advocates cover all major areas of law."
+    },
+    "search": {
+      "placeholder": "Search legal topics (e.g. land title, divorce, RDB registration, contract, tax)...",
+      "resultsCount": "Showing {count} of {total} practice areas",
+      "clear": "Clear search",
+      "noResults": "No practice areas match your search",
+      "noResultsSub": "Try a different search term or use our AI assistant to match your exact legal issue."
     },
     "grid": {
-      "expertsCount": "{count} expert",
-      "expertsCountPlural": "{count} experts"
+      "expertsCount": "{count} verified expert",
+      "expertsCountPlural": "{count} verified experts",
+      "findLawyers": "Find advocates"
+    },
+    "aiCard": {
+      "badge": "AI Legal Triage",
+      "title": "Not sure which area you need?",
+      "desc": "Describe what happened in plain words. Our AI analyzes your case against Rwandan law and connects you with the right advocate.",
+      "cta": "Start AI Triage"
+    },
+    "expertCard": {
+      "badge": "For Advocates",
+      "title": "Are you a Bar-Certified Lawyer?",
+      "desc": "Join Rwanda's trusted digital legal network. Receive verified consultation bookings and manage your legal clients securely.",
+      "cta": "List Your Practice"
     },
     "cta": {
-      "title": "Not sure which area you need?",
-      "subtitle": "Describe your issue to our AI Assistant and get matched instantly.",
-      "useAi": "Use AI Assistant",
-      "browseAll": "Browse All Experts"
+      "badge": "Smart Case Triage",
+      "title": "Need Help Deciding?",
+      "subtitle": "Answer 3 quick questions in your own words. Our AI assistant analyzes your case against Rwandan law and pairs you with the right specialist in seconds.",
+      "useAi": "Start AI Legal Triage",
+      "browseAll": "Browse All Verified Advocates",
+      "trust1": "Rwanda Bar Association Certified",
+      "trust2": "Escrow Protected Payments",
+      "trust3": "Same-Day Consultations"
     }
   },
   "pricingPage": {

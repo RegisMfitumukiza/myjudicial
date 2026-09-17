@@ -4356,23 +4356,47 @@
   },
   "practiceAreasPage": {
     "meta": {
-      "title": "Legal Practice Areas | MyJudicial",
-      "description": "Browse our comprehensive list of legal practice areas and find the right expert for your specific needs."
+      "title": "Domaines de droit | MyJudicial",
+      "description": "Parcourez notre répertoire des domaines du droit et trouvez l'avocat adapté à vos besoins."
     },
     "hero": {
-      "badge": "Practice Areas",
-      "title": "Browse by Practice Area",
-      "subtitle": "Find a specialist for your exact legal need. Our verified experts cover all major areas of Rwandan law."
+      "badge": "Répertoire des domaines de droit",
+      "title": "Parcourir par domaine de droit",
+      "subtitle": "Trouvez un spécialiste pour votre besoin juridique précis. Nos avocats rwandais vérifiés couvrent tous les domaines du droit."
+    },
+    "search": {
+      "placeholder": "Rechercher un sujet juridique (titre foncier, divorce, enregistrement RDB, contrat, fiscalité)...",
+      "resultsCount": "{count} sur {total} domaines affichés",
+      "clear": "Effacer la recherche",
+      "noResults": "Aucun domaine ne correspond à votre recherche",
+      "noResultsSub": "Essayez un autre mot-clé ou utilisez notre assistant IA pour orienter votre dossier."
     },
     "grid": {
-      "expertsCount": "{count} expert",
-      "expertsCountPlural": "{count} experts"
+      "expertsCount": "{count} avocat vérifié",
+      "expertsCountPlural": "{count} avocats vérifiés",
+      "findLawyers": "Trouver des avocats"
+    },
+    "aiCard": {
+      "badge": "Orientation IA",
+      "title": "Vous ne savez pas quel domaine choisir ?",
+      "desc": "Décrivez ce qui s'est passé avec vos propres mots. Notre IA analyse votre cas selon le droit rwandais et vous met en relation avec le bon avocat.",
+      "cta": "Démarrer l'orientation IA"
+    },
+    "expertCard": {
+      "badge": "Pour les avocats",
+      "title": "Êtes-vous avocat au Barreau du Rwanda ?",
+      "desc": "Rejoignez le premier réseau juridique numérique au Rwanda. Recevez des réservations vérifiées et gérez vos dossiers en toute sécurité.",
+      "cta": "Inscrire votre cabinet"
     },
     "cta": {
-      "title": "Not sure which area you need?",
-      "subtitle": "Describe your issue to our AI Assistant and get matched instantly.",
-      "useAi": "Use AI Assistant",
-      "browseAll": "Browse All Experts"
+      "badge": "Orientation intelligente",
+      "title": "Besoin d'aide pour choisir ?",
+      "subtitle": "Répondez à 3 questions simples avec vos propres mots. Notre assistant IA analyse votre dossier et vous met en relation avec le bon spécialiste en quelques secondes.",
+      "useAi": "Démarrer l'orientation IA",
+      "browseAll": "Parcourir tous les avocats",
+      "trust1": "Avocats certifiés au Barreau du Rwanda",
+      "trust2": "Paiements sécurisés sous séquestre",
+      "trust3": "Consultations le jour même"
     }
   },
   "pricingPage": {

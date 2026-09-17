@@ -1,7 +1,12 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Link } from "@/i18n/routing";
-import { ArrowRight, Bot, Scale, Heart, Briefcase, Users, Building2, Shield, Landmark, Globe, Gavel, Lightbulb } from "lucide-react";
+import {
+  ArrowRight, Bot, Scale, Heart, Briefcase, Users, Building2,
+  Shield, Landmark, Globe, Gavel, Lightbulb, Search, X,
+  BadgeCheck, UserCheck, Sparkles, CheckCircle2
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePracticeAreas } from "@/lib/api/landing";
 
@@ -18,91 +23,352 @@ const ICON_MAP: Record<string, React.ElementType> = {
   INTELLECTUAL_PROPERTY: Lightbulb,
 };
 
+interface SpecialtyDetail {
+  description: string;
+  topics: string[];
+}
+
+const SPECIALTY_DETAILS: Record<string, SpecialtyDetail> = {
+  COMMERCIAL_LAW: {
+    description: "Commercial disputes, trade contracts, business debt recovery, and cross-border transactions under Rwandan commercial law.",
+    topics: ["Trade Agreements", "Commercial Litigation", "Debt Recovery", "Distribution Contracts"],
+  },
+  CONTRACT_LAW: {
+    description: "Drafting, reviewing, and enforcing binding agreements, non-disclosure pacts, and resolving breach of contract disputes.",
+    topics: ["Contract Drafting & Review", "Breach of Contract", "NDAs & Service Agreements", "Commercial Mediation"],
+  },
+  CORPORATE_LAW: {
+    description: "RDB business formation, shareholder structures, corporate governance, mergers, and legal compliance for companies in Rwanda.",
+    topics: ["RDB Company Registration", "Shareholder Agreements", "M&A & Restructuring", "Corporate Compliance"],
+  },
+  CRIMINAL_LAW: {
+    description: "Defense representation and legal counsel for RIB investigations, prosecution bail hearings, and court trial defense.",
+    topics: ["RIB Investigations", "Bail Hearings", "Financial & Economic Crimes", "Court Trial Defense"],
+  },
+  TAX_LAW: {
+    description: "Rwanda Revenue Authority (RRA) compliance, tax dispute litigation, customs appeals, and corporate tax structuring.",
+    topics: ["RRA Tax Audits", "Tax Dispute Appeals", "VAT & Customs Compliance", "Corporate Tax Planning"],
+  },
+  IMMIGRATION_LAW: {
+    description: "Work permits (Classes A through G), investor and business visas, permanent residency, and Rwandan dual citizenship.",
+    topics: ["Work Permits (Class A–G)", "Investor & Business Visas", "Residency Permits", "Dual Citizenship"],
+  },
+  FAMILY_LAW: {
+    description: "Compassionate legal counsel for divorce proceedings, child custody, matrimonial property regimes, and inheritance succession.",
+    topics: ["Divorce & Separation", "Child Custody & Support", "Inheritance & Succession", "Matrimonial Regimes"],
+  },
+  INTELLECTUAL_PROPERTY: {
+    description: "Protecting trademarks, patents, industrial designs, copyrights, and brand enforcement registered with RDB.",
+    topics: ["RDB Trademark Registration", "Brand Infringement", "Copyright Protection", "Patent Filing"],
+  },
+  EMPLOYMENT_LAW: {
+    description: "Resolving workplace disputes, wrongful termination claims, employment contract negotiations, and labor inspectorate mediation.",
+    topics: ["Unfair Dismissal Claims", "Employment Contracts", "Severance Calculations", "Workplace Mediation"],
+  },
+  LAND_LAW: {
+    description: "Comprehensive legal assistance for land title transfers, RLMUA registration, boundary conflicts, and commercial leases.",
+    topics: ["Land Title Transfers", "RLMUA Registration", "Boundary Disputes", "Commercial Leases"],
+  },
+};
+
 export default function PracticeAreasPage() {
   const t = useTranslations("practiceAreasPage");
   const { data: practiceAreas, isLoading } = usePracticeAreas();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredAreas = useMemo(() => {
+    if (!practiceAreas) return [];
+    if (!searchQuery.trim()) return practiceAreas;
+    const q = searchQuery.toLowerCase().trim();
+    return practiceAreas.filter((area) => {
+      const details = SPECIALTY_DETAILS[area.specialty];
+      const matchesLabel = area.label.toLowerCase().includes(q);
+      const matchesDesc = details?.description.toLowerCase().includes(q);
+      const matchesTopics = details?.topics.some((topic) => topic.toLowerCase().includes(q));
+      return matchesLabel || matchesDesc || matchesTopics;
+    });
+  }, [practiceAreas, searchQuery]);
+
+  const hasSearch = searchQuery.trim().length > 0;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-brand-dark/[.06] to-background py-16 sm:py-24">
+      <section className="border-b border-border bg-gradient-to-b from-muted/30 via-background to-background pt-12 pb-10 sm:pt-16 sm:pb-14">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-brand-dark/5 px-3 py-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/70">
-              {t("hero.badge")}
-            </span>
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
+            <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
+            <span>{t("hero.badge")}</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             {t("hero.title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-3.5 max-w-2xl text-base sm:text-lg text-muted-foreground">
             {t("hero.subtitle")}
           </p>
+
+          {/* Interactive Search Input */}
+          <div className="mx-auto mt-8 max-w-xl">
+            <div className="relative flex items-center rounded-2xl border border-border bg-card shadow-sm transition-all focus-within:border-brand-dark focus-within:ring-2 focus-within:ring-brand-dark/10 dark:focus-within:border-white/40">
+              <div className="pl-4 text-muted-foreground">
+                <Search size={18} />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("search.placeholder")}
+                className="w-full bg-transparent px-3.5 py-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="mr-3 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition"
+                  aria-label="Clear search"
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </div>
+
+            {hasSearch && (
+              <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground px-2">
+                <span>
+                  {t("search.resultsCount", { count: filteredAreas.length, total: practiceAreas?.length ?? 10 })}
+                </span>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="font-medium text-brand-dark dark:text-white hover:underline"
+                >
+                  {t("search.clear")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Grid Section */}
-      <section className="bg-background py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="h-32 animate-pulse rounded-2xl border border-border bg-card" />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-64 animate-pulse rounded-2xl border border-border bg-card p-6" />
               ))}
             </div>
+          ) : filteredAreas.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                <Search size={26} />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">{t("search.noResults")}</h3>
+              <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{t("search.noResultsSub")}</p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground shadow-xs hover:bg-accent transition"
+                >
+                  {t("search.clear")}
+                </button>
+                <Link
+                  href="/ai"
+                  className="rounded-xl bg-brand-dark px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-90 transition dark:bg-white dark:text-black"
+                >
+                  {t("cta.useAi")}
+                </Link>
+              </div>
+            </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {practiceAreas?.map((area) => {
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Practice Area Cards */}
+              {filteredAreas.map((area) => {
                 const Icon = ICON_MAP[area.specialty] ?? Scale;
+                const details = SPECIALTY_DETAILS[area.specialty];
+
                 return (
                   <Link
                     key={area.specialty}
                     href={`/search?specialty=${area.specialty}`}
-                    className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-dark/30 hover:shadow-lg"
+                    className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30"
                   >
                     <div>
-                      <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-dark/10 transition-colors group-hover:bg-brand-dark group-hover:text-on-brand">
-                        <Icon size={24} className="text-brand-dark transition-colors group-hover:text-on-brand" />
+                      {/* Icon & Count Header */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark transition-all duration-200 group-hover:bg-brand-dark group-hover:text-white group-hover:scale-105 dark:bg-white/10 dark:text-white dark:group-hover:bg-white dark:group-hover:text-black shadow-xs">
+                          <Icon size={24} className="transition-colors" />
+                        </div>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-semibold text-foreground">
+                          {area.expertCount === 1
+                            ? t("grid.expertsCount", { count: area.expertCount })
+                            : t("grid.expertsCountPlural", { count: area.expertCount })}
+                        </span>
                       </div>
-                      <h3 className="text-lg font-bold text-foreground">{area.label}</h3>
+
+                      {/* Title */}
+                      <h3 className="mt-4 text-lg font-bold text-foreground transition-colors group-hover:text-brand-dark dark:group-hover:text-white">
+                        {area.label}
+                      </h3>
+
+                      {/* Description */}
+                      {details?.description && (
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                          {details.description}
+                        </p>
+                      )}
+
+                      {/* Common Topics Tags */}
+                      {details?.topics && (
+                        <div className="mt-4 flex flex-wrap gap-1.5">
+                          {details.topics.map((topic) => (
+                            <span
+                              key={topic}
+                              className="inline-flex items-center rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors group-hover:bg-accent group-hover:text-foreground"
+                            >
+                              {topic}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        {area.expertCount === 1
-                          ? t("grid.expertsCount", { count: area.expertCount })
-                          : t("grid.expertsCountPlural", { count: area.expertCount })}
-                      </span>
-                      <ArrowRight size={16} className="text-brand-dark opacity-0 transition-opacity group-hover:opacity-100" />
+
+                    {/* Card Footer Link */}
+                    <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-semibold text-brand-dark dark:text-white">
+                      <span>{t("grid.findLawyers")}</span>
+                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                     </div>
                   </Link>
                 );
               })}
+
+              {/* Card 11: Interactive AI Case Triage (shown when not actively searching) */}
+              {!hasSearch && (
+                <Link
+                  href="/ai"
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-brand-dark/20 bg-gradient-to-br from-brand-dark/[0.04] via-card to-accent/30 p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/50 hover:shadow-md dark:border-white/20 dark:from-white/[0.03] dark:to-accent/10"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark text-white shadow-sm transition-transform group-hover:scale-105 dark:bg-white dark:text-black">
+                        <Bot size={24} />
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/10 px-2.5 py-1 text-xs font-semibold text-brand-dark dark:bg-white/10 dark:text-white">
+                        <Sparkles size={12} /> {t("aiCard.badge")}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 text-lg font-bold text-foreground">
+                      {t("aiCard.title")}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      {t("aiCard.desc")}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Instant analysis</span>
+                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Rwanda legal codes</span>
+                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Free triage</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-bold text-brand-dark dark:text-white">
+                    <span>{t("aiCard.cta")}</span>
+                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              )}
+
+              {/* Card 12: Lawyer Join Network (shown when not actively searching) */}
+              {!hasSearch && (
+                <Link
+                  href="/expert/onboarding"
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground transition-transform group-hover:scale-105">
+                        <Scale size={24} />
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                        <UserCheck size={12} /> {t("expertCard.badge")}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 text-lg font-bold text-foreground">
+                      {t("expertCard.title")}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      {t("expertCard.desc")}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Direct bookings</span>
+                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">RBA Advocates</span>
+                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Escrow payouts</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-bold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">
+                    <span>{t("expertCard.cta")}</span>
+                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              )}
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-brand-dark py-16 sm:py-24">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/10">
-            <Bot size={32} className="text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-on-brand sm:text-4xl">{t("cta.title")}</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-on-brand/70">{t("cta.subtitle")}</p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/ai"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-dark shadow-lg transition hover:bg-white/90"
-            >
-              {t("cta.useAi")} <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/search"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-8 py-3.5 text-sm font-bold text-on-brand transition hover:bg-white/10"
-            >
-              {t("cta.browseAll")}
-            </Link>
+      {/* Refined Bottom CTA */}
+      <section className="border-t border-border bg-muted/20 py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-card via-card to-muted/40 p-8 sm:p-12 text-center shadow-md">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+              <Bot size={28} />
+            </div>
+
+            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+              {t("cta.title")}
+            </h2>
+
+            <p className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {t("cta.subtitle")}
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+              <Link
+                href="/ai"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-7 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 dark:bg-white dark:text-black"
+              >
+                <Sparkles size={15} />
+                <span>{t("cta.useAi")}</span>
+                <ArrowRight size={15} />
+              </Link>
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground shadow-xs transition hover:bg-accent"
+              >
+                <span>{t("cta.browseAll")}</span>
+              </Link>
+            </div>
+
+            {/* Reassuring trust strip */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 border-t border-border/60 pt-6 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
+                <span>{t("cta.trust1")}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
+                <span>{t("cta.trust2")}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
+                <span>{t("cta.trust3")}</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

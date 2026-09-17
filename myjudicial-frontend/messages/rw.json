@@ -4356,23 +4356,47 @@
   },
   "practiceAreasPage": {
     "meta": {
-      "title": "Legal Practice Areas | MyJudicial",
-      "description": "Browse our comprehensive list of legal practice areas and find the right expert for your specific needs."
+      "title": "Amashami y'amategeko | MyJudicial",
+      "description": "Reba amashami y'amategeko yose ushake impuguke mu by'amategeko ihuye n'ikibazo cyawe."
     },
     "hero": {
-      "badge": "Practice Areas",
-      "title": "Browse by Practice Area",
-      "subtitle": "Find a specialist for your exact legal need. Our verified experts cover all major areas of Rwandan law."
+      "badge": "Urutonde rw'amashami y'amategeko",
+      "title": "Shakira ku mashami y'amategeko",
+      "subtitle": "Shaka impuguke ku kibazo cyawe cyihariye. Abanyamategeko bacu bemejwe mu Rwanda bakora mu mashami yose y'amategeko."
+    },
+    "search": {
+      "placeholder": "Shakisha ingingo y'amategeko (ibibazo by'ubutaka, gatanya, kwandikisha muri RDB, amasezerano, imisoro)...",
+      "resultsCount": "Hagaragajwe amashami {count} kuri {total}",
+      "clear": "Siba ibyashakishijwe",
+      "noResults": "Nta shami ry'amategeko rihwanye n'ibyo ushatse",
+      "noResultsSub": "Gerageza irindi jambo cyangwa ukoreshe umufasha wacu wa AI akugire inama ku kibazo cyawe."
     },
     "grid": {
-      "expertsCount": "{count} expert",
-      "expertsCountPlural": "{count} experts"
+      "expertsCount": "Impuguke {count} yemejwe",
+      "expertsCountPlural": "Impuguke {count} zemejwe",
+      "findLawyers": "Shaka abanyamategeko"
+    },
+    "aiCard": {
+      "badge": "Ubufasha bwa AI",
+      "title": "Ntabwo uzi ishami rihuye n'ikibazo cyawe?",
+      "desc": "Sobanura ibyakubayeho mu magambo yawe asanzwe. AI yacu irasuzuma ikibazo cyawe ikugurishe n'umunyamategeko ubikwiriye.",
+      "cta": "Tangira ubufasha bwa AI"
+    },
+    "expertCard": {
+      "badge": "Ku banyamategeko",
+      "title": "Uri umunyamategeko wemewe mu rugaga?",
+      "desc": "Injira mu rubuga rwa mbere rw'amategeko mu Rwanda. Yakira abakiriya banyuze mu nzira yemewe kandi ucunge amadosiye yawe mu mutekano.",
+      "cta": "Iyandikishe nk'umunyamategeko"
     },
     "cta": {
-      "title": "Not sure which area you need?",
-      "subtitle": "Describe your issue to our AI Assistant and get matched instantly.",
-      "useAi": "Use AI Assistant",
-      "browseAll": "Browse All Experts"
+      "badge": "Guhitamo neza",
+      "title": "Ukeneye ubufasha bwo guhitamo?",
+      "subtitle": "Subiza ibibazo 3 byoroshye mu magambo yawe. Umufasha wacu wa AI arasuzuma ikibazo cyawe aguhuza n'impuguke ikwiriye mu masegonda make.",
+      "useAi": "Tangira ubufasha bwa AI",
+      "browseAll": "Reba abanyamategeko bose",
+      "trust1": "Abanyamategeko bemejwe n'Urugaga",
+      "trust2": "Umutekano wo kwishyura kuri Escrow",
+      "trust3": "Gufata gahunda ku munsi umwe"
     }
   },
   "pricingPage": {

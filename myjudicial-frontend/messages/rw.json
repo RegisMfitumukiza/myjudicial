@@ -581,8 +581,8 @@
     }
   },
   "ai": {
-    "title": "Umufasha wa AI",
-    "subtitle": "Sobanura icyago cyawe c'amategeko kandi tuzabasha guhuza n'umuntu ukwiye.",
+    "title": "Ubuyobozi bw'Amategeko n'Ikoranabuhanga rya AI",
+    "subtitle": "Sobanura ikibazo cyawe mu magambo asanzwe—sisitemu yacu izisesengura ikibazo cyawe maze iguze n'umwavoka ubikwiye kurusha abandi.",
     "steps": {
       "describe": "Sobanura",
       "refine": "Hindura",
@@ -1957,9 +1957,9 @@
       "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
     },
     "hero": {
-      "badge": "Urubuga rw'abanyamategeko bemewe mu Rwanda",
-      "title": "Shaka avoka bemejwe mu Rwanda.",
-      "subtitle": "Geranya amafaranga, soma ibitekerezo by'ukuri kandi usubike inama y'amategeko mu minota mike."
+      "badge": "Urubuga rw'Abavoka Biyandikishije mu Rwanda",
+      "title": "Shaka kandi Uhitemo Abavoka Bemewe mu Rwanda.",
+      "subtitle": "Geranya ibiciro bisobanutse, soma ibitekerezo by'ukuri by'abakiriya, kandi wungurane ibitekerezo kuri interineti cyangwa ku biro by'umwavoka."
     },
     "practiceAreas": {
       "title": "Browse by Practice Area",
@@ -2554,13 +2554,13 @@
       "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
     },
     "hero": {
-      "badge": "About MyJudicial",
-      "title": "Rwanda's Trusted Legal Marketplace",
-      "subtitle": "We are on a mission to make legal services accessible, transparent, and secure for everyone in Rwanda.",
+      "badge": "Intego n'Icyerekezo Cyacu",
+      "title": "Kugeza Ubutabera n'Ubufasha bw'Amategeko ku Banyarwanda Bose",
+      "subtitle": "Tuhuza abaturage, amasosiyete n'abavoka bemewe mu rugaga—twimakaza ibiciro bisobanutse, ubunyamwuga, n'ikoranabuhanga rigezweho.",
       "stats": {
-        "verifiedExperts": "Verified Experts",
-        "completedConsultations": "Completed Consultations",
-        "totalClients": "Happy Clients"
+        "verifiedExperts": "Abavoka Bemewe",
+        "completedConsultations": "Inama Zasoje Neza",
+        "totalClients": "Abakiriya Banyuzwe"
       }
     },
     "mission": {
@@ -4203,9 +4203,9 @@
       "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     },
     "hero": {
-      "badge": "How It Works",
-      "title": "Legal help, simplified.",
-      "subtitle": "From finding the right specialist to securely paying for services, we've streamlined the entire legal process."
+      "badge": "Byoroshye · Bisobanutse · Birinzwe",
+      "title": "Uko Uva ku Kibazo Ukagera ku Mwavoka Wizewe",
+      "subtitle": "Menya uko tugenzura ko umwavoka yanditse mu rugaga, kurinda amafaranga yawe kugeza inama irangiye, no guhabwa serivisi mu ntambwe 3 gusa."
     },
     "steps": {
       "title": "Four steps to resolve your legal issue",
@@ -4376,9 +4376,9 @@
       "description": "Reba amashami y'amategeko yose ushake impuguke mu by'amategeko ihuye n'ikibazo cyawe."
     },
     "hero": {
-      "badge": "Urutonde rw'amashami y'amategeko",
-      "title": "Shakira ku mashami y'amategeko",
-      "subtitle": "Shaka impuguke ku kibazo cyawe cyihariye. Abanyamategeko bacu bemejwe mu Rwanda bakora mu mashami yose y'amategeko."
+      "badge": "Urutonde rw'Amashami y'Amategeko",
+      "title": "Ubufasha bw'Abahanga muri Buri Kibazo cy'Amategeko",
+      "subtitle": "Uhereye ku bibazo by'ubucuruzi no kwiyandikisha muri RDB, kugeza ku bibazo by'ubutaka n'umuryango—vugana n'abavoka b'inzobere mu rwego rwanyu."
     },
     "search": {
       "placeholder": "Shakisha ingingo y'amategeko (ibibazo by'ubutaka, gatanya, kwandikisha muri RDB, amasezerano, imisoro)...",
@@ -4421,9 +4421,9 @@
       "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
     },
     "hero": {
-      "badge": "Pricing",
-      "title": "Transparent Pricing, No Surprises",
-      "subtitle": "Clear upfront fees for legal services. You only pay what you agree to before the consultation begins."
+      "badge": "Nta Mandamuko Yihishe · Amafaranga Yawe Arinzwe",
+      "title": "Ibiciro Bisobanutse. Umutuzo ku Mutima.",
+      "subtitle": "Ibiciro by'inama byumvikanyweho mbere yo gutangira. Amafaranga yawe arindirwa muri sisitemu yizewe kandi azishyurwa umwavoka ari uko inama irangiye."
     },
     "howItWorks": {
       "title": "How Pricing Works",

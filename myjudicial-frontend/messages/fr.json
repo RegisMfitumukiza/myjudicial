@@ -581,8 +581,8 @@
     }
   },
   "ai": {
-    "title": "Assistant IA",
-    "subtitle": "Decrivez votre probleme juridique et nous vous trouverons le bon expert.",
+    "title": "Orientation Juridique & Correspondance IA",
+    "subtitle": "Expliquez votre problème avec vos propres mots : notre système intelligent analyse votre besoin juridique et vous met en relation avec les avocats les plus qualifiés.",
     "steps": {
       "describe": "Decrire",
       "refine": "Affiner",
@@ -1957,9 +1957,9 @@
       "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
     },
     "hero": {
-      "badge": "Réseau juridique vérifié du Rwanda",
-      "title": "Trouvez des avocats vérifiés au Rwanda.",
-      "subtitle": "Comparez les honoraires, lisez de vrais avis et réservez une consultation juridique en quelques minutes."
+      "badge": "Réseau Juridique Certifié du Rwanda",
+      "title": "Trouvez & Réservez des Avocats Certifiés au Rwanda.",
+      "subtitle": "Comparez les honoraires transparents, lisez des avis clients authentiques et consultez en toute sécurité en ligne ou au cabinet."
     },
     "practiceAreas": {
       "title": "Browse by Practice Area",
@@ -2554,13 +2554,13 @@
       "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
     },
     "hero": {
-      "badge": "About MyJudicial",
-      "title": "Rwanda's Trusted Legal Marketplace",
-      "subtitle": "We are on a mission to make legal services accessible, transparent, and secure for everyone in Rwanda.",
+      "badge": "Notre Mission & Vision",
+      "title": "Démocratiser l'Accès à la Justice Partout au Rwanda",
+      "subtitle": "Nous relions citoyens et entreprises aux avocats certifiés du Barreau, alliant transparence tarifaire, rigueur déontologique et technologie moderne.",
       "stats": {
-        "verifiedExperts": "Verified Experts",
-        "completedConsultations": "Completed Consultations",
-        "totalClients": "Happy Clients"
+        "verifiedExperts": "Avocats Certifiés",
+        "completedConsultations": "Consultations Menées",
+        "totalClients": "Clients Satisfaits"
       }
     },
     "mission": {
@@ -4203,9 +4203,9 @@
       "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     },
     "hero": {
-      "badge": "How It Works",
-      "title": "Legal help, simplified.",
-      "subtitle": "From finding the right specialist to securely paying for services, we've streamlined the entire legal process."
+      "badge": "Simple · Transparent · Sécurisé",
+      "title": "De Votre Question Juridique à un Conseil Averti",
+      "subtitle": "Découvrez comment nous vérifions les références au Barreau, sécurisons vos paiements sous séquestre et organisons vos consultations en trois étapes simples."
     },
     "steps": {
       "title": "Four steps to resolve your legal issue",
@@ -4376,9 +4376,9 @@
       "description": "Parcourez notre répertoire des domaines du droit et trouvez l'avocat adapté à vos besoins."
     },
     "hero": {
-      "badge": "Répertoire des domaines de droit",
-      "title": "Parcourir par domaine de droit",
-      "subtitle": "Trouvez un spécialiste pour votre besoin juridique précis. Nos avocats rwandais vérifiés couvrent tous les domaines du droit."
+      "badge": "Répertoire des Spécialités Juridiques",
+      "title": "Une Expertise Juridique Dédiée à Chaque Situation",
+      "subtitle": "Du contentieux commercial et conformité RDB aux titres fonciers et droit de la famille—consultez un avocat chevronné dans votre domaine."
     },
     "search": {
       "placeholder": "Rechercher un sujet juridique (titre foncier, divorce, enregistrement RDB, contrat, fiscalité)...",
@@ -4421,9 +4421,9 @@
       "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
     },
     "hero": {
-      "badge": "Pricing",
-      "title": "Transparent Pricing, No Surprises",
-      "subtitle": "Clear upfront fees for legal services. You only pay what you agree to before the consultation begins."
+      "badge": "Zéro Frais Cachés · Protégé par Séquestre",
+      "title": "Honoraires Transparents. Tranquillité d'Esprit Totale.",
+      "subtitle": "Tarifs de consultation fixes convenus dès le départ. Vos fonds sont sécurisés sous séquestre et ne sont débloqués qu'une fois la séance terminée."
     },
     "howItWorks": {
       "title": "How Pricing Works",

@@ -5,13 +5,13 @@
       "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
     },
     "hero": {
-      "badge": "About MyJudicial",
-      "title": "Rwanda's Trusted Legal Marketplace",
-      "subtitle": "We are on a mission to make legal services accessible, transparent, and secure for everyone in Rwanda.",
+      "badge": "Our Mission & Vision",
+      "title": "Democratizing Access to Justice Across Rwanda",
+      "subtitle": "We bridge the gap between citizens, businesses, and certified legal advocates—combining Bar accreditation, upfront pricing, and modern technology.",
       "stats": {
-        "verifiedExperts": "Verified Experts",
+        "verifiedExperts": "Verified Advocates",
         "completedConsultations": "Completed Consultations",
-        "totalClients": "Happy Clients"
+        "totalClients": "Satisfied Clients"
       }
     },
     "mission": {
@@ -628,8 +628,8 @@
     }
   },
   "ai": {
-    "title": "AI Assistant",
-    "subtitle": "Describe your legal issue and we will match you with the right expert.",
+    "title": "AI Legal Triage & Matchmaker",
+    "subtitle": "Describe your situation in everyday language—our intelligent system analyzes your legal need and pairs you with the most qualified advocates.",
     "steps": {
       "describe": "Describe",
       "refine": "Refine",
@@ -3041,9 +3041,9 @@
       "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     },
     "hero": {
-      "badge": "How It Works",
-      "title": "Legal help, simplified.",
-      "subtitle": "From finding the right specialist to securely paying for services, we've streamlined the entire legal process."
+      "badge": "Simple · Transparent · Protected",
+      "title": "Your Path from Legal Question to Trusted Counsel",
+      "subtitle": "Discover how we verify Bar credentials, protect your payments in escrow, and deliver seamless consultations in three simple steps."
     },
     "steps": {
       "title": "Four steps to resolve your legal issue",
@@ -3301,9 +3301,9 @@
       "copyright": "MyJudicial, Inc. All rights reserved."
     },
     "hero": {
-      "badge": "Rwanda's Verified Legal Network",
-      "title": "Find verified lawyers in Rwanda.",
-      "subtitle": "Compare fees, read real reviews, and book a legal consultation in minutes."
+      "badge": "Rwanda's Certified Legal Network",
+      "title": "Find & Book Verified Legal Advocates in Rwanda.",
+      "subtitle": "Compare transparent fees, read authentic client reviews, and consult securely online or in-office."
     },
     "stats": {
       "lawyers": "Verified lawyers",
@@ -3676,9 +3676,9 @@
       "description": "Browse our comprehensive list of legal practice areas and find the right expert for your specific needs."
     },
     "hero": {
-      "badge": "Practice Areas Directory",
-      "title": "Browse by Practice Area",
-      "subtitle": "Find a specialist for your exact legal need. Our verified Rwandan advocates cover all major areas of law."
+      "badge": "Legal Specialties Directory",
+      "title": "Specialized Legal Counsel for Every Matter",
+      "subtitle": "From commercial contracts and RDB compliance to land titles and family law—connect with certified advocates experienced in your field."
     },
     "search": {
       "placeholder": "Search legal topics (e.g. land title, divorce, RDB registration, contract, tax)...",
@@ -3721,9 +3721,9 @@
       "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
     },
     "hero": {
-      "badge": "Pricing",
-      "title": "Transparent Pricing, No Surprises",
-      "subtitle": "Clear upfront fees for legal services. You only pay what you agree to before the consultation begins."
+      "badge": "Zero Hidden Fees · Escrow Protected",
+      "title": "Transparent Legal Fees. Total Peace of Mind.",
+      "subtitle": "Fixed consultation rates agreed upfront with your advocate. Payments are held securely in escrow and only released once your session completes."
     },
     "howItWorks": {
       "title": "How Pricing Works",

@@ -3713,6 +3713,16 @@
       "trust1": "Rwanda Bar Association Certified",
       "trust2": "Escrow Protected Payments",
       "trust3": "Same-Day Consultations"
+    },
+    "tabs": {
+      "all": "All Specialties",
+      "business": "Business & Corporate",
+      "civil": "Civil & Family"
+    },
+    "sort": {
+      "label": "Sort by",
+      "mostExperts": "Most Advocates",
+      "alphabetical": "Alphabetical (A–Z)"
     }
   },
   "pricingPage": {

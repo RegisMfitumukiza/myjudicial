@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useRouter } from "@/i18n/routing";
-import { useSearchParams } from "next/navigation";
 import {
   MapPin, Star, Scale, Shield, LayoutGrid,
   ArrowRight, Search, ChevronDown, ChevronRight,
@@ -25,7 +24,6 @@ import {
   type PracticeArea,
   type FeaturedReview,
 } from "@/lib/api/landing";
-import { useExpertSearch } from "@/features/search/hooks/useExpertSearch";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 import { useRecentlyViewed, trackExpertView } from "@/features/search/hooks/use-recently-viewed";
 import { useSavedExperts } from "@/features/search/hooks/use-saved-experts";
@@ -233,27 +231,23 @@ function ExpertHorizontalRow({
 
 // ─── Practice Area Card ───────────────────────────────────────────────────────
 
-function PracticeAreaCard({ area, active, onClick }: { area: PracticeArea; active: boolean; onClick: () => void }) {
+function PracticeAreaCard({ area }: { area: PracticeArea }) {
   const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
   return (
-    <button
-      onClick={onClick}
-      className={`flex flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-all w-full ${
-        active
-          ? "border-brand-dark bg-brand-dark text-on-brand shadow-md scale-[1.02]"
-          : "border-border bg-card hover:border-brand-dark/30 hover:shadow-sm"
-      }`}
+    <Link
+      href={`/search?specialty=${encodeURIComponent(area.specialty)}`}
+      className="group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30 w-full"
     >
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-white/20 dark:bg-black/15" : SPECIALTY_ICON_CHIP}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${SPECIALTY_ICON_CHIP} transition-transform group-hover:scale-105`}>
         <Icon size={20} />
       </div>
       <div>
-        <p className={`text-[14px] font-semibold ${active ? "text-on-brand" : "text-foreground"}`}>{area.label}</p>
-        <p className={`text-[12px] ${active ? "text-on-brand/70" : "text-muted-foreground"}`}>
+        <p className="text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">{area.label}</p>
+        <p className="text-[12px] text-muted-foreground">
           {area.expertCount} expert{area.expertCount !== 1 ? "s" : ""}
         </p>
       </div>
-    </button>
+    </Link>
   );
 }
 
@@ -287,20 +281,10 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
 export default function LandingPage() {
   const t = useTranslations("landing");
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const initialSearch = searchParams.get("q") ?? "";
-  const initialSpecialty = searchParams.get("specialty") ?? null;
-  const initialSort = searchParams.get("sort") ?? "HIGHEST_RATED";
-  const initialAvailToday = searchParams.get("availableToday") === "true";
-
-  const [search, setSearch] = useState(initialSearch);
-  const [activeSpecialty, setActiveSpecialty] = useState<string | null>(initialSpecialty);
-  const [sort, setSort] = useState<string>(initialSort);
-  const [availToday, setAvailToday] = useState(initialAvailToday);
+  const [search, setSearch] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [isExploring, setIsExploring] = useState(false);
 
   const sortRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
@@ -342,51 +326,6 @@ export default function LandingPage() {
     saved.forEach((e) => toggleSave(e));
   }, [saved, toggleSave]);
 
-  // ── Search results (only when user is actively exploring) ─────────────────
-  const { data: searchResults, isLoading: searchLoading } = useExpertSearch(
-    isExploring
-      ? {
-          lat: geo.lat,
-          lng: geo.lng,
-          radius: 50,
-          limit: 20,
-          search: search.trim() || undefined,
-          specialty: activeSpecialty || undefined,
-          sort,
-          availableToday: availToday || undefined,
-        }
-      : { limit: 0, sort: "HIGHEST_RATED" },
-    { enabled: isExploring }
-  );
-
-  // ── URL sync ──────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!isExploring) return;
-    const params = new URLSearchParams();
-    if (search) params.set("q", search);
-    if (activeSpecialty && activeSpecialty !== "all") params.set("specialty", activeSpecialty);
-    if (availToday) params.set("availableToday", "true");
-    if (sort !== "HIGHEST_RATED") params.set("sort", sort);
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, [search, activeSpecialty, availToday, sort, isExploring, router]);
-
-  useEffect(() => {
-    if (searchParams.toString() === "") {
-      setSearch(""); setActiveSpecialty(null); setAvailToday(false);
-      setSort("HIGHEST_RATED"); setIsExploring(false);
-    } else {
-      const q = searchParams.get("q") || "";
-      const specialty = searchParams.get("specialty");
-      const avail = searchParams.get("availableToday") === "true";
-      const s = searchParams.get("sort") || "HIGHEST_RATED";
-      setSearch(q);
-      setActiveSpecialty(specialty === "all" ? null : specialty);
-      setAvailToday(avail);
-      setSort(s);
-      setIsExploring(true);
-    }
-  }, [searchParams]);
-
   // ── Dropdown outside-click handlers ──────────────────────────────────────
   useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -404,50 +343,29 @@ export default function LandingPage() {
     return () => document.removeEventListener("mousedown", h);
   }, [categoryOpen]);
 
-  const activateExplore = useCallback(() => setIsExploring(true), []);
-
-  const handleAreaClick = useCallback((specialty: string | null) => {
-    setActiveSpecialty(specialty);
-    activateExplore();
-  }, [activateExplore]);
-
-  const clearFilters = useCallback(() => {
-    setSearch(""); setActiveSpecialty(null); setAvailToday(false);
-    setSort("HIGHEST_RATED"); setIsExploring(false);
-    router.replace("?", { scroll: false });
-  }, [router]);
-
-  const activeLabel = practiceAreas?.find((a) => a.specialty === activeSpecialty)?.label ?? t("card.allExperts");
-  const ActiveIcon = activeSpecialty ? (SPECIALTY_ICON_MAP[activeSpecialty] ?? Scale) : LayoutGrid;
-  const currentSortKey = SORT_KEYS.find((o) => o.value === sort) ?? SORT_KEYS[1];
-  const displayExperts = isExploring ? (searchResults?.lawyers ?? []) : [];
-  const hasFilters = isExploring;
-
   return (
     <div className="bg-background min-h-[calc(100vh-4rem)] pb-12 sm:pb-8">
 
       {/* ── HERO BANNER — value proposition for first-time visitors ───────── */}
-      {!isExploring && (
-        <div className="bg-background pt-8 pb-5 sm:pt-12 sm:pb-7">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
-            {/* Verified Network Badge */}
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3 sm:mb-4 shadow-xs">
-              <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
-              <span>{t("hero.badge")}</span>
-            </div>
-
-            {/* H1 Title */}
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              {t("hero.title")}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="mx-auto mt-2.5 sm:mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
-              {t("hero.subtitle")}
-            </p>
+      <div className="bg-background pt-8 pb-5 sm:pt-12 sm:pb-7">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
+          {/* Verified Network Badge */}
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3 sm:mb-4 shadow-xs">
+            <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
+            <span>{t("hero.badge")}</span>
           </div>
+
+          {/* H1 Title */}
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+            {t("hero.title")}
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mx-auto mt-2.5 sm:mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            {t("hero.subtitle")}
+          </p>
         </div>
-      )}
+      </div>
 
       {/* ── STICKY SEARCH ZONE ────────────────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-y border-border shadow-xs">
@@ -465,17 +383,16 @@ export default function LandingPage() {
                   aria-label={t("sections.browseAreas")}
                   className="flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:shadow-md whitespace-nowrap"
                 >
-                  <ActiveIcon size={14} />
-                  <span>{activeLabel}</span>
+                  <LayoutGrid size={14} />
+                  <span>{t("card.allExperts")}</span>
                   <ChevronDown size={12} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
                 </button>
                 {categoryOpen && (
                   <div role="listbox" aria-label={t("sections.browseAreas")} className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl max-h-72 overflow-y-auto">
                     <button
                       role="option"
-                      aria-selected={activeSpecialty === null}
-                      onClick={() => { setActiveSpecialty(null); setCategoryOpen(false); activateExplore(); }}
-                      className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === null ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                      onClick={() => { setCategoryOpen(false); router.push("/search"); }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-accent"
                     >
                       <LayoutGrid size={14} /> {t("card.allExperts")}
                     </button>
@@ -485,9 +402,8 @@ export default function LandingPage() {
                         <button
                           key={area.specialty}
                           role="option"
-                          aria-selected={activeSpecialty === area.specialty}
-                          onClick={() => { setActiveSpecialty(area.specialty); setCategoryOpen(false); activateExplore(); }}
-                          className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${activeSpecialty === area.specialty ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                          onClick={() => { setCategoryOpen(false); router.push(`/search?specialty=${encodeURIComponent(area.specialty)}`); }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-accent"
                         >
                           <Icon size={14} /> {area.label}
                         </button>
@@ -538,8 +454,8 @@ export default function LandingPage() {
                   aria-label={t("sections.browseAreas")}
                   className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[12px] font-semibold text-foreground shadow-xs whitespace-nowrap"
                 >
-                  <ActiveIcon size={13} />
-                  <span className="max-w-[110px] truncate">{activeLabel}</span>
+                  <LayoutGrid size={13} />
+                  <span className="max-w-[110px] truncate">{t("card.allExperts")}</span>
                   <ChevronDown size={11} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
                 </button>
               </div>
@@ -550,23 +466,21 @@ export default function LandingPage() {
                   onClick={() => setSortOpen((v) => !v)}
                   aria-expanded={sortOpen}
                   aria-haspopup="listbox"
-                  aria-label={t(currentSortKey.key)}
+                  aria-label={t("sort.highestRated")}
                   className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold text-foreground shadow-xs transition hover:shadow-md whitespace-nowrap"
                 >
                   <ArrowUpDown size={13} />
-                  <span>{t(currentSortKey.key)}</span>
+                  <span>{t("sort.highestRated")}</span>
                 </button>
                 {sortOpen && (
-                  <div role="listbox" aria-label={t(currentSortKey.key)} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
+                  <div role="listbox" aria-label={t("sort.highestRated")} className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl border border-border bg-card py-1.5 shadow-xl">
                     {SORT_KEYS.map((opt) => (
                       <button
                         key={opt.value}
                         role="option"
-                        aria-selected={sort === opt.value}
-                        onClick={() => { setSort(opt.value); setSortOpen(false); activateExplore(); }}
-                        className={`flex w-full items-center gap-2 px-4 py-2 text-sm transition ${sort === opt.value ? "bg-accent font-bold" : "hover:bg-accent"}`}
+                        onClick={() => { setSortOpen(false); router.push(`/search?sort=${encodeURIComponent(opt.value)}`); }}
+                        className="flex w-full items-center gap-2 px-4 py-2 text-sm transition hover:bg-accent"
                       >
-                        <span className={`h-1.5 w-1.5 rounded-full ${sort === opt.value ? "bg-foreground" : "bg-transparent"}`} />
                         {t(opt.key)}
                       </button>
                     ))}
@@ -576,14 +490,9 @@ export default function LandingPage() {
 
               {/* Available Today toggle — visible and prominent on all screen sizes */}
               <button
-                onClick={() => { setAvailToday(!availToday); activateExplore(); }}
-                aria-pressed={availToday}
+                onClick={() => router.push("/search?today=1")}
                 aria-label={t("search.availableToday")}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold shadow-xs transition whitespace-nowrap shrink-0 ${
-                  availToday
-                    ? "border-brand-dark bg-brand-dark text-on-brand"
-                    : "border-border bg-card text-foreground hover:shadow-xs"
-                }`}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-card text-foreground hover:shadow-xs px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] font-semibold shadow-xs transition whitespace-nowrap shrink-0"
               >
                 <CalendarCheck size={13} />
                 <span>{t("search.availableToday")}</span>
@@ -608,142 +517,75 @@ export default function LandingPage() {
                   {geo.loading ? <Loader2 size={13} className="animate-spin" /> : <Navigation size={13} />}
                 </button>
               )}
-
-              {/* Clear filters */}
-              {hasFilters && (
-                <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition whitespace-nowrap ml-1 shrink-0">
-                  <X size={12} /> {t("search.clear")}
-                </button>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── ACTIVE SEARCH RESULTS (when user is exploring from landing) ──── */}
-      {isExploring && (
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
-          {searchLoading ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {Array.from({ length: 10 }).map((_, i) => <ExpertCardSkeleton key={i} />)}
-            </div>
-          ) : displayExperts.length === 0 ? (
-            <div className="flex flex-col items-center py-24 text-center">
-              <Scale size={40} className="mb-4 text-muted-foreground/40" />
-              <h3 className="text-lg font-bold text-foreground">{t("empty.noResults")}</h3>
-              <p className="mt-1 text-sm text-muted-foreground max-w-sm">{t("empty.noResultsSub")}</p>
-              <button onClick={clearFilters} className="mt-6 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background transition hover:opacity-90">
-                {t("empty.clearAll")}
-              </button>
-            </div>
-          ) : (
-            <>
-              <p className="mb-4 text-sm text-muted-foreground">{t("empty.resultsCount", { count: displayExperts.length })}</p>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {displayExperts.map((e) => (
-                  <ExpertCard key={e.id} expert={{
-                    id: e.id,
-                    name: e.name,
-                    specialty: e.specialties[0] ?? null,
-                    specialties: e.specialties,
-                    rating: e.rating || null,
-                    reviewCount: e.reviewCount,
-                    city: e.city ?? e.district ?? null,
-                    flatFee: e.baseConsultationFee ?? null,
-                    currency: "RWF",
-                    avatarUrl: e.avatarUrl,
-                    yearsExperience: e.yearsExperience ?? null,
-                    languages: e.languages ?? [],
-                    verified: e.verified,
-                    presenceStatus: e.presenceStatus,
-                  }} />
-                ))}
-              </div>
-              <div className="mt-8 flex justify-center">
-                <Link
-                  href={`/search?${[
-                    activeSpecialty ? `specialty=${encodeURIComponent(activeSpecialty)}` : "",
-                    sort && sort !== "HIGHEST_RATED" ? `sort=${encodeURIComponent(sort)}` : "",
-                    availToday ? "today=1" : "",
-                  ].filter(Boolean).join("&")}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-brand-dark/30 bg-card px-6 py-2.5 text-sm font-semibold text-brand-dark shadow-sm transition hover:bg-brand-dark hover:text-on-brand dark:border-white/30 dark:text-white dark:hover:bg-white dark:hover:text-black"
-                >
-                  {t("search.viewAllOnSearch")} <ArrowRight size={15} />
-                </Link>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
       {/* ── LIVE STATS & TRUST PROOF STRIP ───────────────────────────────── */}
-      {!isExploring && (
-        <div className="border-b border-border bg-card/40 py-3.5 sm:py-4">
-          <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-            <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
-              {/* Live Metric Badges */}
-              {showStats && (
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                  {publicStats!.totalLawyers > 0 && (
-                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                        <Scale size={15} />
-                      </div>
-                      <div>
-                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
-                          {publicStats!.totalLawyers.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
-                        </p>
-                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.lawyers")}</p>
-                      </div>
+      <div className="border-b border-border bg-card/40 py-3.5 sm:py-4">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
+            {/* Live Metric Badges */}
+            {showStats && (
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                {publicStats!.totalLawyers > 0 && (
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                      <Scale size={15} />
                     </div>
-                  )}
-                  {publicStats!.totalPracticeAreas > 0 && (
-                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                        <LayoutGrid size={15} />
-                      </div>
-                      <div>
-                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
-                          {publicStats!.totalPracticeAreas.toLocaleString()}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.areas")}</p>
-                      </div>
+                    <div>
+                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                        {publicStats!.totalLawyers.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
+                      </p>
+                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.lawyers")}</p>
                     </div>
-                  )}
-                  {publicStats!.completedConsultations > 0 && (
-                    <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                        <CalendarCheck size={15} />
-                      </div>
-                      <div>
-                        <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
-                          {publicStats!.completedConsultations.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
-                        </p>
-                        <p className="text-[11px] text-muted-foreground leading-none">{t("stats.consultations")}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
-                {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
-                  <div key={key} className="flex items-center gap-1.5">
-                    <Icon size={13} className="text-brand-dark dark:text-white shrink-0" />
-                    <span>{t(key)}</span>
                   </div>
-                ))}
+                )}
+                {publicStats!.totalPracticeAreas > 0 && (
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                      <LayoutGrid size={15} />
+                    </div>
+                    <div>
+                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                        {publicStats!.totalPracticeAreas.toLocaleString()}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.areas")}</p>
+                    </div>
+                  </div>
+                )}
+                {publicStats!.completedConsultations > 0 && (
+                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
+                      <CalendarCheck size={15} />
+                    </div>
+                    <div>
+                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                        {publicStats!.completedConsultations.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
+                      </p>
+                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.consultations")}</p>
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
+
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+              {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
+                <div key={key} className="flex items-center gap-1.5">
+                  <Icon size={13} className="text-brand-dark dark:text-white shrink-0" />
+                  <span>{t(key)}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ── MARKETPLACE BODY (hidden while user is filtering) ────────────── */}
-      {!isExploring && (
-        <>
-          {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
+      {/* ── MARKETPLACE BODY ─────────────────────────────────────────────── */}
+      {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
           {areasLoading ? (
             <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
@@ -756,7 +598,7 @@ export default function LandingPage() {
                 <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {practiceAreas?.map((area) => (
-                      <PracticeAreaCard key={area.specialty} area={area} active={activeSpecialty === area.specialty} onClick={() => handleAreaClick(area.specialty)} />
+                      <PracticeAreaCard key={area.specialty} area={area} />
                     ))}
                   </div>
                 </SectionRow>
@@ -929,8 +771,6 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-        </>
-      )}
     </div>
   );
 }

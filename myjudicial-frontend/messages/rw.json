@@ -4413,6 +4413,16 @@
       "trust1": "Abanyamategeko bemejwe n'Urugaga",
       "trust2": "Umutekano wo kwishyura kuri Escrow",
       "trust3": "Gufata gahunda ku munsi umwe"
+    },
+    "tabs": {
+      "all": "Amashami Yose",
+      "business": "Ubucuruzi n'Amasosiyete",
+      "civil": "Imbonezamubano n'Umuryango"
+    },
+    "sort": {
+      "label": "Hitamo uko biba bimeze",
+      "mostExperts": "Abavoka Benshi",
+      "alphabetical": "Ku Murongo (A–Z)"
     }
   },
   "pricingPage": {

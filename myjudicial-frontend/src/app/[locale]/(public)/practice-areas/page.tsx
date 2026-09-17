@@ -5,10 +5,11 @@ import { Link } from "@/i18n/routing";
 import {
   ArrowRight, Bot, Scale, Heart, Briefcase, Users, Building2,
   Shield, Landmark, Globe, Gavel, Lightbulb, Search, X,
-  BadgeCheck, UserCheck, Sparkles, CheckCircle2
+  BadgeCheck, Sparkles, CheckCircle2, ArrowUpDown
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePracticeAreas } from "@/lib/api/landing";
+import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   FAMILY_LAW: Heart,
@@ -22,6 +23,25 @@ const ICON_MAP: Record<string, React.ElementType> = {
   CONTRACT_LAW: Gavel,
   INTELLECTUAL_PROPERTY: Lightbulb,
 };
+
+type CategoryTab = "ALL" | "BUSINESS" | "CIVIL";
+type SortOption = "MOST_EXPERTS" | "ALPHABETICAL";
+
+const BUSINESS_SPECIALTIES = new Set([
+  "COMMERCIAL_LAW",
+  "CORPORATE_LAW",
+  "CONTRACT_LAW",
+  "TAX_LAW",
+  "INTELLECTUAL_PROPERTY",
+]);
+
+const CIVIL_SPECIALTIES = new Set([
+  "FAMILY_LAW",
+  "LAND_LAW",
+  "EMPLOYMENT_LAW",
+  "CRIMINAL_LAW",
+  "IMMIGRATION_LAW",
+]);
 
 interface SpecialtyDetail {
   description: string;
@@ -75,19 +95,43 @@ export default function PracticeAreasPage() {
   const t = useTranslations("practiceAreasPage");
   const { data: practiceAreas, isLoading } = usePracticeAreas();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
+  const [sortOrder, setSortOrder] = useState<SortOption>("MOST_EXPERTS");
 
   const filteredAreas = useMemo(() => {
     if (!practiceAreas) return [];
-    if (!searchQuery.trim()) return practiceAreas;
-    const q = searchQuery.toLowerCase().trim();
-    return practiceAreas.filter((area) => {
-      const details = SPECIALTY_DETAILS[area.specialty];
-      const matchesLabel = area.label.toLowerCase().includes(q);
-      const matchesDesc = details?.description.toLowerCase().includes(q);
-      const matchesTopics = details?.topics.some((topic) => topic.toLowerCase().includes(q));
-      return matchesLabel || matchesDesc || matchesTopics;
+    let list = [...practiceAreas];
+
+    // Filter by tab
+    if (activeTab === "BUSINESS") {
+      list = list.filter((area) => BUSINESS_SPECIALTIES.has(area.specialty));
+    } else if (activeTab === "CIVIL") {
+      list = list.filter((area) => CIVIL_SPECIALTIES.has(area.specialty));
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter((area) => {
+        const details = SPECIALTY_DETAILS[area.specialty];
+        const matchesLabel = area.label.toLowerCase().includes(q);
+        const matchesDesc = details?.description.toLowerCase().includes(q);
+        const matchesTopics = details?.topics.some((topic) => topic.toLowerCase().includes(q));
+        return matchesLabel || matchesDesc || matchesTopics;
+      });
+    }
+
+    // Sort
+    list.sort((a, b) => {
+      if (sortOrder === "MOST_EXPERTS") {
+        const diff = (b.expertCount || 0) - (a.expertCount || 0);
+        return diff !== 0 ? diff : a.label.localeCompare(b.label);
+      }
+      return a.label.localeCompare(b.label);
     });
-  }, [practiceAreas, searchQuery]);
+
+    return list;
+  }, [practiceAreas, activeTab, searchQuery, sortOrder]);
 
   const hasSearch = searchQuery.trim().length > 0;
 
@@ -149,8 +193,63 @@ export default function PracticeAreasPage() {
       </section>
 
       {/* Grid Section */}
-      <section className="py-12 sm:py-16">
+      <section className="py-10 sm:py-14">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          {/* Category Tabs & Sort Controls */}
+          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("ALL")}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  activeTab === "ALL"
+                    ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                {t("tabs.all")} ({practiceAreas?.length ?? 10})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("BUSINESS")}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  activeTab === "BUSINESS"
+                    ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                {t("tabs.business")} (5)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("CIVIL")}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  activeTab === "CIVIL"
+                    ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
+                    : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                {t("tabs.civil")} (5)
+              </button>
+            </div>
+
+            {/* Sort Toggle */}
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <ArrowUpDown size={14} className="text-muted-foreground" />
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as SortOption)}
+                aria-label={t("sort.label")}
+                className="rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground outline-none transition focus:border-brand-dark hover:bg-accent cursor-pointer"
+              >
+                <option value="MOST_EXPERTS">{t("sort.mostExperts")}</option>
+                <option value="ALPHABETICAL">{t("sort.alphabetical")}</option>
+              </select>
+            </div>
+          </div>
           {isLoading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -240,82 +339,6 @@ export default function PracticeAreasPage() {
                   </Link>
                 );
               })}
-
-              {/* Card 11: Interactive AI Case Triage (shown when not actively searching) */}
-              {!hasSearch && (
-                <Link
-                  href="/ai"
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-brand-dark/20 bg-gradient-to-br from-brand-dark/[0.04] via-card to-accent/30 p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/50 hover:shadow-md dark:border-white/20 dark:from-white/[0.03] dark:to-accent/10"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark text-white shadow-sm transition-transform group-hover:scale-105 dark:bg-white dark:text-black">
-                        <Bot size={24} />
-                      </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/10 px-2.5 py-1 text-xs font-semibold text-brand-dark dark:bg-white/10 dark:text-white">
-                        <Sparkles size={12} /> {t("aiCard.badge")}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-4 text-lg font-bold text-foreground">
-                      {t("aiCard.title")}
-                    </h3>
-
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {t("aiCard.desc")}
-                    </p>
-
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Instant analysis</span>
-                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Rwanda legal codes</span>
-                      <span className="rounded-lg bg-accent px-2 py-0.5 text-[11px] font-medium text-foreground">Free triage</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-bold text-brand-dark dark:text-white">
-                    <span>{t("aiCard.cta")}</span>
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
-              )}
-
-              {/* Card 12: Lawyer Join Network (shown when not actively searching) */}
-              {!hasSearch && (
-                <Link
-                  href="/expert/onboarding"
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground transition-transform group-hover:scale-105">
-                        <Scale size={24} />
-                      </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                        <UserCheck size={12} /> {t("expertCard.badge")}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-4 text-lg font-bold text-foreground">
-                      {t("expertCard.title")}
-                    </h3>
-
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      {t("expertCard.desc")}
-                    </p>
-
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Direct bookings</span>
-                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">RBA Advocates</span>
-                      <span className="rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Escrow payouts</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-bold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">
-                    <span>{t("expertCard.cta")}</span>
-                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-                  </div>
-                </Link>
-              )}
             </div>
           )}
         </div>

@@ -4413,6 +4413,16 @@
       "trust1": "Avocats certifiés au Barreau du Rwanda",
       "trust2": "Paiements sécurisés sous séquestre",
       "trust3": "Consultations le jour même"
+    },
+    "tabs": {
+      "all": "Toutes les Spécialités",
+      "business": "Affaires & Entreprises",
+      "civil": "Civil & Famille"
+    },
+    "sort": {
+      "label": "Trier par",
+      "mostExperts": "Plus d'Avocats",
+      "alphabetical": "Alphabétique (A–Z)"
     }
   },
   "pricingPage": {

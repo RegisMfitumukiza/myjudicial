@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
-import Supercluster from "supercluster";
 import { Layers, Navigation, LocateFixed, ZoomIn, MapPin } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
@@ -55,52 +54,6 @@ type MapViewProps = {
   onUserLocationChange?: (loc: { lat: number; lng: number }) => void;
   className?: string;
 };
-
-interface LawyerFeatureProperties {
-  cluster: false;
-  lawyerId: string;
-  name: string;
-  specialty: string;
-  specialties: string;
-  rate: number;
-  rating: number | null;
-  reviewCount: number;
-  verified: boolean;
-  avatarUrl: string | null;
-  online: boolean;
-  distanceKm: number | null;
-  yearsExperience: number;
-  languages: string;
-  officeAddress: string;
-  city: string;
-}
-
-function toFeatures(lawyers: Lawyer[]): Supercluster.PointFeature<LawyerFeatureProperties>[] {
-  return lawyers
-    .filter((l) => l.lat !== 0 && l.lng !== 0)
-    .map((l) => ({
-      type: "Feature" as const,
-      geometry: { type: "Point" as const, coordinates: [l.lng, l.lat] },
-      properties: {
-        cluster: false,
-        lawyerId: l.id,
-        name: l.name,
-        specialty: l.specialtyLabel,
-        specialties: l.specialties.join(", "),
-        rate: l.startingRateRwf,
-        rating: l.rating,
-        reviewCount: l.reviewCount,
-        verified: l.verified,
-        avatarUrl: l.avatarUrl,
-        online: l.online,
-        distanceKm: l.distanceKm,
-        yearsExperience: l.yearsExperience ?? 0,
-        languages: (l.languages || []).join(", "),
-        officeAddress: l.officeAddress ?? "",
-        city: l.city ?? "",
-      },
-    }));
-}
 
 function formatRate(rate: number): string {
   if (rate >= 1000) return `${(rate / 1000).toFixed(0)}k`;
@@ -372,7 +325,6 @@ export function MapView({
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const indexRef = useRef<Supercluster | null>(null);
   const markersMapRef = useRef<Map<string, MarkerData>>(new Map());
   const userLocationMarkerRef = useRef<maplibregl.Marker | null>(null);
   const [baseLayer, setBaseLayer] = useState<"street" | "satellite">("street");
@@ -386,27 +338,6 @@ export function MapView({
   useEffect(() => {
     selectedIdRef.current = selectedId;
   }, [selectedId]);
-
-  const updateSource = useCallback(() => {
-    const map = mapRef.current;
-    const index = indexRef.current;
-    if (!map || !index) return;
-    try {
-      const zoom = Math.round(map.getZoom());
-      const bbox = map.getBounds().toArray() as [[number, number], [number, number]];
-      const clusters = index.getClusters(
-        [bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1]],
-        zoom
-      );
-      const source = map.getSource("experts") as maplibregl.GeoJSONSource;
-      source?.setData({
-        type: "FeatureCollection",
-        features: clusters as GeoJSON.Feature[],
-      });
-    } catch {
-      /* map not loaded */
-    }
-  }, []);
 
   const fitBoundsToLawyers = useCallback(
     (animate = true) => {
@@ -452,88 +383,11 @@ export function MapView({
       });
 
       map.addControl(
-        new maplibregl.NavigationControl({ showCompass: false }),
-        "top-right"
+        new maplibregl.ScaleControl({ unit: "metric" }),
+        "bottom-right"
       );
-      map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
 
       map.on("load", () => {
-        map.addSource("experts", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
-          cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 50,
-        });
-
-        map.addLayer({
-          id: "clusters",
-          type: "circle",
-          source: "experts",
-          filter: ["has", "point_count"],
-          paint: {
-            "circle-color": "rgb(36,85,141)",
-            "circle-radius": [
-              "step",
-              ["get", "point_count"],
-              20,
-              10,
-              28,
-              30,
-              36,
-            ],
-            "circle-stroke-color": "white",
-            "circle-stroke-width": 3,
-            "circle-opacity": 0.9,
-          },
-        });
-
-        map.addLayer({
-          id: "cluster-count",
-          type: "symbol",
-          source: "experts",
-          filter: ["has", "point_count"],
-          layout: {
-            "text-field": "{point_count_abbreviated}",
-            "text-size": 13,
-            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-          },
-          paint: { "text-color": "white" },
-        });
-
-        map.addLayer({
-          id: "unclustered-point",
-          type: "circle",
-          source: "experts",
-          filter: ["!", ["has", "point_count"]],
-          paint: { "circle-radius": 0 },
-        });
-
-        map.on("click", "clusters", async (e) => {
-          const features = map.queryRenderedFeatures(e.point, {
-            layers: ["clusters"],
-          });
-          if (!features.length) return;
-          const clusterId = features[0].properties?.cluster_id;
-          if (clusterId == null) return;
-          const source = map.getSource("experts") as maplibregl.GeoJSONSource;
-          try {
-            const zoom = await source.getClusterExpansionZoom(clusterId);
-            const coords = (features[0].geometry as GeoJSON.Point)
-              .coordinates as [number, number];
-            map.flyTo({ center: coords, zoom: zoom + 0.5, duration: 600 });
-          } catch {
-            /* cluster removed */
-          }
-        });
-
-        map.on("mouseenter", "clusters", () => {
-          map.getCanvas().style.cursor = "pointer";
-        });
-        map.on("mouseleave", "clusters", () => {
-          map.getCanvas().style.cursor = "";
-        });
-
         setReady(true);
       });
 
@@ -543,7 +397,6 @@ export function MapView({
 
       map.on("moveend", () => {
         isDraggingRef.current = false;
-        updateSource();
         setShowSearchThisArea(true);
         if (onBoundsChange) {
           const b = map.getBounds();
@@ -590,14 +443,6 @@ export function MapView({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    const index = new Supercluster({ radius: 50, maxZoom: 14 });
-    index.load(toFeatures(lawyers));
-    indexRef.current = index;
-    updateSource();
-  }, [ready, lawyers, updateSource]);
 
   useEffect(() => {
     if (!ready || lawyers.length === 0) return;
@@ -828,97 +673,14 @@ export function MapView({
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    const readd = () => {
-      if (map.getSource("experts")) return;
-      map.addSource("experts", {
-        type: "geojson",
-        data: { type: "FeatureCollection", features: [] },
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50,
-      });
-      map.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "experts",
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": "rgb(36,85,141)",
-          "circle-radius": ["step", ["get", "point_count"], 20, 10, 28, 30, 36],
-          "circle-stroke-color": "white",
-          "circle-stroke-width": 3,
-          "circle-opacity": 0.9,
-        },
-      });
-      map.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "experts",
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": "{point_count_abbreviated}",
-          "text-size": 13,
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-        },
-        paint: { "text-color": "white" },
-      });
-      map.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "experts",
-        filter: ["!", ["has", "point_count"]],
-        paint: { "circle-radius": 0 },
-      });
-      map.on("click", "clusters", async (e) => {
-        const feats = map.queryRenderedFeatures(e.point, {
-          layers: ["clusters"],
-        });
-        if (!feats.length) return;
-        const clusterId = feats[0].properties?.cluster_id;
-        if (clusterId == null) return;
-        const src = map.getSource("experts") as maplibregl.GeoJSONSource;
-        try {
-          const zoom = await src.getClusterExpansionZoom(clusterId);
-          const coords = (feats[0].geometry as GeoJSON.Point)
-            .coordinates as [number, number];
-          map.flyTo({ center: coords, zoom: zoom + 0.5, duration: 600 });
-        } catch {
-          /* cluster gone */
-        }
-      });
-      map.on("mouseenter", "clusters", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", "clusters", () => {
-        map.getCanvas().style.cursor = "";
-      });
-      updateSource();
+    const onStyleLoad = () => {
+      // style reloaded
     };
 
-    map.on("style.load", readd);
-    readd();
+    map.on("style.load", onStyleLoad);
     return () => {
-      map.off("style.load", readd);
+      map.off("style.load", onStyleLoad);
     };
-  }, [baseLayer, ready, updateSource]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready) return;
-    try {
-      map.setLayoutProperty(
-        "clusters",
-        "visibility",
-        baseLayer === "satellite" ? "none" : "visible"
-      );
-      map.setLayoutProperty(
-        "cluster-count",
-        "visibility",
-        baseLayer === "satellite" ? "none" : "visible"
-      );
-    } catch {
-      /* layer may not exist */
-    }
   }, [baseLayer, ready]);
 
   const requestUserLocation = useCallback(() => {
@@ -944,60 +706,63 @@ export function MapView({
     <div className={`relative h-full w-full ${className ?? ""}`}>
       <div ref={containerRef} className="h-full w-full" />
 
-      <div className="absolute right-3 top-3 z-10 overflow-hidden rounded-xl bg-card text-xs shadow-lg ring-1 ring-black/5">
-        <button
-          type="button"
-          onClick={() => setBaseLayer("street")}
-          className={`flex w-full items-center gap-2 px-3 py-2 font-medium transition-colors ${
-            baseLayer === "street"
-              ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Layers className="h-3.5 w-3.5" />
-          {t("streetLayer")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setBaseLayer("satellite")}
-          className={`flex w-full items-center gap-2 border-t border-border px-3 py-2 font-medium transition-colors ${
-            baseLayer === "satellite"
-              ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Navigation className="h-3.5 w-3.5 rotate-45" />
-          {t("satelliteLayer")}
-        </button>
+      {/* ── Top-Left: Live experts count badge (free from bottom controls & attribution) ── */}
+      <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-xs px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10">
+        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+        <span>{t("expertsInView", { count: lawyers.length })}</span>
       </div>
 
-      <div className="absolute right-3 top-[7.5rem] z-10">
-        <button
-          type="button"
-          onClick={requestUserLocation}
-          className="flex h-9 w-9 items-center justify-center rounded-xl bg-card shadow-lg ring-1 ring-black/5 transition hover:shadow-xl"
-          title={t("locateMe")}
-        >
-          <LocateFixed className="h-4 w-4 text-foreground" />
-        </button>
-      </div>
-
+      {/* ── Top-Center: Search this area pill ── */}
       {showSearchThisArea && (
-        <div className="absolute left-1/2 top-3 z-10 -translate-x-1/2">
+        <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
           <button
             type="button"
             onClick={() => setShowSearchThisArea(false)}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-lg transition hover:shadow-xl"
+            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md transition hover:shadow-lg hover:bg-accent"
           >
-            <ZoomIn className="h-3.5 w-3.5" />
+            <ZoomIn className="h-3.5 w-3.5 text-brand-dark dark:text-white" />
             {t("searchThisArea")}
           </button>
         </div>
       )}
 
-      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-lg ring-1 ring-black/5">
-        <span className="h-2 w-2 rounded-full bg-brand-dark" />
-        {t("expertsInView", { count: lawyers.length })}
+      {/* ── Top-Right: Map layer & locate controls (adequate spacing from right panel) ── */}
+      <div className="absolute right-6 top-4 z-20 flex flex-col items-end gap-2">
+        <div className="overflow-hidden rounded-xl border border-border bg-card text-xs shadow-md ring-1 ring-black/5 dark:ring-white/10">
+          <button
+            type="button"
+            onClick={() => setBaseLayer("street")}
+            className={`flex w-full items-center gap-2 px-3 py-2 font-medium transition-colors ${
+              baseLayer === "street"
+                ? "bg-accent font-semibold text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5" />
+            {t("streetLayer")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setBaseLayer("satellite")}
+            className={`flex w-full items-center gap-2 border-t border-border px-3 py-2 font-medium transition-colors ${
+              baseLayer === "satellite"
+                ? "bg-accent font-semibold text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Navigation className="h-3.5 w-3.5 rotate-45" />
+            {t("satelliteLayer")}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={requestUserLocation}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card shadow-md ring-1 ring-black/5 dark:ring-white/10 transition hover:bg-accent hover:shadow-lg"
+          title={t("locateMe")}
+        >
+          <LocateFixed className="h-4 w-4 text-foreground" />
+        </button>
       </div>
     </div>
   );

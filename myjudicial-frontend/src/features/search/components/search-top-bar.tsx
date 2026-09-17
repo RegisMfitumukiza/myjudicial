@@ -26,9 +26,19 @@ export function SearchTopBar({
 }: SearchTopBarProps) {
   const t = useTranslations("search");
 
+  const isSplit = viewMode === "split";
+
   return (
-    <div className="sticky top-16 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex max-w-[1400px] h-14 items-center gap-3 px-4 sm:px-6">
+    <div
+      className={`z-40 border-b border-border bg-background ${
+        isSplit ? "relative" : "sticky top-16"
+      }`}
+    >
+      <div
+        className={`flex h-14 items-center gap-3 px-4 sm:px-6 ${
+          isSplit ? "w-full" : "mx-auto max-w-[1400px]"
+        }`}
+      >
       {/* Search Pill */}
       <div className="flex flex-1 items-center justify-center">
         <div className="flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm transition-shadow focus-within:border-brand-dark focus-within:ring-1 focus-within:ring-brand-dark/20 hover:shadow-md">

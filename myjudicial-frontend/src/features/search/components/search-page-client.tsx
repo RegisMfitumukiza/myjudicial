@@ -261,7 +261,7 @@ export function SearchPageClient() {
       <div
         className={`relative flex-1 min-h-0 overflow-hidden ${
           showMap
-            ? "grid grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_400px]"
+            ? "grid grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_440px]"
             : "flex flex-col"
         }`}
       >
@@ -283,30 +283,41 @@ export function SearchPageClient() {
         <aside
           className={`bg-background ${
             showMap
-              ? "hidden lg:flex lg:flex-col overflow-hidden"
+              ? "hidden lg:flex lg:flex-col overflow-hidden border-l border-border"
               : "w-full max-w-[1400px] mx-auto"
           }`}
         >
           {showMap && (
-            <div className="shrink-0 border-b border-border px-4 py-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t("searchRadius")}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {PROXIMITY_OPTIONS.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => handleProximityChange(p.value)}
-                    className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
-                      filters.proximity === p.value
-                        ? "bg-brand-dark text-on-brand"
-                        : "bg-accent text-foreground hover:bg-accent/80"
-                    }`}
-                  >
-                    {t(p.labelKey)}
-                  </button>
-                ))}
+            <div className="shrink-0 border-b border-border bg-card/30 px-5 py-3.5">
+              <div className="mb-2.5 flex items-center justify-between">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {t("searchRadius")}
+                </p>
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {t(
+                    PROXIMITY_OPTIONS.find((p) => p.value === filters.proximity)
+                      ?.labelKey || "allRwanda"
+                  )}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {PROXIMITY_OPTIONS.map((p) => {
+                  const active = filters.proximity === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => handleProximityChange(p.value)}
+                      className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition-all shadow-2xs ${
+                        active
+                          ? "border-brand-dark bg-brand-dark text-on-brand shadow-xs"
+                          : "border-border bg-background text-foreground hover:bg-accent hover:border-brand-dark/40"
+                      }`}
+                    >
+                      {t(p.labelKey)}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

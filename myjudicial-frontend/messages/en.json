@@ -728,7 +728,7 @@
     "enterOTP": "Enter the 6-digit code we sent to your email",
     "resendOTP": "Resend Code",
     "forgotPassword": "Forgot Password?",
-    "rememberMe": "Remember me",
+    "rememberMe": "Remember me on this device",
     "welcomeBack": "Welcome back",
     "signInToAccess": "Sign in to access your MyJudicial account.",
     "createYourAccount": "Create your account",
@@ -759,7 +759,6 @@
     "codeExpired": "Code expired. Request a new one above.",
     "codeExpiresIn": "Your code expires in {minutes} minutes. Never share it with anyone.",
     "adminSignIn": "Admin sign in",
-    "rememberMe": "Remember me on this device",
     "keepMeSignedIn": "Keep me signed in on this device",
     "keepMeSignedInHint": "Recommended on personal devices. Uncheck on public computers.",
     "adminDescription": "Enterprise-grade sign in for platform administrators.",
@@ -3161,22 +3160,22 @@
       "realReviews": "Real Reviews"
     },
     "sections": {
-      "recommended": "Recommended",
-      "recommendedAlt": "Recommended Experts",
-      "recommendedSub": "Top-rated experts by rating, reviews, and booking volume",
+      "recommended": "Top Recommended Advocates",
+      "recommendedAlt": "Recommended Advocates",
+      "recommendedSub": "Proven legal professionals with verified credentials and exceptional client trust",
       "availableToday": "Available Today",
-      "availableTodaySub": "Lawyers accepting consultations right now",
-      "browseAreas": "Browse by Practice Area",
-      "browseAreasSub": "Find an expert in the area of law you need",
+      "availableTodaySub": "Need urgent legal counsel? Consult with active advocates within hours",
+      "browseAreas": "Explore Legal Practice Areas",
+      "browseAreasSub": "Select a specialty to connect with certified advocates across Rwanda",
       "mostBooked": "Most Booked",
       "mostBookedAlt": "Top Specialties",
       "mostBookedSub": "Experts trusted by the most clients",
-      "topRated": "Top Rated",
-      "topRatedSub": "Highest reviewed legal professionals",
+      "topRated": "Client Favorites & Top Rated",
+      "topRatedSub": "Advocates holding a consistent 4.8+ rating from verified consultations",
       "browseServices": "Browse Legal Services",
       "browseServicesSub": "Ready-to-book services from verified lawyers",
-      "reviews": "What Clients Say",
-      "reviewsSub": "Real reviews from verified consultations",
+      "reviews": "Verified Client Experiences",
+      "reviewsSub": "Real feedback from individuals and businesses who booked through MyJudicial",
       "recentlyViewed": "Recently Viewed",
       "recentlyViewedSub": "Experts you recently looked at",
       "savedExperts": "Saved Experts",
@@ -3185,9 +3184,9 @@
       "viewAll": "View all"
     },
     "aiCta": {
-      "title": "Not sure which lawyer you need?",
-      "subtitle": "Answer a few quick questions and our AI will match you to the right expert.",
-      "button": "Try AI Assistant"
+      "title": "Unsure Which Legal Path to Take?",
+      "subtitle": "Describe your situation in plain words—our AI triage will match you with the right specialist.",
+      "button": "Find My Match with AI"
     },
     "popularSearches": {
       "title": "Popular Legal Searches",
@@ -3312,14 +3311,15 @@
       "areas": "Practice areas"
     },
     "howItWorks": {
-      "title": "How MyJudicial works",
+      "title": "Legal Support in 3 Simple Steps",
       "step1title": "Search or ask AI",
       "step1text": "Browse by practice area or describe your legal issue to our AI for an instant match.",
       "step2title": "Compare experts",
       "step2text": "Review verified credentials, real ratings, and fixed transparent fees.",
       "step3title": "Book securely",
       "step3text": "Choose a time, pay via Mobile Money. Funds held in escrow until your session completes.",
-      "learnMore": "Learn more about how it works"
+      "learnMore": "Learn more about how it works",
+      "subtitle": "Fast, transparent, and escrow-protected from your first question to consultation"
     }
   },
   "signup": {

@@ -680,7 +680,7 @@
     "enterOTP": "Entrez le code à 6 chiffres que nous avons envoyé à votre e-mail",
     "resendOTP": "Renvoyer le code",
     "forgotPassword": "Mot de passe oublié?",
-    "rememberMe": "Se souvenir de moi",
+    "rememberMe": "Se souvenir de moi sur cet appareil",
     "welcomeBack": "Bon retour",
     "signInToAccess": "Connectez-vous pour accéder à votre compte MyJudicial.",
     "createYourAccount": "Créez votre compte",
@@ -711,7 +711,6 @@
     "codeExpired": "Code expiré. Demandez-en un nouveau ci-dessus.",
     "codeExpiresIn": "Votre code expire dans {minutes} minutes. Ne le partagez jamais.",
     "adminSignIn": "Connexion administrateur",
-    "rememberMe": "Se souvenir de moi sur cet appareil",
     "keepMeSignedIn": "Rester connecté sur cet appareil",
     "keepMeSignedInHint": "Recommandé sur vos appareils personnels. Décochez sur les ordinateurs publics.",
     "adminDescription": "Connexion de niveau entreprise pour les administrateurs de la plateforme.",
@@ -2034,22 +2033,22 @@
       "realReviews": "Real Reviews"
     },
     "sections": {
-      "recommended": "Experts Vedettes",
-      "recommendedAlt": "Experts Recommandés",
-      "recommendedSub": "Les experts juridiques les mieux notés de la plateforme",
-      "availableToday": "Available Today",
-      "availableTodaySub": "Lawyers accepting consultations right now",
-      "browseAreas": "Browse by Practice Area",
-      "browseAreasSub": "Find an expert in the area of law you need",
+      "recommended": "Avocats Recommandés",
+      "recommendedAlt": "Avocats Recommandés",
+      "recommendedSub": "Des professionnels du droit réputés, certifiés et plébiscités par les clients",
+      "availableToday": "Disponibles Aujourd'hui",
+      "availableTodaySub": "Besoin d'un conseil urgent ? Consultez un avocat disponible dans la journée",
+      "browseAreas": "Domaines Juridiques",
+      "browseAreasSub": "Sélectionnez une spécialité pour consulter un avocat certifié au Rwanda",
       "mostBooked": "Most Booked",
       "mostBookedAlt": "Top Spécialités",
       "mostBookedSub": "Experts trusted by the most clients",
-      "topRated": "Top Rated",
-      "topRatedSub": "Highest reviewed legal professionals",
+      "topRated": "Mieux Notés & Coups de Cœur",
+      "topRatedSub": "Des avocats maintenant une note de 4.8+ issue de consultations vérifiées",
       "browseServices": "Services Juridiques",
       "browseServicesSub": "Services de réservation proints d'avocats vérifiés",
-      "reviews": "Ce que Disent les Clients",
-      "reviewsSub": "Vrais avis de consultations vérifiées",
+      "reviews": "Avis Clients Vérifiés",
+      "reviewsSub": "Témoignages authentiques de particuliers et d'entreprises ayant réservé sur MyJudicial",
       "recentlyViewed": "Récemment Consultés",
       "recentlyViewedSub": "Les experts que vous avez récemment consultés",
       "savedExperts": "Experts Enregistrés",
@@ -2058,9 +2057,9 @@
       "viewAll": "Voir tout"
     },
     "aiCta": {
-      "title": "Not sure which lawyer you need?",
-      "subtitle": "Answer a few quick questions and our AI will match you to the right expert.",
-      "button": "Try AI Assistant"
+      "title": "Vous Hésitez sur le Type d'Avocat ?",
+      "subtitle": "Expliquez votre situation avec vos propres mots : notre IA vous orientera vers le spécialiste adapté.",
+      "button": "Trouver mon Avocat avec l'IA"
     },
     "popularSearches": {
       "title": "Recherches juridiques populaires",
@@ -2140,14 +2139,15 @@
       "areas": "Domaines de pratique"
     },
     "howItWorks": {
-      "title": "Comment fonctionne MyJudicial",
+      "title": "Vos Démarches Juridiques en 3 Étapes",
       "step1title": "Recherchez ou interrogez l'IA",
       "step1text": "Parcourez par domaine de pratique ou décrivez votre problème juridique à notre IA.",
       "step2title": "Comparez les experts",
       "step2text": "Vérifiez les accréditations, les avis réels et les honoraires fixes transparents.",
       "step3title": "Réservez en sécurité",
       "step3text": "Choisissez un horaire, payez via Mobile Money. Fonds en fiducie jusqu'à la fin de la session.",
-      "learnMore": "En savoir plus sur son fonctionnement"
+      "learnMore": "En savoir plus sur son fonctionnement",
+      "subtitle": "Rapide, transparent et sécurisé par séquestre, du premier contact à la consultation"
     }
   },
   "expertDashboard_join": {

@@ -140,14 +140,14 @@ export default function PracticeAreasPage() {
       {/* Hero Section */}
       <section className="border-b border-border bg-gradient-to-b from-muted/30 via-background to-background pt-12 pb-10 sm:pt-16 sm:pb-14">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
+          <div className="mb-4 sm:mb-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
             <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
             <span>{t("hero.badge")}</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.18] sm:leading-[1.14] text-balance">
             {t("hero.title")}
           </h1>
-          <p className="mx-auto mt-3.5 max-w-2xl text-base sm:text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
             {t("hero.subtitle")}
           </p>
 

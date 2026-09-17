@@ -14,15 +14,15 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-brand-dark/[.06] to-background py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-brand-dark/5 px-3 py-1">
+          <div className="mb-4 sm:mb-5 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-brand-dark/5 px-3 py-1">
             <span className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/70">
               {t("hero.badge")}
             </span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.18] sm:leading-[1.14] text-balance">
             {t("hero.title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-lg text-muted-foreground leading-relaxed">
             {t("hero.subtitle")}
           </p>
 

@@ -330,21 +330,21 @@ export default function LandingPage() {
     <div className="bg-background min-h-[calc(100vh-4rem)] pb-12 sm:pb-8">
 
       {/* ── HERO BANNER — value proposition for first-time visitors ───────── */}
-      <div className="bg-background pt-8 pb-5 sm:pt-12 sm:pb-7">
+      <div className="bg-background pt-10 pb-7 sm:pt-14 sm:pb-9">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
           {/* Verified Network Badge */}
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3 sm:mb-4 shadow-xs">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3.5 sm:mb-4.5 shadow-xs">
             <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
             <span>{t("hero.badge")}</span>
           </div>
 
           {/* H1 Title */}
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.18] sm:leading-[1.14] text-balance">
             {t("hero.title")}
           </h1>
 
           {/* Subtitle */}
-          <p className="mx-auto mt-2.5 sm:mt-3 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="mx-auto mt-3.5 sm:mt-4.5 max-w-2xl text-base text-muted-foreground sm:text-lg leading-relaxed">
             {t("hero.subtitle")}
           </p>
         </div>

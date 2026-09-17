@@ -85,7 +85,42 @@ router.get("/health", (_req, res) => {
 /* ── Search/List Experts ── */
 router.get("/", asyncHandler(async (req, res, next) => {
   try {
-    const { lat, lng, radius, specialty, limit = 50, page = 1, search, sort, minRating, minYearsExperience, availableToday, instantConsult } = req.query;
+    const {
+      lat,
+      lng,
+      radius,
+      specialty,
+      specialties: rawSpecialties,
+      limit = 50,
+      page = 1,
+      search,
+      sort,
+      minRating,
+      minYearsExperience,
+      availableToday,
+      today,
+      instantConsult,
+    } = req.query;
+
+    const rawSpec = rawSpecialties || specialty;
+    let parsedSpecialties: LegalSpecialty[] | undefined;
+    if (rawSpec) {
+      const items = Array.isArray(rawSpec)
+        ? rawSpec.flatMap((s) => String(s).split(","))
+        : String(rawSpec).split(",");
+      const cleaned = items
+        .map((s) => s.trim().toUpperCase())
+        .filter((s) => s.length > 0) as LegalSpecialty[];
+      if (cleaned.length > 0) {
+        parsedSpecialties = cleaned;
+      }
+    }
+
+    const isAvailableToday =
+      availableToday === "true" ||
+      availableToday === "1" ||
+      today === "true" ||
+      today === "1";
 
     const dto = {
       latitude: lat ? parseFloat(lat as string) : -1.9441,
@@ -95,12 +130,12 @@ router.get("/", asyncHandler(async (req, res, next) => {
       limit: parseInt(limit as string, 10),
       sort: (sort as string || "NEAREST") as "NEAREST" | "RECOMMENDED" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED" | "AVAILABLE_NOW",
       filters: {
-        specialties: specialty ? [specialty as LegalSpecialty] : undefined,
+        specialties: parsedSpecialties,
         includeOnLeave: false,
         minRating: minRating ? parseFloat(minRating as string) : undefined,
         minYearsExperience: minYearsExperience ? parseInt(minYearsExperience as string, 10) : undefined,
-        availability: availableToday === "true" ? ("AVAILABLE_TODAY" as const) : undefined,
-        instantConsult: instantConsult === "true" ? true : undefined,
+        availability: isAvailableToday ? ("AVAILABLE_TODAY" as const) : undefined,
+        instantConsult: instantConsult === "true" || instantConsult === "1" ? true : undefined,
       },
       search: search as string | undefined,
     };

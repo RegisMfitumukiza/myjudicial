@@ -25,7 +25,7 @@ const EXPERTS = [
   { email:"antigravityearth6@gmail.com", firstName:"Samuel", lastName:"Mugiraneza", phone:"+250788100010", displayName:"Mugiraneza Samuel", bio:"Intellectual property lawyer protecting brands, patents, and creative works across the African continent.", barNumber:"RBA-2015-0089", primarySpecialty:"INTELLECTUAL_PROPERTY", specialties:["INTELLECTUAL_PROPERTY","COMMERCIAL_LAW"], languages:["en","fr","rw"], yearsExperience:9, baseConsultationFee:35000, city:"Kigali", latitude:-1.9560, longitude:30.0915, officeAddress:"KG 622 St, Kimihurura, Kigali", presenceStatus:"ONLINE" },
 ];
 
-const WEEKDAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"];
+const ALL_DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"];
 
 function splitName(fullName) { const p = fullName.trim().split(" "); return [p[0], p.slice(1).join(" ") || p[0]]; }
 function uuid() { return crypto.randomUUID(); }
@@ -177,11 +177,11 @@ async function main() {
        VALUES (${esc(uuid())}, ${esc(profileId)}, ${expert.latitude}, ${expert.longitude}, ST_SetSRID(ST_MakePoint(${expert.longitude}, ${expert.latitude}), 4326)::geography, true, NOW(), NOW())`
     );
 
-    // 6. Create weekday availability
-    for (const day of WEEKDAYS) {
+    // 6. Create weekly availability with active presenceStatus
+    for (const day of ALL_DAYS) {
       await pool.query(
-        `INSERT INTO expert_availability (id, "expertId", "dayOfWeek", "startTime", "endTime", "isAvailable", "createdAt", "updatedAt")
-         VALUES (${esc(uuid())}, ${esc(profileId)}, ${esc(day)}, '09:00', '17:00', true, NOW(), NOW())`
+        `INSERT INTO expert_availability (id, "expertId", "dayOfWeek", "startTime", "endTime", "isAvailable", "presenceStatus", "createdAt", "updatedAt")
+         VALUES (${esc(uuid())}, ${esc(profileId)}, ${esc(day)}, '09:00', '17:00', true, ${esc(expert.presenceStatus || 'ONLINE')}, NOW(), NOW())`
       );
     }
 

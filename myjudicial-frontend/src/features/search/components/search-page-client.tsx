@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
+import { ActiveFilterChips } from "./active-filter-chips";
 import { CategoryPills } from "./category-pills";
 import { FiltersSheet } from "./filters-sheet";
 import { MapView } from "./map-view";
@@ -63,11 +64,17 @@ export function SearchPageClient() {
       };
     }
     if (filters.specialties.length > 0) {
-      const match = specialtyOptions.find((o) => o.value === filters.specialties[0]);
-      const label = match?.label ?? filters.specialties[0].replace(/_/g, " ");
+      const labels = filters.specialties.map((s) => {
+        const match = specialtyOptions.find((o) => o.value === s);
+        return match?.label ?? s.replace(/_/g, " ");
+      });
+      const title =
+        labels.length === 1
+          ? `${labels[0]} Specialists`
+          : `${labels.length} Practice Areas (${labels.slice(0, 2).join(", ")}${labels.length > 2 ? "..." : ""})`;
       return {
-        title: `${label} Specialists`,
-        desc: `Verified advocates specializing in ${label.toLowerCase()} in Rwanda.`,
+        title,
+        desc: `Verified advocates specializing in ${labels.join(", ")} in Rwanda.`,
         onReset: () => setFilters((prev) => ({ ...prev, specialties: [] })),
       };
     }
@@ -100,10 +107,10 @@ export function SearchPageClient() {
     };
   }, []);
 
-
   const radiusKm = useMemo(() => {
+    if (filters.proximity === "anywhere") return 500;
     const opt = PROXIMITY_OPTIONS.find((p) => p.value === filters.proximity);
-    return opt?.km ?? 100;
+    return opt?.km ?? 500;
   }, [filters.proximity]);
 
   const {
@@ -114,7 +121,7 @@ export function SearchPageClient() {
     lat: center.lat,
     lng: center.lng,
     radius: radiusKm,
-    specialty: filters.specialties[0],
+    specialties: filters.specialties,
     sort: filters.sort,
     limit: 50,
     search: filters.searchQuery.trim() || undefined,
@@ -139,8 +146,7 @@ export function SearchPageClient() {
   }, [allLawyers, filters.maxBudgetRwf]);
 
   const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filters.specialties.length > 0) count++;
+    let count = filters.specialties.length;
     if (filters.maxBudgetRwf < 200000) count++;
     if (filters.instantConsultOnly) count++;
     if (filters.proximity !== "anywhere") count++;
@@ -310,6 +316,12 @@ export function SearchPageClient() {
               <div className="h-full w-2/5 animate-[shimmer_1.5s_infinite] bg-brand-dark" />
             </div>
           )}
+
+          <ActiveFilterChips
+            filters={filters}
+            onChange={setFilters}
+            specialties={specialtyOptions}
+          />
 
           <div className="flex-1 overflow-y-auto">
             {isLoading ? (

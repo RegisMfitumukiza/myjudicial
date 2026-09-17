@@ -45,7 +45,7 @@ export const PROXIMITY_OPTIONS: { value: ProximityFilter; km: number; labelKey: 
   { value: "10km", km: 10, labelKey: "within10km" },
   { value: "20km", km: 20, labelKey: "within20km" },
   { value: "50km", km: 50, labelKey: "within50km" },
-  { value: "anywhere", km: 100, labelKey: "allRwanda" },
+  { value: "anywhere", km: 500, labelKey: "allRwanda" },
 ];
 
 export const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [

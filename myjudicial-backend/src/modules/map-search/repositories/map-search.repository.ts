@@ -66,12 +66,18 @@ export const MapSearchRepository = {
       Prisma.sql`mm."isVisible" = true`,
       Prisma.sql`e.status = 'VERIFIED'`,
       Prisma.sql`u.status = 'ACTIVE'`,
-      Prisma.sql`ST_DWithin(
-        mm.location,
-        ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
-        ${radiusMeters}
-      )`,
     ];
+
+    // Constrain by radius when a local proximity is requested (under country-wide 250km)
+    if (radiusKm && radiusKm < 250) {
+      whereClauses.push(
+        Prisma.sql`ST_DWithin(
+          mm.location,
+          ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+          ${radiusMeters}
+        )`
+      );
+    }
 
     if (specialties && specialties.length > 0) {
       // Postgres ANY operator — matches if any specialty overlaps

@@ -7,6 +7,7 @@ export type ExpertSearchParams = {
   lng?: number;
   radius?: number;
   specialty?: string;
+  specialties?: string[];
   page?: number;
   limit?: number;
   search?: string;
@@ -102,7 +103,11 @@ export function useExpertSearch(
   if (params.lat !== undefined) queryString.append("lat", params.lat.toString());
   if (params.lng !== undefined) queryString.append("lng", params.lng.toString());
   if (params.radius !== undefined) queryString.append("radius", params.radius.toString());
-  if (params.specialty) queryString.append("specialty", params.specialty);
+  if (params.specialties && params.specialties.length > 0) {
+    queryString.append("specialties", params.specialties.join(","));
+  } else if (params.specialty) {
+    queryString.append("specialty", params.specialty);
+  }
   if (params.page !== undefined) queryString.append("page", params.page.toString());
   if (params.limit !== undefined) queryString.append("limit", params.limit.toString());
   if (params.search) queryString.append("search", params.search);

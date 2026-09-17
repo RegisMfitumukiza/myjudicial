@@ -71,12 +71,13 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
                     aria-pressed={active}
                     onClick={() => toggleSpecialty(s.value)}
                     className={cn(
-                      "rounded-full px-3 py-1.5 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition",
                       active
-                        ? "bg-brand-dark text-on-brand"
+                        ? "bg-brand-dark text-on-brand shadow-xs"
                         : "bg-accent text-foreground hover:bg-accent/80"
                     )}
                   >
+                    {active && <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-black" />}
                     {s.label}
                   </button>
                 );

@@ -17,8 +17,13 @@ export function CategoryPills({ filters, onChange, specialties }: CategoryPillsP
 
   function toggleSpecialty(s: string) {
     onChange((prev) => {
-      const isOnlyActive = prev.specialties.length === 1 && prev.specialties[0] === s;
-      return { ...prev, specialties: isOnlyActive ? [] : [s] };
+      const exists = prev.specialties.includes(s);
+      return {
+        ...prev,
+        specialties: exists
+          ? prev.specialties.filter((x) => x !== s)
+          : [...prev.specialties, s],
+      };
     });
   }
 
@@ -46,12 +51,13 @@ export function CategoryPills({ filters, onChange, specialties }: CategoryPillsP
             aria-pressed={active}
             onClick={() => toggleSpecialty(s.value)}
             className={cn(
-              "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:px-4",
+              "shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:px-4",
               active
-                ? "border-brand-dark bg-brand-dark text-on-brand"
+                ? "border-brand-dark bg-brand-dark text-on-brand shadow-xs"
                 : "border-border bg-card text-foreground hover:border-brand-dark/50 hover:bg-accent"
             )}
           >
+            {active && <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-black" />}
             {s.label}
           </button>
         );

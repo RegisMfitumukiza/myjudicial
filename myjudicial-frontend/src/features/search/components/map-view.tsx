@@ -5,6 +5,7 @@ import maplibregl from "maplibre-gl";
 import { Layers, Navigation, LocateFixed, ZoomIn, MapPin } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
+import { formatSpecialtyName } from "./mobile-map-expert-card";
 
 const STREET_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -53,6 +54,7 @@ type MapViewProps = {
   userLocation?: { lat: number; lng: number } | null;
   onUserLocationChange?: (loc: { lat: number; lng: number }) => void;
   className?: string;
+  isMobile?: boolean;
 };
 
 function formatRate(rate: number): string {
@@ -190,11 +192,24 @@ function createRichPopupHtml(props: {
     .filter(Boolean)
     .join(", ");
 
-  const specialtiesList = props.specialties
-    ? props.specialties.split(", ").slice(0, 3).map(s =>
-        `<span style="display:inline-block;font-size:10px;font-weight:500;color:${BRAND};background:rgba(36,85,141,0.06);border:1px solid ${BORDER};border-radius:4px;padding:1px 6px">${s}</span>`
-      ).join(" ")
-    : `<span style="font-size:10px;font-weight:500;color:${MUTED}">${props.specialty}</span>`;
+  const rawSpecialties = props.specialties
+    ? props.specialties.split(", ").map(formatSpecialtyName)
+    : props.specialty
+      ? [formatSpecialtyName(props.specialty)]
+      : [];
+  const specialtiesList =
+    rawSpecialties.length > 0
+      ? rawSpecialties
+          .slice(0, 2)
+          .map(
+            (s) =>
+              `<span style="display:inline-block;font-size:11px;font-weight:500;color:${BRAND};background:rgba(36,85,141,0.08);border:1px solid #cbd5e1;border-radius:6px;padding:2px 8px">${s}</span>`
+          )
+          .join(" ") +
+        (rawSpecialties.length > 2
+          ? `<span style="font-size:11px;font-weight:500;color:${MUTED};margin-left:4px">+${rawSpecialties.length - 2}</span>`
+          : "")
+      : "";
 
   const expLine = props.yearsExperience > 0
     ? `<span style="font-size:11px;color:${MUTED}">${props.yearsExperience} ${props.t("yrShort")}</span>`
@@ -225,9 +240,10 @@ function createRichPopupHtml(props: {
         </div>
       </div>
 
-      <div style="border-top:1px solid ${BORDER};padding:8px 14px;display:flex;flex-wrap:wrap;gap:3px">
+      ${specialtiesList ? `
+      <div style="border-top:1px solid ${BORDER};padding:8px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">
         ${specialtiesList}
-      </div>
+      </div>` : ""}
 
       <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
         <div>
@@ -236,33 +252,38 @@ function createRichPopupHtml(props: {
         </div>
         <div style="text-align:right">
           <p style="margin:0;font-size:12px;font-weight:600;color:${BRAND}">${distStr}</p>
-          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("km")} ${props.t("away")}</p>
+          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("away")}</p>
         </div>
       </div>
 
       ${locationLine ? `
       <div style="border-top:1px solid ${BORDER};padding:8px 14px;display:flex;align-items:center;gap:6px">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${MUTED}" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span style="font-size:11px;color:${MUTED}">${locationLine}</span>
+        <span style="font-size:11px;color:${MUTED};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${locationLine}</span>
       </div>` : ""}
 
-      <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;gap:6px">
-        <a href="${prefix}/lawyers/${props.lawyerId}"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:white;background:${BRAND};border-radius:8px;text-decoration:none;transition:opacity 0.15s"
-          onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-          ${props.t("viewProfile")}
-        </a>
+      <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;flex-direction:column;gap:7px">
         <a href="${prefix}/lawyers/${props.lawyerId}/book"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0;font-size:12px;font-weight:600;color:${BRAND};background:transparent;border:1.5px solid ${BRAND};border-radius:8px;text-decoration:none;transition:background 0.15s"
-          onmouseover="this.style.background='rgb(248,250,252)'" onmouseout="this.style.background='transparent'">
+          style="display:flex;align-items:center;justify-content:center;gap:6px;height:36px;font-size:13px;font-weight:600;color:white;background:${BRAND};border-radius:8px;text-decoration:none;transition:opacity 0.15s"
+          onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           ${props.t("bookConsultation")}
         </a>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLine || props.city || "Kigali")}"
-          target="_blank" rel="noopener noreferrer"
-          style="display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;font-size:12px;font-weight:600;color:${BRAND};background:transparent;border:1.5px solid ${BRAND};border-radius:8px;text-decoration:none;transition:background 0.15s"
-          onmouseover="this.style.background='rgb(248,250,252)'" onmouseout="this.style.background='transparent'">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-        </a>
+        <div style="display:flex;gap:6px">
+          <a href="${prefix}/lawyers/${props.lawyerId}"
+            style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:32px;font-size:12px;font-weight:600;color:${BRAND};background:rgb(241,245,249);border-radius:7px;text-decoration:none;transition:background 0.15s"
+            onmouseover="this.style.background='rgb(226,232,240)'" onmouseout="this.style.background='rgb(241,245,249)'">
+            ${props.t("viewProfile")}
+          </a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLine || props.city || "Kigali")}"
+            target="_blank" rel="noopener noreferrer"
+            title="${props.t("getDirections")}"
+            aria-label="${props.t("getDirections")}"
+            style="width:36px;height:32px;display:flex;align-items:center;justify-content:center;color:${BRAND};background:rgb(241,245,249);border-radius:7px;text-decoration:none;transition:background 0.15s"
+            onmouseover="this.style.background='rgb(226,232,240)'" onmouseout="this.style.background='rgb(241,245,249)'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+          </a>
+        </div>
       </div>
     </div>
   `;
@@ -320,6 +341,7 @@ export function MapView({
   userLocation,
   onUserLocationChange,
   className,
+  isMobile = false,
 }: MapViewProps) {
   const t = useTranslations("search");
   const locale = useLocale();
@@ -389,6 +411,10 @@ export function MapView({
 
       map.on("load", () => {
         setReady(true);
+      });
+
+      map.on("click", () => {
+        onSelect("");
       });
 
       map.on("movestart", () => {
@@ -499,7 +525,12 @@ export function MapView({
         pin.innerHTML = `<span style="font-size:${size < 40 ? 11 : 12}px;font-weight:700;line-height:1;color:${textColor};pointer-events:none">${rateLabel}</span>`;
 
         if (isSelected) {
-          if (!existing.popup.isOpen()) existing.marker.togglePopup();
+          if (!isMobile) {
+            if (!existing.marker.getPopup()) existing.marker.setPopup(existing.popup);
+            if (!existing.popup.isOpen()) existing.marker.togglePopup();
+          } else {
+            if (existing.popup.isOpen()) existing.popup.remove();
+          }
         } else {
           if (existing.popup.isOpen()) existing.popup.remove();
         }
@@ -534,7 +565,7 @@ export function MapView({
         closeButton: true,
         maxWidth: "320px",
         className: "lawyer-popup",
-      }      ).setHTML(
+      }).setHTML(
         createRichPopupHtml({
           name: lawyer.name,
           rate: lawyer.startingRateRwf,
@@ -545,7 +576,7 @@ export function MapView({
           lawyerId: lawyer.id,
           online: lawyer.online,
           specialty: lawyer.specialtyLabel,
-          specialties: lawyer.specialties.join(", "),
+          specialties: (lawyer.specialties || []).map(formatSpecialtyName).join(", "),
           distanceKm: lawyer.distanceKm,
           officeAddress: lawyer.officeAddress ?? "",
           city: lawyer.city ?? "",
@@ -557,11 +588,15 @@ export function MapView({
       );
 
       const marker = new maplibregl.Marker({ element: container, anchor: "bottom" })
-        .setLngLat([lawyer.lng, lawyer.lat])
-        .setPopup(popup)
-        .addTo(map);
+        .setLngLat([lawyer.lng, lawyer.lat]);
 
-      if (isSelected) {
+      if (!isMobile) {
+        marker.setPopup(popup);
+      }
+
+      marker.addTo(map);
+
+      if (isSelected && !isMobile) {
         marker.togglePopup();
       }
 
@@ -621,7 +656,7 @@ export function MapView({
         });
       }
     };
-  }, [lawyers, selectedId, ready, onSelect, t]);
+  }, [lawyers, selectedId, ready, onSelect, isMobile, t, locale]);
 
   useEffect(() => {
     if (!ready) return;
@@ -633,10 +668,11 @@ export function MapView({
           center: [lawyer.lng, lawyer.lat],
           zoom: Math.max(mapRef.current?.getZoom() ?? 12, 14),
           duration: 600,
+          offset: isMobile ? [0, -100] : [0, -60],
         });
       }, 50);
     }
-  }, [selectedId, lawyers, ready]);
+  }, [selectedId, lawyers, ready, isMobile]);
 
   useEffect(() => {
     const map = mapRef.current;

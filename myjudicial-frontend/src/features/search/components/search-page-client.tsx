@@ -7,6 +7,7 @@ import { ActiveFilterChips } from "./active-filter-chips";
 import { CategoryPills } from "./category-pills";
 import { FiltersSheet } from "./filters-sheet";
 import { MapView } from "./map-view";
+import { MobileMapExpertCard } from "./mobile-map-expert-card";
 import { NoResultsPanel } from "./no-results-panel";
 import { ResultsList } from "./results-list";
 import { SearchTopBar } from "./search-top-bar";
@@ -145,6 +146,11 @@ export function SearchPageClient() {
     });
   }, [allLawyers, filters.maxBudgetRwf]);
 
+  const selectedLawyer = useMemo(() => {
+    if (!selectedId) return null;
+    return filteredLawyers.find((l) => l.id === selectedId) ?? null;
+  }, [selectedId, filteredLawyers]);
+
   const activeFilterCount = useMemo(() => {
     let count = filters.specialties.length;
     if (filters.maxBudgetRwf < 200000) count++;
@@ -276,6 +282,7 @@ export function SearchPageClient() {
               searchRadiusKm={radiusKm}
               userLocation={userLocation}
               onUserLocationChange={handleUserLocationChange}
+              isMobile={isMobile}
             />
           </div>
         )}
@@ -384,10 +391,19 @@ export function SearchPageClient() {
         <button
           type="button"
           onClick={toggleViewMode}
-          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition hover:opacity-90 dark:bg-white dark:text-black"
+          className={`fixed left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition-all duration-200 hover:opacity-90 dark:bg-white dark:text-black ${
+            selectedLawyer ? "bottom-[210px]" : "bottom-20"
+          }`}
         >
           {t("showList")}
         </button>
+      )}
+
+      {isMobile && mapExpanded && selectedLawyer && (
+        <MobileMapExpertCard
+          lawyer={selectedLawyer}
+          onClose={() => setSelectedId(null)}
+        />
       )}
 
       <FiltersSheet

@@ -387,13 +387,11 @@ export function SearchPageClient() {
         </button>
       )}
 
-      {isMobile && mapExpanded && (
+      {isMobile && mapExpanded && !selectedLawyer && (
         <button
           type="button"
           onClick={toggleViewMode}
-          className={`fixed left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-lg transition-all duration-200 hover:opacity-90 dark:bg-white dark:text-black ${
-            selectedLawyer ? "bottom-[210px]" : "bottom-20"
-          }`}
+          className="fixed bottom-6 sm:bottom-8 left-1/2 z-30 -translate-x-1/2 rounded-full bg-brand-dark px-5 py-2.5 text-sm font-semibold text-on-brand shadow-xl transition-all duration-200 hover:opacity-90 dark:bg-white dark:text-black"
         >
           {t("showList")}
         </button>

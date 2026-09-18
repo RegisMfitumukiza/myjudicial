@@ -185,7 +185,7 @@ export function FloatingAiChat() {
     <div
       className={`fixed z-50 flex flex-col ${
         isSearchPage
-          ? "bottom-4 left-4 sm:bottom-6 sm:left-6 items-start"
+          ? "hidden md:flex bottom-6 left-6 items-start"
           : "bottom-4 right-4 sm:bottom-6 sm:right-6 items-end"
       }`}
     >

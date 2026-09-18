@@ -49,19 +49,15 @@ export const PaymentController = {
     const rawBody = toBuffer(req.body);
     const signature = req.headers[AZAMPAY_WEBHOOK_HEADER] as string | undefined;
 
-    const isSandbox = process.env.AZAMPAY_ENV !== "production";
-
-    if (!isSandbox && !verifyAzamPaySignature(rawBody, signature)) {
+    // AzamPay officially confirmed they send direct JSON payloads without a signature header.
+    // If a signature header IS present and a secret is configured, verify it.
+    if (process.env.AZAMPAY_WEBHOOK_SECRET && signature && !verifyAzamPaySignature(rawBody, signature)) {
       logger.warn("Azam Pay webhook signature verification failed", {
         hasSecret: !!process.env.AZAMPAY_WEBHOOK_SECRET,
         hasSignatureHeader: !!signature,
       });
       res.status(401).json({ error: "Invalid webhook signature" });
       return;
-    }
-    
-    if (isSandbox) {
-      logger.info("Skipping Azam Pay webhook signature verification (SANDBOX MODE)");
     }
 
     let payload: any;
@@ -76,15 +72,18 @@ export const PaymentController = {
     logger.info("Azam Pay webhook received", {
       type: payload.type,
       success: payload.success,
+      status: payload.data?.transactionStatus || payload.transactionstatus,
+      externalId: payload.data?.merchantReferenceId || payload.utilityref || payload.externalId,
     });
 
-    // Normalize Rwanda callback format to what EscrowService expects.
-    // Rwanda sends: { type: "payment.callback", data: { transactionStatus, merchantReferenceId, ... } }
-    // Legacy format: { transactionstatus, externalId, reference } (flat)
+    // Normalize Rwanda callback format (both v2 and v1) to what EscrowService expects:
+    // Rwanda v2: { type: "payment.callback", data: { transactionStatus, merchantReferenceId, providerReferenceId } }
+    // Rwanda v1: { transactionstatus, utilityref, reference, message }
+    // Legacy:    { transactionstatus, externalId, reference }
     const normalized = {
       transactionstatus: payload.data?.transactionStatus || payload.transactionstatus,
-      externalId: payload.data?.merchantReferenceId || payload.externalId,
-      reference: payload.data?.providerReferenceId || payload.reference,
+      externalId: payload.data?.merchantReferenceId || payload.utilityref || payload.externalId,
+      reference: payload.data?.providerReferenceId || payload.reference || payload.transid,
       message: payload.message || payload.data?.message,
     };
 
@@ -148,7 +147,7 @@ export const PaymentController = {
     const rawBody = toBuffer(req.body);
     const signature = req.headers[AZAMPAY_WEBHOOK_HEADER] as string | undefined;
 
-    if (!verifyAzamPaySignature(rawBody, signature)) {
+    if (process.env.AZAMPAY_WEBHOOK_SECRET && signature && !verifyAzamPaySignature(rawBody, signature)) {
       logger.warn("Azam Pay payout webhook signature verification failed", {
         hasSecret: !!process.env.AZAMPAY_WEBHOOK_SECRET,
         hasSignatureHeader: !!signature,

@@ -742,8 +742,8 @@ export function MapView({
     <div className={`relative h-full w-full ${className ?? ""}`}>
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* ── Top-Left: Live experts count badge (free from bottom controls & attribution) ── */}
-      <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-xs px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10">
+      {/* ── Top-Left: Live experts count badge (hidden on mobile to prevent overlap with Search this area) ── */}
+      <div className="absolute left-4 top-4 z-20 hidden sm:flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-xs px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10">
         <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
         <span>{t("expertsInView", { count: lawyers.length })}</span>
       </div>

@@ -310,6 +310,17 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background: transparent;
 }
 
+/* Utility to completely hide scrollbars while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* MapLibre popup theming — modern floating card */
 .lawyer-popup .maplibregl-popup-content {
   padding: 0;

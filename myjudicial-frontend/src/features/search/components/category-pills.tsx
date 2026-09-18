@@ -28,7 +28,7 @@ export function CategoryPills({ filters, onChange, specialties }: CategoryPillsP
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-border bg-background px-3 py-1.5 sm:py-2 scrollbar-hide sm:px-4 lg:px-6" role="group" aria-label={t("all")}>
+    <div className="flex shrink-0 items-center gap-2 overflow-x-auto border-b border-border bg-background px-3 py-1.5 sm:py-2 no-scrollbar sm:px-4 lg:px-6" role="group" aria-label={t("all")}>
       <button
         type="button"
         aria-pressed={filters.specialties.length === 0}

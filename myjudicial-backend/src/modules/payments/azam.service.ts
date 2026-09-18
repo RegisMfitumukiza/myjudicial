@@ -181,18 +181,18 @@ export const AzamPayService = {
 
   /**
    * Send a payout directly to the expert's MoMo account via Azam Pay
-   * disbursement API. In sandbox mode, simulates the payout.
+   * Rwanda v2 disbursement API. In sandbox or when disabled, simulates the payout.
    */
   async sendExpertPayout(request: {
     bookingId: string;
     momoNumber: string;
     amount: number;
     currency?: string;
+    expertName?: string;
   }): Promise<{ reference: string; status: string }> {
     const externalId = `PO-${Date.now()}-${randomUUID().slice(0, 8)}`;
-    const currency = request.currency || "RWF";
 
-    // In sandbox or when disbursement endpoint is not configured, simulate
+    // In sandbox or when disbursement is not enabled, safely simulate
     if (!isProduction || !process.env.AZAMPAY_DISBURSEMENT_ENABLED) {
       logger.info("Simulating Azam Pay Payout (sandbox/disabled)", {
         bookingId: request.bookingId,
@@ -203,43 +203,39 @@ export const AzamPayService = {
     }
 
     const token = await this.authenticate();
-    const apiKey = process.env.AZAMPAY_API_KEY;
+
+    // Format phone to 250XXXXXXXXX and detect MTN vs AIRTEL
+    let phone = request.momoNumber.replace(/[^0-9]/g, "");
+    if (phone.startsWith("0") && phone.length === 10) {
+      phone = "250" + phone.substring(1);
+    } else if (!phone.startsWith("250") && phone.length === 9) {
+      phone = "250" + phone;
+    }
+    const bankName = /^(250)?7[23]/.test(phone) ? "AIRTEL" : "MTN";
 
     const payload = {
-      source: {
-        countryCode: process.env.AZAMPAY_SOURCE_COUNTRY_CODE || "RW",
-        fullName: process.env.AZAMPAY_SOURCE_FULL_NAME || "MyJudicial Platform",
-        bankName: process.env.AZAMPAY_SOURCE_BANK_NAME || "Platform Wallet",
-        accountNumber: process.env.AZAMPAY_SOURCE_ACCOUNT_NUMBER || "",
-        currency,
-      },
       destination: {
-        countryCode: process.env.AZAMPAY_DEST_COUNTRY_CODE || "RW",
-        fullName: "Expert Payout",
-        bankName: request.momoNumber.startsWith("250") ? "MTN" : "Airtel",
-        accountNumber: request.momoNumber,
-        currency,
+        bankName,
+        accountNumber: phone,
+        fullName: request.expertName || "Legal Expert",
       },
       transferDetails: {
-        type: "MOBILE_MONEY",
         amount: request.amount,
-        date: new Date().toISOString().split("T")[0],
+        dateInEpoch: Math.floor(Date.now() / 1000),
+        type: "Disbursement",
       },
-      externalReferenceId: externalId,
-      remarks: `Payout for booking ${request.bookingId}`,
+      referenceId: externalId,
+      remarks: `Payout for booking ${request.bookingId}`.slice(0, 500),
     };
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
-    if (apiKey) {
-      headers["X-API-KEY"] = apiKey;
-    }
 
     let response: Response;
     try {
-      response = await fetch(`${DISBURSEMENT_BASE_URL}/azampay/disbursement`, {
+      response = await fetch(`${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
@@ -267,6 +263,7 @@ export const AzamPayService = {
       bookingId: request.bookingId,
       externalId,
       amount: request.amount,
+      pgReferenceId: body?.data?.pgReferenceId,
     });
 
     return {
@@ -277,8 +274,7 @@ export const AzamPayService = {
 
   /**
    * Initiate a refund by disbursing funds back to the citizen's mobile number.
-   * Uses the same disbursement API as expert payouts — sends money from the
-   * platform wallet to the citizen's MoMo account.
+   * Uses Azam Pay Rwanda v2 transfers API.
    */
   async initiateRefund(
     transactionId: string,
@@ -290,9 +286,8 @@ export const AzamPayService = {
     }
   ): Promise<{ reference: string; status: string }> {
     const refundId = `RF-${Date.now()}-${randomUUID().slice(0, 8)}`;
-    const currency = options?.currency || "RWF";
 
-    // In sandbox or when disbursement endpoint is not configured, simulate
+    // In sandbox or when disbursement is not enabled, simulate
     if (!isProduction || !process.env.AZAMPAY_DISBURSEMENT_ENABLED) {
       logger.info("Simulating Azam Pay Refund (sandbox/disabled)", {
         transactionId,
@@ -311,43 +306,38 @@ export const AzamPayService = {
     }
 
     const token = await this.authenticate();
-    const apiKey = process.env.AZAMPAY_API_KEY;
+
+    let phone = options.citizenPhone.replace(/[^0-9]/g, "");
+    if (phone.startsWith("0") && phone.length === 10) {
+      phone = "250" + phone.substring(1);
+    } else if (!phone.startsWith("250") && phone.length === 9) {
+      phone = "250" + phone;
+    }
+    const bankName = /^(250)?7[23]/.test(phone) ? "AIRTEL" : "MTN";
 
     const payload = {
-      source: {
-        countryCode: process.env.AZAMPAY_SOURCE_COUNTRY_CODE || "RW",
-        fullName: process.env.AZAMPAY_SOURCE_FULL_NAME || "MyJudicial Platform",
-        bankName: process.env.AZAMPAY_SOURCE_BANK_NAME || "Platform Wallet",
-        accountNumber: process.env.AZAMPAY_SOURCE_ACCOUNT_NUMBER || "",
-        currency,
-      },
       destination: {
-        countryCode: process.env.AZAMPAY_DEST_COUNTRY_CODE || "RW",
+        bankName,
+        accountNumber: phone,
         fullName: "Client Refund",
-        bankName: options.citizenPhone.startsWith("250") ? "MTN" : "Airtel",
-        accountNumber: options.citizenPhone,
-        currency,
       },
       transferDetails: {
-        type: "MOBILE_MONEY",
         amount,
-        date: new Date().toISOString().split("T")[0],
+        dateInEpoch: Math.floor(Date.now() / 1000),
+        type: "Disbursement",
       },
-      externalReferenceId: refundId,
-      remarks: options?.reason || `Refund for transaction ${transactionId}`,
+      referenceId: refundId,
+      remarks: (options?.reason || `Refund for transaction ${transactionId}`).slice(0, 500),
     };
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     };
-    if (apiKey) {
-      headers["X-API-KEY"] = apiKey;
-    }
 
     let response: Response;
     try {
-      response = await fetch(`${DISBURSEMENT_BASE_URL}/azampay/disbursement`, {
+      response = await fetch(`${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
@@ -372,6 +362,7 @@ export const AzamPayService = {
       transactionId,
       refundId,
       amount,
+      pgReferenceId: body?.data?.pgReferenceId,
     });
 
     return { reference: refundId, status: "SUCCESSFUL" };

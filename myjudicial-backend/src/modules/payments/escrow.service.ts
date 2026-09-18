@@ -429,11 +429,12 @@ export const EscrowService = {
     const expertPayoutAmount = Number(booking.expertPayout);
     const platformFeeAmount = Number(booking.platformFee);
 
-    // 1. Send payout to expert MTN MoMo
+    // 1. Send payout to expert MoMo account (MTN or Airtel)
     const payout = await AzamPayService.sendExpertPayout({
       bookingId,
       momoNumber: booking.expert.momoNumber,
       amount: expertPayoutAmount,
+      expertName: booking.expert.displayName ?? "Legal Expert",
     });
 
     await prisma.$transaction(async (tx) => {

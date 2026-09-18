@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
-import { Menu, Bot, HelpCircle, Search, Scale, LayoutDashboard, LogOut } from "lucide-react";
+import { Menu, X, Bot, HelpCircle, Search, Scale, LayoutDashboard, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ProfileMenu } from "./profile-menu";
 
@@ -17,21 +17,38 @@ export function Header() {
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const isAdvocate = session?.user?.role === "EXPERT";
   const advocateHref = isAdvocate ? "/expert/dashboard" : "/sign-up?role=EXPERT";
   const advocateLabel = isAdvocate ? t("advocateDashboard") : t("joinAsAdvocate");
 
-  // Close mobile drawer on outside click
+  // Close mobile drawer on outside click (ignoring the toggle button itself)
   useEffect(() => {
     if (!mobileOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) {
-        setMobileOpen(false);
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (mobileRef.current?.contains(target) || buttonRef.current?.contains(target)) {
+        return;
       }
+      setMobileOpen(false);
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [mobileOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
   // Close mobile drawer on route change
@@ -91,31 +108,53 @@ export function Header() {
           <ProfileMenu />
 
           <button
+            ref={buttonRef}
             onClick={() => setMobileOpen((v) => !v)}
             className="flex lg:hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-foreground ml-1"
-            aria-label="Open menu"
+            aria-label={mobileOpen ? t("close") : t("menu")}
+            aria-expanded={mobileOpen}
           >
-            <Menu size={20} />
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
       {mobileOpen && (
         <div ref={mobileRef} className="lg:hidden border-t border-border bg-background px-4 py-4 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150">
-          <Link href="/search" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+          <Link
+            href="/search"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+          >
             <Search size={16} className="text-muted-foreground" /> {t("findLawyer")}
           </Link>
-          <Link href="/practice-areas" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+          <Link
+            href="/practice-areas"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+          >
             <Scale size={16} className="text-muted-foreground" /> {t("practiceAreas")}
           </Link>
-          <Link href="/ai" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+          <Link
+            href="/ai"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+          >
             <Bot size={16} className="text-muted-foreground" /> {t("aiAssistant")}
           </Link>
-          <Link href="/how-it-works" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent">
+          <Link
+            href="/how-it-works"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground hover:bg-accent"
+          >
             <HelpCircle size={16} className="text-muted-foreground" /> {t("howItWorks")}
           </Link>
           <div className="pt-2 mt-2 border-t border-border">
-            <Link href={advocateHref} className="flex items-center justify-between rounded-xl bg-accent/60 px-3.5 py-2.5 text-sm font-semibold text-brand-dark dark:text-white hover:bg-accent">
+            <Link
+              href={advocateHref}
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-between rounded-xl bg-accent/60 px-3.5 py-2.5 text-sm font-semibold text-brand-dark dark:text-white hover:bg-accent"
+            >
               <span>{advocateLabel}</span>
               <span className="text-xs">&rarr;</span>
             </Link>
@@ -124,12 +163,14 @@ export function Header() {
             <div className="pt-2 mt-1 border-t border-border flex items-center gap-2">
               <Link
                 href="/sign-in"
+                onClick={() => setMobileOpen(false)}
                 className="flex-1 text-center rounded-xl border border-border py-2 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
               >
                 {tNav("signIn")}
               </Link>
               <Link
                 href="/sign-up"
+                onClick={() => setMobileOpen(false)}
                 className="flex-1 text-center rounded-xl bg-brand-dark text-white py-2 text-sm font-semibold hover:bg-brand-dark/90 transition-colors"
               >
                 {tNav("signUp")}
@@ -145,13 +186,17 @@ export function Header() {
                     ? "/admin/dashboard"
                     : "/client/dashboard"
                 }
+                onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
               >
                 <LayoutDashboard size={16} className="text-muted-foreground" />
                 <span>{tNav("dashboard")}</span>
               </Link>
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => {
+                  setMobileOpen(false);
+                  signOut({ callbackUrl: "/" });
+                }}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <LogOut size={16} />

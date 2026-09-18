@@ -931,6 +931,23 @@
       "en": "English",
       "fr": "Français",
       "rw": "Kinyarwanda"
+    },
+    "badges": {
+      "new": "Nouveau"
+    },
+    "roles": {
+      "expert": "Avocat vérifié",
+      "admin": "Administrateur",
+      "client": "Client"
+    },
+    "errors": {
+      "sectionFailed": "Échec du chargement de cette section."
+    },
+    "actions": {
+      "retry": "Réessayer"
+    },
+    "aria": {
+      "accountMenu": "Menu du compte"
     }
   },
   "errors": {
@@ -1368,7 +1385,7 @@
   },
   "header": {
     "listYourPractice": "List Your Practice",
-    "joinAsAdvocate": "Rejoindre comme Avocat",
+    "joinAsAdvocate": "Devenir Avocat",
     "advocateDashboard": "Portail Avocat",
     "findLawyer": "Trouver un avocat",
     "practiceAreas": "Domaines d'Expertise",
@@ -2017,8 +2034,8 @@
       "copyright": "MyJudicial, Inc. Tous droits réservés."
     },
     "meta": {
-      "title": "MyJudicial | Find Verified Legal Experts in Rwanda",
-      "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
+      "title": "MyJudicial | Trouvez des Avocats Certifiés au Rwanda",
+      "description": "Consultez des avocats certifiés, comparez les honoraires transparents et réservez votre consultation en quelques minutes."
     },
     "hero": {
       "badge": "Réseau Juridique Certifié du Rwanda",
@@ -2084,17 +2101,17 @@
       "useAi": "Use AI Assistant"
     },
     "sort": {
-      "nearest": "Nearest",
-      "highestRated": "Highest Rated",
-      "mostExperienced": "Most Experienced",
-      "mostReviewed": "Most Reviewed"
+      "nearest": "Les plus proches",
+      "highestRated": "Les mieux notés",
+      "mostExperienced": "Les plus expérimentés",
+      "mostReviewed": "Les plus commentés"
     },
     "bar": {
-      "verified": "Verified Lawyers",
-      "transparentPricing": "Transparent Pricing",
-      "mobileMoney": "Secure Mobile Money",
-      "aiMatching": "AI Matching",
-      "realReviews": "Real Reviews"
+      "verified": "Avocats vérifiés",
+      "transparentPricing": "Tarifs transparents",
+      "mobileMoney": "Mobile Money sécurisé",
+      "aiMatching": "Recommandation IA",
+      "realReviews": "Avis authentiques"
     },
     "sections": {
       "recommended": "Avocats Recommandés",
@@ -2104,9 +2121,9 @@
       "availableTodaySub": "Besoin d'un conseil urgent ? Consultez un avocat disponible dans la journée",
       "browseAreas": "Domaines Juridiques",
       "browseAreasSub": "Sélectionnez une spécialité pour consulter un avocat certifié au Rwanda",
-      "mostBooked": "Most Booked",
+      "mostBooked": "Les plus réservés",
       "mostBookedAlt": "Top Spécialités",
-      "mostBookedSub": "Experts trusted by the most clients",
+      "mostBookedSub": "Avocats sollicités par le plus grand nombre de clients",
       "topRated": "Mieux Notés & Coups de Cœur",
       "topRatedSub": "Des avocats maintenant une note de 4.8+ issue de consultations vérifiées",
       "browseServices": "Services Juridiques",
@@ -2148,41 +2165,43 @@
       }
     },
     "trustWhy": {
-      "title": "Why Trust MyJudicial?",
+      "title": "Pourquoi faire confiance à MyJudicial ?",
       "verified": {
-        "title": "Verified Lawyers",
-        "desc": "Every expert is identity-verified and bar-certified."
+        "title": "Avocats vérifiés",
+        "desc": "Chaque expert est identifié et certifié par le Barreau du Rwanda."
       },
       "escrow": {
-        "title": "Escrow Protection",
-        "desc": "Payments held in escrow until consultation is complete."
+        "title": "Protection par séquestre",
+        "desc": "Fonds conservés en séquestre jusqu'à la fin de la consultation."
       },
       "momo": {
         "title": "Mobile Money",
-        "desc": "Pay securely with MTN or Airtel Money."
+        "desc": "Payez en toute sécurité avec MTN Mobile Money ou Airtel Money."
       },
       "pricing": {
-        "title": "Transparent Pricing",
-        "desc": "No hidden fees. Fixed consultation rates."
+        "title": "Tarifs transparents",
+        "desc": "Aucun frais caché. Honoraires forfaitaires connus à l'avance."
       },
       "reviews": {
-        "title": "Real Reviews",
-        "desc": "All reviews come from verified clients."
+        "title": "Avis authentiques",
+        "desc": "Tous les avis proviennent de clients réels ayant consulté."
       },
       "sameday": {
-        "title": "Same-day Booking",
-        "desc": "Book available lawyers within hours."
+        "title": "Réservation le jour même",
+        "desc": "Consultez un avocat disponible en quelques heures."
       }
     },
     "partnersSection": "Trusted Partners & Integrations",
     "card": {
-      "verified": "Verified",
-      "online": "Online",
+      "verified": "Vérifié",
+      "online": "En ligne",
       "consultation": "/ consultation",
-      "feeOnRequest": "Fee on request",
-      "onRequest": "On request",
-      "allExperts": "All Experts",
-      "view": "View"
+      "feeOnRequest": "Honoraires sur demande",
+      "onRequest": "Sur demande",
+      "allExperts": "Tous les experts",
+      "view": "Voir le profil",
+      "expertCount": "{count, plural, =1 {# expert} other {# experts}}",
+      "experience": "{count, plural, =1 {# an d'expérience} other {# ans d'expérience}}"
     },
     "empty": {
       "noResults": "No experts found",
@@ -2191,10 +2210,10 @@
       "resultsCount": "{count, plural, =1 {# expert found} other {# experts found}}"
     },
     "search": {
-      "placeholder": "Search by name or specialty…",
-      "nearMe": "Search near me on map",
-      "clear": "Clear",
-      "availableToday": "Available Today",
+      "placeholder": "Rechercher par nom ou spécialité…",
+      "nearMe": "Rechercher près de moi sur la carte",
+      "clear": "Effacer la recherche",
+      "availableToday": "Disponible aujourd'hui",
       "viewAllOnSearch": "Voir tous les résultats"
     },
     "stats": {
@@ -4617,5 +4636,18 @@
     "notFound": "Not Found",
     "joinConsultation": "Join Consultation",
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client."
+  },
+  "specialties": {
+    "FAMILY_LAW": "Droit de la famille",
+    "COMMERCIAL_LAW": "Droit commercial",
+    "EMPLOYMENT_LAW": "Droit du travail",
+    "LAND_LAW": "Droit foncier & immobilier",
+    "CRIMINAL_LAW": "Droit pénal & défense",
+    "TAX_LAW": "Droit fiscal & des affaires",
+    "IMMIGRATION_LAW": "Droit de l'immigration",
+    "CORPORATE_LAW": "Droit des sociétés",
+    "CONTRACT_LAW": "Droit des contrats",
+    "INTELLECTUAL_PROPERTY": "Propriété intellectuelle",
+    "OTHER": "Autre"
   }
 }

@@ -24,6 +24,7 @@ export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
   const tNav = useTranslations("nav");
+  const tCommon = useTranslations("common");
 
   useEffect(() => {
     if (!open) return;
@@ -49,16 +50,16 @@ export function ProfileMenu() {
   // ─── Unauthenticated (Guest): Direct 1-Click Actions (Desktop lg+) ───
   if (!isAuthed) {
     return (
-      <div className="hidden lg:flex items-center gap-1 ml-1">
+      <div className="hidden lg:flex items-center gap-1 ml-1 shrink-0">
         <Link
           href="/sign-in"
-          className="inline-flex h-9 items-center px-3 text-sm font-semibold text-foreground hover:text-brand-dark dark:hover:text-white transition-colors rounded-full hover:bg-accent"
+          className="inline-flex h-9 items-center px-3 text-sm font-semibold text-foreground hover:text-brand-dark dark:hover:text-white transition-colors rounded-full hover:bg-accent whitespace-nowrap shrink-0"
         >
           {tNav("signIn")}
         </Link>
         <Link
           href="/sign-up"
-          className="inline-flex h-9 items-center px-3.5 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-brand-dark dark:hover:bg-white/90 shadow-2xs transition-all"
+          className="inline-flex h-9 items-center px-3.5 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-brand-dark dark:hover:bg-white/90 shadow-2xs transition-all whitespace-nowrap shrink-0"
         >
           {tNav("signUp")}
         </Link>
@@ -122,10 +123,10 @@ export function ProfileMenu() {
             <p className="truncate text-xs text-muted-foreground mt-0.5">{email}</p>
             <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-foreground/80 tracking-wide">
               {session.user.role === "EXPERT"
-                ? "Verified Advocate"
+                ? (tCommon("roles.expert") || "Verified Advocate")
                 : session.user.role === "ADMIN"
-                ? "Platform Admin"
-                : "Client"}
+                ? (tCommon("roles.admin") || "Platform Admin")
+                : (tCommon("roles.client") || "Client")}
             </div>
           </div>
           <div className="my-1 border-t border-border" />

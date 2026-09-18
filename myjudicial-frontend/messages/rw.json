@@ -931,6 +931,23 @@
       "en": "English",
       "fr": "Français",
       "rw": "Kinyarwanda"
+    },
+    "badges": {
+      "new": "Gishya"
+    },
+    "roles": {
+      "expert": "Umwavoka wemewe",
+      "admin": "Umuhuzabikorwa",
+      "client": "Umukiriya"
+    },
+    "errors": {
+      "sectionFailed": "Gufungura iki gice byanze."
+    },
+    "actions": {
+      "retry": "Ongera ugerageze"
+    },
+    "aria": {
+      "accountMenu": "Ibyerekeye konti"
     }
   },
   "errors": {
@@ -1368,7 +1385,7 @@
   },
   "header": {
     "listYourPractice": "List Your Practice",
-    "joinAsAdvocate": "Iyandikishe nk'Umunyamategeko",
+    "joinAsAdvocate": "Kuba Umwavoka",
     "advocateDashboard": "Urubuga rw'Umunyamategeko",
     "findLawyer": "Shakisha Umunyamategeko",
     "practiceAreas": "Amashami y'Amategeko",
@@ -2017,8 +2034,8 @@
       "copyright": "MyJudicial, Inc. Uburenganzira bwose bwubahirizwa."
     },
     "meta": {
-      "title": "MyJudicial | Find Verified Legal Experts in Rwanda",
-      "description": "Browse verified legal experts, compare fixed fees, and book consultations in minutes."
+      "title": "MyJudicial | Shaka Abavoka Bemejwe mu Rwanda",
+      "description": "Shaka abavoka bemejwe, gereranya ibiciro bisobanutse, kandi ufate gahunda yo kugisha inama mu minota mike."
     },
     "hero": {
       "badge": "Urubuga rw'Abavoka Biyandikishije mu Rwanda",
@@ -2084,17 +2101,17 @@
       "useAi": "Use AI Assistant"
     },
     "sort": {
-      "nearest": "Nearest",
-      "highestRated": "Highest Rated",
-      "mostExperienced": "Most Experienced",
-      "mostReviewed": "Most Reviewed"
+      "nearest": "Abari hafi",
+      "highestRated": "Abakunzwe cyane",
+      "mostExperienced": "Abafite uburambe",
+      "mostReviewed": "Bafite ibitekerezo byinshi"
     },
     "bar": {
-      "verified": "Verified Lawyers",
-      "transparentPricing": "Transparent Pricing",
-      "mobileMoney": "Secure Mobile Money",
-      "aiMatching": "AI Matching",
-      "realReviews": "Real Reviews"
+      "verified": "Abavoka bemejwe",
+      "transparentPricing": "Ibiciro bisobanutse",
+      "mobileMoney": "Mobile Money yizewe",
+      "aiMatching": "Guhuza na AI",
+      "realReviews": "Ubuhamya nyakuri"
     },
     "sections": {
       "recommended": "Abavoka Batoranyijwe",
@@ -2104,9 +2121,9 @@
       "availableTodaySub": "Ukeneye ubufasha bwihuse mu mategeko? Vugana n'umwavoka uri ku murongo ubu",
       "browseAreas": "Amashami y'Amategeko",
       "browseAreasSub": "Hitamo igice cy'amategeko ukeneyemo ubufasha bw'umwavoka wemewe mu Rwanda",
-      "mostBooked": "Most Booked",
+      "mostBooked": "Abasabwa cyane",
       "mostBookedAlt": "Imyanya Y'Ingenzi",
-      "mostBookedSub": "Experts trusted by the most clients",
+      "mostBookedSub": "Abavoka bafitiwe ikizere n'abakiriya benshi",
       "topRated": "Abakunzwe Cyane & Bafite Inota Ryo Hejuru",
       "topRatedSub": "Abavoka bafite amanota 4.8+ yemejwe n'abakiriya bamaze guhabwa serivisi",
       "browseServices": "Serivisi z'Amategeko",
@@ -2148,41 +2165,43 @@
       }
     },
     "trustWhy": {
-      "title": "Why Trust MyJudicial?",
+      "title": "Kuki Wizera MyJudicial?",
       "verified": {
-        "title": "Verified Lawyers",
-        "desc": "Every expert is identity-verified and bar-certified."
+        "title": "Abavoka Bemejwe",
+        "desc": "Buri munyamategeko yaragenzuwe kandi yemejwe n'Urugaga rw'Abavoka mu Rwanda."
       },
       "escrow": {
-        "title": "Escrow Protection",
-        "desc": "Payments held in escrow until consultation is complete."
+        "title": "Umutekano w'Amafaranga",
+        "desc": "Amafaranga abikwa mu buryo bwizewe kugeza inama irangiye neza."
       },
       "momo": {
         "title": "Mobile Money",
-        "desc": "Pay securely with MTN or Airtel Money."
+        "desc": "Ishyura mu mutekano ukoresheje MTN MoMo cyangwa Airtel Money."
       },
       "pricing": {
-        "title": "Transparent Pricing",
-        "desc": "No hidden fees. Fixed consultation rates."
+        "title": "Ibiciro Bisobanutse",
+        "desc": "Nta mafaranga y'ihishaho. Ibiciro by'inama birazwi mbere."
       },
       "reviews": {
-        "title": "Real Reviews",
-        "desc": "All reviews come from verified clients."
+        "title": "Ubuhamya Nyakuri",
+        "desc": "Ibitekerezo byose bitangwa n'abakiriya babonye serivisi by'ukuri."
       },
       "sameday": {
-        "title": "Same-day Booking",
-        "desc": "Book available lawyers within hours."
+        "title": "Gufata Gahunda Uyu Munsi",
+        "desc": "Bona umwavoka uboneka mu masaha make akugire inama."
       }
     },
     "partnersSection": "Trusted Partners & Integrations",
     "card": {
-      "verified": "Verified",
-      "online": "Online",
-      "consultation": "/ consultation",
-      "feeOnRequest": "Fee on request",
-      "onRequest": "On request",
-      "allExperts": "All Experts",
-      "view": "View"
+      "verified": "Yemejwe",
+      "online": "Ari ku murongo",
+      "consultation": "/ ku nama",
+      "feeOnRequest": "Ibiciro ku busabe",
+      "onRequest": "Ku busabe",
+      "allExperts": "Abahanga bose",
+      "view": "Reba umwirondoro",
+      "expertCount": "{count, plural, =1 {Inzobere #} other {Inzobere #}}",
+      "experience": "{count, plural, =1 {Umwaka # w'uburambe} other {Imyaka # y'uburambe}}"
     },
     "empty": {
       "noResults": "No experts found",
@@ -2191,11 +2210,11 @@
       "resultsCount": "{count, plural, =1 {# expert found} other {# experts found}}"
     },
     "search": {
-      "placeholder": "Search by name or specialty…",
-      "nearMe": "Search near me on map",
-      "clear": "Clear",
-      "availableToday": "Available Today",
-      "viewAllOnSearch": "Reba ibisubizo byose"
+      "placeholder": "Shakisha ku izina cyangwa umwuga…",
+      "nearMe": "Shakisha abari hafi yanjye ku ikarita",
+      "clear": "Siba ibyanditswe",
+      "availableToday": "Baboneka uyu munsi",
+      "viewAllOnSearch": "Raba ibisubizo byose"
     },
     "stats": {
       "lawyers": "Avoka bemejwe",
@@ -4617,5 +4636,18 @@
     "notFound": "Not Found",
     "joinConsultation": "Join Consultation",
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client."
+  },
+  "specialties": {
+    "FAMILY_LAW": "Amategeko y'umuryango",
+    "COMMERCIAL_LAW": "Amategeko y'ubucuruzi",
+    "EMPLOYMENT_LAW": "Amategeko y'umurimo",
+    "LAND_LAW": "Amategeko y'ubutaka n'umutungo",
+    "CRIMINAL_LAW": "Amategeko mpanabyaha",
+    "TAX_LAW": "Amategeko y'imisoro n'amahoro",
+    "IMMIGRATION_LAW": "Amategeko yo kwinjira no gutura",
+    "CORPORATE_LAW": "Amategeko y'amasosiyete",
+    "CONTRACT_LAW": "Amategeko y'amasezerano",
+    "INTELLECTUAL_PROPERTY": "Umutungo mu by'ubwenge",
+    "OTHER": "Ibindi"
   }
 }

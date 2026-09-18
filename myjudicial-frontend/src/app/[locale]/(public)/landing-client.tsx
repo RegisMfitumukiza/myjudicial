@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { StarRating } from "@/shared/components/star-rating";
 import { SPECIALTY_ICON_MAP, SPECIALTY_ICON_CHIP } from "@/shared/constants/marketplace";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import {
   usePracticeAreas,
   useRecommendedExperts,
@@ -58,7 +59,9 @@ const TRUST_WHY_KEYS = [
 
 function ExpertCard({ expert }: { expert: LandingExpert }) {
   const t = useTranslations("landing");
+  const tSpecialties = useTranslations("specialties");
   const isOnline = expert.presenceStatus === "ONLINE";
+  const specialtyLabel = getLocalizedSpecialty(expert.specialty, tSpecialties);
 
   return (
     <Link
@@ -83,9 +86,9 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
               <BadgeCheck size={13} className="shrink-0 text-brand-dark dark:text-white" />
             )}
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1 capitalize">
-            {expert.specialty?.replace(/_/g, " ").toLowerCase()}
-            {expert.yearsExperience ? ` · ${expert.yearsExperience}yr${expert.yearsExperience !== 1 ? "s" : ""}` : ""}
+          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+            {specialtyLabel}
+            {expert.yearsExperience ? ` · ${t("card.experience", { count: expert.yearsExperience })}` : ""}
           </p>
         </div>
       </div>
@@ -229,7 +232,11 @@ function ExpertHorizontalRow({
 // ─── Practice Area Card ───────────────────────────────────────────────────────
 
 function PracticeAreaCard({ area }: { area: PracticeArea }) {
+  const t = useTranslations("landing");
+  const tSpecialties = useTranslations("specialties");
   const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
+  const label = getLocalizedSpecialty(area.specialty, tSpecialties) || area.label;
+
   return (
     <Link
       href={`/search?specialty=${encodeURIComponent(area.specialty)}`}
@@ -239,9 +246,9 @@ function PracticeAreaCard({ area }: { area: PracticeArea }) {
         <Icon size={20} />
       </div>
       <div>
-        <p className="text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">{area.label}</p>
+        <p className="text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">{label}</p>
         <p className="text-[12px] text-muted-foreground">
-          {area.expertCount} expert{area.expertCount !== 1 ? "s" : ""}
+          {t("card.expertCount", { count: area.expertCount })}
         </p>
       </div>
     </Link>
@@ -251,6 +258,9 @@ function PracticeAreaCard({ area }: { area: PracticeArea }) {
 // ─── Review Card ─────────────────────────────────────────────────────────────
 
 function ReviewCard({ review }: { review: FeaturedReview }) {
+  const tSpecialties = useTranslations("specialties");
+  const specialtyLabel = getLocalizedSpecialty(review.expertSpecialty, tSpecialties);
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center gap-3">
@@ -265,8 +275,8 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
       )}
       <div className="mt-auto flex items-center justify-between border-t border-border pt-2">
         <span className="text-xs text-muted-foreground">{review.clientName}</span>
-        <span className="text-xs text-muted-foreground capitalize">
-          {review.expertSpecialty?.replace(/_/g, " ").toLowerCase()}
+        <span className="text-xs text-muted-foreground">
+          {specialtyLabel}
         </span>
       </div>
     </div>
@@ -277,6 +287,7 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
 
 export default function LandingPage() {
   const t = useTranslations("landing");
+  const tSpecialties = useTranslations("specialties");
   const router = useRouter();
 
   const [search, setSearch] = useState("");
@@ -381,6 +392,7 @@ export default function LandingPage() {
                     </button>
                     {practiceAreas?.map((area) => {
                       const Icon = SPECIALTY_ICON_MAP[area.specialty] ?? Scale;
+                      const label = getLocalizedSpecialty(area.specialty, tSpecialties) || area.label;
                       return (
                         <button
                           key={area.specialty}
@@ -388,7 +400,7 @@ export default function LandingPage() {
                           onClick={() => { setCategoryOpen(false); router.push(`/search?specialty=${encodeURIComponent(area.specialty)}`); }}
                           className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-accent"
                         >
-                          <Icon size={14} /> {area.label}
+                          <Icon size={14} /> {label}
                         </button>
                       );
                     })}
@@ -411,7 +423,7 @@ export default function LandingPage() {
                   <button
                     onClick={() => setSearch("")}
                     className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
-                    aria-label="Clear search text"
+                    aria-label={t("search.clear")}
                   >
                     <X size={14} />
                   </button>

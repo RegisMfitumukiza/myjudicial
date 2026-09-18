@@ -2,6 +2,7 @@
 
 import { Component, type ReactNode, useCallback, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type BoundaryProps = {
   children: ReactNode;
@@ -45,17 +46,18 @@ export class SectionBoundary extends Component<BoundaryProps, BoundaryState> {
 export function SectionRetryBoundary({ children }: { children: ReactNode }) {
   const [key, setKey] = useState(0);
   const retry = useCallback(() => setKey((k) => k + 1), []);
+  const t = useTranslations("common");
 
   return (
     <SectionBoundary
       fallback={
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-muted-foreground">This section failed to load.</p>
+          <p className="text-sm text-muted-foreground">{t("errors.sectionFailed") || "This section failed to load."}</p>
           <button
             onClick={retry}
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark dark:text-white hover:underline"
           >
-            <RefreshCw size={13} /> Retry
+            <RefreshCw size={13} /> {t("actions.retry") || "Retry"}
           </button>
         </div>
       }

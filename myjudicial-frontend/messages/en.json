@@ -1350,6 +1350,23 @@
       "en": "English",
       "fr": "Français",
       "rw": "Kinyarwanda"
+    },
+    "badges": {
+      "new": "New"
+    },
+    "roles": {
+      "expert": "Verified Advocate",
+      "admin": "Platform Admin",
+      "client": "Client"
+    },
+    "errors": {
+      "sectionFailed": "This section failed to load."
+    },
+    "actions": {
+      "retry": "Retry"
+    },
+    "aria": {
+      "accountMenu": "Account menu"
     }
   },
   "contactPage": {
@@ -2974,7 +2991,7 @@
   },
   "header": {
     "listYourPractice": "List Your Practice",
-    "joinAsAdvocate": "Join as an Advocate",
+    "joinAsAdvocate": "Join as Advocate",
     "advocateDashboard": "Advocate Portal",
     "findLawyer": "Find a Lawyer",
     "practiceAreas": "Practice Areas",
@@ -3247,7 +3264,9 @@
       "feeOnRequest": "Fee on request",
       "onRequest": "On request",
       "allExperts": "All Experts",
-      "view": "View"
+      "view": "View Profile",
+      "expertCount": "{count, plural, =1 {# expert} other {# experts}}",
+      "experience": "{count, plural, =1 {# yr} other {# yrs}}"
     },
     "empty": {
       "noResults": "No experts found",
@@ -3258,7 +3277,7 @@
     "search": {
       "placeholder": "Search by name or specialty…",
       "nearMe": "Search near me on map",
-      "clear": "Clear",
+      "clear": "Clear search text",
       "availableToday": "Available Today",
       "viewAllOnSearch": "View all results"
     },
@@ -4617,5 +4636,18 @@
       "sat": "Sat",
       "sun": "Sun"
     }
+  },
+  "specialties": {
+    "FAMILY_LAW": "Family Law",
+    "COMMERCIAL_LAW": "Commercial Law",
+    "EMPLOYMENT_LAW": "Employment Law",
+    "LAND_LAW": "Land & Property Law",
+    "CRIMINAL_LAW": "Criminal Defense",
+    "TAX_LAW": "Tax & Revenue Law",
+    "IMMIGRATION_LAW": "Immigration Law",
+    "CORPORATE_LAW": "Corporate Law",
+    "CONTRACT_LAW": "Contract Law",
+    "INTELLECTUAL_PROPERTY": "Intellectual Property",
+    "OTHER": "Other"
   }
 }

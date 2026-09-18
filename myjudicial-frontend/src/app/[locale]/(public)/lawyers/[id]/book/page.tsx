@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, use, useMemo } from "react";
+import { useState, useEffect, use, useMemo, Suspense } from "react";
 import { Link } from "@/i18n/routing";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   ChevronLeft, ChevronRight, Calendar as CalendarIcon,
   ArrowRight, CheckCircle, MessageSquare,
@@ -115,9 +115,11 @@ function BookingError({ t, tCommon }: { t: ReturnType<typeof useTranslations>; t
   );
 }
 
-export default function BookingPage({ params }: { params: Promise<{ id: string }> }) {
+function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const requestedServiceId = searchParams.get("serviceId");
   const { requireAuth, status: authStatus } = useRequireBookingAuth();
   const t = useTranslations("booking");
   const tCommon = useTranslations("common");
@@ -162,10 +164,15 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   const canSubmit = selectedDate !== null && selectedSlot !== null && activeService !== null;
 
   useEffect(() => {
-    if (!selectedService && services.length > 0) {
+    if (services.length === 0) return;
+    if (requestedServiceId && services.some((s) => s.id === requestedServiceId)) {
+      if (selectedService !== requestedServiceId) {
+        setSelectedService(requestedServiceId);
+      }
+    } else if (!selectedService) {
       setSelectedService(services[0].id);
     }
-  }, [services, selectedService]);
+  }, [services, requestedServiceId, selectedService]);
 
   function prevMonth() {
     if (month === 0) { setMonth(11); setYear((y) => y - 1); }
@@ -535,5 +542,13 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
         </div>
       )}
     </div>
+  );
+}
+
+export default function BookingPage(props: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<BookingSkeleton />}>
+      <BookingContent {...props} />
+    </Suspense>
   );
 }

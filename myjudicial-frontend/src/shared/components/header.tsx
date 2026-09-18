@@ -70,12 +70,12 @@ export function Header() {
       <div className="mx-auto flex max-w-[1400px] h-16 items-center gap-2 px-4 sm:px-6">
 
         {/* Logo */}
-        <div className="flex flex-1 items-center justify-start shrink-0 mr-4">
+        <div className="flex items-center justify-start shrink-0 mr-3 lg:mr-6">
           <Logo iconSize={22} fontSize="text-[18px]" className="text-brand-dark dark:text-white" />
         </div>
 
         {/* Primary Nav Links */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 shrink-0">
           <Link href="/search" className={navLinkClass("/search")}>
             {t("findLawyer")}
           </Link>
@@ -93,10 +93,10 @@ export function Header() {
         </nav>
 
         {/* Right side actions */}
-        <div className="flex flex-1 items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-1.5 shrink-0 ml-auto">
           <Link
             href={advocateHref}
-            className="hidden md:inline-flex items-center h-9 px-4 text-sm font-semibold text-foreground rounded-full border border-border transition-all hover:bg-accent hover:text-brand-dark dark:hover:text-white shadow-2xs"
+            className="hidden md:inline-flex items-center h-9 px-3.5 sm:px-4 text-sm font-semibold text-foreground rounded-full border border-border transition-all hover:bg-accent hover:text-brand-dark dark:hover:text-white shadow-2xs whitespace-nowrap shrink-0"
           >
             {advocateLabel}
           </Link>

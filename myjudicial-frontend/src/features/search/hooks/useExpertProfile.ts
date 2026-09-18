@@ -22,6 +22,7 @@ export type ExpertProfileData = {
   id: string;
   name: string;
   specialty: string;
+  specialties: string[];
   rating: number;
   reviewCount: number;
   location: string;
@@ -43,7 +44,25 @@ export type ExpertProfileData = {
   certifications: ExpertCertification[];
 };
 
-function humanizeSpecialty(specialty: string): string {
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: "English",
+  fr: "Français",
+  rw: "Kinyarwanda",
+  sw: "Kiswahili",
+  de: "Deutsch",
+  es: "Español",
+  zh: "Mandarin",
+  ar: "العربية",
+};
+
+export function humanizeLanguage(lang: string): string {
+  if (!lang) return "";
+  const code = lang.trim().toLowerCase();
+  return LANGUAGE_LABELS[code] || (code.length === 2 ? code.toUpperCase() : lang.charAt(0).toUpperCase() + lang.slice(1));
+}
+
+export function humanizeSpecialty(specialty: string): string {
+  if (!specialty) return "";
   return specialty
     .toLowerCase()
     .split("_")
@@ -54,17 +73,23 @@ function humanizeSpecialty(specialty: string): string {
 function toExpertProfileData(raw: ExpertProfile, rating: number, reviewCount: number): ExpertProfileData {
   const fee = raw.baseConsultationFee !== null ? Number(raw.baseConsultationFee) : 0;
   const user = (raw as any).user;
+  const rawSpecialties: string[] = Array.isArray((raw as any).specialties) && (raw as any).specialties.length > 0
+    ? (raw as any).specialties
+    : [raw.primarySpecialty].filter(Boolean);
+  const formattedSpecialties = rawSpecialties.map((s) => humanizeSpecialty(s));
+
   return {
     id: raw.id,
     name: raw.displayName,
-    specialty: humanizeSpecialty(raw.primarySpecialty),
+    specialty: humanizeSpecialty(raw.primarySpecialty) || formattedSpecialties[0] || "Legal Services",
+    specialties: formattedSpecialties.length > 0 ? formattedSpecialties : ["Legal Services"],
     rating,
     reviewCount,
     location: [raw.city, raw.country].filter(Boolean).join(", ") || raw.officeAddress || "",
     price: fee,
     startingRateRwf: fee,
     yearsExperience: raw.yearsExperience ?? 0,
-    languages: raw.languages ?? [],
+    languages: (raw.languages ?? []).map((l: string) => humanizeLanguage(l)).filter(Boolean),
     bio: raw.bio ?? "",
     verified: raw.status === "VERIFIED",
     avatarUrl: (raw as any).profileImageUrl ?? null,

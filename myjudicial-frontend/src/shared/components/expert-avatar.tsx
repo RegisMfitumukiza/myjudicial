@@ -15,6 +15,7 @@ type ExpertAvatarProps = {
   src: string | null | undefined;
   name: string;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  shape?: "circle" | "squircle";
   className?: string;
 };
 
@@ -32,24 +33,26 @@ const sizeClasses: Record<string, string> = {
  * - Renders the photo when `src` is a valid URL.
  * - Falls back to initials circle when `src` is null/empty.
  * - Falls back to initials circle if the image fails to load (onError).
+ * - Supports circular and squircle (rounded-2xl) shapes.
  * - Zero external dependencies. No pravatar.cc. No broken images.
  */
-export function ExpertAvatar({ src, name, size = "md", className = "" }: ExpertAvatarProps) {
+export function ExpertAvatar({ src, name, size = "md", shape = "circle", className = "" }: ExpertAvatarProps) {
   const [imgError, setImgError] = useState(false);
   const initials = getInitials(name);
   const showImage = src && !imgError;
 
   const handleError = useCallback(() => setImgError(true), []);
+  const shapeClass = shape === "squircle" ? "rounded-2xl" : "rounded-full";
 
   return (
     <div
-      className={`relative inline-flex shrink-0 items-center justify-center rounded-full bg-brand-dark font-bold text-on-brand ${sizeClasses[size]} ${className}`}
+      className={`relative inline-flex shrink-0 items-center justify-center ${shapeClass} bg-brand-dark font-bold text-on-brand ${sizeClasses[size]} ${className}`}
     >
       {showImage ? (
         <img
           src={src}
           alt={name}
-          className="h-full w-full rounded-full object-cover"
+          className={`h-full w-full ${shapeClass} object-cover`}
           loading="lazy"
           onError={handleError}
         />

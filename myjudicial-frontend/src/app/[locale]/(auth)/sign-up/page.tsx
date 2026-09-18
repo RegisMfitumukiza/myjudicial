@@ -132,6 +132,18 @@ export default function SignUpPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const roleParam = params.get("role");
+      if (roleParam === "EXPERT") {
+        setRole("EXPERT");
+      } else if (roleParam === "CITIZEN") {
+        setRole("CITIZEN");
+      }
+    }
+  }, []);
+
   /* ─── citizen intake ─── */
   const [cArea, setCArea] = useState("");
   const [cSituation, setCSituation] = useState("");

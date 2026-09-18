@@ -11,42 +11,40 @@ import { useTranslations } from "next-intl";
 import { ProfileMenu } from "./profile-menu";
 
 export function Header() {
+  const t = useTranslations("header");
+  const tNav = useTranslations("nav");
+  const pathname = usePathname();
+  const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-  const t = useTranslations("header");
-  const { data: session } = useSession();
 
-  const isExpert = session?.user?.role === "EXPERT";
-  const advocateHref = isExpert ? "/expert/dashboard" : "/sign-up?role=EXPERT";
-  const advocateLabel = isExpert ? t("advocateDashboard") : t("joinAsAdvocate");
+  const isAdvocate = session?.user?.role === "EXPERT";
+  const advocateHref = isAdvocate ? "/expert/dashboard" : "/sign-up?role=EXPERT";
+  const advocateLabel = isAdvocate ? t("advocateDashboard") : t("joinAsAdvocate");
 
+  // Close mobile drawer on outside click
   useEffect(() => {
     if (!mobileOpen) return;
     const handler = (e: MouseEvent) => {
-      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileOpen(false);
+      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) {
+        setMobileOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [mobileOpen]);
 
+  // Close mobile drawer on route change
   useEffect(() => {
-    if (!mobileOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [mobileOpen]);
-
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+    setMobileOpen(false);
+  }, [pathname]);
 
   const navLinkClass = (href: string) => {
-    const active = pathname === href || (href !== "/" && pathname.startsWith(href));
-    return `hidden lg:block px-3.5 py-1.5 text-sm font-medium rounded-full transition-colors ${
+    const active = pathname.startsWith(href);
+    return `rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
       active
-        ? "text-brand-dark dark:text-white font-semibold bg-accent/70 shadow-2xs"
-        : "text-foreground hover:bg-accent"
+        ? "bg-accent text-brand-dark dark:text-white font-semibold"
+        : "text-foreground/80 hover:text-foreground hover:bg-accent/60"
     }`;
   };
 
@@ -81,14 +79,14 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end gap-1.5">
           <Link
             href={advocateHref}
-            className="hidden md:inline-flex items-center px-4 py-2 text-sm font-semibold text-foreground rounded-full border border-border transition-all hover:bg-accent hover:text-brand-dark dark:hover:text-white shadow-2xs"
+            className="hidden md:inline-flex items-center h-9 px-4 text-sm font-semibold text-foreground rounded-full border border-border transition-all hover:bg-accent hover:text-brand-dark dark:hover:text-white shadow-2xs"
           >
             {advocateLabel}
           </Link>
 
           <LanguageSwitcher variant="header" />
 
-          <ThemeToggle />
+          <ThemeToggle variant="header" />
 
           <ProfileMenu />
 
@@ -122,6 +120,22 @@ export function Header() {
               <span className="text-xs">&rarr;</span>
             </Link>
           </div>
+          {!session && (
+            <div className="pt-2 mt-1 border-t border-border flex items-center gap-2">
+              <Link
+                href="/sign-in"
+                className="flex-1 text-center rounded-xl border border-border py-2 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
+              >
+                {tNav("signIn")}
+              </Link>
+              <Link
+                href="/sign-up"
+                className="flex-1 text-center rounded-xl bg-brand-dark text-white py-2 text-sm font-semibold hover:bg-brand-dark/90 transition-colors"
+              >
+                {tNav("signUp")}
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>

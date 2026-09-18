@@ -43,9 +43,13 @@ export function OfficeMap({ latitude, longitude, label, className }: OfficeMapPr
       zoom: 15,
       interactive: true,
       attributionControl: false,
+      scrollZoom: false,
     });
 
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false, showZoom: false }), "top-right");
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false, showZoom: true }),
+      "top-right"
+    );
 
     const el = document.createElement("div");
     el.className = "office-marker";

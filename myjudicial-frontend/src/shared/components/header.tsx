@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { usePathname, Link } from "@/i18n/routing";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
-import { Menu, Bot, HelpCircle, Search, Scale } from "lucide-react";
+import { Menu, Bot, HelpCircle, Search, Scale, LayoutDashboard, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ProfileMenu } from "./profile-menu";
 
@@ -120,7 +120,7 @@ export function Header() {
               <span className="text-xs">&rarr;</span>
             </Link>
           </div>
-          {!session && (
+          {!session ? (
             <div className="pt-2 mt-1 border-t border-border flex items-center gap-2">
               <Link
                 href="/sign-in"
@@ -134,6 +134,29 @@ export function Header() {
               >
                 {tNav("signUp")}
               </Link>
+            </div>
+          ) : (
+            <div className="pt-2 mt-1 border-t border-border space-y-1">
+              <Link
+                href={
+                  session.user.role === "EXPERT"
+                    ? "/expert/dashboard"
+                    : session.user.role === "ADMIN"
+                    ? "/admin/dashboard"
+                    : "/client/dashboard"
+                }
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              >
+                <LayoutDashboard size={16} className="text-muted-foreground" />
+                <span>{tNav("dashboard")}</span>
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut size={16} />
+                <span>{tNav("signOut")}</span>
+              </button>
             </div>
           )}
         </div>

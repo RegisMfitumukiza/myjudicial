@@ -46,10 +46,10 @@ export function ProfileMenu() {
 
   const isAuthed = !!session;
 
-  // ─── Unauthenticated (Guest): Direct 1-Click Actions ───
+  // ─── Unauthenticated (Guest): Direct 1-Click Actions (Desktop lg+) ───
   if (!isAuthed) {
     return (
-      <div className="flex items-center gap-1 ml-0.5">
+      <div className="hidden lg:flex items-center gap-1 ml-1">
         <Link
           href="/sign-in"
           className="inline-flex h-9 items-center px-3 text-sm font-semibold text-foreground hover:text-brand-dark dark:hover:text-white transition-colors rounded-full hover:bg-accent"
@@ -58,7 +58,7 @@ export function ProfileMenu() {
         </Link>
         <Link
           href="/sign-up"
-          className="hidden sm:inline-flex h-9 items-center px-3.5 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-brand-dark dark:hover:bg-white/90 shadow-2xs transition-all"
+          className="inline-flex h-9 items-center px-3.5 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-brand-dark dark:hover:bg-white/90 shadow-2xs transition-all"
         >
           {tNav("signUp")}
         </Link>
@@ -87,7 +87,7 @@ export function ProfileMenu() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label="Account menu"
-        className="flex h-9 items-center gap-2 rounded-full border border-border bg-background pl-1 pr-2.5 transition-all hover:bg-accent hover:border-foreground/20 hover:shadow-2xs"
+        className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-full border border-border bg-background pl-1 pr-1 sm:pr-2.5 transition-all hover:bg-accent hover:border-foreground/20 hover:shadow-2xs"
       >
         {showPhoto ? (
           <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-border/60 shrink-0">
@@ -109,7 +109,7 @@ export function ProfileMenu() {
         </span>
         <ChevronDown
           size={12}
-          className={`text-muted-foreground transition-transform duration-200 shrink-0 ${
+          className={`hidden sm:inline text-muted-foreground transition-transform duration-200 shrink-0 ${
             open ? "rotate-180" : ""
           }`}
         />

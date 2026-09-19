@@ -813,6 +813,8 @@
     "service": "Service",
     "notSelected": "Non sélectionné",
     "mode": "Mode",
+    "documentSlotHint": "Ce créneau correspond au briefing initial et à la prise en charge de votre dossier. Les documents juridiques seront préparés et livrés selon ce calendrier.",
+    "inPersonSlotHint": "Ce créneau correspond à votre heure d'arrivée au cabinet de l'avocat.",
     "total": "Total",
     "bookingSummary": "Résumé de la réservation",
     "paymentDetails": "Détails du paiement",
@@ -2856,7 +2858,11 @@
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
       "legalExpert": "Legal Expert",
-      "consultationLabel": "Consultation"
+      "consultationLabel": "Consultation",
+      "modeVideo": "Appel vidéo",
+      "modeInPerson": "Au cabinet (En personne)",
+      "modePhone": "Appel téléphonique",
+      "modeDocument": "Dossier de documents"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -2882,7 +2888,9 @@
       "ready": "Ready",
       "notFound": "Not Found",
       "joinConsultation": "Join Consultation",
-      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer."
+      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer.",
+      "inPersonNotice": "Il s'agit d'un rendez-vous en personne prévu au cabinet de l'avocat. La salle vidéo n'est pas requise.",
+      "viewOfficeDetails": "Voir l'adresse du cabinet & détails"
     },
     "consultationDetail": {
       "toasts": {
@@ -2932,6 +2940,20 @@
       "leaveReview": "Leave Review",
       "downloadReceipt": "Download Receipt",
       "addToCalendar": "Add to Calendar",
+      "inPersonTitle": "Rendez-vous au cabinet de l'avocat",
+      "inPersonDesc": "Cette consultation aura lieu en personne au cabinet officiel de l'avocat.",
+      "officeAddressLabel": "Adresse du cabinet",
+      "getDirections": "Obtenir l'itinéraire (Google Maps)",
+      "arrivalNotice": "Veuillez arriver 10 minutes avant l'heure prévue. Votre paiement bloqué sous séquestre est protégé jusqu'après le rendez-vous.",
+      "phoneTitle": "Consultation téléphonique",
+      "phoneDesc": "L'avocat vous appellera sur votre numéro de téléphone enregistré à l'heure du rendez-vous.",
+      "documentReviewTitle": "Prestation de documents juridiques",
+      "documentReviewDesc": "Il s'agit d'un forfait juridique basé sur des documents. Veuillez consulter ou déposer vos pièces dans la section Documents du dossier ci-dessous.",
+      "viewCaseDocuments": "Voir les documents du dossier",
+      "modeVideo": "Appel vidéo",
+      "modeInPerson": "Au cabinet (En personne)",
+      "modePhone": "Appel téléphonique",
+      "modeDocument": "Dossier de documents",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",

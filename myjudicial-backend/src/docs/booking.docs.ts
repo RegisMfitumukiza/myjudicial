@@ -91,9 +91,13 @@ const ExpertNestedSchema = z
   .object({
     id: uuidField,
     displayName: z.string(),
+    officeAddress: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
     user: z
       .object({
+        id: uuidField.optional(),
         email: emailField,
+        phone: z.string().nullable().optional(),
       })
       .optional(),
   })
@@ -103,6 +107,9 @@ const ServiceNestedSchema = z
   .object({
     id: uuidField,
     name: z.string(),
+    description: z.string().nullable().optional(),
+    category: z.string().nullable().optional(),
+    deliveryMode: z.string().default("VIDEO"),
     flatFee: z.number().describe("Flat fee in RWF"),
     currency: z.string().default("RWF"),
     durationMin: z.number().int().describe("Duration in minutes"),

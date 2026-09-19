@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
-import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight, MapPin, Phone, Video, FileText } from "lucide-react";
 import { useBookings } from "@/features/booking/hooks/useBookings";
 import type { Booking, BookingStatus } from "@/api/generated";
 import { useTranslations } from "next-intl";
@@ -131,6 +131,8 @@ function ConsultationCard({
   formatTime: (iso: string) => string;
 }) {
   const t = useTranslations("clientDashboard.consultations");
+  const deliveryMode = (booking as any).service?.deliveryMode ?? "VIDEO";
+
   return (
     <Link
       href={`/client/dashboard/consultations/${booking.id}`}
@@ -145,6 +147,29 @@ function ConsultationCard({
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${STATUS_STYLES[booking.status] ?? "bg-brand-dark/10 text-brand-dark"}`}>
               {booking.status}
             </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/5 px-2.5 py-0.5 text-[10px] font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
+              {deliveryMode === "IN_PERSON" ? (
+                <>
+                  <MapPin size={10} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>{t("modeInPerson")}</span>
+                </>
+              ) : deliveryMode === "PHONE" ? (
+                <>
+                  <Phone size={10} className="text-blue-600 dark:text-blue-400" />
+                  <span>{t("modePhone")}</span>
+                </>
+              ) : deliveryMode === "EMAIL" ? (
+                <>
+                  <FileText size={10} className="text-indigo-600 dark:text-indigo-400" />
+                  <span>{t("modeDocument")}</span>
+                </>
+              ) : (
+                <>
+                  <Video size={10} className="text-brand-dark/60 dark:text-white/60" />
+                  <span>{t("modeVideo")}</span>
+                </>
+              )}
+            </span>
           </div>
           <p className="text-[13px] text-brand-dark/60 dark:text-white/60 mb-1">
             {booking.service?.name ?? t("consultationLabel")}
@@ -158,6 +183,12 @@ function ConsultationCard({
               <Clock size={12} />
               {formatTime(booking.scheduledStart)}
             </span>
+            {deliveryMode === "IN_PERSON" && (booking as any).expert?.officeAddress && (
+              <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
+                <MapPin size={12} />
+                <span className="truncate max-w-[240px]">{(booking as any).expert.officeAddress}</span>
+              </span>
+            )}
           </div>
         </div>
         <div className="text-right shrink-0">

@@ -905,6 +905,11 @@ export const BookingService = {
       throw new ValidationError("Booking is not ready for consultation");
     }
 
+    const isVideoMeeting = !booking.service?.deliveryMode || booking.service.deliveryMode === "VIDEO";
+    if (!isVideoMeeting) {
+      throw new ValidationError("Video consultation room is not available for this delivery mode");
+    }
+
     const isExpert = (booking as any).expert?.user?.id === userId;
 
     // Resolve display name from the booking record

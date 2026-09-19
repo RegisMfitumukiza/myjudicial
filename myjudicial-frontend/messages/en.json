@@ -865,6 +865,8 @@
     "service": "Service",
     "notSelected": "Not selected",
     "mode": "Mode",
+    "documentSlotHint": "This slot marks your initial briefing & intake. Legal documents will be prepared and delivered following this schedule.",
+    "inPersonSlotHint": "This slot represents your arrival time at the advocate's registered office.",
     "total": "Total",
     "bookingSummary": "Booking Summary",
     "paymentDetails": "Payment Details",
@@ -1103,7 +1105,11 @@
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
       "legalExpert": "Legal Expert",
-      "consultationLabel": "Consultation"
+      "consultationLabel": "Consultation",
+      "modeVideo": "Video Call",
+      "modeInPerson": "In-Person (Office)",
+      "modePhone": "Phone Call",
+      "modeDocument": "Document Package"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -1129,7 +1135,9 @@
       "ready": "Ready",
       "notFound": "Not Found",
       "joinConsultation": "Join Consultation",
-      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer."
+      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer.",
+      "inPersonNotice": "This is an in-person appointment scheduled at the advocate's office. A video room is not required.",
+      "viewOfficeDetails": "View Office Location & Details"
     },
     "consultationDetail": {
       "toasts": {
@@ -1179,6 +1187,20 @@
       "leaveReview": "Leave Review",
       "downloadReceipt": "Download Receipt",
       "addToCalendar": "Add to Calendar",
+      "inPersonTitle": "In-Person Office Appointment",
+      "inPersonDesc": "This consultation will take place in-person at the advocate's registered law office.",
+      "officeAddressLabel": "Office Location",
+      "getDirections": "Get Directions (Google Maps)",
+      "arrivalNotice": "Please arrive 10 minutes prior to your scheduled time. Your escrow payment is safely held until after the appointment.",
+      "phoneTitle": "Telephone Consultation",
+      "phoneDesc": "The advocate will call you on your registered phone number at the scheduled appointment time.",
+      "documentReviewTitle": "Legal Document Deliverable",
+      "documentReviewDesc": "This is a document-based legal package. Please upload and review your case files in the Case Documents section below.",
+      "viewCaseDocuments": "View Case Documents",
+      "modeVideo": "Video Call",
+      "modeInPerson": "In-Person (Office)",
+      "modePhone": "Phone Call",
+      "modeDocument": "Document Package",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",

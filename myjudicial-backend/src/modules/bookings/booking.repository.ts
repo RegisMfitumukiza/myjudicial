@@ -32,8 +32,8 @@ export const BookingRepository = {
       },
       include: {
         citizen: { select: { id: true, email: true, firstName: true, lastName: true } },
-        expert: { select: { id: true, displayName: true, user: { select: { email: true } } } },
-        service: { select: { id: true, name: true, flatFee: true, durationMin: true } },
+        expert: { select: { id: true, displayName: true, officeAddress: true, city: true, user: { select: { email: true } } } },
+        service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
       },
     });
   },
@@ -47,8 +47,8 @@ export const BookingRepository = {
       where: { id },
       include: {
         citizen: { select: { id: true, email: true, firstName: true, lastName: true, phone: true } },
-        expert: { select: { id: true, displayName: true, user: { select: { id: true, email: true } } } },
-        service: { select: { id: true, name: true, flatFee: true, durationMin: true } },
+        expert: { select: { id: true, displayName: true, officeAddress: true, city: true, user: { select: { id: true, email: true, phone: true } } } },
+        service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
         review: true,
       },
     });
@@ -86,8 +86,8 @@ export const BookingRepository = {
         take: filters.limit,
         include: {
           citizen: { select: { id: true, email: true, firstName: true, lastName: true } },
-          expert: { select: { id: true, displayName: true } },
-          service: { select: { id: true, name: true, flatFee: true } },
+          expert: { select: { id: true, displayName: true, officeAddress: true, city: true } },
+          service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
           payment: {
             select: {
               id: true,

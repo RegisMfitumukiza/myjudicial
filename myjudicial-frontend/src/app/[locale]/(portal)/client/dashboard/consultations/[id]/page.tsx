@@ -5,7 +5,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import {
   CalendarDays, Clock, MapPin, Briefcase, Loader2, AlertCircle,
   ArrowLeft, Video, XCircle, CheckCircle, Star, MessageSquare, RefreshCw,
-  Receipt, Download, CalendarClock,
+  Receipt, Download, CalendarClock, Phone, Mail, FileText, Navigation, ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
@@ -25,7 +25,19 @@ import { useTranslations } from "next-intl";
 import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 
 type BookingWithService = Booking & {
-  service?: ServiceNested & { description?: string; durationMin?: number };
+  expert?: {
+    id: string;
+    displayName: string;
+    officeAddress?: string | null;
+    city?: string | null;
+    user?: { id?: string; email: string; phone?: string | null };
+  };
+  service?: ServiceNested & {
+    description?: string;
+    category?: string;
+    deliveryMode?: "VIDEO" | "IN_PERSON" | "PHONE" | "EMAIL" | string;
+    durationMin?: number;
+  };
 };
 
 function formatDate(iso: string) {
@@ -190,6 +202,13 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
+  const deliveryMode = (booking as BookingWithService).service?.deliveryMode ?? "VIDEO";
+  const isVideo = deliveryMode === "VIDEO";
+  const isInPerson = deliveryMode === "IN_PERSON";
+  const isPhone = deliveryMode === "PHONE";
+  const isDocument = deliveryMode === "EMAIL";
+  const officeAddress = (booking as BookingWithService).expert?.officeAddress || (booking as BookingWithService).expert?.city || null;
+
   function handleCancel() {
     if (!cancelReason.trim() || cancelReason.trim().length < 5) return;
     cancelBooking({ bookingId: booking!.id, reason: cancelReason.trim() }, {
@@ -318,6 +337,114 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           </div>
         )}
 
+        {/* Delivery Mode Banner for Confirmed / Active Bookings */}
+        {["CONFIRMED", "ACTIVE"].includes(booking.status) && (
+          <>
+            {isInPerson && (
+              <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-50/70 p-5 dark:border-emerald-500/20 dark:bg-emerald-950/20 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                      <MapPin size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-[15px] font-bold text-emerald-950 dark:text-emerald-200">
+                          {t("inPersonTitle")}
+                        </h3>
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                          {t("modeInPerson")}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-emerald-900/80 dark:text-emerald-300/80 leading-relaxed">
+                        {t("inPersonDesc")}
+                      </p>
+                      <p className="mt-2 text-xs font-semibold text-emerald-950 dark:text-emerald-100 flex items-center gap-1.5">
+                        <MapPin size={13} className="text-emerald-600 shrink-0" />
+                        {officeAddress || "Registered Law Office, Kigali"}
+                      </p>
+                      <p className="mt-1 text-[11px] text-emerald-700/80 dark:text-emerald-400/80">
+                        {t("arrivalNotice")}
+                      </p>
+                    </div>
+                  </div>
+                  {officeAddress && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(officeAddress)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0"
+                    >
+                      <Button size="sm" className="gap-1.5 rounded-xl bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm whitespace-nowrap">
+                        <Navigation size={13} /> {t("getDirections")}
+                      </Button>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {isPhone && (
+              <div className="mb-6 rounded-2xl border border-blue-500/30 bg-blue-50/70 p-5 dark:border-blue-500/20 dark:bg-blue-950/20 shadow-sm">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                    <Phone size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[15px] font-bold text-blue-950 dark:text-blue-200">
+                        {t("phoneTitle")}
+                      </h3>
+                      <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                        {t("modePhone")}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-blue-900/80 dark:text-blue-300/80 leading-relaxed">
+                      {t("phoneDesc")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isDocument && (
+              <div className="mb-6 rounded-2xl border border-purple-500/30 bg-purple-50/70 p-5 dark:border-purple-500/20 dark:bg-purple-950/20 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-600 text-white shadow-sm">
+                      <FileText size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-[15px] font-bold text-purple-950 dark:text-purple-200">
+                          {t("documentReviewTitle")}
+                        </h3>
+                        <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                          {t("modeDocument")}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-purple-900/80 dark:text-purple-300/80 leading-relaxed">
+                        {t("documentReviewDesc")}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const docSection = document.getElementById("case-documents-section");
+                      if (docSection) docSection.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="shrink-0 gap-1.5 rounded-xl border-purple-300 text-xs font-semibold text-purple-800 dark:text-purple-200 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                  >
+                    <FileText size={13} /> {t("viewCaseDocuments")}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Details */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Schedule */}
@@ -342,6 +469,15 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                   </p>
                 </div>
               </div>
+              {isInPerson && officeAddress && (
+                <div className="flex items-center gap-3 pt-2 border-t border-border/60">
+                  <MapPin className="h-4 w-4 text-brand-dark/50 dark:text-white/50 shrink-0" />
+                  <div>
+                    <p className="text-[12px] font-medium text-brand-dark dark:text-white">{officeAddress}</p>
+                    <p className="text-[11px] text-brand-dark/50 dark:text-white/50">{t("officeAddressLabel")}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -361,10 +497,23 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
             <h2 className="text-[13px] font-bold uppercase tracking-widest text-brand-dark/50 dark:text-white/50 mb-3">{t("sections.service")}</h2>
             <div>
               <p className="text-[15px] font-bold text-brand-dark dark:text-white">{(booking as BookingWithService).service?.name ?? t("consultationFallback")}</p>
+              
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 text-[11px] font-semibold text-brand-dark dark:bg-white/10 dark:text-white">
+                  {isInPerson ? <MapPin size={11} /> : isPhone ? <Phone size={11} /> : isDocument ? <FileText size={11} /> : <Video size={11} />}
+                  {isInPerson ? t("modeInPerson") : isPhone ? t("modePhone") : isDocument ? t("modeDocument") : t("modeVideo")}
+                </span>
+                {(booking as BookingWithService).service?.category && (
+                  <span className="rounded-md bg-brand-dark/5 px-2 py-0.5 text-[11px] font-medium text-brand-dark/60 dark:bg-white/5 dark:text-white/60">
+                    {(booking as BookingWithService).service!.category!.replace(/_/g, " ")}
+                  </span>
+                )}
+              </div>
+
               {(booking as BookingWithService).service?.description && (
-                <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">{(booking as BookingWithService).service?.description}</p>
+                <p className="mt-2 text-[12px] text-brand-dark/50 dark:text-white/50">{(booking as BookingWithService).service?.description}</p>
               )}
-              <p className="mt-2 text-[13px] font-semibold text-brand-dark dark:text-white">
+              <p className="mt-2.5 text-[13px] font-semibold text-brand-dark dark:text-white">
                 RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
               </p>
             </div>
@@ -418,7 +567,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               {isRetrying ? t("retrying") : t("retryPayment")}
             </Button>
           )}
-          {["CONFIRMED", "ACTIVE"].includes(booking.status) && (
+          {isVideo && ["CONFIRMED", "ACTIVE"].includes(booking.status) && (
             <Button
               className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 text-[13px] font-semibold ${
                 canJoin
@@ -503,7 +652,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
         </div>
 
         {/* Case Documents */}
-        <div className="mt-6">
+        <div id="case-documents-section" className="mt-6">
           <CaseDocumentsCard bookingId={booking.id} canUpload />
         </div>
 

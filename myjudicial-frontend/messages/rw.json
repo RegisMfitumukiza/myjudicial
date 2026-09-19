@@ -813,6 +813,8 @@
     "service": "Igice",
     "notSelected": "Ntirahisemwe",
     "mode": "Ubwoko",
+    "documentSlotHint": "Iyi saha igaragaza igihe cyo gusobanura ikibazo no gutangira dosiye. Inyandiko zizakorwa zishyikirizwe hakurikijwe iki kiciro.",
+    "inPersonSlotHint": "Iyi saha igaragaza igihe ugomba kugerera mu biro by'umwunganizi.",
     "total": "Igiteranyo",
     "bookingSummary": "Incamake y'Igahunda",
     "paymentDetails": "Ibisobanuro by'Iwishyura",
@@ -2856,7 +2858,11 @@
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
       "legalExpert": "Legal Expert",
-      "consultationLabel": "Consultation"
+      "consultationLabel": "Consultation",
+      "modeVideo": "Videwo",
+      "modeInPerson": "Mu biro",
+      "modePhone": "Terefone",
+      "modeDocument": "Inyandiko"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -2882,7 +2888,9 @@
       "ready": "Ready",
       "notFound": "Not Found",
       "joinConsultation": "Join Consultation",
-      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer."
+      "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer.",
+      "inPersonNotice": "Iyi ni gahunda yo kubonana imbonankubone mu biro by'umwunganizi. Icyumba cya videwo ntigikenewe.",
+      "viewOfficeDetails": "Kureba aho ibiro biherereye n'ibisobanuro"
     },
     "consultationDetail": {
       "toasts": {
@@ -2932,6 +2940,20 @@
       "leaveReview": "Leave Review",
       "downloadReceipt": "Download Receipt",
       "addToCalendar": "Add to Calendar",
+      "inPersonTitle": "Gahunda yo kubonana mu biro by'umwunganizi",
+      "inPersonDesc": "Iyi nama izabera imbonankubone mu biro byemewe by'umwunganizi mu mategeko.",
+      "officeAddressLabel": "Aho ibiro biherereye",
+      "getDirections": "Kureba aho biri ku Ikarita (Google Maps)",
+      "arrivalNotice": "Urasabwa kuhagera iminota 10 mbere y'isaha yawe. Amafaranga wishyuye abitswe mu mutekano azarekurwa inama irangiye.",
+      "phoneTitle": "Kugisha inama kuri terefone",
+      "phoneDesc": "Umwunganizi azaguhamagara kuri terefone yawe wandikishije ku isaha mwasezeranye.",
+      "documentReviewTitle": "Gukora no gusuzuma inyandiko z'amategeko",
+      "documentReviewDesc": "Iyi ni serivisi y'inyandiko. Nyamuneka shyiramo inyandiko zawe cyangwa uzisuzume mu gice cy'Inyandiko z'Urubanza.",
+      "viewCaseDocuments": "Kureba inyandiko z'urubanza",
+      "modeVideo": "Ikoranabuhanga (Videwo)",
+      "modeInPerson": "Imbonankubone (Mu biro)",
+      "modePhone": "Guhamagara kuri terefone",
+      "modeDocument": "Inyandiko z'amategeko",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",

@@ -1687,6 +1687,7 @@
       "professionalCredentials": "Professional Credentials",
       "licensedUntil": "Licensed until {date}",
       "bookConsultation": "Prendre rendez-vous",
+      "bookNow": "Réserver",
       "startingFrom": "Starting from",
       "checkAvailability": "Check Availability",
       "instantConfirmation": "Instant confirmation",

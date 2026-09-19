@@ -180,15 +180,16 @@ export function FloatingAiChat() {
     : "/ai";
 
   const isSearchPage = pathname === "/search" || pathname?.endsWith("/search");
+  const isLawyerPage = pathname?.includes("/lawyers/") || pathname?.includes("/experts/");
+
+  const positionClasses = isSearchPage
+    ? "hidden md:flex bottom-6 left-6 items-start"
+    : isLawyerPage
+    ? "hidden lg:flex bottom-6 right-6 items-end"
+    : "bottom-4 right-4 sm:bottom-6 sm:right-6 items-end";
 
   return (
-    <div
-      className={`fixed z-50 flex flex-col ${
-        isSearchPage
-          ? "hidden md:flex bottom-6 left-6 items-start"
-          : "bottom-4 right-4 sm:bottom-6 sm:right-6 items-end"
-      }`}
-    >
+    <div className={`fixed z-50 flex flex-col ${positionClasses}`}>
       {/* ── Interactive Inline Chat Drawer ─────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (

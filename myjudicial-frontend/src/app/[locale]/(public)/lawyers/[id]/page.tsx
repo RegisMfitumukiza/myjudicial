@@ -372,10 +372,10 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
               {/* Sticky Subnavigation Bar */}
               <div className="sticky top-16 z-20 rounded-xl border border-brand-border/40 bg-card/95 px-3 py-2 shadow-sm backdrop-blur-md dark:border-white/10">
-                <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-4 sm:pr-0">
                   <button
                     onClick={() => scrollToSection("overview")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "overview"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -386,7 +386,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
                   <button
                     onClick={() => scrollToSection("services")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "services"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -397,7 +397,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
                   <button
                     onClick={() => scrollToSection("credentials")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "credentials"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -409,7 +409,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   {hasLocation && (
                     <button
                       onClick={() => scrollToSection("location")}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 ${
+                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                         activeSection === "location"
                           ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                           : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -421,7 +421,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
                   <button
                     onClick={() => scrollToSection("reviews")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "reviews"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -1082,28 +1082,34 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </div>
 
-      {/* Mobile Bottom CTA Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-brand-border/20 bg-background/95 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-md dark:border-white/10 lg:hidden">
-        <div className="flex items-center gap-3">
+      {/* Mobile Bottom Sticky CTA Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/70 bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.09)] backdrop-blur-md dark:border-white/10 dark:bg-card/95 lg:hidden">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-brand-dark dark:text-white truncate">{expert.name}</p>
-            <p className="text-xs text-brand-dark/60 dark:text-white/60">
-              {expert.startingRateRwf > 0
-                ? `${Number(expert.startingRateRwf).toLocaleString()} RWF`
-                : "Contact"}
+            <div className="flex items-baseline gap-1">
+              <span className="text-base font-extrabold tracking-tight text-brand-dark dark:text-white">
+                {expert.startingRateRwf > 0 ? Number(expert.startingRateRwf).toLocaleString() : "Contact"}
+              </span>
+              {expert.startingRateRwf > 0 && (
+                <span className="text-[11px] font-bold text-muted-foreground">RWF</span>
+              )}
+            </div>
+            <p className="text-[11px] font-medium text-muted-foreground truncate">
+              {specialties[0] || expert.specialty || expert.name}
             </p>
           </div>
           <Button
             onClick={handleBookClick}
-            className="shrink-0 gap-2 rounded-xl bg-brand-dark px-5 text-xs font-bold text-white hover:opacity-90 dark:bg-white dark:text-black h-10 shadow-sm"
+            size="sm"
+            className="shrink-0 gap-1.5 rounded-xl bg-brand-dark px-5 text-xs font-bold text-on-brand hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 h-10 shadow-sm whitespace-nowrap"
           >
-            <Calendar size={14} /> {t("bookConsultation")}
+            <Calendar size={14} /> {t("bookNow")}
           </Button>
         </div>
       </div>
 
-      {/* Spacer for mobile bottom bar */}
-      <div className="h-16 lg:hidden" />
+      {/* Safe-area spacer for mobile bottom bar */}
+      <div className="h-20 pb-[env(safe-area-inset-bottom)] lg:hidden" />
     </>
   );
 }

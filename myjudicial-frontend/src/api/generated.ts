@@ -1014,14 +1014,22 @@ export interface CitizenNested {
 }
 
 export type ExpertNestedUser = {
+  /** UUID identifier */
+  id?: string;
   /** Valid email address */
   email: string;
+  /** @nullable */
+  phone?: string | null;
 };
 
 export interface ExpertNested {
   /** UUID identifier */
   id: string;
   displayName: string;
+  /** @nullable */
+  officeAddress?: string | null;
+  /** @nullable */
+  city?: string | null;
   user?: ExpertNestedUser;
 }
 
@@ -1029,6 +1037,11 @@ export interface ServiceNested {
   /** UUID identifier */
   id: string;
   name: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  category?: string | null;
+  deliveryMode?: string;
   /** Flat fee in RWF */
   flatFee: number;
   currency?: string;

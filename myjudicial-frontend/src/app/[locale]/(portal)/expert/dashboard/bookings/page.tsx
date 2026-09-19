@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock } from "lucide-react";
+import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock, MapPin, Phone, FileText } from "lucide-react";
 import {
   useGetBookings,
   usePostBookingsIdCancel,
@@ -215,8 +215,13 @@ export default function BookingsPage() {
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-foreground">{clientName}</p>
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">{clientName}</p>
+                          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
+                            {((b.service as any)?.deliveryMode === "IN_PERSON") ? "In-Person" : ((b.service as any)?.deliveryMode === "PHONE") ? "Phone" : ((b.service as any)?.deliveryMode === "EMAIL") ? "Document" : "Video"}
+                          </span>
+                        </div>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                           {b.service?.name ?? "Consultation"} &middot;
                           {formatScheduled(b.scheduledStart)}
                         </p>
@@ -282,6 +287,7 @@ export default function BookingsPage() {
               if (activeTab === "active") {
                 const startsInMs = new Date(b.scheduledStart).getTime() - Date.now();
                 const canJoin = b.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS;
+                const deliveryMode = (b.service as any)?.deliveryMode ?? "VIDEO";
 
                 return (
                   <Link
@@ -291,11 +297,24 @@ export default function BookingsPage() {
                   >
                     <div className="flex flex-wrap items-center gap-4">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
-                        <Video className="h-[18px] w-[18px]" />
+                        {deliveryMode === "IN_PERSON" ? (
+                          <MapPin className="h-[18px] w-[18px] text-emerald-600 dark:text-emerald-400" />
+                        ) : deliveryMode === "PHONE" ? (
+                          <Phone className="h-[18px] w-[18px] text-blue-600 dark:text-blue-400" />
+                        ) : deliveryMode === "EMAIL" ? (
+                          <FileText className="h-[18px] w-[18px] text-indigo-600 dark:text-indigo-400" />
+                        ) : (
+                          <Video className="h-[18px] w-[18px]" />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-foreground">{clientName}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">{clientName}</p>
+                          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
+                            {deliveryMode === "IN_PERSON" ? "In-Person" : deliveryMode === "PHONE" ? "Phone" : deliveryMode === "EMAIL" ? "Document" : "Video"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {b.service?.name ?? "Consultation"} &middot; {formatScheduled(b.scheduledStart)}
                         </p>
                       </div>
@@ -314,14 +333,31 @@ export default function BookingsPage() {
                         {resolvingChatId === b.id ? <Loader2 className="animate-spin" /> : <MessageSquare />}
                         Message
                       </Button>
-                      <Button
-                        size="sm"
-                        onClick={(e) => { e.preventDefault(); handleJoin(b.id); }}
-                        disabled={!canJoin}
-                      >
-                        <Video />
-                        {canJoin ? "Join Call" : "Not yet time"}
-                      </Button>
+                      {deliveryMode === "VIDEO" ? (
+                        <Button
+                          size="sm"
+                          onClick={(e) => { e.preventDefault(); handleJoin(b.id); }}
+                          disabled={!canJoin}
+                        >
+                          <Video />
+                          {canJoin ? "Join Call" : "Not yet time"}
+                        </Button>
+                      ) : deliveryMode === "IN_PERSON" ? (
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                          <MapPin size={12} />
+                          <span>Office</span>
+                        </span>
+                      ) : deliveryMode === "PHONE" ? (
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-400">
+                          <Phone size={12} />
+                          <span>Phone Call</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400">
+                          <FileText size={12} />
+                          <span>Documents</span>
+                        </span>
+                      )}
                     </div>
                   </Link>
                 );
@@ -338,8 +374,13 @@ export default function BookingsPage() {
                       {initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-foreground">{clientName}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{clientName}</p>
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
+                          {((b.service as any)?.deliveryMode === "IN_PERSON") ? "In-Person" : ((b.service as any)?.deliveryMode === "PHONE") ? "Phone" : ((b.service as any)?.deliveryMode === "EMAIL") ? "Document" : "Video"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {b.service?.name ?? "Consultation"} &middot; {formatScheduled(b.scheduledStart)}
                       </p>
                       {activeTab === "cancelled" && b.cancellationReason && (

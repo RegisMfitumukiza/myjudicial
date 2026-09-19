@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from "react";
 import { Link, useRouter } from "@/i18n/routing";
-import { ArrowLeft, Video, Mic, MicOff, VideoOff, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { ArrowLeft, Video, Mic, MicOff, VideoOff, Loader2, AlertCircle, CheckCircle, MapPin, Phone, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
@@ -19,8 +19,12 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
   const [hasMic, setHasMic] = useState(false);
   const [joined, setJoined] = useState(false);
 
-  // Check device permissions
+  // Check device permissions (only for video delivery mode)
   useEffect(() => {
+    if (!booking) return;
+    const deliveryMode = (booking as any).service?.deliveryMode ?? "VIDEO";
+    if (deliveryMode !== "VIDEO") return;
+
     async function checkDevices() {
       try {
         // Request camera and microphone permissions
@@ -44,7 +48,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
     }
 
     checkDevices();
-  }, []);
+  }, [booking]);
 
   if (isLoading) {
     return (
@@ -82,6 +86,41 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
         </p>
         <Button asChild variant="outline" className="border-brand-border/20 text-xs">
           <Link href={`/client/dashboard/consultations/${id}`}>{t("viewBookingDetails")}</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Guard against non-video delivery modes (in-person office appointment, phone, document package)
+  const deliveryMode = (booking as any).service?.deliveryMode ?? "VIDEO";
+  if (deliveryMode !== "VIDEO") {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-white dark:bg-black px-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-dark/5 dark:bg-white/10 mb-4">
+          {deliveryMode === "IN_PERSON" ? (
+            <MapPin className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+          ) : deliveryMode === "PHONE" ? (
+            <Phone className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          ) : (
+            <FileText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+          )}
+        </div>
+        <h2 className="text-[18px] font-bold text-brand-dark dark:text-white mb-2 max-w-md">
+          {deliveryMode === "IN_PERSON"
+            ? t("inPersonNotice")
+            : deliveryMode === "PHONE"
+            ? "This is a telephone consultation with your advocate. A video room is not required."
+            : "This is a document review deliverable. A video room is not required."}
+        </h2>
+        {deliveryMode === "IN_PERSON" && (booking as any).expert?.officeAddress && (
+          <p className="text-[14px] text-brand-dark/70 dark:text-white/70 mb-6 max-w-md">
+            {(booking as any).expert.officeAddress}{(booking as any).expert?.city ? `, ${(booking as any).expert.city}` : ""}
+          </p>
+        )}
+        <Button asChild className="rounded-xl bg-brand-dark px-6 py-2.5 text-xs font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black">
+          <Link href={`/client/dashboard/consultations/${id}`}>
+            {deliveryMode === "IN_PERSON" ? t("viewOfficeDetails") : t("viewBookingDetails")}
+          </Link>
         </Button>
       </div>
     );

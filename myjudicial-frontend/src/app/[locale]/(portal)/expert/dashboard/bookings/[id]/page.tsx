@@ -5,7 +5,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import {
   CalendarDays, Loader2,
   ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock,
-  FileText, CreditCard, Stethoscope, Brain, Sparkles, Send,
+  FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -381,16 +381,50 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
           {/* Service */}
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                <Stethoscope size={14} />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  <Briefcase size={14} />
+                </div>
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Service</h3>
               </div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Service</h3>
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary">
+                {((booking as any).service?.deliveryMode === "IN_PERSON") ? (
+                  <>
+                    <MapPin size={10} />
+                    <span>In-Person (Office)</span>
+                  </>
+                ) : ((booking as any).service?.deliveryMode === "PHONE") ? (
+                  <>
+                    <Phone size={10} />
+                    <span>Phone Call</span>
+                  </>
+                ) : ((booking as any).service?.deliveryMode === "EMAIL") ? (
+                  <>
+                    <FileText size={10} />
+                    <span>Document Package</span>
+                  </>
+                ) : (
+                  <>
+                    <Video size={10} />
+                    <span>Video Call</span>
+                  </>
+                )}
+              </span>
             </div>
             <p className="text-sm font-semibold text-foreground">{booking.service?.name ?? "Consultation"}</p>
-            <p className="text-sm font-medium text-foreground mt-1">
+            {(booking.service as any)?.description && (
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{(booking.service as any).description}</p>
+            )}
+            <p className="text-sm font-medium text-foreground mt-1.5">
               RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
             </p>
+            {((booking as any).service?.deliveryMode === "IN_PERSON") && (booking as any).expert?.officeAddress && (
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 border-t border-border pt-2">
+                <MapPin size={11} className="shrink-0 text-primary" />
+                <span>Office: {(booking as any).expert.officeAddress}{(booking as any).expert?.city ? `, ${(booking as any).expert.city}` : ""}</span>
+              </p>
+            )}
           </div>
 
           {/* Payment */}
@@ -481,14 +515,39 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               Accept Booking
             </Button>
           )}
-          {["CONFIRMED", "ACTIVE"].includes(booking.status) && (
+          {["CONFIRMED", "ACTIVE"].includes(booking.status) && ((booking as any).service?.deliveryMode ?? "VIDEO") === "VIDEO" && (
             <Button
               size="lg"
               disabled={!canJoin}
               onClick={() => router.push(`/expert/dashboard/consultations/${booking.id}/join`)}
             >
               <Video size={15} />
-              {canJoin ? "Join Consultation" : "Not yet time"}
+              {canJoin ? "Join Video Call" : "Not yet time"}
+            </Button>
+          )}
+          {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "PHONE" && (
+            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm">
+              <Phone size={15} className="text-primary" />
+              <span>Call client at: {(booking as any).citizen?.phone || "Registered Phone"}</span>
+            </div>
+          )}
+          {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "IN_PERSON" && (
+            <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-50/50 px-4 py-2.5 text-sm font-medium text-emerald-800 shadow-sm dark:bg-emerald-950/20 dark:text-emerald-300">
+              <MapPin size={15} className="text-emerald-600 dark:text-emerald-400" />
+              <span>In-Person Office Appointment</span>
+            </div>
+          )}
+          {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "EMAIL" && (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                const el = document.getElementById("case-documents-section");
+                el?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <FileText size={15} />
+              Review Documents
             </Button>
           )}
           {canMessage && (
@@ -542,7 +601,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Case Documents */}
-        <div className="mt-6">
+        <div id="case-documents-section" className="mt-6">
           <CaseDocumentsCard bookingId={booking.id} canUpload />
         </div>
 

@@ -308,6 +308,16 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                     <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("date")} & {t("time")}</h2>
                   </div>
 
+                  {activeService?.deliveryMode === "IN_PERSON" ? (
+                    <div className="mb-5 rounded-xl border border-emerald-500/20 bg-emerald-50/50 p-3 text-xs text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-950/20 dark:text-emerald-300">
+                      {t("inPersonSlotHint")}
+                    </div>
+                  ) : (activeService?.deliveryMode === "EMAIL" || activeService?.category === "document_review") ? (
+                    <div className="mb-5 rounded-xl border border-blue-500/20 bg-blue-50/50 p-3 text-xs text-blue-800 dark:border-blue-500/20 dark:bg-blue-950/20 dark:text-blue-300">
+                      {t("documentSlotHint")}
+                    </div>
+                  ) : null}
+
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-[1fr_220px]">
                     {/* Calendar */}
                     <div>

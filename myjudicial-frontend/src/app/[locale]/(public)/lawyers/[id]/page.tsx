@@ -567,7 +567,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                                   )}
                                   <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
                                     <DeliveryIcon size={12} />
-                                    {service.deliveryMode === "VIDEO" ? "Video" : service.deliveryMode === "PHONE" ? "Phone" : service.deliveryMode === "IN_PERSON" ? "In Person" : "Email"}
+                                    {service.deliveryMode === "VIDEO" ? t("modeVideo") : service.deliveryMode === "PHONE" ? t("modePhone") : service.deliveryMode === "IN_PERSON" ? t("modeInPerson") : t("modeDocument")}
                                   </span>
                                   <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
                                     <Clock size={12} />
@@ -1046,7 +1046,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                     <div className="flex items-center gap-2.5 text-xs text-brand-dark/70 dark:text-white/70">
                       <Clock size={14} className="text-brand-dark/50 dark:text-white/50 shrink-0" />
-                      <span>{(servicesData?.length ?? 0)} services offered</span>
+                      <span>{t("servicesCount", { count: servicesData?.length ?? 0 })}</span>
                     </div>
                     {expert.location && (
                       <div className="flex items-center gap-2.5 text-xs text-brand-dark/70 dark:text-white/70">

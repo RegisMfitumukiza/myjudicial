@@ -59,7 +59,7 @@ export function ProfileMenu() {
         </Link>
         <Link
           href="/sign-up"
-          className="inline-flex h-9 items-center px-3.5 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-brand-dark dark:hover:bg-white/90 shadow-2xs transition-all whitespace-nowrap shrink-0"
+          className="inline-flex h-9 items-center px-4 text-sm font-semibold rounded-full bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 shadow-2xs transition-all whitespace-nowrap shrink-0"
         >
           {tNav("signUp")}
         </Link>

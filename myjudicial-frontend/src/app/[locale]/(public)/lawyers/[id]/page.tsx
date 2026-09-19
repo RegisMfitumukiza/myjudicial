@@ -257,10 +257,10 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                       </div>
                       {expert.verified && (
                         <div
-                          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-brand-dark text-white shadow-md ring-2 ring-white dark:ring-background"
+                          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-white dark:ring-card"
                           title="Rwanda Bar Verified Advocate"
                         >
-                          <CheckCircle size={15} />
+                          <CheckCircle size={15} className="text-white" />
                         </div>
                       )}
                     </div>
@@ -282,7 +282,14 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                       </p>
 
                       <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="md" />
+                        {expert.reviewCount > 0 ? (
+                          <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="md" />
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-50/80 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-300">
+                            <Star size={11} className="fill-amber-400 text-amber-500" />
+                            {t("newAdvocateBadge")}
+                          </span>
+                        )}
                         {expert.location && (
                           <>
                             <span className="h-3 w-px bg-brand-border/60 dark:bg-white/20" />
@@ -768,15 +775,42 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="md" />
+                        {expertReviews.length > 0 ? (
+                          <StarRating rating={expert.rating} reviewCount={expertReviews.length} size="md" />
+                        ) : (
+                          <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                            {t("zeroReviewsCount")}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="px-6 pb-6 pt-2 space-y-6">
                     {expertReviews.length === 0 ? (
-                      <p className="text-sm text-brand-dark/50 dark:text-white/50 py-6 text-center">
-                        {t("noReviews")}
-                      </p>
+                      <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 mb-3">
+                          <Star size={22} className="fill-amber-400/30 text-amber-500" />
+                        </div>
+                        <h3 className="text-sm font-bold text-brand-dark dark:text-white">
+                          {t("noReviewsTitle")}
+                        </h3>
+                        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
+                          {t("noReviewsDesc")}
+                        </p>
+                        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                          <div className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground border border-border shadow-2xs">
+                            <ShieldCheck size={13} className="text-emerald-600 dark:text-emerald-400" />
+                            <span>{t("noReviewsTrustNote")}</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={handleBookClick}
+                            className="gap-1.5 rounded-xl bg-brand-dark text-xs font-semibold text-on-brand hover:bg-brand-dark/90 dark:bg-white dark:text-black h-8"
+                          >
+                            <Calendar size={13} /> {t("bookFirstReviewCta")}
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
                       expertReviews.map((review: any) => (
                         <div

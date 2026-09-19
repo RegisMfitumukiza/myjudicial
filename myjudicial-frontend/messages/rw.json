@@ -1754,7 +1754,13 @@
       "trustCardTitle": "Yemejwe n'Urugaga rw'Abavoka",
       "trustCardDesc": "Umwirondoro, impamyabumenyi n'ubushobozi byagenzuwe byigenga.",
       "escrowProtection": "Kwishyura birinzwe binyuze kuri MTN MoMo & Airtel Money",
-      "shareSuccess": "Ihuza ry'umwirondoro ryakoporowe"
+      "shareSuccess": "Ihuza ry'umwirondoro ryakoporowe",
+      "newAdvocateBadge": "Umwunganizi mushya kuri MyJudicial",
+      "zeroReviewsCount": "Ibitekerezo 0",
+      "noReviewsTitle": "Nta bitekerezo by'abakiriya biratangwa",
+      "noReviewsDesc": "Uyu mwunganizi aherutse gutangira gutanga inama ku murongo binyuze kuri MyJudicial. Ba mu ba mbere bafata gahunda bagasangiza abandi uko byagenze.",
+      "noReviewsTrustNote": "Buri nama yose yemejwe n'Urugaga rw'Abavoka mu Rwanda kandi irinzwe binyuze mu kwishyura kuri MoMo.",
+      "bookFirstReviewCta": "Gufata Gahunda"
     },
     "aiChat": {
       "title": "AI Legal Assistant",

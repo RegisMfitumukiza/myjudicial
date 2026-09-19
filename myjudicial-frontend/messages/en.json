@@ -4146,7 +4146,13 @@
       "trustCardTitle": "Rwanda Bar Verified",
       "trustCardDesc": "Identity, bar accreditation, and credentials independently verified.",
       "escrowProtection": "MTN MoMo & Airtel Money secure escrow",
-      "shareSuccess": "Profile link copied to clipboard"
+      "shareSuccess": "Profile link copied to clipboard",
+      "newAdvocateBadge": "New Advocate on MyJudicial",
+      "zeroReviewsCount": "0 reviews",
+      "noReviewsTitle": "No Client Reviews Yet",
+      "noReviewsDesc": "This advocate recently activated direct online bookings on MyJudicial. Be among the first to book a session and share your verified review.",
+      "noReviewsTrustNote": "Every consultation is certified by the Rwanda Bar Association and protected by MoMo escrow.",
+      "bookFirstReviewCta": "Book a Consultation"
     },
     "aiChat": {
       "title": "AI Legal Assistant",

@@ -171,7 +171,7 @@ export function Header() {
               <Link
                 href="/sign-up"
                 onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center rounded-xl bg-brand-dark text-white py-2 text-sm font-semibold hover:bg-brand-dark/90 transition-colors"
+                className="flex-1 text-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black dark:hover:bg-white/90 py-2 text-sm font-semibold hover:bg-brand-dark/90 transition-colors"
               >
                 {tNav("signUp")}
               </Link>

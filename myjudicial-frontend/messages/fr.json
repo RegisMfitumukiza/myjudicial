@@ -1754,7 +1754,13 @@
       "trustCardTitle": "Vérifié par le Barreau du Rwanda",
       "trustCardDesc": "Identité, accréditation du Barreau et titres vérifiés de manière indépendante.",
       "escrowProtection": "Paiement sécurisé par séquestre MTN MoMo & Airtel Money",
-      "shareSuccess": "Lien du profil copié dans le presse-papiers"
+      "shareSuccess": "Lien du profil copié dans le presse-papiers",
+      "newAdvocateBadge": "Nouvel avocat sur MyJudicial",
+      "zeroReviewsCount": "0 avis",
+      "noReviewsTitle": "Pas encore d'avis clients",
+      "noReviewsDesc": "Cet avocat a récemment activé les réservations en ligne sur MyJudicial. Soyez parmi les premiers clients à réserver une session et partager votre avis vérifié.",
+      "noReviewsTrustNote": "Chaque consultation est certifiée par le Barreau du Rwanda et protégée par le séquestre MoMo.",
+      "bookFirstReviewCta": "Prendre rendez-vous"
     },
     "aiChat": {
       "title": "AI Legal Assistant",

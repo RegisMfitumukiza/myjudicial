@@ -159,12 +159,15 @@ export const EscrowService = {
     let meetingRoomId: string | null = null;
     let meetingJoinUrl: string | null = null;
 
-    try {
-      const durationMin = booking.service?.durationMin ?? 30;
-      meetingRoomId = await LiveKitService.createRoom(bookingId, durationMin);
-      meetingJoinUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/bookings/${bookingId}/join`;
-    } catch (error) {
-      logger.error("LiveKit room creation failed during webhook payment confirm", { bookingId, error });
+    const isVideoMeeting = !booking.service?.deliveryMode || booking.service.deliveryMode === "VIDEO";
+    if (isVideoMeeting) {
+      try {
+        const durationMin = booking.service?.durationMin ?? 30;
+        meetingRoomId = await LiveKitService.createRoom(bookingId, durationMin);
+        meetingJoinUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/bookings/${bookingId}/join`;
+      } catch (error) {
+        logger.error("LiveKit room creation failed during webhook payment confirm", { bookingId, error });
+      }
     }
 
     await prisma.$transaction(async (tx) => {
@@ -263,12 +266,15 @@ export const EscrowService = {
     let meetingRoomId: string | null = null;
     let meetingJoinUrl: string | null = null;
 
-    try {
-      const durationMin = booking.service?.durationMin ?? 30;
-      meetingRoomId = await LiveKitService.createRoom(bookingId, durationMin);
-      meetingJoinUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/bookings/${bookingId}/join`;
-    } catch (error) {
-      logger.error("LiveKit room creation failed during expert confirmation", { bookingId, error });
+    const isVideoMeeting = !booking.service?.deliveryMode || booking.service.deliveryMode === "VIDEO";
+    if (isVideoMeeting) {
+      try {
+        const durationMin = booking.service?.durationMin ?? 30;
+        meetingRoomId = await LiveKitService.createRoom(bookingId, durationMin);
+        meetingJoinUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/bookings/${bookingId}/join`;
+      } catch (error) {
+        logger.error("LiveKit room creation failed during expert confirmation", { bookingId, error });
+      }
     }
 
     await prisma.$transaction(async (tx) => {

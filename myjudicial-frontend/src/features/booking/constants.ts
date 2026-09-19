@@ -1,6 +1,20 @@
 export const MNO_OPTIONS = [
-  { value: "MTN", label: "MTN Mobile Money" },
-  { value: "Airtel", label: "Airtel Money" },
+  {
+    value: "MTN",
+    label: "MTN Mobile Money",
+    shortName: "MTN MoMo",
+    recommended: true,
+    status: "active" as const,
+    prefixes: ["078", "079", "25078", "25079"],
+  },
+  {
+    value: "Airtel",
+    label: "Airtel Money",
+    shortName: "Airtel Money",
+    recommended: false,
+    status: "disrupted" as const,
+    prefixes: ["072", "073", "25072", "25073"],
+  },
 ] as const;
 
 export const CATEGORY_LABELS: Record<string, string> = {

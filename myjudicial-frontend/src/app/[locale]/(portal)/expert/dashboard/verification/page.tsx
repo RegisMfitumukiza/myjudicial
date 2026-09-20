@@ -438,7 +438,7 @@ export default function VerificationPage() {
                     {t(style.titleKey)}
                   </p>
                   <StatusBadge tone={BADGE_TONE[style.tone]}>
-                    {status.replace(/_/g, " ")}
+                    {t(`statusBadge.${status.toLowerCase()}` as any)}
                   </StatusBadge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">

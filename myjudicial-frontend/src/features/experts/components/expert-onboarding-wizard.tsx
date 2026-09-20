@@ -133,6 +133,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const { update: updateSession } = useSession();
   const queryClient = useQueryClient();
   const t = useTranslations("features.experts");
+  const tWizard = useTranslations("expertOnboarding");
+  const tCommon = useTranslations("common");
 
   // Restore saved progress or start fresh.
   // Lazy useState initializer runs exactly once (unlike useRef(loadProgress()),
@@ -244,13 +246,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const totalSteps = 7;
 
   const steps = [
-    { number: 1, title: "Professional Details", icon: Scale, id: "profile" },
-    { number: 2, title: "Practice Areas", icon: Briefcase, id: "services" },
-    { number: 3, title: "Office Location", icon: MapPin, id: "location" },
-    { number: 4, title: "Profile & Bio", icon: FileText, id: "bio" },
-    { number: 5, title: "Languages & Rates", icon: LanguagesIcon, id: "rates" },
-    { number: 6, title: "Profile Photo", icon: Camera, id: "photo" },
-    { number: 7, title: "Verification Docs", icon: ShieldCheck, id: "documents" },
+    { number: 1, title: tWizard("steps.profile"), icon: Scale, id: "profile" },
+    { number: 2, title: tWizard("steps.services"), icon: Briefcase, id: "services" },
+    { number: 3, title: tWizard("steps.location"), icon: MapPin, id: "location" },
+    { number: 4, title: tWizard("steps.bio"), icon: FileText, id: "bio" },
+    { number: 5, title: tWizard("steps.rates"), icon: LanguagesIcon, id: "rates" },
+    { number: 6, title: tWizard("steps.photo"), icon: Camera, id: "photo" },
+    { number: 7, title: tWizard("steps.documents"), icon: ShieldCheck, id: "documents" },
   ];
 
   const updateField = (field: keyof OnboardingData, value: OnboardingData[keyof OnboardingData] | null) => {
@@ -468,65 +470,65 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Professional Details</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step1.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Tell us about your legal credentials and experience
+                  {tWizard("step1.subtitle")}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="displayName">Display Name *</Label>
+                  <Label htmlFor="displayName">{tWizard("step1.displayName")}</Label>
                   <Input
                     id="displayName"
-                    placeholder="Your professional name"
+                    placeholder={tWizard("step1.displayNamePlaceholder")}
                     value={formData.displayName}
                     onChange={(e) => updateField("displayName", e.target.value)}
                     className="mt-1"
                   />
                   <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                    The name clients will see on your profile
+                    {tWizard("step1.displayNameHint")}
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="barNumber">Bar Association Number *</Label>
+                  <Label htmlFor="barNumber">{tWizard("step1.barNumber")}</Label>
                   <Input
                     id="barNumber"
-                    placeholder="e.g., RBA-2024-001"
+                    placeholder={tWizard("step1.barNumberPlaceholder")}
                     value={formData.barNumber}
                     onChange={(e) => updateField("barNumber", e.target.value)}
                     className="mt-1"
                   />
                   <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                    Your official bar registration number
+                    {tWizard("step1.barNumberHint")}
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="yearsExperience">Years of Experience *</Label>
+                  <Label htmlFor="yearsExperience">{tWizard("step1.yearsExperience")}</Label>
                   <Input
                     id="yearsExperience"
                     type="number"
                     min="0"
                     max="60"
-                    placeholder="e.g., 5"
+                    placeholder={tWizard("step1.yearsExperiencePlaceholder")}
                     value={formData.yearsExperience}
                     onChange={(e) => updateField("yearsExperience", e.target.value ? Number(e.target.value) : "")}
                     className="mt-1"
                   />
                   <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                    How many years have you been practicing law?
+                    {tWizard("step1.yearsExperienceHint")}
                   </p>
                 </div>
 
                 <div>
                   <Label htmlFor="firmName">
-                    Law Firm / Organization <span className="text-slate-400 dark:text-muted-foreground">(optional)</span>
+                    {tWizard("step1.firmName")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span>
                   </Label>
                   <Input
                     id="firmName"
-                    placeholder="e.g., Kigali Law Chambers"
+                    placeholder={tWizard("step1.firmNamePlaceholder")}
                     value={formData.firmName}
                     onChange={(e) => updateField("firmName", e.target.value)}
                     className="mt-1"
@@ -535,7 +537,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
                 <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
                   <p className="text-sm text-blue-900 dark:text-blue-200">
-                    <strong>Verification Process:</strong> We will verify your Bar number with the Rwanda Bar Association within 1–3 business days before your profile goes live.
+                    <strong>{tWizard("step1.verificationNoticeStrong")}</strong> {tWizard("step1.verificationNotice")}
                   </p>
                 </div>
               </div>
@@ -546,9 +548,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Areas of Practice</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step2.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Select your primary specialty and any additional areas you practice
+                  {tWizard("step2.subtitle")}
                 </p>
               </div>
 
@@ -564,13 +566,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               ) : specialtyOptions.length === 0 ? (
                 <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
                   <p className="text-sm text-amber-900 dark:text-amber-200">
-                    Practice areas are being configured. Please try again later or contact support.
+                    {tWizard("step2.specialtiesLoading")}
                   </p>
                 </div>
               ) : (
                 <>
                   <div>
-                    <Label htmlFor="primarySpecialty">Primary Specialty *</Label>
+                    <Label htmlFor="primarySpecialty">{tWizard("step2.primarySpecialty")}</Label>
                     <select
                       id="primarySpecialty"
                       value={formData.primarySpecialty}
@@ -584,14 +586,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       ))}
                     </select>
                     <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                      Your main area of legal expertise
+                      {tWizard("step2.primarySpecialtyHint")}
                     </p>
                   </div>
 
                   <div>
-                    <Label>Additional Specialties <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
+                    <Label>{tWizard("step2.additionalSpecialties")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
                     <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground mb-3">
-                      Select any additional areas where you have expertise
+                      {tWizard("step2.additionalSpecialtiesHint")}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {specialtyOptions.map((opt) => {
@@ -632,7 +634,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       })}
                     </div>
                     <p className="mt-3 text-sm text-slate-500 dark:text-muted-foreground">
-                      Selected: {formData.specialties.length} additional area{formData.specialties.length !== 1 ? "s" : ""}
+                      {tWizard("step2.selectedAreas", { count: formData.specialties.length })}
                     </p>
                   </div>
                 </>
@@ -644,9 +646,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Office Location</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step3.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Help clients find you by providing your office location. This will help you appear in location-based searches.
+                  {tWizard("step3.subtitle")}
                 </p>
               </div>
 
@@ -663,11 +665,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 <div className="mt-6 space-y-4 border-t border-slate-200 dark:border-border pt-6">
                   <div>
                     <Label htmlFor="officeAddressFallback">
-                      Office Address <span className="text-slate-400 dark:text-muted-foreground">(alternative)</span>
+                      {tWizard("step3.officeAddressFallback")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step3.alternative")}</span>
                     </Label>
                     <Input
                       id="officeAddressFallback"
-                      placeholder="e.g., KG 5 Ave, Kigali"
+                      placeholder={tWizard("step3.officeAddressPlaceholder")}
                       value={formData.officeAddress}
                       onChange={(e) => updateField("officeAddress", e.target.value)}
                       className="mt-1"
@@ -676,11 +678,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
                   <div>
                     <Label htmlFor="cityFallback">
-                      City <span className="text-slate-400 dark:text-muted-foreground">(alternative)</span>
+                      {tWizard("step3.cityFallback")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step3.alternative")}</span>
                     </Label>
                     <Input
                       id="cityFallback"
-                      placeholder="e.g., Kigali"
+                      placeholder={tWizard("step3.cityPlaceholder")}
                       value={formData.city}
                       onChange={(e) => updateField("city", e.target.value)}
                       className="mt-1"
@@ -691,7 +693,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
               <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-200">
-                  <strong>Why add location?</strong> Clients prefer local lawyers. Profiles with accurate locations get 40% more bookings and appear higher in search results.
+                  <strong>{tWizard("step3.whyLocationStrong")}</strong> {tWizard("step3.whyLocation")}
                 </p>
               </div>
             </div>
@@ -701,32 +703,30 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 4 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Your Professional Bio</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step4.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Tell clients about your background and expertise
+                  {tWizard("step4.subtitle")}
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="bio">Professional Biography *</Label>
+                <Label htmlFor="bio">{tWizard("step4.bioLabel")}</Label>
                 <Textarea
                   id="bio"
                   rows={8}
-                  placeholder="Describe your legal background, areas of expertise, notable cases, and what makes you stand out..."
+                  placeholder={tWizard("step4.bioPlaceholder")}
                   value={formData.bio}
                   onChange={(e) => updateField("bio", e.target.value)}
                   className="mt-1"
                 />
                 <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                  Minimum 50 characters ({formData.bio.length}/50)
+                  {tWizard("step4.bioMinLength", { count: formData.bio.length })}
                 </p>
               </div>
 
               <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-200">
-                  <strong>Tip:</strong> A good bio includes your qualifications, years of
-                  experience, notable achievements, and what clients can expect when working
-                  with you.
+                  <strong>{tWizard("step4.bioTipStrong")}</strong> {tWizard("step4.bioTip")}
                 </p>
               </div>
             </div>
@@ -736,14 +736,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 5 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Languages & Consultation Fee</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step5.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Set your consultation language preferences and base consultation fee
+                  {tWizard("step5.subtitle")}
                 </p>
               </div>
 
               <div>
-                <Label>Languages Spoken *</Label>
+                <Label>{tWizard("step5.languagesLabel")}</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {LANGUAGES.map((lang) => {
                     const selected = formData.languages.includes(lang.code);
@@ -758,18 +758,20 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                             : "border-slate-300 dark:border-border bg-white dark:bg-card text-slate-700 dark:text-foreground hover:border-slate-400 dark:hover:border-slate-600"
                         }`}
                       >
-                        {lang.label}
+                        {tCommon(`languages.${lang.code}` as any) || lang.label}
                       </button>
                     );
                   })}
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                  Selected: {formData.languages.map(code => LANGUAGES.find(l => l.code === code)?.label || code).join(", ")}
+                  {tWizard("step5.selectedLanguages", {
+                    languages: formData.languages.map(code => tCommon(`languages.${code}` as any) || LANGUAGES.find(l => l.code === code)?.label || code).join(", ")
+                  })}
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="baseConsultationFee">Base Consultation Fee (RWF) *</Label>
+                <Label htmlFor="baseConsultationFee">{tWizard("step5.feeLabel")}</Label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-2.5 text-sm font-semibold text-slate-500 dark:text-muted-foreground">
                     RWF
@@ -786,14 +788,13 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   />
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground">
-                  Platform fee (10%) is deducted automatically. Average rate is RWF 40,000
+                  {tWizard("step5.feeHint")}
                 </p>
               </div>
 
               <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-200">
-                  <strong>Note:</strong> You can update your rates at any time from your dashboard. 
-                  Set a competitive rate to attract clients while valuing your expertise.
+                  <strong>{tWizard("step5.feeNoteStrong")}</strong> {tWizard("step5.feeNote")}
                 </p>
               </div>
             </div>
@@ -803,9 +804,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 6 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Profile Photo</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step6.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Add a professional headshot to build trust with clients
+                  {tWizard("step6.subtitle")}
                 </p>
               </div>
 
@@ -817,7 +818,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
               <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4">
                 <p className="text-sm text-amber-900 dark:text-amber-200">
-                  <strong>Optional:</strong> You can skip this step and upload your photo later from your profile settings. However, profiles with photos get 300% more client bookings.
+                  <strong>{tWizard("step6.photoOptionalStrong")}</strong> {tWizard("step6.photoOptional")}
                 </p>
               </div>
             </div>
@@ -827,15 +828,15 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           {currentStep === 7 && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">Verification Documents</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-foreground">{tWizard("step7.title")}</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-muted-foreground">
-                  Upload your government ID and Bar Association certificate to get verified faster
+                  {tWizard("step7.subtitle")}
                 </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>National ID / Passport <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
+                  <Label>{tWizard("step7.identityLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
                   {formData.identityFile ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-blue-500" />
@@ -850,8 +851,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   ) : (
                     <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
-                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag &amp; drop</span>
-                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">PNG, JPG, PDF up to 10MB</span>
+                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
                       <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, identityFile: f })); e.target.value = ""; }} />
                     </label>
@@ -859,7 +860,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Bar Association Certificate <span className="text-slate-400 dark:text-muted-foreground">(optional)</span></Label>
+                  <Label>{tWizard("step7.barCertificateLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
                   {formData.barCertificateFile ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-red-500" />
@@ -874,8 +875,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   ) : (
                     <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
-                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag &amp; drop</span>
-                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">PDF, PNG, JPG up to 10MB</span>
+                      <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
                       <input type="file" accept="image/*,.pdf" className="sr-only"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, barCertificateFile: f })); e.target.value = ""; }} />
                     </label>
@@ -886,8 +887,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               {/* Additional Documents Section */}
               <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-border">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-foreground">Additional Documents <span className="text-slate-400 dark:text-muted-foreground font-normal text-sm">(optional)</span></h3>
-                  <p className="text-sm text-slate-600 dark:text-muted-foreground">Upload law degrees, practice licenses, or other certificates. You can add up to 5 additional files.</p>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-foreground">{tWizard("step7.additionalDocsTitle")} <span className="text-slate-400 dark:text-muted-foreground font-normal text-sm">{tWizard("step1.optional")}</span></h3>
+                  <p className="text-sm text-slate-600 dark:text-muted-foreground">{tWizard("step7.additionalDocsSubtitle")}</p>
                 </div>
 
                 {formData.additionalFiles && formData.additionalFiles.length > 0 && (
@@ -900,7 +901,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                           <Input 
                             size={1}
                             className="h-7 text-xs" 
-                            placeholder="Document label (e.g. LLB Diploma)" 
+                            placeholder={tWizard("step7.documentLabelPlaceholder")} 
                             value={fileObj.label} 
                             onChange={(e) => {
                               const newFiles = [...(formData.additionalFiles || [])];
@@ -924,7 +925,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 {(!formData.additionalFiles || formData.additionalFiles.length < 5) && (
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all">
                     <Upload className="h-5 w-5 text-slate-400 dark:text-muted-foreground" />
-                    <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">Add document</span> (PDF, PNG, JPG)</span>
+                    <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.addDocument")}</span> {tWizard("step7.fileFormats")}</span>
                     <input type="file" accept="image/*,.pdf" className="sr-only" multiple
                       onChange={(e) => { 
                         const files = Array.from(e.target.files || []);
@@ -944,7 +945,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
               <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 p-4 mt-6">
                 <p className="text-sm text-amber-900 dark:text-amber-200">
-                  <strong>Optional:</strong> You can skip this and submit documents later from your dashboard under Verification. However, uploading now speeds up the review process.
+                  <strong>{tWizard("step7.docsOptionalStrong")}</strong> {tWizard("step7.docsOptional")}
                 </p>
               </div>
             </div>
@@ -959,11 +960,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               disabled={currentStep === 1}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
+              {tWizard("nav.back")}
             </Button>
 
             <div className="text-sm text-slate-500 dark:text-muted-foreground">
-              Step {currentStep} of {totalSteps}
+              {tWizard("nav.stepOf", { current: currentStep, total: totalSteps })}
             </div>
 
             {currentStep < totalSteps ? (
@@ -972,7 +973,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 onClick={nextStep}
                 disabled={!canProceed()}
               >
-                Continue
+                {tWizard("nav.continue")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
@@ -985,12 +986,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
+                    {tWizard("nav.submitting")}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Complete Setup
+                    {tWizard("nav.completeSetup")}
                   </>
                 )}
               </Button>

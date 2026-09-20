@@ -27,7 +27,7 @@ const DEFAULTS: SettingsData = {
   defaultRole: "CITIZEN",
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
-  paymentMode: "BOOKING_FIRST",
+  paymentMode: "PAYMENT_REQUIRED",
 };
 
 const KEYS: Record<keyof SettingsData, string> = {
@@ -48,7 +48,12 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
     defaultRole: (map.get(KEYS.defaultRole) as "CITIZEN" | "EXPERT") ?? DEFAULTS.defaultRole,
     platformFeePercent: (map.get(KEYS.platformFeePercent) as number) ?? DEFAULTS.platformFeePercent,
     minEscrowDurationSeconds: (map.get(KEYS.minEscrowDurationSeconds) as number) ?? DEFAULTS.minEscrowDurationSeconds,
-    paymentMode: rawPaymentMode === "PAYMENT_REQUIRED" ? "PAYMENT_REQUIRED" : DEFAULTS.paymentMode,
+    paymentMode:
+      rawPaymentMode === "BOOKING_FIRST"
+        ? "BOOKING_FIRST"
+        : rawPaymentMode === "PAYMENT_REQUIRED"
+        ? "PAYMENT_REQUIRED"
+        : DEFAULTS.paymentMode,
   };
 }
 

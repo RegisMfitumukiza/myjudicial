@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import {
   Scale, ArrowRight, ArrowLeft, CheckCircle2, Check,
   MapPin, Calendar, Clock, Banknote, FileText, Mic,
@@ -150,7 +151,7 @@ function ProgressBar({ step, total, labels }: { step: number; total: number; lab
 
 /* ─────────────────────────────────────── nav footer ── */
 function NavFooter({
-  step, totalSteps, onBack, onNext, nextLabel = "Continue", nextDisabled = false, isLast = false, t,
+  step, totalSteps, onBack, onNext, nextLabel, nextDisabled = false, isLast = false, t,
 }: {
   step: number;
   totalSteps: number;
@@ -161,6 +162,7 @@ function NavFooter({
   isLast?: boolean;
   t: (key: string, params?: Record<string, string | number>) => string;
 }) {
+  const resolvedNextLabel = nextLabel || t("nav.continue");
   return (
     <div className="mt-10 flex items-center justify-between border-t border-slate-100 pt-6">
       <button
@@ -181,7 +183,7 @@ function NavFooter({
             isLast ? "bg-brand-dark hover:bg-brand-dark/90" : "bg-brand-blue hover:bg-brand-blue/90"
           }`}
         >
-          {nextLabel} {!isLast && <ArrowRight size={15} />}
+          {resolvedNextLabel} {!isLast && <ArrowRight size={15} />}
         </button>
       </div>
     </div>
@@ -295,6 +297,7 @@ function CitizenStep2({ data, setData }: { data: CitizenData; setData: (d: Citiz
 
 function CitizenStep3({ data, setData }: { data: CitizenData; setData: (d: CitizenData) => void }) {
   const t = useTranslations("onboarding");
+  const tCommon = useTranslations("common");
   return (
     <div>
       <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-brand-blue">
@@ -325,9 +328,9 @@ function CitizenStep3({ data, setData }: { data: CitizenData; setData: (d: Citiz
           <label className="mb-2.5 block text-sm font-semibold text-brand-dark">{t("citizenStep3.languageLabel")}</label>
           <div className="flex flex-wrap gap-3">
             {[
-              { value: "kinyarwanda", label: "Kinyarwanda" },
-              { value: "english",     label: "English" },
-              { value: "french",      label: "French" },
+              { value: "kinyarwanda", label: tCommon("languages.rw") },
+              { value: "english",     label: tCommon("languages.en") },
+              { value: "french",      label: tCommon("languages.fr") },
             ].map((lang) => (
               <button
                 key={lang.value}
@@ -721,6 +724,7 @@ function ExpertStep3({ data, setData }: { data: ExpertData; setData: (d: ExpertD
 
 function ExpertStep4({ data, setData }: { data: ExpertData; setData: (d: ExpertData) => void }) {
   const t = useTranslations("onboarding");
+  const tCommon = useTranslations("common");
   const toggleLang = (lang: string) => {
     setData({
       ...data,
@@ -755,10 +759,10 @@ function ExpertStep4({ data, setData }: { data: ExpertData; setData: (d: ExpertD
           <label className="mb-2.5 block text-sm font-semibold text-brand-dark">{t("expertStep4.languagesLabel")}</label>
           <div className="flex flex-wrap gap-3">
             {[
-              { value: "kinyarwanda", label: "Kinyarwanda" },
-              { value: "english",     label: "English" },
-              { value: "french",      label: "French" },
-              { value: "swahili",     label: "Swahili" },
+              { value: "kinyarwanda", label: tCommon("languages.rw") },
+              { value: "english",     label: tCommon("languages.en") },
+              { value: "french",      label: tCommon("languages.fr") },
+              { value: "swahili",     label: tCommon("languages.sw") },
             ].map((lang) => (
               <button
                 key={lang.value}
@@ -907,11 +911,14 @@ function OnboardingWizard() {
               MyJudicial
             </span>
           </Link>
-          {step < totalSteps && (
-            <Link href="/client/dashboard" className="text-xs font-semibold text-muted-foreground hover:text-foreground">
-              {t("nav.skipForNow")}
-            </Link>
-          )}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher variant="compact" />
+            {step < totalSteps && (
+              <Link href="/client/dashboard" className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+                {t("nav.skipForNow")}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 

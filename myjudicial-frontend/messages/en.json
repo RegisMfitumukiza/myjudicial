@@ -2452,7 +2452,14 @@
     "unlockedItem1": "You appear in client map and search results",
     "unlockedItem2": "Clients can book your legal services",
     "unlockedItem3": "Your professional profile is publicly visible",
-    "unlockedItem4": "You receive booking notifications and payments"
+    "unlockedItem4": "You receive booking notifications and payments",
+    "statusBadge": {
+      "verified": "Verified",
+      "pending_verification": "Pending Verification",
+      "rejected": "Rejected",
+      "draft": "Draft",
+      "suspended": "Suspended"
+    }
   },
   "expertOnboarding": {
     "title": "MyJudicial Expert Setup",
@@ -2465,7 +2472,103 @@
     "verifiedPlatform": "Verified Platform",
     "securePayments": "Secure Payments",
     "clientProtection": "Client Protection",
-    "setupProgress": "Setup Progress"
+    "setupProgress": "Setup Progress",
+    "steps": {
+      "profile": "Professional Details",
+      "services": "Practice Areas",
+      "location": "Office Location",
+      "bio": "Profile & Bio",
+      "rates": "Languages & Rates",
+      "photo": "Profile Photo",
+      "documents": "Verification Docs"
+    },
+    "step1": {
+      "title": "Professional Details",
+      "subtitle": "Tell us about your legal credentials and experience",
+      "displayName": "Display Name *",
+      "displayNamePlaceholder": "Your professional name",
+      "displayNameHint": "The name clients will see on your profile",
+      "barNumber": "Bar Association Number *",
+      "barNumberPlaceholder": "e.g., RBA-2024-001",
+      "barNumberHint": "Your official bar registration number",
+      "yearsExperience": "Years of Experience *",
+      "yearsExperiencePlaceholder": "e.g., 5",
+      "yearsExperienceHint": "How many years have you been practicing law?",
+      "firmName": "Law Firm / Organization",
+      "optional": "(optional)",
+      "firmNamePlaceholder": "e.g., Kigali Law Chambers",
+      "verificationNoticeStrong": "Verification Process:",
+      "verificationNotice": "We will verify your Bar number with the Rwanda Bar Association within 1–3 business days before your profile goes live."
+    },
+    "step2": {
+      "title": "Areas of Practice",
+      "subtitle": "Select your primary specialty and any additional areas you practice",
+      "specialtiesLoading": "Practice areas are being configured. Please try again later or contact support.",
+      "primarySpecialty": "Primary Specialty *",
+      "primarySpecialtyHint": "Your main area of legal expertise",
+      "additionalSpecialties": "Additional Specialties",
+      "additionalSpecialtiesHint": "Select any additional areas where you have expertise",
+      "selectedAreas": "Selected: {count} additional {count, plural, one {area} other {areas}}"
+    },
+    "step3": {
+      "title": "Office Location",
+      "subtitle": "Help clients find you by providing your office location. This will help you appear in location-based searches.",
+      "officeAddressFallback": "Office Address",
+      "officeAddressPlaceholder": "e.g., KG 5 Ave, Kigali",
+      "cityFallback": "City",
+      "cityPlaceholder": "e.g., Kigali",
+      "alternative": "(alternative)",
+      "whyLocationStrong": "Why add location?",
+      "whyLocation": "Clients prefer local lawyers. Profiles with accurate locations get 40% more bookings and appear higher in search results."
+    },
+    "step4": {
+      "title": "Your Professional Bio",
+      "subtitle": "Tell clients about your background and expertise",
+      "bioLabel": "Professional Biography *",
+      "bioPlaceholder": "Describe your legal background, areas of expertise, notable cases, and what makes you stand out...",
+      "bioMinLength": "Minimum 50 characters ({count}/50)",
+      "bioTipStrong": "Tip:",
+      "bioTip": "A good bio includes your qualifications, years of experience, notable achievements, and what clients can expect when working with you."
+    },
+    "step5": {
+      "title": "Languages & Consultation Fee",
+      "subtitle": "Set your consultation language preferences and base consultation fee",
+      "languagesLabel": "Languages Spoken *",
+      "selectedLanguages": "Selected: {languages}",
+      "feeLabel": "Base Consultation Fee (RWF) *",
+      "feeHint": "Platform fee (10%) is deducted automatically. Average rate is RWF 40,000",
+      "feeNoteStrong": "Note:",
+      "feeNote": "You can update your rates at any time from your dashboard. Set a competitive rate to attract clients while valuing your expertise."
+    },
+    "step6": {
+      "title": "Profile Photo",
+      "subtitle": "Add a professional headshot to build trust with clients",
+      "photoOptionalStrong": "Optional:",
+      "photoOptional": "You can skip this step and upload your photo later from your profile settings. However, profiles with photos get 300% more client bookings."
+    },
+    "step7": {
+      "title": "Verification Documents",
+      "subtitle": "Upload your government ID and Bar Association certificate to get verified faster",
+      "identityLabel": "National ID / Passport",
+      "barCertificateLabel": "Bar Association Certificate",
+      "additionalDocsTitle": "Additional Documents",
+      "additionalDocsSubtitle": "Upload law degrees, practice licenses, or other certificates. You can add up to 5 additional files.",
+      "documentLabelPlaceholder": "Document label (e.g. LLB Diploma)",
+      "addDocument": "Add document",
+      "fileFormats": "(PDF, PNG, JPG)",
+      "uploadPrompt": "Click to upload",
+      "uploadPromptDrag": "or drag & drop",
+      "uploadLimit": "PNG, JPG, PDF up to 10MB",
+      "docsOptionalStrong": "Optional:",
+      "docsOptional": "You can skip this and submit documents later from your dashboard under Verification. However, uploading now speeds up the review process."
+    },
+    "nav": {
+      "back": "Back",
+      "continue": "Continue",
+      "submitting": "Submitting...",
+      "completeSetup": "Complete Setup",
+      "stepOf": "Step {current} of {total}"
+    }
   },
   "experts": {
     "presence": {
@@ -2594,6 +2697,22 @@
       "benefit2": "Secure Payments",
       "benefit3": "Client Protection",
       "setupProgress": "Setup Progress"
+    },
+    "photoReminder": {
+      "neededHigh": "Profile Photo Needed",
+      "neededMedium": "Add Profile Photo",
+      "neededLow": "Complete Your Profile",
+      "updatePhoto": "Update Photo",
+      "uploadPhoto": "Upload Photo",
+      "urgent": "Urgent",
+      "didYouKnow": "Profiles with professional photos get 300% more client bookings",
+      "didYouKnowStrong": "Did you know?",
+      "compactTitle": "Add your profile photo",
+      "compactSubtitle": "Increase client trust & bookings",
+      "compactButton": "Upload",
+      "successTitle": "Profile Photo Added ✓",
+      "successSubtitle": "Great! Your profile now looks more professional and trustworthy.",
+      "successChange": "Change"
     }
   },
   "faqsPage": {

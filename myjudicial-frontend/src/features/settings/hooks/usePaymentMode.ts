@@ -19,9 +19,9 @@ interface UsePaymentModeResult {
   error: Error | null;
 }
 
-// Booking-first is the platform default; falling back to it keeps the payment
-// collection UI hidden if the public settings call fails.
-const DEFAULT_PAYMENT_MODE: PaymentMode = "BOOKING_FIRST";
+// Payment-required is the platform default; falling back to it ensures
+// the live Mobile Money escrow checkout is active by default.
+const DEFAULT_PAYMENT_MODE: PaymentMode = "PAYMENT_REQUIRED";
 
 export function usePaymentMode(): UsePaymentModeResult {
   const { data, isLoading, error } = useQuery({

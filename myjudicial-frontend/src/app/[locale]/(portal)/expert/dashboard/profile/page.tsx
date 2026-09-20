@@ -142,6 +142,7 @@ export default function ExpertProfilePage() {
   const patchAuthMe = usePatchAuthMe();
   const { refreshUser } = useAuth();
   const t = useTranslations("expertDashboard_profile");
+  const tChangePassword = useTranslations("expertDashboard_change-password");
 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 
@@ -350,11 +351,11 @@ export default function ExpertProfilePage() {
     setPasswordSuccess(false);
 
     if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+      setPasswordError(tChangePassword("errorMinLength"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPasswordError(tChangePassword("errorMismatch"));
       return;
     }
 
@@ -368,9 +369,9 @@ export default function ExpertProfilePage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success(t("passwordChanged"));
+      toast.success(tChangePassword("successMessage"));
     } catch (err: unknown) {
-      setPasswordError(getErrorMessage(err, t("failedChangePassword")));
+      setPasswordError(getErrorMessage(err, tChangePassword("errorDefault")));
     } finally {
       setChangingPassword(false);
     }
@@ -839,45 +840,48 @@ export default function ExpertProfilePage() {
       {activeTab === "account" && (
         <div className="space-y-4">
           <form onSubmit={handleChangePassword} className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">Change Password</h3>
+            <h3 className="mb-4 text-base font-bold text-foreground">{tChangePassword("title")}</h3>
             <div className="max-w-md space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="ac-current-pw">
-                  Current Password
+                  {tChangePassword("labelCurrent")}
                 </Label>
                 <Input
                   id="ac-current-pw"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={tChangePassword("placeholderCurrent")}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="ac-new-pw">
-                  New Password
+                  {tChangePassword("labelNew")}
                 </Label>
                 <Input
                   id="ac-new-pw"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={tChangePassword("placeholderNew")}
                 />
                 {newPassword && newPassword.length < 8 && (
-                  <p className="text-xs text-destructive">Minimum 8 characters</p>
+                  <p className="text-xs text-destructive">{tChangePassword("errorMinLength")}</p>
                 )}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="ac-confirm-pw">
-                  Confirm New Password
+                  {tChangePassword("labelConfirm")}
                 </Label>
                 <Input
                   id="ac-confirm-pw"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={tChangePassword("placeholderConfirm")}
                 />
                 {confirmPassword && newPassword !== confirmPassword && (
-                  <p className="text-xs text-destructive">Passwords do not match</p>
+                  <p className="text-xs text-destructive">{tChangePassword("errorMismatch")}</p>
                 )}
               </div>
             </div>
@@ -892,13 +896,13 @@ export default function ExpertProfilePage() {
             {passwordSuccess && (
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
                 <CheckCircle size={15} className="text-primary" />
-                Password updated successfully
+                {tChangePassword("successMessage")}
               </div>
             )}
 
             <Button type="submit" className="mt-4" disabled={changingPassword || !currentPassword || newPassword.length < 8 || newPassword !== confirmPassword}>
               {changingPassword ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
-              Update Password
+              {tChangePassword("submitButton")}
             </Button>
           </form>
 

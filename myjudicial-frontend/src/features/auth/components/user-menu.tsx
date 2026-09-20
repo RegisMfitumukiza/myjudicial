@@ -12,6 +12,8 @@ export function UserMenu() {
   const router = useRouter();
   const { data: session } = useSession();
   const t = useTranslations("features.auth");
+  const tNav = useTranslations("nav");
+  const tAuth = useTranslations("auth");
   const [open, setOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -70,9 +72,9 @@ export function UserMenu() {
               className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-medium text-brand-dark hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-50"
             >
               {isSigningOut ? (
-                <><Loader2 size={15} className="animate-spin" /> Signing out...</>
+                <><Loader2 size={15} className="animate-spin" /> {tAuth("signingOut")}</>
               ) : (
-                <><LogOut size={15} /> Sign out</>
+                <><LogOut size={15} /> {tNav("signOut")}</>
               )}
             </button>
           </div>

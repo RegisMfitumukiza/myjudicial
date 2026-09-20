@@ -191,6 +191,7 @@ export default function SignUpPage() {
   const isVerifyingRef = useRef(false);
 
   const t = useTranslations("signup");
+  const tCommon = useTranslations("common");
 
   useEffect(() => {
     if (!otpExpiresAt) return;
@@ -591,10 +592,10 @@ export default function SignUpPage() {
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
             >
               <option value="">{t("citizen.location.selectDistrict")}</option>
-              <optgroup label="Kigali City">
+              <optgroup label={t("citizen.location.kigaliCity")}>
                 {KIGALI_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
               </optgroup>
-              <optgroup label="Other Districts">
+              <optgroup label={t("citizen.location.otherDistricts")}>
                 {OTHER_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
               </optgroup>
             </select>
@@ -603,7 +604,7 @@ export default function SignUpPage() {
           <div>
             <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.language.label")}</label>
             <div className="flex flex-col gap-2">
-              {[["kinyarwanda", "Kinyarwanda"], ["english", "English"], ["french", "French"]].map(([v, l]) => (
+              {[["kinyarwanda", tCommon("languages.rw")], ["english", tCommon("languages.en")], ["french", tCommon("languages.fr")]].map(([v, l]) => (
                 <button
                   key={v}
                   type="button"
@@ -936,7 +937,7 @@ export default function SignUpPage() {
                   disabled={step === 1}
                   className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-0"
                 >
-                  <ArrowLeft size={15} /> Back
+                  <ArrowLeft size={15} /> {t("nav.back")}
                 </button>
               )}
               {showNextButton() && (

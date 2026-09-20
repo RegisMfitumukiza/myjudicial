@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useRouter } from "@/i18n/routing";
-import { useState, use, Suspense, useEffect } from "react";
+import { useState, use, Suspense, useEffect, useRef } from "react";
 import {
   MapPin, Phone, Share2,
   Calendar, ChevronLeft, CheckCircle, Award, Clock,
@@ -111,6 +111,18 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
   const { data: expert, isLoading, error } = useExpertProfile(id);
 
   const [activeSection, setActiveSection] = useState<string>("overview");
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  useEffect(() => {
+    if (activeSection && tabRefs.current[activeSection]) {
+      tabRefs.current[activeSection]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [activeSection]);
+
   const [reportingReviewId, setReportingReviewId] = useState<string | null>(null);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
@@ -183,17 +195,20 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
   // Scroll listener for sticky tab active state
   useEffect(() => {
     function onScroll() {
+      // If reached near bottom of page, activate the last section
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 90) {
+        setActiveSection("reviews");
+        return;
+      }
+
       const sections = ["overview", "services", "credentials", "location", "reviews"];
-      const scrollPos = window.scrollY + 120;
-      for (const section of sections) {
+      const scrollPos = window.scrollY + 140;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
         const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(section);
-            break;
-          }
+        if (el && scrollPos >= el.offsetTop) {
+          setActiveSection(section);
+          break;
         }
       }
     }
@@ -371,11 +386,12 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               </div>
 
               {/* Sticky Subnavigation Bar */}
-              <div className="sticky top-16 z-20 rounded-xl border border-brand-border/40 bg-card/95 px-3 py-2 shadow-sm backdrop-blur-md dark:border-white/10">
-                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden pr-4 sm:pr-0">
+              <div className="sticky top-16 z-20 rounded-xl border border-brand-border/40 bg-card/95 px-2.5 sm:px-3 py-2 shadow-sm backdrop-blur-md dark:border-white/10">
+                <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
                   <button
+                    ref={(el) => { tabRefs.current["overview"] = el; }}
                     onClick={() => scrollToSection("overview")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "overview"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -385,8 +401,9 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   </button>
 
                   <button
+                    ref={(el) => { tabRefs.current["services"] = el; }}
                     onClick={() => scrollToSection("services")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "services"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -396,8 +413,9 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   </button>
 
                   <button
+                    ref={(el) => { tabRefs.current["credentials"] = el; }}
                     onClick={() => scrollToSection("credentials")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "credentials"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -408,8 +426,9 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
                   {hasLocation && (
                     <button
+                      ref={(el) => { tabRefs.current["location"] = el; }}
                       onClick={() => scrollToSection("location")}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
+                      className={`rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                         activeSection === "location"
                           ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                           : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -420,8 +439,9 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   )}
 
                   <button
+                    ref={(el) => { tabRefs.current["reviews"] = el; }}
                     onClick={() => scrollToSection("reviews")}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-colors shrink-0 whitespace-nowrap ${
                       activeSection === "reviews"
                         ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm"
                         : "text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 dark:text-white/60 dark:hover:text-white"
@@ -435,13 +455,13 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               {/* SECTION 1: About the Advocate */}
               <div id="overview" className="scroll-mt-28">
                 <Card className="border-0 shadow-sm bg-card">
-                  <CardHeader className="pb-3 px-6 pt-6">
-                    <h2 className="text-lg font-bold text-brand-dark dark:text-white flex items-center gap-2">
+                  <CardHeader className="pb-3 px-4 sm:px-6 pt-6">
+                    <h2 className="text-base sm:text-lg font-bold text-brand-dark dark:text-white flex items-center gap-2">
                       <Quote size={18} className="text-brand-dark/60 dark:text-white/60" />
                       {t("aboutTitle")}
                     </h2>
                   </CardHeader>
-                  <CardContent className="px-6 pb-6 pt-0 space-y-6">
+                  <CardContent className="px-4 sm:px-6 pb-6 pt-0 space-y-6">
                     {expert.bio ? (
                       <p className="text-sm leading-relaxed text-brand-dark/80 dark:text-white/80 whitespace-pre-line">
                         {expert.bio}
@@ -515,22 +535,22 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               {/* SECTION 2: Services & Pricing */}
               <div id="services" className="scroll-mt-28">
                 <Card className="border-0 shadow-sm bg-card">
-                  <CardHeader className="pb-3 px-6 pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-lg font-bold text-brand-dark dark:text-white">
+                  <CardHeader className="pb-3 px-4 sm:px-6 pt-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base sm:text-lg font-bold text-brand-dark dark:text-white">
                           {t("servicesTitle")}
                         </h2>
-                        <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5">
+                        <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5 leading-relaxed">
                           {t("servicesSubtitle")}
                         </p>
                       </div>
-                      <span className="rounded-full bg-brand-dark/10 px-2.5 py-1 text-xs font-bold text-brand-dark dark:bg-white/10 dark:text-white">
+                      <span className="rounded-full bg-brand-dark/10 px-2.5 py-1 text-xs font-bold text-brand-dark dark:bg-white/10 dark:text-white shrink-0 whitespace-nowrap">
                         {servicesData?.length ?? 0}
                       </span>
                     </div>
                   </CardHeader>
-                  <CardContent className="px-6 pb-6 pt-2 space-y-4">
+                  <CardContent className="px-4 sm:px-6 pb-6 pt-2 space-y-4">
                     {!servicesData || servicesData.length === 0 ? (
                       <p className="text-sm text-brand-dark/50 dark:text-white/50 py-4 text-center">
                         {t("noServicesListed")}
@@ -612,15 +632,15 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               {/* SECTION 3: Credentials & Education */}
               <div id="credentials" className="scroll-mt-28">
                 <Card className="border-0 shadow-sm bg-card">
-                  <CardHeader className="pb-3 px-6 pt-6">
-                    <h2 className="text-lg font-bold text-brand-dark dark:text-white">
+                  <CardHeader className="pb-3 px-4 sm:px-6 pt-6">
+                    <h2 className="text-base sm:text-lg font-bold text-brand-dark dark:text-white">
                       {t("credentialsTitle")}
                     </h2>
-                    <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5">
+                    <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5 leading-relaxed">
                       {t("credentialsSubtitle")}
                     </p>
                   </CardHeader>
-                  <CardContent className="px-6 pb-6 pt-2 space-y-6">
+                  <CardContent className="px-4 sm:px-6 pb-6 pt-2 space-y-6">
                     {/* Education */}
                     <div>
                       <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-dark/60 dark:text-white/60 flex items-center gap-2">
@@ -716,13 +736,13 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               {hasLocation && (
                 <div id="location" className="scroll-mt-28">
                   <Card className="border-0 shadow-sm bg-card">
-                    <CardHeader className="pb-3 px-6 pt-6">
-                      <div className="flex items-center justify-between">
+                    <CardHeader className="pb-3 px-4 sm:px-6 pt-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                           <h2 className="text-lg font-bold text-brand-dark dark:text-white flex items-center gap-2">
                             <MapPin size={18} /> {t("officeLocationTitle")}
                           </h2>
-                          <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5">
+                          <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5 leading-relaxed">
                             {t("officeLocationSubtitle")}
                           </p>
                         </div>
@@ -731,15 +751,16 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(expert.officeAddress)}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            className="shrink-0"
                           >
-                            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs h-8">
+                            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs h-8 whitespace-nowrap">
                               <MapPin size={12} /> {t("getDirections")}
                             </Button>
                           </a>
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="px-6 pb-6 pt-2 space-y-3">
+                    <CardContent className="px-4 sm:px-6 pb-6 pt-2 space-y-3">
                       {expert.latitude && expert.longitude && (
                         <div className="overflow-hidden rounded-xl border border-brand-border/60 dark:border-white/10">
                           <OfficeMap
@@ -764,30 +785,30 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               {/* SECTION 5: Client Reviews */}
               <div id="reviews" className="scroll-mt-28">
                 <Card className="border-0 shadow-sm bg-card">
-                  <CardHeader className="pb-3 px-6 pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-lg font-bold text-brand-dark dark:text-white">
+                  <CardHeader className="pb-3 px-4 sm:px-6 pt-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-base sm:text-lg font-bold text-brand-dark dark:text-white">
                           {t("reviewsTitle")}
                         </h2>
-                        <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5">
+                        <p className="text-xs text-brand-dark/50 dark:text-white/50 mt-0.5 leading-relaxed">
                           {t("reviewsSubtitle")}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="shrink-0 pt-0.5">
                         {expertReviews.length > 0 ? (
                           <StarRating rating={expert.rating} reviewCount={expertReviews.length} size="md" />
                         ) : (
-                          <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                          <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-muted-foreground whitespace-nowrap shrink-0">
                             {t("zeroReviewsCount")}
                           </span>
                         )}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="px-6 pb-6 pt-2 space-y-6">
+                  <CardContent className="px-4 sm:px-6 pb-6 pt-2 space-y-6">
                     {expertReviews.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20">
+                      <div className="flex flex-col items-center justify-center py-8 sm:py-10 px-4 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 mb-3">
                           <Star size={22} className="fill-amber-400/30 text-amber-500" />
                         </div>
@@ -797,15 +818,15 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                         <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
                           {t("noReviewsDesc")}
                         </p>
-                        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-                          <div className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground border border-border shadow-2xs">
-                            <ShieldCheck size={13} className="text-emerald-600 dark:text-emerald-400" />
-                            <span>{t("noReviewsTrustNote")}</span>
+                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md">
+                          <div className="rounded-xl bg-background/90 px-3.5 py-2.5 text-xs font-medium text-muted-foreground border border-border/70 shadow-2xs w-full flex items-start gap-2.5 text-left">
+                            <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                            <span className="leading-relaxed">{t("noReviewsTrustNote")}</span>
                           </div>
                           <Button
                             size="sm"
                             onClick={handleBookClick}
-                            className="gap-1.5 rounded-xl bg-brand-dark text-xs font-semibold text-on-brand hover:bg-brand-dark/90 dark:bg-white dark:text-black h-8"
+                            className="gap-1.5 rounded-xl bg-brand-dark text-xs font-semibold text-on-brand hover:bg-brand-dark/90 dark:bg-white dark:text-black h-9 shrink-0 w-full sm:w-auto"
                           >
                             <Calendar size={13} /> {t("bookFirstReviewCta")}
                           </Button>

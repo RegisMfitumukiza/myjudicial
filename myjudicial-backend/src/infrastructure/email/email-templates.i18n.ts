@@ -121,12 +121,12 @@ export const EMAIL_SUBJECTS = {
   NEW_VERIFICATION_REQUEST: {
     en: "New expert verification request",
     fr: "Nouvelle demande de vérification d'expert",
-    rw: "Icyifuzo gishya cyo kwemeza umwarimu",
+    rw: "Icyifuzo gishya cyo kwemeza inzobere",
   },
   NEW_EXPERT_REGISTRATION: {
     en: "New expert registered on MyJudicial",
     fr: "Nouvel expert inscrit sur MyJudicial",
-    rw: "Uwarimu mushya wiyandikishye kuri MyJudicial",
+    rw: "Inzobere nshya yiyandikishije kuri MyJudicial",
   },
 } as const;
 
@@ -145,7 +145,7 @@ export const EMAIL_CONTENT = {
       EXPERT: {
         en: "legal expert",
         fr: "expert juridique",
-        rw: "umwarimu w'amategeko",
+        rw: "inzobere mu by'amategeko",
       },
       CLIENT: {
         en: "client",
@@ -257,7 +257,7 @@ export const EMAIL_CONTENT = {
     expert: {
       en: "Expert",
       fr: "Expert",
-      rw: "Umwarimu",
+      rw: "Inzobere",
     },
     service: {
       en: "Service",
@@ -383,12 +383,12 @@ export const EMAIL_CONTENT = {
     message: {
       en: (expertName: string) => `Your consultation with <strong>${expertName}</strong> has been confirmed and chat is now available.`,
       fr: (expertName: string) => `Votre consultation avec <strong>${expertName}</strong> a été confirmée et le chat est maintenant disponible.`,
-      rw: (expertName: string) => `Inama yawe na <strong>${expertName}</strong> yemejwe kandi igiganiro gibuwe ubu.`,
+      rw: (expertName: string) => `Inama yawe na <strong>${expertName}</strong> yemejwe kandi ubu mwemerewe kuganira.`,
     },
     details: {
       en: "You can now message directly with your legal expert before, during, and after your consultation.",
       fr: "Vous pouvez maintenant envoyer des messages directement à votre expert juridique avant, pendant et après votre consultation.",
-      rw: "Urumva uhereye ubu ugashobora kohereza ubutumwa kumwarimu w'amategeko mbere, mu gihe no nyuma y'inama yawe.",
+      rw: "Ubu ushobora kohereza ubutumwa ku nzobere mu by'amategeko mbere y'inama, mu gihe cyayo na nyuma yayo.",
     },
     openChat: {
       en: "Open Chat",
@@ -398,7 +398,7 @@ export const EMAIL_CONTENT = {
     tipNote: {
       en: "Use chat to share documents, ask questions, or clarify details about your consultation.",
       fr: "Utilisez le chat pour partager des documents, poser des questions ou clarifier les détails de votre consultation.",
-      rw: "Koresha igiganiro kugisangiza ibyangombwa, ubaze ibibazo cyangwa utegereze ibyerekeye inama yawe.",
+      rw: "Koresha ikiganiro mu gusangiza ibyangombwa, kubaza ibibazo cyangwa gusobanuza ibyerekeye inama yawe.",
     },
   },
 
@@ -484,7 +484,7 @@ export const EMAIL_CONTENT = {
     message: {
       en: "Your expert profile has been <strong>approved</strong>. You are now visible to clients on the map and can receive bookings.",
       fr: "Votre profil expert a été <strong>approuvé</strong>. Vous êtes maintenant visible par les clients sur la carte et pouvez recevoir des réservations.",
-      rw: "Umwirondoro wawe w'umwarimu <strong>wemejwe</strong>. Ubu urabonwa n'abakiriya ku karita kandi ushobora kwakira gahunda.",
+      rw: "Umwirondoro wawe w'inzobere <strong>wemejwe</strong>. Ubu uragaragara ku bakiriya ku ikarita kandi ushobora kwakira gahunda z'inama.",
     },
     goToDashboard: {
       en: "Go to Dashboard",
@@ -585,9 +585,9 @@ export const EMAIL_CONTENT = {
     messageAwaitingConfirmation: {
       en: "Your booking request has been received and is awaiting the expert's confirmation.",
       fr: "Votre demande de réservation a été reçue et attend la confirmation de l'expert.",
-      rw: "Icyifuzo cyawe cyo gutanga gahunda cyakiriwe kandi kirindiriye kwemeza umwarimu.",
+      rw: "Icyifuzo cyawe cya gahunda cyakiriwe kandi gitegereje kwemezwa n'inzobere.",
     },
-    expert: { en: "Expert", fr: "Expert", rw: "Umwarimu" },
+    expert: { en: "Expert", fr: "Expert", rw: "Inzobere" },
     service: { en: "Service", fr: "Service", rw: "Serivisi" },
     dateTime: { en: "Date & Time", fr: "Date et heure", rw: "Itariki n'isaha" },
     amount: { en: "Amount", fr: "Montant", rw: "Amafaranga" },
@@ -600,7 +600,7 @@ export const EMAIL_CONTENT = {
     confirmationNoteAwaitingExpert: {
       en: "You will receive a confirmation email once the expert accepts your request.",
       fr: "Vous recevrez un e-mail de confirmation dès que l'expert acceptera votre demande.",
-      rw: "Uzabona ubutumwa bw'emeza umwarimu amaze kwemeza icyifuzo cyawe.",
+      rw: "Uzabona imeri yemeza inzobere nimara kwemeza icyifuzo cyawe.",
     },
   },
 
@@ -643,7 +643,7 @@ export const EMAIL_CONTENT = {
     title: {
       en: "Expert Verification Reminder",
       fr: "Rappel de vérification expert",
-      rw: "Kwibuka kwemeza umwarimu",
+      rw: "Kwibutsa kwemeza inzobere",
     },
     greeting: {
       en: (name: string) => `Hello ${name},`,
@@ -653,12 +653,12 @@ export const EMAIL_CONTENT = {
     incompleteProfile: {
       en: "Your MyJudicial expert profile is incomplete. The following required documents are still missing:",
       fr: "Votre profil expert MyJudicial est incomplet. Les documents requis suivants sont toujours manquants :",
-      rw: "Umwirondoro wawe wa MyJudicial ntwaruze. Ibyangombwa bisabwa bisigaye ni ibi:",
+      rw: "Umwirondoro wawe wa MyJudicial nturuzura. Ibyangombwa bisabwa bisigaye ni ibi:",
     },
     loginPrompt: {
       en: "Please log in to your dashboard and upload the missing documents.",
       fr: "Veuillez vous connecter à votre tableau de bord et télécharger les documents manquants.",
-      rw: "Nyamuneka injira kuri ibiro byawe kandi ushyiremo ibyangombwa bisangiye.",
+      rw: "Nyamuneka injira kuri konti yawe ushyiremo ibyangombwa bibura.",
     },
     completeButton: {
       en: "Complete Verification Now",
@@ -668,7 +668,7 @@ export const EMAIL_CONTENT = {
     timelineNote: {
       en: "Verification typically takes 1–2 business days after all required documents are received.",
       fr: "La vérification prend généralement 1 à 2 jours ouvrables après réception de tous les documents requis.",
-      rw: "Kwemeza biratoranya iminsi 1-2 y'akazi nyuma yo kwakira ibyangombwa byose bisabwa.",
+      rw: "Kwemeza bitwara iminsi 1-2 y'akazi nyuma yo kwakira ibyangombwa byose bisabwa.",
     },
   },
 
@@ -687,7 +687,7 @@ export const EMAIL_CONTENT = {
     thankYou: {
       en: "Thank you for submitting your verification documents. Unfortunately, we need you to resubmit some information before we can approve your expert profile.",
       fr: "Merci d'avoir soumis vos documents de vérification. Malheureusement, nous devons vous demander de resoumettre certaines informations avant de pouvoir approuver votre profil expert.",
-      rw: "Murakoze ku ibyangombwa byemeza wohereje. Ubwoko, dushaka ko ongera uhebze amakuru menyo tashobora kwemeza umwirondoro wawe w'umwarimu.",
+      rw: "Murakoze kohereza ibyangombwa bisabwa mu kwemeza konti. Gusa hari amakuru mukeneye kongera kuzuza mbere y'uko umwirondoro wanyu w'inzobere wemezwa.",
     },
     reasonLabel: {
       en: "Reason for Request:",
@@ -697,22 +697,22 @@ export const EMAIL_CONTENT = {
     nextSteps: {
       en: "Next Steps",
       fr: "Prochaines étapes",
-      rw: "Inshurozwezo",
+      rw: "Intambwe zikurikira",
     },
     steps: {
       en: "1. Review the feedback above<br/>2. Gather the corrected or missing documents<br/>3. Resubmit your verification through your dashboard",
       fr: "1. Examinez les commentaires ci-dessus<br/>2. Rassemblez les documents corrigés ou manquants<br/>3. Resoumettez votre vérification via votre tableau de bord",
-      rw: "1. Reba ibitegerezwa hejuru<br/>2. Tekanyoza ibyangombwa byahinduwe cyangwa bisangiye<br/>3. Ongera uhebze kwemeza ukoresheje ibiro byawe",
+      rw: "1. Reba ibyasabwe hejuru<br/>2. Tegura ibyangombwa byakosowe cyangwa ibibura<br/>3. Ongera wohereze ukoresheje ibiro byawe",
     },
     resubmitButton: {
       en: "Resubmit Documents",
       fr: "Resoumettre les documents",
-      rw: "Ongera uhebze ibyangombwa",
+      rw: "Ongera wohereze ibyangombwa",
     },
     teamNote: {
       en: "Our team is here to help ensure your profile meets all requirements. Once resubmitted, we'll review your documents within 1-2 business days.",
       fr: "Notre équipe est là pour vous aider à vous assurer que votre profil répond à toutes les exigences. Une fois resoumis, nous examinerons vos documents dans les 1 à 2 jours ouvrables.",
-      rw: "Ikipe yacu iri hano kukugufasha noneho umwirondoro wawe uzwi neza. Nyuma yo kongera uhebze, tuzasuzuma ibyangombwa byawe mu minota 1-2 y'akazi.",
+      rw: "Ikipe yacu iri hano kubafasha. Nyuma yo kongera kohereza ibyangombwa, tuzabisuzuma mu minsi 1-2 y'akazi.",
     },
   },
 
@@ -726,7 +726,7 @@ export const EMAIL_CONTENT = {
     message: {
       en: (expertName: string) => `Expert <strong>${expertName}</strong> has submitted verification documents.`,
       fr: (expertName: string) => `L'expert <strong>${expertName}</strong> a soumis des documents de vérification.`,
-      rw: (expertName: string) => `Uwarimu <strong>${expertName}</strong> yohereje ibyangombwa byemeza.`,
+      rw: (expertName: string) => `Inzobere <strong>${expertName}</strong> yohereje ibyangombwa byo kwemezwa.`,
     },
     reviewPrompt: {
       en: "Review and approve or reject this request in the admin dashboard.",
@@ -744,22 +744,22 @@ export const EMAIL_CONTENT = {
     title: {
       en: "New Expert Registration",
       fr: "Nouvel enregistrement d'expert",
-      rw: "Kwiyandikisha kw'umwarimu mushya",
+      rw: "Kwiyandikisha kw'inzobere nshya",
     },
     message: {
       en: (expertName: string, expertEmail: string) => `A new expert <strong>${expertName}</strong> (${expertEmail}) has registered on MyJudicial.`,
       fr: (expertName: string, expertEmail: string) => `Un nouvel expert <strong>${expertName}</strong> (${expertEmail}) s'est inscrit sur MyJudicial.`,
-      rw: (expertName: string, expertEmail: string) => `Uwarimu mushya <strong>${expertName}</strong> (${expertEmail}) yiyandikishye kuri MyJudicial.`,
+      rw: (expertName: string, expertEmail: string) => `Inzobere nshya <strong>${expertName}</strong> (${expertEmail}) yiyandikishije kuri MyJudicial.`,
     },
     nextSteps: {
       en: "The expert will complete their profile and submit verification documents. You will be notified when verification documents are submitted for review.",
       fr: "L'expert complétera son profil et soumettra les documents de vérification. Vous serez notifié lorsque les documents de vérification seront soumis pour examen.",
-      rw: "Uwarimu azuzaza umwirondoro we kandi azohereza ibyangombwa byemeza. Uzabumbwa icyitso ubona ibyangombwa byemeza byoherejwe.",
+      rw: "Inzobere izuzuza umwirondoro wayo kandi yohereze ibyangombwa byo kwemeza. Muzamenyeshwa ibyangombwa nibimara koherezwa.",
     },
     viewButton: {
       en: "View Experts",
       fr: "Voir les experts",
-      rw: "Reba abarimu",
+      rw: "Reba inzobere",
     },
   },
 

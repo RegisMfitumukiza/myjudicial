@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/routing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,20 +27,12 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiFetch } from "@/lib/api/client";
 
-const resetPasswordSchema = z.object({
-  password: z
-    .string()
-    .min(12, "Password must be at least 12 characters long.")
-    .regex(/[A-Z]/, "Include an uppercase letter.")
-    .regex(/[a-z]/, "Include a lowercase letter.")
-    .regex(/[0-9]/, "Include a number."),
-  confirmPassword: z.string().min(1, "Please confirm your password."),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match.",
-  path: ["confirmPassword"],
+const baseResetPasswordSchema = z.object({
+  password: z.string().min(12),
+  confirmPassword: z.string().min(1),
 });
 
-type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
+type ResetPasswordValues = z.infer<typeof baseResetPasswordSchema>;
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const t = useTranslations("expertDashboard_reset-password-form");
@@ -48,8 +40,21 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const schema = useMemo(() => z.object({
+    password: z
+      .string()
+      .min(12, t("minChars") || "Password must be at least 12 characters long.")
+      .regex(/[A-Z]/, t("uppercaseReq") || "Include an uppercase letter.")
+      .regex(/[a-z]/, t("lowercaseReq") || "Include a lowercase letter.")
+      .regex(/[0-9]/, t("numberReq") || "Include a number."),
+    confirmPassword: z.string().min(1, t("confirmPasswordReq") || "Please confirm your password."),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t("passwordsMismatch") || "Passwords do not match.",
+    path: ["confirmPassword"],
+  }), [t]);
+
   const form = useForm<ResetPasswordValues>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       password: "",
       confirmPassword: "",

@@ -36,7 +36,7 @@ const DEFAULTS: SettingsData = {
   defaultRole: "CITIZEN",
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
-  paymentMode: "BOOKING_FIRST",
+  paymentMode: "PAYMENT_REQUIRED",
 };
 
 export default function SettingsPage() {
@@ -245,8 +245,8 @@ export default function SettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="BOOKING_FIRST">{t("bookingFirst")}</SelectItem>
                   <SelectItem value="PAYMENT_REQUIRED">{t("paymentRequired")}</SelectItem>
+                  <SelectItem value="BOOKING_FIRST">{t("bookingFirst")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

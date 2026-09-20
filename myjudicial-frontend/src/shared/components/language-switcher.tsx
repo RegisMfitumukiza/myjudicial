@@ -4,18 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { Globe, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const LOCALES = [
   { code: "en", label: "English", flag: "EN" },
-  { code: "fr", label: "Francais", flag: "FR" },
+  { code: "fr", label: "Français", flag: "FR" },
   { code: "rw", label: "Kinyarwanda", flag: "RW" },
 ];
 
 interface LanguageSwitcherProps {
   variant?: "header" | "compact" | "mobile";
+  className?: string;
 }
 
-export function LanguageSwitcher({ variant = "header" }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ variant = "header", className }: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
@@ -66,17 +68,18 @@ export function LanguageSwitcher({ variant = "header" }: LanguageSwitcherProps) 
 
   if (variant === "compact") {
     return (
-      <div className="relative" ref={ref}>
+      <div className={cn("relative", className)} ref={ref}>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex h-9 items-center gap-1 rounded-full px-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label={t("language")}
+          className="flex h-9 items-center gap-1 rounded-full px-2 text-sm font-medium text-inherit transition-colors hover:bg-accent/20"
         >
           <Globe size={16} />
           <span className="hidden md:inline">{locale.toUpperCase()}</span>
           <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
         {open && (
-          <div className="absolute right-0 top-full z-50 mt-2 w-40 rounded-xl border border-border bg-card py-1 shadow-xl">
+          <div className="absolute right-0 top-full z-50 mt-2 w-40 rounded-xl border border-border bg-card py-1 shadow-xl text-foreground">
             {LOCALES.map(({ code, label }) => (
               <button
                 key={code}
@@ -99,7 +102,7 @@ export function LanguageSwitcher({ variant = "header" }: LanguageSwitcherProps) 
 
   // Default: header variant (icon button with globe)
   return (
-    <div className="relative" ref={ref}>
+    <div className={cn("relative", className)} ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-foreground"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "@/i18n/routing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,11 +20,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api/client";
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+const baseForgotPasswordSchema = z.object({
+  email: z.string().email(),
 });
 
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+type ForgotPasswordValues = z.infer<typeof baseForgotPasswordSchema>;
 
 export function ForgotPasswordForm() {
   const t = useTranslations("expertDashboard_forgot-password-form");
@@ -33,8 +33,12 @@ export function ForgotPasswordForm() {
   const [devToken, setDevToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const schema = useMemo(() => z.object({
+    email: z.string().email(t("emailInvalid") || "Please enter a valid email address."),
+  }), [t]);
+
   const form = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
 

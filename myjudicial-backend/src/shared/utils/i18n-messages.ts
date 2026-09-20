@@ -104,17 +104,17 @@ const ERROR_MESSAGES = {
   EXPERT_NOT_FOUND: {
     en: "Expert not found",
     fr: "Expert introuvable",
-    rw: "Umwarimu ntabwo yabonetse",
+    rw: "Inzobere ntiyabonetse",
   },
   EXPERT_NOT_VERIFIED: {
     en: "This expert has not been verified yet",
     fr: "Cet expert n'a pas encore été vérifié",
-    rw: "Uyu mwarimu ntabwo yemejwe",
+    rw: "Iyi nzobere ntiyaremezwa",
   },
   EXPERT_SUSPENDED: {
     en: "This expert account is currently suspended",
     fr: "Ce compte expert est actuellement suspendu",
-    rw: "Konti y'uyu mwarimu yahagaritswe",
+    rw: "Konti y'iyi nzobere yarahagaritswe",
   },
   PROFILE_INCOMPLETE: {
     en: "Please complete your profile before proceeding",
@@ -175,7 +175,7 @@ const ERROR_MESSAGES = {
   FILE_TOO_LARGE: {
     en: "File size exceeds maximum allowed (5MB)",
     fr: "La taille du fichier dépasse le maximum autorisé (5 Mo)",
-    rw: "Ingano y'idosiye irarenzekereza (5MB)",
+    rw: "Ingano y'idosiye irenze igipimo cyemewe (5MB)",
   },
   INVALID_FILE_TYPE: {
     en: "Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, PNG",

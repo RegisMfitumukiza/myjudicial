@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { 
   CameraIcon, 
   XMarkIcon, 
@@ -35,6 +36,7 @@ export function ProfilePhotoReminder({
   currentPhotoUrl,
   className = "" 
 }: ProfilePhotoReminderProps) {
+  const t = useTranslations("experts");
   const [isDismissed, setIsDismissed] = useState(false);
 
   if (isDismissed || photoStatus.hasPhoto) return null;
@@ -109,9 +111,9 @@ export function ProfilePhotoReminder({
               <div className="flex items-center gap-2 mb-1">
                 <IconComponent className={`h-4 w-4 ${styles.icon}`} />
                 <h3 className={`text-sm font-semibold ${styles.text}`}>
-                  {photoStatus.urgency === 'high' ? 'Profile Photo Needed' : 
-                   photoStatus.urgency === 'medium' ? 'Add Profile Photo' : 
-                   'Complete Your Profile'}
+                  {photoStatus.urgency === 'high' ? t('photoReminder.neededHigh') : 
+                   photoStatus.urgency === 'medium' ? t('photoReminder.neededMedium') : 
+                   t('photoReminder.neededLow')}
                 </h3>
               </div>
               <p className={`text-sm ${styles.text.replace('800', '700').replace('200', '300')}`}>
@@ -138,13 +140,13 @@ export function ProfilePhotoReminder({
               className={styles.button}
             >
               <ArrowUpTrayIcon className="h-4 w-4 mr-1" />
-              {currentPhotoUrl ? 'Update Photo' : 'Upload Photo'}
+              {currentPhotoUrl ? t('photoReminder.updatePhoto') : t('photoReminder.uploadPhoto')}
             </Button>
             
             {photoStatus.urgency === 'high' && (
               <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                 <ExclamationTriangleIcon className="h-3 w-3" />
-                <span>Urgent</span>
+                <span>{t('photoReminder.urgent')}</span>
               </div>
             )}
           </div>
@@ -152,7 +154,7 @@ export function ProfilePhotoReminder({
           {/* Benefits Hint */}
           {photoStatus.urgency !== 'low' && (
             <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-              💡 <strong>Did you know?</strong> Profiles with professional photos get 300% more client bookings
+              💡 <strong>{t('photoReminder.didYouKnowStrong')}</strong> {t('photoReminder.didYouKnow')}
             </div>
           )}
         </div>
@@ -177,6 +179,7 @@ export function CompactPhotoReminder({
   onUploadClick, 
   className = "" 
 }: CompactPhotoReminderProps) {
+  const t = useTranslations("experts");
   const [isDismissed, setIsDismissed] = useState(false);
 
   if (isDismissed || photoStatus.hasPhoto || photoStatus.urgency === 'low') return null;
@@ -201,12 +204,12 @@ export function CompactPhotoReminder({
         <p className={`text-sm font-medium ${
           isUrgent ? 'text-red-800 dark:text-red-200' : 'text-amber-800 dark:text-amber-200'
         }`}>
-          Add your profile photo
+          {t('photoReminder.compactTitle')}
         </p>
         <p className={`text-xs ${
           isUrgent ? 'text-red-600 dark:text-red-300' : 'text-amber-600 dark:text-amber-300'
         }`}>
-          Increase client trust & bookings
+          {t('photoReminder.compactSubtitle')}
         </p>
       </div>
       
@@ -218,7 +221,7 @@ export function CompactPhotoReminder({
           isUrgent ? 'text-red-700 hover:bg-red-100 dark:text-red-300' : 'text-amber-700 hover:bg-amber-100 dark:text-amber-300'
         }`}
       >
-        Upload
+        {t('photoReminder.compactButton')}
       </Button>
       
       <button
@@ -249,6 +252,7 @@ export function PhotoUploadSuccess({
   onChangePhoto, 
   className = "" 
 }: PhotoUploadSuccessProps) {
+  const t = useTranslations("experts");
   return (
     <Card className={`bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800 p-4 ${className}`}>
       <div className="flex items-center gap-3">
@@ -265,10 +269,10 @@ export function PhotoUploadSuccess({
         
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-green-800 dark:text-green-200">
-            Profile Photo Added ✓
+            {t('photoReminder.successTitle')}
           </h3>
           <p className="text-xs text-green-600 dark:text-green-300">
-            Great! Your profile now looks more professional and trustworthy.
+            {t('photoReminder.successSubtitle')}
           </p>
         </div>
         
@@ -279,7 +283,7 @@ export function PhotoUploadSuccess({
             variant="outline"
             className="border-green-300 text-green-700 hover:bg-green-100 dark:text-green-300"
           >
-            Change
+            {t('photoReminder.successChange')}
           </Button>
         )}
       </div>

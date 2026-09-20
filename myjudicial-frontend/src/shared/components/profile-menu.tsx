@@ -87,7 +87,7 @@ export function ProfileMenu() {
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        aria-label="Account menu"
+        aria-label={tCommon("aria.accountMenu")}
         className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-full border border-border bg-background pl-1 pr-1 sm:pr-2.5 transition-all hover:bg-accent hover:border-foreground/20 hover:shadow-2xs"
       >
         {showPhoto ? (

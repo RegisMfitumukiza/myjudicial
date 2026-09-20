@@ -3,6 +3,7 @@
 import { Logo } from "@/shared/components/logo";
 import { CheckCircleIcon, ClockIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/shared/components/language-switcher";
 
 interface OnboardingHeaderProps {
   currentStep: number;
@@ -31,11 +32,14 @@ export function ExpertOnboardingHeader({
             </div>
           </div>
           
-          <div className="text-right">
-            <p className="text-sm text-blue-100">{t("onboardingHeader.stepOf", { current: currentStep, total: totalSteps })}</p>
-            <div className="text-xs text-blue-200">
-              {t("onboardingHeader.complete", { pct: completionPercentage })}
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-blue-100">{t("onboardingHeader.stepOf", { current: currentStep, total: totalSteps })}</p>
+              <div className="text-xs text-blue-200">
+                {t("onboardingHeader.complete", { pct: completionPercentage })}
+              </div>
             </div>
+            <LanguageSwitcher variant="compact" className="text-white hover:text-white" />
           </div>
         </div>
 

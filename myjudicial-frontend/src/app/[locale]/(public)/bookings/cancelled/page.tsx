@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 function CancelledContent() {
   const txRef = useSearchParams().get("ref");
   const t = useTranslations("public.bookings");
+  const tBooking = useTranslations("booking.cancelled");
 
   return (
     <div className="mx-auto max-w-md px-6 py-16 text-center">
@@ -37,16 +38,14 @@ function CancelledContent() {
       <div className="mb-8 rounded-xl bg-brand-dark/5 p-5 text-left dark:bg-white/5">
         <h2 className="mb-3 flex items-center gap-2 text-[14px] font-bold text-brand-dark dark:text-white">
           <HelpCircle size={16} />
-          What Happened?
+          {tBooking("whatHappened")}
         </h2>
         <p className="text-[13px] text-brand-dark/70 dark:text-white/70">
-          The payment was cancelled before completion. This could be because you:
+          {tBooking("reasonPaymentAbandoned")}
         </p>
-        <ul className="mt-2 list-inside list-disc space-y-1 text-[13px] text-brand-dark/70 dark:text-white/70">
-          <li>Clicked &quot;Cancel&quot; on the payment screen</li>
-          <li>Closed the payment window</li>
-          <li>Experienced a connection timeout</li>
-        </ul>
+        <p className="mt-2 text-[13px] text-brand-dark/70 dark:text-white/70">
+          {tBooking("noChargesMade")}
+        </p>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -56,7 +55,7 @@ function CancelledContent() {
         >
           <Link href="/search">
             <ArrowLeft className="mr-2" size={16} />
-            Browse Lawyers Again
+            {tBooking("browseLawyers")}
           </Link>
         </Button>
 

@@ -4,36 +4,6 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const FAQS = [
-  {
-    q: "How do bookings work?",
-    a: "Browse verified lawyers, select a service and time slot, then confirm your booking. You will receive a confirmation via SMS and email with all the details.",
-  },
-  {
-    q: "How do I pay?",
-    a: "We accept MTN MoMo and Airtel Money. Your payment is held in secure escrow and only released to the lawyer after your consultation is completed.",
-  },
-  {
-    q: "Are all lawyers verified?",
-    a: "Yes. Every lawyer on MyJudicial is BAR certified, identity-checked, and reviewed by our quality team before appearing on the platform.",
-  },
-  {
-    q: "Can consultations be online?",
-    a: "Yes. Many lawyers offer video calls, phone calls, and in-person consultations. You can choose your preferred mode when booking.",
-  },
-  {
-    q: "Can I cancel a booking?",
-    a: "Yes. You can cancel or reschedule a booking up to 24 hours before the consultation. Cancellations within 24 hours may incur a fee.",
-  },
-  {
-    q: "Is my payment protected?",
-    a: "Absolutely. All payments are held in escrow until your consultation is complete. If the lawyer does not show up, you get a full refund.",
-  },
-  {
-    q: "How does Mobile Money work?",
-    a: "When you book, you will receive an MoMo payment prompt on your phone. Simply enter your PIN to confirm. The payment is processed instantly.",
-  },
-];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);

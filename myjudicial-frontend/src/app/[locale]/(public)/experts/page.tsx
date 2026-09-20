@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/routing";
 
-export default function ExpertsPage() {
+export default async function ExpertsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   // Legacy route — redirect to lawyer discovery search page
-  redirect("/search");
+  redirect({ href: "/search", locale });
 }

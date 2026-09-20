@@ -97,7 +97,7 @@ function createMarkerElements(props: {
   el.style.cssText =
     "cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;";
   el.setAttribute("role", "button");
-  el.setAttribute("aria-label", `View profile of ${props.name}`);
+  el.setAttribute("aria-label", props.t("viewProfileAria", { name: props.name }));
 
   const size = props.selected ? 44 : 36;
   const pin = document.createElement("div");
@@ -153,6 +153,7 @@ function createRichPopupHtml(props: {
   languages: string;
   locale: string;
   t: (key: string, params?: Record<string, string | number>) => string;
+  tSpecialties?: (k: string) => string;
 }): string {
   const rateStr =
     props.rate > 0
@@ -193,9 +194,9 @@ function createRichPopupHtml(props: {
     .join(", ");
 
   const rawSpecialties = props.specialties
-    ? props.specialties.split(", ").map(formatSpecialtyName)
+    ? props.specialties.split(", ").map((s) => formatSpecialtyName(s, props.tSpecialties))
     : props.specialty
-      ? [formatSpecialtyName(props.specialty)]
+      ? [formatSpecialtyName(props.specialty, props.tSpecialties)]
       : [];
   const specialtiesList =
     rawSpecialties.length > 0
@@ -344,6 +345,7 @@ export function MapView({
   isMobile = false,
 }: MapViewProps) {
   const t = useTranslations("search");
+  const tSpecialties = useTranslations("specialties");
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -576,7 +578,7 @@ export function MapView({
           lawyerId: lawyer.id,
           online: lawyer.online,
           specialty: lawyer.specialtyLabel,
-          specialties: (lawyer.specialties || []).map(formatSpecialtyName).join(", "),
+          specialties: (lawyer.specialties || []).map((s) => formatSpecialtyName(s, tSpecialties)).join(", "),
           distanceKm: lawyer.distanceKm,
           officeAddress: lawyer.officeAddress ?? "",
           city: lawyer.city ?? "",
@@ -584,6 +586,7 @@ export function MapView({
           languages: (lawyer.languages || []).join(", "),
           locale,
           t,
+          tSpecialties,
         })
       );
 
@@ -740,7 +743,7 @@ export function MapView({
 
   return (
     <div className={`relative h-full w-full ${className ?? ""}`}>
-      <div ref={containerRef} className="h-full w-full" />
+      <div ref={containerRef} className="h-full w-full" role="region" aria-label={t("mapAriaLabel")} />
 
       {/* ── Top-Left: Live experts count badge (hidden on mobile to prevent overlap with Search this area) ── */}
       <div className="absolute left-4 top-4 z-20 hidden sm:flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-xs px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10">

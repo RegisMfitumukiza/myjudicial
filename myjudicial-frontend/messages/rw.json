@@ -631,7 +631,8 @@
       "good": "Ihuza ryiza",
       "fair": "Ihuza risanzwe",
       "noExperts": "Nta banyemezi ba amategeko bahari kuri iyo specialty mu rusengeso rwacu.",
-      "tryBroader": "Gerageza kuvuga icyago cyawe mu buryo bugaragara cyangwa ujye raba abanyemezi bose bahari."
+      "tryBroader": "Gerageza kuvuga icyago cyawe mu buryo bugaragara cyangwa ujye raba abanyemezi bose bahari.",
+      "expertsFound": "Nabonye **abavoka {count} babifitiye ubushobozi** ku kibazo cyawe."
     },
     "redirect": {
       "title": "Turimo gukurikirana abanyemezi bihuwe...",
@@ -662,7 +663,22 @@
     "empty": {
       "title": "Dushoboye kukugufasha ingeri yawe?",
       "description": "Sobanura icyago cyawe c'amategeko. Urashobora kwandika, kuvuga, cyangwa ongeraho amadosiye."
-    }
+    },
+    "analysisResponse": "Nasesenguye ikibazo cyawe. Kigengwa n'**{specialty}** gifite ubwihutirwe bwa {urgency}.",
+    "matchesFound": "Nabonye **inzobere {count} zikwiriye** ikibazo cyawe.",
+    "upload": "Gushyiraho dosiye",
+    "yrShort": "imyaka {years}",
+    "greeting": "Muraho! Ndi umufasha wanyu w'ubwenge bukorano (AI) mu by'amategeko. Sobanura ikibazo cyawe cy'amategeko, ngufashe kugisesengura no kuguha abavoka babifitiye ubushobozi mu Rwanda.",
+    "quickPrompt1": "Nkeneye ubufasha bwo gusuzuma amasezerano y'akazi",
+    "quickPrompt2": "Ni gute nakemura impaka z'imipaka y'ubutaka?",
+    "quickPrompt3": "Ni izihe ntambwe zo kwandikisha ubucuruzi bushya?",
+    "quickPrompt4": "Nkeneye inama ku masezerano yo gukodesha inzu y'ubucuruzi",
+    "openFullWorkspace": "Fungura mu mwanya wose w'ikibazo",
+    "chatWithAI": "Ganira n'umufasha wa AI",
+    "confidenceHigh": "Guhuza k'urwego rwo hejuru",
+    "confidenceMedium": "Guhuza k'urwego ruringaniye",
+    "yearsExpUnit": "umwaka",
+    "loadingWorkspace": "Iri gukora umwanya w'umufasha wa AI..."
   },
   "auth": {
     "login": "Kwinjira",
@@ -811,7 +827,7 @@
     "bookingFailed": "Gahunda ntirwemejwe",
     "expert": "Umwakozi",
     "service": "Igice",
-    "notSelected": "Ntirahisemwe",
+    "notSelected": "Ntabwo byatoranyijwe",
     "mode": "Ubwoko",
     "documentSlotHint": "Iyi saha igaragaza igihe cyo gusobanura ikibazo no gutangira dosiye. Inyandiko zizakorwa zishyikirizwe hakurikijwe iki kiciro.",
     "inPersonSlotHint": "Iyi saha igaragaza igihe ugomba kugerera mu biro by'umwunganizi.",
@@ -883,7 +899,7 @@
     "serviceDescription": "Ibisobanuro by'Igice",
     "serviceCategory": "Ubwoko bw'Igice",
     "deliveryMethod": "Uburyo bwo Kohereza",
-    "durationMinutes": "Igihe (amasegonda)",
+    "durationMinutes": "Iminota {minutes}",
     "fee": "Ibiciro",
     "currency": "Ishungura",
     "saveService": "Bika Igice",
@@ -898,7 +914,40 @@
     "failedToLoadExpert": "Failed to load expert details",
     "expertInformation": "Expert Information",
     "goToDashboard": "Go to Dashboard",
-    "findAnotherLawyer": "Find Another Lawyer"
+    "findAnotherLawyer": "Find Another Lawyer",
+    "durationMin": "Imin. {count}",
+    "dateAtTime": "{date} saa {time}",
+    "optional": "Bihitamo",
+    "days": {
+      "sun": "Kyu",
+      "mon": "Kmb",
+      "tue": "Kab",
+      "wed": "Gtu",
+      "thu": "Krn",
+      "fri": "Gtn",
+      "sat": "Gnd"
+    },
+    "months": {
+      "jan": "Mutarama",
+      "feb": "Gashyantare",
+      "mar": "Werurwe",
+      "apr": "Mata",
+      "may": "Gicurasi",
+      "jun": "Kamena",
+      "jul": "Nyakanga",
+      "aug": "Kanama",
+      "sep": "Nzeli",
+      "oct": "Ukwakira",
+      "nov": "Ugushyingo",
+      "dec": "Ukuboza"
+    },
+    "cancelled": {
+      "title": "Gahunda yateshejwe agaciro",
+      "whatHappened": "Byagenze bite?",
+      "reasonPaymentAbandoned": "Kwishyura byahagaritswe cyangwa igihe cyagenwe cyarangiye mbere yo kurangiza.",
+      "noChargesMade": "Nta mafaranga yakuwe kuri konti yawe. Igihe wari watoranyije cyasubijwe mu bindi biboneka.",
+      "browseLawyers": "Kongera gushaka abavoka"
+    }
   },
   "common": {
     "loading": "Birimo gupakira...",
@@ -966,12 +1015,20 @@
     }
   },
   "errors": {
-    "somethingWentWrong": "Hariho ikibazo",
-    "tryAgain": "Nyamuneka gerageza ukundi",
-    "pageNotFound": "Urupapuro ntirubonetse",
-    "unauthorized": "Ntabwo ufite uburenganzira bwo kubona uyu rupapuro",
-    "networkError": "Ikibazo cya murandasi. Nyamuneka suzuma internet yawe.",
-    "validationError": "Nyamuneka suzuma icyo wanditse hanyuma ugerageze ukundi"
+    "notFound": {
+      "badge": "404",
+      "title": "Ipaji ntiyabonetse",
+      "description": "Ipaji ushakisha ntiriho cyangwa yimuwe.",
+      "goHome": "Subira ahabanza",
+      "backHome": "Subira ahabanza"
+    },
+    "general": {
+      "badge": "Ikosa",
+      "title": "Habaye ikibazo",
+      "description": "Habaye ikosa ritunguranye. Ongera ugerageze.",
+      "tryAgain": "Ongera ugerageze",
+      "retry": "Ongera ugerageze"
+    }
   },
   "expertOnboarding": {
     "title": "Gutunganya Umwirondoro w'Inzobere",
@@ -1567,7 +1624,18 @@
       "joinVideo": "Join the video consultation at your scheduled time",
       "escrowNotice": "Payment is held in escrow until consultation is complete",
       "bookAnother": "Book Another Consultation",
-      "redirecting": "Redirecting to your bookings in {countdown}s..."
+      "redirecting": "Redirecting to your bookings in {countdown}s...",
+      "whatHappened": "Byagenze bite?",
+      "cancelledExplanation": "Kwishyura byahagaze bitarangiye. Ibi bishobora kuba byatewe na:",
+      "cancelledReason1": "Wakanze ahanditse \"Kureka\" kuri terefone",
+      "cancelledReason2": "Wafunze idirishya ryo kwishyura",
+      "cancelledReason3": "Igihe cyo kwishyura cyarangiye kubera interineti",
+      "browseLawyersAgain": "Ongera ushake abavoka",
+      "contactSupport": "Vugana n'abashinzwe ubufasha",
+      "mobileMoneyUnavailable": "Serivisi ya Mobile Money ntabwo iri kuboneka muri aka kanya",
+      "browseMoreLawyers": "Reba izindi nzobere mu by'amategeko",
+      "tip": "Inama",
+      "tipDesc": "Reba neza ko ufite amafaranga ahagije kuri konte yawe kandi wemeze kwishyura ukoresheje PIN yawe mu masegonda 60."
     },
     "home": {
       "heroTitle": "Shakisha Umwanditsi w'Amategeko mu Rwanda",
@@ -1876,7 +1944,16 @@
       "noReviewsTitle": "Nta bitekerezo by'abakiriya biratangwa",
       "noReviewsDesc": "Uyu mwunganizi aherutse gutangira gutanga inama ku murongo binyuze kuri MyJudicial. Ba mu ba mbere bafata gahunda bagasangiza abandi uko byagenze.",
       "noReviewsTrustNote": "Buri nama yose yemejwe n'Urugaga rw'Abavoka mu Rwanda kandi irinzwe binyuze mu kwishyura kuri MoMo.",
-      "bookFirstReviewCta": "Gufata Gahunda"
+      "bookFirstReviewCta": "Gufata Gahunda",
+      "reportReasons": {
+        "spam": "Ubutumwa bwamamaza bidakenewe",
+        "harassment": "Ihohotera cyangwa imvugo ibangamye",
+        "offensiveLanguage": "Imvugo itiyubashye",
+        "fakeReview": "Ibitekerezo by'ibihimbano",
+        "other": "Izindi mpamvu"
+      },
+      "contactRate": "Baza igiciro",
+      "legalServices": "Ubufasha mu by'amategeko"
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -1884,7 +1961,28 @@
       "offline": "Ntibiri kuri Interineti",
       "previewMessage": "Ushaka ubufasha bwo kubona umwanditsi w'amategeko ujyanye n'ibibazo byawe? Andika ibibazo byawe kandi AI yacu iza kukubonaniraho amase.",
       "previewExample": "urugero: \"Nyene inzu yanjye adashaka kugarura ingendo.\"",
-      "tryAi": "Gerageza AI"
+      "tryAi": "Gerageza AI",
+      "chatWithAi": "Ganira na AI",
+      "commonTopics": "Ingingo zikunze kugaragara:",
+      "prompts": {
+        "land": "Amakimbirane y'imbibi n'ubutaka",
+        "employment": "Kwirukanwa mu kazi binyuranyije n'amategeko",
+        "contract": "Ukwica amasezerano y'ubucuruzi",
+        "family": "Ibibazo byo gutandukana n'uburere bw'abana"
+      },
+      "urgency": "Ubwihutirwe:",
+      "recommendedExperts": "Inzobere zasabwe:",
+      "view": "Reba",
+      "analyzing": "Iri gusesengura ikibazo no gushaka abavoka...",
+      "openFullWorkspace": "Fungura ahagenewe gusesengura ibibazo byose",
+      "welcomeMessage": "Muraho! Ndi Umufasha wanyu w'Ubwenge bwa Mudasobwa (AI) mu by'Amategeko kuri MyJudicial. Sobanura ikibazo icyo ari cyo cyose mu mategeko y'u Rwanda uhabwe ubujyanama bw'ibanze n'abavoka b'inzobere bakibereye.",
+      "triageResponse": "Dukurikije ibisobanuro byawe, iki kibazo kigengwa n'**{specialty}** gifite ubwihutirwe bwo ku kigero cya **{urgency}**.",
+      "errorMessage": "Habayeho ikibazo mu gusesengura ubusabe bwawe. Urashobora gukoresha ahasanzwe hasesengurirwa ibibazo by'amategeko mu buryo bwisumbuyeho.",
+      "inputPlaceholder": "Sobanura ikibazo cyawe mu mategeko...",
+      "sendMessage": "Ohereza ubutumwa",
+      "dismiss": "Funga ubufasha bwa AI",
+      "expandWorkspace": "Kwagura idirishya ryose",
+      "closeChat": "Funga ibiganiro"
     }
   },
   "search": {
@@ -1905,7 +2003,7 @@
     "clearAll": "Siba sisitemu yose",
     "resultsCount": "{count, plural, =0 {Nta mwanditsi w'amategeko wabonetse} one {Mwanditsi w'amategeko # wabonetse} other {Abanditsi b'amategeko # babonetse}}",
     "loadingExperts": "Birimo gufata abanyemezi...",
-    "loadingSearch": "Birimo gushakisha...",
+    "loadingSearch": "Iri gushaka ibisubizo...",
     "failedToLoad": "Byanze gufata abanyemezi",
     "tryAgain": "Nyamuneka gerageza ukundi",
     "description": "Ntitwabonye abanyemezi b'amategeko bo mu buryo bushingiye ku byo ushakishije no ku mapu.",
@@ -1978,7 +2076,7 @@
     "showMap": "Raba karata",
     "showList": "Raba urutonde",
     "all": "Vyose",
-    "legalExpert": "Umwanditsi w'amategeko",
+    "legalExpert": "Inzobere mu by'amategeko",
     "bookingsCount": "gahunda {count}+",
     "bookings": "gahunda",
     "getDirections": "Inzira",
@@ -2008,7 +2106,21 @@
     "showingCurated": "Guhitamo kwihariye",
     "gridDirectory": "Kureba ku murongo",
     "splitDirectory": "Kureba ku ikarita",
-    "bookConsultationShort": "Fata gahunda"
+    "bookConsultationShort": "Fata gahunda",
+    "viewProfileOf": "Reba umwirondoro wa {name}",
+    "closeDetails": "Funga amakuru y'inzobere",
+    "specialistsIn": "Inzobere muri {specialty}",
+    "practiceAreasCount": "Inzego {count} z'ubumenyi ({areas})",
+    "verifiedAdvocatesInSpecialties": "Abavoka bemewe b'inzobere muri {specialties} mu Rwanda.",
+    "radius": {
+      "allRwanda": "U Rwanda rwose"
+    },
+    "viewProfileAria": "Reba umwirondoro wa {name}",
+    "closeLawyerDetails": "Funga amakuru arambuye y'umwavoka",
+    "mapAriaLabel": "Ikarita y'abavoka",
+    "zoomIn": "Gukuza",
+    "zoomOut": "Kugabanya",
+    "recenterMap": "Kugarura ikarita hagati"
   },
   "settings": {
     "settingsSaved": "Igenamiterere ryabitswe.",
@@ -2754,50 +2866,50 @@
     }
   },
   "about": {
-    "meta": {
-      "title": "About Us | MyJudicial",
-      "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
-    },
     "hero": {
-      "badge": "Intego n'Icyerekezo Cyacu",
-      "title": "Kugeza Ubutabera n'Ubufasha bw'Amategeko ku Banyarwanda Bose",
-      "subtitle": "Tuhuza abaturage, amasosiyete n'abavoka bemewe mu rugaga—twimakaza ibiciro bisobanutse, ubunyamwuga, n'ikoranabuhanga rigezweho.",
+      "badge": "Ibyerekeye MyJudicial",
+      "title": "Kwegereza ubutabera no kugisha inama buri munyarwanda",
+      "subtitle": "MyJudicial ni urubuga rwa mbere rw'ikoranabuhanga mu Rwanda ruhuza abaturage na ba rwiyemezamirimo n'abavoka b'umwuga bemewe n'Urugaga rw'Abavoka mu Rwanda.",
       "stats": {
-        "verifiedExperts": "Abavoka Bemewe",
-        "completedConsultations": "Inama Zasoje Neza",
-        "totalClients": "Abakiriya Banyuzwe"
+        "verifiedExperts": "Abavoka bemewe",
+        "completedConsultations": "Inama zatanzwe",
+        "totalClients": "Abaturage bafashijwe"
       }
     },
     "mission": {
-      "title": "Our Mission",
-      "text": "To democratize access to justice in Rwanda by providing a transparent, efficient, and secure platform that connects individuals and businesses with verified legal professionals.",
-      "visionTitle": "Our Vision",
-      "visionText": "To become the leading digital legal infrastructure in Africa, where finding a lawyer is as easy as booking a flight, and legal processes are streamlined for maximum efficiency."
+      "title": "Intego yacu",
+      "text": "Kworohereza buri wese kubona inama z'amategeko zizewe kandi zinoze mu Rwanda binyuze mu ikoranabuhanga ryizewe kandi ryihuse.",
+      "visionTitle": "Icyerekezo cyacu",
+      "visionText": "U Rwanda aho buri muturarwanda na buri kigo babona ubutabera n'ubufasha mu by'amategeko mu mucyo no mu buryo bworoshye."
     },
     "story": {
-      "title": "Our Story",
-      "text1": "MyJudicial was born out of a simple observation: finding the right lawyer in Rwanda was often complicated, opaque, and intimidating for the average person or small business.",
-      "text2": "We realized that by leveraging technology, we could bridge the gap between talented legal professionals and those who need their services. Today, MyJudicial is a comprehensive ecosystem that not only helps clients find lawyers but also provides lawyers with the tools they need to manage and grow their practice."
+      "title": "Amateka yacu",
+      "text1": "MyJudicial yatangirijwe i Kigali nyuma yo kubona ko kubona umwavoka w'umwuga uhuye n'ikibazo cyawe byari bigoranye ku baturage benshi.",
+      "text2": "Twubatse urubuga rworohereza abantu kubona abavoka b'umwuga, kumenya ibiciro mbere yo gufata gahunda, no kwishyura mu mutekano binyuze kuri Mobile Money."
     },
     "values": {
-      "title": "Our Core Values",
+      "title": "Indangagaciro zacu",
       "access": {
-        "title": "Access",
-        "text": "We believe everyone deserves access to quality legal representation, regardless of their background or connections."
+        "title": "Kwegerezwa abaturage",
+        "text": "Ubufasha mu by'amategeko bugomba kubonwa na buri wese bitabangamiye ubushobozi bwe cyangwa aho aherereye."
       },
       "transparency": {
-        "title": "Transparency",
-        "text": "Clear, upfront pricing with no hidden fees. You always know what you're paying for before you commit."
+        "title": "Gukorera mu mucyo",
+        "text": "Ibiciro bisobanutse, abavoka bemewe n'Urugaga rw'Abavoka, n'ibitekerezo by'abakiriya bahawe serivisi nyakuri."
       },
       "trust": {
-        "title": "Trust",
-        "text": "Every lawyer on our platform is strictly vetted and verified. Your payments and data are always secure."
+        "title": "Kwizera n'Umutekano",
+        "text": "Amafaranga yawe arindwa neza kugeza igihe inama y'amategeko irangiye neza kandi amakuru yawe akagirwa ibanga rikomeye."
       }
     },
     "cta": {
-      "title": "Ready to get started?",
-      "joinLawyer": "Join as a Lawyer",
-      "findLawyer": "Find a Lawyer"
+      "title": "Witeguye kubona umwavoka w'umwuga uyu munsi?",
+      "findLawyer": "Shaka Umwavoka",
+      "joinLawyer": "Iyandikishe nk'Umwavoka"
+    },
+    "meta": {
+      "title": "About Us | MyJudicial",
+      "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
     }
   },
   "clientDashboard": {
@@ -3142,54 +3254,54 @@
   },
   "comingSoonPage": {
     "blog": {
+      "hero": {
+        "badge": "Blog y'Amategeko",
+        "title": "Amakuru & Isesengura mu Mategeko",
+        "subtitle": "Inyandiko zisesengura amategeko n'inama z'abavoka mu Rwanda."
+      },
+      "comingSoon": {
+        "title": "Inyandiko ziri gutunganywa zizajya ahagaragara vuba",
+        "desc": "Ikipe yacu y'abavoka iri gutunganya inyandiko zicukumbuye ku mategeko mashya n'ubucuruzi mu Rwanda."
+      },
       "meta": {
         "title": "Blog | MyJudicial",
         "description": "Read the latest news and insights from MyJudicial."
-      },
-      "hero": {
-        "badge": "Blog",
-        "title": "The MyJudicial Blog",
-        "subtitle": "News, updates, and insights from our team and legal experts."
-      },
-      "comingSoon": {
-        "title": "Coming Soon",
-        "desc": "We are currently setting up our editorial team. Check back soon for our first publications."
       }
     },
     "careers": {
+      "hero": {
+        "badge": "Kazi muri MyJudicial",
+        "title": "Koranana natwe muri MyJudicial",
+        "subtitle": "Fatanya natwe kwegereza ubutabera no kuvugurura uburyo amategeko agera kuri buri wese."
+      },
+      "comingSoon": {
+        "title": "Imyanya y'akazi izatangazwa vuba",
+        "desc": "Turi gutegura imyanya y'akazi mu by'ikoranabuhanga, kumenyekanisha ibikorwa n'ubufasha mu by'amategeko i Kigali."
+      },
       "meta": {
         "title": "Careers | MyJudicial",
         "description": "Join the team at MyJudicial and help us democratize access to justice in Rwanda."
-      },
-      "hero": {
-        "badge": "Careers",
-        "title": "Join Our Team",
-        "subtitle": "Help us build the digital infrastructure for Rwanda's legal system."
-      },
-      "comingSoon": {
-        "title": "No Open Positions",
-        "desc": "We don't have any open roles at the moment, but we're always looking for great talent. Check back soon."
       }
     },
     "press": {
+      "hero": {
+        "badge": "Ibitangazamakuru",
+        "title": "Amakuru n'Ibitangazamakuru",
+        "subtitle": "Itangazo ry'ibikorwa bya MyJudicial n'amakuru y'ingenzi ku bitangazamakuru."
+      },
+      "comingSoon": {
+        "title": "Akarusho ku bitangazamakuru karacyatunganywa",
+        "desc": "Niba uri umunyamakuru wifuza amakuru cyangwa ikiganiro, watwandikira ubu."
+      },
       "meta": {
         "title": "Press & Media | MyJudicial",
         "description": "Press releases, media kits, and news about MyJudicial."
-      },
-      "hero": {
-        "badge": "Press",
-        "title": "Press & Media",
-        "subtitle": "Everything you need to know about MyJudicial for your next story."
-      },
-      "comingSoon": {
-        "title": "Media Kit Coming Soon",
-        "desc": "Our press resources are currently being updated. For immediate media inquiries, please contact us."
       }
     },
     "cta": {
-      "title": "Need something else?",
-      "button1": "Find a Lawyer",
-      "button2": "Contact Us"
+      "title": "Komeza kubana na MyJudicial",
+      "button1": "Shaka umwavoka",
+      "button2": "Twandikire"
     }
   },
   "contactPage": {
@@ -3198,24 +3310,41 @@
       "description": "Get in touch with the MyJudicial team for support, partnerships, or general inquiries."
     },
     "hero": {
-      "badge": "Contact",
-      "title": "Get in Touch",
-      "subtitle": "We're here to help. Reach out to us for any questions or support."
+      "badge": "Twandikire",
+      "title": "Turahari ku bwanyu",
+      "subtitle": "Ufite ikibazo cyangwa ukeneye ubufasha? Ikipe ya MyJudicial i Kigali iriteguye kugufasha."
     },
     "info": {
-      "title": "Contact Information",
-      "email": "info@myjudicial.rw",
-      "location": "Kigali, Rwanda",
-      "hours": "Monday - Friday: 8:00 AM - 5:00 PM (CAT)"
+      "title": "Aho wadusanga",
+      "email": "support@myjudicial.rw",
+      "location": "Kigali, u Rwanda",
+      "hours": "Kuwa mbere kugeza kuwa gatanu: 08:00 – 18:00 CAT"
     },
     "form": {
-      "title": "Send us a message",
-      "name": "Full Name",
-      "email": "Email Address",
-      "subject": "Subject",
-      "message": "Your Message",
-      "submit": "Send Message"
-    }
+      "title": "Tyoherereze ubutumwa",
+      "name": "Amazina yose",
+      "email": "Imeli yawe",
+      "subject": "Impamvu y'ubutumwa",
+      "message": "Ubutumwa bwawe",
+      "submit": "Ohereza ubutumwa",
+      "businessHoursLabel": "Amasaha y'akazi",
+      "businessHoursValue": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 CAT",
+      "subjectPlaceholder": "Ni gute twagufasha?",
+      "messagePlaceholder": "Sobanura ikibazo cyawe mu buryo burambuye..."
+    },
+    "labels": {
+      "email": "Imeli",
+      "location": "Aho dukorera",
+      "hours": "Amasaha yo gukora"
+    },
+    "formPlaceholders": {
+      "name": "Kwizera Jean",
+      "email": "kwizera@example.com",
+      "subject": "Ni iki twagufasha?",
+      "message": "Sobanura ubutumwa bwawe..."
+    },
+    "mapTitle": "Aho MyJudicial iherereye",
+    "officeMapTitle": "Icyicaro gikuru cya MyJudicial i Kigali, mu Rwanda"
   },
   "expertDashboard": {
     "aiCaseTitle": "AI Case Analysis",
@@ -3424,11 +3553,11 @@
     "terms": "Terms"
   },
   "expertDashboard_availability-preview": {
-    "checkingAvailability": "Checking availability...",
-    "scanningNext14Days": "Scanning next 14 days ({searchDate}/14)...",
-    "noAvailabilityIn14Days": "No availability in the next 14 days",
-    "nextAvailable": "Next Available",
-    "bookNow": "Book Now"
+    "checkingAvailability": "Iri kugenzura igihe aboneka...",
+    "scanningNext14Days": "Iri gushakisha mu minsi 14 iri imbere ({searchDate})...",
+    "noAvailabilityIn14Days": "Nta gihe kiboneka mu minsi 14 iri imbere",
+    "nextAvailable": "Igihe cya mbere aboneka",
+    "bookNow": "Fata gahunda"
   },
   "expertDashboard_availability": {
     "title": "Availability",
@@ -3623,23 +3752,23 @@
     "netRevenuePct": "Net Revenue (85%)"
   },
   "expertDashboard_faq-section": {
-    "faq1q": "How do bookings work?",
-    "faq1a": "Browse verified lawyers, select a service and time slot, then confirm your booking. You will receive a confirmation via SMS and email with all the details.",
-    "faq2q": "How do I pay?",
-    "faq2a": "We accept MTN MoMo and Airtel Money. Your payment is held in secure escrow and only released to the lawyer after your consultation is completed.",
-    "faq3q": "Are all lawyers verified?",
-    "faq3a": "Yes. Every lawyer on MyJudicial is BAR certified, identity-checked, and reviewed by our quality team before appearing on the platform.",
-    "faq4q": "Can consultations be online?",
-    "faq4a": "Yes. Many lawyers offer video calls, phone calls, and in-person consultations. You can choose your preferred mode when booking.",
-    "faq5q": "Can I cancel a booking?",
-    "faq5a": "Yes. You can cancel or reschedule a booking up to 24 hours before the consultation. Cancellations within 24 hours may incur a fee.",
-    "faq6q": "Is my payment protected?",
-    "faq6a": "Absolutely. All payments are held in escrow until your consultation is complete. If the lawyer does not show up, you get a full refund.",
-    "faq7q": "How does Mobile Money work?",
-    "faq7a": "When you book, you will receive an MoMo payment prompt on your phone. Simply enter your PIN to confirm. The payment is processed instantly.",
-    "faqTag": "FAQ",
-    "faqTitle": "Frequently Asked Questions",
-    "faqSubtitle": "Everything you need to know about MyJudicial."
+    "faqTag": "Ibibazo Bikunze Kubazwa",
+    "faqTitle": "Ibibazo abakiriya bakunze kubaza",
+    "faqSubtitle": "Ibyo wifuza kumenya byose ku bijyanye no gufata gahunda, kwishyura n'abavoka bacu.",
+    "faq1q": "Ni gute mfatanya gahunda n'umwavoka?",
+    "faq1a": "Shakisha umwavoka wifuza, hitamo serivisi y'amategeko n'igihe kikunogeye, hanyuma wemeze. Uhita wohererezwa ubutumwa bugufi kuri SMS na imeli byemeza gahunda yawe.",
+    "faq2q": "Ni ubuhe buryo bwo kwishyura mwemera?",
+    "faq2a": "Twemera MTN Mobile Money na Airtel Money. Amafaranga yawe arindwa neza na MyJudicial kugeza igihe inama irangiye, akaba aribwo ahabwa umwavoka.",
+    "faq3q": "Ese abavoka bose bari hano barazewe?",
+    "faq3a": "Yego rwose. Buri mwavoka wose uri kuri MyJudicial yemejwe n'Urugaga rw'Abavoka mu Rwanda (Rwanda Bar Association) kandi umwirondoro we waragenzuwe mbere yo gushyirwa ku rubuga.",
+    "faq4q": "Ese inama z'amategeko zishobora kubera kuri interineti?",
+    "faq4a": "Yego cyane. Abavoka benshi batanga inama binyuze kuri videwo, kuri terefone cyangwa guhurira ku biro byabo. Uhitamo uburyo bukunogeye igihe ufata gahunda.",
+    "faq5q": "Ese nshobora guhindura umunsi cyangwa gusiba gahunda?",
+    "faq5a": "Yego. Urashobora guhindura umunsi cyangwa gusiba gahunda mbere y'amasaha 24 ngo inama ibe binyuze kuri konti yawe ya MyJudicial.",
+    "faq6q": "Ese amafaranga yanjye ararindwa igihe umwavoka atabonetse?",
+    "faq6a": "Ijana ku ijana. Amafaranga yose abikwa mu mutekano kugeza inama ibaye. Iyo umwavoka atabonetse ku mpamvu iyo ari yo yose, uhita uyasubizwa yose nta kiguzi waciwe.",
+    "faq7q": "Ni gute nishyura nkoresheje Mobile Money?",
+    "faq7a": "Iyo wemeje gufata gahunda, uhita ubona ubutumwa bukubaza kwemeza kwishyura kuri terefone yawe. Shyiramo umubare w'ibanga wawe (PIN) kugira ngo wishyure ako kanya."
   },
   "expertDashboard_featured-experts": {
     "feeNotSet": "Fee not set",
@@ -4387,235 +4516,235 @@
     }
   },
   "faqsPage": {
+    "hero": {
+      "badge": "Ibibazo Bikunze Kubazwa",
+      "title": "Ibisobanuro ku bibazo bikunze kubazwa",
+      "subtitle": "Bona ibisubizo byihuse ku mikorere ya MyJudicial, kwemeza abavoka n'umutekano wo kwishyura."
+    },
+    "cta": {
+      "title": "Ntiwabonye igisubizo cy'ikibazo cyawe?",
+      "subtitle": "Ikipe yacu ishinzwe gufasha abakiriya i Kigali yiteguye kugusubiza no kugufasha.",
+      "contact": "Twandikire ubufasha"
+    },
     "meta": {
       "title": "Frequently Asked Questions | MyJudicial",
       "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
-    },
-    "hero": {
-      "badge": "FAQs",
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about finding and hiring a legal expert on MyJudicial."
-    },
-    "cta": {
-      "title": "Still have questions?",
-      "subtitle": "Can't find the answer you're looking for? Our support team is here to help.",
-      "contact": "Contact Support"
     }
   },
   "helpPage": {
+    "hero": {
+      "badge": "Ikigo cy'Ubufasha",
+      "title": "Ni gute twagufasha uyu munsi?",
+      "subtitle": "Shakira hano inyandiko n'ubujyanama ku mikoreshereze y'urubuga n'ubufasha mu by'amategeko.",
+      "searchPlaceholder": "Shakisha ikibazo (gufata gahunda, kwishyura na MoMo, guhindura umunsi)..."
+    },
+    "topics": {
+      "title": "Ibyiciro by'ubufasha",
+      "gettingStarted": {
+        "title": "Gutangira",
+        "desc": "Uko ushaka umwavoka, uko ubaza ikibazo AI n'uko ufungura konti yawe."
+      },
+      "booking": {
+        "title": "Gufata gahunda",
+        "desc": "Guhitamo umunsi n'isaha, guhindura gahunda, gusiba cyangwa kwinjira mu nama ya videwo."
+      },
+      "payments": {
+        "title": "Kwishyura & MoMo",
+        "desc": "Uko amafaranga arindwa (Escrow), MTN MoMo, Airtel Money no gusubizwa amafaranga."
+      },
+      "account": {
+        "title": "Konti & Umutekano",
+        "desc": "Guhindura amakuru yawe, umutekano w'ijambobanga no kurinda amakuru bwite."
+      },
+      "lawyers": {
+        "title": "Ku bavoka",
+        "desc": "Kwiyandikisha, kwemezwa n'Urugaga rw'Abavoka, gucunga gahunda no kwakira amafaranga."
+      },
+      "trust": {
+        "title": "Kwizera & Urugaga",
+        "desc": "Uburyo abavoka bagenzurwa, amategeko y'u Rwanda no kurinda amabanga y'abakiriya."
+      },
+      "readArticles": "Soma ingingo"
+    },
+    "cta": {
+      "title": "Ukeneye ubufasha bwihariye ubu?",
+      "button": "Vugana n'abashinzwe ubufasha"
+    },
     "meta": {
       "title": "Help Center | MyJudicial",
       "description": "Get support and find answers to your questions about using MyJudicial."
     },
-    "hero": {
-      "badge": "Help Center",
-      "title": "How can we help?",
-      "subtitle": "Search our knowledge base or browse categories below.",
-      "searchPlaceholder": "Search for help..."
-    },
-    "topics": {
-      "title": "Help Topics",
-      "gettingStarted": {
-        "title": "Getting Started",
-        "desc": "Learn the basics of how MyJudicial works."
-      },
-      "booking": {
-        "title": "Booking & Consultations",
-        "desc": "How to schedule, reschedule, or join a consultation."
-      },
-      "payments": {
-        "title": "Payments & Refunds",
-        "desc": "Information about MoMo, escrow, and refunds."
-      },
-      "account": {
-        "title": "Account Settings",
-        "desc": "Manage your profile, password, and notifications."
-      },
-      "lawyers": {
-        "title": "For Lawyers",
-        "desc": "Guides for setting up your practice and managing clients."
-      },
-      "trust": {
-        "title": "Trust & Safety",
-        "desc": "How we verify experts and protect your data."
-      }
-    },
-    "cta": {
-      "title": "Can't find what you're looking for?",
-      "button": "Contact Support"
-    }
+    "readArticles": "Soma ingingo"
   },
   "howItWorksPage": {
-    "meta": {
-      "title": "How It Works | MyJudicial",
-      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
-    },
     "hero": {
-      "badge": "Byoroshye · Bisobanutse · Birinzwe",
-      "title": "Uko Uva ku Kibazo Ukagera ku Mwavoka Wizewe",
-      "subtitle": "Menya uko tugenzura ko umwavoka yanditse mu rugaga, kurinda amafaranga yawe kugeza inama irangiye, no guhabwa serivisi mu ntambwe 3 gusa."
+      "badge": "Uko Bikora",
+      "title": "Uko MyJudicial igufasha kubona umwavoka",
+      "subtitle": "Uburyo bworoshye, bwihuse kandi bwizewe bwo kubona inama z'amategeko zinoze mu Rwanda."
     },
     "steps": {
-      "title": "Four steps to resolve your legal issue",
+      "title": "Intambwe 4 zoroshye zo kugisha inama",
       "step1": {
-        "title": "1. Find or Match",
-        "text": "Browse our directory of verified experts by practice area, or describe your issue to our AI Assistant to get matched with the right specialist instantly."
+        "title": "1. Shakisha cyangwa ubaze AI",
+        "text": "Hitamo ishami ry'amategeko, akarere n'ibiciro, cyangwa usobanurire AI igufashe kubona umwavoka ukwiriye."
       },
       "step2": {
-        "title": "2. Compare & Choose",
-        "text": "Review profiles, verified credentials, client ratings, and clear upfront pricing. No hidden fees or surprises."
+        "title": "2. Hitamo umunsi n'isaha",
+        "text": "Hitamo serivisi y'amategeko wifuza n'igihe kikunogeye: inama kuri videwo, kuri terefone cyangwa guhura ku biro."
       },
       "step3": {
-        "title": "3. Book Securely",
-        "text": "Select a time that works for you and pay securely via Mobile Money (MoMo). Your payment is held in escrow until the consultation is complete."
+        "title": "3. Ishyura mu mutekano",
+        "text": "Ishyura ukoresheje MTN MoMo cyangwa Airtel Money. Amafaranga yawe arindwa kugeza inama irangiye."
       },
       "step4": {
-        "title": "4. Consult & Review",
-        "text": "Meet with your lawyer via secure video call or in person. After the session, leave a review to help others in the community."
+        "title": "4. Gisha inama umwavoka",
+        "text": "Vugana n'umwavoka wemewe n'Urugaga rw'Abavoka, umusobanurire ikibazo cyawe aguhe inama z'umwuga."
       }
     },
     "payment": {
-      "title": "Secure Payments & Escrow",
-      "text": "Your financial security is our priority. When you book a consultation, your payment is held securely in our escrow system. The lawyer only gets paid after your consultation is successfully completed. If the lawyer doesn't show up, you get a full refund.",
-      "momo": "We accept MTN Mobile Money and Airtel Money for seamless transactions across Rwanda."
+      "title": "Umutekano usesuye ku mafaranga wishyuye",
+      "text": "Amafaranga yawe ntabwo ahabwa umwavoka kugeza igihe inama y'amategeko irangiye neza. Iyo umwavoka atabonetse, urayabwirwa yose.",
+      "momo": "Kwishyura byoroshye kandi byihuse binyuze kuri MTN Mobile Money na Airtel Money."
     },
     "cta": {
-      "title": "Ready to resolve your legal issue?",
-      "startNow": "Start Now",
-      "contactSupport": "Contact Support"
+      "title": "Tangira ubu",
+      "startNow": "Shaka Umwavoka",
+      "contactSupport": "Baza ikibazo"
+    },
+    "meta": {
+      "title": "How It Works | MyJudicial",
+      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     }
   },
   "legalPages": {
-    "privacy": {
-      "meta": {
-        "title": "Privacy Policy | MyJudicial",
-        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
-      },
-      "hero": {
-        "badge": "Legal",
-        "title": "Privacy Policy",
-        "updated": "Last updated: July 15, 2026"
-      },
-      "content": {
-        "intro": "MyJudicial (\"we\", \"our\", or \"us\") respects your privacy and is committed to protecting your personal data. This Privacy Policy informs you about how we look after your personal data when you visit our website (regardless of where you visit it from) and tells you about your privacy rights and how the law protects you.",
-        "sections": [
-          {
-            "title": "1. Data We Collect",
-            "text": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows: Identity Data (first name, last name, username or similar identifier), Contact Data (billing address, delivery address, email address and telephone numbers), Financial Data (bank account and payment card details), Transaction Data (details about payments to and from you and other details of services you have purchased from us), Profile Data (your username and password, purchases or orders made by you, your interests, preferences, feedback and survey responses)."
-          },
-          {
-            "title": "2. How We Use Your Data",
-            "text": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances: Where we need to perform the contract we are about to enter into or have entered into with you. Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests. Where we need to comply with a legal obligation."
-          },
-          {
-            "title": "3. Data Security",
-            "text": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know. They will only process your personal data on our instructions and they are subject to a duty of confidentiality."
-          }
-        ]
-      }
-    },
-    "terms": {
-      "meta": {
-        "title": "Terms of Service | MyJudicial",
-        "description": "Read the terms and conditions for using MyJudicial's platform and services."
-      },
-      "hero": {
-        "badge": "Legal",
-        "title": "Terms of Service",
-        "updated": "Last updated: July 15, 2026"
-      },
-      "content": {
-        "intro": "These Terms of Service (\"Terms\") govern your access to and use of the MyJudicial website, apps, and services (collectively, the \"Services\"). Please read these Terms carefully before using our Services.",
-        "sections": [
-          {
-            "title": "1. Acceptance of Terms",
-            "text": "By accessing or using the Services, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, do not use the Services."
-          },
-          {
-            "title": "2. User Accounts",
-            "text": "To access certain features of the Services, you must create an account. You are responsible for safeguarding your account credentials and for all activities that occur under your account. You must be at least 18 years old to create an account."
-          },
-          {
-            "title": "3. Marketplace and Escrow",
-            "text": "MyJudicial is a marketplace connecting clients with legal professionals. We do not provide legal advice ourselves. When you book a consultation, payment is held in our secure escrow system and released to the lawyer only upon successful completion of the consultation."
-          },
-          {
-            "title": "4. Disclaimers",
-            "text": "The Services are provided 'AS IS' and 'AS AVAILABLE'. We disclaim all warranties, express or implied, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement."
-          }
-        ]
-      }
-    },
     "cookies": {
+      "hero": {
+        "badge": "Amategeko ya Kuki (Cookies)",
+        "title": "Imikoreshereze ya Kuki",
+        "updated": "Iheruka kuvugururwa: Werurwe 2026"
+      },
+      "content": {
+        "intro": "Aya mabwiriza asobanura uburyo MyJudicial ikoresha kuki n'ubundi buryo bwo kubika amakuru kugira ngo urubuga rwacu rugukorere neza kandi rwibuke ururimi wahisemo (Icyongereza, Igifaransa cyangwa Ikinyarwanda).",
+        "sections": [
+          {
+            "title": "1. Kuki ni iki?",
+            "text": "Kuki ni dosiye nto ibikwa kuri terefone cyangwa mudasobwa yawe igihe urangamiye urubuga. Ifasha kumenya ibyo wahisemo no kurinda umutekano wawe igihe uri ku rubuga."
+          },
+          {
+            "title": "2. Kuki dukoresha",
+            "text": "Dukoresha kuki za ngombwa gusa zituma ushobora kwinjira muri konti yawe, guhitamo ururimi rwawe no kurinda ubutumwa bwawe n'amafaranga yawe."
+          },
+          {
+            "title": "3. Guhagarika kuki",
+            "text": "Ushobora guhagarika kuki muri porogaramu ukoresha usura interineti, ariko bimwe mu bikorwa by'urubuga (nko kuguma muri konti yawe) bishobora kutazakora neza."
+          }
+        ]
+      },
       "meta": {
         "title": "Cookie Policy | MyJudicial",
         "description": "Information about how MyJudicial uses cookies on our platform."
-      },
+      }
+    },
+    "privacy": {
       "hero": {
-        "badge": "Legal",
-        "title": "Cookie Policy",
-        "updated": "Last updated: July 15, 2026"
+        "badge": "Kurinda Amakuru Bwite",
+        "title": "Politiki y'Ibanga",
+        "updated": "Iheruka kuvugururwa: Werurwe 2026"
       },
       "content": {
-        "intro": "Our website uses cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site.",
+        "intro": "Kuri MyJudicial, kurinda amabanga y'ibibazo byawe by'amategeko nibyo dushyira imbere ya byose. Dukurikiza Itegeko ry'u Rwanda nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu.",
         "sections": [
           {
-            "title": "What are cookies?",
-            "text": "A cookie is a small file of letters and numbers that we store on your browser or the hard drive of your computer if you agree. Cookies contain information that is transferred to your computer's hard drive."
+            "title": "1. Amakuru dukusanya",
+            "text": "Dukusanya gusa amakuru akenewe mu gufungura konti yawe, kuguhuza n'umwavoka wemewe no kwishyura mu mutekano binyuze kuri Mobile Money."
           },
           {
-            "title": "How we use cookies",
-            "text": "We use strictly necessary cookies (required for the operation of our website), analytical/performance cookies (allow us to recognise and count the number of visitors), functionality cookies (used to recognise you when you return), and targeting cookies (record your visit, pages visited, and links followed)."
+            "title": "2. Ibanga ry'umwuga w'ubwavoka",
+            "text": "Amakuru yose usangiza umwavoka mu gihe cy'inama arinzwe n'ibanga ry'umwuga w'ubwavoka hakurikijwe amategeko y'Urugaga rw'Abavoka mu Rwanda."
+          },
+          {
+            "title": "3. Umutekano n'ibanga rikomeye",
+            "text": "Amakuru yawe abikwa mu buryo bugezweho bukingiye ku buryo nta muntu utabifitiye uburenganzira wayabona. Ntitubagurisha cyangwa ngo dusangize amakuru yawe abandi."
           }
         ]
+      },
+      "meta": {
+        "title": "Privacy Policy | MyJudicial",
+        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
+      }
+    },
+    "terms": {
+      "hero": {
+        "badge": "Amategeko Ngenderwaho",
+        "title": "Amabwiriza Ngenderwaho yo Gukoresha Urubuga",
+        "updated": "Iheruka kuvugururwa: Werurwe 2026"
+      },
+      "content": {
+        "intro": "Mu gukoresha urubuga rwa MyJudicial, wemera gukurikiza aya mabwiriza ngenderwaho agenga uburyo urubuga n'amahuriro by'amategeko bikoreshwa.",
+        "sections": [
+          {
+            "title": "1. Imiterere y'urubuga",
+            "text": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakeneye ubutabera n'abavoka bigenga bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ubwayo ntabwo ari ibiro by'abavoka."
+          },
+          {
+            "title": "2. Gufata gahunda no kwishyura",
+            "text": "Inama zose zifashwe zishyurwa binyuze mu buryo bwizewe (Escrow). Amafaranga ntabwo ahabwa umwavoka kugeza igihe inama irangiye neza."
+          },
+          {
+            "title": "3. Inshingano n'imyitwarire y'umwuga",
+            "text": "Abavoka bakora ku giti cyabo mu bwisanzure no kubahiriza amategeko n'amabwiriza agenga imyitwarire y'umwuga w'ubwavoka ashyirwaho n'Urugaga rw'Abavoka mu Rwanda."
+          }
+        ]
+      },
+      "meta": {
+        "title": "Terms of Service | MyJudicial",
+        "description": "Read the terms and conditions for using MyJudicial's platform and services."
       }
     }
   },
   "partnersPage": {
-    "meta": {
-      "title": "Our Partners | MyJudicial",
-      "description": "MyJudicial partners with leading legal, governmental, and financial institutions in Rwanda to provide seamless access to justice."
-    },
     "hero": {
-      "badge": "Partners",
-      "title": "Our Partners & Trusted Organizations",
-      "subtitle": "Working together with Rwanda's leading institutions to modernize the legal sector."
+      "badge": "Abafatanyabikorwa",
+      "title": "Abafatanyabikorwa bacu b'ibanze",
+      "subtitle": "Dukorana n'inzego z'ubutabera n'ibigo by'imari mu Rwanda kugira ngo serivisi zitangwe mu mucyo no mu mutekano."
     },
     "categories": {
       "legal": {
-        "title": "Legal & Government",
-        "desc": "Key institutional partners ensuring regulatory compliance and professional standards.",
+        "title": "Inzego z'Amategeko",
+        "desc": "Ubufatanye bwa hafi mu kwemeza no kugenzura ubushobozi bw'abavoka bari ku rubuga.",
         "items": [
-          "Rwanda Bar Association",
-          "Ministry of Justice (MINIJUST)",
-          "Rwanda Investigation Bureau (RIB)",
-          "Supreme Court of Rwanda"
+          "Urugaga rw'Abavoka mu Rwanda (Rwanda Bar Association)",
+          "Inkiko n'Inkiko z'Ubucuruzi",
+          "Ibiro by'abavoka bizewe i Kigali"
         ]
       },
       "financial": {
-        "title": "Financial & Payment Partners",
-        "desc": "Trusted providers powering our secure escrow and payment infrastructure.",
+        "title": "Ibigo by'Imari n'Itumanaho",
+        "desc": "Guhuza imbuga n'inzira zo kwishyura kuri terefone kugira ngo kwishyura byorohere buri wese.",
         "items": [
-          "MTN Mobile Money",
-          "Airtel Money",
-          "Bank of Kigali",
-          "Equity Bank Rwanda"
+          "MTN Mobile Money Rwanda",
+          "Airtel Money Rwanda",
+          "Inzira z'amabanki zubahirije amabwiriza ya BNR"
         ]
       },
       "ngo": {
-        "title": "NGOs & Legal Aid",
-        "desc": "Organizations working with us to improve access to justice for vulnerable populations.",
+        "title": "Imiryango Itari iya Leta",
+        "desc": "Gukorana n'imiryango itegamiye kuri leta mu guteza imbere ubutabera bugera kuri bose.",
         "items": [
-          "Legal Aid Forum Rwanda",
-          "Haguruka",
-          "Rwandan Association of Women in Sports (RAWS)"
+          "Imiryango irengera uburenganzira bwa muntu",
+          "Iruganda n'amasosiyete y'ubucuruzi mu Rwanda",
+          "Gahunda zo gufasha abatishoboye kubona ubutabera"
         ]
       }
     },
     "cta": {
-      "title": "Become a Partner",
-      "subtitle": "Interested in partnering with MyJudicial? We are always looking for organizations that share our vision of accessible justice.",
-      "button": "Contact Us"
+      "title": "Koranana na MyJudicial",
+      "subtitle": "Uri ikigo, ibiro by'abavoka cyangwa umuryango wifuza kwagura ubufasha mu by'amategeko? Twandikire.",
+      "button": "Twandikire ku bufatanye"
+    },
+    "meta": {
+      "title": "Our Partners | MyJudicial",
+      "description": "MyJudicial partners with leading legal, governmental, and financial institutions in Rwanda to provide seamless access to justice."
     }
   },
   "practiceAreasPage": {
@@ -4671,112 +4800,215 @@
       "label": "Hitamo uko biba bimeze",
       "mostExperts": "Abavoka Benshi",
       "alphabetical": "Ku Murongo (A–Z)"
-    }
+    },
+    "specialties": {
+      "COMMERCIAL_LAW": {
+        "name": "Amategeko y'Ubucuruzi",
+        "description": "Amakimbirane y'ubucuruzi, amasezerano y'ubucuruzi, kwishyuza imyenda n'ubucuruzi bwambukiranya imipaka mu mategeko y'u Rwanda.",
+        "topics": [
+          "Amasezerano y'ubucuruzi",
+          "Imanza z'ubucuruzi",
+          "Kwishyuza imyenda",
+          "Amasezerano yo gukwirakwiza"
+        ]
+      },
+      "CONTRACT_LAW": {
+        "name": "Amategeko y'Amasezerano",
+        "description": "Guhimba, gusuzuma no gukurikirana ishyirwa mu bikorwa ry'amasezerano, kugira ibanga no gukemura impaka zivutse.",
+        "topics": [
+          "Kwandika & Gusuzuma amasezerano",
+          "Kutubahiriza amasezerano",
+          "Amasezerano y'ibanga",
+          "Ubuhuza mu masezerano"
+        ]
+      },
+      "CORPORATE_LAW": {
+        "name": "Amategeko y'Ibigo n'Inganda",
+        "description": "Kwandikisha ubucuruzi muri RDB, imigabane mu masosiyete, imiyoborere y'ibigo, guhuza ibigo no kubahiriza amategeko y'u Rwanda.",
+        "topics": [
+          "Kwandikisha sosiyete muri RDB",
+          "Amasezerano y'abanyamigabane",
+          "Guhuza ibigo",
+          "Kubahiriza amategeko"
+        ]
+      },
+      "CRIMINAL_LAW": {
+        "name": "Amategeko Mpanabyaha",
+        "description": "Kunganira abakekwaho ibyaha mu iperereza rya RIB, ibirego by'ifungwa n'ifungurwa by'agateganyo, no kuburanira mu nkiko.",
+        "topics": [
+          "Iperereza rya RIB",
+          "Iremezwa ry'ingwate",
+          "Ibyaha by'ubukungu n'imari",
+          "Kunganira mu rukiko"
+        ]
+      },
+      "TAX_LAW": {
+        "name": "Amategeko y'Imisoro n'Amahoro",
+        "description": "Kubahiriza amategeko y'Ikigo cy'Imisoro n'Amahoro (RRA), kujuririra ibihano by'imisoro, gasutamo no gutegura imisoro y'ibigo.",
+        "topics": [
+          "Kugenzura imisoro na RRA",
+          "Kujuririra imisoro",
+          "TVA & Gasutamo",
+          "Gupanga imisoro y'ubucuruzi"
+        ]
+      },
+      "IMMIGRATION_LAW": {
+        "name": "Amategeko y'Abinjira n'Abasohoka",
+        "description": "Uruhushya rwo gukora mu Rwanda (Ibyiciro A kugeza G), viza z'abashoramari, gutura burundu n'ubwenegihugu bubiri bw'u Rwanda.",
+        "topics": [
+          "Uruhushya rwo gukora (A–G)",
+          "Viza z'abashoramari",
+          "Uruhushya rwo gutura",
+          "Ubwenegihugu bubiri"
+        ]
+      },
+      "FAMILY_LAW": {
+        "name": "Amategeko y'Umuryango",
+        "description": "Ubujyanama buzira amakemwa mu gutandukana kw'abashakanye, kurera abana, imicungire y'umutungo n'izungura ry'umurage.",
+        "topics": [
+          "Gutandukana & Gusesa ishyingirwa",
+          "Kurerera abana & Indezo",
+          "Izungura & Umurage",
+          "Imicungire y'umutungo"
+        ]
+      },
+      "INTELLECTUAL_PROPERTY": {
+        "name": "Umutungo mu by'Ubwenge",
+        "description": "Kurengera ibirango by'ubucuruzi, ibihangano, ibivumbuwe, uburenganzira bw'umuhanzi byanditswe muri RDB.",
+        "topics": [
+          "Kwandikisha ikirango muri RDB",
+          "Kurengera uburenganzira",
+          "Uburenganzira bw'umuhanzi",
+          "Ipatanti y'ubuvumbuzi"
+        ]
+      },
+      "EMPLOYMENT_LAW": {
+        "name": "Amategeko y'Umurimo",
+        "description": "Gukemura amakimbirane yo mu kazi, kwirukanwa binyuranyije n'amategeko, amasezerano y'umurimo n'ubuhuza bw'ubugenzuzi bw'umurimo.",
+        "topics": [
+          "Kwirukanwa bidakurikije amategeko",
+          "Amasezerano y'umurimo",
+          "Imperekeza z'akazi",
+          "Ubuhuza bw'umurimo"
+        ]
+      },
+      "LAND_LAW": {
+        "name": "Amategeko y'Ubutaka n'Umutungo Utimukanwa",
+        "description": "Ubufasha bwuzuye mu guhererekanya ibyangombwa by'ubutaka, kwiyandikisha muri RLMUA, amakimbirane y'imbibi n'ubukode bw'ubucuruzi.",
+        "topics": [
+          "Guhererekanya ibyangombwa",
+          "Kwandikisha muri RLMUA",
+          "Amakimbirane y'imbibi",
+          "Ubukode bw'ubucuruzi"
+        ]
+      }
+    },
+    "clearSearch": "Gusiba ibyo washakishije"
   },
   "pricingPage": {
-    "meta": {
-      "title": "Pricing | MyJudicial",
-      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
-    },
     "hero": {
-      "badge": "Nta Mandamuko Yihishe · Amafaranga Yawe Arinzwe",
-      "title": "Ibiciro Bisobanutse. Umutuzo ku Mutima.",
-      "subtitle": "Ibiciro by'inama byumvikanyweho mbere yo gutangira. Amafaranga yawe arindirwa muri sisitemu yizewe kandi azishyurwa umwavoka ari uko inama irangiye."
+      "badge": "Ibiciro & Kwishyura",
+      "title": "Ibiciro bisobanutse, nta kiguzi cy'ibanga",
+      "subtitle": "Banza umenye igiciro cy'umwavoka mbere yo kwiyemeza. Amafaranga yawe arindwa kugeza uhawe serivisi."
     },
     "howItWorks": {
-      "title": "How Pricing Works",
+      "title": "Ibiciro biteye bite?",
       "points": {
         "fixedFees": {
-          "title": "Fixed Fees Set by Lawyers",
-          "text": "Every lawyer sets their own hourly or consultation rate. You can easily compare prices before booking."
+          "title": "Ibiciro bizwi mbere",
+          "text": "Buri mwavoka ashyiraho ibiciro bye byo kugisha inama. Umenya amafaranga wishingira mbere yo kwemeza gahunda."
         },
         "platformFee": {
-          "title": "Small Platform Fee",
-          "text": "We charge a minimal transaction fee on bookings to maintain the platform and secure escrow system."
+          "title": "Ibiciro bibumbye byose",
+          "text": "Nta yandi mafaranga wishyuzwa yiyongereyeho. Icyo ubona nicyo cyonyine wishyura."
         },
         "escrow": {
-          "title": "Secure Escrow Protection",
-          "text": "Your payment is held safely in escrow. The lawyer only gets paid after your consultation is complete."
+          "title": "Kwirinda igihombo",
+          "text": "Amafaranga yawe abikwa mu mutekano. Iyo inama itabaye, urayasubizwa yose nta kabuza."
         }
       }
     },
     "tiers": {
       "free": {
-        "name": "Discovery",
-        "price": "Free",
-        "desc": "Perfect for initial research",
+        "name": "Gushakisha no Kureba",
+        "price": "Ubuntu",
+        "desc": "Ku baturage n'ibigo bishaka kubona umwavoka ukwiriye cyangwa gukoresha AI.",
         "features": [
-          "Browse all verified lawyers",
-          "Compare practice areas and fees",
-          "Read client reviews",
-          "Basic AI Assistant triage"
+          "Gushakisha abavoka bemewe nta kiguzi",
+          "Gushungura ukurikije ishami ry'amategeko n'igiciro",
+          "Gukoresha AI mu gusesengura ikibazo",
+          "Kureba uburambe n'ibitekerezo by'abandi bakiriya"
         ],
-        "cta": "Start Searching"
+        "cta": "Tangira gushakisha"
       },
       "consultation": {
-        "name": "Consultation",
-        "price": "Variable",
-        "desc": "Book an expert for advice",
+        "name": "Kugisha Inama Umwavoka",
+        "price": "Guhera ku 15,000 RWF",
+        "desc": "Inama y'umwuga kandi y'ibanga n'umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda.",
+        "badge": "Ikunzwe cyane",
         "features": [
-          "Fixed upfront pricing",
-          "Secure MoMo payments",
-          "Escrow payment protection",
-          "Video or in-person meetings",
-          "Leave a public review"
+          "Inama kuri videwo, kuri terefone cyangwa ku biro",
+          "Gusuzuma inyandiko n'amasezerano yawe",
+          "Ubujyanama bwihariye hakurikijwe amategeko y'u Rwanda",
+          "Umutekano wo kwishyura urinzwe na MoMo"
         ],
-        "cta": "Find a Lawyer"
+        "cta": "Fata gahunda y'inama"
       },
       "lawyer": {
-        "name": "For Lawyers",
-        "price": "Commission",
-        "desc": "Grow your legal practice",
+        "name": "Ku Bavoka",
+        "price": "Konti y'umwuga",
+        "desc": "Ku bavoka bemewe n'Urugaga rw'Abavoka bifuza kwakira abakiriya banyuze ku ikoranabuhanga.",
         "features": [
-          "Free verified profile listing",
-          "Manage calendar and bookings",
-          "Guaranteed payment via escrow",
-          "Invoicing and analytics",
-          "Client review system"
+          "Konti yemejwe n'Urugaga rw'Abavoka",
+          "Gahunda yo gufata gahunda zikora mu buryo bwikora",
+          "Kwishyurwa mu mutekano binyuze kuri MoMo",
+          "Ibikoresho byo gukurikirana abakiriya na dosiye"
         ],
-        "cta": "Join as a Lawyer"
+        "cta": "Iyandikishe nk'Umwavoka"
       }
     },
     "escrow": {
-      "title": "Protected by MyJudicial Escrow",
-      "text": "When you book a consultation, your MTN MoMo or Airtel Money payment is transferred to a secure escrow account managed by MyJudicial. The funds are only released to the lawyer after the consultation has taken place. If the lawyer cancels or fails to show up, you receive a full refund automatically.",
-      "badge": "100% Secure"
+      "badge": "Umutekano Usesuye",
+      "title": "Uburyo Amafaranga yawe Arindwa na MyJudicial",
+      "text": "Iyo wishyuye ukoresheje MTN MoMo cyangwa Airtel Money, amafaranga ntabwo ahita ahabwa umwavoka ako kanya. Ahubwo arindwa neza na MyJudicial akamugeraho ari uko inama yarangiye neza. Iyo inama itabaye, amafaranga yawe uyasubizwa yose ijana ku ijana."
     },
     "cta": {
-      "title": "Ready to get started?",
-      "subtitle": "Join thousands of Rwandans who have found the right legal help on MyJudicial.",
-      "button": "Find a Lawyer"
-    }
+      "title": "Bona inama z'amategeko uyu munsi",
+      "subtitle": "Amagana y'abavoka b'inzobere biteguye kugufasha mu bibazo byawe byose by'amategeko.",
+      "button": "Shaka umwavoka ubu"
+    },
+    "meta": {
+      "title": "Pricing | MyJudicial",
+      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
+    },
+    "mostPopular": "Ikunzwe cyane"
   },
   "resourcesPage": {
+    "hero": {
+      "badge": "Ubumenyi mu Mategeko",
+      "title": "Inyandiko & Amakuru ku Mategeko",
+      "subtitle": "Sobanukirwa uburenganzira n'inshingano byawe hakurikijwe amategeko y'u Rwanda."
+    },
+    "comingSoon": {
+      "title": "Inyandiko ziracyatunganywa n'abavoka",
+      "desc": "Abavoka bacu b'umwuga bari gutegura inyandiko zifasha abaturage gusobanukirwa iby'ubutaka, kwandikisha ibigo muri RDB, amategeko y'umurimo n'ay'umuryango. Zizajya ahagaragara vuba !"
+    },
+    "categories": {
+      "title": "Amashami y'amategeko ari gutunganywa",
+      "family": "Amategeko y'Umuryango & Izungura",
+      "commercial": "Amategeko y'Ubucuruzi & Ibigo",
+      "property": "Amategeko y'Ubutaka & Umutungo",
+      "employment": "Amategeko y'Umurimo",
+      "immigration": "Abinjira n'Abasohoka & Viza",
+      "tax": "Imisoro ya RRA & Gasutamo"
+    },
+    "cta": {
+      "title": "Ukeneye inama z'amategeko kuri dosiye yawe ubu?",
+      "button": "Gisha inama umwavoka wemewe"
+    },
     "meta": {
       "title": "Legal Resources | MyJudicial",
       "description": "Guides, articles, and resources to help you navigate the Rwandan legal system."
-    },
-    "hero": {
-      "badge": "Resources",
-      "title": "Legal Resources & Guides",
-      "subtitle": "Knowledge to empower you. Find articles, guides, and practical information about Rwandan law."
-    },
-    "categories": {
-      "title": "Browse Categories",
-      "family": "Family Law",
-      "commercial": "Business & Commercial",
-      "property": "Real Estate & Land",
-      "employment": "Labor & Employment",
-      "immigration": "Immigration",
-      "tax": "Tax Law"
-    },
-    "comingSoon": {
-      "title": "Articles Coming Soon",
-      "desc": "Our network of verified experts is currently authoring comprehensive guides on Rwandan law. Check back soon for in-depth legal articles."
-    },
-    "cta": {
-      "title": "Need legal advice right now?",
-      "button": "Find a Lawyer"
     }
   },
   "expertDashboard_consultation-join": {
@@ -4814,5 +5046,18 @@
     "CONTRACT_LAW": "Amategeko y'amasezerano",
     "INTELLECTUAL_PROPERTY": "Umutungo mu by'ubwenge",
     "OTHER": "Ibindi"
+  },
+  "lawyers": {
+    "verifiedTooltip": "Umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda",
+    "contactRate": "Vugana nawe",
+    "legalServices": "Serivisi z'amategeko",
+    "reportModal": {
+      "spam": "Ubutumwa buyobya cyangwa butari bwo",
+      "harassment": "Ihohotera cyangwa amagambo adakwiye",
+      "unprofessional": "Imyitwarire inyuranye n'ubunyamwuga",
+      "other": "Ikindi kibazo",
+      "offensiveLanguage": "Ururimi rusebanya cyangwa rutukana",
+      "fakeReview": "Ibitekerezo by'ibihimbano"
+    }
   }
 }

@@ -39,7 +39,7 @@ export default function ContactPage() {
                     <Mail className="text-brand-dark" size={24} />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Email</p>
+                    <p className="font-semibold text-foreground">{t("labels.email")}</p>
                     <a href={`mailto:${t("info.email")}`} className="mt-1 text-muted-foreground hover:text-brand-dark">
                       {t("info.email")}
                     </a>
@@ -50,7 +50,7 @@ export default function ContactPage() {
                     <MapPin className="text-brand-dark" size={24} />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Location</p>
+                    <p className="font-semibold text-foreground">{t("labels.location")}</p>
                     <p className="mt-1 text-muted-foreground">{t("info.location")}</p>
                   </div>
                 </div>
@@ -59,7 +59,7 @@ export default function ContactPage() {
                     <Clock className="text-brand-dark" size={24} />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">Business Hours</p>
+                    <p className="font-semibold text-foreground">{t("labels.hours")}</p>
                     <p className="mt-1 text-muted-foreground">{t("info.hours")}</p>
                   </div>
                 </div>
@@ -68,7 +68,7 @@ export default function ContactPage() {
               {/* Map Placeholder */}
               <div className="mt-10 h-64 w-full overflow-hidden rounded-2xl border border-border bg-muted">
                 <iframe
-                  title="MyJudicial Location"
+                  title={t("officeMapTitle")}
                   width="100%"
                   height="100%"
                   frameBorder="0"
@@ -93,7 +93,7 @@ export default function ContactPage() {
                     type="text"
                     id="name"
                     className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
-                    placeholder="John Doe"
+                    placeholder={t("formPlaceholders.name")}
                   />
                 </div>
                 <div>
@@ -104,7 +104,7 @@ export default function ContactPage() {
                     type="email"
                     id="email"
                     className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
-                    placeholder="john@example.com"
+                    placeholder={t("formPlaceholders.email")}
                   />
                 </div>
                 <div>
@@ -115,7 +115,7 @@ export default function ContactPage() {
                     type="text"
                     id="subject"
                     className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
-                    placeholder="How can we help?"
+                    placeholder={t("formPlaceholders.subject")}
                   />
                 </div>
                 <div>
@@ -126,7 +126,7 @@ export default function ContactPage() {
                     id="message"
                     rows={5}
                     className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
-                    placeholder="Describe your inquiry..."
+                    placeholder={t("formPlaceholders.message")}
                   />
                 </div>
                 <button

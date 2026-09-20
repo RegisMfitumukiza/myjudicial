@@ -678,7 +678,8 @@
       "good": "Good match",
       "fair": "Fair match",
       "noExperts": "No legal experts are currently available for this specialty in our network.",
-      "tryBroader": "Try describing your issue differently or browse all available experts."
+      "tryBroader": "Try describing your issue differently or browse all available experts.",
+      "expertsFound": "I found **{count} matching experts** for your case."
     },
     "redirect": {
       "title": "Finding matching lawyers...",
@@ -709,7 +710,22 @@
     "empty": {
       "title": "How can we help?",
       "description": "Tell us about your legal issue. You can type, speak, or upload documents."
-    }
+    },
+    "analysisResponse": "I've analyzed your case. It falls under **{specialty}** with {urgency} urgency.",
+    "matchesFound": "I found **{count} matching experts** for your case.",
+    "upload": "Upload",
+    "yrShort": "{years} yr",
+    "greeting": "Hello! I'm your AI Legal Assistant. Describe your legal situation, and I'll help analyze it and connect you with qualified advocates in Rwanda.",
+    "quickPrompt1": "I need help reviewing an employment contract",
+    "quickPrompt2": "How do I resolve a land boundary dispute?",
+    "quickPrompt3": "What are the steps to register a new business?",
+    "quickPrompt4": "Need advice on a commercial lease agreement",
+    "openFullWorkspace": "Open in Full Case Workspace",
+    "chatWithAI": "Chat with AI Assistant",
+    "confidenceHigh": "High confidence match",
+    "confidenceMedium": "Medium confidence match",
+    "yearsExpUnit": "yr",
+    "loadingWorkspace": "Loading AI Legal Assistant workspace..."
   },
   "auth": {
     "login": "Log In",
@@ -935,7 +951,7 @@
     "serviceDescription": "Service Description",
     "serviceCategory": "Service Category",
     "deliveryMethod": "Delivery Method",
-    "durationMinutes": "Duration (minutes)",
+    "durationMinutes": "{minutes} mins",
     "fee": "Fee",
     "currency": "Currency",
     "saveService": "Save Service",
@@ -945,7 +961,40 @@
     "failedToLoadExpert": "Failed to load expert details",
     "expertInformation": "Expert Information",
     "goToDashboard": "Go to Dashboard",
-    "findAnotherLawyer": "Find Another Lawyer"
+    "findAnotherLawyer": "Find Another Lawyer",
+    "durationMin": "{count} min",
+    "dateAtTime": "{date} at {time}",
+    "optional": "Optional",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "months": {
+      "jan": "January",
+      "feb": "February",
+      "mar": "March",
+      "apr": "April",
+      "may": "May",
+      "jun": "June",
+      "jul": "July",
+      "aug": "August",
+      "sep": "September",
+      "oct": "October",
+      "nov": "November",
+      "dec": "December"
+    },
+    "cancelled": {
+      "title": "Booking Cancelled",
+      "whatHappened": "What Happened?",
+      "reasonPaymentAbandoned": "Payment was cancelled or timed out before completion.",
+      "noChargesMade": "No charges were made to your account. Your slot has been released.",
+      "browseLawyers": "Browse Lawyers Again"
+    }
   },
   "clientDashboard": {
     "messagesSubtitle": "Secure in-platform messaging with your lawyer",
@@ -1426,16 +1475,41 @@
       "email": "Email Address",
       "subject": "Subject",
       "message": "Your Message",
-      "submit": "Send Message"
-    }
+      "submit": "Send Message",
+      "businessHoursLabel": "Business Hours",
+      "businessHoursValue": "Monday – Friday: 8:00 AM – 6:00 PM CAT",
+      "subjectPlaceholder": "How can we help?",
+      "messagePlaceholder": "Describe your inquiry in detail..."
+    },
+    "labels": {
+      "email": "Email",
+      "location": "Location",
+      "hours": "Business Hours"
+    },
+    "formPlaceholders": {
+      "name": "John Doe",
+      "email": "john@example.com",
+      "subject": "How can we help?",
+      "message": "Describe your inquiry..."
+    },
+    "mapTitle": "MyJudicial Location",
+    "officeMapTitle": "MyJudicial Headquarters in Kigali, Rwanda"
   },
   "errors": {
-    "somethingWentWrong": "Something went wrong",
-    "tryAgain": "Please try again",
-    "pageNotFound": "Page not found",
-    "unauthorized": "You are not authorized to access this page",
-    "networkError": "Network error. Please check your connection.",
-    "validationError": "Please check your input and try again"
+    "notFound": {
+      "badge": "404",
+      "title": "Page Not Found",
+      "description": "The page you are looking for does not exist or has been moved.",
+      "goHome": "Go home",
+      "backHome": "Back to Home"
+    },
+    "general": {
+      "badge": "Error",
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. Please try again.",
+      "tryAgain": "Try again",
+      "retry": "Try Again"
+    }
   },
   "expertDashboard": {
     "aiCaseTitle": "AI Case Analysis",
@@ -3201,12 +3275,14 @@
       "trust": {
         "title": "Trust & Safety",
         "desc": "How we verify experts and protect your data."
-      }
+      },
+      "readArticles": "Read Articles"
     },
     "cta": {
       "title": "Can't find what you're looking for?",
       "button": "Contact Support"
-    }
+    },
+    "readArticles": "Read Articles"
   },
   "howItWorksPage": {
     "meta": {
@@ -3898,7 +3974,110 @@
       "label": "Sort by",
       "mostExperts": "Most Advocates",
       "alphabetical": "Alphabetical (A–Z)"
-    }
+    },
+    "specialties": {
+      "COMMERCIAL_LAW": {
+        "name": "Commercial Law",
+        "description": "Commercial disputes, trade contracts, business debt recovery, and cross-border transactions under Rwandan commercial law.",
+        "topics": [
+          "Trade Agreements",
+          "Commercial Litigation",
+          "Debt Recovery",
+          "Distribution Contracts"
+        ]
+      },
+      "CONTRACT_LAW": {
+        "name": "Contract Law",
+        "description": "Drafting, reviewing, and enforcing binding agreements, non-disclosure pacts, and resolving breach of contract disputes.",
+        "topics": [
+          "Contract Drafting & Review",
+          "Breach of Contract",
+          "NDAs & Service Agreements",
+          "Commercial Mediation"
+        ]
+      },
+      "CORPORATE_LAW": {
+        "name": "Corporate Law",
+        "description": "RDB business formation, shareholder structures, corporate governance, mergers, and legal compliance for companies in Rwanda.",
+        "topics": [
+          "RDB Company Registration",
+          "Shareholder Agreements",
+          "M&A & Restructuring",
+          "Corporate Compliance"
+        ]
+      },
+      "CRIMINAL_LAW": {
+        "name": "Criminal Law",
+        "description": "Defense representation and legal counsel for RIB investigations, prosecution bail hearings, and court trial defense.",
+        "topics": [
+          "RIB Investigations",
+          "Bail Hearings",
+          "Financial & Economic Crimes",
+          "Court Trial Defense"
+        ]
+      },
+      "TAX_LAW": {
+        "name": "Tax Law",
+        "description": "Rwanda Revenue Authority (RRA) compliance, tax dispute litigation, customs appeals, and corporate tax structuring.",
+        "topics": [
+          "RRA Tax Audits",
+          "Tax Dispute Appeals",
+          "VAT & Customs Compliance",
+          "Corporate Tax Planning"
+        ]
+      },
+      "IMMIGRATION_LAW": {
+        "name": "Immigration Law",
+        "description": "Work permits (Classes A through G), investor and business visas, permanent residency, and Rwandan dual citizenship.",
+        "topics": [
+          "Work Permits (Class A–G)",
+          "Investor & Business Visas",
+          "Residency Permits",
+          "Dual Citizenship"
+        ]
+      },
+      "FAMILY_LAW": {
+        "name": "Family Law",
+        "description": "Compassionate legal counsel for divorce proceedings, child custody, matrimonial property regimes, and inheritance succession.",
+        "topics": [
+          "Divorce & Separation",
+          "Child Custody & Support",
+          "Inheritance & Succession",
+          "Matrimonial Regimes"
+        ]
+      },
+      "INTELLECTUAL_PROPERTY": {
+        "name": "Intellectual Property",
+        "description": "Protecting trademarks, patents, industrial designs, copyrights, and brand enforcement registered with RDB.",
+        "topics": [
+          "RDB Trademark Registration",
+          "Brand Infringement",
+          "Copyright Protection",
+          "Patent Filing"
+        ]
+      },
+      "EMPLOYMENT_LAW": {
+        "name": "Employment Law",
+        "description": "Resolving workplace disputes, wrongful termination claims, employment contract negotiations, and labor inspectorate mediation.",
+        "topics": [
+          "Unfair Dismissal Claims",
+          "Employment Contracts",
+          "Severance Calculations",
+          "Workplace Mediation"
+        ]
+      },
+      "LAND_LAW": {
+        "name": "Land Law",
+        "description": "Comprehensive legal assistance for land title transfers, RLMUA registration, boundary conflicts, and commercial leases.",
+        "topics": [
+          "Land Title Transfers",
+          "RLMUA Registration",
+          "Boundary Disputes",
+          "Commercial Leases"
+        ]
+      }
+    },
+    "clearSearch": "Clear search"
   },
   "pricingPage": {
     "meta": {
@@ -3951,7 +4130,8 @@
           "Video or in-person meetings",
           "Leave a public review"
         ],
-        "cta": "Find a Lawyer"
+        "cta": "Find a Lawyer",
+        "badge": "Most Popular"
       },
       "lawyer": {
         "name": "For Lawyers",
@@ -3976,7 +4156,8 @@
       "title": "Ready to get started?",
       "subtitle": "Join thousands of Rwandans who have found the right legal help on MyJudicial.",
       "button": "Find a Lawyer"
-    }
+    },
+    "mostPopular": "Most Popular"
   },
   "public": {
     "bookings": {
@@ -4002,7 +4183,18 @@
       "joinVideo": "Join the video consultation at your scheduled time",
       "escrowNotice": "Payment is held in escrow until consultation is complete",
       "bookAnother": "Book Another Consultation",
-      "redirecting": "Redirecting to your bookings in {countdown}s..."
+      "redirecting": "Redirecting to your bookings in {countdown}s...",
+      "whatHappened": "What Happened?",
+      "cancelledExplanation": "The payment was cancelled before completion. This could be because you:",
+      "cancelledReason1": "Clicked \"Cancel\" on the payment screen",
+      "cancelledReason2": "Closed the payment window",
+      "cancelledReason3": "Experienced a connection timeout",
+      "browseLawyersAgain": "Browse Lawyers Again",
+      "contactSupport": "Contact Support",
+      "mobileMoneyUnavailable": "Mobile Money provider temporarily unavailable",
+      "browseMoreLawyers": "Browse More Lawyers",
+      "tip": "Tip",
+      "tipDesc": "Make sure you have sufficient funds and approve the mobile money prompt on your phone within 60 seconds."
     },
     "home": {
       "heroTitle": "Find a Lawyer in Rwanda",
@@ -4311,7 +4503,16 @@
       "noReviewsTitle": "No Client Reviews Yet",
       "noReviewsDesc": "This advocate recently activated direct online bookings on MyJudicial. Be among the first to book a session and share your verified review.",
       "noReviewsTrustNote": "Every consultation is certified by the Rwanda Bar Association and protected by MoMo escrow.",
-      "bookFirstReviewCta": "Book a Consultation"
+      "bookFirstReviewCta": "Book a Consultation",
+      "reportReasons": {
+        "spam": "Spam or promotional content",
+        "harassment": "Harassment or offensive behavior",
+        "offensiveLanguage": "Inappropriate or offensive language",
+        "fakeReview": "Fraudulent or fake review",
+        "other": "Other reason"
+      },
+      "contactRate": "Contact",
+      "legalServices": "Legal Services"
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -4319,7 +4520,28 @@
       "offline": "Offline",
       "previewMessage": "Need help finding the right lawyer? Describe your legal issue and our AI will match you instantly.",
       "previewExample": "e.g. \"My landlord refuses to return my deposit.\"",
-      "tryAi": "Try AI Assistant"
+      "tryAi": "Try AI Assistant",
+      "chatWithAi": "Chat with AI",
+      "commonTopics": "Common topics:",
+      "prompts": {
+        "land": "Land boundary & title dispute",
+        "employment": "Unfair employment dismissal",
+        "contract": "Commercial contract breach",
+        "family": "Divorce & custody questions"
+      },
+      "urgency": "Urgency:",
+      "recommendedExperts": "Recommended Experts:",
+      "view": "View",
+      "analyzing": "Analyzing case & finding lawyers...",
+      "openFullWorkspace": "Open in Full Case Workspace",
+      "welcomeMessage": "Hello! I'm your MyJudicial AI Legal Assistant. Describe any legal matter in Rwanda to receive instant case triage and verified expert recommendations.",
+      "triageResponse": "Based on your description, this case falls under **{specialty}** with **{urgency} urgency**.",
+      "errorMessage": "I encountered an issue analyzing your request. You can also explore our full legal intake workspace directly.",
+      "inputPlaceholder": "Describe your legal issue...",
+      "sendMessage": "Send message",
+      "dismiss": "Dismiss AI assistant",
+      "expandWorkspace": "Expand to Full Workspace",
+      "closeChat": "Close chat"
     }
   },
   "resourcesPage": {
@@ -4368,7 +4590,7 @@
     "clearAll": "Clear all filters",
     "resultsCount": "{count, plural, =0 {No lawyers found} one {# lawyer found} other {# lawyers found}}",
     "loadingExperts": "Loading experts...",
-    "loadingSearch": "Loading search...",
+    "loadingSearch": "Loading search results...",
     "failedToLoad": "Failed to load experts",
     "tryAgain": "Please try again",
     "description": "We could not find any legal professionals matching your current search criteria and map boundaries.",
@@ -4471,7 +4693,21 @@
     "showingCurated": "Curated Selection",
     "gridDirectory": "Grid View",
     "splitDirectory": "Split View",
-    "bookConsultationShort": "Book Consult"
+    "bookConsultationShort": "Book Consult",
+    "viewProfileOf": "View profile of {name}",
+    "closeDetails": "Close expert details",
+    "specialistsIn": "{specialty} Specialists",
+    "practiceAreasCount": "{count} Practice Areas ({areas})",
+    "verifiedAdvocatesInSpecialties": "Verified advocates specializing in {specialties} in Rwanda.",
+    "radius": {
+      "allRwanda": "All Rwanda"
+    },
+    "viewProfileAria": "View profile of {name}",
+    "closeLawyerDetails": "Close lawyer details",
+    "mapAriaLabel": "Lawyer map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "recenterMap": "Recenter map"
   },
   "settings": {
     "settingsSaved": "Settings saved.",
@@ -4814,5 +5050,18 @@
     "CONTRACT_LAW": "Contract Law",
     "INTELLECTUAL_PROPERTY": "Intellectual Property",
     "OTHER": "Other"
+  },
+  "lawyers": {
+    "verifiedTooltip": "Rwanda Bar Verified Advocate",
+    "contactRate": "Contact",
+    "legalServices": "Legal Services",
+    "reportModal": {
+      "spam": "Spam or misleading",
+      "harassment": "Harassment or inappropriate content",
+      "unprofessional": "Unprofessional conduct",
+      "other": "Other issue",
+      "offensiveLanguage": "Offensive language",
+      "fakeReview": "Fake or dishonest review"
+    }
   }
 }

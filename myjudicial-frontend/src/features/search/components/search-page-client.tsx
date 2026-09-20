@@ -17,9 +17,11 @@ import { usePracticeAreas } from "@/lib/api/landing";
 import LandingFooter from "@/shared/components/landing/landing-footer";
 import { PROXIMITY_OPTIONS } from "../types";
 import type { ProximityFilter } from "../types";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 
 export function SearchPageClient() {
   const t = useTranslations("search");
+  const tSpecialties = useTranslations("specialties");
   const {
     filters,
     setFilters,
@@ -66,21 +68,23 @@ export function SearchPageClient() {
     }
     if (filters.specialties.length > 0) {
       const labels = filters.specialties.map((s) => {
-        const match = specialtyOptions.find((o) => o.value === s);
-        return match?.label ?? s.replace(/_/g, " ");
+        return getLocalizedSpecialty(s, tSpecialties);
       });
       const title =
         labels.length === 1
-          ? `${labels[0]} Specialists`
-          : `${labels.length} Practice Areas (${labels.slice(0, 2).join(", ")}${labels.length > 2 ? "..." : ""})`;
+          ? t("specialistsIn", { specialty: labels[0] })
+          : t("practiceAreasCount", {
+              count: labels.length,
+              areas: `${labels.slice(0, 2).join(", ")}${labels.length > 2 ? "..." : ""}`,
+            });
       return {
         title,
-        desc: `Verified advocates specializing in ${labels.join(", ")} in Rwanda.`,
+        desc: t("verifiedAdvocatesInSpecialties", { specialties: labels.join(", ") }),
         onReset: () => setFilters((prev) => ({ ...prev, specialties: [] })),
       };
     }
     return null;
-  }, [filters.sort, filters.availableToday, filters.specialties, specialtyOptions, setFilters, t]);
+  }, [filters.sort, filters.availableToday, filters.specialties, tSpecialties, setFilters, t]);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);

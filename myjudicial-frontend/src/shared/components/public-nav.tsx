@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "@/i18n/routing";
 import { Logo } from "./logo";
 import { ProfileMenu } from "./profile-menu";
+import { LanguageSwitcher } from "./language-switcher";
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -18,8 +19,9 @@ export function PublicNav() {
         {/* Logo */}
         <Logo light={false} fontSize="text-[15px]" className="shrink-0" />
 
-        {/* Right: ProfileMenu, Hamburger */}
-        <div className="flex items-center gap-3">
+        {/* Right: LanguageSwitcher, ProfileMenu, Hamburger */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <LanguageSwitcher variant="compact" />
           <ProfileMenu />
 
           {/* Hamburger — mobile only */}

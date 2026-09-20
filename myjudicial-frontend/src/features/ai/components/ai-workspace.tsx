@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Send, ArrowRight, Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { useCaseAnalysis } from "../hooks/use-case-analysis";
 import { useRecommendation } from "../hooks/use-recommendation";
 import { useTranscription } from "../hooks/use-transcription";
@@ -16,6 +17,8 @@ import type { AiMessage, AiStep, CaseAnalysis, ExpertRecommendation } from "../t
 
 export function AiWorkspace() {
   const t = useTranslations("ai");
+  const tAiChat = useTranslations("public.aiChat");
+  const tSpecialties = useTranslations("specialties");
   const router = useRouter();
 
   const [step, setStep] = useState<AiStep>("describe");
@@ -65,7 +68,10 @@ export function AiWorkspace() {
       const analysisMessage: AiMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: `I've analyzed your case. It falls under **${result.analysis.specialty.replace(/_/g, " ").toLowerCase()}** with ${result.analysis.urgency_level.toLowerCase()} urgency.`,
+        content: tAiChat("triageResponse", {
+          specialty: getLocalizedSpecialty(result.analysis.specialty, tSpecialties),
+          urgency: result.analysis.urgency_level.toLowerCase(),
+        }),
         timestamp: new Date(),
         type: "analysis",
         analysis: result.analysis,
@@ -101,7 +107,7 @@ export function AiWorkspace() {
       const recMessage: AiMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: `I found **${recResult.recommendations.length} matching experts** for your case.`,
+        content: t("recommendations.expertsFound", { count: recResult.recommendations.length }),
         timestamp: new Date(),
         type: "recommendation",
         recommendations: recResult.recommendations,
@@ -135,6 +141,8 @@ export function AiWorkspace() {
     recommendMutation,
     addMessage,
     t,
+    tAiChat,
+    tSpecialties,
   ]);
 
   const handleKeyDown = useCallback(

@@ -107,6 +107,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
   const t = useTranslations("public.expertProfile");
   const tCommon = useTranslations("common");
+  const tLawyers = useTranslations("lawyers");
 
   const { data: expert, isLoading, error } = useExpertProfile(id);
 
@@ -239,7 +240,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
     );
   }
 
-  const specialties = expert.specialties.length > 0 ? expert.specialties : [expert.specialty || "Legal Services"];
+  const specialties = expert.specialties.length > 0 ? expert.specialties : [expert.specialty || tLawyers("legalServices")];
   const hasLocation = Boolean((expert.latitude && expert.longitude) || expert.officeAddress);
 
   return (
@@ -273,7 +274,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                       {expert.verified && (
                         <div
                           className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-white dark:ring-card"
-                          title="Rwanda Bar Verified Advocate"
+                          title={tLawyers("verifiedTooltip")}
                         >
                           <CheckCircle size={15} className="text-white" />
                         </div>
@@ -940,11 +941,11 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                                     className="mt-2 w-full rounded-lg border border-rose-200 bg-white p-1.5 text-xs text-rose-950 dark:border-rose-800 dark:bg-black dark:text-rose-200"
                                   >
                                     <option value="">{t("selectReason")}</option>
-                                    <option value="SPAM">Spam</option>
-                                    <option value="HARASSMENT">Harassment</option>
-                                    <option value="OFFENSIVE_LANGUAGE">Offensive language</option>
-                                    <option value="FAKE_REVIEW">Fake review</option>
-                                    <option value="OTHER">Other</option>
+                                    <option value="SPAM">{tLawyers("reportModal.spam")}</option>
+                                    <option value="HARASSMENT">{tLawyers("reportModal.harassment")}</option>
+                                    <option value="OFFENSIVE_LANGUAGE">{tLawyers("reportModal.offensiveLanguage")}</option>
+                                    <option value="FAKE_REVIEW">{tLawyers("reportModal.fakeReview")}</option>
+                                    <option value="OTHER">{tLawyers("reportModal.other")}</option>
                                   </select>
                                   <textarea
                                     value={reportDetails}
@@ -998,7 +999,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   <p className="mt-1.5 text-3xl font-extrabold text-white">
                     {expert.startingRateRwf > 0
                       ? `${Number(expert.startingRateRwf).toLocaleString()}`
-                      : "Contact"}{" "}
+                      : tLawyers("contactRate")}{" "}
                     <span className="text-base font-normal text-white/60">RWF</span>
                   </p>
                   <p className="mt-1 text-xs text-white/50">
@@ -1109,7 +1110,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-1">
               <span className="text-base font-extrabold tracking-tight text-brand-dark dark:text-white">
-                {expert.startingRateRwf > 0 ? Number(expert.startingRateRwf).toLocaleString() : "Contact"}
+                {expert.startingRateRwf > 0 ? Number(expert.startingRateRwf).toLocaleString() : tLawyers("contactRate")}
               </span>
               {expert.startingRateRwf > 0 && (
                 <span className="text-[11px] font-bold text-muted-foreground">RWF</span>

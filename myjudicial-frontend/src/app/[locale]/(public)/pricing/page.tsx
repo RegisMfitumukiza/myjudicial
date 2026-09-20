@@ -88,7 +88,7 @@ export default function PricingPage() {
             {/* Tier 2: Consultation (Highlighted) */}
             <div className="relative flex flex-col rounded-3xl border-2 border-brand-dark bg-brand-dark p-8 shadow-xl">
               <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-green-500 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white">
-                Most Popular
+                {t("tiers.consultation.badge")}
               </div>
               <h3 className="text-lg font-bold text-on-brand">{t("tiers.consultation.name")}</h3>
               <div className="mt-4 flex items-baseline text-4xl font-extrabold text-white">

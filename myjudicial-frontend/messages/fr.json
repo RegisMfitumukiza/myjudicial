@@ -631,7 +631,8 @@
       "good": "Bonne correspondance",
       "fair": "Correspondance correcte",
       "noExperts": "Aucun expert juridique n'est actuellement disponible pour cette specialite dans notre reseau.",
-      "tryBroader": "Essayez de decrire votre probleme autrement ou parcourez tous les experts disponibles."
+      "tryBroader": "Essayez de decrire votre probleme autrement ou parcourez tous les experts disponibles.",
+      "expertsFound": "J'ai trouvé **{count} avocats correspondants** pour votre dossier."
     },
     "redirect": {
       "title": "Recherche des experts correspondants...",
@@ -662,7 +663,22 @@
     "empty": {
       "title": "Comment pouvons-nous vous aider?",
       "description": "Decrivez votre probleme juridique. Vous pouvez ecrire, parler ou joindre des documents."
-    }
+    },
+    "analysisResponse": "J'ai analysé votre dossier. Il relève du domaine **{specialty}** avec une urgence {urgency}.",
+    "matchesFound": "J'ai trouvé **{count} experts correspondants** pour votre dossier.",
+    "upload": "Télécharger",
+    "yrShort": "{years} ans",
+    "greeting": "Bonjour ! Je suis votre assistant juridique IA. Décrivez votre situation juridique, et je vous aiderai à l'analyser et à vous mettre en relation avec des avocats qualifiés au Rwanda.",
+    "quickPrompt1": "J'ai besoin d'aide pour réviser un contrat de travail",
+    "quickPrompt2": "Comment résoudre un litige de délimitation de terrain ?",
+    "quickPrompt3": "Quelles sont les étapes pour immatriculer une entreprise ?",
+    "quickPrompt4": "Besoin de conseils sur un bail commercial",
+    "openFullWorkspace": "Ouvrir dans l'espace de travail complet",
+    "chatWithAI": "Discuter avec l'assistant IA",
+    "confidenceHigh": "Correspondance très précise",
+    "confidenceMedium": "Correspondance moyenne",
+    "yearsExpUnit": "an",
+    "loadingWorkspace": "Chargement de l'espace de l'assistant juridique IA..."
   },
   "auth": {
     "login": "Connexion",
@@ -883,7 +899,7 @@
     "serviceDescription": "Description du service",
     "serviceCategory": "Catégorie de service",
     "deliveryMethod": "Méthode de livraison",
-    "durationMinutes": "Durée (minutes)",
+    "durationMinutes": "{minutes} min",
     "fee": "Frais",
     "currency": "Devise",
     "saveService": "Enregistrer le service",
@@ -898,7 +914,40 @@
     "failedToLoadExpert": "Failed to load expert details",
     "expertInformation": "Expert Information",
     "goToDashboard": "Go to Dashboard",
-    "findAnotherLawyer": "Find Another Lawyer"
+    "findAnotherLawyer": "Find Another Lawyer",
+    "durationMin": "{count} min",
+    "dateAtTime": "{date} à {time}",
+    "optional": "Optionnel",
+    "days": {
+      "sun": "Dim",
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam"
+    },
+    "months": {
+      "jan": "Janvier",
+      "feb": "Février",
+      "mar": "Mars",
+      "apr": "Avril",
+      "may": "Mai",
+      "jun": "Juin",
+      "jul": "Juillet",
+      "aug": "Août",
+      "sep": "Septembre",
+      "oct": "Octobre",
+      "nov": "Novembre",
+      "dec": "Décembre"
+    },
+    "cancelled": {
+      "title": "Réservation annulée",
+      "whatHappened": "Que s'est-il passé ?",
+      "reasonPaymentAbandoned": "Le paiement a été annulé ou a expiré avant finalisation.",
+      "noChargesMade": "Aucun montant n'a été débité de votre compte. Votre créneau a été libéré.",
+      "browseLawyers": "Parcourir à nouveau les avocats"
+    }
   },
   "common": {
     "loading": "Chargement...",
@@ -966,12 +1015,20 @@
     }
   },
   "errors": {
-    "somethingWentWrong": "Quelque chose s'est mal passé",
-    "tryAgain": "Veuillez réessayer",
-    "pageNotFound": "Page non trouvée",
-    "unauthorized": "Vous n'êtes pas autorisé à accéder à cette page",
-    "networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
-    "validationError": "Veuillez vérifier votre saisie et réessayer"
+    "notFound": {
+      "badge": "404",
+      "title": "Page non trouvée",
+      "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+      "goHome": "Retour à l'accueil",
+      "backHome": "Retour à l'accueil"
+    },
+    "general": {
+      "badge": "Erreur",
+      "title": "Une erreur est survenue",
+      "description": "Une erreur inattendue est survenue. Veuillez réessayer.",
+      "tryAgain": "Réessayer",
+      "retry": "Réessayer"
+    }
   },
   "expertOnboarding": {
     "title": "Configuration Expert MyJudicial",
@@ -1567,7 +1624,18 @@
       "joinVideo": "Join the video consultation at your scheduled time",
       "escrowNotice": "Payment is held in escrow until consultation is complete",
       "bookAnother": "Book Another Consultation",
-      "redirecting": "Redirecting to your bookings in {countdown}s..."
+      "redirecting": "Redirecting to your bookings in {countdown}s...",
+      "whatHappened": "Que s'est-il passé ?",
+      "cancelledExplanation": "Le paiement a été interrompu avant sa finalisation. Cela peut être dû à :",
+      "cancelledReason1": "Un clic sur « Annuler » sur l'écran de paiement",
+      "cancelledReason2": "La fermeture intempestive de la fenêtre de paiement",
+      "cancelledReason3": "Un dépassement du délai de connexion réseau",
+      "browseLawyersAgain": "Parcourir à nouveau les avocats",
+      "contactSupport": "Contacter l'assistance",
+      "mobileMoneyUnavailable": "Service Mobile Money momentanément indisponible",
+      "browseMoreLawyers": "Découvrir d'autres avocats",
+      "tip": "Conseil",
+      "tipDesc": "Vérifiez votre solde Mobile Money et validez l'invite avec votre code PIN sur votre téléphone dans les 60 secondes."
     },
     "home": {
       "heroTitle": "Trouvez un avocat au Rwanda",
@@ -1876,7 +1944,16 @@
       "noReviewsTitle": "Pas encore d'avis clients",
       "noReviewsDesc": "Cet avocat a récemment activé les réservations en ligne sur MyJudicial. Soyez parmi les premiers clients à réserver une session et partager votre avis vérifié.",
       "noReviewsTrustNote": "Chaque consultation est certifiée par le Barreau du Rwanda et protégée par le séquestre MoMo.",
-      "bookFirstReviewCta": "Prendre rendez-vous"
+      "bookFirstReviewCta": "Prendre rendez-vous",
+      "reportReasons": {
+        "spam": "Spam ou contenu promotionnel",
+        "harassment": "Harcèlement ou comportement abusif",
+        "offensiveLanguage": "Langage offensant ou inapproprié",
+        "fakeReview": "Avis frauduleux ou faux",
+        "other": "Autre motif"
+      },
+      "contactRate": "Sur devis",
+      "legalServices": "Services juridiques"
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -1884,7 +1961,28 @@
       "offline": "Hors ligne",
       "previewMessage": "Besoin d'aide pour trouver le bon avocat ? Décrivez votre problème juridique et notre IA vous mettra en correspondance instantanément.",
       "previewExample": "ex. « Mon refus de restitution du dépôt de garantie. »",
-      "tryAi": "Essayer l'IA"
+      "tryAi": "Essayer l'IA",
+      "chatWithAi": "Discuter avec l'IA",
+      "commonTopics": "Sujets fréquents :",
+      "prompts": {
+        "land": "Litige foncier et bornage de terrain",
+        "employment": "Licenciement abusif au travail",
+        "contract": "Rupture de contrat commercial",
+        "family": "Questions de divorce et garde d'enfants"
+      },
+      "urgency": "Urgence :",
+      "recommendedExperts": "Avocats recommandés :",
+      "view": "Voir",
+      "analyzing": "Analyse du dossier et recherche d'avocats...",
+      "openFullWorkspace": "Ouvrir dans l'espace complet du dossier",
+      "welcomeMessage": "Bonjour ! Je suis votre Assistant Juridique IA MyJudicial. Décrivez votre situation juridique au Rwanda pour recevoir une orientation immédiate et des recommandations d'experts certifiés.",
+      "triageResponse": "D'après votre description, ce dossier relève du **{specialty}** avec un niveau d'urgence **{urgency}**.",
+      "errorMessage": "Une difficulté est survenue lors de l'analyse. Vous pouvez également accéder directement à notre espace d'évaluation juridique complet.",
+      "inputPlaceholder": "Décrivez votre situation juridique...",
+      "sendMessage": "Envoyer le message",
+      "dismiss": "Fermer l'assistant IA",
+      "expandWorkspace": "Ouvrir en plein écran",
+      "closeChat": "Fermer le chat"
     }
   },
   "search": {
@@ -1905,7 +2003,7 @@
     "clearAll": "Effacer tous les filtres",
     "resultsCount": "{count, plural, =0 {Aucun avocat trouvé} one {# avocat trouvé} other {# avocats trouvés}}",
     "loadingExperts": "Chargement des experts...",
-    "loadingSearch": "Chargement de la recherche...",
+    "loadingSearch": "Chargement des résultats de recherche...",
     "failedToLoad": "Échec du chargement des experts",
     "tryAgain": "Veuillez réessayer",
     "description": "Nous n'avons trouvé aucun professionnel du droit correspondant à vos critères de recherche et aux limites de la carte.",
@@ -2008,7 +2106,21 @@
     "showingCurated": "Sélection personnalisée",
     "gridDirectory": "Vue grille",
     "splitDirectory": "Vue partagée",
-    "bookConsultationShort": "Réserver"
+    "bookConsultationShort": "Réserver",
+    "viewProfileOf": "Consulter le profil de {name}",
+    "closeDetails": "Fermer les détails de l'expert",
+    "specialistsIn": "Spécialistes en {specialty}",
+    "practiceAreasCount": "{count} Domaines de compétence ({areas})",
+    "verifiedAdvocatesInSpecialties": "Avocats vérifiés spécialisés en {specialties} au Rwanda.",
+    "radius": {
+      "allRwanda": "Tout le Rwanda"
+    },
+    "viewProfileAria": "Voir le profil de {name}",
+    "closeLawyerDetails": "Fermer les détails de l'avocat",
+    "mapAriaLabel": "Carte des avocats",
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "recenterMap": "Recentrer la carte"
   },
   "settings": {
     "settingsSaved": "Paramètres enregistrés.",
@@ -2754,50 +2866,50 @@
     }
   },
   "about": {
-    "meta": {
-      "title": "About Us | MyJudicial",
-      "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
-    },
     "hero": {
-      "badge": "Notre Mission & Vision",
-      "title": "Démocratiser l'Accès à la Justice Partout au Rwanda",
-      "subtitle": "Nous relions citoyens et entreprises aux avocats certifiés du Barreau, alliant transparence tarifaire, rigueur déontologique et technologie moderne.",
+      "badge": "À propos de MyJudicial",
+      "title": "Rapprocher la justice de chaque citoyen rwandais",
+      "subtitle": "MyJudicial est la première plateforme légale numérique du Rwanda reliant les particuliers et les entreprises à des avocats certifiés par le Barreau du Rwanda.",
       "stats": {
-        "verifiedExperts": "Avocats Certifiés",
-        "completedConsultations": "Consultations Menées",
-        "totalClients": "Clients Satisfaits"
+        "verifiedExperts": "Avocats certifiés",
+        "completedConsultations": "Consultations réalisées",
+        "totalClients": "Clients satisfaits"
       }
     },
     "mission": {
-      "title": "Our Mission",
-      "text": "To democratize access to justice in Rwanda by providing a transparent, efficient, and secure platform that connects individuals and businesses with verified legal professionals.",
-      "visionTitle": "Our Vision",
-      "visionText": "To become the leading digital legal infrastructure in Africa, where finding a lawyer is as easy as booking a flight, and legal processes are streamlined for maximum efficiency."
+      "title": "Notre mission",
+      "text": "Démocratiser l'accès à la justice et aux conseils juridiques qualifiés au Rwanda grâce à une technologie transparente, accessible et sécurisée.",
+      "visionTitle": "Notre vision",
+      "visionText": "Un Rwanda où chaque citoyen, entrepreneur et organisation bénéficie d'une protection juridique équitable et immédiate sans complications."
     },
     "story": {
-      "title": "Our Story",
-      "text1": "MyJudicial was born out of a simple observation: finding the right lawyer in Rwanda was often complicated, opaque, and intimidating for the average person or small business.",
-      "text2": "We realized that by leveraging technology, we could bridge the gap between talented legal professionals and those who need their services. Today, MyJudicial is a comprehensive ecosystem that not only helps clients find lawyers but also provides lawyers with the tools they need to manage and grow their practice."
+      "title": "Notre histoire",
+      "text1": "Fondée à Kigali, MyJudicial est née du constat que trouver un avocat qualifié et disponible était complexe, opaque et intimidant pour la majorité des citoyens.",
+      "text2": "Nous avons développé un pont numérique conforme aux régulations rwandaises permettant des consultations vérifiées, avec tarification claire et paiement sécurisé via Mobile Money."
     },
     "values": {
-      "title": "Our Core Values",
+      "title": "Nos valeurs fondamentales",
       "access": {
-        "title": "Access",
-        "text": "We believe everyone deserves access to quality legal representation, regardless of their background or connections."
+        "title": "Accessibilité",
+        "text": "Le droit doit être compréhensible et accessible à tous, sans barrières financières imprévues ni démarches opaques."
       },
       "transparency": {
-        "title": "Transparency",
-        "text": "Clear, upfront pricing with no hidden fees. You always know what you're paying for before you commit."
+        "title": "Transparence",
+        "text": "Honoraires fixes, identité certifiée par le Barreau et avis de clients réels avant chaque engagement."
       },
       "trust": {
-        "title": "Trust",
-        "text": "Every lawyer on our platform is strictly vetted and verified. Your payments and data are always secure."
+        "title": "Confiance & Sécurité",
+        "text": "Paiements retenus sous séquestre jusqu'à la tenue effective de la consultation et confidentialité absolue de vos données."
       }
     },
     "cta": {
-      "title": "Ready to get started?",
-      "joinLawyer": "Join as a Lawyer",
-      "findLawyer": "Find a Lawyer"
+      "title": "Prêt à obtenir un conseil juridique de confiance ?",
+      "findLawyer": "Trouver un avocat",
+      "joinLawyer": "Rejoindre en tant qu'avocat"
+    },
+    "meta": {
+      "title": "About Us | MyJudicial",
+      "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
     }
   },
   "clientDashboard": {
@@ -3142,54 +3254,54 @@
   },
   "comingSoonPage": {
     "blog": {
+      "hero": {
+        "badge": "Blog Juridique",
+        "title": "Actualités & Décryptages Juridiques",
+        "subtitle": "Analyses de l'actualité légale, jurisprudences et conseils d'avocats au Rwanda."
+      },
+      "comingSoon": {
+        "title": "Articles à paraître très prochainement",
+        "desc": "Notre comité de rédaction juridique prépare des analyses approfondies sur les réformes légales et le droit des affaires au Rwanda."
+      },
       "meta": {
         "title": "Blog | MyJudicial",
         "description": "Read the latest news and insights from MyJudicial."
-      },
-      "hero": {
-        "badge": "Blog",
-        "title": "The MyJudicial Blog",
-        "subtitle": "News, updates, and insights from our team and legal experts."
-      },
-      "comingSoon": {
-        "title": "Coming Soon",
-        "desc": "We are currently setting up our editorial team. Check back soon for our first publications."
       }
     },
     "careers": {
+      "hero": {
+        "badge": "Recrutement & Carrières",
+        "title": "Rejoignez l'équipe MyJudicial",
+        "subtitle": "Contribuez à réinventer l'accès au droit et à la justice numérique au Rwanda et en Afrique."
+      },
+      "comingSoon": {
+        "title": "Postes ouverts bientôt disponibles",
+        "desc": "Nous préparons notre prochaine phase de recrutement en ingénierie logicielle, conformité légale et support client à Kigali."
+      },
       "meta": {
         "title": "Careers | MyJudicial",
         "description": "Join the team at MyJudicial and help us democratize access to justice in Rwanda."
-      },
-      "hero": {
-        "badge": "Careers",
-        "title": "Join Our Team",
-        "subtitle": "Help us build the digital infrastructure for Rwanda's legal system."
-      },
-      "comingSoon": {
-        "title": "No Open Positions",
-        "desc": "We don't have any open roles at the moment, but we're always looking for great talent. Check back soon."
       }
     },
     "press": {
+      "hero": {
+        "badge": "Espace Presse",
+        "title": "Espace Presse & Médias",
+        "subtitle": "Communiqués, parutions médiatiques et kits presse de MyJudicial."
+      },
+      "comingSoon": {
+        "title": "Espace en cours de finalisation",
+        "desc": "Pour toute demande d'interview ou renseignement presse, n'hésitez pas à nous contacter directement."
+      },
       "meta": {
         "title": "Press & Media | MyJudicial",
         "description": "Press releases, media kits, and news about MyJudicial."
-      },
-      "hero": {
-        "badge": "Press",
-        "title": "Press & Media",
-        "subtitle": "Everything you need to know about MyJudicial for your next story."
-      },
-      "comingSoon": {
-        "title": "Media Kit Coming Soon",
-        "desc": "Our press resources are currently being updated. For immediate media inquiries, please contact us."
       }
     },
     "cta": {
-      "title": "Need something else?",
-      "button1": "Find a Lawyer",
-      "button2": "Contact Us"
+      "title": "Restez connecté avec MyJudicial",
+      "button1": "Explorer les avocats",
+      "button2": "Nous contacter"
     }
   },
   "contactPage": {
@@ -3198,24 +3310,41 @@
       "description": "Get in touch with the MyJudicial team for support, partnerships, or general inquiries."
     },
     "hero": {
-      "badge": "Contact",
-      "title": "Get in Touch",
-      "subtitle": "We're here to help. Reach out to us for any questions or support."
+      "badge": "Contactez-nous",
+      "title": "Nous sommes à votre écoute",
+      "subtitle": "Une question juridique, un partenariat ou besoin d'assistance ? Notre équipe à Kigali est à votre disposition."
     },
     "info": {
-      "title": "Contact Information",
-      "email": "info@myjudicial.rw",
+      "title": "Nos coordonnées",
+      "email": "support@myjudicial.rw",
       "location": "Kigali, Rwanda",
-      "hours": "Monday - Friday: 8:00 AM - 5:00 PM (CAT)"
+      "hours": "Du lundi au vendredi : 08h00 – 18h00 CAT"
     },
     "form": {
-      "title": "Send us a message",
-      "name": "Full Name",
-      "email": "Email Address",
-      "subject": "Subject",
-      "message": "Your Message",
-      "submit": "Send Message"
-    }
+      "title": "Envoyez-nous un message",
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "subject": "Objet de votre demande",
+      "message": "Votre message",
+      "submit": "Envoyer le message",
+      "businessHoursLabel": "Heures d'ouverture",
+      "businessHoursValue": "Lundi – Vendredi : 8h00 – 18h00 CAT",
+      "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
+      "messagePlaceholder": "Décrivez votre demande en détail..."
+    },
+    "labels": {
+      "email": "E-mail",
+      "location": "Adresse",
+      "hours": "Heures d'ouverture"
+    },
+    "formPlaceholders": {
+      "name": "Jean Dupont",
+      "email": "jean.dupont@example.com",
+      "subject": "En quoi pouvons-nous vous aider ?",
+      "message": "Décrivez votre demande..."
+    },
+    "mapTitle": "Emplacement de MyJudicial",
+    "officeMapTitle": "Siège de MyJudicial à Kigali, Rwanda"
   },
   "expertDashboard": {
     "aiCaseTitle": "AI Case Analysis",
@@ -3424,11 +3553,11 @@
     "terms": "Terms"
   },
   "expertDashboard_availability-preview": {
-    "checkingAvailability": "Checking availability...",
-    "scanningNext14Days": "Scanning next 14 days ({searchDate}/14)...",
-    "noAvailabilityIn14Days": "No availability in the next 14 days",
-    "nextAvailable": "Next Available",
-    "bookNow": "Book Now"
+    "checkingAvailability": "Vérification des disponibilités...",
+    "scanningNext14Days": "Recherche sur les 14 prochains jours ({searchDate})...",
+    "noAvailabilityIn14Days": "Aucun créneau disponible sur les 14 prochains jours",
+    "nextAvailable": "Prochaine disponibilité",
+    "bookNow": "Réserver"
   },
   "expertDashboard_availability": {
     "title": "Availability",
@@ -3623,23 +3752,23 @@
     "netRevenuePct": "Net Revenue (85%)"
   },
   "expertDashboard_faq-section": {
-    "faq1q": "How do bookings work?",
-    "faq1a": "Browse verified lawyers, select a service and time slot, then confirm your booking. You will receive a confirmation via SMS and email with all the details.",
-    "faq2q": "How do I pay?",
-    "faq2a": "We accept MTN MoMo and Airtel Money. Your payment is held in secure escrow and only released to the lawyer after your consultation is completed.",
-    "faq3q": "Are all lawyers verified?",
-    "faq3a": "Yes. Every lawyer on MyJudicial is BAR certified, identity-checked, and reviewed by our quality team before appearing on the platform.",
-    "faq4q": "Can consultations be online?",
-    "faq4a": "Yes. Many lawyers offer video calls, phone calls, and in-person consultations. You can choose your preferred mode when booking.",
-    "faq5q": "Can I cancel a booking?",
-    "faq5a": "Yes. You can cancel or reschedule a booking up to 24 hours before the consultation. Cancellations within 24 hours may incur a fee.",
-    "faq6q": "Is my payment protected?",
-    "faq6a": "Absolutely. All payments are held in escrow until your consultation is complete. If the lawyer does not show up, you get a full refund.",
-    "faq7q": "How does Mobile Money work?",
-    "faq7a": "When you book, you will receive an MoMo payment prompt on your phone. Simply enter your PIN to confirm. The payment is processed instantly.",
     "faqTag": "FAQ",
-    "faqTitle": "Frequently Asked Questions",
-    "faqSubtitle": "Everything you need to know about MyJudicial."
+    "faqTitle": "Questions fréquemment posées",
+    "faqSubtitle": "Tout ce que vous devez savoir sur la prise de rendez-vous, les paiements et les avocats.",
+    "faq1q": "Comment fonctionnent les réservations ?",
+    "faq1a": "Parcourez les profils des avocats certifiés, sélectionnez une prestation et un créneau horaire, puis validez votre demande. Vous recevrez une confirmation immédiate par SMS et e-mail.",
+    "faq2q": "Quels sont les moyens de paiement acceptés ?",
+    "faq2a": "Nous acceptons MTN Mobile Money et Airtel Money. Votre paiement est conservé sur un compte de séquestre sécurisé et n'est versé à l'avocat qu'une fois la consultation terminée.",
+    "faq3q": "Tous les avocats sont-ils certifiés ?",
+    "faq3a": "Oui. Chaque avocat inscrit sur MyJudicial est certifié par le Barreau du Rwanda, son identité est vérifiée et son inscription contrôlée avant d'apparaître sur la plateforme.",
+    "faq4q": "Les consultations peuvent-elles se faire en ligne ?",
+    "faq4a": "Absolument. De nombreux avocats proposent des consultations par visioconférence, par téléphone ou en présentiel dans leur cabinet. Vous choisissez votre mode préféré.",
+    "faq5q": "Puis-je annuler ou reporter une réservation ?",
+    "faq5a": "Oui. Vous pouvez annuler ou reporter votre consultation sans frais jusqu'à 24 heures avant l'heure prévue directement depuis votre espace client.",
+    "faq6q": "Mon argent est-il protégé en cas d'absence de l'avocat ?",
+    "faq6a": "Tout à fait. Tous les paiements sont conservés sous séquestre jusqu'à la tenue effective du rendez-vous. Si l'avocat ne se présente pas, vous êtes remboursé intégralement.",
+    "faq7q": "Comment fonctionne le paiement Mobile Money ?",
+    "faq7a": "Au moment de la réservation, vous recevez une demande de validation MoMo directement sur votre téléphone. Entrez simplement votre code secret PIN pour confirmer instantanément."
   },
   "expertDashboard_featured-experts": {
     "feeNotSet": "Fee not set",
@@ -4387,235 +4516,235 @@
     }
   },
   "faqsPage": {
+    "hero": {
+      "badge": "Foire Aux Questions",
+      "title": "Questions fréquentes",
+      "subtitle": "Trouvez des réponses claires sur le fonctionnement de MyJudicial, la vérification des avocats et la sécurité des paiements."
+    },
+    "cta": {
+      "title": "Vous n'avez pas trouvé votre réponse ?",
+      "subtitle": "Notre équipe d'assistance à Kigali est disponible pour vous accompagner.",
+      "contact": "Contactez le support"
+    },
     "meta": {
       "title": "Frequently Asked Questions | MyJudicial",
       "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
-    },
-    "hero": {
-      "badge": "FAQs",
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about finding and hiring a legal expert on MyJudicial."
-    },
-    "cta": {
-      "title": "Still have questions?",
-      "subtitle": "Can't find the answer you're looking for? Our support team is here to help.",
-      "contact": "Contact Support"
     }
   },
   "helpPage": {
+    "hero": {
+      "badge": "Centre d'Assistance",
+      "title": "Comment pouvons-nous vous aider ?",
+      "subtitle": "Consultez nos guides, démarches et conseils juridiques pour naviguer sereinement sur la plateforme.",
+      "searchPlaceholder": "Rechercher une question (réservation, paiement MoMo, annulation, avocat)..."
+    },
+    "topics": {
+      "title": "Parcourir par thématique",
+      "gettingStarted": {
+        "title": "Premiers pas",
+        "desc": "Comprendre comment trouver un avocat, poser une question à l'IA et créer votre compte client."
+      },
+      "booking": {
+        "title": "Réservations",
+        "desc": "Choisir un créneau, reprogrammer, annuler ou rejoindre une consultation vidéo."
+      },
+      "payments": {
+        "title": "Paiements & MoMo",
+        "desc": "Fonctionnement du séquestre, MTN MoMo, Airtel Money, facturation et remboursements."
+      },
+      "account": {
+        "title": "Compte & Sécurité",
+        "desc": "Gérer vos coordonnées, modifier votre mot de passe et protéger vos données personnelles."
+      },
+      "lawyers": {
+        "title": "Pour les avocats",
+        "desc": "Inscription, certification auprès du Barreau, gestion de l'agenda et encaissement des honoraires."
+      },
+      "trust": {
+        "title": "Confiance & Barreau",
+        "desc": "Critères de vérification des avocats, protection des données et conformité légale au Rwanda."
+      },
+      "readArticles": "Lire les articles"
+    },
+    "cta": {
+      "title": "Besoin d'une assistance personnalisée ?",
+      "button": "Contacter le support"
+    },
     "meta": {
       "title": "Help Center | MyJudicial",
       "description": "Get support and find answers to your questions about using MyJudicial."
     },
-    "hero": {
-      "badge": "Help Center",
-      "title": "How can we help?",
-      "subtitle": "Search our knowledge base or browse categories below.",
-      "searchPlaceholder": "Search for help..."
-    },
-    "topics": {
-      "title": "Help Topics",
-      "gettingStarted": {
-        "title": "Getting Started",
-        "desc": "Learn the basics of how MyJudicial works."
-      },
-      "booking": {
-        "title": "Booking & Consultations",
-        "desc": "How to schedule, reschedule, or join a consultation."
-      },
-      "payments": {
-        "title": "Payments & Refunds",
-        "desc": "Information about MoMo, escrow, and refunds."
-      },
-      "account": {
-        "title": "Account Settings",
-        "desc": "Manage your profile, password, and notifications."
-      },
-      "lawyers": {
-        "title": "For Lawyers",
-        "desc": "Guides for setting up your practice and managing clients."
-      },
-      "trust": {
-        "title": "Trust & Safety",
-        "desc": "How we verify experts and protect your data."
-      }
-    },
-    "cta": {
-      "title": "Can't find what you're looking for?",
-      "button": "Contact Support"
-    }
+    "readArticles": "Lire les articles"
   },
   "howItWorksPage": {
-    "meta": {
-      "title": "How It Works | MyJudicial",
-      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
-    },
     "hero": {
-      "badge": "Simple · Transparent · Sécurisé",
-      "title": "De Votre Question Juridique à un Conseil Averti",
-      "subtitle": "Découvrez comment nous vérifions les références au Barreau, sécurisons vos paiements sous séquestre et organisons vos consultations en trois étapes simples."
+      "badge": "Guide d'Utilisation",
+      "title": "Comment fonctionne MyJudicial",
+      "subtitle": "Un parcours transparent, sécurisé et rapide pour obtenir l'assistance juridique dont vous avez besoin."
     },
     "steps": {
-      "title": "Four steps to resolve your legal issue",
+      "title": "4 étapes simples vers votre conseil juridique",
       "step1": {
-        "title": "1. Find or Match",
-        "text": "Browse our directory of verified experts by practice area, or describe your issue to our AI Assistant to get matched with the right specialist instantly."
+        "title": "1. Recherchez ou demandez à l'IA",
+        "text": "Filtrez par domaine, localisation et honoraires, ou décrivez votre litige à notre IA pour être orienté immédiatement."
       },
       "step2": {
-        "title": "2. Compare & Choose",
-        "text": "Review profiles, verified credentials, client ratings, and clear upfront pricing. No hidden fees or surprises."
+        "title": "2. Choisissez un créneau",
+        "text": "Sélectionnez le service souhaité et la date qui vous convient : consultation vidéo, téléphonique ou en cabinet."
       },
       "step3": {
-        "title": "3. Book Securely",
-        "text": "Select a time that works for you and pay securely via Mobile Money (MoMo). Your payment is held in escrow until the consultation is complete."
+        "title": "3. Payez en toute sécurité",
+        "text": "Réglez par MTN MoMo ou Airtel Money. Vos fonds sont retenus sous séquestre sécurisé jusqu'à la consultation."
       },
       "step4": {
-        "title": "4. Consult & Review",
-        "text": "Meet with your lawyer via secure video call or in person. After the session, leave a review to help others in the community."
+        "title": "4. Réalisez la consultation",
+        "text": "Échangez en direct avec votre avocat certifié et recevez un avis juridique professionnel et personnalisé."
       }
     },
     "payment": {
-      "title": "Secure Payments & Escrow",
-      "text": "Your financial security is our priority. When you book a consultation, your payment is held securely in our escrow system. The lawyer only gets paid after your consultation is successfully completed. If the lawyer doesn't show up, you get a full refund.",
-      "momo": "We accept MTN Mobile Money and Airtel Money for seamless transactions across Rwanda."
+      "title": "Protection absolue des paiements",
+      "text": "Vos fonds ne sont versés à l'avocat qu'une fois votre consultation terminée. Si l'avocat n'honore pas le rendez-vous, vous êtes intégralement remboursé.",
+      "momo": "Paiements instantanés par MTN Mobile Money et Airtel Money sécurisés."
     },
     "cta": {
-      "title": "Ready to resolve your legal issue?",
-      "startNow": "Start Now",
-      "contactSupport": "Contact Support"
+      "title": "Commencez dès aujourd'hui",
+      "startNow": "Trouver un avocat",
+      "contactSupport": "Poser une question"
+    },
+    "meta": {
+      "title": "How It Works | MyJudicial",
+      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     }
   },
   "legalPages": {
-    "privacy": {
-      "meta": {
-        "title": "Privacy Policy | MyJudicial",
-        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
-      },
-      "hero": {
-        "badge": "Legal",
-        "title": "Privacy Policy",
-        "updated": "Last updated: July 15, 2026"
-      },
-      "content": {
-        "intro": "MyJudicial (\"we\", \"our\", or \"us\") respects your privacy and is committed to protecting your personal data. This Privacy Policy informs you about how we look after your personal data when you visit our website (regardless of where you visit it from) and tells you about your privacy rights and how the law protects you.",
-        "sections": [
-          {
-            "title": "1. Data We Collect",
-            "text": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows: Identity Data (first name, last name, username or similar identifier), Contact Data (billing address, delivery address, email address and telephone numbers), Financial Data (bank account and payment card details), Transaction Data (details about payments to and from you and other details of services you have purchased from us), Profile Data (your username and password, purchases or orders made by you, your interests, preferences, feedback and survey responses)."
-          },
-          {
-            "title": "2. How We Use Your Data",
-            "text": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances: Where we need to perform the contract we are about to enter into or have entered into with you. Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests. Where we need to comply with a legal obligation."
-          },
-          {
-            "title": "3. Data Security",
-            "text": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know. They will only process your personal data on our instructions and they are subject to a duty of confidentiality."
-          }
-        ]
-      }
-    },
-    "terms": {
-      "meta": {
-        "title": "Terms of Service | MyJudicial",
-        "description": "Read the terms and conditions for using MyJudicial's platform and services."
-      },
-      "hero": {
-        "badge": "Legal",
-        "title": "Terms of Service",
-        "updated": "Last updated: July 15, 2026"
-      },
-      "content": {
-        "intro": "These Terms of Service (\"Terms\") govern your access to and use of the MyJudicial website, apps, and services (collectively, the \"Services\"). Please read these Terms carefully before using our Services.",
-        "sections": [
-          {
-            "title": "1. Acceptance of Terms",
-            "text": "By accessing or using the Services, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, do not use the Services."
-          },
-          {
-            "title": "2. User Accounts",
-            "text": "To access certain features of the Services, you must create an account. You are responsible for safeguarding your account credentials and for all activities that occur under your account. You must be at least 18 years old to create an account."
-          },
-          {
-            "title": "3. Marketplace and Escrow",
-            "text": "MyJudicial is a marketplace connecting clients with legal professionals. We do not provide legal advice ourselves. When you book a consultation, payment is held in our secure escrow system and released to the lawyer only upon successful completion of the consultation."
-          },
-          {
-            "title": "4. Disclaimers",
-            "text": "The Services are provided 'AS IS' and 'AS AVAILABLE'. We disclaim all warranties, express or implied, including implied warranties of merchantability, fitness for a particular purpose, and non-infringement."
-          }
-        ]
-      }
-    },
     "cookies": {
+      "hero": {
+        "badge": "Politique des Cookies",
+        "title": "Gestion et Utilisation des Cookies",
+        "updated": "Dernière mise à jour : Mars 2026"
+      },
+      "content": {
+        "intro": "La présente politique explique comment MyJudicial utilise les cookies et technologies similaires pour vous offrir une expérience fluide, sécurisée et adaptée à vos préférences linguistiques.",
+        "sections": [
+          {
+            "title": "1. Qu'est-ce qu'un cookie ?",
+            "text": "Un cookie est un petit fichier texte stocké sur votre appareil lors de votre navigation. Il permet de mémoriser vos choix (comme votre langue préférée : Anglais, Français ou Kinyarwanda) et d'assurer la sécurité de votre session."
+          },
+          {
+            "title": "2. Les cookies que nous utilisons",
+            "text": "Nous utilisons des cookies strictement nécessaires au fonctionnement du site, à l'authentification sécurisée, à la mémorisation de votre langue et à la prévention des fraudes."
+          },
+          {
+            "title": "3. Vos choix et gestion",
+            "text": "Vous pouvez à tout moment configurer votre navigateur pour refuser les cookies, mais certaines fonctionnalités (comme la conservation de votre session ou de votre panier de réservation) pourraient en être affectées."
+          }
+        ]
+      },
       "meta": {
         "title": "Cookie Policy | MyJudicial",
         "description": "Information about how MyJudicial uses cookies on our platform."
-      },
+      }
+    },
+    "privacy": {
       "hero": {
-        "badge": "Legal",
-        "title": "Cookie Policy",
-        "updated": "Last updated: July 15, 2026"
+        "badge": "Protection des Données",
+        "title": "Politique de Confidentialité",
+        "updated": "Dernière mise à jour : Mars 2026"
       },
       "content": {
-        "intro": "Our website uses cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site.",
+        "intro": "Chez MyJudicial, la confidentialité de vos démarches juridiques est une priorité absolue. Nous traitons vos données personnelles conformément à la loi rwandaise n° 058/2021 sur la protection des données et de la vie privée.",
         "sections": [
           {
-            "title": "What are cookies?",
-            "text": "A cookie is a small file of letters and numbers that we store on your browser or the hard drive of your computer if you agree. Cookies contain information that is transferred to your computer's hard drive."
+            "title": "1. Collecte des données personnelles",
+            "text": "Nous collectons uniquement les informations nécessaires à la création de votre compte, à la mise en relation avec des avocats certifiés et au traitement sécurisé de vos paiements par Mobile Money."
           },
           {
-            "title": "How we use cookies",
-            "text": "We use strictly necessary cookies (required for the operation of our website), analytical/performance cookies (allow us to recognise and count the number of visitors), functionality cookies (used to recognise you when you return), and targeting cookies (record your visit, pages visited, and links followed)."
+            "title": "2. Secret professionnel et confidentialité juridique",
+            "text": "Les informations partagées lors de vos consultations sont couvertes par le secret professionnel des avocats conformément aux règles déontologiques du Barreau du Rwanda."
+          },
+          {
+            "title": "3. Sécurité et non-divulgation",
+            "text": "Vos données sont chiffrées selon les standards de sécurité les plus stricts. Nous ne vendons ni ne partageons vos données avec des tiers non autorisés."
           }
         ]
+      },
+      "meta": {
+        "title": "Privacy Policy | MyJudicial",
+        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
+      }
+    },
+    "terms": {
+      "hero": {
+        "badge": "Cadre Juridique",
+        "title": "Conditions Générales d'Utilisation",
+        "updated": "Dernière mise à jour : Mars 2026"
+      },
+      "content": {
+        "intro": "En accédant à MyJudicial, vous acceptez d'être lié par les présentes conditions générales d'utilisation qui régissent l'accès à notre plateforme et aux services juridiques proposés.",
+        "sections": [
+          {
+            "title": "1. Nature de la plateforme",
+            "text": "MyJudicial est une plateforme numérique facilitant la mise en relation entre des clients et des avocats indépendants certifiés par le Barreau du Rwanda. MyJudicial ne constitue pas elle-même un cabinet d'avocats."
+          },
+          {
+            "title": "2. Réservations et paiements",
+            "text": "Toutes les consultations réservées sont sécurisées par un compte de séquestre. Les fonds ne sont débloqués au professionnel qu'après réalisation effective de la prestation."
+          },
+          {
+            "title": "3. Responsabilités et déontologie",
+            "text": "Les avocats exercent sous leur propre responsabilité professionnelle et dans le respect strict des règles de déontologie établies par le Barreau du Rwanda."
+          }
+        ]
+      },
+      "meta": {
+        "title": "Terms of Service | MyJudicial",
+        "description": "Read the terms and conditions for using MyJudicial's platform and services."
       }
     }
   },
   "partnersPage": {
-    "meta": {
-      "title": "Our Partners | MyJudicial",
-      "description": "MyJudicial partners with leading legal, governmental, and financial institutions in Rwanda to provide seamless access to justice."
-    },
     "hero": {
-      "badge": "Partners",
-      "title": "Our Partners & Trusted Organizations",
-      "subtitle": "Working together with Rwanda's leading institutions to modernize the legal sector."
+      "badge": "Partenariats Institutionnels",
+      "title": "Nos Partenaires de Confiance",
+      "subtitle": "Nous collaborons avec les institutions majeures du Rwanda pour garantir l'intégrité, la conformité et la sécurité de chaque échange juridique."
     },
     "categories": {
       "legal": {
-        "title": "Legal & Government",
-        "desc": "Key institutional partners ensuring regulatory compliance and professional standards.",
+        "title": "Institutions Juridiques",
+        "desc": "Collaboration étroite avec les instances professionnelles pour certifier la qualification de nos avocats.",
         "items": [
-          "Rwanda Bar Association",
-          "Ministry of Justice (MINIJUST)",
-          "Rwanda Investigation Bureau (RIB)",
-          "Supreme Court of Rwanda"
+          "Rwanda Bar Association (Barreau du Rwanda)",
+          "Tribunaux et juridictions commerciales",
+          "Cabinets d'avocats associés de Kigali"
         ]
       },
       "financial": {
-        "title": "Financial & Payment Partners",
-        "desc": "Trusted providers powering our secure escrow and payment infrastructure.",
+        "title": "Partenaires Financiers & Télécoms",
+        "desc": "Intégration directe avec les réseaux de paiement mobile pour des transactions d'honoraires sans faille.",
         "items": [
-          "MTN Mobile Money",
-          "Airtel Money",
-          "Bank of Kigali",
-          "Equity Bank Rwanda"
+          "MTN Mobile Money Rwanda",
+          "Airtel Money Rwanda",
+          "Passerelles bancaires conformes Banque Nationale du Rwanda"
         ]
       },
       "ngo": {
-        "title": "NGOs & Legal Aid",
-        "desc": "Organizations working with us to improve access to justice for vulnerable populations.",
+        "title": "ONG & Accès à la Justice",
+        "desc": "Programmes dédiés avec des organisations civiles pour favoriser l'aide légale et l'équité pour tous.",
         "items": [
-          "Legal Aid Forum Rwanda",
-          "Haguruka",
-          "Rwandan Association of Women in Sports (RAWS)"
+          "Organisations de défense des droits civils",
+          "Incubateurs et chambres de commerce rwandaises",
+          "Programmes d'accès universel au droit"
         ]
       }
     },
     "cta": {
-      "title": "Become a Partner",
-      "subtitle": "Interested in partnering with MyJudicial? We are always looking for organizations that share our vision of accessible justice.",
-      "button": "Contact Us"
+      "title": "Devenir Partenaire de MyJudicial",
+      "subtitle": "Vous êtes une institution, un cabinet d'avocats ou une organisation engagée dans l'accès au droit au Rwanda ? Échangeons ensemble.",
+      "button": "Nous contacter pour un partenariat"
+    },
+    "meta": {
+      "title": "Our Partners | MyJudicial",
+      "description": "MyJudicial partners with leading legal, governmental, and financial institutions in Rwanda to provide seamless access to justice."
     }
   },
   "practiceAreasPage": {
@@ -4671,112 +4800,215 @@
       "label": "Trier par",
       "mostExperts": "Plus d'Avocats",
       "alphabetical": "Alphabétique (A–Z)"
-    }
+    },
+    "specialties": {
+      "COMMERCIAL_LAW": {
+        "name": "Droit commercial",
+        "description": "Litiges commerciaux, contrats d'affaires, recouvrement de créances et transactions transfrontalières selon le droit rwandais.",
+        "topics": [
+          "Accords commerciaux",
+          "Contentieux commercial",
+          "Recouvrement de créances",
+          "Contrats de distribution"
+        ]
+      },
+      "CONTRACT_LAW": {
+        "name": "Droit des contrats",
+        "description": "Rédaction, révision et exécution d'accords contractuels, accords de confidentialité et résolution des ruptures de contrat.",
+        "topics": [
+          "Rédaction & Révision",
+          "Rupture de contrat",
+          "Accords de confidentialité",
+          "Médiation contractuelle"
+        ]
+      },
+      "CORPORATE_LAW": {
+        "name": "Droit des sociétés",
+        "description": "Création d'entreprises au RDB, pactes d'actionnaires, gouvernance d'entreprise, fusions et conformité légale au Rwanda.",
+        "topics": [
+          "Enregistrement RDB",
+          "Pactes d'actionnaires",
+          "Fusions & Acquisitions",
+          "Conformité d'entreprise"
+        ]
+      },
+      "CRIMINAL_LAW": {
+        "name": "Droit pénal",
+        "description": "Défense pénale et assistance juridique pour les enquêtes du RIB, audiences de mise en liberté provisoire et plaidoiries.",
+        "topics": [
+          "Enquêtes RIB",
+          "Liberté sous caution",
+          "Infractions financières",
+          "Défense devant les tribunaux"
+        ]
+      },
+      "TAX_LAW": {
+        "name": "Droit fiscal",
+        "description": "Conformité fiscale auprès de la RRA, recours fiscaux, litiges douaniers et optimisation fiscale d'entreprise.",
+        "topics": [
+          "Contrôles fiscaux RRA",
+          "Recours & Contentieux",
+          "TVA & Douanes",
+          "Planification fiscale"
+        ]
+      },
+      "IMMIGRATION_LAW": {
+        "name": "Droit de l'immigration",
+        "description": "Permis de travail (classes A à G), visas d'investisseurs et d'affaires, résidence permanente et double nationalité rwandaise.",
+        "topics": [
+          "Permis de travail (A à G)",
+          "Visas d'affaires",
+          "Résidence permanente",
+          "Double nationalité"
+        ]
+      },
+      "FAMILY_LAW": {
+        "name": "Droit de la famille",
+        "description": "Accompagnement juridique pour les procédures de divorce, garde d'enfants, régimes matrimoniaux et successions héréditaires.",
+        "topics": [
+          "Divorce & Séparation",
+          "Garde & Pension",
+          "Successions & Héritage",
+          "Régimes matrimoniaux"
+        ]
+      },
+      "INTELLECTUAL_PROPERTY": {
+        "name": "Propriété intellectuelle",
+        "description": "Protection des marques, brevets, dessins industriels, droits d'auteur et défense de marque enregistrée au RDB.",
+        "topics": [
+          "Dépôt de marque RDB",
+          "Contrefaçon & Litiges",
+          "Droits d'auteur",
+          "Brevets d'invention"
+        ]
+      },
+      "EMPLOYMENT_LAW": {
+        "name": "Droit du travail",
+        "description": "Résolution des litiges de travail, licenciements abusifs, négociation de contrats et médiation auprès de l'inspection du travail.",
+        "topics": [
+          "Licenciement abusif",
+          "Contrats de travail",
+          "Indemnités de départ",
+          "Médiation du travail"
+        ]
+      },
+      "LAND_LAW": {
+        "name": "Droit foncier & immobilier",
+        "description": "Assistance complète pour les mutations foncières, enregistrement RLMUA, litiges de bornage et baux commerciaux.",
+        "topics": [
+          "Mutations de titres fonciers",
+          "Enregistrement RLMUA",
+          "Conflits de limites",
+          "Baux commerciaux"
+        ]
+      }
+    },
+    "clearSearch": "Effacer la recherche"
   },
   "pricingPage": {
-    "meta": {
-      "title": "Pricing | MyJudicial",
-      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
-    },
     "hero": {
-      "badge": "Zéro Frais Cachés · Protégé par Séquestre",
-      "title": "Honoraires Transparents. Tranquillité d'Esprit Totale.",
-      "subtitle": "Tarifs de consultation fixes convenus dès le départ. Vos fonds sont sécurisés sous séquestre et ne sont débloqués qu'une fois la séance terminée."
+      "badge": "Honoraires & Tarifs",
+      "title": "Tarification transparente, sans frais cachés",
+      "subtitle": "Consultez les tarifs de chaque avocat avant de vous engager. Paiement sécurisé sous séquestre avec garantie de remboursement."
     },
     "howItWorks": {
-      "title": "How Pricing Works",
+      "title": "Comment fonctionnent les tarifs ?",
       "points": {
         "fixedFees": {
-          "title": "Fixed Fees Set by Lawyers",
-          "text": "Every lawyer sets their own hourly or consultation rate. You can easily compare prices before booking."
+          "title": "Honoraires forfaitaires",
+          "text": "Chaque avocat fixe ses honoraires de consultation à l'avance. Vous savez exactement combien vous payez avant de confirmer."
         },
         "platformFee": {
-          "title": "Small Platform Fee",
-          "text": "We charge a minimal transaction fee on bookings to maintain the platform and secure escrow system."
+          "title": "Frais inclus",
+          "text": "Nos frais de fonctionnement sont intégrés de manière transparente. Aucun supplément imprévu lors du paiement."
         },
         "escrow": {
-          "title": "Secure Escrow Protection",
-          "text": "Your payment is held safely in escrow. The lawyer only gets paid after your consultation is complete."
+          "title": "Garantie sous séquestre",
+          "text": "Votre argent est conservé en lieu sûr. Si votre consultation n'a pas lieu, vous êtes remboursé immédiatement."
         }
       }
     },
     "tiers": {
       "free": {
-        "name": "Discovery",
-        "price": "Free",
-        "desc": "Perfect for initial research",
+        "name": "Découverte & Recherche",
+        "price": "Gratuit",
+        "desc": "Pour les citoyens et entreprises souhaitant trouver le bon avocat ou poser une question à l'IA.",
         "features": [
-          "Browse all verified lawyers",
-          "Compare practice areas and fees",
-          "Read client reviews",
-          "Basic AI Assistant triage"
+          "Recherche illimitée d'avocats certifiés",
+          "Filtrage par domaine juridique et tarif",
+          "Triage de dossier par l'IA MyJudicial",
+          "Consultation des avis et qualifications"
         ],
-        "cta": "Start Searching"
+        "cta": "Commencer la recherche"
       },
       "consultation": {
-        "name": "Consultation",
-        "price": "Variable",
-        "desc": "Book an expert for advice",
+        "name": "Consultation avec un Avocat",
+        "price": "Dès 15 000 RWF",
+        "desc": "Échange personnalisé et confidentiel avec un avocat membre du Barreau du Rwanda.",
+        "badge": "Le plus demandé",
         "features": [
-          "Fixed upfront pricing",
-          "Secure MoMo payments",
-          "Escrow payment protection",
-          "Video or in-person meetings",
-          "Leave a public review"
+          "Entretien vidéo, téléphonique ou en cabinet",
+          "Examen approfondi de vos documents légaux",
+          "Conseils sur mesure sous le droit rwandais",
+          "Paiement protégé par séquestre MoMo"
         ],
-        "cta": "Find a Lawyer"
+        "cta": "Réserver une consultation"
       },
       "lawyer": {
-        "name": "For Lawyers",
-        "price": "Commission",
-        "desc": "Grow your legal practice",
+        "name": "Pour les Avocats",
+        "price": "Adhésion pro",
+        "desc": "Pour les avocats certifiés du Barreau souhaitant développer leur clientèle numérique.",
         "features": [
-          "Free verified profile listing",
-          "Manage calendar and bookings",
-          "Guaranteed payment via escrow",
-          "Invoicing and analytics",
-          "Client review system"
+          "Profil officiel vérifié par le Barreau",
+          "Prise de rendez-vous et agenda automatisés",
+          "Encaissement garanti par Mobile Money",
+          "Outils de gestion de dossiers et clients"
         ],
-        "cta": "Join as a Lawyer"
+        "cta": "Rejoindre en tant qu'avocat"
       }
     },
     "escrow": {
-      "title": "Protected by MyJudicial Escrow",
-      "text": "When you book a consultation, your MTN MoMo or Airtel Money payment is transferred to a secure escrow account managed by MyJudicial. The funds are only released to the lawyer after the consultation has taken place. If the lawyer cancels or fails to show up, you receive a full refund automatically.",
-      "badge": "100% Secure"
+      "badge": "Sécurité Maximale",
+      "title": "Le Paiement sous Séquestre MyJudicial",
+      "text": "Lorsque vous effectuez un paiement par MTN MoMo ou Airtel Money, les fonds ne sont pas immédiatement remis à l'avocat. Ils sont placés sur un compte de séquestre sécurisé. Ils ne sont débloqués qu'une fois la consultation confirmée. Vous êtes ainsi protégé à 100% contre les absences ou imprévus."
     },
     "cta": {
-      "title": "Ready to get started?",
-      "subtitle": "Join thousands of Rwandans who have found the right legal help on MyJudicial.",
-      "button": "Find a Lawyer"
-    }
+      "title": "Obtenez une réponse juridique dès aujourd'hui",
+      "subtitle": "Des centaines d'avocats vérifiés sont prêts à vous accompagner dans toutes vos démarches.",
+      "button": "Trouver mon avocat"
+    },
+    "meta": {
+      "title": "Pricing | MyJudicial",
+      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
+    },
+    "mostPopular": "Le plus populaire"
   },
   "resourcesPage": {
+    "hero": {
+      "badge": "Ressources Juridiques",
+      "title": "Guides & Informations Juridiques",
+      "subtitle": "Comprendre vos droits et obligations selon le cadre légal rwandais."
+    },
+    "comingSoon": {
+      "title": "Articles & Modèles en cours de rédaction",
+      "desc": "Nos avocats partenaires rédigent actuellement des guides pratiques sur l'enregistrement RDB, les mutations foncières, le droit du travail et le droit de la famille au Rwanda. Revenez très bientôt !"
+    },
+    "categories": {
+      "title": "Domaines couverts",
+      "family": "Droit de la famille & Successions",
+      "commercial": "Droit commercial & Sociétés",
+      "property": "Droit foncier & Immobilier",
+      "employment": "Droit du travail & Emploi",
+      "immigration": "Immigration & Visas",
+      "tax": "Fiscalité & Douanes RRA"
+    },
+    "cta": {
+      "title": "Besoin d'une assistance immédiate sur votre dossier ?",
+      "button": "Consulter un avocat certifié"
+    },
     "meta": {
       "title": "Legal Resources | MyJudicial",
       "description": "Guides, articles, and resources to help you navigate the Rwandan legal system."
-    },
-    "hero": {
-      "badge": "Resources",
-      "title": "Legal Resources & Guides",
-      "subtitle": "Knowledge to empower you. Find articles, guides, and practical information about Rwandan law."
-    },
-    "categories": {
-      "title": "Browse Categories",
-      "family": "Family Law",
-      "commercial": "Business & Commercial",
-      "property": "Real Estate & Land",
-      "employment": "Labor & Employment",
-      "immigration": "Immigration",
-      "tax": "Tax Law"
-    },
-    "comingSoon": {
-      "title": "Articles Coming Soon",
-      "desc": "Our network of verified experts is currently authoring comprehensive guides on Rwandan law. Check back soon for in-depth legal articles."
-    },
-    "cta": {
-      "title": "Need legal advice right now?",
-      "button": "Find a Lawyer"
     }
   },
   "expertDashboard_consultation-join": {
@@ -4814,5 +5046,18 @@
     "CONTRACT_LAW": "Droit des contrats",
     "INTELLECTUAL_PROPERTY": "Propriété intellectuelle",
     "OTHER": "Autre"
+  },
+  "lawyers": {
+    "verifiedTooltip": "Avocat certifié par le Barreau du Rwanda",
+    "contactRate": "Sur devis",
+    "legalServices": "Services juridiques",
+    "reportModal": {
+      "spam": "Spam ou trompeur",
+      "harassment": "Harcèlement ou contenu inapproprié",
+      "unprofessional": "Conduite non professionnelle",
+      "other": "Autre motif",
+      "offensiveLanguage": "Langage offensant",
+      "fakeReview": "Avis faux ou malhonnête"
+    }
   }
 }

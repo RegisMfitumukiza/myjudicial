@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { useRecommendation } from "@/features/ai/hooks/use-recommendation";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { CaseAnalysis, ExpertRecommendation } from "@/features/ai/types";
 
 type AiStatus = "online" | "offline";
@@ -33,13 +34,6 @@ interface ChatMessage {
 
 const HEALTH_POLL_INTERVAL_MS = 30_000;
 const INDUSTRIAL_BLUE = "#24558d";
-
-const QUICK_PROMPTS = [
-  "Land boundary & title dispute",
-  "Unfair employment dismissal",
-  "Commercial contract breach",
-  "Divorce & custody questions",
-];
 
 async function checkAiHealth(): Promise<AiStatus> {
   try {
@@ -67,7 +61,8 @@ export function FloatingAiChat() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const pathname = usePathname();
-  const t = useTranslations("public");
+  const t = useTranslations("public.aiChat");
+  const tSpecialties = useTranslations("specialties");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -136,12 +131,14 @@ export function FloatingAiChat() {
             ? recRes.value.recommendations
             : [];
 
-        let assistantContent =
-          "I have analyzed your situation under Rwandan law. Here is the recommended legal specialization and verified lawyers who can help:";
+        let assistantContent = t("welcomeMessage");
 
         if (analysis) {
-          const specialtyFormatted = analysis.specialty.replace(/_/g, " ").toLowerCase();
-          assistantContent = `Based on your description, this case falls under **${specialtyFormatted}** with **${analysis.urgency_level.toLowerCase()} urgency**.`;
+          const specialtyFormatted = getLocalizedSpecialty(analysis.specialty, tSpecialties);
+          assistantContent = t("triageResponse", {
+            specialty: specialtyFormatted,
+            urgency: analysis.urgency_level.toLowerCase(),
+          });
         }
 
         const assistantMsg: ChatMessage = {
@@ -159,15 +156,14 @@ export function FloatingAiChat() {
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content:
-              "I encountered an issue analyzing your request. You can also explore our full legal intake workspace directly.",
+            content: t("errorMessage"),
           },
         ]);
       } finally {
         setIsProcessing(false);
       }
     },
-    [input, isProcessing, analyzeMutation, recommendMutation]
+    [input, isProcessing, analyzeMutation, recommendMutation, t, tSpecialties]
   );
 
   // Never show on the full /ai page
@@ -211,7 +207,7 @@ export function FloatingAiChat() {
                 </div>
                 <div>
                   <p className="text-[13px] font-semibold text-white">
-                    {t("aiChat.title")}
+                    {t("title")}
                   </p>
                   <div className="flex items-center gap-1.5">
                     <span
@@ -220,7 +216,7 @@ export function FloatingAiChat() {
                       }`}
                     />
                     <span className="text-[10px] font-medium text-white/75">
-                      {isOnline ? t("aiChat.online") : t("aiChat.offline")}
+                      {isOnline ? t("online") : t("offline")}
                     </span>
                   </div>
                 </div>
@@ -230,14 +226,15 @@ export function FloatingAiChat() {
               <div className="flex items-center gap-1">
                 <Link
                   href={fullWorkspaceHref}
-                  title="Expand to Full Workspace"
+                  title={t("expandWorkspace")}
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-white/80 transition hover:bg-white/15 hover:text-white"
                 >
                   <Maximize2 size={13} />
                 </Link>
                 <button
                   onClick={() => setIsOpen(false)}
-                  title="Close chat"
+                  title={t("closeChat")}
+                  aria-label={t("closeChat")}
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-white/80 transition hover:bg-white/15 hover:text-white"
                 >
                   <X size={15} />
@@ -254,9 +251,7 @@ export function FloatingAiChat() {
                 </div>
                 <div className="rounded-2xl rounded-tl-sm border border-border/50 bg-muted/60 p-3 text-foreground">
                   <p className="leading-relaxed">
-                    Hello! I&apos;m your <strong>MyJudicial AI Legal Assistant</strong>.
-                    Describe any legal matter in Rwanda to receive instant case
-                    triage and verified expert recommendations.
+                    {t("welcomeMessage")}
                   </p>
                 </div>
               </div>
@@ -265,10 +260,15 @@ export function FloatingAiChat() {
               {messages.length === 0 && (
                 <div className="pt-2">
                   <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Common topics:
+                    {t("commonTopics")}
                   </p>
                   <div className="flex flex-col gap-1.5">
-                    {QUICK_PROMPTS.map((prompt) => (
+                    {[
+                      t("prompts.land"),
+                      t("prompts.employment"),
+                      t("prompts.contract"),
+                      t("prompts.family"),
+                    ].map((prompt) => (
                       <button
                         key={prompt}
                         onClick={() => handleSend(prompt)}
@@ -310,10 +310,10 @@ export function FloatingAiChat() {
                       <div className="mt-2.5 flex flex-wrap gap-1.5 border-t border-border/40 pt-2 text-[11px]">
                         <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 font-medium text-brand-dark dark:bg-white/10 dark:text-white">
                           <Scale size={11} />
-                          {msg.analysis.specialty.replace(/_/g, " ")}
+                          {getLocalizedSpecialty(msg.analysis.specialty, tSpecialties)}
                         </span>
                         <span className="rounded-md bg-amber-500/10 px-2 py-0.5 font-medium text-amber-700 dark:text-amber-300">
-                          Urgency: {msg.analysis.urgency_level}
+                          {t("urgency")} {msg.analysis.urgency_level}
                         </span>
                       </div>
                     )}
@@ -322,7 +322,7 @@ export function FloatingAiChat() {
                     {msg.recommendations && msg.recommendations.length > 0 && (
                       <div className="mt-3 space-y-2 border-t border-border/40 pt-2.5">
                         <p className="text-[11px] font-semibold text-muted-foreground">
-                          Recommended Experts:
+                          {t("recommendedExperts")}
                         </p>
                         {msg.recommendations.slice(0, 2).map((rec) => (
                           <div
@@ -352,7 +352,7 @@ export function FloatingAiChat() {
                               href={`/lawyers/${rec.expert.id}`}
                               className="shrink-0 rounded-lg bg-brand-dark px-2.5 py-1 text-[11px] font-semibold text-on-brand shadow-xs transition hover:opacity-90"
                             >
-                              View
+                              {t("view")}
                             </Link>
                           </div>
                         ))}
@@ -370,7 +370,7 @@ export function FloatingAiChat() {
                   </div>
                   <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-border/50 bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground">
                     <Loader2 size={13} className="animate-spin text-brand-dark dark:text-white" />
-                    <span>Analyzing case &amp; finding lawyers...</span>
+                    <span>{t("analyzing")}</span>
                   </div>
                 </div>
               )}
@@ -385,7 +385,7 @@ export function FloatingAiChat() {
                   href={fullWorkspaceHref}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-dark hover:underline dark:text-white"
                 >
-                  <span>Open in Full Case Workspace</span>
+                  <span>{t("openFullWorkspace")}</span>
                   <ArrowRight size={11} />
                 </Link>
               </div>
@@ -406,14 +406,14 @@ export function FloatingAiChat() {
                   value={input}
                   disabled={isProcessing}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Describe your legal issue..."
+                  placeholder={t("inputPlaceholder")}
                   className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none transition focus:border-brand-dark focus:bg-card dark:focus:border-white/40"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isProcessing}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-on-brand shadow-xs transition hover:opacity-90 disabled:opacity-40"
-                  aria-label="Send message"
+                  aria-label={t("sendMessage")}
                 >
                   {isProcessing ? (
                     <Loader2 size={13} className="animate-spin" />
@@ -451,7 +451,7 @@ export function FloatingAiChat() {
                     setDismissed(true);
                   }}
                   className="absolute right-2 top-2 z-10 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-                  aria-label="Dismiss AI assistant"
+                  aria-label={t("dismiss")}
                 >
                   <X size={14} />
                 </button>
@@ -466,7 +466,7 @@ export function FloatingAiChat() {
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold tracking-[-0.01em] text-white">
-                      {t("aiChat.title")}
+                      {t("title")}
                     </p>
                     <div className="flex items-center gap-1.5">
                       <span
@@ -475,7 +475,7 @@ export function FloatingAiChat() {
                         }`}
                       />
                       <span className="text-[11px] font-medium tracking-wide text-white/70">
-                        {isOnline ? t("aiChat.online") : t("aiChat.offline")}
+                        {isOnline ? t("online") : t("offline")}
                       </span>
                     </div>
                   </div>
@@ -484,10 +484,10 @@ export function FloatingAiChat() {
                 {/* Body */}
                 <div className="px-4 py-4">
                   <p className="text-[13px] font-[450] leading-[1.6] text-slate-900 dark:text-[#e8ecef]">
-                    {t("aiChat.previewMessage")}
+                    {t("previewMessage")}
                   </p>
                   <p className="mt-2 text-[11px] italic leading-relaxed text-slate-500 dark:text-[#8a9099]">
-                    {t("aiChat.previewExample")}
+                    {t("previewExample")}
                   </p>
                 </div>
 
@@ -502,7 +502,7 @@ export function FloatingAiChat() {
                     style={{ backgroundColor: INDUSTRIAL_BLUE }}
                   >
                     <Sparkles size={14} />
-                    <span>Chat with AI</span>
+                    <span>{t("chatWithAi")}</span>
                     <ArrowRight size={14} />
                   </button>
                 </div>
@@ -518,7 +518,7 @@ export function FloatingAiChat() {
           >
             <button
               onClick={() => setIsOpen(true)}
-              aria-label={t("aiChat.title")}
+              aria-label={t("title")}
               className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
               style={{ backgroundColor: INDUSTRIAL_BLUE }}
             >

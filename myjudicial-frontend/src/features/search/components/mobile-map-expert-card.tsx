@@ -4,22 +4,11 @@ import { Link } from "@/i18n/routing";
 import { Star, BadgeCheck, Navigation, X, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { Lawyer } from "../types";
 
-export function formatSpecialtyName(code: string): string {
-  const map: Record<string, string> = {
-    FAMILY_LAW: "Family Law",
-    COMMERCIAL_LAW: "Commercial Law",
-    EMPLOYMENT_LAW: "Employment Law",
-    LAND_LAW: "Land Law",
-    CRIMINAL_LAW: "Criminal Law",
-    TAX_LAW: "Tax Law",
-    IMMIGRATION_LAW: "Immigration Law",
-    CORPORATE_LAW: "Corporate Law",
-    CONTRACT_LAW: "Contract Law",
-    INTELLECTUAL_PROPERTY: "Intellectual Property",
-  };
-  return map[code] ?? code.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+export function formatSpecialtyName(code: string, tSpecialties?: (k: string) => string): string {
+  return getLocalizedSpecialty(code, tSpecialties);
 }
 
 function formatDist(km: number): string {
@@ -35,6 +24,7 @@ type MobileMapExpertCardProps = {
 
 export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProps) {
   const t = useTranslations("search");
+  const tSpecialties = useTranslations("specialties");
 
   const locationText = [lawyer.officeAddress, lawyer.city || lawyer.district]
     .filter(Boolean)
@@ -44,8 +34,8 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${googleMapsDestination}`;
 
   const primarySpecialty = lawyer.specialties?.[0]
-    ? formatSpecialtyName(lawyer.specialties[0])
-    : formatSpecialtyName(lawyer.specialtyLabel || "Legal Expert");
+    ? formatSpecialtyName(lawyer.specialties[0], tSpecialties)
+    : formatSpecialtyName(lawyer.specialtyLabel || "OTHER", tSpecialties);
 
   const extraSpecialtiesCount = (lawyer.specialties?.length ?? 0) > 1
     ? (lawyer.specialties.length - 1)
@@ -58,7 +48,7 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close expert details"
+          aria-label={t("closeLawyerDetails")}
           className="absolute top-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground transition z-10"
         >
           <X size={14} />

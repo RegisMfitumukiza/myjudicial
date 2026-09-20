@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Calendar, Clock, Loader2, ArrowRight } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { useAvailableSlots } from "../hooks/useAvailableSlots";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface AvailabilityPreviewProps {
   expertId: string;
@@ -14,6 +14,8 @@ interface AvailabilityPreviewProps {
 
 export function AvailabilityPreview({ expertId, timezone, onBookClick }: AvailabilityPreviewProps) {
   const t = useTranslations("expertDashboard_availability-preview");
+  const tBooking = useTranslations("booking");
+  const locale = useLocale();
   const [searchDate, setSearchDate] = useState(0);
   const dateStr = format(addDays(new Date(), searchDate), "yyyy-MM-dd");
   const { slots, isLoading } = useAvailableSlots(
@@ -24,7 +26,7 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
 
   const nextSlot = slots.length > 0 ? slots[0] : null;
   const nextSlotTime = nextSlot
-    ? new Date(nextSlot.start).toLocaleTimeString("en-US", {
+    ? new Date(nextSlot.start).toLocaleTimeString(locale, {
         hour: "numeric",
         minute: "2-digit",
         ...(timezone ? { timeZone: timezone } : {}),
@@ -74,7 +76,7 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
         <div>
           <p className="text-[12px] text-brand-dark/60 dark:text-white/60">{t("nextAvailable")}</p>
           <p className="text-[14px] font-bold text-brand-dark dark:text-white">
-            {nextSlotDate} at {nextSlotTime}
+            {tBooking("dateAtTime", { date: nextSlotDate ?? "", time: nextSlotTime ?? "" })}
           </p>
         </div>
       </div>

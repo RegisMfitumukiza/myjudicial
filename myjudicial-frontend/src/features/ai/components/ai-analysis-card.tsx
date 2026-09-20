@@ -2,25 +2,13 @@
 
 import { useTranslations } from "next-intl";
 import { Shield, Clock, Wallet, MapPin, FileText, Lightbulb, Scale, Upload } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { CaseAnalysis } from "../types";
 
 export function AiAnalysisCard({ analysis }: { analysis: CaseAnalysis }) {
   const t = useTranslations("ai");
-
-  const specialtyLabels: Record<string, string> = {
-    FAMILY_LAW: "Family Law",
-    COMMERCIAL_LAW: "Commercial Law",
-    EMPLOYMENT_LAW: "Employment Law",
-    LAND_LAW: "Land Law",
-    CRIMINAL_LAW: "Criminal Law",
-    TAX_LAW: "Tax Law",
-    IMMIGRATION_LAW: "Immigration Law",
-    CORPORATE_LAW: "Corporate Law",
-    CONTRACT_LAW: "Contract Law",
-    INTELLECTUAL_PROPERTY: "Intellectual Property",
-    OTHER: "Other",
-  };
+  const tSpecialties = useTranslations("specialties");
 
   const urgencyColors: Record<string, string> = {
     LOW: "text-emerald-600 dark:text-emerald-400",
@@ -63,7 +51,7 @@ export function AiAnalysisCard({ analysis }: { analysis: CaseAnalysis }) {
             {t("analysis.specialty")}
           </p>
           <p className="text-sm font-medium text-foreground">
-            {specialtyLabels[analysis.specialty] ?? analysis.specialty}
+            {getLocalizedSpecialty(analysis.specialty, tSpecialties)}
           </p>
         </div>
 
@@ -159,7 +147,7 @@ export function AiAnalysisCard({ analysis }: { analysis: CaseAnalysis }) {
               className="flex items-center gap-1 text-[11px] font-semibold text-brand-dark hover:underline dark:text-white"
             >
               <Upload size={10} />
-              Upload
+              {t("upload")}
             </Link>
           </div>
           <div className="space-y-1.5">

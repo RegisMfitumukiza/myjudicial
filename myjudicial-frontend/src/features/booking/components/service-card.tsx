@@ -70,7 +70,7 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
           <span className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold ${
             isSelected ? "bg-brand-dark text-white dark:bg-white dark:text-black" : "bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white"
           }`}>
-            {service.durationMin} min
+            {t("durationMinutes", { minutes: service.durationMin })}
           </span>
         </div>
         {service.description && (
@@ -113,7 +113,7 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
         )}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-brand-dark/50 dark:text-white/50">
           <Clock size={12} />
-          <span>{service.durationMin} minutes</span>
+          <span>{t("durationMinutes", { minutes: service.durationMin })}</span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">

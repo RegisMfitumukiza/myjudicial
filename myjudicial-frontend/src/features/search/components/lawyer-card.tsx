@@ -22,7 +22,7 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
-      aria-label={`View profile of ${lawyer.name}`}
+      aria-label={t("viewProfileAria", { name: lawyer.name })}
       className={`flex gap-3 rounded-xl border p-3 transition-all duration-200 ${
         selected
           ? "border-brand-dark bg-accent shadow-md ring-1 ring-brand-dark/20 dark:border-white dark:ring-white/20"

@@ -64,7 +64,7 @@ export default function HelpPage() {
                 <h3 className="text-lg font-bold text-foreground">{t(`topics.${key}.title`)}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{t(`topics.${key}.desc`)}</p>
                 <div className="mt-6 flex items-center gap-1 text-sm font-semibold text-brand-dark opacity-0 transition-opacity group-hover:opacity-100">
-                  Read Articles <ArrowRight size={14} />
+                  {t("readArticles")} <ArrowRight size={14} />
                 </div>
               </Link>
             ))}

@@ -5,6 +5,7 @@ import { Briefcase, ArrowRight, ExternalLink } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { ExpertRecommendation } from "../types";
 
 type AiRecommendationCardProps = {
@@ -29,6 +30,7 @@ const QUALITY_LABELS: Record<string, string> = {
 
 export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommendationCardProps) {
   const t = useTranslations("ai");
+  const tSpecialties = useTranslations("specialties");
 
   const matchPercent = Math.round(recommendation.score * 100);
 
@@ -58,7 +60,7 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
               </h4>
               <p className="text-xs text-muted-foreground">
                 {recommendation.expert.specialties
-                  ?.map((s) => s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()))
+                  ?.map((s) => getLocalizedSpecialty(s, tSpecialties))
                   .join(", ") ?? ""}
               </p>
             </div>
@@ -71,7 +73,7 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
             <StarRating rating={recommendation.expert.rating ?? 0} reviewCount={recommendation.expert.review_count} size="sm" />
             <span className="flex items-center gap-1">
               <Briefcase className="h-3 w-3" />
-              {recommendation.expert.years_of_experience ?? 0}yr
+              {recommendation.expert.years_of_experience ?? 0}{t("yearsExpUnit")}
             </span>
           </div>
 

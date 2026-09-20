@@ -10,6 +10,7 @@ import {
 import { useTranslations } from "next-intl";
 import { usePracticeAreas } from "@/lib/api/landing";
 import { cn } from "@/lib/utils";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   FAMILY_LAW: Heart,
@@ -93,6 +94,7 @@ const SPECIALTY_DETAILS: Record<string, SpecialtyDetail> = {
 
 export default function PracticeAreasPage() {
   const t = useTranslations("practiceAreasPage");
+  const tSpecialties = useTranslations("specialties");
   const { data: practiceAreas, isLoading } = usePracticeAreas();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
@@ -113,25 +115,37 @@ export default function PracticeAreasPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter((area) => {
-        const details = SPECIALTY_DETAILS[area.specialty];
-        const matchesLabel = area.label.toLowerCase().includes(q);
-        const matchesDesc = details?.description.toLowerCase().includes(q);
-        const matchesTopics = details?.topics.some((topic) => topic.toLowerCase().includes(q));
+        const localizedLabel = getLocalizedSpecialty(area.specialty, tSpecialties) || area.label;
+        let desc = "";
+        let topics: string[] = [];
+        try {
+          desc = t(`specialties.${area.specialty}.description`);
+          topics = (t.raw(`specialties.${area.specialty}.topics`) as string[]) || [];
+        } catch {
+          const fallback = SPECIALTY_DETAILS[area.specialty];
+          desc = fallback?.description ?? "";
+          topics = fallback?.topics ?? [];
+        }
+        const matchesLabel = localizedLabel.toLowerCase().includes(q) || area.label.toLowerCase().includes(q);
+        const matchesDesc = desc.toLowerCase().includes(q);
+        const matchesTopics = topics.some((topic) => topic.toLowerCase().includes(q));
         return matchesLabel || matchesDesc || matchesTopics;
       });
     }
 
     // Sort
     list.sort((a, b) => {
+      const labelA = getLocalizedSpecialty(a.specialty, tSpecialties) || a.label;
+      const labelB = getLocalizedSpecialty(b.specialty, tSpecialties) || b.label;
       if (sortOrder === "MOST_EXPERTS") {
         const diff = (b.expertCount || 0) - (a.expertCount || 0);
-        return diff !== 0 ? diff : a.label.localeCompare(b.label);
+        return diff !== 0 ? diff : labelA.localeCompare(labelB);
       }
-      return a.label.localeCompare(b.label);
+      return labelA.localeCompare(labelB);
     });
 
     return list;
-  }, [practiceAreas, activeTab, searchQuery, sortOrder]);
+  }, [practiceAreas, activeTab, searchQuery, sortOrder, t, tSpecialties]);
 
   const hasSearch = searchQuery.trim().length > 0;
 
@@ -168,7 +182,7 @@ export default function PracticeAreasPage() {
                 <button
                   onClick={() => setSearchQuery("")}
                   className="mr-3 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition"
-                  aria-label="Clear search"
+                  aria-label={t("clearSearch")}
                 >
                   <X size={15} />
                 </button>
@@ -283,7 +297,17 @@ export default function PracticeAreasPage() {
               {/* Practice Area Cards */}
               {filteredAreas.map((area) => {
                 const Icon = ICON_MAP[area.specialty] ?? Scale;
-                const details = SPECIALTY_DETAILS[area.specialty];
+                const localizedLabel = getLocalizedSpecialty(area.specialty, tSpecialties) || area.label;
+                let description = "";
+                let topics: string[] = [];
+                try {
+                  description = t(`specialties.${area.specialty}.description`);
+                  topics = (t.raw(`specialties.${area.specialty}.topics`) as string[]) || [];
+                } catch {
+                  const fallback = SPECIALTY_DETAILS[area.specialty];
+                  description = fallback?.description ?? "";
+                  topics = fallback?.topics ?? [];
+                }
 
                 return (
                   <Link
@@ -306,20 +330,20 @@ export default function PracticeAreasPage() {
 
                       {/* Title */}
                       <h3 className="mt-4 text-lg font-bold text-foreground transition-colors group-hover:text-brand-dark dark:group-hover:text-white">
-                        {area.label}
+                        {localizedLabel}
                       </h3>
 
                       {/* Description */}
-                      {details?.description && (
+                      {description && (
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                          {details.description}
+                          {description}
                         </p>
                       )}
 
                       {/* Common Topics Tags */}
-                      {details?.topics && (
+                      {topics.length > 0 && (
                         <div className="mt-4 flex flex-wrap gap-1.5">
-                          {details.topics.map((topic) => (
+                          {topics.map((topic) => (
                             <span
                               key={topic}
                               className="inline-flex items-center rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors group-hover:bg-accent group-hover:text-foreground"

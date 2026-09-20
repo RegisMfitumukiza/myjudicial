@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ interface LanguageSwitcherProps {
 export function LanguageSwitcher({ variant = "header", className }: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const locale = useLocale();
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
@@ -38,7 +40,9 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
     try {
       localStorage.setItem("mj_lang", code);
     } catch {}
-    router.replace(pathname, { locale: code });
+    const query = searchParams?.toString();
+    const target = query ? `${pathname}?${query}` : pathname;
+    router.replace(target, { locale: code });
   };
 
   const currentLocale = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];

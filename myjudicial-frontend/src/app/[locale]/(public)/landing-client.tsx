@@ -59,6 +59,7 @@ const TRUST_WHY_KEYS = [
 
 function ExpertCard({ expert }: { expert: LandingExpert }) {
   const t = useTranslations("landing");
+  const tSearch = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
   const isOnline = expert.presenceStatus === "ONLINE";
   const specialtyLabel = getLocalizedSpecialty(expert.specialty, tSpecialties);
@@ -66,7 +67,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
   return (
     <Link
       href={`/lawyers/${expert.id}`}
-      aria-label={`View profile of ${expert.name}`}
+      aria-label={tSearch("viewProfileAria", { name: expert.name })}
       className="group flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
       {/* Header: Avatar + Name + Specialty */}

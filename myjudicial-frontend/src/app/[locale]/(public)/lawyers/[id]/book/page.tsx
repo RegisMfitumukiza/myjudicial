@@ -25,8 +25,8 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import type { LegalService } from "@/api/generated";
 
-const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const MONTH_KEYS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"] as const;
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -324,7 +324,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                       <div className="mb-3 flex items-center justify-between">
                         <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
                           <CalendarIcon className="h-4 w-4 text-foreground" />
-                          {t("selectConsultDate")} — {MONTH_NAMES[month]} {year}
+                          {t("selectConsultDate")} — {t(`months.${MONTH_KEYS[month]}`)} {year}
                         </p>
                         <div className="flex gap-1">
                           <button
@@ -345,9 +345,9 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                       </div>
 
                       <div className="mb-1.5 grid grid-cols-7 text-center">
-                        {DAYS.map((d) => (
-                          <div key={d} className="py-1 text-[10px] font-bold tracking-wider text-muted-foreground">
-                            {d}
+                        {DAY_KEYS.map((k) => (
+                          <div key={k} className="py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                            {t(`days.${k}`)}
                           </div>
                         ))}
                       </div>
@@ -422,7 +422,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   <div className="mt-6 border-t border-border pt-5">
                     <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground">
                       <MessageSquare className="h-4 w-4 text-foreground" />
-                      {t("reason")} ({tCommon("cancel")})
+                      {t("reason")} ({t("optional")})
                     </label>
                     <textarea
                       value={reason}
@@ -459,7 +459,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   <BookingSummaryCard
                     data={{
                       expertName: profile.displayName,
-                      serviceName: activeService?.name ?? "Not selected",
+                      serviceName: activeService?.name ?? t("notSelected"),
                       date: selectedDate ? new Date(year, month, selectedDate) : undefined,
                       slotStart: selectedSlot?.start,
                       durationMin: activeService?.durationMin,

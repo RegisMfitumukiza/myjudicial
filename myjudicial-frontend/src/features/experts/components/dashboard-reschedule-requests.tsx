@@ -3,14 +3,15 @@
 import { Link } from "@/i18n/routing";
 import { CalendarClock, ArrowRight } from "lucide-react";
 import type { Booking } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface RescheduleRequestsCardProps {
   bookings: Booking[];
 }
 
 export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps) {
-  const t = useTranslations("expertDashboard");
+  const t = useTranslations("expertDashboard_dashboard-reschedule-requests");
+  const locale = useLocale();
   if (bookings.length === 0) return null;
 
   return (
@@ -50,12 +51,12 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
                   {b.service?.name ?? t("defaultServiceName")}
                 </p>
                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{currentDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+                  <span>{currentDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}</span>
                   <ArrowRight size={10} aria-hidden="true" />
                   <span className="font-semibold text-warning">
                     {t("proposedTime", {
-                      date: pendingDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
-                      time: pendingDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                      date: pendingDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" }),
+                      time: pendingDate.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" })
                     })}
                   </span>
                 </div>

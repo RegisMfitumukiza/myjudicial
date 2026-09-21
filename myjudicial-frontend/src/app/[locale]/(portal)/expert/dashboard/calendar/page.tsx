@@ -5,18 +5,13 @@ import { Link, useRouter } from "@/i18n/routing";
 import {
   ChevronLeft, ChevronRight,
 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/shared/components/ui/button";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
 import { PageHeader, LoadingSpinner, ErrorState } from "@/shared/components/dashboard";
 
 type ViewMode = "week" | "month";
-
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 function startOfWeek(date: Date): Date {
   const d = new Date(date);
@@ -35,10 +30,6 @@ function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-}
-
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-warning/15 border-l-warning text-foreground dark:bg-warning/10",
   RESCHEDULE_REQUESTED: "bg-warning/15 border-l-warning text-foreground dark:bg-warning/10",
@@ -54,8 +45,14 @@ const FALLBACK_CHIP =
 
 export default function CalendarPage() {
   const router = useRouter();
+  const t = useTranslations("expertDashboard_calendar");
+  const locale = useLocale();
   const [viewMode, setViewMode] = useState<ViewMode>("week");
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  function formatTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  }
 
   const { data, isLoading, error } = useGetBookings({ limit: 100 });
 
@@ -109,7 +106,7 @@ export default function CalendarPage() {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <LoadingSpinner label="Loading calendar" />
+        <LoadingSpinner label={t("loadingCalendar")} />
       </div>
     );
   }
@@ -117,7 +114,7 @@ export default function CalendarPage() {
   if (error) {
     return (
       <div className="flex h-full items-center justify-center px-6">
-        <ErrorState title="Failed to load calendar" />
+        <ErrorState title={t("failedToLoad")} />
       </div>
     );
   }
@@ -126,8 +123,8 @@ export default function CalendarPage() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <PageHeader
-        title="Calendar"
-        description="View your consultation schedule"
+        title={t("title")}
+        description={t("subtitle")}
         actions={
           <>
             <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
@@ -139,7 +136,7 @@ export default function CalendarPage() {
                     : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 }
               >
-                Week
+                {t("week")}
               </button>
               <button
                 onClick={() => setViewMode("month")}
@@ -149,11 +146,11 @@ export default function CalendarPage() {
                     : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 }
               >
-                Month
+                {t("month")}
               </button>
             </div>
             <Button variant="outline" size="sm" onClick={goToday}>
-              Today
+              {t("today")}
             </Button>
           </>
         }
@@ -161,16 +158,16 @@ export default function CalendarPage() {
 
       {/* Navigation */}
       <div className="mb-4 mt-6 flex items-center justify-between">
-        <Button variant="outline" size="icon-sm" onClick={prevPeriod} aria-label="Previous period">
+        <Button variant="outline" size="icon-sm" onClick={prevPeriod} aria-label={t("previousPeriod")}>
           <ChevronLeft />
         </Button>
-        <p className="text-sm font-semibold text-foreground">
+        <p className="text-sm font-semibold text-foreground capitalize">
           {viewMode === "week"
-            ? `${MONTH_NAMES[weekStart.getMonth()]} ${weekStart.getDate()} - ${MONTH_NAMES[addDays(weekStart, 6).getMonth()]} ${addDays(weekStart, 6).getDate()}, ${weekStart.getFullYear()}`
-            : `${MONTH_NAMES[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+            ? `${weekStart.toLocaleDateString(locale, { month: "short", day: "numeric" })} – ${addDays(weekStart, 6).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
+            : currentDate.toLocaleDateString(locale, { month: "long", year: "numeric" })
           }
         </p>
-        <Button variant="outline" size="icon-sm" onClick={nextPeriod} aria-label="Next period">
+        <Button variant="outline" size="icon-sm" onClick={nextPeriod} aria-label={t("nextPeriod")}>
           <ChevronRight />
         </Button>
       </div>
@@ -187,7 +184,7 @@ export default function CalendarPage() {
                   <span className={`text-[10px] font-semibold uppercase tracking-wider ${
                     isToday ? "text-primary" : "text-muted-foreground"
                   }`}>
-                    {DAY_NAMES[day.getDay()]}
+                    {day.toLocaleDateString(locale, { weekday: "short" })}
                   </span>
                   <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
                     isToday ? "bg-primary text-on-brand" : "text-foreground"
@@ -205,7 +202,7 @@ export default function CalendarPage() {
                       }`}
                     >
                       <p className="truncate font-semibold">{formatTime(b.scheduledStart)}</p>
-                      <p className="truncate">{b.citizen?.firstName ?? "Client"}</p>
+                      <p className="truncate">{b.citizen?.firstName ?? t("defaultClient")}</p>
                     </Link>
                   ))}
                 </div>
@@ -219,9 +216,9 @@ export default function CalendarPage() {
       {viewMode === "month" && (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="grid grid-cols-7 gap-px bg-border">
-            {DAY_NAMES.map((d) => (
-              <div key={d} className="bg-card px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {d}
+            {weekDays.map((day) => (
+              <div key={day.toISOString()} className="bg-card px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {day.toLocaleDateString(locale, { weekday: "short" })}
               </div>
             ))}
           </div>
@@ -252,7 +249,7 @@ export default function CalendarPage() {
                       </Link>
                     ))}
                     {dayBookings.length > 3 && (
-                      <p className="text-center text-[9px] text-muted-foreground">+{dayBookings.length - 3} more</p>
+                      <p className="text-center text-[9px] text-muted-foreground">{t("moreBookings", { count: dayBookings.length - 3 })}</p>
                     )}
                   </div>
                 </div>

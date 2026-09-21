@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -40,29 +40,30 @@ import type { RevenueDay, PracticeSession, RegulatoryAlert } from "@/features/ex
 
 const ACTIVE_QUEUE_STATUSES = new Set(["PENDING", "CONFIRMED", "ACTIVE"]);
 
-function formatRelativeTime(iso: string | undefined): string {
-  if (!iso) return "—";
-  const target = new Date(iso).getTime();
-  const diffMs = target - Date.now();
-  const diffMin = Math.round(diffMs / 60000);
-
-  if (diffMin < 0) return "In progress";
-  if (diffMin < 60) return `In ${diffMin} min${diffMin === 1 ? "" : "s"}`;
-  const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `In ${diffHr} hour${diffHr === 1 ? "" : "s"}`;
-  const diffDay = Math.round(diffHr / 24);
-  if (diffDay === 1) return "Tomorrow";
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
 export default function ExpertDashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const t = useTranslations("expertDashboard");
+  const tBookings = useTranslations("expertDashboard_bookings");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
   const firstName = session?.user?.name?.split(" ")[0] || "Practitioner";
   const queryClient = useQueryClient();
 
   const { isIncomplete, isLoading: profileLoading } = useProfileCompletionStatus();
+
+  function formatRelativeTime(iso: string | undefined): string {
+    if (!iso) return "—";
+    const target = new Date(iso).getTime();
+    const diffMs = target - Date.now();
+    const diffMin = Math.round(diffMs / 60000);
+
+    if (diffMin < 0) return tCommon("inProgress") || "In progress";
+    if (diffMin < 60) return tCommon("inMinutes", { minutes: diffMin }) || `In ${diffMin} min`;
+    const diffHr = Math.round(diffMin / 60);
+    if (diffHr < 24) return tCommon("inHours", { hours: diffHr }) || `In ${diffHr} hour${diffHr === 1 ? "" : "s"}`;
+    return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short" });
+  }
 
   // Only fire profile-dependent queries once we know the ExpertProfile record exists.
   // Without this guard every query throws NotFoundError on the backend (→ HTTP 404)
@@ -176,7 +177,7 @@ export default function ExpertDashboardPage() {
       .filter((t) => t.completedAt)
       .reverse()
       .map((t) => ({
-        day: new Date(t.completedAt as string).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+        day: new Date(t.completedAt as string).toLocaleDateString(locale, { day: "numeric", month: "short" }),
         amountRwf: t.amount,
       }));
   }, [earnings]);
@@ -453,7 +454,7 @@ export default function ExpertDashboardPage() {
                 <EmptyState
                   icon={Activity}
                   title={t("activity.recentActivity")}
-                  description="No completed consultations yet. Past sessions and milestones will appear here."
+                  description={tBookings("empty.completed")}
                   className="border-none bg-transparent shadow-none"
                 />
               ) : (
@@ -475,7 +476,7 @@ export default function ExpertDashboardPage() {
                       </div>
                       <div className="text-right shrink-0">
                         <StatusBadge tone={act.status === "COMPLETED" ? "success" : "active"}>
-                          {act.status === "COMPLETED" ? "Completed" : "Confirmed"}
+                          {act.status === "COMPLETED" ? tBookings("status.completed") : tBookings("status.confirmed")}
                         </StatusBadge>
                         <p className="mt-0.5 text-[11px] text-muted-foreground">
                           {formatRelativeTime(act.timestamp)}

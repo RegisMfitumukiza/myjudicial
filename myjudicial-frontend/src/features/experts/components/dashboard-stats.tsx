@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { Clock, Star, Sun, Wallet } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Switch } from "@/shared/components/ui/switch";
 
@@ -33,7 +33,9 @@ export function DashboardStats({
   availableSlotsToday = 0,
 }: DashboardStatsProps) {
   const t = useTranslations("expertDashboard.stats");
+  const tDashboard = useTranslations("expertDashboard");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
 
   function formatNextAppointment(scheduledStart: string): string {
     const target = new Date(scheduledStart);
@@ -45,7 +47,7 @@ export function DashboardStats({
     if (diffMin < 60) return tCommon("inMinutes", { minutes: diffMin }) || `In ${diffMin} min`;
     const diffHr = Math.round(diffMin / 60);
     if (diffHr < 24) return tCommon("inHours", { hours: diffHr }) || `In ${diffHr} hour${diffHr === 1 ? "" : "s"}`;
-    return target.toLocaleDateString("en-GB", { month: "short", day: "numeric" });
+    return target.toLocaleDateString(locale, { month: "short", day: "numeric" });
   }
 
   return (
@@ -106,12 +108,12 @@ export function DashboardStats({
             checked={available}
             disabled={isTogglingAvailable}
             onCheckedChange={(next) => onToggleAvailable(next)}
-            aria-label={available ? "Online" : "Offline"}
+            aria-label={available ? tDashboard("onlineAvailable") : tDashboard("offline")}
           />
         </div>
 
         <p className={`mt-2 text-2xl font-semibold tabular-nums ${available ? "text-primary" : "text-muted-foreground"}`}>
-          {available ? "Online" : "Offline"}
+          {available ? tDashboard("onlineAvailable") : tDashboard("offline")}
         </p>
 
         {nextBooking ? (

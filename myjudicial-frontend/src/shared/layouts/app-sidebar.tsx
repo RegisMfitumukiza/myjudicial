@@ -46,97 +46,97 @@ import { useTranslations } from "next-intl";
 interface NavItem {
   href: string;
   icon: React.ElementType;
-  label: string;
+  labelKey: string;
 }
 
 interface NavGroup {
-  group: string;
+  groupKey: string;
   items: NavItem[];
 }
 
 const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
   [UserRole.ADMIN]: [
     {
-      group: "Overview",
+      groupKey: "overview",
       items: [
-        { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-        { href: "/admin/dashboard/analytics", icon: BarChart3, label: "Analytics" },
+        { href: "/admin/dashboard", icon: LayoutDashboard, labelKey: "dashboard" },
+        { href: "/admin/dashboard/analytics", icon: BarChart3, labelKey: "analytics" },
       ],
     },
     {
-      group: "Marketplace",
+      groupKey: "marketplace",
       items: [
-        { href: "/admin/dashboard/experts", icon: BadgeCheck, label: "Experts" },
-        { href: "/admin/dashboard/users", icon: Users, label: "Users" },
-        { href: "/admin/dashboard/bookings", icon: Calendar, label: "Bookings" },
+        { href: "/admin/dashboard/experts", icon: BadgeCheck, labelKey: "experts" },
+        { href: "/admin/dashboard/users", icon: Users, labelKey: "users" },
+        { href: "/admin/dashboard/bookings", icon: Calendar, labelKey: "bookings" },
       ],
     },
     {
-      group: "Trust & Safety",
+      groupKey: "trustSafety",
       items: [
-        { href: "/admin/dashboard/verifications", icon: FileCheck, label: "Verifications" },
-        { href: "/admin/dashboard/reviews", icon: Star, label: "Reviews" },
-        { href: "/admin/dashboard/compliance", icon: Shield, label: "Compliance" },
+        { href: "/admin/dashboard/verifications", icon: FileCheck, labelKey: "verifications" },
+        { href: "/admin/dashboard/reviews", icon: Star, labelKey: "reviews" },
+        { href: "/admin/dashboard/compliance", icon: Shield, labelKey: "compliance" },
       ],
     },
     {
-      group: "Finance",
+      groupKey: "finance",
       items: [
-        { href: "/admin/dashboard/finance", icon: DollarSign, label: "Finance" },
+        { href: "/admin/dashboard/finance", icon: DollarSign, labelKey: "finance" },
       ],
     },
     {
-      group: "Operations",
+      groupKey: "operations",
       items: [
-        { href: "/admin/dashboard/notifications?tab=inbox", icon: Bell, label: "Notifications" },
-        { href: "/admin/dashboard/documents", icon: FolderOpen, label: "Documents" },
-        { href: "/admin/dashboard/audit-logs", icon: ClipboardList, label: "Audit Logs" },
-        { href: "/admin/dashboard/messages", icon: MessageSquare, label: "Messages" },
+        { href: "/admin/dashboard/notifications?tab=inbox", icon: Bell, labelKey: "notifications" },
+        { href: "/admin/dashboard/documents", icon: FolderOpen, labelKey: "documents" },
+        { href: "/admin/dashboard/audit-logs", icon: ClipboardList, labelKey: "auditLogs" },
+        { href: "/admin/dashboard/messages", icon: MessageSquare, labelKey: "messages" },
       ],
     },
     {
-      group: "Configuration",
+      groupKey: "configuration",
       items: [
-        { href: "/admin/dashboard/specialties", icon: Scale, label: "Practice Areas" },
-        { href: "/admin/dashboard/settings", icon: Settings, label: "Settings" },
+        { href: "/admin/dashboard/specialties", icon: Scale, labelKey: "practiceAreas" },
+        { href: "/admin/dashboard/settings", icon: Settings, labelKey: "settings" },
       ],
     },
   ],
   [UserRole.EXPERT]: [
     {
-      group: "Overview",
+      groupKey: "overview",
       items: [
-        { href: "/expert/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-        { href: "/expert/dashboard/earnings", icon: DollarSign, label: "Earnings" },
+        { href: "/expert/dashboard", icon: LayoutDashboard, labelKey: "dashboard" },
+        { href: "/expert/dashboard/earnings", icon: DollarSign, labelKey: "earnings" },
       ],
     },
     {
-      group: "Business",
+      groupKey: "business",
       items: [
-        { href: "/expert/dashboard/bookings", icon: Calendar, label: "Bookings" },
-        { href: "/expert/dashboard/consultations", icon: Video, label: "Consultations" },
-        { href: "/expert/dashboard/calendar", icon: CalendarDays, label: "Calendar" },
-        { href: "/expert/dashboard/availability", icon: Clock, label: "Availability" },
-        { href: "/expert/dashboard/availability-overrides", icon: CalendarDays, label: "Date Overrides" },
-        { href: "/expert/dashboard/schedule-settings", icon: Settings, label: "Schedule Settings" },
-        { href: "/expert/dashboard/services", icon: Briefcase, label: "Services" },
+        { href: "/expert/dashboard/bookings", icon: Calendar, labelKey: "bookings" },
+        { href: "/expert/dashboard/consultations", icon: Video, labelKey: "consultations" },
+        { href: "/expert/dashboard/calendar", icon: CalendarDays, labelKey: "calendar" },
+        { href: "/expert/dashboard/availability", icon: Clock, labelKey: "availability" },
+        { href: "/expert/dashboard/availability-overrides", icon: CalendarDays, labelKey: "dateOverrides" },
+        { href: "/expert/dashboard/schedule-settings", icon: Settings, labelKey: "scheduleSettings" },
+        { href: "/expert/dashboard/services", icon: Briefcase, labelKey: "services" },
       ],
     },
     {
-      group: "Engagement",
+      groupKey: "engagement",
       items: [
-        { href: "/expert/dashboard/reviews", icon: Star, label: "Reviews" },
-        { href: "/expert/dashboard/messages", icon: MessageSquare, label: "Messages" },
+        { href: "/expert/dashboard/reviews", icon: Star, labelKey: "reviews" },
+        { href: "/expert/dashboard/messages", icon: MessageSquare, labelKey: "messages" },
       ],
     },
     {
-      group: "Account",
+      groupKey: "account",
       items: [
-        { href: "/expert/dashboard/setup", icon: ShieldCheck, label: "Setup" },
-        { href: "/expert/dashboard/verification", icon: BadgeCheck, label: "Verification" },
-        { href: "/expert/dashboard/profile", icon: User, label: "Profile" },
-        { href: "/expert/dashboard/settings", icon: Settings, label: "Settings" },
-        { href: "/expert/dashboard/notifications", icon: Bell, label: "Notifications" },
+        { href: "/expert/dashboard/setup", icon: ShieldCheck, labelKey: "setup" },
+        { href: "/expert/dashboard/verification", icon: BadgeCheck, labelKey: "verification" },
+        { href: "/expert/dashboard/profile", icon: User, labelKey: "profile" },
+        { href: "/expert/dashboard/settings", icon: Settings, labelKey: "settings" },
+        { href: "/expert/dashboard/notifications", icon: Bell, labelKey: "notifications" },
       ],
     },
   ],
@@ -172,6 +172,7 @@ function ProfileDropdown({
   user: PublicUser;
   avatarUrl: string | null;
 }) {
+  const t = useTranslations("shared.sidebar");
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -212,8 +213,6 @@ function ProfileDropdown({
 
   if (!open) return null;
 
-  const base = getDashboardBase(user.role);
-
   return (
     <div
       ref={ref}
@@ -243,7 +242,7 @@ function ProfileDropdown({
             role="menuitem"
           >
             <User size={16} className="text-gray-400" />
-            {user.role === UserRole.ADMIN ? "Account" : "Profile"}
+            {user.role === UserRole.ADMIN ? t("account") : t("profile")}
           </button>
           <button
             onClick={() => navigateToProfile('account')}
@@ -251,7 +250,7 @@ function ProfileDropdown({
             role="menuitem"
           >
             <Key size={16} className="text-gray-400" />
-            {user.role === UserRole.ADMIN ? "Security" : "Account"}
+            {user.role === UserRole.ADMIN ? t("security") : t("account")}
           </button>
           <button
             onClick={() => navigateToProfile('preferences')}
@@ -259,7 +258,7 @@ function ProfileDropdown({
             role="menuitem"
           >
             <Palette size={16} className="text-gray-400" />
-            Preferences
+            {t("preferences")}
           </button>
         </div>
 
@@ -271,7 +270,7 @@ function ProfileDropdown({
           role="menuitem"
         >
           <LogOut size={16} />
-          Sign Out
+          {t("signOut")}
         </button>
       </div>
   );
@@ -346,7 +345,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
         <button
           onClick={() => setMobileOpen(true)}
           className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-          aria-label="Open navigation menu"
+          aria-label={t("openNavigationMenu")}
         >
           <Menu size={20} />
         </button>
@@ -386,14 +385,14 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
               <button
                 onClick={closeMobile}
                 className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
-                aria-label="Close navigation menu"
+                aria-label={t("closeNavigationMenu")}
               >
                 <X size={20} />
               </button>
               <button
                 onClick={() => setCollapsed((c) => !c)}
                 className="hidden rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:flex"
-                title="Collapse sidebar"
+                title={t("collapseSidebar")}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -403,23 +402,27 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
 
         {/* ─── Navigation ─── */}
         <nav className="flex-1 overflow-y-auto py-4" aria-label="Main navigation">
-          {navGroups.map(({ group, items }, groupIdx) => (
-            <div key={group} className={groupIdx > 0 ? "mt-2" : ""}>
+          {navGroups.map(({ groupKey, items }, groupIdx) => (
+            <div key={groupKey} className={groupIdx > 0 ? "mt-2" : ""}>
               {!collapsed && (
                 <p className="mb-1.5 px-6 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400 dark:text-gray-500">
-                  {group}
+                  {t(groupKey as any)}
                 </p>
               )}
               <div className="space-y-0.5 px-3" role="list">
                 {items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
+                  const itemLabel = t(item.labelKey as any);
+                  const isMessages = item.href.includes("/messages");
+                  const isNotifications = item.href.includes("/notifications");
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={closeMobile}
-                      title={collapsed ? item.label : undefined}
+                      title={collapsed ? itemLabel : undefined}
                       aria-current={active ? "page" : undefined}
                       role="listitem"
                       className={`
@@ -446,21 +449,21 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                           active ? "" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
                         }`}
                       />
-                      {item.label === "Messages" && chatUnreadCount > 0 && (
+                      {isMessages && chatUnreadCount > 0 && (
                         <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-blue ring-2 ring-white dark:ring-gray-950" />
                       )}
-                      {item.label === "Notifications" && notifUnreadCount > 0 && (
+                      {isNotifications && notifUnreadCount > 0 && (
                         <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-blue ring-2 ring-white dark:ring-gray-950" />
                       )}
                       {!collapsed && (
-                        <span className="flex-1 truncate">{item.label}</span>
+                        <span className="flex-1 truncate">{itemLabel}</span>
                       )}
-                      {!collapsed && item.label === "Messages" && chatUnreadCount > 0 && (
+                      {!collapsed && isMessages && chatUnreadCount > 0 && (
                         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
                           {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                         </span>
                       )}
-                      {!collapsed && item.label === "Notifications" && notifUnreadCount > 0 && (
+                      {!collapsed && isNotifications && notifUnreadCount > 0 && (
                         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
                           {notifUnreadCount > 99 ? "99+" : notifUnreadCount}
                         </span>
@@ -468,7 +471,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                       {/* Tooltip for collapsed mode */}
                       {collapsed && (
                         <span className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm dark:bg-gray-100 dark:text-gray-900 group-hover:lg:block whitespace-nowrap">
-                          {item.label}
+                          {itemLabel}
                         </span>
                       )}
                     </Link>

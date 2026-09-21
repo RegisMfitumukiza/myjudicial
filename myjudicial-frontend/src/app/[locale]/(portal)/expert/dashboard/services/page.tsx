@@ -91,10 +91,10 @@ function serviceToForm(s: LegalService): ServiceForm {
   };
 }
 
-function validate(form: ServiceForm): string | null {
-  if (!form.name.trim() || form.name.trim().length < 2) return "Name must be at least 2 characters.";
-  if (form.durationMin < 15 || form.durationMin > 480) return "Duration must be between 15 and 480 minutes.";
-  if (form.flatFee <= 0) return "Fee must be a positive number.";
+function validate(form: ServiceForm, t: any): string | null {
+  if (!form.name.trim() || form.name.trim().length < 2) return t("validationName");
+  if (form.durationMin < 15 || form.durationMin > 480) return t("validationDuration");
+  if (form.flatFee <= 0) return t("validationFee");
   return null;
 }
 
@@ -146,12 +146,12 @@ function toggleActive(s: LegalService, mutate: (data: { id: string; data: { isAc
   );
 }
 
-function handleDelete(serviceId: string, mutate: (data: { id: string }, options?: any) => void, queryClient: ReturnType<typeof useQueryClient>, setDeletingId: (id: string | null) => void) {
+function handleDelete(serviceId: string, mutate: (data: { id: string }, options?: any) => void, queryClient: ReturnType<typeof useQueryClient>, setDeletingId: (id: string | null) => void, t: any) {
   mutate(
     { id: serviceId },
     {
       onSuccess: () => {
-        toast.success("Service deleted.");
+        toast.success(t("serviceDeleted"));
         setDeletingId(null);
         queryClient.invalidateQueries({ queryKey: getGetExpertsServicesQueryKey() });
       },
@@ -225,7 +225,7 @@ export default function ServicesPage() {
   }
 
   function handleSubmit() {
-    const error = validate(form);
+    const error = validate(form, t);
     if (error) { toast.error(error); return; }
 
     const payload = toPayload(form);
@@ -235,7 +235,7 @@ export default function ServicesPage() {
         { id: editingId, data: payload },
         {
           onSuccess: () => {
-            toast.success(t("editService"));
+            toast.success(t("saveService"));
             closeForm();
             queryClient.invalidateQueries({ queryKey: getGetExpertsServicesQueryKey() });
           },
@@ -266,8 +266,8 @@ export default function ServicesPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title={`${t("addService")} & ${t("editService").toLowerCase()}`}
-        description="Manage your consultation services, fees, and delivery methods"
+        title={t("title")}
+        description={t("subtitle")}
         actions={
           <Button size="sm" onClick={openCreate} disabled={isUnverified}>
             <Plus />
@@ -280,7 +280,7 @@ export default function ServicesPage() {
         <Alert variant="warning">
           <AlertTriangle />
           <AlertDescription>
-            Your profile is not yet verified. You can manage services, but they won&apos;t be visible to clients until verification is complete.
+            {t("unverifiedNotice")}
           </AlertDescription>
         </Alert>
       )}
@@ -289,14 +289,14 @@ export default function ServicesPage() {
         <SkeletonList count={3} itemClassName="h-28" />
       ) : isError ? (
         <ErrorState
-          message="Failed to load services. Please try again."
+          message={t("failedToLoad")}
           onRetry={() => refetch()}
         />
       ) : services.length === 0 ? (
         <EmptyState
           icon={Briefcase}
           title={t("noServicesAdded")}
-          description="Manage your consultation services, fees, and delivery methods"
+          description={t("noServicesDesc")}
         />
       ) : (
         <div className="space-y-8">
@@ -404,7 +404,7 @@ export default function ServicesPage() {
                             <Button
                               variant="destructive"
                               size="xs"
-                              onClick={() => handleDelete(s.id, deleteService, queryClient, setDeletingId)}
+                              onClick={() => handleDelete(s.id, deleteService, queryClient, setDeletingId, t)}
                               disabled={isDeleting}
                             >
                               {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}

@@ -2,6 +2,7 @@
 
 import { use, useState, useCallback } from "react";
 import { Link, useRouter } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays, Loader2,
   ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock,
@@ -28,24 +29,16 @@ import type { CaseAnalysis } from "@/features/ai/types";
 import { getErrorMessage } from "@/lib/utils";
 import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-}
-
 function formatDuration(start: string, end: string) {
   const diff = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
-  return `${diff} min`;
+  return `${diff}`;
 }
 
 const STATUS_STEPS = [
-  { key: "PENDING", label: "Created", order: 1 },
-  { key: "CONFIRMED", label: "Paid", order: 2 },
-  { key: "ACTIVE", label: "Active", order: 3 },
-  { key: "COMPLETED", label: "Done", order: 4 },
+  { key: "PENDING", labelKey: "created", order: 1 },
+  { key: "CONFIRMED", labelKey: "paid", order: 2 },
+  { key: "ACTIVE", labelKey: "active", order: 3 },
+  { key: "COMPLETED", labelKey: "done", order: 4 },
 ] as const;
 
 const STATUS_ORDER: Record<string, number> = {
@@ -64,6 +57,17 @@ const STATUS_TONE: Record<string, StatusTone> = {
 export default function ExpertBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const t = useTranslations("expertDashboard_bookings");
+  const locale = useLocale();
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  }
+
+  function formatTime(iso: string) {
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  }
+
   const { booking, isLoading, error } = useBooking(id);
   const { isBookingFirst } = usePaymentMode();
   const { mutate: acceptBooking, isPending: isAccepting } = useAcceptBooking();
@@ -80,10 +84,10 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     if (!booking) return;
     acceptBooking(booking.id, {
       onSuccess: () => {
-        toast.success("Booking accepted. The client has been notified.");
+        toast.success(t("toasts.acceptSuccess"));
       },
       onError: (err) => {
-        toast.error(getErrorMessage(err, "Failed to accept booking."));
+        toast.error(getErrorMessage(err, t("toasts.acceptError")));
       },
     });
   }
@@ -138,7 +142,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     try {
       const result = await getChatConversationsByBookingBookingId(booking.id);
       if (result.status !== 200 || !result.data?.data?.id) {
-        toast.error("No conversation found for this booking. Use 'Message Client' to start one.");
+        toast.error(t("toasts.noChatFound"));
         return;
       }
       sendChatMessage(
@@ -146,17 +150,17 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         {
           onSuccess: () => {
             setSummarySent(true);
-            toast.success("Consultation summary sent to client.");
+            toast.success(t("toasts.summarySent"));
           },
           onError: (err) => {
-            toast.error(getErrorMessage(err, "Failed to send summary."));
+            toast.error(getErrorMessage(err, t("toasts.summaryError")));
           },
         },
       );
     } catch {
-      toast.error("Could not find chat conversation for this booking.");
+      toast.error(t("toasts.chatUnavailable"));
     }
-  }, [summaryText, booking, isSendingSummary, sendChatMessage]);
+  }, [summaryText, booking, isSendingSummary, sendChatMessage, t]);
 
   async function handleMessageClient() {
     if (!booking) return;
@@ -166,10 +170,10 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
       if (result.status === 200) {
         router.push(`/expert/dashboard/messages?conversationId=${result.data.data.id}`);
       } else {
-        toast.error("Conversation isn't available for this booking yet.");
+        toast.error(t("toasts.chatUnavailable"));
       }
     } catch {
-      toast.error("Conversation isn't available for this booking yet.");
+      toast.error(t("toasts.chatUnavailable"));
     } finally {
       setIsResolvingChat(false);
     }
@@ -187,11 +191,11 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     return (
       <div className="flex h-full items-center justify-center px-6">
         <ErrorState
-          title="Failed to load booking"
-          message="Booking not found"
+          title={t("toasts.loadError")}
+          message={t("toasts.bookingNotFound")}
           action={
             <Button variant="outline" asChild>
-              <Link href="/expert/dashboard/bookings">Back to bookings</Link>
+              <Link href="/expert/dashboard/bookings">{t("actions.backToBookings")}</Link>
             </Button>
           }
         />
@@ -238,7 +242,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-6 text-muted-foreground">
           <Link href="/expert/dashboard/bookings">
             <ArrowLeft />
-            Back to Bookings
+            {t("actions.backToBookings")}
           </Link>
         </Button>
 
@@ -246,13 +250,15 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {booking.service?.name ?? "Consultation"}
+              {booking.service?.name ?? t("details.service")}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              with {clientName}
+              {t("details.withClient", { name: clientName })}
             </p>
           </div>
-          <StatusBadge tone={STATUS_TONE[booking.status] ?? "pending"}>{booking.status}</StatusBadge>
+          <StatusBadge tone={STATUS_TONE[booking.status] ?? "pending"}>
+            {t(`status.${booking.status.toLowerCase()}` as any, { defaultValue: booking.status })}
+          </StatusBadge>
         </div>
 
         {/* Pending Reschedule Banner */}
@@ -277,7 +283,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         {/* Status Timeline */}
         {!isCancelledOrRefunded && (
           <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
-            <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-5">Progress</h2>
+            <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-5">{t("details.progress")}</h2>
             <div className="flex items-center gap-0">
               {STATUS_STEPS.map((step, i) => {
                 const isReached = currentOrder >= step.order;
@@ -297,7 +303,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                       <span className={`text-xs font-medium hidden sm:inline whitespace-nowrap ${
                         isCurrent ? "text-foreground" : isReached ? "text-muted-foreground" : "text-muted-foreground/60"
                       }`}>
-                        {step.key === "CONFIRMED" && isBookingFirst ? "Confirmed" : step.label}
+                        {step.key === "CONFIRMED" && isBookingFirst ? t("status.confirmed") : t(`status.${step.labelKey}` as any)}
                       </span>
                     </div>
                     {i < STATUS_STEPS.length - 1 && (
@@ -321,10 +327,12 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-destructive">
-                  {booking.status === "CANCELLED" ? "Booking Cancelled" : "Booking Refunded"}
+                  {booking.status === "CANCELLED" ? t("details.bookingCancelled") : t("details.bookingRefunded")}
                 </h3>
                 {booking.cancellationReason && (
-                  <p className="mt-1 text-xs text-destructive/80">{booking.cancellationReason}</p>
+                  <p className="mt-1 text-xs text-destructive/80">
+                    {t("details.reason", { reason: booking.cancellationReason })}
+                  </p>
                 )}
               </div>
             </div>
@@ -339,12 +347,12 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <CalendarDays size={14} />
               </div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Schedule</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("details.schedule")}</h3>
             </div>
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">{formatDate(booking.scheduledStart)}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Date</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("details.date")}</p>
               </div>
               <div className="h-px bg-border" />
               <div>
@@ -352,7 +360,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                   {formatTime(booking.scheduledStart)} — {formatTime(booking.scheduledEnd)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Duration: {formatDuration(booking.scheduledStart, booking.scheduledEnd)}
+                  {t("details.duration", { duration: formatDuration(booking.scheduledStart, booking.scheduledEnd) })}
                 </p>
               </div>
             </div>
@@ -364,7 +372,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <User size={14} />
               </div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("details.client")}</h3>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary dark:bg-primary/20">
@@ -386,33 +394,33 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                   <Briefcase size={14} />
                 </div>
-                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Service</h3>
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("details.service")}</h3>
               </div>
               <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary">
                 {((booking as any).service?.deliveryMode === "IN_PERSON") ? (
                   <>
                     <MapPin size={10} />
-                    <span>In-Person (Office)</span>
+                    <span>{t("deliveryModes.inPerson")}</span>
                   </>
                 ) : ((booking as any).service?.deliveryMode === "PHONE") ? (
                   <>
                     <Phone size={10} />
-                    <span>Phone Call</span>
+                    <span>{t("deliveryModes.phoneCall")}</span>
                   </>
                 ) : ((booking as any).service?.deliveryMode === "EMAIL") ? (
                   <>
                     <FileText size={10} />
-                    <span>Document Package</span>
+                    <span>{t("deliveryModes.documents")}</span>
                   </>
                 ) : (
                   <>
                     <Video size={10} />
-                    <span>Video Call</span>
+                    <span>{t("deliveryModes.videoCall")}</span>
                   </>
                 )}
               </span>
             </div>
-            <p className="text-sm font-semibold text-foreground">{booking.service?.name ?? "Consultation"}</p>
+            <p className="text-sm font-semibold text-foreground">{booking.service?.name ?? t("details.service")}</p>
             {(booking.service as any)?.description && (
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{(booking.service as any).description}</p>
             )}
@@ -422,7 +430,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {((booking as any).service?.deliveryMode === "IN_PERSON") && (booking as any).expert?.officeAddress && (
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 border-t border-border pt-2">
                 <MapPin size={11} className="shrink-0 text-primary" />
-                <span>Office: {(booking as any).expert.officeAddress}{(booking as any).expert?.city ? `, ${(booking as any).expert.city}` : ""}</span>
+                <span>{t("details.officeLocation", { address: `${(booking as any).expert.officeAddress}${(booking as any).expert?.city ? `, ${(booking as any).expert.city}` : ""}` })}</span>
               </p>
             )}
           </div>
@@ -433,17 +441,17 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <CreditCard size={14} />
               </div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Payment</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("details.payment")}</h3>
             </div>
             <div className="space-y-2.5">
               {booking.paymentStatus === "NOT_REQUIRED" ? (
                 <p className="text-xs text-muted-foreground">
-                  Payment will be requested once you confirm this booking.
+                  {t("details.paymentPendingNotice")}
                 </p>
               ) : (
                 <>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Status</span>
+                    <span className="text-xs text-muted-foreground">{t("details.statusLabel")}</span>
                     <StatusBadge
                       tone={booking.paymentStatus === "PAID" ? "success" : "pending"}
                       className="px-2 py-0.5 text-[10px]"
@@ -455,7 +463,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                     <>
                       <div className="h-px bg-border" />
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Your Payout</span>
+                        <span className="text-xs text-muted-foreground">{t("details.yourPayout")}</span>
                         <span className="text-sm font-semibold text-foreground">
                           RWF {Number(booking.expertPayout).toLocaleString()}
                         </span>
@@ -476,12 +484,12 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                   <FileText size={14} />
                 </div>
-                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Client Notes</h3>
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("ai.clientNotes")}</h3>
               </div>
               {!aiAnalysis && !analyzeMutation.isPending && (
                 <Button size="sm" onClick={handleAnalyzeCase}>
                   <Sparkles size={12} />
-                  AI Analysis
+                  {t("ai.aiAnalysis")}
                 </Button>
               )}
             </div>
@@ -489,7 +497,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {analyzeMutation.isPending && (
               <div className="flex items-center gap-2 mt-3 py-3 text-sm text-muted-foreground">
                 <Loader2 size={14} className="animate-spin" />
-                Analyzing case with AI...
+                {t("ai.analyzing")}
               </div>
             )}
             {aiAnalysis && (
@@ -512,7 +520,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={handleAccept}
             >
               {isAccepting ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
-              Accept Booking
+              {t("actions.accept")}
             </Button>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && ((booking as any).service?.deliveryMode ?? "VIDEO") === "VIDEO" && (
@@ -522,19 +530,19 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={() => router.push(`/expert/dashboard/consultations/${booking.id}/join`)}
             >
               <Video size={15} />
-              {canJoin ? "Join Video Call" : "Not yet time"}
+              {canJoin ? t("actions.joinCall") : t("actions.notYetTime")}
             </Button>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "PHONE" && (
             <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm">
               <Phone size={15} className="text-primary" />
-              <span>Call client at: {(booking as any).citizen?.phone || "Registered Phone"}</span>
+              <span>{t("details.callClientAt", { phone: (booking as any).citizen?.phone || "Registered Phone" })}</span>
             </div>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "IN_PERSON" && (
             <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-50/50 px-4 py-2.5 text-sm font-medium text-emerald-800 shadow-sm dark:bg-emerald-950/20 dark:text-emerald-300">
               <MapPin size={15} className="text-emerald-600 dark:text-emerald-400" />
-              <span>In-Person Office Appointment</span>
+              <span>{t("details.inPersonAppointment")}</span>
             </div>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "EMAIL" && (
@@ -547,7 +555,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               }}
             >
               <FileText size={15} />
-              Review Documents
+              {t("actions.reviewDocuments")}
             </Button>
           )}
           {canMessage && (
@@ -558,7 +566,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={handleMessageClient}
             >
               {isResolvingChat ? <Loader2 size={15} className="animate-spin" /> : <MessageSquare size={15} />}
-              Message Client
+              {t("actions.messageClient")}
             </Button>
           )}
           {["CONFIRMED", "COMPLETED"].includes(booking.status) && (
@@ -568,13 +576,13 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={() => downloadICS({
                 id: booking.id,
                 expertName: clientName,
-                serviceName: booking.service?.name ?? "Consultation",
+                serviceName: booking.service?.name ?? t("details.service"),
                 start: booking.scheduledStart,
                 end: booking.scheduledEnd,
               })}
             >
               <CalendarDays size={15} />
-              Add to Calendar
+              {t("actions.addToCalendar")}
             </Button>
           )}
           {canReschedule && !showReschedule && (
@@ -584,7 +592,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={() => setShowReschedule(true)}
             >
               <CalendarClock size={15} />
-              Reschedule
+              {t("actions.reschedule")}
             </Button>
           )}
           {canDecline && !showDecline && (
@@ -595,7 +603,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={() => setShowDecline(true)}
             >
               <XCircle size={15} />
-              Decline
+              {t("actions.decline")}
             </Button>
           )}
         </div>
@@ -608,11 +616,11 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         {/* Decline Panel */}
         {showDecline && (
           <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
-            <h3 className="text-sm font-semibold text-destructive mb-3">Decline this booking?</h3>
+            <h3 className="text-sm font-semibold text-destructive mb-3">{t("actions.declineTitle")}</h3>
             <Textarea
               value={declineReason}
               onChange={(e) => setDeclineReason(e.target.value)}
-              placeholder="Reason for declining (min. 5 characters)"
+              placeholder={t("actions.reasonPlaceholder")}
               rows={3}
             />
             <div className="mt-3 flex gap-2">
@@ -621,10 +629,10 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                 disabled={isCancelling || declineReason.trim().length < 5}
                 onClick={handleDecline}
               >
-                {isCancelling ? "Declining..." : "Confirm Decline"}
+                {isCancelling ? t("actions.declining") : t("actions.confirmDecline")}
               </Button>
               <Button variant="outline" onClick={() => { setShowDecline(false); setDeclineReason(""); }}>
-                Keep Booking
+                {t("actions.keepBooking")}
               </Button>
             </div>
           </div>
@@ -637,19 +645,19 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                 <MessageSquare size={14} />
               </div>
-              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Post-Consultation Summary</h3>
+              <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("ai.summaryTitle")}</h3>
             </div>
 
             {/* Step 1: Draft raw notes */}
             {!notesAnalysis && (
               <>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Step 1: Write your consultation notes. AI will structure them into a professional summary for the client.
+                  {t("ai.step1Desc")}
                 </p>
                 <Textarea
                   value={consultationNotes}
                   onChange={(e) => setConsultationNotes(e.target.value)}
-                  placeholder="Write your consultation notes here - key issues discussed, advice given, follow-up actions, etc."
+                  placeholder={t("ai.notesPlaceholder")}
                   rows={5}
                 />
                 <div className="mt-3 flex items-center gap-3">
@@ -663,13 +671,13 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                     ) : (
                       <Brain size={12} />
                     )}
-                    {notesMutation.isPending ? "Generating Summary..." : "Generate Summary"}
+                    {notesMutation.isPending ? t("ai.generatingSummary") : t("ai.generateSummary")}
                   </Button>
                 </div>
                 {notesMutation.isPending && (
                   <div className="flex items-center gap-2 mt-3 py-3 text-sm text-muted-foreground">
                     <Loader2 size={14} className="animate-spin" />
-                    AI is structuring your notes into a professional summary...
+                    {t("ai.structuringSummary")}
                   </div>
                 )}
                 {notesError && (
@@ -682,12 +690,12 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {notesAnalysis && !summarySent && (
               <>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Step 2: Review the AI-generated summary below. Edit as needed, then send to client.
+                  {t("ai.step2Desc")}
                 </p>
                 <AiAnalysisCard analysis={notesAnalysis} />
                 <div className="mt-4">
                   <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1 block">
-                    Editable Summary (will be sent to client)
+                    {t("ai.editableSummaryLabel")}
                   </label>
                   <Textarea
                     value={summaryText}
@@ -707,14 +715,14 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                     ) : (
                       <Send size={12} />
                     )}
-                    {isSendingSummary ? "Sending..." : "Send Consultation Summary"}
+                    {isSendingSummary ? t("ai.sendingSummary") : t("ai.sendSummary")}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => { setNotesAnalysis(null); setSummaryText(""); }}
                   >
-                    Start Over
+                    {t("ai.startOver")}
                   </Button>
                 </div>
               </>
@@ -724,9 +732,9 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {summarySent && (
               <div className="rounded-xl bg-muted px-5 py-6 text-center">
                 <CheckCircle size={28} className="text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm font-semibold text-foreground">Summary sent to client</p>
+                <p className="text-sm font-semibold text-foreground">{t("ai.summarySentTitle")}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  The consultation summary has been delivered to the client&apos;s inbox.
+                  {t("ai.summarySentDesc")}
                 </p>
               </div>
             )}

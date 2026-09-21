@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Link } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Briefcase,
   CalendarClock,
@@ -30,29 +30,30 @@ function caseRef(id: string): string {
   return `BK-${id.slice(0, 6).toUpperCase()}`;
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatScheduled(iso: string): string {
-  return `${formatDate(iso)} at ${formatTime(iso)}`;
-}
-
 export default function CasesPage() {
   const t = useTranslations("expertDashboard");
+  const locale = useLocale();
   const { data, isLoading, isError, refetch } = useGetBookings({ limit: 100 });
   const [activeTab, setActiveTab] = useState<Tab>("active");
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function formatScheduled(iso: string): string {
+    return `${formatDate(iso)} at ${formatTime(iso)}`;
+  }
 
   const bookings: Booking[] = useMemo(
     () => (data?.status === 200 ? data.data.data : []),

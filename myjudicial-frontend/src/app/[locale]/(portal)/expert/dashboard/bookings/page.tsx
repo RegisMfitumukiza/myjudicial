@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock, MapPin, Phone, FileText } from "lucide-react";
 import {
   useGetBookings,
@@ -28,12 +28,7 @@ import { getErrorMessage } from "@/lib/utils";
 
 type Tab = "pending" | "active" | "completed" | "cancelled";
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: "pending", label: "Pending" },
-  { key: "active", label: "Active" },
-  { key: "completed", label: "Completed" },
-  { key: "cancelled", label: "Cancelled" },
-];
+const TAB_KEYS: Tab[] = ["pending", "active", "completed", "cancelled"];
 
 const TAB_ICON: Record<Tab, React.ElementType> = {
   pending: Clock,
@@ -44,29 +39,11 @@ const TAB_ICON: Record<Tab, React.ElementType> = {
 
 const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatScheduled(iso: string): string {
-  return `${formatDate(iso)} at ${formatTime(iso)}`;
-}
-
 export default function BookingsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const t = useTranslations("features.experts");
+  const t = useTranslations("expertDashboard_bookings");
+  const locale = useLocale();
   const { data, isLoading, isError } = useGetBookings({ limit: 100 });
   const { mutate: cancelBooking, isPending: isCancelling } = usePostBookingsIdCancel();
   const { isBookingFirst } = usePaymentMode();
@@ -78,16 +55,35 @@ export default function BookingsPage() {
   const [reason, setReason] = useState("");
   const [resolvingChatId, setResolvingChatId] = useState<string | null>(null);
 
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function formatScheduled(iso: string): string {
+    return `${formatDate(iso)} at ${formatTime(iso)}`;
+  }
+
   function submitAccept(bookingId: string) {
     setAcceptingId(bookingId);
     acceptBooking(bookingId, {
       onSuccess: () => {
-        toast.success("Booking accepted. The client has been notified.");
+        toast.success(t("toasts.acceptSuccess"));
         setAcceptingId(null);
       },
       onError: (error) => {
         setAcceptingId(null);
-        toast.error(getErrorMessage(error, "Failed to accept booking"));
+        toast.error(getErrorMessage(error, t("toasts.acceptError")));
       },
     });
   }
@@ -99,10 +95,10 @@ export default function BookingsPage() {
       if (result.status === 200) {
         router.push(`/expert/dashboard/messages?conversationId=${result.data.data.id}`);
       } else {
-        toast.error(t("profileUpdateFailed"));
+        toast.error(t("toasts.chatUnavailable"));
       }
     } catch {
-      toast.error(t("profileUpdateFailed"));
+      toast.error(t("toasts.chatUnavailable"));
     } finally {
       setResolvingChatId(null);
     }
@@ -127,20 +123,20 @@ export default function BookingsPage() {
 
   function submitDecline(bookingId: string) {
     if (reason.trim().length < 5) {
-      toast.error(t("profileUpdateFailed"));
+      toast.error(t("toasts.declineMinLength"));
       return;
     }
     cancelBooking(
       { id: bookingId, data: { reason: reason.trim() } },
       {
         onSuccess: () => {
-          toast.success(t("profileUpdated"));
+          toast.success(t("toasts.declineSuccess"));
           setDecliningId(null);
           setReason("");
           queryClient.invalidateQueries({ queryKey: getGetBookingsQueryKey({ limit: 100 }) });
         },
         onError: (error) => {
-          toast.error(getErrorMessage(error, t("profileUpdateFailed")));
+          toast.error(getErrorMessage(error, t("toasts.declineError")));
         },
       }
     );
@@ -153,11 +149,11 @@ export default function BookingsPage() {
   return (
     <div className="p-6 lg:p-8">
       <PageHeader
-        title="Bookings"
-        description="Manage all your consultation bookings in one place"
+        title={t("title")}
+        description={t("description")}
         actions={
           <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
-            {TABS.map(({ key, label }) => (
+            {TAB_KEYS.map((key) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
@@ -167,7 +163,7 @@ export default function BookingsPage() {
                     : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                 }
               >
-                {label}
+                {t(`tabs.${key}` as any)}
                 <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary dark:bg-white/10 dark:text-white">
                   {grouped[key].length}
                 </span>
@@ -181,27 +177,27 @@ export default function BookingsPage() {
         {isLoading ? (
           <SkeletonList count={3} itemClassName="h-24" />
         ) : isError ? (
-          <ErrorState message="Failed to load bookings. Please try again." />
+          <ErrorState message={t("toasts.loadError")} />
         ) : items.length === 0 ? (
           <EmptyState
             icon={Icon}
-            title={
-              activeTab === "pending"
-                ? "No pending booking requests."
-                : activeTab === "active"
-                  ? "No active consultations."
-                  : activeTab === "completed"
-                    ? "No completed consultations yet."
-                    : "No cancelled bookings."
-            }
+            title={t(`empty.${activeTab}` as any)}
           />
         ) : (
           <div className="space-y-4">
             {items.map((b) => {
-              const clientName = b.citizen ? `${b.citizen.firstName} ${b.citizen.lastName}` : "Client";
+              const clientName = b.citizen ? `${b.citizen.firstName} ${b.citizen.lastName}` : t("details.client");
               const initials = clientName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
               const isDeclining = decliningId === b.id;
               const isAccepting = acceptingId === b.id;
+              const deliveryMode = (b.service as any)?.deliveryMode ?? "VIDEO";
+              const deliveryModeLabel = deliveryMode === "IN_PERSON"
+                ? t("deliveryModes.inPerson")
+                : deliveryMode === "PHONE"
+                  ? t("deliveryModes.phone")
+                  : deliveryMode === "EMAIL"
+                    ? t("deliveryModes.document")
+                    : t("deliveryModes.video");
 
               if (activeTab === "pending") {
                 return (
@@ -218,16 +214,16 @@ export default function BookingsPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-semibold text-foreground">{clientName}</p>
                           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
-                            {((b.service as any)?.deliveryMode === "IN_PERSON") ? "In-Person" : ((b.service as any)?.deliveryMode === "PHONE") ? "Phone" : ((b.service as any)?.deliveryMode === "EMAIL") ? "Document" : "Video"}
+                            {deliveryModeLabel}
                           </span>
                         </div>
                         <p className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                          {b.service?.name ?? "Consultation"} &middot;
+                          {b.service?.name ?? t("details.service")} &middot;
                           {formatScheduled(b.scheduledStart)}
                         </p>
                       </div>
                       <StatusBadge tone="pending">
-                        {isBookingFirst ? "Awaiting Confirmation" : "Awaiting Payment"}
+                        {isBookingFirst ? t("status.awaitingConfirmation") : t("status.awaitingPayment")}
                       </StatusBadge>
                       {!isDeclining && !isAccepting && isBookingFirst && (
                         <Button
@@ -235,7 +231,7 @@ export default function BookingsPage() {
                           onClick={(e) => { e.preventDefault(); submitAccept(b.id); }}
                           disabled={isAccepting}
                         >
-                          {isAccepting ? <Loader2 className="animate-spin" /> : <Check />} Accept
+                          {isAccepting ? <Loader2 className="animate-spin" /> : <Check />} {t("actions.accept")}
                         </Button>
                       )}
                       {!isDeclining && (
@@ -245,20 +241,20 @@ export default function BookingsPage() {
                           className="border-destructive/30 text-destructive hover:bg-destructive/10"
                           onClick={(e) => { e.preventDefault(); setDecliningId(b.id); setReason(""); }}
                         >
-                          <X /> Decline
+                          <X /> {t("actions.decline")}
                         </Button>
                       )}
                     </div>
                     {isDeclining && (
                       <div className="mt-4 border-t border-border pt-4">
                         <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                          Reason for declining (min. 5 characters)
+                          {t("actions.reasonLabel")}
                         </label>
                         <Textarea
                           value={reason}
                           onChange={(e) => setReason(e.target.value)}
                           rows={2}
-                          placeholder="e.g. Schedule conflict, unable to take this case..."
+                          placeholder={t("actions.reasonPlaceholder")}
                         />
                         <div className="mt-2 flex justify-end gap-2">
                           <Button
@@ -266,7 +262,7 @@ export default function BookingsPage() {
                             variant="ghost"
                             onClick={() => { setDecliningId(null); setReason(""); }}
                           >
-                            Cancel
+                            {t("actions.cancel")}
                           </Button>
                           <Button
                             size="xs"
@@ -275,7 +271,7 @@ export default function BookingsPage() {
                             disabled={isCancelling}
                           >
                             {isCancelling ? <Loader2 className="animate-spin" /> : <X />}
-                            Confirm Decline
+                            {t("actions.confirmDecline")}
                           </Button>
                         </div>
                       </div>
@@ -287,7 +283,6 @@ export default function BookingsPage() {
               if (activeTab === "active") {
                 const startsInMs = new Date(b.scheduledStart).getTime() - Date.now();
                 const canJoin = b.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS;
-                const deliveryMode = (b.service as any)?.deliveryMode ?? "VIDEO";
 
                 return (
                   <Link
@@ -311,17 +306,17 @@ export default function BookingsPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-semibold text-foreground">{clientName}</p>
                           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
-                            {deliveryMode === "IN_PERSON" ? "In-Person" : deliveryMode === "PHONE" ? "Phone" : deliveryMode === "EMAIL" ? "Document" : "Video"}
+                            {deliveryModeLabel}
                           </span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {b.service?.name ?? "Consultation"} &middot; {formatScheduled(b.scheduledStart)}
+                          {b.service?.name ?? t("details.service")} &middot; {formatScheduled(b.scheduledStart)}
                         </p>
                       </div>
                       {b.pendingRescheduleStart && (
                         <StatusBadge tone="pending" className="px-2 py-0.5 text-[10px]">
                           <CalendarClock className="h-2.5 w-2.5" />
-                          Reschedule Requested
+                          {t("status.rescheduleRequested")}
                         </StatusBadge>
                       )}
                       <Button
@@ -331,7 +326,7 @@ export default function BookingsPage() {
                         disabled={resolvingChatId === b.id}
                       >
                         {resolvingChatId === b.id ? <Loader2 className="animate-spin" /> : <MessageSquare />}
-                        Message
+                        {t("actions.message")}
                       </Button>
                       {deliveryMode === "VIDEO" ? (
                         <Button
@@ -340,22 +335,22 @@ export default function BookingsPage() {
                           disabled={!canJoin}
                         >
                           <Video />
-                          {canJoin ? "Join Call" : "Not yet time"}
+                          {canJoin ? t("actions.joinCall") : t("actions.notYetTime")}
                         </Button>
                       ) : deliveryMode === "IN_PERSON" ? (
                         <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                           <MapPin size={12} />
-                          <span>Office</span>
+                          <span>{t("deliveryModes.office")}</span>
                         </span>
                       ) : deliveryMode === "PHONE" ? (
                         <span className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-400">
                           <Phone size={12} />
-                          <span>Phone Call</span>
+                          <span>{t("deliveryModes.phoneCall")}</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-400">
                           <FileText size={12} />
-                          <span>Documents</span>
+                          <span>{t("deliveryModes.documents")}</span>
                         </span>
                       )}
                     </div>
@@ -377,15 +372,15 @@ export default function BookingsPage() {
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-foreground">{clientName}</p>
                         <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
-                          {((b.service as any)?.deliveryMode === "IN_PERSON") ? "In-Person" : ((b.service as any)?.deliveryMode === "PHONE") ? "Phone" : ((b.service as any)?.deliveryMode === "EMAIL") ? "Document" : "Video"}
+                          {deliveryModeLabel}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {b.service?.name ?? "Consultation"} &middot; {formatScheduled(b.scheduledStart)}
+                        {b.service?.name ?? t("details.service")} &middot; {formatScheduled(b.scheduledStart)}
                       </p>
                       {activeTab === "cancelled" && b.cancellationReason && (
                         <p className="mt-1 text-xs text-destructive">
-                          Reason: {b.cancellationReason}
+                          {t("details.reason", { reason: b.cancellationReason })}
                         </p>
                       )}
                     </div>
@@ -397,11 +392,11 @@ export default function BookingsPage() {
                         disabled={resolvingChatId === b.id}
                       >
                         {resolvingChatId === b.id ? <Loader2 className="animate-spin" /> : <MessageSquare />}
-                        Message
+                        {t("actions.message")}
                       </Button>
                     )}
                     <StatusBadge tone={activeTab === "completed" ? "success" : "destructive"}>
-                      {activeTab === "completed" ? "Completed" : "Cancelled"}
+                      {activeTab === "completed" ? t("status.completed") : t("status.cancelled")}
                     </StatusBadge>
                   </div>
                 </Link>

@@ -99,7 +99,7 @@ const TEMPLATES = {
 
 export default function AvailabilityCalendarPage() {
   const queryClient = useQueryClient();
-  const t = useTranslations("features.experts");
+  const t = useTranslations("expertDashboard_availability");
   const [schedule, setSchedule] = useState<DaySchedule[]>(defaultSchedule());
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
   const [showAddBlockModal, setShowAddBlockModal] = useState(false);
@@ -118,10 +118,10 @@ export default function AvailabilityCalendarPage() {
     mutationFn: patchExpertsAvailabilityWithBlocks,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expertsAvailabilityWithBlocks"] });
-      toast.success(t("profileUpdated"));
+      toast.success(t("saveSuccess"));
     },
     onError: (error: any) => {
-      toast.error(getErrorMessage(error, t("profileUpdateFailed")));
+      toast.error(getErrorMessage(error, t("saveError")));
     },
   });
 
@@ -233,7 +233,7 @@ export default function AvailabilityCalendarPage() {
         id: crypto.randomUUID() // New IDs for copies
       }))
     })));
-    toast.success(`Copied ${DAY_LABELS[sourceDay]} to all days`);
+    toast.success(t("copiedToWeek", { day: t(sourceDay.toLowerCase() as any) }));
   };
 
   const applyTemplate = (template: keyof typeof TEMPLATES) => {
@@ -292,7 +292,7 @@ export default function AvailabilityCalendarPage() {
     
     setSchedule(newSchedule);
     setShowTemplateModal(false);
-    toast.success(t("profileUpdated"));
+    toast.success(t("templateApplied"));
   };
 
   const calculateTotalHours = (): number => {
@@ -333,8 +333,9 @@ export default function AvailabilityCalendarPage() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
         <ErrorState
-          title="Failed to load availability"
-          message="There was an error loading your schedule"
+          title={t("loadErrorV2")}
+          message={t("loadErrorV2Desc")}
+          retryLabel={t("tryAgain")}
           onRetry={() => refetch()}
         />
       </div>
@@ -345,8 +346,8 @@ export default function AvailabilityCalendarPage() {
     <div className="flex h-full flex-col p-6 lg:p-8">
       {/* Header */}
       <PageHeader
-        title="Availability Calendar"
-        description="Set your weekly schedule with multiple time blocks per day"
+        title={t("calendarTitle")}
+        description={t("calendarSubtitle")}
         className="mb-6 shrink-0"
         actions={
           <div className="flex gap-2">
@@ -356,7 +357,7 @@ export default function AvailabilityCalendarPage() {
               onClick={() => setShowTemplateModal(true)}
             >
               <Settings className="mr-2 h-4 w-4" />
-              Templates
+              {t("templates")}
             </Button>
             <Button onClick={handleSave} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? (
@@ -364,7 +365,7 @@ export default function AvailabilityCalendarPage() {
               ) : (
                 <Save className="mr-2 h-4 w-4" />
               )}
-              Save Schedule
+              {t("saveSchedule")}
             </Button>
           </div>
         }
@@ -376,7 +377,7 @@ export default function AvailabilityCalendarPage() {
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-muted-foreground">Total Hours/Week</p>
+              <p className="text-sm text-muted-foreground">{t("totalHoursWeek")}</p>
               <p className="text-2xl font-bold text-foreground">
                 {calculateTotalHours().toFixed(1)}h
               </p>
@@ -387,7 +388,7 @@ export default function AvailabilityCalendarPage() {
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-muted-foreground">Available Days</p>
+              <p className="text-sm text-muted-foreground">{t("availableDays")}</p>
               <p className="text-2xl font-bold text-foreground">
                 {schedule.filter(d => d.isAvailable).length}
               </p>
@@ -398,7 +399,7 @@ export default function AvailabilityCalendarPage() {
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-muted-foreground">Time Blocks</p>
+              <p className="text-sm text-muted-foreground">{t("timeBlocks")}</p>
               <p className="text-2xl font-bold text-foreground">
                 {schedule.reduce((sum, d) => sum + d.timeBlocks.length, 0)}
               </p>
@@ -411,10 +412,9 @@ export default function AvailabilityCalendarPage() {
       <Alert variant="info" className="mb-6">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Click a day to add or edit time blocks. You can have multiple blocks per day (e.g., morning and afternoon with lunch break).
-          {" "}
+          {t("infoAlert")}{" "}
           <Link href="/expert/dashboard/schedule-settings" className="font-semibold underline">
-            Adjust buffer time and other settings
+            {t("adjustSettings")}
           </Link>
         </AlertDescription>
       </Alert>
@@ -437,6 +437,7 @@ export default function AvailabilityCalendarPage() {
                 onRemoveBlock={(blockId) => removeTimeBlock(day, blockId)}
                 onUpdateBlock={(blockId, updates) => updateTimeBlock(day, blockId, updates)}
                 onCopyToWeek={() => copyDayToWeek(day)}
+                t={t}
               />
             );
           })}
@@ -457,7 +458,7 @@ export default function AvailabilityCalendarPage() {
             setSelectedDay(null);
           }
         }}
-        dayLabel={selectedDay ? DAY_LABELS[selectedDay] : ""}
+        dayLabel={selectedDay ? t(selectedDay.toLowerCase() as any) : ""}
         t={t}
       />
 
@@ -466,6 +467,7 @@ export default function AvailabilityCalendarPage() {
         open={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
         onApply={applyTemplate}
+        t={t}
       />
     </div>
   );
@@ -480,6 +482,7 @@ interface DayCardProps {
   onRemoveBlock: (blockId: string) => void;
   onUpdateBlock: (blockId: string, updates: Partial<TimeBlock>) => void;
   onCopyToWeek: () => void;
+  t: any;
 }
 
 function DayCard({
@@ -489,7 +492,8 @@ function DayCard({
   onAddBlock,
   onRemoveBlock,
   onUpdateBlock,
-  onCopyToWeek
+  onCopyToWeek,
+  t,
 }: DayCardProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -498,11 +502,11 @@ function DayCard({
           <Switch checked={schedule.isAvailable} onCheckedChange={onToggle} />
           <div>
             <h3 className="font-semibold text-foreground">
-              {DAY_LABELS[day]}
+              {t(day.toLowerCase() as any)}
             </h3>
             {schedule.isAvailable && schedule.timeBlocks.length > 0 && (
               <p className="text-sm text-muted-foreground">
-                {schedule.timeBlocks.length} block{schedule.timeBlocks.length > 1 ? 's' : ''}
+                {schedule.timeBlocks.length} {schedule.timeBlocks.length === 1 ? t("blockSingular") : t("blockPlural")}
               </p>
             )}
           </div>
@@ -510,10 +514,10 @@ function DayCard({
         
         {schedule.isAvailable && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onCopyToWeek}>
+            <Button variant="outline" size="sm" onClick={onCopyToWeek} title={t("copyToWeek")} aria-label={t("copyToWeek")}>
               <Copy className="h-3 w-3" />
             </Button>
-            <Button variant="outline" size="sm" onClick={onAddBlock}>
+            <Button variant="outline" size="sm" onClick={onAddBlock} aria-label={t("addTimeBlockTitle")}>
               <Plus className="h-3 w-3" />
             </Button>
           </div>
@@ -524,7 +528,7 @@ function DayCard({
         <div className="mt-4 space-y-2">
           {schedule.timeBlocks.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No time blocks. Click + to add one.
+              {t("noTimeBlocks")}
             </p>
           ) : (
             schedule.timeBlocks.map(block => (
@@ -533,6 +537,7 @@ function DayCard({
                 block={block}
                 onUpdate={(updates) => onUpdateBlock(block.id, updates)}
                 onRemove={() => onRemoveBlock(block.id)}
+                t={t}
               />
             ))
           )}
@@ -547,9 +552,10 @@ interface TimeBlockItemProps {
   block: TimeBlock;
   onUpdate: (updates: Partial<TimeBlock>) => void;
   onRemove: () => void;
+  t: any;
 }
 
-function TimeBlockItem({ block, onUpdate, onRemove }: TimeBlockItemProps) {
+function TimeBlockItem({ block, onUpdate, onRemove, t }: TimeBlockItemProps) {
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-2">
       <Clock className="h-4 w-4 text-muted-foreground" />
@@ -559,7 +565,7 @@ function TimeBlockItem({ block, onUpdate, onRemove }: TimeBlockItemProps) {
         onChange={(e) => onUpdate({ start: e.target.value })}
         className="h-8 w-24 text-sm"
       />
-      <span className="text-sm text-muted-foreground">to</span>
+      <span className="text-sm text-muted-foreground">{t("to")}</span>
       <Input
         type="time"
         value={block.end}
@@ -570,7 +576,7 @@ function TimeBlockItem({ block, onUpdate, onRemove }: TimeBlockItemProps) {
         variant="ghost"
         size="icon-sm"
         onClick={onRemove}
-        aria-label="Remove time block"
+        aria-label={t("removeBlock")}
         className="ml-auto"
       >
         <Trash2 className="h-3 w-3 text-destructive" />
@@ -585,15 +591,16 @@ interface AddTimeBlockModalProps {
   onClose: () => void;
   onAdd: (start: string, end: string) => void;
   dayLabel: string;
+  t: any;
 }
 
-function AddTimeBlockModal({ open, onClose, onAdd, dayLabel, t }: AddTimeBlockModalProps & { t: ReturnType<typeof useTranslations> }) {
+function AddTimeBlockModal({ open, onClose, onAdd, dayLabel, t }: AddTimeBlockModalProps) {
   const [start, setStart] = useState("09:00");
   const [end, setEnd] = useState("17:00");
 
   const handleAdd = () => {
     if (end <= start) {
-      toast.error(t("profileUpdateFailed"));
+      toast.error(t("endBeforeStartError"));
       return;
     }
     onAdd(start, end);
@@ -605,13 +612,13 @@ function AddTimeBlockModal({ open, onClose, onAdd, dayLabel, t }: AddTimeBlockMo
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Time Block</DialogTitle>
+          <DialogTitle>{t("addTimeBlockTitle")}</DialogTitle>
           <DialogDescription>{dayLabel}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="start">Start Time</Label>
+            <Label htmlFor="start">{t("startTimeLabel")}</Label>
             <Input
               id="start"
               type="time"
@@ -620,7 +627,7 @@ function AddTimeBlockModal({ open, onClose, onAdd, dayLabel, t }: AddTimeBlockMo
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="end">End Time</Label>
+            <Label htmlFor="end">{t("endTimeLabel")}</Label>
             <Input
               id="end"
               type="time"
@@ -632,11 +639,11 @@ function AddTimeBlockModal({ open, onClose, onAdd, dayLabel, t }: AddTimeBlockMo
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={handleAdd}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Block
+            {t("addBlockBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -649,23 +656,32 @@ interface TemplateModalProps {
   open: boolean;
   onClose: () => void;
   onApply: (template: keyof typeof TEMPLATES) => void;
+  t: any;
 }
 
-function TemplateModal({ open, onClose, onApply }: TemplateModalProps) {
+const TEMPLATE_KEYS: Record<keyof typeof TEMPLATES, string> = {
+  STANDARD: "templateStandard",
+  PART_TIME: "templatePartTime",
+  EVENING: "templateEvening",
+  WEEKEND: "templateWeekend",
+  LUNCH_BREAK: "templateLunchBreak",
+};
+
+function TemplateModal({ open, onClose, onApply, t }: TemplateModalProps) {
   const [selected, setSelected] = useState<keyof typeof TEMPLATES>("STANDARD");
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Apply Template</DialogTitle>
+          <DialogTitle>{t("applyTemplateTitle")}</DialogTitle>
           <DialogDescription>
-            Choose a pre-configured schedule template
+            {t("applyTemplateDesc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label>Template</Label>
+          <Label>{t("templateLabel")}</Label>
           <Select value={selected} onValueChange={(v) => setSelected(v as keyof typeof TEMPLATES)}>
             <SelectTrigger>
               <SelectValue />
@@ -673,7 +689,7 @@ function TemplateModal({ open, onClose, onApply }: TemplateModalProps) {
             <SelectContent>
               {(Object.keys(TEMPLATES) as Array<keyof typeof TEMPLATES>).map(key => (
                 <SelectItem key={key} value={key}>
-                  {TEMPLATES[key]}
+                  {t(TEMPLATE_KEYS[key] as any)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -683,16 +699,16 @@ function TemplateModal({ open, onClose, onApply }: TemplateModalProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            This will replace your current schedule with the selected template.
+            {t("templateReplaceNotice")}
           </AlertDescription>
         </Alert>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button onClick={() => onApply(selected)}>
-            Apply Template
+            {t("applyTemplateBtn")}
           </Button>
         </DialogFooter>
       </DialogContent>

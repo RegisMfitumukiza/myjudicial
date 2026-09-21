@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
-import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useSession } from "next-auth/react";
 import {
   PageHeader,
@@ -89,8 +88,7 @@ const EVENT_ICONS: Record<NotificationEvent, typeof Bell> = {
   MESSAGE_RECEIVED: MessageSquare,
 };
 
-
-const formatTime = (dateString: string, t: (key: string, values?: any) => string) => {
+const formatTime = (dateString: string, t: (key: string, values?: any) => string, locale: string) => {
   try {
     const date = new Date(dateString);
     const now = new Date();
@@ -103,7 +101,7 @@ const formatTime = (dateString: string, t: (key: string, values?: any) => string
     if (diffMins < 60) return t("minAgo", { count: diffMins });
     if (diffHours < 24) return t("hourAgo", { count: diffHours });
     if (diffDays < 7) return t("dayAgo", { count: diffDays });
-    return format(date, "MMM dd, yyyy");
+    return date.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
   } catch {
     return dateString;
   }
@@ -111,6 +109,7 @@ const formatTime = (dateString: string, t: (key: string, values?: any) => string
 
 export default function NotificationsPage() {
   const t = useTranslations("expertDashboard_notifications");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
   const [page, setPage] = useState(1);
@@ -191,7 +190,7 @@ export default function NotificationsPage() {
             ) : (
               <CheckCheck size={14} />
             )}
-            Mark all as read
+            {t("markAllRead")}
           </Button>
         }
       />
@@ -251,7 +250,7 @@ export default function NotificationsPage() {
                       </p>
                     )}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {formatTime(n.createdAt, t)}
+                      {formatTime(n.createdAt, t, locale)}
                     </p>
                   </div>
                   {isUnread && (

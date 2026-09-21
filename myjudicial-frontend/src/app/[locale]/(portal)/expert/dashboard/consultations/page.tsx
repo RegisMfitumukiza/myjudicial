@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarClock, History, XCircle, Video } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -44,6 +44,7 @@ function displayStatus(status: Booking["status"]): "Upcoming" | "Completed" | "C
 
 export default function ConsultationsPage() {
   const t = useTranslations("expertDashboard_consultations");
+  const locale = useLocale();
   const [activeTab, setActiveTab] = useState<Tab>("upcoming");
   const { data, isLoading, isError } = useGetBookings({ limit: 100 });
   const bookings = data?.status === 200 ? data.data.data : [];
@@ -123,10 +124,10 @@ export default function ConsultationsPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-medium text-foreground">
-                      {scheduled.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      {scheduled.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {scheduled.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      {scheduled.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
                   <StatusBadge tone={STATUS_TONE[statusRaw]}>{status}</StatusBadge>
@@ -139,13 +140,13 @@ export default function ConsultationsPage() {
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="xs" asChild>
                       <Link href={`/expert/dashboard/bookings/${c.id}`}>
-                        View Details
+                        {t("viewDetails")}
                       </Link>
                     </Button>
                     {(c.status === "CONFIRMED" || c.status === "ACTIVE") && (
                       <Button size="xs" asChild>
                         <Link href={`/expert/dashboard/consultations/${c.id}/join`}>
-                          <Video size={12} className="mr-1" /> Join Room
+                          <Video size={12} className="mr-1" /> {t("joinRoom")}
                         </Link>
                       </Button>
                     )}

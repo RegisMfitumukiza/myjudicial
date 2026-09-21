@@ -15,7 +15,8 @@ router.get(
   "/",
   asyncHandler(async (_req, res) => {
     const paymentMode = await AdminSettingService.get("paymentMode");
-    res.json({ success: true, data: { paymentMode } });
+    const socialLinks = await AdminSettingService.get("socialLinks");
+    res.json({ success: true, data: { paymentMode, socialLinks } });
   })
 );
 

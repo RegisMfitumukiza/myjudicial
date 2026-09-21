@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Star, ChevronDown, TrendingUp, MessageSquare, Calendar, Filter, Reply, Send, Trash2, Pencil, X, Check, Loader2 } from "lucide-react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import {
@@ -44,15 +44,15 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
   );
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
+function formatDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleDateString(locale, {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 }
 
-function formatRelativeDate(iso: string, t: any): string {
+function formatRelativeDate(iso: string, t: any, locale: string): string {
   const date = new Date(iso);
   const now = new Date();
   const diffTime = now.getTime() - date.getTime();
@@ -62,11 +62,12 @@ function formatRelativeDate(iso: string, t: any): string {
   if (diffDays === 1) return t("yesterday");
   if (diffDays < 7) return t("daysAgo", { days: diffDays });
   if (diffDays < 30) return t("weeksAgo", { weeks: Math.floor(diffDays / 7) });
-  return formatDate(iso);
+  return formatDate(iso, locale);
 }
 
 export default function ReviewsPage() {
   const t = useTranslations("expertDashboard_reviews");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [sort, setSort] = useState<SortOption>("newest");
   const [showSort, setShowSort] = useState(false);
@@ -348,7 +349,7 @@ export default function ReviewsPage() {
                           </p>
                           <span className="text-xs text-muted-foreground">-</span>
                           <p className="text-xs text-muted-foreground">
-                            {formatRelativeDate(review.createdAt, t)}
+                            {formatRelativeDate(review.createdAt, t, locale)}
                           </p>
                         </div>
 

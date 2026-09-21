@@ -21,6 +21,15 @@ import {
 } from "@/shared/components/ui/select";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 
+export interface SocialLinks {
+  x?: string;
+  linkedin?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  whatsapp?: string;
+}
+
 interface SettingsData {
   platformName: string;
   maintenanceMode: boolean;
@@ -28,7 +37,17 @@ interface SettingsData {
   platformFeePercent: number;
   minEscrowDurationSeconds: number;
   paymentMode: "BOOKING_FIRST" | "PAYMENT_REQUIRED";
+  socialLinks?: SocialLinks;
 }
+
+const DEFAULT_SOCIAL: SocialLinks = {
+  x: "https://twitter.com/myjudicial",
+  linkedin: "https://linkedin.com/company/myjudicial",
+  facebook: "https://facebook.com/myjudicial",
+  instagram: "https://instagram.com/myjudicial",
+  youtube: "",
+  whatsapp: "",
+};
 
 const DEFAULTS: SettingsData = {
   platformName: "MyJudicial",
@@ -37,6 +56,7 @@ const DEFAULTS: SettingsData = {
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
   paymentMode: "PAYMENT_REQUIRED",
+  socialLinks: DEFAULT_SOCIAL,
 };
 
 export default function SettingsPage() {
@@ -50,6 +70,7 @@ export default function SettingsPage() {
   const [platformFeePercent, setPlatformFeePercent] = useState(DEFAULTS.platformFeePercent);
   const [minEscrowDurationSeconds, setMinEscrowDurationSeconds] = useState(DEFAULTS.minEscrowDurationSeconds);
   const [paymentMode, setPaymentMode] = useState<SettingsData["paymentMode"]>(DEFAULTS.paymentMode);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>(DEFAULT_SOCIAL);
   const [originalSettings, setOriginalSettings] = useState<SettingsData>(DEFAULTS);
 
   const isDirty =
@@ -58,7 +79,8 @@ export default function SettingsPage() {
     defaultRole !== originalSettings.defaultRole ||
     platformFeePercent !== originalSettings.platformFeePercent ||
     minEscrowDurationSeconds !== originalSettings.minEscrowDurationSeconds ||
-    paymentMode !== originalSettings.paymentMode;
+    paymentMode !== originalSettings.paymentMode ||
+    JSON.stringify(socialLinks) !== JSON.stringify(originalSettings.socialLinks ?? DEFAULT_SOCIAL);
 
   const loadSettings = () => {
     setLoading(true);
@@ -73,6 +95,7 @@ export default function SettingsPage() {
           platformFeePercent: d.platformFeePercent ?? DEFAULTS.platformFeePercent,
           minEscrowDurationSeconds: d.minEscrowDurationSeconds ?? DEFAULTS.minEscrowDurationSeconds,
           paymentMode: d.paymentMode ?? DEFAULTS.paymentMode,
+          socialLinks: d.socialLinks ?? DEFAULT_SOCIAL,
         };
         setPlatformName(loaded.platformName);
         setMaintenanceMode(loaded.maintenanceMode);
@@ -80,6 +103,7 @@ export default function SettingsPage() {
         setPlatformFeePercent(loaded.platformFeePercent);
         setMinEscrowDurationSeconds(loaded.minEscrowDurationSeconds);
         setPaymentMode(loaded.paymentMode);
+        setSocialLinks(loaded.socialLinks ?? DEFAULT_SOCIAL);
         setOriginalSettings(loaded);
         setBackendUnreachable(false);
       })
@@ -96,7 +120,15 @@ export default function SettingsPage() {
     try {
       await apiFetch("/admin/settings", {
         method: "PUT",
-        body: { platformName, maintenanceMode, defaultRole, platformFeePercent, minEscrowDurationSeconds, paymentMode },
+        body: {
+          platformName,
+          maintenanceMode,
+          defaultRole,
+          platformFeePercent,
+          minEscrowDurationSeconds,
+          paymentMode,
+          socialLinks,
+        },
       });
       setOriginalSettings({
         platformName,
@@ -105,6 +137,7 @@ export default function SettingsPage() {
         platformFeePercent,
         minEscrowDurationSeconds,
         paymentMode,
+        socialLinks,
       });
       toast.success(t("settingsSaved"));
     } catch {
@@ -249,6 +282,75 @@ export default function SettingsPage() {
                   <SelectItem value="BOOKING_FIRST">{t("bookingFirst")}</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Media & Public Channels */}
+        <Card className="md:col-span-2">
+          <CardContent className="p-5">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-base font-semibold">{t("socialLinksTitle")}</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("socialLinksDesc")}</p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-x" className="text-xs font-medium">X (Twitter)</Label>
+                  <Input
+                    id="social-x"
+                    placeholder="https://x.com/myjudicial"
+                    value={socialLinks.x ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, x: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-linkedin" className="text-xs font-medium">LinkedIn</Label>
+                  <Input
+                    id="social-linkedin"
+                    placeholder="https://linkedin.com/company/myjudicial"
+                    value={socialLinks.linkedin ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, linkedin: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-facebook" className="text-xs font-medium">Facebook</Label>
+                  <Input
+                    id="social-facebook"
+                    placeholder="https://facebook.com/myjudicial"
+                    value={socialLinks.facebook ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, facebook: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-instagram" className="text-xs font-medium">Instagram</Label>
+                  <Input
+                    id="social-instagram"
+                    placeholder="https://instagram.com/myjudicial"
+                    value={socialLinks.instagram ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-youtube" className="text-xs font-medium">YouTube</Label>
+                  <Input
+                    id="social-youtube"
+                    placeholder="https://youtube.com/@myjudicial"
+                    value={socialLinks.youtube ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, youtube: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="social-whatsapp" className="text-xs font-medium">WhatsApp</Label>
+                  <Input
+                    id="social-whatsapp"
+                    placeholder="https://wa.me/250780000000"
+                    value={socialLinks.whatsapp ?? ""}
+                    onChange={(e) => setSocialLinks({ ...socialLinks, whatsapp: e.target.value })}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

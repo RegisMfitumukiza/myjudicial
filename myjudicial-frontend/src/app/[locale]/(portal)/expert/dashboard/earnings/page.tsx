@@ -2,7 +2,7 @@
 
 import { Wallet, Clock, ArrowUpRight, AlertCircle } from "lucide-react";
 import { useGetExpertsEarnings } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import {
   PageHeader,
@@ -17,20 +17,21 @@ function formatCurrency(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "-";
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 export default function EarningsPage() {
   const t = useTranslations("expertDashboard_earnings");
+  const locale = useLocale();
   const { data, isLoading, isError, refetch } = useGetExpertsEarnings();
   const { isBookingFirst } = usePaymentMode();
   const earnings = data?.status === 200 ? data.data.data : null;
+
+  function formatDate(iso: string | null): string {
+    if (!iso) return "-";
+    return new Date(iso).toLocaleString(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
 
   return (
     <div className="flex h-full flex-col p-6 lg:p-8">
@@ -44,7 +45,7 @@ export default function EarningsPage() {
         <Alert variant="warning" className="mb-6">
           <AlertCircle />
           <AlertDescription>
-            Payments are currently disabled on the platform. Earnings and payouts will appear here once payments are re-enabled.
+            {t("paymentsDisabled")}
           </AlertDescription>
         </Alert>
       )}
@@ -80,7 +81,7 @@ export default function EarningsPage() {
         </div>
       ) : isError || !earnings ? (
         <ErrorState
-          message="Failed to load earnings data. Please try again."
+          message={t("failedToLoad")}
           onRetry={() => refetch()}
         />
       ) : (

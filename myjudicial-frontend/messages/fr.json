@@ -319,7 +319,9 @@
       "showingDefaults": "Affichage des valeurs par défaut. Les modifications apportées ici ne seront pas enregistrées tant que le point de terminaison des paramètres ne sera pas disponible.",
       "retry": "Réessayer",
       "settingsSaved": "Paramètres enregistrés",
-      "settingsUnavailable": "Le serveur de paramètres est indisponible. Les modifications n'ont pas pu être enregistrées."
+      "settingsUnavailable": "Le serveur de paramètres est indisponible. Les modifications n'ont pas pu être enregistrées.",
+      "socialLinksTitle": "Réseaux sociaux & liens publics",
+      "socialLinksDesc": "Liens publics affichés dans le pied de page du site. Laissez vide pour masquer une icône."
     },
     "compliance": {
       "title": "Tableau de bord de conformité",
@@ -1012,7 +1014,8 @@
     },
     "aria": {
       "accountMenu": "Menu du compte"
-    }
+    },
+    "inProgress": "En cours"
   },
   "errors": {
     "notFound": {
@@ -2258,7 +2261,18 @@
       "profile": "Profil",
       "security": "Sécurité",
       "preferences": "Préférences",
-      "signOut": "Se déconnecter"
+      "signOut": "Se déconnecter",
+      "consultations": "Consultations",
+      "verifications": "Vérifications",
+      "documents": "Documents",
+      "practiceAreas": "Domaines de droit",
+      "marketplace": "Marché",
+      "trustSafety": "Confiance et sécurité",
+      "operations": "Opérations",
+      "configuration": "Configuration",
+      "collapseSidebar": "Réduire la barre latérale",
+      "openNavigationMenu": "Ouvrir le menu de navigation",
+      "closeNavigationMenu": "Fermer le menu de navigation"
     }
   },
   "sidebar": {
@@ -2293,46 +2307,48 @@
     "preferences": "Préférences",
     "signOut": "Se déconnecter",
     "collapseSidebar": "Réduire la barre latérale",
-    "expandSidebar": "Agrandir la barre latérale"
+    "expandSidebar": "Agrandir la barre latérale",
+    "consultations": "Consultations",
+    "verifications": "Vérifications",
+    "documents": "Documents",
+    "practiceAreas": "Domaines de droit",
+    "marketplace": "Marché",
+    "trustSafety": "Confiance et sécurité",
+    "operations": "Opérations",
+    "configuration": "Configuration",
+    "openNavigationMenu": "Ouvrir le menu de navigation",
+    "closeNavigationMenu": "Fermer le menu de navigation"
   },
   "landing": {
     "footer": {
+      "tagline": "Démocratiser l'accès à une représentation juridique certifiée au Rwanda.",
+      "subtagline": "Consultez des avocats certifiés du Barreau du Rwanda avec des tarifs clairs et des paiements sécurisés.",
+      "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
-        "browse": "PARCOURIR",
-        "forClients": "POUR LES CLIENTS",
-        "forLawyers": "POUR LES AVOCATS",
-        "resources": "RESSOURCES",
-        "company": "ENTREPRISE",
-        "legal": "JURIDIQUE"
+        "findLawyer": "Trouver un avocat",
+        "forLawyers": "Pour les avocats",
+        "company": "Entreprise & aide",
+        "legal": "Juridique & conformité"
       },
       "links": {
         "findLawyer": "Trouver un avocat",
         "practiceAreas": "Domaines de droit",
-        "legalServices": "Services juridiques",
+        "pricing": "Tarifs transparents",
         "howItWorks": "Comment ça marche",
         "aiAssistant": "Assistant IA",
-        "myBookings": "Mes réservations",
-        "payments": "Paiements",
-        "messages": "Messages",
-        "leaveReview": "Laisser un avis",
-        "faqs": "FAQ",
-        "becomeExpert": "Devenir expert",
-        "verification": "Vérification",
-        "pricing": "Tarifs",
-        "dashboard": "Tableau de bord",
+        "becomeExpert": "Rejoindre comme avocat",
+        "advocateSignIn": "Connexion avocat",
+        "verification": "Normes du Barreau & vérification",
+        "partners": "Institutions partenaires",
+        "aboutUs": "À propos de MyJudicial",
+        "faqs": "Foire aux questions (FAQ)",
         "helpCenter": "Centre d'aide",
-        "blog": "Blog",
-        "legalGuides": "Guides juridiques",
-        "community": "Communauté",
-        "aboutUs": "À propos",
+        "contact": "Contact & bureaux",
         "careers": "Carrières",
-        "partners": "Partenaires",
-        "contact": "Contact",
-        "newsroom": "Actualités",
+        "newsroom": "Presse & actualités",
         "privacyPolicy": "Politique de confidentialité",
         "termsOfService": "Conditions d'utilisation",
-        "cookies": "Cookies",
-        "accessibility": "Accessibilité"
+        "cookies": "Politique des cookies"
       },
       "copyright": "MyJudicial, Inc. Tous droits réservés."
     },
@@ -2557,7 +2573,12 @@
     "ready": "Prêt",
     "notFound": "Non trouvé",
     "joinConsultation": "Rejoindre la consultation",
-    "recordingNotice": "En rejoignant, vous acceptez que la consultation soit enregistrée pour des fins de contrôle qualité. L'enregistrement ne sera accessible qu'à vous et à votre client."
+    "recordingNotice": "En rejoignant, vous acceptez que la consultation soit enregistrée pour des fins de contrôle qualité. L'enregistrement ne sera accessible qu'à vous et à votre client.",
+    "preConsultationBrief": "Dossier préliminaire",
+    "analyze": "Analyser",
+    "clientNotes": "Notes du client",
+    "analyzingCase": "Analyse du dossier par l'IA en cours...",
+    "analyzeError": "Impossible d'analyser les notes du dossier. Veuillez réessayer."
   },
   "signup": {
     "header": {
@@ -3723,7 +3744,7 @@
   "expertDashboard_availability": {
     "title": "Availability",
     "subtitle": "Set your weekly consultation hours. Clients can only book within these windows.",
-    "saveSchedule": "Save Schedule",
+    "saveSchedule": "Enregistrer le planning",
     "saveSuccess": "Availability schedule saved.",
     "saveError": "Failed to save availability.",
     "loadError": "Failed to load your availability schedule.",
@@ -3737,7 +3758,40 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "calendarTitle": "Calendrier de Disponibilité",
+    "calendarSubtitle": "Définissez votre emploi du temps hebdomadaire avec plusieurs plages horaires par jour",
+    "templates": "Modèles",
+    "totalHoursWeek": "Total Heures/Semaine",
+    "availableDays": "Jours Disponibles",
+    "timeBlocks": "Plages Horaires",
+    "infoAlert": "Cliquez sur un jour pour ajouter ou modifier des plages horaires. Vous pouvez avoir plusieurs plages par jour.",
+    "adjustSettings": "Ajuster le temps tampon et d'autres paramètres",
+    "noTimeBlocks": "Aucune plage horaire. Cliquez sur + pour en ajouter une.",
+    "copyToWeek": "Copier sur tous les jours",
+    "copiedToWeek": "{day} copié sur tous les jours",
+    "blockSingular": "plage",
+    "blockPlural": "plages",
+    "addTimeBlockTitle": "Ajouter une Plage Horaire",
+    "startTimeLabel": "Heure de Début",
+    "endTimeLabel": "Heure de Fin",
+    "endBeforeStartError": "L'heure de fin doit être après l'heure de début",
+    "addBlockBtn": "Ajouter la Plage",
+    "applyTemplateTitle": "Appliquer un Modèle",
+    "applyTemplateDesc": "Choisissez un modèle de planning préconfigurée",
+    "templateLabel": "Modèle",
+    "templateReplaceNotice": "Cela remplacera votre planning actuel par le modèle sélectionné.",
+    "applyTemplateBtn": "Appliquer le Modèle",
+    "cancel": "Annuler",
+    "templateApplied": "Modèle appliqué",
+    "removeBlock": "Supprimer la plage horaire",
+    "templateStandard": "Standard 9h-17h",
+    "templatePartTime": "Temps partiel (Lun/Mer/Ven)",
+    "templateEvening": "Horaires du soir (18h-21h)",
+    "templateWeekend": "Week-end uniquement",
+    "templateLunchBreak": "Avec pause déjeuner (9h-12h, 14h-17h)",
+    "loadErrorV2": "Impossible de charger les disponibilités",
+    "loadErrorV2Desc": "Une erreur s'est produite lors du chargement de votre planning"
   },
   "expertDashboard_billing": {
     "title": "Subscription & Billing",
@@ -3796,7 +3850,10 @@
     "month": "Month",
     "today": "Today",
     "defaultClient": "Client",
-    "moreBookings": "+{count} more"
+    "moreBookings": "+{count} more",
+    "previousPeriod": "Période précédente",
+    "nextPeriod": "Période suivante",
+    "loadingCalendar": "Chargement du calendrier"
   },
   "expertDashboard_cases": {
     "title": "Case Management",
@@ -3864,7 +3921,9 @@
     "noUpcoming": "You have no upcoming consultations. New bookings will appear here.",
     "noPast": "No past consultations found. Completed sessions will appear here.",
     "noCancelled": "No cancelled consultations. Cancelled sessions will appear here.",
-    "noTitle": "No {tab} consultations"
+    "noTitle": "No {tab} consultations",
+    "viewDetails": "Voir les détails",
+    "joinRoom": "Rejoindre la salle"
   },
   "expertDashboard_dashboard-booking-queue": {
     "priorityQueue": "Priority Queue",
@@ -3917,7 +3976,8 @@
     "amount": "Amount",
     "completed": "Completed",
     "platformFees": "Platform Fees (15%)",
-    "netRevenuePct": "Net Revenue (85%)"
+    "netRevenuePct": "Net Revenue (85%)",
+    "paymentsDisabled": "Les paiements sont actuellement désactivés sur la plateforme. Les gains et versements apparaîtront ici une fois les paiements réactivés."
   },
   "expertDashboard_faq-section": {
     "faqTag": "FAQ",
@@ -4046,7 +4106,8 @@
     "noMeetingsDesc": "Confirmed consultations ready for video call will appear here.",
     "joinCall": "Join Call",
     "notYetTime": "Not yet time",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "client": "Client"
   },
   "expertDashboard_notifications": {
     "title": "Notifications",
@@ -4216,7 +4277,8 @@
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",
     "inAppNotifsDesc": "Receive notifications inside the platform",
-    "saveNotifsBtn": "Save Notification Preferences"
+    "saveNotifsBtn": "Save Notification Preferences",
+    "bioField": "Biographie"
   },
   "expertDashboard_quotations": {
     "statusDraft": "Draft",
@@ -5227,6 +5289,203 @@
       "other": "Autre motif",
       "offensiveLanguage": "Langage offensant",
       "fakeReview": "Avis faux ou malhonnête"
+    }
+  },
+  "expertDashboard_bookings": {
+    "title": "Réservations",
+    "description": "Gérez toutes vos réservations de consultation en un seul endroit",
+    "tabs": {
+      "pending": "En attente",
+      "active": "Actives",
+      "completed": "Terminées",
+      "cancelled": "Annulées"
+    },
+    "empty": {
+      "pending": "Aucune demande de réservation en attente.",
+      "active": "Aucune consultation active.",
+      "completed": "Aucune consultation terminée pour le moment.",
+      "cancelled": "Aucune réservation annulée."
+    },
+    "deliveryModes": {
+      "inPerson": "En personne",
+      "phone": "Téléphone",
+      "document": "Document",
+      "video": "Vidéo",
+      "office": "Bureau",
+      "phoneCall": "Appel téléphonique",
+      "documents": "Documents",
+      "videoCall": "Appel vidéo"
+    },
+    "status": {
+      "awaitingConfirmation": "En attente de confirmation",
+      "awaitingPayment": "En attente de paiement",
+      "rescheduleRequested": "Report demandé",
+      "completed": "Terminée",
+      "cancelled": "Annulée",
+      "refunded": "Remboursée",
+      "confirmed": "Confirmée",
+      "paid": "Payée",
+      "active": "Active",
+      "pending": "En attente",
+      "created": "Créée",
+      "done": "Terminé"
+    },
+    "actions": {
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "message": "Message",
+      "messageClient": "Envoyer un message au client",
+      "joinCall": "Rejoindre l'appel",
+      "notYetTime": "Pas encore l'heure",
+      "backToBookings": "Retour aux réservations",
+      "addToCalendar": "Ajouter au calendrier",
+      "reschedule": "Reprogrammer",
+      "reviewDocuments": "Examiner les documents",
+      "confirmDecline": "Confirmer le refus",
+      "cancel": "Annuler",
+      "keepBooking": "Conserver la réservation",
+      "declineTitle": "Refuser cette réservation ?",
+      "reasonLabel": "Motif du refus (5 caractères minimum)",
+      "reasonPlaceholder": "ex. Conflit d'horaire, impossible de prendre ce dossier...",
+      "declining": "Refus en cours..."
+    },
+    "details": {
+      "withClient": "avec {name}",
+      "progress": "Progression",
+      "bookingCancelled": "Réservation annulée",
+      "bookingRefunded": "Réservation remboursée",
+      "reason": "Motif : {reason}",
+      "schedule": "Horaire",
+      "date": "Date",
+      "duration": "Durée : {duration} min",
+      "client": "Client",
+      "service": "Service",
+      "payment": "Paiement",
+      "paymentPendingNotice": "Le paiement sera demandé une fois que vous aurez confirmé cette réservation.",
+      "statusLabel": "Statut",
+      "yourPayout": "Votre versement",
+      "officeLocation": "Cabinet : {address}",
+      "callClientAt": "Appeler le client au : {phone}",
+      "inPersonAppointment": "Rendez-vous au cabinet en personne"
+    },
+    "ai": {
+      "clientNotes": "Notes du client",
+      "aiAnalysis": "Analyse IA",
+      "analyzing": "Analyse du dossier par l'IA en cours...",
+      "analyzeError": "Impossible d'analyser le dossier. Veuillez réessayer.",
+      "summaryTitle": "Résumé post-consultation",
+      "step1Desc": "Étape 1 : Rédigez vos notes de consultation. L'IA les structurera en un résumé professionnel pour le client.",
+      "notesPlaceholder": "Rédigez vos notes de consultation ici - questions clés abordées, conseils prodigués, actions de suivi, etc.",
+      "generatingSummary": "Génération du résumé...",
+      "generateSummary": "Générer le résumé",
+      "structuringSummary": "L'IA structure vos notes en un résumé professionnel...",
+      "notesError": "Impossible d'analyser les notes. Veuillez réessayer.",
+      "step2Desc": "Étape 2 : Examinez le résumé généré par l'IA ci-dessous. Modifiez-le si nécessaire, puis envoyez-le au client.",
+      "editableSummaryLabel": "Résumé modifiable (sera envoyé au client)",
+      "sendingSummary": "Envoi en cours...",
+      "sendSummary": "Envoyer le résumé de consultation",
+      "startOver": "Recommencer",
+      "summarySentTitle": "Résumé envoyé au client",
+      "summarySentDesc": "Le résumé de consultation a été envoyé dans la boîte de réception du client."
+    },
+    "toasts": {
+      "acceptSuccess": "Réservation acceptée. Le client a été notifié.",
+      "acceptError": "Échec de l'acceptation de la réservation",
+      "declineSuccess": "Réservation refusée avec succès.",
+      "declineError": "Échec du refus de la réservation.",
+      "declineMinLength": "Veuillez indiquer un motif d'au moins 5 caractères.",
+      "chatUnavailable": "La conversation n'est pas encore disponible pour cette réservation.",
+      "summarySent": "Résumé de la consultation envoyé au client.",
+      "summaryError": "Échec de l'envoi du résumé.",
+      "noChatFound": "Aucune conversation trouvée pour cette réservation. Utilisez 'Envoyer un message au client' pour en démarrer une.",
+      "loadError": "Échec du chargement des réservations. Veuillez réessayer.",
+      "bookingNotFound": "Réservation introuvable"
+    }
+  },
+  "expertDashboard_settings": {
+    "title": "Paramètres",
+    "description": "Gérez les préférences de votre compte",
+    "appearanceTitle": "Apparence",
+    "appearanceDesc": "Personnalisez votre thème visuel et le mode d'interface",
+    "themeMode": "Mode de thème",
+    "themeDesc": "Basculer entre les thèmes clair et sombre",
+    "additionalSettings": "Paramètres supplémentaires",
+    "additionalSettingsDesc": "Accès rapide à la configuration spécialisée du compte et des horaires",
+    "scheduleSettingsTitle": "Paramètres d'horaire",
+    "scheduleSettingsDesc": "Délais de prévenance, intervalles de pause et limites quotidiennes",
+    "dateOverridesTitle": "Remplacements de dates",
+    "dateOverridesDesc": "Horaires personnalisés et périodes de vacances",
+    "accountSecurityTitle": "Compte et sécurité",
+    "accountSecurityDesc": "Changement de mot de passe et sessions d'appareils connectés"
+  },
+  "expertDashboard_compliance": {
+    "title": "Conformité & Accréditations",
+    "subtitle": "Surveillez votre statut de vérification et la validité de vos accréditations",
+    "uploadDocuments": "Téléverser les documents",
+    "loadError": "Échec du chargement des données de conformité. Veuillez réessayer.",
+    "criticalTitle": "Critique",
+    "criticalDesc": "Nécessite une action immédiate",
+    "warningsTitle": "Avertissements",
+    "warningsDesc": "Échéance dans les 30 prochains jours",
+    "compliantTitle": "Conforme",
+    "compliantDesc": "Toutes les obligations sont à jour",
+    "credentialsTitle": "Accréditations d'expert",
+    "credentialsExpiry": "Expiration des accréditations",
+    "daysUntilExpiry": "Jours jusqu'à l'expiration",
+    "lastVerification": "Dernière vérification",
+    "rejectionReason": "Motif de rejet",
+    "expired": "Expiré",
+    "daysRemaining": "{days} jours",
+    "statusExpired": "Expiré",
+    "statusSuspended": "Suspendu",
+    "statusDraft": "Brouillon",
+    "statusPendingReview": "En cours d'examen",
+    "statusCompliant": "Conforme",
+    "statusRejected": "Rejeté",
+    "actionRequired": "Action requise",
+    "actionExpiredDesc": "Vos accréditations ont expiré. Téléversez des documents renouvelés pour restaurer votre compte.",
+    "actionSuspendedDesc": "Votre compte a été suspendu. Contactez le support ou téléversez des documents de vérification mis à jour.",
+    "uploadNewDocuments": "Téléverser de nouveaux documents"
+  },
+  "expertServices": {
+    "title": "Services & Tarification",
+    "subtitle": "Gérez vos services de consultation, vos honoraires et modes de prestation",
+    "addService": "Ajouter un service",
+    "editService": "Modifier le service",
+    "saveService": "Enregistrer le service",
+    "deleteService": "Supprimer le service",
+    "noServicesAdded": "Aucun service ajouté pour le moment",
+    "noServicesDesc": "Créez votre premier service juridique pour commencer à recevoir des réservations",
+    "unverifiedNotice": "Votre profil n'est pas encore vérifié. Vous pouvez gérer vos services, mais ils ne seront visibles aux clients qu'une fois la vérification terminée.",
+    "failedToLoad": "Échec du chargement des services. Veuillez réessayer.",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce service ? Cette action est irréversible.",
+    "serviceDeleted": "Service supprimé avec succès.",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "defaultService": "Service par défaut",
+    "serviceName": "Nom du service",
+    "serviceDescription": "Description du service",
+    "serviceCategory": "Catégorie de service",
+    "deliveryMethod": "Mode de prestation",
+    "durationMinutes": "Durée (minutes)",
+    "fee": "Tarif forfaitaire",
+    "validationName": "Le nom doit comporter au moins 2 caractères.",
+    "validationDuration": "La durée doit être comprise entre 15 et 480 minutes.",
+    "validationFee": "Le tarif doit être un montant positif.",
+    "category": {
+      "consultation": "Consultation",
+      "documentReview": "Examen de documents",
+      "contractDrafting": "Rédaction de contrats",
+      "courtRepresentation": "Représentation au tribunal",
+      "legalAdvice": "Conseil juridique",
+      "mediation": "Médiation",
+      "other": "Autre"
+    },
+    "deliveryMode": {
+      "video": "Appel vidéo",
+      "phone": "Appel téléphonique",
+      "inPerson": "En personne",
+      "email": "Consultation par e-mail"
     }
   }
 }

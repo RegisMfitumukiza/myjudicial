@@ -40,40 +40,6 @@ interface StatusConfig {
   chipClass: string;
 }
 
-function getStatusConfig(status: ExpertStatus, isExpired: boolean): StatusConfig {
-  if (isExpired || status === ExpertStatus.SUSPENDED) {
-    return {
-      tone: "destructive",
-      icon: <AlertTriangle size={20} />,
-      label: isExpired ? "Expired" : "Suspended",
-      chipClass: "bg-destructive/10 text-destructive",
-    };
-  }
-  if (status === ExpertStatus.PENDING_VERIFICATION || status === ExpertStatus.DRAFT) {
-    return {
-      tone: "warning",
-      icon: <Clock size={20} />,
-      label: status === ExpertStatus.DRAFT ? "Draft" : "Pending Review",
-      chipClass: "bg-warning/10 text-warning",
-    };
-  }
-  if (status === ExpertStatus.VERIFIED) {
-    return {
-      tone: "active",
-      icon: <CheckCircle size={20} />,
-      label: "Compliant",
-      chipClass: "bg-primary/10 text-primary",
-    };
-  }
-  // REJECTED or unknown
-  return {
-    tone: "destructive",
-    icon: <ShieldAlert size={20} />,
-    label: status === ExpertStatus.REJECTED ? "Rejected" : status,
-    chipClass: "bg-destructive/10 text-destructive",
-  };
-}
-
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function ComplianceSkeleton() {
@@ -99,7 +65,41 @@ function ComplianceSkeleton() {
 
 // ─── Detail Card ──────────────────────────────────────────────────────────────
 
-function ComplianceCard({ data }: { data: ComplianceStatus }) {
+function ComplianceCard({ data, t }: { data: ComplianceStatus; t: ReturnType<typeof useTranslations<"expertDashboard_compliance">> }) {
+  function getStatusConfig(status: ExpertStatus, isExpired: boolean): StatusConfig {
+    if (isExpired || status === ExpertStatus.SUSPENDED) {
+      return {
+        tone: "destructive",
+        icon: <AlertTriangle size={20} />,
+        label: isExpired ? t("statusExpired") : t("statusSuspended"),
+        chipClass: "bg-destructive/10 text-destructive",
+      };
+    }
+    if (status === ExpertStatus.PENDING_VERIFICATION || status === ExpertStatus.DRAFT) {
+      return {
+        tone: "warning",
+        icon: <Clock size={20} />,
+        label: status === ExpertStatus.DRAFT ? t("statusDraft") : t("statusPendingReview"),
+        chipClass: "bg-warning/10 text-warning",
+      };
+    }
+    if (status === ExpertStatus.VERIFIED) {
+      return {
+        tone: "active",
+        icon: <CheckCircle size={20} />,
+        label: t("statusCompliant"),
+        chipClass: "bg-primary/10 text-primary",
+      };
+    }
+    // REJECTED or unknown
+    return {
+      tone: "destructive",
+      icon: <ShieldAlert size={20} />,
+      label: status === ExpertStatus.REJECTED ? t("statusRejected") : status,
+      chipClass: "bg-destructive/10 text-destructive",
+    };
+  }
+
   const config = getStatusConfig(data.status, data.isExpired);
 
   return (
@@ -113,7 +113,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-base font-semibold text-foreground">Expert Credentials</h3>
+            <h3 className="text-base font-semibold text-foreground">{t("credentialsTitle")}</h3>
             <StatusBadge tone={config.tone}>{config.label}</StatusBadge>
           </div>
 
@@ -122,7 +122,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
           <div className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Credentials Expiry
+                {t("credentialsExpiry")}
               </span>
               <span
                 className={`font-medium ${
@@ -136,7 +136,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
             {data.daysUntilExpiry !== null && (
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Days Until Expiry
+                  {t("daysUntilExpiry")}
                 </span>
                 <span
                   className={`font-medium ${
@@ -147,7 +147,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
                       : "text-foreground"
                   }`}
                 >
-                  {data.isExpired ? "Expired" : `${data.daysUntilExpiry} days`}
+                  {data.isExpired ? t("expired") : t("daysRemaining", { days: data.daysUntilExpiry })}
                 </span>
               </div>
             )}
@@ -156,7 +156,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
               <>
                 <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Last Verification
+                    {t("lastVerification")}
                   </span>
                   <span className="font-medium text-foreground">
                     {formatDate(
@@ -167,7 +167,7 @@ function ComplianceCard({ data }: { data: ComplianceStatus }) {
                 {data.lastVerification.rejectionReason && (
                   <div className="col-span-full flex flex-col gap-0.5">
                     <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Rejection Reason
+                      {t("rejectionReason")}
                     </span>
                     <span className="text-sm text-destructive">
                       {data.lastVerification.rejectionReason}
@@ -224,41 +224,41 @@ export default function CompliancePage() {
           {/* Summary chips */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-              <StatusBadge tone="destructive">Critical</StatusBadge>
+              <StatusBadge tone="destructive">{t("criticalTitle")}</StatusBadge>
               <p className="mt-2 text-2xl font-bold text-foreground">{isSuspended ? 1 : 0}</p>
-              <p className="mt-1 text-xs text-muted-foreground">Requires immediate action</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("criticalDesc")}</p>
             </div>
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-              <StatusBadge tone="warning">Warnings</StatusBadge>
+              <StatusBadge tone="warning">{t("warningsTitle")}</StatusBadge>
               <p className="mt-2 text-2xl font-bold text-foreground">
                 {isPending || hasExpiryWarning ? 1 : 0}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">Due within the next 30 days</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("warningsDesc")}</p>
             </div>
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-              <StatusBadge tone="active">Compliant</StatusBadge>
+              <StatusBadge tone="active">{t("compliantTitle")}</StatusBadge>
               <p className="mt-2 text-2xl font-bold text-foreground">{isActive ? 1 : 0}</p>
-              <p className="mt-1 text-xs text-muted-foreground">All obligations up to date</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("compliantDesc")}</p>
             </div>
           </div>
 
           {/* Live detail card */}
-          <ComplianceCard data={data} />
+          <ComplianceCard data={data} t={t} />
 
           {/* Action notice for suspended / expired */}
           {isSuspended && (
             <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
               <AlertTriangle size={20} className="mt-0.5 shrink-0 text-destructive" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">Action Required</p>
+                <p className="text-sm font-medium text-destructive">{t("actionRequired")}</p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
                   {isExpiredFlag
-                    ? "Your credentials have expired. Upload renewed documents to restore your account."
-                    : "Your account has been suspended. Contact support or upload updated verification documents."}
+                    ? t("actionExpiredDesc")
+                    : t("actionSuspendedDesc")}
                 </p>
                 <Button size="sm" variant="destructive" className="mt-3" asChild>
                   <Link href="/expert/dashboard/verification">
-                    <RefreshCw size={14} /> Upload New Documents
+                    <RefreshCw size={14} /> {t("uploadNewDocuments")}
                   </Link>
                 </Button>
               </div>
@@ -269,4 +269,3 @@ export default function CompliancePage() {
     </div>
   );
 }
-

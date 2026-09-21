@@ -3,8 +3,8 @@
 import { use, useState, useEffect, useCallback } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { ArrowLeft, Video, Mic, VideoOff, Loader2, AlertCircle, CheckCircle, Brain, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { useTranslations, useLocale } from "next-intl";
+import { Button } from "@/shared/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
 import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
@@ -18,6 +18,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
   const router = useRouter();
   const { booking, isLoading, error } = useBooking(id);
   const t = useTranslations("expertDashboard_join");
+  const locale = useLocale();
 
   const [deviceCheck, setDeviceCheck] = useState<"checking" | "success" | "error">("checking");
   const [hasCamera, setHasCamera] = useState(false);
@@ -36,9 +37,9 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
       const result = await analyzeMutation.mutateAsync({ text: notes });
       setAiAnalysis(result.analysis);
     } catch {
-      setAiError("Could not analyze case notes. Please try again.");
+      setAiError(t("analyzeError"));
     }
-  }, [booking, analyzeMutation]);
+  }, [booking, analyzeMutation, t]);
 
   const hasNotes = !!booking?.citizenNotes;
 
@@ -143,7 +144,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
               <div className="flex justify-between">
                 <span className="text-brand-dark/60 dark:text-white/60">{t("scheduled")}</span>
                 <span className="font-semibold text-brand-dark dark:text-white">
-                  {new Date(booking.scheduledStart).toLocaleString()}
+                  {new Date(booking.scheduledStart).toLocaleString(locale)}
                 </span>
               </div>
             </div>
@@ -157,7 +158,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-dark/10">
                     <Brain size={14} className="text-brand-dark" />
                   </div>
-                  <h2 className="text-[14px] font-bold text-brand-dark dark:text-white">Pre-Consultation Brief</h2>
+                  <h2 className="text-[14px] font-bold text-brand-dark dark:text-white">{t("preConsultationBrief")}</h2>
                 </div>
                 {!aiAnalysis && !analyzeMutation.isPending && (
                   <button
@@ -165,14 +166,14 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
                     className="flex items-center gap-1.5 rounded-lg bg-brand-dark/10 px-3 py-1.5 text-[12px] font-semibold text-brand-dark transition-colors hover:bg-brand-dark/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                   >
                     <Sparkles size={12} />
-                    Analyze
+                    {t("analyze")}
                   </button>
                 )}
               </div>
 
               {booking.citizenNotes && !aiAnalysis && !analyzeMutation.isPending && (
                 <div className="rounded-lg bg-brand-dark/5 px-3 py-2 dark:bg-white/5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-1">Client Notes</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-1">{t("clientNotes")}</p>
                   <p className="text-[12px] text-brand-dark/70 dark:text-white/70 leading-relaxed">{booking.citizenNotes}</p>
                 </div>
               )}
@@ -180,7 +181,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
               {analyzeMutation.isPending && (
                 <div className="flex items-center gap-2 py-4 text-[13px] text-brand-dark/50 dark:text-white/50">
                   <Loader2 size={14} className="animate-spin" />
-                  Analyzing case with AI...
+                  {t("analyzingCase")}
                 </div>
               )}
 

@@ -4,58 +4,99 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { Logo } from "@/shared/components/logo";
+import { MapPin } from "lucide-react";
+import { useSocialLinks } from "@/features/settings/hooks/useSocialLinks";
 
+/* ── Inline SVG icons (no extra deps) ──────────────────────────────── */
+function XIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L2.002 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+function LinkedInIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+function FacebookIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+function InstagramIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...p}>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+function YouTubeIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+    </svg>
+  );
+}
+function WhatsAppIcon(p: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+    </svg>
+  );
+}
+
+/* ── Social icon map ────────────────────────────────────────────────── */
+const SOCIAL_ICON_MAP = {
+  x: { Icon: XIcon, label: "X (Twitter)" },
+  linkedin: { Icon: LinkedInIcon, label: "LinkedIn" },
+  facebook: { Icon: FacebookIcon, label: "Facebook" },
+  instagram: { Icon: InstagramIcon, label: "Instagram" },
+  youtube: { Icon: YouTubeIcon, label: "YouTube" },
+  whatsapp: { Icon: WhatsAppIcon, label: "WhatsApp" },
+} as const;
+
+/* ── Component ─────────────────────────────────────────────────────── */
 export default function LandingFooter() {
   const t = useTranslations("landing.footer");
+  const { socialLinks } = useSocialLinks();
 
+  /* 4 clean columns — all routes verified to exist */
   const FOOTER_COLS = [
     {
-      heading: t("columns.browse"),
+      heading: t("columns.findLawyer"),
       links: [
         { label: t("links.findLawyer"), href: "/search" },
         { label: t("links.practiceAreas"), href: "/practice-areas" },
-        { label: t("links.legalServices"), href: "/search" },
+        { label: t("links.pricing"), href: "/pricing" },
         { label: t("links.howItWorks"), href: "/how-it-works" },
         { label: t("links.aiAssistant"), href: "/ai" },
       ],
     },
     {
-      heading: t("columns.forClients"),
-      links: [
-        { label: t("links.myBookings"), href: "/client/dashboard/consultations" },
-        { label: t("links.payments"), href: "/client/dashboard/payments" },
-        { label: t("links.messages"), href: "/client/dashboard/messages" },
-        { label: t("links.leaveReview"), href: "/client/dashboard" },
-        { label: t("links.faqs"), href: "/faqs" },
-      ],
-    },
-    {
       heading: t("columns.forLawyers"),
       links: [
-        { label: t("links.becomeExpert"), href: "/expert/onboarding" },
-        { label: t("links.verification"), href: "/expert/onboarding" },
-        { label: t("links.pricing"), href: "/pricing" },
-        { label: t("links.dashboard"), href: "/expert/dashboard" },
-        { label: t("links.helpCenter"), href: "/help" },
-      ],
-    },
-    {
-      heading: t("columns.resources"),
-      links: [
-        { label: t("links.helpCenter"), href: "/help" },
-        { label: t("links.blog"), href: "/blog" },
-        { label: t("links.legalGuides"), href: "/resources" },
-        { label: t("links.aiAssistant"), href: "/ai" },
-        { label: t("links.community"), href: "/resources" },
+        { label: t("links.becomeExpert"), href: "/sign-up?role=EXPERT" },
+        { label: t("links.advocateSignIn"), href: "/sign-in" },
+        { label: t("links.verification"), href: "/how-it-works" },
+        { label: t("links.partners"), href: "/partners" },
       ],
     },
     {
       heading: t("columns.company"),
       links: [
         { label: t("links.aboutUs"), href: "/about" },
-        { label: t("links.careers"), href: "/careers" },
-        { label: t("links.partners"), href: "/partners" },
+        { label: t("links.faqs"), href: "/faqs" },
+        { label: t("links.helpCenter"), href: "/help" },
         { label: t("links.contact"), href: "/contact" },
+        { label: t("links.careers"), href: "/careers" },
         { label: t("links.newsroom"), href: "/press" },
       ],
     },
@@ -65,67 +106,56 @@ export default function LandingFooter() {
         { label: t("links.privacyPolicy"), href: "/privacy" },
         { label: t("links.termsOfService"), href: "/terms" },
         { label: t("links.cookies"), href: "/cookies" },
-        { label: t("links.accessibility"), href: "/help" },
       ],
     },
   ];
 
-  const SOCIAL_LINKS = [
-    {
-      label: "Facebook",
-      href: "https://facebook.com/myjudicial",
-      Icon: (p: React.SVGProps<SVGSVGElement>) => (
-        <svg viewBox="0 0 24 24" fill="currentColor" {...p}>
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </svg>
-      ),
-    },
-    {
-      label: "Twitter / X",
-      href: "https://twitter.com/myjudicial",
-      Icon: (p: React.SVGProps<SVGSVGElement>) => (
-        <svg viewBox="0 0 24 24" fill="currentColor" {...p}>
-          <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-        </svg>
-      ),
-    },
-    {
-      label: "LinkedIn",
-      href: "https://linkedin.com/company/myjudicial",
-      Icon: (p: React.SVGProps<SVGSVGElement>) => (
-        <svg viewBox="0 0 24 24" fill="currentColor" {...p}>
-          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-          <rect width="4" height="12" x="2" y="9" />
-          <circle cx="4" cy="4" r="2" />
-        </svg>
-      ),
-    },
-    {
-      label: "Instagram",
-      href: "https://instagram.com/myjudicial",
-      Icon: (p: React.SVGProps<SVGSVGElement>) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-          <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-          <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-        </svg>
-      ),
-    },
-  ];
+  /* Only render social icons where the admin has set a non-empty URL */
+  const activeSocials = (
+    Object.entries(SOCIAL_ICON_MAP) as [keyof typeof SOCIAL_ICON_MAP, { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string }][]
+  ).filter(([key]) => {
+    const url = socialLinks[key];
+    return typeof url === "string" && url.trim().length > 0;
+  });
 
   return (
-    <footer className="border-t border-border bg-muted/30">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-12 border-b border-border">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
+    <footer className="border-t border-border bg-card">
+      {/* ── Brand Identity Strip ─────────────────────────────────────── */}
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-10 pb-8 border-b border-border">
+        <div className="flex flex-col gap-3 max-w-xl">
+          <Logo iconSize={20} fontSize="text-[17px]" className="text-brand-dark dark:text-white" />
+          <p className="text-sm font-medium text-foreground leading-snug">
+            {t("tagline")}
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {t("subtagline")}
+          </p>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+            <MapPin size={12} className="shrink-0" />
+            <span>{t("kigaliRwanda")}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4 Nav Columns ────────────────────────────────────────────── */}
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-10 border-b border-border">
+        {/*
+          Mobile:  2 cols  (grid-cols-2)
+          Tablet:  4 cols  (sm:grid-cols-4)
+          Desktop: 4 cols with more breathing room
+        */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 sm:gap-x-8">
           {FOOTER_COLS.map((col) => (
-            <div key={col.heading}>
-              <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">{col.heading}</h4>
+            <div key={col.heading} className="min-w-0">
+              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/70">
+                {col.heading}
+              </h4>
               <ul className="space-y-2.5">
                 {col.links.map((link) => (
-                  <li key={link.label}>
+                  <li key={link.href + link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline"
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4 leading-snug block"
                     >
                       {link.label}
                     </Link>
@@ -137,32 +167,47 @@ export default function LandingFooter() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-6">
-        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
-          <div className="flex flex-col items-center gap-2 md:flex-row md:gap-4">
-            <Logo iconSize={18} fontSize="text-[15px]" className="text-brand-dark dark:text-white" />
-            <span className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} {t("copyright")}
-            </span>
-          </div>
+      {/* ── Bottom Bar ───────────────────────────────────────────────── */}
+      {/*
+        Mobile:  stacked (flex-col, items-center, text-center)
+        Desktop: one row  (md:flex-row, md:justify-between)
+        Right-side gap ensures the fixed AI chat button never overlaps
+        the social icons or language switcher on any viewport.
+      */}
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-5">
+        <div className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
 
-          <div className="flex items-center gap-6">
+          {/* Copyright */}
+          <p className="text-xs text-muted-foreground order-2 md:order-1">
+            © {new Date().getFullYear()} {t("copyright")}
+          </p>
+
+          {/* Language switcher + social icons */}
+          <div className="flex flex-wrap items-center justify-center gap-4 order-1 md:order-2 md:pr-16 lg:pr-20">
             <LanguageSwitcher variant="compact" />
 
-            <div className="flex items-center gap-3">
-              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="text-muted-foreground transition hover:text-foreground"
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                </a>
-              ))}
-            </div>
+            {activeSocials.length > 0 && (
+              <div
+                className="flex flex-wrap items-center gap-2"
+                aria-label="Social media links"
+              >
+                {activeSocials.map(([key, { Icon, label }]) => {
+                  const href = socialLinks[key] as string;
+                  return (
+                    <a
+                      key={key}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-all hover:border-foreground/30 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <Icon className="h-[15px] w-[15px]" />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

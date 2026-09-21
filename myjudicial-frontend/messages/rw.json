@@ -319,7 +319,9 @@
       "showingDefaults": "Kwerekana amakuru y'isanzwe. Impinduka zifashijwe hano ntizibika gushya API ishoboye.",
       "retry": "Ongera ugerageze",
       "settingsSaved": "Igenamiterere ryabitswe",
-      "settingsUnavailable": "Seriveri y'igenamiterere ntago iriho. Impinduka ntizashoboye kubika."
+      "settingsUnavailable": "Seriveri y'igenamiterere ntago iriho. Impinduka ntizashoboye kubika.",
+      "socialLinksTitle": "Imikorere ya Sosiyali & Itumanaho rya Rubanda",
+      "socialLinksDesc": "Itumanaho rya rubanda ryerekanywa mu mpera y'urubuga. Siga ubusa kugira ngo habe nta gishusho kigaragazwa."
     },
     "compliance": {
       "title": "Ikibaho cy'Ukwiho",
@@ -1012,7 +1014,8 @@
     },
     "aria": {
       "accountMenu": "Ibyerekeye konti"
-    }
+    },
+    "inProgress": "Biri gukorwa"
   },
   "errors": {
     "notFound": {
@@ -2258,7 +2261,18 @@
       "profile": "Umwirondoro",
       "security": "Umutekano",
       "preferences": "Ibyo utegereje",
-      "signOut": "Sohoka"
+      "signOut": "Sohoka",
+      "consultations": "Inama nshingamategeko",
+      "verifications": "Isuzuma ry'ibyemezo",
+      "documents": "Inyandiko",
+      "practiceAreas": "Amashami y'amategeko",
+      "marketplace": "Isoko ry'abanyamategeko",
+      "trustSafety": "Icyizere n'umutekano",
+      "operations": "Ibikorwa",
+      "configuration": "Iboneza",
+      "collapseSidebar": "Kugabanya umwanya w'urubuga",
+      "openNavigationMenu": "Fungura menu y'urubuga",
+      "closeNavigationMenu": "Funga menu y'urubuga"
     }
   },
   "sidebar": {
@@ -2292,47 +2306,49 @@
     "security": "Umutekano",
     "preferences": "Ibyo utegereje",
     "signOut": "Sohoka",
-    "collapseSidebar": "Kugabanya urubuga rukurwa",
-    "expandSidebar": "Kwagura urubuga rukurwa"
+    "collapseSidebar": "Kugabanya umwanya w'urubuga",
+    "expandSidebar": "Kwagura urubuga rukurwa",
+    "consultations": "Inama nshingamategeko",
+    "verifications": "Isuzuma ry'ibyemezo",
+    "documents": "Inyandiko",
+    "practiceAreas": "Amashami y'amategeko",
+    "marketplace": "Isoko ry'abanyamategeko",
+    "trustSafety": "Icyizere n'umutekano",
+    "operations": "Ibikorwa",
+    "configuration": "Iboneza",
+    "openNavigationMenu": "Fungura menu y'urubuga",
+    "closeNavigationMenu": "Funga menu y'urubuga"
   },
   "landing": {
     "footer": {
+      "tagline": "Guteza imbere ubwige mu gutumanahana n'abavoka bemewe mu Rwanda.",
+      "subtagline": "Tumanahana n'abavoka bemejwe n'Urugaga rw'Abavoka mu Rwanda hamwe n'ibiciro bisobanutse n'ubwishyu bwizewe.",
+      "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
-        "browse": "SHAKISHA",
-        "forClients": "KU BAKIRIZI",
-        "forLawyers": "KU BARENGERWA",
-        "resources": "IBIKUBWAHO",
-        "company": "ISOSHO",
-        "legal": "AMATEGEKO"
+        "findLawyer": "Shaka Inkunga y'Amategeko",
+        "forLawyers": "Ku Bavoka",
+        "company": "Sosiyete & Inkunga",
+        "legal": "Amategeko & Icyizere"
       },
       "links": {
-        "findLawyer": "Rondera umuunganizi",
-        "practiceAreas": "Imyanya y'ubufasha",
-        "legalServices": "Serivisi z'amategeko",
-        "howItWorks": "Uburyo bwo gukoresha",
-        "aiAssistant": "Umufasha wa AI",
-        "myBookings": "Ivyo nabandikiye",
-        "payments": "Ubwishyu",
-        "messages": "Ubutumwa",
-        "leaveReview": "Tanga igitekerezo",
-        "faqs": "Ibibazo bikunzwe",
-        "becomeExpert": "Za inyangamugayo",
-        "verification": "Kwemeza",
-        "pricing": "Igiciro",
-        "dashboard": "Ikibaho",
+        "findLawyer": "Shaka Umwavoka",
+        "practiceAreas": "Inzego z'Ubuhanga",
+        "pricing": "Ibiciro Bisobanutse",
+        "howItWorks": "Uburyo Bigenda",
+        "aiAssistant": "Umufasha wa AI w'Amategeko",
+        "becomeExpert": "Iyandikishe nk'Umwavoka",
+        "advocateSignIn": "Injira nk'Umwavoka",
+        "verification": "Ibisabwa n'Urugaga rw'Abavoka",
+        "partners": "Inzego Zitugana",
+        "aboutUs": "Abo Turi Bo",
+        "faqs": "Ibibazo Bikunzwe (FAQ)",
         "helpCenter": "Ifashamugisha",
-        "blog": "Blog",
-        "legalGuides": "Amabwiriza y'amategeko",
-        "community": "Umuryango",
-        "aboutUs": "Twebwe",
+        "contact": "Twandikire & Aho Turi",
         "careers": "Akazi",
-        "partners": "Abadukorana",
-        "contact": "Tuvugishe",
-        "newsroom": "Amakuru",
-        "privacyPolicy": "Politike y'ibanga",
-        "termsOfService": "Amategeko y'ikoresha",
-        "cookies": "Cookies",
-        "accessibility": "Kuboneka"
+        "newsroom": "Itangazo & Amakuru",
+        "privacyPolicy": "Politike y'Ibanga",
+        "termsOfService": "Amategeko y'Ikoresha",
+        "cookies": "Politike ya Cookies"
       },
       "copyright": "MyJudicial, Inc. Uburenganzira bwose bwubahirizwa."
     },
@@ -2557,7 +2573,12 @@
     "ready": "Witegerezwe",
     "notFound": "Ntabwo bibonetse",
     "joinConsultation": "Injira mu kikorano",
-    "recordingNotice": "Ugenda winjira, wemera ko inama yose igerwaho kugira ngo tugore ingendo zacu. Amajwi yose azaboneka nawe n'umukiriya wawe gusa."
+    "recordingNotice": "Ugenda winjira, wemera ko inama yose igerwaho kugira ngo tugore ingendo zacu. Amajwi yose azaboneka nawe n'umukiriya wawe gusa.",
+    "preConsultationBrief": "Incamake mbere y'inama",
+    "analyze": "Gusesengura",
+    "clientNotes": "Inyandiko z'umukiriya",
+    "analyzingCase": "AI irimo gusesengura ikibazo...",
+    "analyzeError": "Ntibyashobotse gusesengura inyandiko z'ikibazo. Ongera ugerageze."
   },
   "signup": {
     "header": {
@@ -3723,7 +3744,7 @@
   "expertDashboard_availability": {
     "title": "Availability",
     "subtitle": "Set your weekly consultation hours. Clients can only book within these windows.",
-    "saveSchedule": "Save Schedule",
+    "saveSchedule": "Bika Gahunda",
     "saveSuccess": "Availability schedule saved.",
     "saveError": "Failed to save availability.",
     "loadError": "Failed to load your availability schedule.",
@@ -3737,7 +3758,40 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "calendarTitle": "Kalendari y'Igihe Kirimo",
+    "calendarSubtitle": "Shiraho gahunda yawe y'icyumweru hamwe n'amasaha menshi ku munsi",
+    "templates": "Ibikoresho by'Icyitegererezo",
+    "totalHoursWeek": "Amasaha Yose/Icyumweru",
+    "availableDays": "Iminsi Irimo",
+    "timeBlocks": "Ibice by'Igihe",
+    "infoAlert": "Kanda ku munsi wongera cyangwa uhindure ibice by'igihe. Urashobora kugira ibice byinshi ku munsi.",
+    "adjustSettings": "Hindura igihe cyo gutegereza n'indi igenamiterere",
+    "noTimeBlocks": "Nta gice cy'igihe. Kanda + ongeraho kimwe.",
+    "copyToWeek": "Gukoporora ku minsi yose",
+    "copiedToWeek": "{day} gukoporowye ku minsi yose",
+    "blockSingular": "igice",
+    "blockPlural": "ibice",
+    "addTimeBlockTitle": "Ongeraho Igice cy'Igihe",
+    "startTimeLabel": "Igihe cyo Gutangira",
+    "endTimeLabel": "Igihe cyo Guhagarara",
+    "endBeforeStartError": "Igihe cyo guhagarara kigomba kuba nyuma y'igihe cyo gutangira",
+    "addBlockBtn": "Ongeraho Igice",
+    "applyTemplateTitle": "Shyira mu Bikorwa Icyitegererezo",
+    "applyTemplateDesc": "Hitamo icyitegererezo cy'igahunda yateguwe mbere",
+    "templateLabel": "Icyitegererezo",
+    "templateReplaceNotice": "Iki gizasimbuza gahunda yawe ya none n'icyitegererezo wahisemo.",
+    "applyTemplateBtn": "Shyira mu Bikorwa Icyitegererezo",
+    "cancel": "Reka",
+    "templateApplied": "Icyitegererezo cyashyizwe mu bikorwa",
+    "removeBlock": "Siba igice cy'igihe",
+    "templateStandard": "Gahunda Isanzwe 9h-17h",
+    "templatePartTime": "Igihe gito (Kwa/Kur/Gwe)",
+    "templateEvening": "Amasaha ya nimugoroba (18h-21h)",
+    "templateWeekend": "Iherezo ry'icyumweru gusa",
+    "templateLunchBreak": "Hamwe n'ikiruhuko cy'ibyakurya (9h-12h, 14h-17h)",
+    "loadErrorV2": "Gutera gahunda y'igihe byanze",
+    "loadErrorV2Desc": "Habaye ikosa mu gutura gahunda yawe"
   },
   "expertDashboard_billing": {
     "title": "Subscription & Billing",
@@ -3796,7 +3850,10 @@
     "month": "Month",
     "today": "Today",
     "defaultClient": "Client",
-    "moreBookings": "+{count} more"
+    "moreBookings": "+{count} more",
+    "previousPeriod": "Igihe cyashize",
+    "nextPeriod": "Igihe gikurikira",
+    "loadingCalendar": "Kalendari irimo gutangira"
   },
   "expertDashboard_cases": {
     "title": "Case Management",
@@ -3864,7 +3921,9 @@
     "noUpcoming": "You have no upcoming consultations. New bookings will appear here.",
     "noPast": "No past consultations found. Completed sessions will appear here.",
     "noCancelled": "No cancelled consultations. Cancelled sessions will appear here.",
-    "noTitle": "No {tab} consultations"
+    "noTitle": "No {tab} consultations",
+    "viewDetails": "Reba ibirambuye",
+    "joinRoom": "Kwinjira mu cyumba"
   },
   "expertDashboard_dashboard-booking-queue": {
     "priorityQueue": "Priority Queue",
@@ -3917,7 +3976,8 @@
     "amount": "Amount",
     "completed": "Completed",
     "platformFees": "Platform Fees (15%)",
-    "netRevenuePct": "Net Revenue (85%)"
+    "netRevenuePct": "Net Revenue (85%)",
+    "paymentsDisabled": "Kwishyura guhagaritswe ku mbuga. Inyungu n'ubwishyu bizagaragara hano ubwishyura busubizwe."
   },
   "expertDashboard_faq-section": {
     "faqTag": "Ibibazo Bikunze Kubazwa",
@@ -4046,7 +4106,8 @@
     "noMeetingsDesc": "Confirmed consultations ready for video call will appear here.",
     "joinCall": "Join Call",
     "notYetTime": "Not yet time",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "client": "Umukiriya"
   },
   "expertDashboard_notifications": {
     "title": "Notifications",
@@ -4216,7 +4277,8 @@
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",
     "inAppNotifsDesc": "Receive notifications inside the platform",
-    "saveNotifsBtn": "Save Notification Preferences"
+    "saveNotifsBtn": "Save Notification Preferences",
+    "bioField": "Amagambo y'ubwisanzure"
   },
   "expertDashboard_quotations": {
     "statusDraft": "Draft",
@@ -5227,6 +5289,203 @@
       "other": "Ikindi kibazo",
       "offensiveLanguage": "Ururimi rusebanya cyangwa rutukana",
       "fakeReview": "Ibitekerezo by'ibihimbano"
+    }
+  },
+  "expertDashboard_bookings": {
+    "title": "Gahunda z'inama",
+    "description": "Cunga gahunda zawe zose z'ubujyanama ahantu hamwe",
+    "tabs": {
+      "pending": "Zitegerejwe",
+      "active": "Izikora",
+      "completed": "Izarangiye",
+      "cancelled": "Izahagaritswe"
+    },
+    "empty": {
+      "pending": "Nta busabe bw'inama butegerejwe kugeza ubu.",
+      "active": "Nta nama ziri gukora kugeza ubu.",
+      "completed": "Nta nama zirarangira kugeza ubu.",
+      "cancelled": "Nta nama zahagaritswe."
+    },
+    "deliveryModes": {
+      "inPerson": "Imbonankubone",
+      "phone": "Telefoni",
+      "document": "Inyandiko",
+      "video": "Videwo",
+      "office": "Ibiro",
+      "phoneCall": "Guhamagara",
+      "documents": "Inyandiko",
+      "videoCall": "Inama kuri videwo"
+    },
+    "status": {
+      "awaitingConfirmation": "Bitegereje kwemezwa",
+      "awaitingPayment": "Bitegereje kwishyurwa",
+      "rescheduleRequested": "Hasabwe guhindura igihe",
+      "completed": "Yarangiye",
+      "cancelled": "Gahunda yahagaritswe",
+      "refunded": "Yasubijwe",
+      "confirmed": "Yemejwe",
+      "paid": "Yishyuwe",
+      "active": "Irakora",
+      "pending": "Itegerezwa",
+      "created": "Yaremwe",
+      "done": "Birarangiye"
+    },
+    "actions": {
+      "accept": "Emeza",
+      "decline": "Hana",
+      "message": "Ubutumwa",
+      "messageClient": "Ohereza ubutumwa umukiriya",
+      "joinCall": "Injira mu nama",
+      "notYetTime": "Igihe ntikiragera",
+      "backToBookings": "Subira ku nama",
+      "addToCalendar": "Ongeraho muri kalendari",
+      "reschedule": "Hindura igihe",
+      "reviewDocuments": "Suzuma inyandiko",
+      "confirmDecline": "Emeza ko ubyanze",
+      "cancel": "Kureka",
+      "keepBooking": "Gumana gahunda",
+      "declineTitle": "Wanze iyi gahunda y'inama?",
+      "reasonLabel": "Impamvu yo kwanga (byibuze inyuguti 5)",
+      "reasonPlaceholder": "urug. Gahunda zirabangikanye, sinshobora gufata iyi dosiye...",
+      "declining": "Kwirukana..."
+    },
+    "details": {
+      "withClient": "hamwe na {name}",
+      "progress": "Aho ibikorwa bigeze",
+      "bookingCancelled": "Gahunda yahagaritswe",
+      "bookingRefunded": "Gahunda yishyuwe yasubijwe",
+      "reason": "Impamvu: {reason}",
+      "schedule": "Gahunda",
+      "date": "Itariki",
+      "duration": "Igihe: iminota {duration}",
+      "client": "Umukiriya",
+      "service": "Serivisi",
+      "payment": "Kwishyura",
+      "paymentPendingNotice": "Ubwishyu buzasabwa umaze kwemeza iyi gahunda y'inama.",
+      "statusLabel": "Imimerere",
+      "yourPayout": "Amafaranga yawe",
+      "officeLocation": "Ibiro: {address}",
+      "callClientAt": "Hamagara umukiriya kuri: {phone}",
+      "inPersonAppointment": "Inama imbonankubone ku biro"
+    },
+    "ai": {
+      "clientNotes": "Inyandiko z'umukiriya",
+      "aiAnalysis": "Isesengura rya AI",
+      "analyzing": "AI irimo gusesengura ikibazo...",
+      "analyzeError": "Ntibyashobotse gusesengura ikibazo. Ongera ugerageze.",
+      "summaryTitle": "Incamake nyuma y'inama",
+      "step1Desc": "Intambwe ya 1: Andika inyandiko zawe z'inama. AI irazitunganya mu buryo bw'umwuga buhabwa umukiriya.",
+      "notesPlaceholder": "Andika inyandiko zawe z'inama hano - ingingo z'ingenzi zaganiriweho, inama zatanzwe, ibigomba gukurikiraho, n'ibindi.",
+      "generatingSummary": "Gutunganya incamake...",
+      "generateSummary": "Kora incamake",
+      "structuringSummary": "AI irimo gutunganya inyandiko zawe z'inama mu buryo bw'umwuga...",
+      "notesError": "Ntibyashobotse gusesengura inyandiko. Ongera ugerageze.",
+      "step2Desc": "Intambwe ya 2: Suzuma incamake yakozwe na AI hasi aha. Hinduramo ibikenewe, hanyuma uyohereze umukiriya.",
+      "editableSummaryLabel": "Incamake ushobora guhindura (iyo yoherezwa umukiriya)",
+      "sendingSummary": "Kohereza...",
+      "sendSummary": "Ohereza incamake y'inama",
+      "startOver": "Tangira bundi bushya",
+      "summarySentTitle": "Incamake yoherejwe umukiriya",
+      "summarySentDesc": "Incamake y'inama yoherejwe muri konte y'umukiriya."
+    },
+    "toasts": {
+      "acceptSuccess": "Gahunda yemejwe. Umukiriya yamenyeshejwe.",
+      "acceptError": "Kwemera gahunda byanze",
+      "declineSuccess": "Gahunda yanzwe neza.",
+      "declineError": "Kwanga gahunda byanze.",
+      "declineMinLength": "Tanga impamvu ifite nibura inyuguti 5.",
+      "chatUnavailable": "Kuganira ntibiraboneka kuri iyi gahunda y'inama.",
+      "summarySent": "Incamake y'inama yoherejwe umukiriya.",
+      "summaryError": "Kohereza incamake byanze.",
+      "noChatFound": "Nta biganiro bibonetse kuri iyi gahunda. Kanda 'Ohereza ubutumwa umukiriya' kugira ngo utangire.",
+      "loadError": "Gufungura gahunda byanze. Ongera ugerageze.",
+      "bookingNotFound": "Gahunda ntibonetse"
+    }
+  },
+  "expertDashboard_settings": {
+    "title": "Igenamiterere",
+    "description": "Cunga amahitamo ya konte yawe",
+    "appearanceTitle": "Imiterere y'urubuga",
+    "appearanceDesc": "Hitamo ibara n'uburyo bwo kugaragara k'urubuga",
+    "themeMode": "Uburyo bw'amabara",
+    "themeDesc": "Guhindura hagati y'umweru n'umukara",
+    "additionalSettings": "Irimo igenamiterere ryisumbuyeho",
+    "additionalSettingsDesc": "Kugera byoroshye ku miterere y'ingengabihe na konte",
+    "scheduleSettingsTitle": "Igenamiterere ry'ingengabihe",
+    "scheduleSettingsDesc": "Igihe cyo kumenyesha mbere, ibiruhuko hagati y'inama, n'umubare ntarengwa",
+    "dateOverridesTitle": "Guhindura amatariki",
+    "dateOverridesDesc": "Amasaha yihariye n'igihe cy'ikiruhuko",
+    "accountSecurityTitle": "Konte n'Umutekano",
+    "accountSecurityDesc": "Guhindura ijambobanga n'ibikoresho byafunguye konte"
+  },
+  "expertDashboard_compliance": {
+    "title": "Ubujurire & Impamyabumenyi",
+    "subtitle": "Genzura intera y'igeragezwa ryawe n'igihe cy'impamyabumenyi zawe",
+    "uploadDocuments": "Tanga Inyandiko",
+    "loadError": "Gutera amakuru y'ubujurire byanze. Ongera ugerageze.",
+    "criticalTitle": "Byihutirwa",
+    "criticalDesc": "Bisabwa gufata ingamba vuba",
+    "warningsTitle": "Ibyitonderwa",
+    "warningsDesc": "Birangira mu minsi 30 iri imbere",
+    "compliantTitle": "Bujuje",
+    "compliantDesc": "Inshingano zose zuzuwe",
+    "credentialsTitle": "Impamyabumenyi z'inzobere",
+    "credentialsExpiry": "Irangira ry'impamyabumenyi",
+    "daysUntilExpiry": "Iminsi isigaye",
+    "lastVerification": "Igeragezwa rya nyuma",
+    "rejectionReason": "Impamvu yo kwangwa",
+    "expired": "Yarangiye",
+    "daysRemaining": "Iminsi {days}",
+    "statusExpired": "Yarangiye",
+    "statusSuspended": "Hagaritswe",
+    "statusDraft": "Inyandikomvugo",
+    "statusPendingReview": "Itegerezwa isuzumwa",
+    "statusCompliant": "Bujuje",
+    "statusRejected": "Yanzwe",
+    "actionRequired": "Ingamba Bisabwa",
+    "actionExpiredDesc": "Impamyabumenyi zawe zarangiye. Tanga inyandiko nshya kugira ngo konti yawe izasubizwe.",
+    "actionSuspendedDesc": "Konti yawe hagaritswe. Vugana n'inkunga cyangwa tanga inyandiko zivugurura.",
+    "uploadNewDocuments": "Tanga Inyandiko Nshya"
+  },
+  "expertServices": {
+    "title": "Serivisi & Ibiciro",
+    "subtitle": "Genzura serivisi zawe z'inama z'amategeko, ibiciro n'uburyo bwo gutanga ubufasha",
+    "addService": "Ongeraho Serivisi",
+    "editService": "Hindura Serivisi",
+    "saveService": "Bika Serivisi",
+    "deleteService": "Siba Serivisi",
+    "noServicesAdded": "Nta serivisi zirongerwaho",
+    "noServicesDesc": "Kora serivisi yawe y'amategeko ya mbere kugira ngo utangire kwakira ubusabe bw'abakiriya",
+    "unverifiedNotice": "Konti yawe ntirageragezwa. Urashobora gutunganya serivisi, ariko ntizizagaragara ku bakiriya kugeza igeragezwa rirangiye.",
+    "failedToLoad": "Gutera serivisi byanze. Ongera ugerageze.",
+    "confirmDelete": "Uzi neza ko ushaka gusiba iyi serivisi? Iki gikorwa ntigishobora gusubizwa inyuma.",
+    "serviceDeleted": "Serivisi yasibwe neza.",
+    "active": "Bikora",
+    "inactive": "Ntibikora",
+    "defaultService": "Serivisi y'ibanze",
+    "serviceName": "Izina rya Serivisi",
+    "serviceDescription": "Ibisobanuro bya Serivisi",
+    "serviceCategory": "Icyiciro cya Serivisi",
+    "deliveryMethod": "Uburyo bwo Gutanga",
+    "durationMinutes": "Igihe (iminota)",
+    "fee": "Igiciro cyose hamwe",
+    "validationName": "Izina rigomba kugira byibuze inyuguti 2.",
+    "validationDuration": "Igihe kigomba kuba hagati y'iminota 15 na 480.",
+    "validationFee": "Igiciro kigomba kuba umubare muzima.",
+    "category": {
+      "consultation": "Inama z'amategeko",
+      "documentReview": "Isuzuma ry'inyandiko",
+      "contractDrafting": "Kwandika amasezerano",
+      "courtRepresentation": "Guhagararira mu rukiko",
+      "legalAdvice": "Ubufasha mu by'amategeko",
+      "mediation": "Ubwumvikane",
+      "other": "Ikindi"
+    },
+    "deliveryMode": {
+      "video": "Ihamagara rya Videwo",
+      "phone": "Ihamagara rya Telefoni",
+      "inPerson": "Imbonankubone",
+      "email": "Inama kuri Imeyili"
     }
   }
 }

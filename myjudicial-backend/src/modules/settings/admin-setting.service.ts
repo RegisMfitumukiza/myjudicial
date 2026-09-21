@@ -3,6 +3,15 @@ import { writeAuditLog } from "../../shared/utils/audit.js";
 
 export type PaymentMode = "BOOKING_FIRST" | "PAYMENT_REQUIRED";
 
+export interface SocialLinks {
+  x?: string;
+  linkedin?: string;
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  whatsapp?: string;
+}
+
 export interface SettingsData {
   platformName: string;
   maintenanceMode: boolean;
@@ -19,6 +28,7 @@ export interface SettingsData {
    *   checkout and the booking is confirmed once payment is received.
    */
   paymentMode: PaymentMode;
+  socialLinks: SocialLinks;
 }
 
 const DEFAULTS: SettingsData = {
@@ -28,6 +38,14 @@ const DEFAULTS: SettingsData = {
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
   paymentMode: "PAYMENT_REQUIRED",
+  socialLinks: {
+    x: "https://twitter.com/myjudicial",
+    linkedin: "https://linkedin.com/company/myjudicial",
+    facebook: "https://facebook.com/myjudicial",
+    instagram: "https://instagram.com/myjudicial",
+    youtube: "",
+    whatsapp: "",
+  },
 };
 
 const KEYS: Record<keyof SettingsData, string> = {
@@ -37,11 +55,17 @@ const KEYS: Record<keyof SettingsData, string> = {
   platformFeePercent: "platform_fee_percent",
   minEscrowDurationSeconds: "min_escrow_duration_seconds",
   paymentMode: "payment_mode",
+  socialLinks: "social_links",
 };
 
 function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
   const map = new Map(rows.map((r) => [r.key, r.value]));
   const rawPaymentMode = map.get(KEYS.paymentMode) as PaymentMode | undefined;
+  const rawSocial = map.get(KEYS.socialLinks);
+  const parsedSocial: SocialLinks =
+    typeof rawSocial === "object" && rawSocial !== null
+      ? (rawSocial as SocialLinks)
+      : DEFAULTS.socialLinks;
   return {
     platformName: (map.get(KEYS.platformName) as string) ?? DEFAULTS.platformName,
     maintenanceMode: (map.get(KEYS.maintenanceMode) as boolean) ?? DEFAULTS.maintenanceMode,
@@ -54,6 +78,7 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
         : rawPaymentMode === "PAYMENT_REQUIRED"
         ? "PAYMENT_REQUIRED"
         : DEFAULTS.paymentMode,
+    socialLinks: parsedSocial,
   };
 }
 
@@ -91,6 +116,7 @@ export const AdminSettingService = {
     if (input.platformFeePercent !== undefined) entries.push({ key: KEYS.platformFeePercent, value: input.platformFeePercent });
     if (input.minEscrowDurationSeconds !== undefined) entries.push({ key: KEYS.minEscrowDurationSeconds, value: input.minEscrowDurationSeconds });
     if (input.paymentMode !== undefined) entries.push({ key: KEYS.paymentMode, value: input.paymentMode });
+    if (input.socialLinks !== undefined) entries.push({ key: KEYS.socialLinks, value: input.socialLinks });
 
     if (entries.length === 0) return this.getAll();
 

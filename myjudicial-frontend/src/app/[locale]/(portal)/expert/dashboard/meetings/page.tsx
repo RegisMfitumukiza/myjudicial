@@ -3,7 +3,7 @@
 import { useRouter } from "@/i18n/routing";
 import { Info, Video } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/shared/components/ui/button";
 import {
   EmptyState,
@@ -14,18 +14,20 @@ import {
 
 const JOINABLE_WINDOW_MS = 15 * 60 * 1000; // can join 15 min before start
 
-function formatScheduled(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export default function MeetingsPage() {
   const t = useTranslations("expertDashboard_meetings");
+  const locale = useLocale();
   const router = useRouter();
+
+  function formatScheduled(iso: string): string {
+    return new Date(iso).toLocaleString(locale, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   const { data, isLoading, isError } = useGetBookings({ limit: 100 });
 
   const meetings = (data?.status === 200 ? data.data.data : [])
@@ -52,7 +54,7 @@ export default function MeetingsPage() {
         ) : meetings.length > 0 ? (
           <div className="flex flex-col gap-4">
             {meetings.map((m) => {
-              const clientName = m.citizen ? `${m.citizen.firstName} ${m.citizen.lastName}` : "Client";
+              const clientName = m.citizen ? `${m.citizen.firstName} ${m.citizen.lastName}` : t("client");
               const startsInMs = new Date(m.scheduledStart).getTime() - Date.now();
               const canJoin = m.status === "ACTIVE" || (startsInMs <= JOINABLE_WINDOW_MS);
 

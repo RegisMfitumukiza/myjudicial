@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { FileText, Plus } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { getErrorMessage } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -35,27 +34,32 @@ const STATUS_TONES: Record<string, { tone: StatusTone; labelKey: string }> = {
   REJECTED: { tone: "destructive", labelKey: "statusRejected" },
 };
 
-const formatCurrency = (amount: number, currency = "RWF") => {
-  return new Intl.NumberFormat("en-RW", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatDate = (dateString: string) => {
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy");
-  } catch {
-    return dateString;
-  }
-};
-
 export default function QuotationsPage() {
   const t = useTranslations("expertDashboard_quotations");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ clientName: "", service: "", amount: "", description: "" });
+
+  const formatCurrency = (amount: number, currency = "RWF") => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const { data: quotationsResponse, isLoading, error } = useQuery({
     queryKey: ["expert-quotations"],

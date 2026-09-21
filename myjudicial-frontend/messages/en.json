@@ -366,7 +366,9 @@
       "showingDefaults": "Showing default values. Changes made here will not be saved until the settings endpoint is available.",
       "retry": "Retry",
       "settingsSaved": "Settings saved",
-      "settingsUnavailable": "Settings server is unavailable. Changes could not be persisted."
+      "settingsUnavailable": "Settings server is unavailable. Changes could not be persisted.",
+      "socialLinksTitle": "Social Media Channels & Public Links",
+      "socialLinksDesc": "Public links displayed in the website footer. Leave empty to hide an icon."
     },
     "compliance": {
       "title": "Compliance Dashboard",
@@ -1543,7 +1545,8 @@
     },
     "aria": {
       "accountMenu": "Account menu"
-    }
+    },
+    "inProgress": "In progress"
   },
   "contactPage": {
     "meta": {
@@ -1833,7 +1836,40 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "calendarTitle": "Availability Calendar",
+    "calendarSubtitle": "Set your weekly schedule with multiple time blocks per day",
+    "templates": "Templates",
+    "totalHoursWeek": "Total Hours/Week",
+    "availableDays": "Available Days",
+    "timeBlocks": "Time Blocks",
+    "infoAlert": "Click a day to add or edit time blocks. You can have multiple blocks per day (e.g., morning and afternoon).",
+    "adjustSettings": "Adjust buffer time and other settings",
+    "noTimeBlocks": "No time blocks. Click + to add one.",
+    "copyToWeek": "Copy to all days",
+    "copiedToWeek": "Copied {day} to all days",
+    "blockSingular": "block",
+    "blockPlural": "blocks",
+    "addTimeBlockTitle": "Add Time Block",
+    "startTimeLabel": "Start Time",
+    "endTimeLabel": "End Time",
+    "endBeforeStartError": "End time must be after start time",
+    "addBlockBtn": "Add Block",
+    "applyTemplateTitle": "Apply Template",
+    "applyTemplateDesc": "Choose a pre-configured schedule template",
+    "templateLabel": "Template",
+    "templateReplaceNotice": "This will replace your current schedule with the selected template.",
+    "applyTemplateBtn": "Apply Template",
+    "cancel": "Cancel",
+    "templateApplied": "Template applied",
+    "removeBlock": "Remove time block",
+    "templateStandard": "Standard 9-5",
+    "templatePartTime": "Part-time (Mon/Wed/Fri)",
+    "templateEvening": "Evening hours (6pm-9pm)",
+    "templateWeekend": "Weekend only",
+    "templateLunchBreak": "With lunch break (9-12, 2-5)",
+    "loadErrorV2": "Failed to load availability",
+    "loadErrorV2Desc": "There was an error loading your schedule"
   },
   "expertDashboard_billing": {
     "title": "Subscription & Billing",
@@ -1892,7 +1928,10 @@
     "month": "Month",
     "today": "Today",
     "defaultClient": "Client",
-    "moreBookings": "+{count} more"
+    "moreBookings": "+{count} more",
+    "previousPeriod": "Previous period",
+    "nextPeriod": "Next period",
+    "loadingCalendar": "Loading calendar"
   },
   "expertDashboard_cases": {
     "title": "Case Management",
@@ -1960,7 +1999,9 @@
     "noUpcoming": "You have no upcoming consultations. New bookings will appear here.",
     "noPast": "No past consultations found. Completed sessions will appear here.",
     "noCancelled": "No cancelled consultations. Cancelled sessions will appear here.",
-    "noTitle": "No {tab} consultations"
+    "noTitle": "No {tab} consultations",
+    "viewDetails": "View Details",
+    "joinRoom": "Join Room"
   },
   "expertDashboard_dashboard-booking-queue": {
     "priorityQueue": "Priority Queue",
@@ -2013,7 +2054,8 @@
     "amount": "Amount",
     "completed": "Completed",
     "platformFees": "Platform Fees (15%)",
-    "netRevenuePct": "Net Revenue (85%)"
+    "netRevenuePct": "Net Revenue (85%)",
+    "paymentsDisabled": "Payments are currently disabled on the platform. Earnings and payouts will appear here once payments are re-enabled."
   },
   "expertDashboard_faq-section": {
     "faq1q": "How do bookings work?",
@@ -2142,7 +2184,8 @@
     "noMeetingsDesc": "Confirmed consultations ready for video call will appear here.",
     "joinCall": "Join Call",
     "notYetTime": "Not yet time",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "client": "Client"
   },
   "expertDashboard_notifications": {
     "title": "Notifications",
@@ -2312,7 +2355,8 @@
     "pushNotifsDesc": "Receive push notifications for booking state changes",
     "inAppNotifs": "In-App Notifications",
     "inAppNotifsDesc": "Receive notifications inside the platform",
-    "saveNotifsBtn": "Save Notification Preferences"
+    "saveNotifsBtn": "Save Notification Preferences",
+    "bioField": "Bio"
   },
   "expertDashboard_quotations": {
     "statusDraft": "Draft",
@@ -3671,42 +3715,34 @@
       "viewAllOnSearch": "View all results"
     },
     "footer": {
+      "tagline": "Democratizing access to certified legal representation across Rwanda.",
+      "subtagline": "Connect with accredited Rwanda Bar Association advocates with transparent pricing and secure escrow payments.",
+      "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
-        "browse": "Browse",
-        "forClients": "For Clients",
-        "forLawyers": "For Lawyers",
-        "resources": "Resources",
-        "company": "Company",
-        "legal": "Legal"
+        "findLawyer": "Find Legal Help",
+        "forLawyers": "For Advocates",
+        "company": "Company & Support",
+        "legal": "Legal & Trust"
       },
       "links": {
         "findLawyer": "Find a Lawyer",
         "practiceAreas": "Practice Areas",
-        "legalServices": "Legal Services",
+        "pricing": "Transparent Pricing",
         "howItWorks": "How It Works",
-        "aiAssistant": "AI Assistant",
-        "myBookings": "My Bookings",
-        "payments": "Payments",
-        "messages": "Messages",
-        "leaveReview": "Leave a Review",
-        "faqs": "FAQs",
-        "becomeExpert": "Become an Expert",
-        "verification": "Verification",
-        "pricing": "Pricing",
-        "dashboard": "Dashboard",
-        "helpCenter": "Help Center",
-        "blog": "Blog",
-        "legalGuides": "Legal Guides",
-        "community": "Community",
+        "aiAssistant": "AI Legal Assistant",
+        "becomeExpert": "Join as an Advocate",
+        "advocateSignIn": "Advocate Sign In",
+        "verification": "Bar Standards & Vetting",
+        "partners": "Partner Institutions",
         "aboutUs": "About Us",
+        "faqs": "Frequently Asked Questions",
+        "helpCenter": "Help Center",
+        "contact": "Contact & Office",
         "careers": "Careers",
-        "partners": "Partners",
-        "contact": "Contact",
-        "newsroom": "Newsroom",
+        "newsroom": "Press & Newsroom",
         "privacyPolicy": "Privacy Policy",
         "termsOfService": "Terms of Service",
-        "cookies": "Cookies",
-        "accessibility": "Accessibility"
+        "cookies": "Cookie Policy"
       },
       "copyright": "MyJudicial, Inc. All rights reserved."
     },
@@ -4944,7 +4980,18 @@
       "profile": "Profile",
       "security": "Security",
       "preferences": "Preferences",
-      "signOut": "Sign Out"
+      "signOut": "Sign Out",
+      "consultations": "Consultations",
+      "verifications": "Verifications",
+      "documents": "Documents",
+      "practiceAreas": "Practice Areas",
+      "marketplace": "Marketplace",
+      "trustSafety": "Trust & Safety",
+      "operations": "Operations",
+      "configuration": "Configuration",
+      "collapseSidebar": "Collapse sidebar",
+      "openNavigationMenu": "Open navigation menu",
+      "closeNavigationMenu": "Close navigation menu"
     }
   },
   "sidebar": {
@@ -4979,7 +5026,17 @@
     "preferences": "Preferences",
     "signOut": "Sign Out",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "consultations": "Consultations",
+    "verifications": "Verifications",
+    "documents": "Documents",
+    "practiceAreas": "Practice Areas",
+    "marketplace": "Marketplace",
+    "trustSafety": "Trust & Safety",
+    "operations": "Operations",
+    "configuration": "Configuration",
+    "openNavigationMenu": "Open navigation menu",
+    "closeNavigationMenu": "Close navigation menu"
   },
   "expertDashboard_join": {
     "failedToLoad": "Failed to load booking",
@@ -5002,7 +5059,12 @@
     "ready": "Ready",
     "notFound": "Not Found",
     "joinConsultation": "Join Consultation",
-    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client."
+    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
+    "preConsultationBrief": "Pre-Consultation Brief",
+    "analyze": "Analyze",
+    "clientNotes": "Client Notes",
+    "analyzingCase": "Analyzing case with AI...",
+    "analyzeError": "Could not analyze case notes. Please try again."
   },
   "expertDashboard_consultation-join": {
     "failedToLoad": "Failed to load booking",
@@ -5231,6 +5293,203 @@
       "other": "Other issue",
       "offensiveLanguage": "Offensive language",
       "fakeReview": "Fake or dishonest review"
+    }
+  },
+  "expertDashboard_bookings": {
+    "title": "Bookings",
+    "description": "Manage all your consultation bookings in one place",
+    "tabs": {
+      "pending": "Pending",
+      "active": "Active",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "pending": "No pending booking requests.",
+      "active": "No active consultations.",
+      "completed": "No completed consultations yet.",
+      "cancelled": "No cancelled bookings."
+    },
+    "deliveryModes": {
+      "inPerson": "In-Person",
+      "phone": "Phone",
+      "document": "Document",
+      "video": "Video",
+      "office": "Office",
+      "phoneCall": "Phone Call",
+      "documents": "Documents",
+      "videoCall": "Video Call"
+    },
+    "status": {
+      "awaitingConfirmation": "Awaiting Confirmation",
+      "awaitingPayment": "Awaiting Payment",
+      "rescheduleRequested": "Reschedule Requested",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "confirmed": "Confirmed",
+      "paid": "Paid",
+      "active": "Active",
+      "pending": "Pending",
+      "created": "Created",
+      "done": "Done"
+    },
+    "actions": {
+      "accept": "Accept",
+      "decline": "Decline",
+      "message": "Message",
+      "messageClient": "Message Client",
+      "joinCall": "Join Call",
+      "notYetTime": "Not yet time",
+      "backToBookings": "Back to Bookings",
+      "addToCalendar": "Add to Calendar",
+      "reschedule": "Reschedule",
+      "reviewDocuments": "Review Documents",
+      "confirmDecline": "Confirm Decline",
+      "cancel": "Cancel",
+      "keepBooking": "Keep Booking",
+      "declineTitle": "Decline this booking?",
+      "reasonLabel": "Reason for declining (min. 5 characters)",
+      "reasonPlaceholder": "e.g. Schedule conflict, unable to take this case...",
+      "declining": "Declining..."
+    },
+    "details": {
+      "withClient": "with {name}",
+      "progress": "Progress",
+      "bookingCancelled": "Booking Cancelled",
+      "bookingRefunded": "Booking Refunded",
+      "reason": "Reason: {reason}",
+      "schedule": "Schedule",
+      "date": "Date",
+      "duration": "Duration: {duration} min",
+      "client": "Client",
+      "service": "Service",
+      "payment": "Payment",
+      "paymentPendingNotice": "Payment will be requested once you confirm this booking.",
+      "statusLabel": "Status",
+      "yourPayout": "Your Payout",
+      "officeLocation": "Office: {address}",
+      "callClientAt": "Call client at: {phone}",
+      "inPersonAppointment": "In-Person Office Appointment"
+    },
+    "ai": {
+      "clientNotes": "Client Notes",
+      "aiAnalysis": "AI Analysis",
+      "analyzing": "Analyzing case with AI...",
+      "analyzeError": "Could not analyze case. Please try again.",
+      "summaryTitle": "Post-Consultation Summary",
+      "step1Desc": "Step 1: Write your consultation notes. AI will structure them into a professional summary for the client.",
+      "notesPlaceholder": "Write your consultation notes here - key issues discussed, advice given, follow-up actions, etc.",
+      "generatingSummary": "Generating Summary...",
+      "generateSummary": "Generate Summary",
+      "structuringSummary": "AI is structuring your notes into a professional summary...",
+      "notesError": "Could not analyze notes. Please try again.",
+      "step2Desc": "Step 2: Review the AI-generated summary below. Edit as needed, then send to client.",
+      "editableSummaryLabel": "Editable Summary (will be sent to client)",
+      "sendingSummary": "Sending...",
+      "sendSummary": "Send Consultation Summary",
+      "startOver": "Start Over",
+      "summarySentTitle": "Summary sent to client",
+      "summarySentDesc": "The consultation summary has been delivered to the client's inbox."
+    },
+    "toasts": {
+      "acceptSuccess": "Booking accepted. The client has been notified.",
+      "acceptError": "Failed to accept booking",
+      "declineSuccess": "Booking declined successfully.",
+      "declineError": "Failed to decline booking.",
+      "declineMinLength": "Please provide a reason of at least 5 characters.",
+      "chatUnavailable": "Conversation isn't available for this booking yet.",
+      "summarySent": "Consultation summary sent to client.",
+      "summaryError": "Failed to send summary.",
+      "noChatFound": "No conversation found for this booking. Use 'Message Client' to start one.",
+      "loadError": "Failed to load bookings. Please try again.",
+      "bookingNotFound": "Booking not found"
+    }
+  },
+  "expertDashboard_settings": {
+    "title": "Settings",
+    "description": "Manage your account preferences",
+    "appearanceTitle": "Appearance",
+    "appearanceDesc": "Customize your visual theme and interface mode",
+    "themeMode": "Theme Mode",
+    "themeDesc": "Switch between light and dark themes",
+    "additionalSettings": "Additional Settings",
+    "additionalSettingsDesc": "Quick access to specialized account and schedule configuration",
+    "scheduleSettingsTitle": "Schedule Settings",
+    "scheduleSettingsDesc": "Notice periods, buffers, and daily caps",
+    "dateOverridesTitle": "Date Overrides",
+    "dateOverridesDesc": "Custom hours and vacation blackouts",
+    "accountSecurityTitle": "Account & Security",
+    "accountSecurityDesc": "Password changes and active logged-in device sessions"
+  },
+  "expertDashboard_compliance": {
+    "title": "Compliance & Credentials",
+    "subtitle": "Monitor your verification status and credential validity",
+    "uploadDocuments": "Upload Documents",
+    "loadError": "Failed to load compliance data. Please try again.",
+    "criticalTitle": "Critical",
+    "criticalDesc": "Requires immediate action",
+    "warningsTitle": "Warnings",
+    "warningsDesc": "Due within the next 30 days",
+    "compliantTitle": "Compliant",
+    "compliantDesc": "All obligations up to date",
+    "credentialsTitle": "Expert Credentials",
+    "credentialsExpiry": "Credentials Expiry",
+    "daysUntilExpiry": "Days Until Expiry",
+    "lastVerification": "Last Verification",
+    "rejectionReason": "Rejection Reason",
+    "expired": "Expired",
+    "daysRemaining": "{days} days",
+    "statusExpired": "Expired",
+    "statusSuspended": "Suspended",
+    "statusDraft": "Draft",
+    "statusPendingReview": "Pending Review",
+    "statusCompliant": "Compliant",
+    "statusRejected": "Rejected",
+    "actionRequired": "Action Required",
+    "actionExpiredDesc": "Your credentials have expired. Upload renewed documents to restore your account.",
+    "actionSuspendedDesc": "Your account has been suspended. Contact support or upload updated verification documents.",
+    "uploadNewDocuments": "Upload New Documents"
+  },
+  "expertServices": {
+    "title": "Services & Pricing",
+    "subtitle": "Manage your consultation services, fees, and delivery methods",
+    "addService": "Add Service",
+    "editService": "Edit Service",
+    "saveService": "Save Service",
+    "deleteService": "Delete Service",
+    "noServicesAdded": "No services added yet",
+    "noServicesDesc": "Create your first legal service to start receiving bookings from clients",
+    "unverifiedNotice": "Your profile is not yet verified. You can manage services, but they will not be visible to clients until verification is complete.",
+    "failedToLoad": "Failed to load services. Please try again.",
+    "confirmDelete": "Are you sure you want to delete this service? This action cannot be undone.",
+    "serviceDeleted": "Service deleted successfully.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "defaultService": "Default Service",
+    "serviceName": "Service Name",
+    "serviceDescription": "Service Description",
+    "serviceCategory": "Service Category",
+    "deliveryMethod": "Delivery Method",
+    "durationMinutes": "Duration (minutes)",
+    "fee": "Flat Fee",
+    "validationName": "Name must be at least 2 characters.",
+    "validationDuration": "Duration must be between 15 and 480 minutes.",
+    "validationFee": "Fee must be a positive number.",
+    "category": {
+      "consultation": "Consultation",
+      "documentReview": "Document Review",
+      "contractDrafting": "Contract Drafting",
+      "courtRepresentation": "Court Representation",
+      "legalAdvice": "Legal Advice",
+      "mediation": "Mediation",
+      "other": "Other"
+    },
+    "deliveryMode": {
+      "video": "Video Call",
+      "phone": "Phone Call",
+      "inPerson": "In-Person",
+      "email": "Email Consultation"
     }
   }
 }

@@ -11,7 +11,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePatchAuthMe, UpdateMeDtoPreferredLanguage } from "@/api/generated";
 import {
   getExpertsProfileMe,
@@ -55,10 +55,10 @@ import {
 
 type TabId = "profile" | "account" | "preferences";
 
-const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "account", label: "Account", icon: Key },
-  { id: "preferences", label: "Preferences", icon: Palette },
+const TABS: { id: TabId; icon: React.ElementType }[] = [
+  { id: "profile", icon: User },
+  { id: "account", icon: Key },
+  { id: "preferences", icon: Palette },
 ];
 
 interface SessionInfo {
@@ -143,6 +143,7 @@ export default function ExpertProfilePage() {
   const { refreshUser } = useAuth();
   const t = useTranslations("expertDashboard_profile");
   const tChangePassword = useTranslations("expertDashboard_change-password");
+  const locale = useLocale();
 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 
@@ -495,7 +496,7 @@ export default function ExpertProfilePage() {
 
       {/* Tabs */}
       <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {TABS.map(({ id, icon: Icon }) => (
           <button
             key={id}
             onClick={() => handleTabClick(id)}
@@ -628,7 +629,7 @@ export default function ExpertProfilePage() {
                       <div className="space-y-5">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label htmlFor="displayName">Display Name *</Label>
+                            <Label htmlFor="displayName">{t("displayNameLabel")} *</Label>
                             <Input
                               id="displayName"
                               value={form.displayName}
@@ -637,7 +638,7 @@ export default function ExpertProfilePage() {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label htmlFor="firmName">Firm Name</Label>
+                            <Label htmlFor="firmName">{t("firmNameLabel")}</Label>
                             <Input
                               id="firmName"
                               value={form.firmName}
@@ -647,7 +648,7 @@ export default function ExpertProfilePage() {
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label htmlFor="bio">Bio</Label>
+                          <Label htmlFor="bio">{t("bioLabel")}</Label>
                           <Textarea
                             id="bio"
                             value={form.bio}
@@ -658,7 +659,7 @@ export default function ExpertProfilePage() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label htmlFor="barNumber">Bar Number *</Label>
+                            <Label htmlFor="barNumber">{t("barNumberLabel")} *</Label>
                             <Input
                               id="barNumber"
                               value={form.barNumber}
@@ -667,7 +668,7 @@ export default function ExpertProfilePage() {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label htmlFor="yearsExperience">Years of Experience</Label>
+                            <Label htmlFor="yearsExperience">{t("yearsExperienceLabel")}</Label>
                             <Input
                               id="yearsExperience"
                               type="number"
@@ -681,13 +682,13 @@ export default function ExpertProfilePage() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label htmlFor="primarySpecialty">Primary Specialty *</Label>
+                            <Label htmlFor="primarySpecialty">{t("primarySpecialtyLabel")} *</Label>
                             <Select
                               value={form.primarySpecialty}
                               onValueChange={(v) => setForm((f) => ({ ...f, primarySpecialty: v as LegalSpecialty }))}
                             >
                               <SelectTrigger id="primarySpecialty" className="w-full">
-                                <SelectValue placeholder="Select specialty" />
+                                <SelectValue placeholder={t("selectSpecialtyPlaceholder")} />
                               </SelectTrigger>
                               <SelectContent>
                                 {Object.entries(LEGAL_SPECIALTY_LABELS).map(([value, label]) => (
@@ -699,7 +700,7 @@ export default function ExpertProfilePage() {
                             </Select>
                           </div>
                           <div className="space-y-1.5">
-                            <Label htmlFor="currency">Currency</Label>
+                            <Label htmlFor="currency">{t("currencyLabel")}</Label>
                             <Select
                               value={form.currency}
                               onValueChange={(v) => setForm((f) => ({ ...f, currency: v }))}
@@ -717,7 +718,7 @@ export default function ExpertProfilePage() {
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label>Additional Specialties</Label>
+                          <Label>{t("additionalSpecialtiesLabel")}</Label>
                           <div className="grid grid-cols-2 gap-2 rounded-lg border border-border p-3 sm:grid-cols-3">
                             {Object.entries(LEGAL_SPECIALTY_LABELS).map(([value, label]) => {
                               const checked = form.specialties.includes(value as LegalSpecialty);
@@ -744,7 +745,7 @@ export default function ExpertProfilePage() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label htmlFor="baseConsultationFee">Consultation Fee</Label>
+                            <Label htmlFor="baseConsultationFee">{t("consultationFeeLabel")}</Label>
                             <Input
                               id="baseConsultationFee"
                               type="number"
@@ -754,15 +755,15 @@ export default function ExpertProfilePage() {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label htmlFor="languages">Languages (codes, comma-separated)</Label>
+                            <Label htmlFor="languages">{t("languagesCodesLabel")}</Label>
                             <Input
                               id="languages"
                               value={form.languages}
                               onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))}
-                              placeholder="en, fr, rw"
+                              placeholder={t("languagesPlaceholder")}
                             />
                             <p className="text-xs text-muted-foreground">
-                              Use short language codes: en (English), fr (French), rw (Kinyarwanda), sw (Swahili)
+                              {t("languagesHelperText")}
                             </p>
                           </div>
                         </div>
@@ -771,7 +772,7 @@ export default function ExpertProfilePage() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1.5">
-                            <Label htmlFor="city">City</Label>
+                            <Label htmlFor="city">{t("cityLabel")}</Label>
                             <Input
                               id="city"
                               value={form.city}
@@ -779,7 +780,7 @@ export default function ExpertProfilePage() {
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label htmlFor="country">Country</Label>
+                            <Label htmlFor="country">{t("countryLabel")}</Label>
                             <Input
                               id="country"
                               value={form.country}
@@ -789,7 +790,7 @@ export default function ExpertProfilePage() {
                         </div>
 
                         <div className="space-y-1.5">
-                          <Label htmlFor="officeAddress">Office Address</Label>
+                          <Label htmlFor="officeAddress">{t("officeAddressLabel")}</Label>
                           <Input
                             id="officeAddress"
                             value={form.officeAddress}
@@ -799,13 +800,13 @@ export default function ExpertProfilePage() {
                       </div>
                     ) : profile ? (
                       <div className="divide-y divide-border">
-                        <FieldRow icon={User} label="Display Name" value={profile.displayName || "—"} />
-                        <FieldRow icon={FileText} label="Bio" value={profile.bio || "—"} />
-                        <FieldRowWithIcon icon={Building2} label="Firm" value={profile.firmName || "—"} />
-                        <FieldRow icon={Hash} label="Bar Number" value={profile.barNumber || "—"} />
-                        <FieldRow icon={Briefcase} label="Years of Experience" value={profile.yearsExperience != null ? String(profile.yearsExperience) : "—"} />
-                        <FieldRow icon={BookOpen} label="Primary Specialty" value={LEGAL_SPECIALTY_LABELS[profile.primarySpecialty] || profile.primarySpecialty || "—"} />
-                        <FieldRowWithIcon icon={BadgeCheck} label="Specialties">
+                        <FieldRow icon={User} label={t("displayNameField")} value={profile.displayName || "—"} />
+                        <FieldRow icon={FileText} label={t("bioField")} value={profile.bio || "—"} />
+                        <FieldRowWithIcon icon={Building2} label={t("firmField")} value={profile.firmName || "—"} />
+                        <FieldRow icon={Hash} label={t("barNumberField")} value={profile.barNumber || "—"} />
+                        <FieldRow icon={Briefcase} label={t("yearsExperienceField")} value={profile.yearsExperience != null ? String(profile.yearsExperience) : "—"} />
+                        <FieldRow icon={BookOpen} label={t("primarySpecialtyField")} value={LEGAL_SPECIALTY_LABELS[profile.primarySpecialty] || profile.primarySpecialty || "—"} />
+                        <FieldRowWithIcon icon={BadgeCheck} label={t("specialtiesField")}>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {profile.specialties?.length ? (
                               profile.specialties.map((s) => (
@@ -818,14 +819,14 @@ export default function ExpertProfilePage() {
                             )}
                           </div>
                         </FieldRowWithIcon>
-                        <FieldRow icon={Languages} label="Languages" value={profile.languages?.join(", ") || "—"} />
-                        <FieldRow icon={MapPin} label="Office Address" value={profile.officeAddress || "—"} />
-                        <FieldRowWithIcon icon={Globe} label="Location" value={[profile.city, profile.country].filter(Boolean).join(", ") || "—"} />
-                        <FieldRow icon={DollarSign} label="Consultation Fee" value={profile.baseConsultationFee != null ? `${profile.baseConsultationFee.toLocaleString()} ${profile.currency}` : "—"} />
+                        <FieldRow icon={Languages} label={t("languagesField")} value={profile.languages?.join(", ") || "—"} />
+                        <FieldRow icon={MapPin} label={t("officeAddressField")} value={profile.officeAddress || "—"} />
+                        <FieldRowWithIcon icon={Globe} label={t("locationField")} value={[profile.city, profile.country].filter(Boolean).join(", ") || "—"} />
+                        <FieldRow icon={DollarSign} label={t("consultationFeeField")} value={profile.baseConsultationFee != null ? `${profile.baseConsultationFee.toLocaleString()} ${profile.currency}` : "—"} />
                       </div>
                     ) : (
                       <p className="py-8 text-center text-sm text-muted-foreground">
-                        No profile data yet. Click &quot;Create Profile&quot; to get started.
+                        {t("noProfileData")}
                       </p>
                     )}
                   </div>
@@ -907,9 +908,9 @@ export default function ExpertProfilePage() {
           </form>
 
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">Active Sessions</h3>
+            <h3 className="mb-4 text-base font-bold text-foreground">{t("activeSessionsTitle")}</h3>
             <p className="mb-4 text-sm text-muted-foreground">
-              Devices and sessions currently logged into your account
+              {t("activeSessionsDesc")}
             </p>
             {loadingSessions ? (
               <LoadingSpinner />
@@ -919,7 +920,7 @@ export default function ExpertProfilePage() {
                 {sessionsError}
               </div>
             ) : sessions.length === 0 ? (
-              <EmptyState icon={Monitor} title="No active sessions" className="py-8" />
+              <EmptyState icon={Monitor} title={t("noActiveSessions")} className="py-8" />
             ) : (
               <div className="divide-y divide-border">
                 {sessions.map((s) => (
@@ -933,16 +934,16 @@ export default function ExpertProfilePage() {
                       <Monitor size={18} className="shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
-                          {s.device || "Unknown device"}
+                          {s.device || t("unknownDevice")}
                           {s.isCurrent && (
                             <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase text-primary">
-                              Current
+                              {t("currentBadge")}
                             </span>
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {s.browser && `${s.browser} · `}{s.ip && `${s.ip} · `}
-                          Last active: {s.lastActive ? new Date(s.lastActive).toLocaleDateString() : "N/A"}
+                          {t("lastActive")}: {s.lastActive ? new Date(s.lastActive).toLocaleDateString(locale) : t("notAvailable")}
                         </p>
                       </div>
                     </div>
@@ -954,7 +955,7 @@ export default function ExpertProfilePage() {
                         disabled={revokingSessionId === s.id}
                         className="shrink-0 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
                       >
-                        {revokingSessionId === s.id ? <Loader2 size={14} className="animate-spin" /> : "Revoke"}
+                        {revokingSessionId === s.id ? <Loader2 size={14} className="animate-spin" /> : t("revokeBtn")}
                       </Button>
                     )}
                   </div>
@@ -969,17 +970,17 @@ export default function ExpertProfilePage() {
       {activeTab === "preferences" && (
         <div className="space-y-4">
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">Appearance</h3>
-            <p className="mb-4 text-sm text-muted-foreground">Choose how the platform looks for you</p>
+            <h3 className="mb-4 text-base font-bold text-foreground">{t("appearanceTitle")}</h3>
+            <p className="mb-4 text-sm text-muted-foreground">{t("appearanceDesc")}</p>
             <div className="flex items-center gap-4">
               <ThemeToggle />
-              <span className="text-sm text-foreground">Toggle light / dark mode</span>
+              <span className="text-sm text-foreground">{t("toggleThemeDesc")}</span>
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">Language</h3>
-            <p className="mb-4 text-sm text-muted-foreground">Select your preferred interface language</p>
+            <h3 className="mb-4 text-base font-bold text-foreground">{t("languageTitle")}</h3>
+            <p className="mb-4 text-sm text-muted-foreground">{t("languageDesc")}</p>
             <div className="flex items-center gap-4">
               <Globe size={18} className="text-muted-foreground" />
               <select
@@ -987,60 +988,60 @@ export default function ExpertProfilePage() {
                 onChange={(e) => setLanguage(e.target.value as keyof typeof UpdateMeDtoPreferredLanguage)}
                 className="h-10 max-w-xs rounded-lg border border-border bg-card px-3 text-sm text-foreground"
               >
-                <option value="en">English</option>
-                <option value="fr">French</option>
-                <option value="rw">Kinyarwanda</option>
+                <option value="en">{t("langEnglish")}</option>
+                <option value="fr">{t("langFrench")}</option>
+                <option value="rw">{t("langKinyarwanda")}</option>
               </select>
             </div>
             <Button onClick={handleSaveLanguage} disabled={savingLanguage} className="mt-4">
               {savingLanguage ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              Save Language Preference
+              {t("saveLanguageBtn")}
             </Button>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">Notification Preferences</h3>
-            <p className="mb-4 text-sm text-muted-foreground">Control which notifications you receive</p>
+            <h3 className="mb-4 text-base font-bold text-foreground">{t("notifsTitle")}</h3>
+            <p className="mb-4 text-sm text-muted-foreground">{t("notifsDesc")}</p>
             {loadingNotifs ? (
               <LoadingSpinner />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Email Notifications</p>
-                    <p className="text-xs text-muted-foreground">Receive updates via email</p>
+                    <p className="text-sm font-medium text-foreground">{t("emailNotifs")}</p>
+                    <p className="text-xs text-muted-foreground">{t("emailNotifsDesc")}</p>
                   </div>
                   <Switch
                     checked={notifEmail}
                     onCheckedChange={(v) => setNotifEmail(v)}
-                    aria-label="Email Notifications"
+                    aria-label={t("emailNotifs")}
                   />
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Push Notifications</p>
-                    <p className="text-xs text-muted-foreground">Receive push notifications for booking state changes</p>
+                    <p className="text-sm font-medium text-foreground">{t("pushNotifs")}</p>
+                    <p className="text-xs text-muted-foreground">{t("pushNotifsDesc")}</p>
                   </div>
                   <Switch
                     checked={notifPush}
                     onCheckedChange={(v) => setNotifPush(v)}
-                    aria-label="Push Notifications"
+                    aria-label={t("pushNotifs")}
                   />
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-foreground">In-App Notifications</p>
-                    <p className="text-xs text-muted-foreground">Receive notifications inside the platform</p>
+                    <p className="text-sm font-medium text-foreground">{t("inAppNotifs")}</p>
+                    <p className="text-xs text-muted-foreground">{t("inAppNotifsDesc")}</p>
                   </div>
                   <Switch
                     checked={notifInApp}
                     onCheckedChange={(v) => setNotifInApp(v)}
-                    aria-label="In-App Notifications"
+                    aria-label={t("inAppNotifs")}
                   />
                 </div>
                 <Button onClick={handleSaveNotifPrefs} disabled={savingNotifs} className="mt-4">
                   {savingNotifs ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-                  Save Notification Preferences
+                  {t("saveNotifsBtn")}
                 </Button>
                 {notifsError && (
                   <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

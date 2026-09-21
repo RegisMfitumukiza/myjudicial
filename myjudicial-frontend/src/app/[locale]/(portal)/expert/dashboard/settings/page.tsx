@@ -8,12 +8,12 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
-  const t = useTranslations("expertDashboard");
+  const t = useTranslations("expertDashboard_settings");
   return (
     <div className="space-y-6 p-6 lg:p-8 max-w-4xl">
       <PageHeader
-        title={t("settingsTitle")}
-        description={t("settingsDesc")}
+        title={t("title")}
+        description={t("description")}
       />
 
       <div className="space-y-6">
@@ -27,14 +27,14 @@ export default function SettingsPage() {
               <Palette size={18} />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-foreground">Appearance</h2>
-              <p className="text-xs text-muted-foreground">Customize your visual theme and interface mode</p>
+              <h2 className="text-base font-semibold text-foreground">{t("appearanceTitle")}</h2>
+              <p className="text-xs text-muted-foreground">{t("appearanceDesc")}</p>
             </div>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div>
-              <p className="text-sm font-medium text-foreground">Theme Mode</p>
-              <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              <p className="text-sm font-medium text-foreground">{t("themeMode")}</p>
+              <p className="text-xs text-muted-foreground">{t("themeDesc")}</p>
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
@@ -44,8 +44,8 @@ export default function SettingsPage() {
 
         {/* Operational & Account Shortcuts */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-foreground mb-1">Additional Settings</h2>
-          <p className="text-xs text-muted-foreground mb-4">Quick access to specialized account and schedule configuration</p>
+          <h2 className="text-base font-semibold text-foreground mb-1">{t("additionalSettings")}</h2>
+          <p className="text-xs text-muted-foreground mb-4">{t("additionalSettingsDesc")}</p>
           
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Link
@@ -57,8 +57,8 @@ export default function SettingsPage() {
                   <Clock size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Schedule Settings</p>
-                  <p className="text-xs text-muted-foreground">Notice periods, buffers, and daily caps</p>
+                  <p className="text-sm font-medium text-foreground">{t("scheduleSettingsTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("scheduleSettingsDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -73,8 +73,8 @@ export default function SettingsPage() {
                   <CalendarDays size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Date Overrides</p>
-                  <p className="text-xs text-muted-foreground">Custom hours and vacation blackouts</p>
+                  <p className="text-sm font-medium text-foreground">{t("dateOverridesTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("dateOverridesDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -89,8 +89,8 @@ export default function SettingsPage() {
                   <Key size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Account & Security</p>
-                  <p className="text-xs text-muted-foreground">Password changes and active logged-in device sessions</p>
+                  <p className="text-sm font-medium text-foreground">{t("accountSecurityTitle")}</p>
+                  <p className="text-xs text-muted-foreground">{t("accountSecurityDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />

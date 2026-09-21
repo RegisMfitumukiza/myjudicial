@@ -81,7 +81,7 @@ export function BookingQueue({ sessions }: BookingQueueProps) {
                       s.status === "CONFIRMED" ? "bg-primary" :
                       "bg-warning"
                     }`} aria-hidden="true" />
-                    {s.status}
+                    {s.status === "URGENT" ? "Urgent" : s.status === "CONFIRMED" ? t("casesPaid", { defaultValue: "Confirmed" }) : t("casesAwaitingPayment", { defaultValue: "Pending" })}
                   </span>
                 </td>
               </tr>

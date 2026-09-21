@@ -9,7 +9,7 @@ import {
   getGetBookingsQueryKey,
 } from "@/api/generated";
 import { useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAcceptBooking } from "@/features/booking/hooks/useAcceptBooking";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import { Button } from "@/shared/components/ui/button";
@@ -23,18 +23,19 @@ import {
 } from "@/shared/components/dashboard";
 import { getErrorMessage } from "@/lib/utils";
 
-function formatScheduled(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export default function BookingRequestsPage() {
   const t = useTranslations("expertDashboard_booking-requests");
+  const locale = useLocale();
   const queryClient = useQueryClient();
+
+  function formatScheduled(iso: string): string {
+    return new Date(iso).toLocaleString(locale, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
   const { isBookingFirst } = usePaymentMode();
   const { data, isLoading, isError } = useGetBookings({ status: "PENDING", limit: 50 });
   const { mutate: cancelBooking, isPending: isCancelling } = usePostBookingsIdCancel();

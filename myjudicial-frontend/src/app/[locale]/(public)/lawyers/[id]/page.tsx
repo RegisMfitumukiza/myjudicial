@@ -267,11 +267,11 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                 "name": "Find Lawyers",
                 "item": `https://myjudicial.com/${locale}/search`,
               },
-              ...(expert.primarySpecialty ? [{
+              ...(expert.specialty ? [{
                 "@type": "ListItem",
                 "position": 3,
-                "name": getLocalizedSpecialty(expert.primarySpecialty, tSpecialties),
-                "item": `https://myjudicial.com/${locale}/search?specialty=${expert.primarySpecialty}`,
+                "name": getLocalizedSpecialty(expert.specialty, tSpecialties),
+                "item": `https://myjudicial.com/${locale}/search?specialty=${expert.specialty}`,
               }, {
                 "@type": "ListItem",
                 "position": 4,

@@ -1201,7 +1201,13 @@
       "retry": "Gerageza nanone",
       "noCaseDocuments": "Nta nyandiko z'ikibazo nawe zageze.",
       "noCaseDocumentsUploadDesc": "Ohereza idosiye kugira ngo usangire n'undi mugabo muri iki kibazo.",
-      "download": "Kurura"
+      "download": "Kurura",
+      "shareSuccess": "Inyandiko yasangiwe neza",
+      "sensitivity": {
+        "PUBLIC": "Rusange",
+        "PRIVATE": "Bwite",
+        "CONFIDENTIAL": "Ibanga"
+      }
     },
     "chat": {
       "loadMessagesFailed": "Byanze gukora ubutumwa bw'imbere.",
@@ -1225,7 +1231,14 @@
       "delete": "Siba",
       "online": "Kuri interineti",
       "typing": "andika",
-      "noMessagesPreview": "Nta butumwa nawe bwageze"
+      "noMessagesPreview": "Nta butumwa nawe bwageze",
+      "title": "Ubutumwa",
+      "attachFile": "Ongeraho idosiye",
+      "searchMessages": "Shakisha ubutumwa",
+      "typeMessage": "Andika ubutumwa...",
+      "editMessage": "Hindura ubutumwa...",
+      "editingMessage": "Guhindura ubutumwa",
+      "replyingTo": "Gusubiza {name}"
     },
     "experts": {
       "profileCreatedPhotoFailed": "Umwirondoro warakoreshejwe, aha byanze kohereza ifoto.",
@@ -3827,7 +3840,14 @@
     "qualityGood": "Good connection",
     "qualityPoor": "Poor connection",
     "qualityLost": "Connection lost",
-    "waitingForClient": "Tegereza umukiriya yinjiye..."
+    "waitingForClient": "Tegereza umukiriya yinjiye...",
+    "muteLabel": "Hisha amajwi",
+    "unmuteLabel": "Fungura amajwi",
+    "videoOffLabel": "Fungura kamera",
+    "videoOnLabel": "Fungura kamera",
+    "shareScreenLabel": "Sangira ikiragiro",
+    "stopScreenShareLabel": "Hagarika gusangira",
+    "leaveLabel": "Sohoka mu mwaka"
   },
   "expertDashboard_consultations": {
     "title": "Consultations",

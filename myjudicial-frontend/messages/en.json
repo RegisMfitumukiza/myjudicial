@@ -1935,7 +1935,14 @@
     "qualityGood": "Good connection",
     "qualityPoor": "Poor connection",
     "qualityLost": "Connection lost",
-    "waitingForClient": "Waiting for client to join..."
+    "waitingForClient": "Waiting for client to join...",
+    "muteLabel": "Mute",
+    "unmuteLabel": "Unmute",
+    "videoOffLabel": "Turn off camera",
+    "videoOnLabel": "Turn on camera",
+    "shareScreenLabel": "Share screen",
+    "stopScreenShareLabel": "Stop sharing",
+    "leaveLabel": "Leave call"
   },
   "expertDashboard_consultations": {
     "title": "Consultations",
@@ -2959,7 +2966,13 @@
       "retry": "Retry",
       "noCaseDocuments": "No case documents yet.",
       "noCaseDocumentsUploadDesc": "Upload a file to share it with the other party in this case.",
-      "download": "Download"
+      "download": "Download",
+      "shareSuccess": "Document shared successfully",
+      "sensitivity": {
+        "PUBLIC": "Public",
+        "PRIVATE": "Private",
+        "CONFIDENTIAL": "Confidential"
+      }
     },
     "chat": {
       "loadMessagesFailed": "Failed to load older messages.",
@@ -2983,7 +2996,14 @@
       "delete": "Delete",
       "online": "Online",
       "typing": "typing",
-      "noMessagesPreview": "No messages yet"
+      "noMessagesPreview": "No messages yet",
+      "title": "Messages",
+      "attachFile": "Attach a file",
+      "searchMessages": "Search messages",
+      "typeMessage": "Type a message...",
+      "editMessage": "Edit message...",
+      "editingMessage": "Editing message",
+      "replyingTo": "Replying to {name}"
     },
     "experts": {
       "profileCreatedPhotoFailed": "Profile created, but photo upload failed.",

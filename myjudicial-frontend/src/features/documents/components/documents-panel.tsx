@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { FileText, Download, Trash2, Loader2, UploadCloud, Lock, Share2, X } from "lucide-react";
 import {
   useGetFiles,
@@ -31,6 +31,7 @@ export function DocumentsPanel() {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations("features.documents");
+  const locale = useLocale();
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
   const [sharingFileId, setSharingFileId] = useState<string | null>(null);
   const [shareEmail, setShareEmail] = useState("");
@@ -89,7 +90,7 @@ export function DocumentsPanel() {
   }
 
   function handleDelete(fileId: string) {
-    if (!confirm("Delete this document? This cannot be undone.")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     deleteFile(
       { fileId },
       {
@@ -114,14 +115,14 @@ export function DocumentsPanel() {
         headers: { "Content-Type": "application/json" },
       });
       if (res.status === 200 || res.status === 201) {
-        toast.success("Document shared successfully");
+        toast.success(t("shareSuccess"));
         setSharingFileId(null);
         setShareEmail("");
       } else {
-        toast.error("Failed to share document");
+        toast.error(t("shareFailed"));
       }
     } catch {
-      toast.error("Failed to share document. Check the user ID is correct.");
+      toast.error(t("shareFailedCheckId"));
     } finally {
       setIsSharing(false);
     }
@@ -130,8 +131,8 @@ export function DocumentsPanel() {
   return (
     <div className="mx-auto max-w-[1080px] space-y-6 p-6 lg:p-8">
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">My Documents</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Your uploaded documents and case files</p>
+        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       <div
@@ -146,9 +147,9 @@ export function DocumentsPanel() {
           <UploadCloud size={32} className="mb-3 text-gray-300 dark:text-gray-600" />
         )}
         <p className="text-sm font-medium text-brand-dark dark:text-gray-100">
-          {isUploading ? "Uploading..." : "Click to upload a document"}
+          {isUploading ? t("uploading") : t("clickToUpload")}
         </p>
-        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Up to 20 MB. Encrypted at rest.</p>
+        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{t("uploadLimit")}</p>
         <input
           ref={inputRef}
           type="file"
@@ -169,22 +170,22 @@ export function DocumentsPanel() {
         </div>
       ) : isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-          Failed to load documents. Please try again.
+          {t("failedToLoad")}
         </div>
       ) : files.length === 0 ? (
         <div className="rounded-xl border border-brand-border/20 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm text-gray-400 dark:text-gray-500">No documents uploaded yet.</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">{t("noDocuments")}</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-brand-border/20 shadow-md dark:border-gray-700">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400 border-b border-brand-border/10 dark:border-gray-700">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Size</th>
-                <th className="px-4 py-3">Uploaded</th>
-                <th className="px-4 py-3">Sensitivity</th>
+                <th className="px-4 py-3">{t("colName")}</th>
+                <th className="px-4 py-3">{t("colType")}</th>
+                <th className="px-4 py-3">{t("colSize")}</th>
+                <th className="px-4 py-3">{t("colUploaded")}</th>
+                <th className="px-4 py-3">{t("colSensitivity")}</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -203,22 +204,22 @@ export function DocumentsPanel() {
                     <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{doc.mimeType}</td>
                     <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{formatSize(doc.fileSize)}</td>
                     <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(doc.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      {new Date(doc.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${SENSITIVITY_STYLE[doc.sensitivity] ?? SENSITIVITY_STYLE.PRIVATE}`}>
-                        {doc.sensitivity}
+                        {t.has(`sensitivity.${doc.sensitivity}`) ? t(`sensitivity.${doc.sensitivity}`) : doc.sensitivity}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => handleDownload(doc.id)} disabled={isDownloading} className="text-gray-400 hover:text-brand-blue disabled:opacity-50">
+                        <button onClick={() => handleDownload(doc.id)} disabled={isDownloading} title={t("download")} className="text-gray-400 hover:text-brand-blue disabled:opacity-50">
                           {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                         </button>
-                        <button onClick={() => { setSharingFileId(doc.id); setShareEmail(""); }} className="text-gray-400 hover:text-brand-blue">
+                        <button onClick={() => { setSharingFileId(doc.id); setShareEmail(""); }} title={t("share")} className="text-gray-400 hover:text-brand-blue">
                           <Share2 size={14} />
                         </button>
-                        <button onClick={() => handleDelete(doc.id)} disabled={isRemoving} className="text-gray-400 hover:text-red-500 disabled:opacity-50">
+                        <button onClick={() => handleDelete(doc.id)} disabled={isRemoving} title={t("cancel")} className="text-gray-400 hover:text-red-500 disabled:opacity-50">
                           {isRemoving ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                         </button>
                       </div>
@@ -234,9 +235,9 @@ export function DocumentsPanel() {
       <div className="flex items-start gap-3 rounded-xl border border-brand-border/20 bg-white p-4 shadow-md dark:border-gray-700 dark:bg-gray-900">
         <Lock size={16} className="mt-0.5 shrink-0 text-gray-400" />
         <div>
-          <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">Encrypted storage</p>
+          <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">{t("encryptedStorage")}</p>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-            Documents are encrypted at rest. Only you can access your own files.
+            {t("encryptedStorageDesc")}
           </p>
         </div>
       </div>
@@ -246,19 +247,19 @@ export function DocumentsPanel() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">Share Document</h3>
+              <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">{t("shareDocument")}</h3>
               <button onClick={() => { setSharingFileId(null); setShareEmail(""); }} className="text-gray-400 hover:text-gray-600">
                 <X size={18} />
               </button>
             </div>
             <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-4">
-              Enter the user ID of the person you want to share this document with.
+              {t("shareDocumentDesc")}
             </p>
             <input
               type="text"
               value={shareEmail}
               onChange={(e) => setShareEmail(e.target.value)}
-              placeholder="User ID (UUID)"
+              placeholder={t("sharePlaceholder")}
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[13px] text-brand-dark outline-none placeholder:text-gray-400 focus:border-brand-dark dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
             <div className="mt-4 flex gap-2">
@@ -268,13 +269,13 @@ export function DocumentsPanel() {
                 className="flex items-center gap-1.5 rounded-xl bg-brand-dark px-5 py-2.5 text-[12px] font-semibold text-on-brand hover:opacity-90 disabled:opacity-40"
               >
                 {isSharing ? <Loader2 size={12} className="animate-spin" /> : <Share2 size={12} />}
-                {isSharing ? "Sharing..." : "Share"}
+                {isSharing ? t("sharing") : t("share")}
               </button>
               <button
                 onClick={() => { setSharingFileId(null); setShareEmail(""); }}
                 className="rounded-xl border border-gray-200 px-5 py-2.5 text-[12px] font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400"
               >
-                Cancel
+                {t("cancel")}
               </button>
             </div>
           </div>

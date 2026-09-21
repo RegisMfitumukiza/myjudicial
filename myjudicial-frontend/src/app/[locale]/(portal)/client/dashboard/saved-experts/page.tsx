@@ -4,27 +4,17 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "@/i18n/routing";
 import { Loader2, Bookmark, ArrowLeft, Star, MapPin, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import {
   getSavedExperts,
   removeSavedExpert,
   type SavedExpert,
 } from "@/lib/api/saved-experts";
 
-const SPECIALTY_LABELS: Record<string, string> = {
-  FAMILY_LAW: "Family Law",
-  COMMERCIAL_LAW: "Commercial Law",
-  EMPLOYMENT_LAW: "Employment Law",
-  LAND_LAW: "Land Law",
-  CRIMINAL_LAW: "Criminal Law",
-  TAX_LAW: "Tax Law",
-  IMMIGRATION_LAW: "Immigration Law",
-  CORPORATE_LAW: "Corporate Law",
-  CONTRACT_LAW: "Contract Law",
-  INTELLECTUAL_PROPERTY: "Intellectual Property",
-  OTHER: "Other",
-};
-
 export default function SavedExpertsPage() {
+  const t = useTranslations("clientDashboard.savedExperts");
+  const tSpecialties = useTranslations("specialties");
   const [experts, setExperts] = useState<SavedExpert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -52,9 +42,9 @@ export default function SavedExpertsPage() {
     try {
       await removeSavedExpert(expertId);
       setExperts((prev) => prev.filter((e) => e.expertId !== expertId));
-      toast.success("Expert removed from saved list");
+      toast.success(t("expertRemoved"));
     } catch {
-      toast.error("Failed to remove expert");
+      toast.error(t("failedToRemove"));
     } finally {
       setRemovingId(null);
     }
@@ -67,12 +57,12 @@ export default function SavedExpertsPage() {
         className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
       >
         <ArrowLeft size={14} />
-        Dashboard
+        {t("backToDashboard")}
       </Link>
 
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">Saved Experts</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Experts you have bookmarked for quick access</p>
+        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       {isLoading ? (
@@ -83,20 +73,20 @@ export default function SavedExpertsPage() {
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-          Failed to load saved experts. Please try again.
+          {t("failedToLoad")}
         </div>
       ) : experts.length === 0 ? (
         <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-900">
           <Bookmark size={32} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-          <p className="text-sm font-medium text-brand-dark dark:text-gray-100">No saved experts yet</p>
+          <p className="text-sm font-medium text-brand-dark dark:text-gray-100">{t("noSavedExperts")}</p>
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-            Browse experts and save them for quick access later.
+            {t("noSavedExpertsDesc")}
           </p>
           <Link
             href="/search"
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-dark px-4 py-2 text-[12px] font-semibold text-on-brand hover:opacity-90"
           >
-            Find Lawyers
+            {t("findLawyers")}
           </Link>
         </div>
       ) : (
@@ -126,7 +116,7 @@ export default function SavedExpertsPage() {
                       {e.displayName}
                     </Link>
                     <div className="mt-0.5 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                      <span>{SPECIALTY_LABELS[e.primarySpecialty] ?? e.primarySpecialty}</span>
+                      <span>{getLocalizedSpecialty(e.primarySpecialty, tSpecialties)}</span>
                       {e.city && (
                         <span className="flex items-center gap-1">
                           <MapPin size={10} />
@@ -152,7 +142,7 @@ export default function SavedExpertsPage() {
                   onClick={() => handleRemove(item.expertId)}
                   disabled={isRemoving}
                   className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 disabled:opacity-50"
-                  title="Remove from saved"
+                  title={t("removeTooltip")}
                 >
                   {isRemoving ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                 </button>

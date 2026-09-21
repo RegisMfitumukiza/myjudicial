@@ -3,8 +3,11 @@
 import { Link } from "@/i18n/routing";
 import { Loader2, Star, MessageSquare, ArrowLeft, Calendar } from "lucide-react";
 import { useGetReviewsMyReviews } from "@/api/generated";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function MyReviewsPage() {
+  const t = useTranslations("clientDashboard.reviews");
+  const locale = useLocale();
   const { data, isLoading, isError } = useGetReviewsMyReviews({ page: "1", limit: "50" });
 
   const reviews = data?.status === 200 ? (data.data.data ?? []) : [];
@@ -16,12 +19,12 @@ export default function MyReviewsPage() {
         className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
       >
         <ArrowLeft size={14} />
-        Dashboard
+        {t("backToDashboard")}
       </Link>
 
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">My Reviews</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Reviews you have left for legal experts</p>
+        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       {isLoading ? (
@@ -32,14 +35,14 @@ export default function MyReviewsPage() {
         </div>
       ) : isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-          Failed to load reviews. Please try again.
+          {t("failedToLoad")}
         </div>
       ) : reviews.length === 0 ? (
         <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-700 dark:bg-gray-900">
           <Star size={32} className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-          <p className="text-sm font-medium text-brand-dark dark:text-gray-100">No reviews yet</p>
+          <p className="text-sm font-medium text-brand-dark dark:text-gray-100">{t("noReviews")}</p>
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-            You will see your reviews here after completing a consultation and leaving feedback.
+            {t("noReviewsDesc")}
           </p>
         </div>
       ) : (
@@ -60,7 +63,7 @@ export default function MyReviewsPage() {
                   <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
                       <Calendar size={11} />
-                      {new Date(review.booking.scheduledStart).toLocaleDateString("en-GB", {
+                      {new Date(review.booking.scheduledStart).toLocaleDateString(locale, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",

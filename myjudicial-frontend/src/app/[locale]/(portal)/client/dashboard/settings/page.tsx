@@ -7,12 +7,12 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
-  const t = useTranslations("clientDashboard");
+  const t = useTranslations("clientDashboard.settings");
   return (
     <div className="mx-auto max-w-[900px] space-y-6 p-6 lg:p-8">
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("settings.title")}</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("settings.subtitle")}</p>
+        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       <div className="space-y-6">
@@ -26,14 +26,14 @@ export default function SettingsPage() {
               <Palette size={18} />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-foreground">Appearance</h2>
-              <p className="text-xs text-muted-foreground">Customize your visual theme and interface mode</p>
+              <h2 className="text-base font-semibold text-foreground">{t("appearance")}</h2>
+              <p className="text-xs text-muted-foreground">{t("appearanceDesc")}</p>
             </div>
           </div>
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div>
-              <p className="text-sm font-medium text-foreground">Theme Mode</p>
-              <p className="text-xs text-muted-foreground">Switch between light and dark themes</p>
+              <p className="text-sm font-medium text-foreground">{t("themeMode")}</p>
+              <p className="text-xs text-muted-foreground">{t("themeModeDesc")}</p>
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
@@ -43,8 +43,8 @@ export default function SettingsPage() {
 
         {/* Account & Activity Shortcuts */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-foreground mb-1">Account & Activity</h2>
-          <p className="text-xs text-muted-foreground mb-4">Quick access to personal info, files, billing, and alerts</p>
+          <h2 className="text-base font-semibold text-foreground mb-1">{t("accountActivity")}</h2>
+          <p className="text-xs text-muted-foreground mb-4">{t("accountActivityDesc")}</p>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <Link
@@ -56,8 +56,8 @@ export default function SettingsPage() {
                   <User size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Profile</p>
-                  <p className="text-xs text-muted-foreground">Personal details</p>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.profile")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.profileDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -72,8 +72,8 @@ export default function SettingsPage() {
                   <FileText size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Documents</p>
-                  <p className="text-xs text-muted-foreground">Case & uploaded files</p>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.documents")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.documentsDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -88,8 +88,8 @@ export default function SettingsPage() {
                   <CreditCard size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Payments & Receipts</p>
-                  <p className="text-xs text-muted-foreground">Invoices & billing</p>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.payments")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.paymentsDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -104,8 +104,8 @@ export default function SettingsPage() {
                   <Bell size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Notifications</p>
-                  <p className="text-xs text-muted-foreground">Activity & alerts</p>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.notifications")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.notificationsDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />
@@ -120,8 +120,8 @@ export default function SettingsPage() {
                   <Star size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">My Reviews</p>
-                  <p className="text-xs text-muted-foreground">Past feedback</p>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.reviews")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.reviewsDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />

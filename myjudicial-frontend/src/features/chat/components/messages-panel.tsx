@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Send, Loader2, MessageSquare, ChevronUp, Paperclip, FileText, Download,
   Search, X, Reply, Pencil, Trash2, CheckCheck,
@@ -44,13 +44,13 @@ function messageTypeForMime(mimeType: string): "IMAGE" | "PDF" | "DOCUMENT" {
   return "DOCUMENT";
 }
 
-function formatTime(iso: string | null): string {
+function formatTime(iso: string | null, locale: string = "en"): string {
   if (!iso) return "";
   const date = new Date(iso);
   const isToday = date.toDateString() === new Date().toDateString();
   return isToday
-    ? date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
-    : date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    ? date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })
+    : date.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
 
 function dedupeAndSort(messages: ChatMessage[]): ChatMessage[] {
@@ -92,11 +92,15 @@ function ConversationListItem({
   isActive,
   currentUserId,
   onSelect,
+  noMessagesText,
+  locale,
 }: {
   conversation: ChatConversation;
   isActive: boolean;
   currentUserId: string | undefined;
   onSelect: () => void;
+  noMessagesText: string;
+  locale: string;
 }) {
   const participant = conversation.participants.find((p) => p.user.id !== currentUserId)?.user
     ?? conversation.participants[0]?.user;
@@ -131,10 +135,10 @@ function ConversationListItem({
         <p className={`truncate text-sm text-brand-dark dark:text-gray-100 ${unreadCount > 0 ? "font-bold" : "font-semibold"}`}>
           {name}
         </p>
-        <p className="truncate text-xs text-gray-400 dark:text-gray-500">{conversation.lastMessageText ?? "No messages yet"}</p>
+        <p className="truncate text-xs text-gray-400 dark:text-gray-500">{conversation.lastMessageText ?? noMessagesText}</p>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
-        <span className="text-[10px] text-gray-400 dark:text-gray-500">{formatTime(conversation.lastMessageAt)}</span>
+        <span className="text-[10px] text-gray-400 dark:text-gray-500">{formatTime(conversation.lastMessageAt, locale)}</span>
         {unreadCount > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-blue px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -155,6 +159,13 @@ function MessageBubble({
   onDelete,
   downloadingAttachmentId,
   onDownloadAttachment,
+  locale,
+  tMessageDeleted,
+  tEdited,
+  tAttachment,
+  tReply,
+  tEdit,
+  tDelete,
 }: {
   message: ChatMessage;
   isMine: boolean;
@@ -164,6 +175,13 @@ function MessageBubble({
   onDelete: (msg: ChatMessage) => void;
   downloadingAttachmentId: string | null;
   onDownloadAttachment: (fileId: string) => void;
+  locale: string;
+  tMessageDeleted: string;
+  tEdited: string;
+  tAttachment: string;
+  tReply: string;
+  tEdit: string;
+  tDelete: string;
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -188,12 +206,12 @@ function MessageBubble({
           }`}
         >
           {message.isDeleted ? (
-            <p className="italic opacity-60">This message was deleted</p>
+            <p className="italic opacity-60">{tMessageDeleted}</p>
           ) : (
             <>
               {message.content}
               {message.isEdited && (
-                <span className={`ml-1 text-[10px] ${isMine ? "text-white/50" : "text-gray-400"}`}>(edited)</span>
+                <span className={`ml-1 text-[10px] ${isMine ? "text-white/50" : "text-gray-400"}`}>{tEdited}</span>
               )}
             </>
           )}
@@ -215,14 +233,14 @@ function MessageBubble({
                   ) : (
                     <FileText size={12} />
                   )}
-                  Attachment
+                  {tAttachment}
                   <Download size={11} />
                 </button>
               ))}
             </div>
           )}
           <p className={`mt-1 text-[10px] ${isMine ? "text-white/60" : "text-gray-400"}`}>
-            {formatTime(message.createdAt)}
+            {formatTime(message.createdAt, locale)}
           </p>
         </div>
 
@@ -251,7 +269,7 @@ function MessageBubble({
                   onClick={() => { onReply(message); setShowMenu(false); }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-[13px] text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
-                  <Reply size={14} /> Reply
+                  <Reply size={14} /> {tReply}
                 </button>
                 {isMine && !message.isDeleted && (
                   <>
@@ -259,13 +277,13 @@ function MessageBubble({
                       onClick={() => { onEdit(message); setShowMenu(false); }}
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-[13px] text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
-                      <Pencil size={14} /> Edit
+                      <Pencil size={14} /> {tEdit}
                     </button>
                     <button
                       onClick={() => { onDelete(message); setShowMenu(false); }}
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-[13px] text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
                     >
-                      <Trash2 size={14} /> Delete
+                      <Trash2 size={14} /> {tDelete}
                     </button>
                   </>
                 )}
@@ -283,6 +301,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const t = useTranslations("features.chat");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const deepLinkConversationId = searchParams.get("conversationId");
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -621,7 +640,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
   return (
     <div className="flex h-full flex-col p-6 lg:p-8">
       <div className="mb-6 shrink-0">
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">Messages</h1>
+        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">{subtitle}</p>
       </div>
 
@@ -635,7 +654,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
               ))}
             </div>
           ) : conversations.length === 0 ? (
-            <p className="p-4 text-center text-xs text-gray-400 dark:text-gray-500">No conversations yet.</p>
+            <p className="p-4 text-center text-xs text-gray-400 dark:text-gray-500">{t("noConversations")}</p>
           ) : (
             conversations.map((c) => (
               <ConversationListItem
@@ -644,6 +663,8 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                 isActive={activeId === c.id}
                 currentUserId={user?.id}
                 onSelect={() => setActiveId(c.id)}
+                noMessagesText={t("noMessagesPreview")}
+                locale={locale}
               />
             ))
           )}
@@ -654,7 +675,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
           {!activeId ? (
             <div className="flex flex-1 flex-col items-center justify-center text-center">
               <MessageSquare size={28} className="mb-2 text-gray-300 dark:text-gray-600" />
-              <p className="text-sm text-gray-400 dark:text-gray-500">Select a conversation to start chatting.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">{t("selectConversation")}</p>
             </div>
           ) : (
             <>
@@ -665,12 +686,12 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     {otherParticipant ? `${otherParticipant.firstName} ${otherParticipant.lastName}` : "User"}
                   </p>
                   {headerIsOnline && (
-                    <span className="h-2 w-2 rounded-full bg-green-500" title="Online" />
+                    <span className="h-2 w-2 rounded-full bg-green-500" title={t("online")} />
                   )}
                 </div>
                 {otherIsTyping && (
                   <p className="mt-0.5 text-xs italic text-brand-blue flex items-center gap-1">
-                    typing <TypingDots />
+                    {t("typing")} <TypingDots />
                   </p>
                 )}
               </div>
@@ -683,7 +704,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search in conversation..."
+                    placeholder={t("searchInConversation")}
                     className="flex-1 bg-transparent text-sm text-brand-dark outline-none dark:text-gray-100"
                   />
                   {searchQuery && (
@@ -713,7 +734,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                         </p>
                         <p className="truncate text-[11px] text-gray-500 dark:text-gray-400">{msg.content}</p>
                       </div>
-                      <span className="text-[10px] text-gray-400 shrink-0">{formatTime(msg.createdAt)}</span>
+                      <span className="text-[10px] text-gray-400 shrink-0">{formatTime(msg.createdAt, locale)}</span>
                     </button>
                   ))}
                 </div>
@@ -728,7 +749,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     ))}
                   </div>
                 ) : messages.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-gray-400 dark:text-gray-500">No messages yet. Say hello!</p>
+                  <p className="py-8 text-center text-sm text-gray-400 dark:text-gray-500">{t("noMessages")}</p>
                 ) : (
                   <div className="space-y-3">
                     {hasMore && (
@@ -739,7 +760,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                           className="flex items-center gap-1 rounded-full border border-brand-border/30 px-3 py-1 text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
                         >
                           {isLoadingOlder ? <Loader2 size={12} className="animate-spin" /> : <ChevronUp size={12} />}
-                          Load older messages
+                          {t("loadOlderMessages")}
                         </button>
                       </div>
                     )}
@@ -754,6 +775,13 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                         onDelete={handleDeleteMessage}
                         downloadingAttachmentId={downloadingAttachmentId}
                         onDownloadAttachment={handleDownloadAttachment}
+                        locale={locale}
+                        tMessageDeleted={t("messageDeleted")}
+                        tEdited={t("edited")}
+                        tAttachment={t("attachment")}
+                        tReply={t("reply")}
+                        tEdit={t("edit")}
+                        tDelete={t("delete")}
                       />
                     ))}
                     <div ref={bottomRef} />
@@ -766,7 +794,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                 <div className="flex items-center gap-2 border-t border-brand-border/10 bg-gray-50 px-4 py-2 dark:border-gray-800 dark:bg-gray-800/50">
                   <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-medium text-brand-blue">
-                      {editingMessage ? "Editing message" : `Replying to ${replyTo?.sender.firstName}`}
+                      {editingMessage ? t("editingMessage") : t("replyingTo", { name: replyTo?.sender.firstName ?? "" })}
                     </p>
                     <p className="truncate text-[12px] text-gray-500 dark:text-gray-400">
                       {editingMessage ? editContent : replyTo?.content}
@@ -798,7 +826,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingAttachment}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-brand-dark disabled:opacity-40 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-                  aria-label="Attach a file"
+                  aria-label={t("attachFile")}
                 >
                   {isUploadingAttachment ? <Loader2 size={16} className="animate-spin" /> : <Paperclip size={16} />}
                 </button>
@@ -809,7 +837,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                       ? "bg-brand-blue/10 text-brand-blue"
                       : "text-gray-400 hover:bg-gray-100 hover:text-brand-dark dark:hover:bg-gray-800 dark:hover:text-gray-100"
                   }`}
-                  aria-label="Search messages"
+                  aria-label={t("searchMessages")}
                 >
                   <Search size={16} />
                 </button>
@@ -819,7 +847,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } if (e.key === "Escape") { setEditingMessage(null); setEditContent(""); } }}
-                    placeholder="Edit message..."
+                    placeholder={t("editMessage")}
                     className="flex-1 rounded-full border border-brand-blue/30 px-4 py-2 text-sm text-brand-dark outline-none focus:border-brand-blue dark:border-brand-blue/50 dark:bg-gray-800 dark:text-gray-100"
                   />
                 ) : (
@@ -827,7 +855,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     value={draft}
                     onChange={(e) => handleDraftChange(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                    placeholder="Type a message..."
+                    placeholder={t("typeMessage")}
                     className="flex-1 rounded-full border border-brand-border/30 px-4 py-2 text-sm text-brand-dark outline-none focus:border-brand-blue dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
                 )}

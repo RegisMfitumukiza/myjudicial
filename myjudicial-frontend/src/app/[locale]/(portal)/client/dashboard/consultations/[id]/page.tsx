@@ -263,7 +263,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
             booking.status === "CANCELLED" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" :
             "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
           }`}>
-            {booking.status}
+            {t(`status.${booking.status}` as any, { default: booking.status })}
           </span>
         </div>
 
@@ -529,7 +529,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="text-brand-dark/50 dark:text-white/50">{t("paymentStatus")}</span>
-                  <span className="font-semibold text-brand-dark dark:text-white">{booking.paymentStatus}</span>
+                  <span className="font-semibold text-brand-dark dark:text-white">{t(`paymentStatus.${booking.paymentStatus}` as any, { default: booking.paymentStatus })}</span>
                 </div>
                 {booking.paymentReferenceId && (
                   <div className="flex items-center justify-between text-[13px]">

@@ -8,7 +8,7 @@ import {
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { apiFetchEnvelope as customFetch } from "@/lib/api/client";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 type NotificationEvent =
   | "OTP_SENT" | "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_REMINDER"
@@ -40,25 +40,11 @@ const EVENT_ICON: Record<NotificationEvent, typeof Bell> = {
   MESSAGE_RECEIVED: MessageSquare,
 };
 
-const EVENT_LABEL: Record<NotificationEvent, string> = {
-  OTP_SENT: "Verification code sent",
-  BOOKING_CONFIRMED: "Booking confirmed",
-  BOOKING_CANCELLED: "Booking cancelled",
-  BOOKING_REMINDER: "Upcoming consultation",
-  PAYMENT_SUCCESS: "Payment confirmed",
-  ESCROW_RELEASED: "Payment released",
-  CREDENTIAL_EXPIRY_WARNING: "Credential expiry warning",
-  REVIEW_RECEIVED: "New review received",
-  WELCOME: "Welcome to MyJudicial",
-  MAGIC_LINK_SENT: "Sign-in link sent",
-  REFUND_PROCESSED: "Refund processed",
-  MESSAGE_RECEIVED: "New message received",
-};
-
 type Tab = "all" | "unread";
 
 export default function NotificationsPage() {
   const t = useTranslations("clientDashboard.notifications");
+  const locale = useLocale();
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +60,7 @@ export default function NotificationsPage() {
     if (hours < 24) return hours === 1 ? t("time.hoursAgo", { count: hours }) : t("time.hoursAgoPlural", { count: hours });
     const days = Math.floor(hours / 24);
     if (days < 7) return days === 1 ? t("time.daysAgo", { count: days }) : t("time.daysAgoPlural", { count: days });
-    return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
   }
 
   const fetchNotifications = useCallback(async () => {
@@ -191,7 +177,7 @@ export default function NotificationsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className={`truncate text-[14px] ${n.isRead ? "font-medium text-slate-600 dark:text-gray-300" : "font-bold text-brand-dark dark:text-gray-100"}`}>
-                          {n.subject ?? (t.has(`events.${n.event}`) ? t(`events.${n.event}`) : "Notification")}
+                          {n.subject ?? (t.has(`events.${n.event}`) ? t(`events.${n.event}`) : t("title"))}
                         </p>
                         {!n.isRead && <span className="h-2 w-2 shrink-0 rounded-full bg-brand-blue" />}
                       </div>

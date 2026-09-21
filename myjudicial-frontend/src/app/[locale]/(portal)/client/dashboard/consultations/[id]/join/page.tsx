@@ -6,13 +6,14 @@ import { ArrowLeft, Video, Mic, MicOff, VideoOff, Loader2, AlertCircle, CheckCir
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function JoinConsultationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { booking, isLoading, error } = useBooking(id);
   const t = useTranslations("clientDashboard.join");
+  const locale = useLocale();
   
   const [deviceCheck, setDeviceCheck] = useState<"checking" | "success" | "error">("checking");
   const [hasCamera, setHasCamera] = useState(false);
@@ -109,8 +110,8 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
           {deliveryMode === "IN_PERSON"
             ? t("inPersonNotice")
             : deliveryMode === "PHONE"
-            ? "This is a telephone consultation with your advocate. A video room is not required."
-            : "This is a document review deliverable. A video room is not required."}
+            ? t("phoneNotice")
+            : t("documentNotice")}
         </h2>
         {deliveryMode === "IN_PERSON" && (booking as any).expert?.officeAddress && (
           <p className="text-[14px] text-brand-dark/70 dark:text-white/70 mb-6 max-w-md">
@@ -169,7 +170,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
               <div className="flex justify-between">
                 <span className="text-brand-dark/60 dark:text-white/60">{t("scheduled")}</span>
                 <span className="font-semibold text-brand-dark dark:text-white">
-                  {new Date(booking.scheduledStart).toLocaleString()}
+                  {new Date(booking.scheduledStart).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
                 </span>
               </div>
             </div>

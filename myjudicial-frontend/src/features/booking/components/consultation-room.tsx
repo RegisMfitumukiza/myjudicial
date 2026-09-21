@@ -246,6 +246,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                   ? "bg-gray-700 hover:bg-gray-600"
                   : "bg-red-600 hover:bg-red-500"
               }`}
+              title={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
+              aria-label={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
             >
               {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
             </Button>
@@ -266,6 +268,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                   ? "bg-gray-700 hover:bg-gray-600"
                   : "bg-red-600 hover:bg-red-500"
               }`}
+              title={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
+              aria-label={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
             >
               {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
             </Button>
@@ -291,6 +295,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                   ? "bg-blue-600 hover:bg-blue-500"
                   : "bg-gray-700 hover:bg-gray-600"
               }`}
+              title={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
+              aria-label={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
             >
               {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
             </Button>
@@ -299,6 +305,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
               onClick={handleLeave}
               size="lg"
               className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-500"
+              title={t("leaveLabel")}
+              aria-label={t("leaveLabel")}
             >
               <PhoneOff size={20} />
             </Button>

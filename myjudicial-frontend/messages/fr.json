@@ -1201,7 +1201,13 @@
       "retry": "Réessayer",
       "noCaseDocuments": "Aucun document de dossier pour l'instant.",
       "noCaseDocumentsUploadDesc": "Téléchargez un fichier pour le partager avec l'autre partie dans ce dossier.",
-      "download": "Télécharger"
+      "download": "Télécharger",
+      "shareSuccess": "Document partagé avec succès",
+      "sensitivity": {
+        "PUBLIC": "Public",
+        "PRIVATE": "Privé",
+        "CONFIDENTIAL": "Confidentiel"
+      }
     },
     "chat": {
       "loadMessagesFailed": "Échec du chargement des anciens messages.",
@@ -1225,7 +1231,14 @@
       "delete": "Supprimer",
       "online": "En ligne",
       "typing": "en train d'écrire",
-      "noMessagesPreview": "Aucun message"
+      "noMessagesPreview": "Aucun message",
+      "title": "Messages",
+      "attachFile": "Joindre un fichier",
+      "searchMessages": "Rechercher des messages",
+      "typeMessage": "Écrivez un message...",
+      "editMessage": "Modifier le message...",
+      "editingMessage": "Modification du message",
+      "replyingTo": "En réponse à {name}"
     },
     "experts": {
       "profileCreatedPhotoFailed": "Profil créé, mais le téléchargement de la photo a échoué.",
@@ -3827,7 +3840,14 @@
     "qualityGood": "Good connection",
     "qualityPoor": "Poor connection",
     "qualityLost": "Connection lost",
-    "waitingForClient": "En attente de la connexion du client..."
+    "waitingForClient": "En attente de la connexion du client...",
+    "muteLabel": "Couper le micro",
+    "unmuteLabel": "Activer le micro",
+    "videoOffLabel": "Éteindre la caméra",
+    "videoOnLabel": "Allumer la caméra",
+    "shareScreenLabel": "Partager l'écran",
+    "stopScreenShareLabel": "Arrêter le partage",
+    "leaveLabel": "Quitter l'appel"
   },
   "expertDashboard_consultations": {
     "title": "Consultations",

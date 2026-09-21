@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { FileText, Download, UploadCloud, Loader2, FolderOpen } from "lucide-react";
 import { usePostFilesUpload } from "@/api/generated";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
@@ -57,6 +57,7 @@ export function CaseDocumentsCard({
   canUpload?: boolean;
 }) {
   const t = useTranslations("features.documents");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -128,16 +129,16 @@ export function CaseDocumentsCard({
             <FolderOpen size={14} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Case Documents</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("caseDocuments")}</h3>
             <p className="text-xs text-muted-foreground">
-              Files shared between you and the client for this case.
+              {t("caseDocumentsDesc")}
             </p>
           </div>
         </div>
         {canUpload && (
           <Button size="sm" variant="outline" disabled={isUploading} onClick={() => inputRef.current?.click()}>
             {isUploading ? <Loader2 size={13} className="animate-spin" /> : <UploadCloud size={13} />}
-            {isUploading ? "Uploading..." : "Add document"}
+            {isUploading ? t("uploading") : t("addDocument")}
           </Button>
         )}
         <input
@@ -154,20 +155,20 @@ export function CaseDocumentsCard({
 
       <div className="px-5 py-4">
         {isLoading ? (
-          <LoadingSpinner label="Loading case documents..." />
+          <LoadingSpinner label={t("loadingCaseDocuments")} />
         ) : isError ? (
           <ErrorState
-            title="Failed to load case documents"
-            message="Could not load the documents for this booking."
+            title={t("failedToLoadCaseDocuments")}
+            message={t("failedToLoadCaseDocumentsDesc")}
             onRetry={() => refetch()}
-            retryLabel="Retry"
+            retryLabel={t("retry")}
           />
         ) : documents.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
             <FileText size={22} className="text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">No case documents yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noCaseDocuments")}</p>
             <p className="text-xs text-muted-foreground/70">
-              Upload a file to share it with the other party in this case.
+              {t("noCaseDocumentsUploadDesc")}
             </p>
           </div>
         ) : (
@@ -175,11 +176,11 @@ export function CaseDocumentsCard({
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="py-2.5 pr-4 font-medium">Name</th>
-                  <th className="py-2.5 pr-4 font-medium">Type</th>
-                  <th className="py-2.5 pr-4 font-medium">Size</th>
-                  <th className="py-2.5 pr-4 font-medium">Uploaded</th>
-                  <th className="py-2.5 pr-4 font-medium">Sensitivity</th>
+                  <th className="py-2.5 pr-4 font-medium">{t("colName")}</th>
+                  <th className="py-2.5 pr-4 font-medium">{t("colType")}</th>
+                  <th className="py-2.5 pr-4 font-medium">{t("colSize")}</th>
+                  <th className="py-2.5 pr-4 font-medium">{t("colUploaded")}</th>
+                  <th className="py-2.5 pr-4 font-medium">{t("colSensitivity")}</th>
                   <th className="py-2.5 font-medium"></th>
                 </tr>
               </thead>
@@ -195,7 +196,7 @@ export function CaseDocumentsCard({
                     <td className="py-3 pr-4 text-xs text-muted-foreground">{doc.mimeType}</td>
                     <td className="py-3 pr-4 text-xs text-muted-foreground">{formatSize(doc.fileSize)}</td>
                     <td className="py-3 pr-4 text-xs text-muted-foreground">
-                      {new Date(doc.createdAt).toLocaleDateString("en-GB", {
+                      {new Date(doc.createdAt).toLocaleDateString(locale, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
@@ -207,14 +208,14 @@ export function CaseDocumentsCard({
                           SENSITIVITY_STYLE[doc.sensitivity] ?? SENSITIVITY_STYLE.PRIVATE
                         }`}
                       >
-                        {doc.sensitivity}
+                        {t.has(`sensitivity.${doc.sensitivity}`) ? t(`sensitivity.${doc.sensitivity}`) : doc.sensitivity}
                       </span>
                     </td>
                     <td className="py-3 text-right">
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        title="Download"
+                        title={t("download")}
                         disabled={downloadingId === doc.id}
                         onClick={() => handleDownload(doc.id)}
                       >

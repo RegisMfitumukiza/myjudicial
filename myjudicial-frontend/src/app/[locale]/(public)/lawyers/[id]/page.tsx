@@ -4,7 +4,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useState, use, Suspense, useEffect, useRef } from "react";
 import {
   MapPin, Phone, Share2,
-  Calendar, ChevronLeft, CheckCircle, Award, Clock,
+  Calendar, CheckCircle, Award, Clock,
   Briefcase, GraduationCap, Languages, ShieldCheck,
   Quote, Video, Mail, ArrowRight, Star,
   ThumbsUp, ThumbsDown, Flag, Send, Loader2, X, Reply,
@@ -34,7 +34,6 @@ function LawyerProfileSkeleton() {
   return (
     <div className="min-h-screen bg-brand-canvas dark:bg-background">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-6 lg:py-8">
-        <div className="mb-8 h-4 w-32 animate-pulse rounded bg-muted" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-8">
             <div className="rounded-2xl border-0 bg-card p-6 shadow-sm lg:p-8">
@@ -234,12 +233,6 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
     return (
       <div className="min-h-screen bg-brand-canvas dark:bg-background">
         <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-8">
-          <Link
-            href="/search"
-            className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark/50 hover:text-brand-dark dark:text-white/50 dark:hover:text-white transition-colors"
-          >
-            <ChevronLeft size={16} /> {t("backToSearch")}
-          </Link>
           <div className="text-center py-16">
             <p className="text-red-600 font-semibold text-lg">{t("failedToLoad")}</p>
             <p className="text-sm text-muted-foreground mt-2">{t("tryAgain")}</p>
@@ -254,14 +247,48 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
+      {/* SEO: JSON-LD BreadcrumbList — invisible to users, indexed by Google */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": `https://myjudicial.com/${locale}`,
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Find Lawyers",
+                "item": `https://myjudicial.com/${locale}/search`,
+              },
+              ...(expert.primarySpecialty ? [{
+                "@type": "ListItem",
+                "position": 3,
+                "name": getLocalizedSpecialty(expert.primarySpecialty, tSpecialties),
+                "item": `https://myjudicial.com/${locale}/search?specialty=${expert.primarySpecialty}`,
+              }, {
+                "@type": "ListItem",
+                "position": 4,
+                "name": expert.name,
+                "item": `https://myjudicial.com/${locale}/lawyers/${id}`,
+              }] : [{
+                "@type": "ListItem",
+                "position": 3,
+                "name": expert.name,
+                "item": `https://myjudicial.com/${locale}/lawyers/${id}`,
+              }]),
+            ],
+          }),
+        }}
+      />
       <div className="min-h-screen bg-brand-canvas dark:bg-background pb-16">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-6 lg:py-8">
-          <Link
-            href="/search"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white transition-colors"
-          >
-            <ChevronLeft size={16} /> {t("backToSearch")}
-          </Link>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
             {/* Left Main Column */}

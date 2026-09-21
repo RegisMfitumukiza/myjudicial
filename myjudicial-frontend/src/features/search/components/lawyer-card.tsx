@@ -2,9 +2,11 @@
 
 import { Link } from "@/i18n/routing";
 import { MapPin, ShieldCheck, BadgeCheck, Clock } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { getLocalizedLanguage } from "@/shared/constants/languages";
 import type { Lawyer } from "../types";
 
 type LawyerCardProps = {
@@ -15,6 +17,8 @@ type LawyerCardProps = {
 
 export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
   const t = useTranslations("search");
+  const tSpecialties = useTranslations("specialties");
+  const locale = useLocale();
 
   return (
     <div
@@ -68,7 +72,7 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
         {/* Specialty badge */}
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
           <span className="rounded-full bg-brand-dark/10 px-2 py-0.5 text-[11px] font-medium text-brand-dark dark:bg-white/10 dark:text-white">
-            {lawyer.specialtyLabel}
+            {getLocalizedSpecialty(lawyer.specialtyLabel, tSpecialties)}
           </span>
           {lawyer.verified && (
             <span className="flex items-center gap-0.5 rounded-full bg-brand-dark/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-dark dark:bg-white/10 dark:text-white">
@@ -91,7 +95,9 @@ export function LawyerCard({ lawyer, selected, onClick }: LawyerCardProps) {
             </span>
           )}
           {lawyer.languages && lawyer.languages.length > 0 && (
-            <span className="line-clamp-1">{lawyer.languages.slice(0, 2).join(", ")}</span>
+            <span className="line-clamp-1">
+              {lawyer.languages.slice(0, 2).map((l) => getLocalizedLanguage(l, locale)).join(", ")}
+            </span>
           )}
         </div>
 

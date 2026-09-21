@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing";
 import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight, MapPin, Phone, Video, FileText } from "lucide-react";
 import { useBookings } from "@/features/booking/hooks/useBookings";
 import type { Booking, BookingStatus } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 
 const STATUS_STYLES: Record<string, string> = {
@@ -43,14 +43,16 @@ export default function ConsultationsPage() {
         return statuses.includes(b.status);
       });
 
+  const locale = useLocale();
+
   function formatDate(iso: string) {
     const d = new Date(iso);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
   }
 
   function formatTime(iso: string) {
     const d = new Date(iso);
-    return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
   }
 
   return (
@@ -145,7 +147,7 @@ function ConsultationCard({
             {booking.expert?.displayName ?? t("legalExpert")}
             </h3>
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${STATUS_STYLES[booking.status] ?? "bg-brand-dark/10 text-brand-dark"}`}>
-              {booking.status}
+              {t(`status.${booking.status}` as any, { default: booking.status })}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/5 px-2.5 py-0.5 text-[10px] font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
               {deliveryMode === "IN_PERSON" ? (
@@ -197,7 +199,7 @@ function ConsultationCard({
           </p>
           {booking.paymentStatus && booking.paymentStatus !== "NOT_REQUIRED" && (
             <p className="text-[10px] text-brand-dark/40 dark:text-white/40 mt-0.5">
-              {booking.paymentStatus}
+              {t(`paymentStatus.${booking.paymentStatus}` as any, { default: booking.paymentStatus })}
             </p>
           )}
         </div>

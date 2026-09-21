@@ -24,8 +24,8 @@ const CANONICAL_SPECIALTY_LABELS: Record<string, string> = {
   COMMERCIAL_LAW: "Commercial Law",
   EMPLOYMENT_LAW: "Employment Law",
   LAND_LAW: "Land & Property Law",
-  CRIMINAL_LAW: "Criminal Defense",
-  TAX_LAW: "Tax & Revenue Law",
+  CRIMINAL_LAW: "Criminal Law",
+  TAX_LAW: "Tax Law",
   IMMIGRATION_LAW: "Immigration Law",
   CORPORATE_LAW: "Corporate Law",
   CONTRACT_LAW: "Contract Law",
@@ -34,20 +34,70 @@ const CANONICAL_SPECIALTY_LABELS: Record<string, string> = {
 };
 
 /**
- * Returns the localized label for a specialty code, falling back to
- * the canonical English label or formatted key name.
+ * Normalizes any specialty input (SNAKE_CASE, Title Case, hyphenated, or alias)
+ * into its canonical uppercase SNAKE_CASE dictionary key.
+ */
+export function normalizeSpecialtyCode(code: string | null | undefined): string {
+  if (!code) return "";
+  const cleaned = code
+    .trim()
+    .toUpperCase()
+    .replace(/[&\/\\#,+()$~%.'":*?<>{}-]/g, " ")
+    .replace(/\s+/g, "_");
+
+  const ALIAS_MAP: Record<string, string> = {
+    CRIMINAL_DEFENSE: "CRIMINAL_LAW",
+    CRIMINAL_LAW: "CRIMINAL_LAW",
+    CRIMINAL: "CRIMINAL_LAW",
+    DROIT_PENAL: "CRIMINAL_LAW",
+    FAMILY_LAW: "FAMILY_LAW",
+    FAMILY: "FAMILY_LAW",
+    COMMERCIAL_LAW: "COMMERCIAL_LAW",
+    COMMERCIAL: "COMMERCIAL_LAW",
+    BUSINESS_LAW: "COMMERCIAL_LAW",
+    EMPLOYMENT_LAW: "EMPLOYMENT_LAW",
+    EMPLOYMENT: "EMPLOYMENT_LAW",
+    LABOR_LAW: "EMPLOYMENT_LAW",
+    LABOUR_LAW: "EMPLOYMENT_LAW",
+    LAND_LAW: "LAND_LAW",
+    LAND_PROPERTY_LAW: "LAND_LAW",
+    LAND_PROPERTY: "LAND_LAW",
+    PROPERTY_LAW: "LAND_LAW",
+    REAL_ESTATE_LAW: "LAND_LAW",
+    TAX_LAW: "TAX_LAW",
+    TAX_REVENUE_LAW: "TAX_LAW",
+    REVENUE_LAW: "TAX_LAW",
+    IMMIGRATION_LAW: "IMMIGRATION_LAW",
+    IMMIGRATION: "IMMIGRATION_LAW",
+    CORPORATE_LAW: "CORPORATE_LAW",
+    CORPORATE: "CORPORATE_LAW",
+    CONTRACT_LAW: "CONTRACT_LAW",
+    CONTRACT: "CONTRACT_LAW",
+    CONTRACTS: "CONTRACT_LAW",
+    INTELLECTUAL_PROPERTY: "INTELLECTUAL_PROPERTY",
+    IP_LAW: "INTELLECTUAL_PROPERTY",
+    IP: "INTELLECTUAL_PROPERTY",
+    OTHER: "OTHER",
+  };
+
+  return ALIAS_MAP[cleaned] || cleaned;
+}
+
+/**
+ * Returns the localized label for a specialty code or English title,
+ * falling back to the canonical English label or formatted key name.
  */
 export function getLocalizedSpecialty(
   code: string | null | undefined,
   tSpecialties?: (key: string) => string
 ): string {
   if (!code) return "";
-  const upper = code.toUpperCase();
+  const key = normalizeSpecialtyCode(code);
 
   if (tSpecialties) {
     try {
-      const translated = tSpecialties(upper);
-      if (translated && !translated.startsWith("specialties.")) {
+      const translated = tSpecialties(key);
+      if (translated && !translated.startsWith("specialties.") && translated !== key) {
         return translated;
       }
     } catch {
@@ -55,8 +105,8 @@ export function getLocalizedSpecialty(
     }
   }
 
-  if (CANONICAL_SPECIALTY_LABELS[upper]) {
-    return CANONICAL_SPECIALTY_LABELS[upper];
+  if (CANONICAL_SPECIALTY_LABELS[key]) {
+    return CANONICAL_SPECIALTY_LABELS[key];
   }
 
   // Fallback: convert SNAKE_CASE or snake_case to Title Case

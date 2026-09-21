@@ -21,7 +21,14 @@ import { AvailabilityPreview } from "@/features/booking/components/availability-
 import { useRequireBookingAuth } from "@/features/booking/hooks/useRequireBookingAuth";
 import { postReviewReaction, deleteReviewReaction, postReviewReport } from "@/lib/api/reviews";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { getLocalizedLanguage } from "@/shared/constants/languages";
+import {
+  getLocalizedServiceName,
+  getLocalizedServiceCategory,
+  getLocalizedServiceDescription,
+} from "@/shared/utils/service-localization";
 
 function LawyerProfileSkeleton() {
   return (
@@ -108,6 +115,8 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations("public.expertProfile");
   const tCommon = useTranslations("common");
   const tLawyers = useTranslations("lawyers");
+  const tSpecialties = useTranslations("specialties");
+  const locale = useLocale();
 
   const { data: expert, isLoading, error } = useExpertProfile(id);
 
@@ -294,7 +303,9 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                       </div>
 
                       <p className="mt-1 text-sm font-medium text-brand-dark/70 dark:text-white/70">
-                        {expert.firmName ? `${expert.specialty} • ${expert.firmName}` : expert.specialty}
+                        {expert.firmName
+                          ? `${getLocalizedSpecialty(expert.specialty, tSpecialties)} • ${expert.firmName}`
+                          : getLocalizedSpecialty(expert.specialty, tSpecialties)}
                       </p>
 
                       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -332,7 +343,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                             key={spec}
                             className="rounded-lg border border-brand-border/80 bg-brand-canvas px-2.5 py-1 text-xs font-medium text-brand-dark/80 dark:border-white/20 dark:bg-white/5 dark:text-white/80"
                           >
-                            {spec}
+                            {getLocalizedSpecialty(spec, tSpecialties)}
                           </span>
                         ))}
                       </div>
@@ -523,7 +534,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                               key={lang}
                               className="rounded-lg border border-brand-border/80 bg-background px-3 py-1 text-xs font-semibold text-brand-dark/80 shadow-2xs dark:border-white/10 dark:text-white/80"
                             >
-                              {lang}
+                              {getLocalizedLanguage(lang, locale)}
                             </span>
                           ))}
                         </div>
@@ -571,7 +582,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="text-base font-bold text-brand-dark dark:text-white">
-                                    {service.name}
+                                    {getLocalizedServiceName(service, t)}
                                   </h3>
                                   {service.isDefault && (
                                     <span className="rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-950/50 dark:text-amber-400">
@@ -583,7 +594,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                                   {service.category && (
                                     <span className="rounded-md bg-brand-dark/10 px-2 py-0.5 font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
-                                      {service.category.replace(/_/g, " ")}
+                                      {getLocalizedServiceCategory(service.category, t)}
                                     </span>
                                   )}
                                   <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
@@ -598,7 +609,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
 
                                 {service.description && (
                                   <p className="mt-2.5 text-xs leading-relaxed text-brand-dark/70 dark:text-white/70">
-                                    {service.description}
+                                    {getLocalizedServiceDescription(service.description, expert.name, t)}
                                   </p>
                                 )}
                               </div>
@@ -1064,7 +1075,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
                   <div className="pt-2 space-y-2.5 border-t border-border/60">
                     <div className="flex items-center gap-2.5 text-xs text-brand-dark/70 dark:text-white/70">
                       <Briefcase size={14} className="text-brand-dark/50 dark:text-white/50 shrink-0" />
-                      <span>{specialties[0]}</span>
+                      <span>{getLocalizedSpecialty(specialties[0], tSpecialties)}</span>
                     </div>
                     <div className="flex items-center gap-2.5 text-xs text-brand-dark/70 dark:text-white/70">
                       <Clock size={14} className="text-brand-dark/50 dark:text-white/50 shrink-0" />
@@ -1117,7 +1128,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               )}
             </div>
             <p className="text-[11px] font-medium text-muted-foreground truncate">
-              {specialties[0] || expert.specialty || expert.name}
+              {getLocalizedSpecialty(specialties[0] || expert.specialty, tSpecialties) || expert.name}
             </p>
           </div>
           <Button

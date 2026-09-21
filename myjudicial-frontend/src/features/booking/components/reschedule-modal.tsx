@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useAvailableSlots } from "../hooks/useAvailableSlots";
 import { TimeSlotList } from "./time-slot-list";
 import { TimeZonePicker } from "./timezone-picker";
+import { getLocalizedServiceName } from "@/shared/utils/service-localization";
 
 interface RescheduleModalProps {
   bookingId: string;
@@ -120,7 +121,7 @@ export function RescheduleModal({
                     hour: "numeric",
                     minute: "2-digit",
                   })}
-                  {serviceName ? ` \u00b7 ${serviceName}` : ""}
+                  {serviceName ? ` \u00b7 ${getLocalizedServiceName(serviceName, t)}` : ""}
                   {durationMin ? ` \u00b7 ${durationMin} min` : ""}
                 </p>
               </div>

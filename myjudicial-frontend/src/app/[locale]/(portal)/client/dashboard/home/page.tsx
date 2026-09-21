@@ -9,7 +9,7 @@ import {
   FileText, MessageSquare, Sparkles,
 } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 const JOINABLE_WINDOW_MS = 15 * 60 * 1000; // can join 15 min before start
 
@@ -85,16 +85,18 @@ export default function ClientHomePage() {
     };
   }, [bookings]);
 
+  const locale = useLocale();
+
   function formatDate(iso: string) {
     const d = new Date(iso);
     const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000);
-    if (diffDays <= 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
-    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    if (diffDays <= 0) return t("today");
+    if (diffDays === 1) return t("tomorrow");
+    return d.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" });
   }
 
   function formatTime(iso: string) {
-    return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    return new Date(iso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit", hour12: locale !== "fr" && locale !== "rw" });
   }
 
   return (
@@ -409,7 +411,7 @@ export default function ClientHomePage() {
                           {b.service?.name || t("consultationCapitalized")}
                         </p>
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_COLORS[b.status] || STATUS_COLORS.PENDING}`}>
-                          {b.status}
+                          {t(`status.${b.status}` as any, { default: b.status })}
                         </span>
                       </div>
                       <p className="text-[12px] text-brand-dark/50 dark:text-white/50">

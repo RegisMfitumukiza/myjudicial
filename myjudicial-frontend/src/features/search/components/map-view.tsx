@@ -6,6 +6,7 @@ import { Layers, Navigation, LocateFixed, ZoomIn, MapPin } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
 import { formatSpecialtyName } from "./mobile-map-expert-card";
+import { getLocalizedLanguage } from "@/shared/constants/languages";
 
 const STREET_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -577,13 +578,13 @@ export function MapView({
           avatarUrl: lawyer.avatarUrl ?? "",
           lawyerId: lawyer.id,
           online: lawyer.online,
-          specialty: lawyer.specialtyLabel,
+          specialty: formatSpecialtyName(lawyer.specialtyLabel, tSpecialties),
           specialties: (lawyer.specialties || []).map((s) => formatSpecialtyName(s, tSpecialties)).join(", "),
           distanceKm: lawyer.distanceKm,
           officeAddress: lawyer.officeAddress ?? "",
           city: lawyer.city ?? "",
           yearsExperience: lawyer.yearsExperience ?? 0,
-          languages: (lawyer.languages || []).join(", "),
+          languages: (lawyer.languages || []).map((l) => getLocalizedLanguage(l, locale)).join(", "),
           locale,
           t,
           tSpecialties,
@@ -615,7 +616,7 @@ export function MapView({
               name: lawyer.name,
               rate: lawyer.startingRateRwf,
               rating: lawyer.rating,
-              specialty: lawyer.specialtyLabel,
+              specialty: formatSpecialtyName(lawyer.specialtyLabel, tSpecialties),
               verified: lawyer.verified,
               online: lawyer.online,
             });

@@ -21,7 +21,7 @@ import { apiFetch } from "@/lib/api/client";
 import { getChatConversationsByBookingBookingId } from "@/api/generated";
 import type { Booking } from "@/api/generated";
 import type { ServiceNested } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 
 type BookingWithService = Booking & {
@@ -40,14 +40,14 @@ type BookingWithService = Booking & {
   };
 };
 
-function formatDate(iso: string) {
+function formatDate(iso: string, locale: string = "en") {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 }
 
-function formatTime(iso: string) {
+function formatTime(iso: string, locale: string = "en") {
   const d = new Date(iso);
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 }
 
 function formatDurationMin(start: string, end: string): number {
@@ -76,6 +76,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations("clientDashboard.consultationDetail");
+  const locale = useLocale();
   const { booking, isLoading, error } = useBooking(id);
   const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
   const { mutate: retryPayment, isPending: isRetrying } = useRetryPayment();
@@ -108,16 +109,17 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
     if (!booking) return;
     const win = window.open("", "_blank");
     if (!win) { toast.error(t("toasts.popupBlocked")); return; }
-    win.document.write(`<!DOCTYPE html><html><head><title>Receipt</title>
-<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#24558d}</style></head><body><p>Loading receipt...</p></body></html>`);
+    win.document.write(`<!DOCTYPE html><html><head><title>${t("receipt.windowTitle")}</title>
+<style>body{font-family:-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;color:#24558d}</style></head><body><p>${t("receipt.loading")}</p></body></html>`);
     win.document.close();
     try {
       const json = await apiFetch<{ success: boolean; message?: string; data: any }>(
         `/payments/${booking.id}/receipt`,
       );
-      if (!json.success) throw new Error(json.message ?? "Failed to fetch receipt");
+      if (!json.success) throw new Error(json.message ?? t("toasts.failedToDownloadReceipt"));
       const r = json.data;
-      win.document.write(`<!DOCTYPE html><html><head><title>Receipt ${r.receiptNo}</title>
+      const dateLocale = locale;
+      win.document.write(`<!DOCTYPE html><html><head><title>${t("receipt.windowTitle")} ${r.receiptNo}</title>
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#1a1a2e}
   .header{text-align:center;border-bottom:2px solid #24558d;padding-bottom:16px;margin-bottom:24px}
@@ -137,31 +139,30 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   .btn{display:inline-block;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:opacity .15s}
   .btn:hover{opacity:.85}
   .btn-primary{background:#24558d;color:#fff;border:none}
-  .btn-outline{background:#fff;color:#24558d;border:1.5px solid #24558d}
   @media print{
     .actions{display:none !important}
     body{margin:0;padding:20px}
   }
 </style></head><body>
 <div class="header">
-  <h1>MyJudicial Payment Receipt</h1>
-  <p>${r.receiptNo} &bull; ${new Date(r.paidAt ?? r.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</p>
+  <h1>${t("receipt.pageTitle")}</h1>
+  <p>${r.receiptNo} &bull; ${new Date(r.paidAt ?? r.createdAt).toLocaleDateString(dateLocale, { day: "2-digit", month: "short", year: "numeric" })}</p>
 </div>
 <table>
-  <tr><td>Consultation</td><td>${r.service?.name ?? "N/A"}</td></tr>
-  <tr><td>Expert</td><td>${r.expert.name}</td></tr>
-  <tr><td>Date</td><td>${new Date(r.booking.scheduledStart).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })} ${new Date(r.booking.scheduledStart).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</td></tr>
-  <tr><td>Duration</td><td>${r.booking.actualDurationMin ?? r.service?.durationMin ?? "N/A"} min</td></tr>
-  <tr><td>Payment Status</td><td><span class="badge ${r.status.toLowerCase()}">${r.status}</span></td></tr>
-  <tr><td>Transaction Ref</td><td style="font-family:monospace;font-size:12px">${r.transactionRef}</td></tr>
-  <tr class="total"><td>Total Paid</td><td>${r.currency} ${Number(r.amount).toLocaleString()}</td></tr>
-  <tr><td>Platform Fee</td><td>${r.currency} ${Number(r.platformFee).toLocaleString()}</td></tr>
-  <tr><td>Expert Payout</td><td>${r.currency} ${Number(r.expertPayout).toLocaleString()}</td></tr>
+  <tr><td>${t("receipt.colConsultation")}</td><td>${r.service?.name ?? "N/A"}</td></tr>
+  <tr><td>${t("receipt.colExpert")}</td><td>${r.expert.name}</td></tr>
+  <tr><td>${t("receipt.colDate")}</td><td>${new Date(r.booking.scheduledStart).toLocaleDateString(dateLocale, { day: "2-digit", month: "short", year: "numeric" })} ${new Date(r.booking.scheduledStart).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}</td></tr>
+  <tr><td>${t("receipt.colDuration")}</td><td>${r.booking.actualDurationMin ?? r.service?.durationMin ?? "N/A"} min</td></tr>
+  <tr><td>${t("receipt.colPaymentStatus")}</td><td><span class="badge ${r.status.toLowerCase()}">${r.status}</span></td></tr>
+  <tr><td>${t("receipt.colTransactionRef")}</td><td style="font-family:monospace;font-size:12px">${r.transactionRef}</td></tr>
+  <tr class="total"><td>${t("receipt.colTotalPaid")}</td><td>${r.currency} ${Number(r.amount).toLocaleString()}</td></tr>
+  <tr><td>${t("receipt.colPlatformFee")}</td><td>${r.currency} ${Number(r.platformFee).toLocaleString()}</td></tr>
+  <tr><td>${t("receipt.colExpertPayout")}</td><td>${r.currency} ${Number(r.expertPayout).toLocaleString()}</td></tr>
 </table>
 <div class="actions">
-  <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+  <button class="btn btn-primary" onclick="window.print()">${t("receipt.printButton")}</button>
 </div>
-<div class="footer">MyJudicial &mdash; Professional Legal Marketplace<br>This receipt was generated automatically.</div>
+<div class="footer">${t("receipt.footer")}<br>${t("receipt.footerGenerated")}</div>
 </body></html>`);
       win.document.close();
     } catch (err) {
@@ -454,7 +455,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               <div className="flex items-center gap-3">
                 <CalendarDays className="h-4 w-4 text-brand-dark/50 dark:text-white/50 shrink-0" />
                 <div>
-                  <p className="text-[13px] font-medium text-brand-dark dark:text-white">{formatDate(booking.scheduledStart)}</p>
+                  <p className="text-[13px] font-medium text-brand-dark dark:text-white">{formatDate(booking.scheduledStart, locale)}</p>
                   <p className="text-[11px] text-brand-dark/50 dark:text-white/50">{t("dateLabel")}</p>
                 </div>
               </div>
@@ -462,7 +463,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 <Clock className="h-4 w-4 text-brand-dark/50 dark:text-white/50 shrink-0" />
                 <div>
                   <p className="text-[13px] font-medium text-brand-dark dark:text-white">
-                    {formatTime(booking.scheduledStart)} — {formatTime(booking.scheduledEnd)}
+                    {formatTime(booking.scheduledStart, locale)} — {formatTime(booking.scheduledEnd, locale)}
                   </p>
                   <p className="text-[11px] text-brand-dark/50 dark:text-white/50">
                     {t("durationLabel", { duration: t("minutesSuffix", { count: formatDurationMin(booking.scheduledStart, booking.scheduledEnd) }) })}

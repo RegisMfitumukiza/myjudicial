@@ -2,6 +2,10 @@
 
 import { Clock, Phone, MapPin, Mail, Video, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import {
+  getLocalizedServiceName,
+  getLocalizedServiceDescription,
+} from "@/shared/utils/service-localization";
 
 interface ServiceCardService {
   id: string;
@@ -20,6 +24,7 @@ interface ServiceCardProps {
   onSelect: (service: ServiceCardService) => void;
   layout?: "list" | "grid";
   showArrow?: boolean;
+  expertName?: string;
 }
 
 const DELIVERY_ICONS: Record<string, typeof Phone> = {
@@ -29,9 +34,22 @@ const DELIVERY_ICONS: Record<string, typeof Phone> = {
   VIDEO: Video,
 };
 
-export function ServiceCard({ service, isSelected = false, onSelect, layout = "list", showArrow = true }: ServiceCardProps) {
+export function ServiceCard({
+  service,
+  isSelected = false,
+  onSelect,
+  layout = "list",
+  showArrow = true,
+  expertName = "",
+}: ServiceCardProps) {
   const t = useTranslations("booking");
+  const tProfile = useTranslations("public.expertProfile");
   const DeliveryIcon = DELIVERY_ICONS[service.deliveryMode ?? "VIDEO"] ?? Video;
+
+  const localizedName = getLocalizedServiceName(service.name, tProfile) || service.name;
+  const localizedDescription = service.description
+    ? getLocalizedServiceDescription(service.description, expertName, tProfile)
+    : undefined;
 
   const categoryLabel = service.category
     ? t(`category.${service.category}` as any)
@@ -53,7 +71,7 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
       >
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-brand-dark dark:text-white">{service.name}</p>
+            <p className="text-sm font-bold text-brand-dark dark:text-white">{localizedName}</p>
             <div className="mt-1 flex flex-wrap gap-1">
               {categoryLabel && (
                 <span className="rounded bg-brand-dark/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-dark/60 dark:bg-white/10 dark:text-white/60">
@@ -73,8 +91,8 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
             {t("durationMinutes", { minutes: service.durationMin })}
           </span>
         </div>
-        {service.description && (
-          <p className="mt-1 text-xs text-brand-dark/50 dark:text-white/50">{service.description}</p>
+        {localizedDescription && (
+          <p className="mt-1 text-xs text-brand-dark/50 dark:text-white/50">{localizedDescription}</p>
         )}
         <p className="mt-2 text-sm font-bold text-brand-dark dark:text-white">
           {service.currency ?? "RWF"} {Number(service.flatFee).toLocaleString()}
@@ -94,7 +112,7 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
       }`}
     >
       <div className="flex-1">
-        <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">{service.name}</h3>
+        <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">{localizedName}</h3>
         <div className="mt-1 flex flex-wrap gap-1">
           {categoryLabel && (
             <span className="rounded bg-brand-dark/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-dark/60 dark:bg-white/10 dark:text-white/60">
@@ -108,8 +126,8 @@ export function ServiceCard({ service, isSelected = false, onSelect, layout = "l
             </span>
           )}
         </div>
-        {service.description && (
-          <p className="mt-1 text-[13px] text-brand-dark/60 dark:text-white/60">{service.description}</p>
+        {localizedDescription && (
+          <p className="mt-1 text-[13px] text-brand-dark/60 dark:text-white/60">{localizedDescription}</p>
         )}
         <div className="mt-2 flex items-center gap-2 text-[12px] text-brand-dark/50 dark:text-white/50">
           <Clock size={12} />

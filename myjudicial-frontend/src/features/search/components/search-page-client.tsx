@@ -39,9 +39,9 @@ export function SearchPageClient() {
     () =>
       (practiceAreas || []).map((a) => ({
         value: a.specialty,
-        label: a.label,
+        label: getLocalizedSpecialty(a.specialty, tSpecialties) || a.label,
       })),
-    [practiceAreas]
+    [practiceAreas, tSpecialties]
   );
 
   const activeContext = useMemo(() => {

@@ -99,7 +99,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                 >
                   {Icon && <Icon size={16} />}
                   {item.label}
-                  {item.label === "Messages" && chatUnreadCount > 0 && (
+                  {item.href === "/client/dashboard/messages" && chatUnreadCount > 0 && (
                     <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-blue px-1 text-[10px] font-bold text-white">
                       {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                     </span>
@@ -252,7 +252,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                   >
                     {Icon && <Icon size={18} />}
                     {item.label}
-                    {item.label === "Messages" && chatUnreadCount > 0 && (
+                    {item.href === "/client/dashboard/messages" && chatUnreadCount > 0 && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
                         {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                       </span>

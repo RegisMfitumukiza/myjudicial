@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import { getLocalizedServiceName } from "@/shared/utils/service-localization";
 
 interface BookingSummaryData {
   expertName: string;
@@ -43,7 +44,7 @@ export function BookingSummaryCard({
 
   const rows = [
     { label: t("expert"), value: expertName || "—" },
-    { label: t("service"), value: serviceName || t("notSelected") },
+    { label: t("service"), value: getLocalizedServiceName(serviceName, t) || t("notSelected") },
     ...(durationMin ? [{ label: t("duration"), value: `${durationMin} min` }] : []),
     { label: t("date"), value: dateStr },
     { label: t("time"), value: timeStr },

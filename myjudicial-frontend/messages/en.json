@@ -1148,7 +1148,25 @@
     },
     "settings": {
       "title": "Settings",
-      "subtitle": "Manage your account preferences"
+      "subtitle": "Manage your account preferences",
+      "appearance": "Appearance",
+      "appearanceDesc": "Customize your visual theme and interface mode",
+      "themeMode": "Theme Mode",
+      "themeModeDesc": "Switch between light and dark themes",
+      "accountActivity": "Account & Activity",
+      "accountActivityDesc": "Quick access to personal info, files, billing, and alerts",
+      "shortcuts": {
+        "profile": "Profile",
+        "profileDesc": "Personal details",
+        "documents": "Documents",
+        "documentsDesc": "Case & uploaded files",
+        "payments": "Payments & Receipts",
+        "paymentsDesc": "Invoices & billing",
+        "notifications": "Notifications",
+        "notificationsDesc": "Activity & alerts",
+        "reviews": "My Reviews",
+        "reviewsDesc": "Past feedback"
+      }
     },
     "consultations": {
       "title": "My Consultations",
@@ -1171,7 +1189,23 @@
       "modeVideo": "Video Call",
       "modeInPerson": "In-Person (Office)",
       "modePhone": "Phone Call",
-      "modeDocument": "Document Package"
+      "modeDocument": "Document Package",
+      "status": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "ACTIVE": "Active",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "REFUNDED": "Refunded"
+      },
+      "paymentStatus": {
+        "PAID": "Paid",
+        "PENDING": "Pending",
+        "AUTHORIZED": "Authorized",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "NOT_REQUIRED": "Not Required"
+      }
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -1199,7 +1233,9 @@
       "joinConsultation": "Join Consultation",
       "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your lawyer.",
       "inPersonNotice": "This is an in-person appointment scheduled at the advocate's office. A video room is not required.",
-      "viewOfficeDetails": "View Office Location & Details"
+      "viewOfficeDetails": "View Office Location & Details",
+      "phoneNotice": "This is a telephone consultation with your advocate. A video room is not required.",
+      "documentNotice": "This is a document review deliverable. A video room is not required."
     },
     "consultationDetail": {
       "toasts": {
@@ -1269,7 +1305,53 @@
         "cancelling": "Cancelling...",
         "confirmCancellation": "Confirm Cancellation",
         "keepBooking": "Keep Booking"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "CONFIRMED": "Confirmed",
+        "ACTIVE": "Active",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "REFUNDED": "Refunded"
+      },
+      "receipt": {
+        "windowTitle": "Receipt",
+        "loading": "Loading receipt...",
+        "pageTitle": "MyJudicial Payment Receipt",
+        "colConsultation": "Consultation",
+        "colExpert": "Expert",
+        "colDate": "Date",
+        "colDuration": "Duration",
+        "colDurationMin": "{count} min",
+        "colPaymentStatus": "Payment Status",
+        "colTransactionRef": "Transaction Ref",
+        "colTotalPaid": "Total Paid",
+        "colPlatformFee": "Platform Fee",
+        "colExpertPayout": "Expert Payout",
+        "printButton": "Print / Save as PDF",
+        "footer": "MyJudicial — Professional Legal Marketplace",
+        "footerGenerated": "This receipt was generated automatically."
       }
+    },
+    "reviews": {
+      "backToDashboard": "Dashboard",
+      "title": "My Reviews",
+      "subtitle": "Reviews you have left for legal experts",
+      "failedToLoad": "Failed to load reviews. Please try again.",
+      "noReviews": "No reviews yet",
+      "noReviewsDesc": "You will see your reviews here after completing a consultation and leaving feedback."
+    },
+    "savedExperts": {
+      "backToDashboard": "Dashboard",
+      "title": "Saved Experts",
+      "subtitle": "Experts you have bookmarked for quick access",
+      "failedToLoad": "Failed to load saved experts. Please try again.",
+      "noSavedExperts": "No saved experts yet",
+      "noSavedExpertsDesc": "Browse experts and save them for quick access later.",
+      "findLawyers": "Find Lawyers",
+      "expertRemoved": "Expert removed from saved list",
+      "failedToRemove": "Failed to remove expert",
+      "removeTooltip": "Remove from saved"
     }
   },
   "clientDashboard_documents": {},
@@ -1314,7 +1396,17 @@
     "aiIntakeAction": "Start AI Intake",
     "browseLawyersTitle": "Search Legal Experts",
     "browseLawyersDesc": "Browse verified advocates by practice area, flat fees, location, and verified client ratings.",
-    "browseLawyersAction": "Browse Lawyers"
+    "browseLawyersAction": "Browse Lawyers",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded"
+    }
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",
@@ -2834,7 +2926,40 @@
       "uploadFailed": "Failed to upload document.",
       "downloadFailed": "Failed to download document.",
       "documentDeleted": "Document deleted.",
-      "deleteFailed": "Failed to delete document."
+      "deleteFailed": "Failed to delete document.",
+      "title": "My Documents",
+      "subtitle": "Your uploaded documents and case files",
+      "uploading": "Uploading...",
+      "clickToUpload": "Click to upload a document",
+      "uploadLimit": "Up to 20 MB. Encrypted at rest.",
+      "failedToLoad": "Failed to load documents. Please try again.",
+      "noDocuments": "No documents uploaded yet.",
+      "colName": "Name",
+      "colType": "Type",
+      "colSize": "Size",
+      "colUploaded": "Uploaded",
+      "colSensitivity": "Sensitivity",
+      "deleteConfirm": "Delete this document? This cannot be undone.",
+      "shareFailed": "Failed to share document",
+      "shareFailedCheckId": "Failed to share document. Check the user ID is correct.",
+      "encryptedStorage": "Encrypted storage",
+      "encryptedStorageDesc": "Documents are encrypted at rest. Only you can access your own files.",
+      "shareDocument": "Share Document",
+      "shareDocumentDesc": "Enter the user ID of the person you want to share this document with.",
+      "sharePlaceholder": "User ID (UUID)",
+      "sharing": "Sharing...",
+      "share": "Share",
+      "cancel": "Cancel",
+      "caseDocuments": "Case Documents",
+      "caseDocumentsDesc": "Files shared between you and the client for this case.",
+      "addDocument": "Add document",
+      "loadingCaseDocuments": "Loading case documents...",
+      "failedToLoadCaseDocuments": "Failed to load case documents",
+      "failedToLoadCaseDocumentsDesc": "Could not load the documents for this booking.",
+      "retry": "Retry",
+      "noCaseDocuments": "No case documents yet.",
+      "noCaseDocumentsUploadDesc": "Upload a file to share it with the other party in this case.",
+      "download": "Download"
     },
     "chat": {
       "loadMessagesFailed": "Failed to load older messages.",
@@ -2844,7 +2969,21 @@
       "fileTooLarge": "File must be under 15 MB.",
       "uploadFailed": "Failed to upload attachment.",
       "sendAttachmentFailed": "Failed to send attachment.",
-      "downloadFailed": "Failed to download attachment."
+      "downloadFailed": "Failed to download attachment.",
+      "noConversations": "No conversations yet.",
+      "selectConversation": "Select a conversation to start chatting.",
+      "searchInConversation": "Search in conversation...",
+      "noMessages": "No messages yet. Say hello!",
+      "loadOlderMessages": "Load older messages",
+      "messageDeleted": "This message was deleted",
+      "edited": "(edited)",
+      "attachment": "Attachment",
+      "reply": "Reply",
+      "edit": "Edit",
+      "delete": "Delete",
+      "online": "Online",
+      "typing": "typing",
+      "noMessagesPreview": "No messages yet"
     },
     "experts": {
       "profileCreatedPhotoFailed": "Profile created, but photo upload failed.",
@@ -4422,6 +4561,16 @@
       "min": "min",
       "minSession": "{count} min session",
       "noServicesListed": "No services listed yet",
+      "defaultConsultationName": "Consultation",
+      "defaultConsultationWithName": "Legal consultation with {name}",
+      "defaultConsultationStandard": "Standard legal consultation session.",
+      "categoryConsultation": "Consultation",
+      "categoryDocumentReview": "Document Review",
+      "categoryContractDrafting": "Contract Drafting",
+      "categoryCourtRepresentation": "Court Representation",
+      "categoryLegalAdvice": "Legal Advice",
+      "categoryMediation": "Mediation",
+      "categoryOther": "Other",
       "professionalCredentials": "Professional Credentials",
       "licensedUntil": "Licensed until {date}",
       "bookConsultation": "Book Consultation",
@@ -5043,8 +5192,9 @@
     "COMMERCIAL_LAW": "Commercial Law",
     "EMPLOYMENT_LAW": "Employment Law",
     "LAND_LAW": "Land & Property Law",
-    "CRIMINAL_LAW": "Criminal Defense",
-    "TAX_LAW": "Tax & Revenue Law",
+    "CRIMINAL_LAW": "Criminal Law",
+    "CRIMINAL_DEFENSE": "Criminal Defense",
+    "TAX_LAW": "Tax Law",
     "IMMIGRATION_LAW": "Immigration Law",
     "CORPORATE_LAW": "Corporate Law",
     "CONTRACT_LAW": "Contract Law",

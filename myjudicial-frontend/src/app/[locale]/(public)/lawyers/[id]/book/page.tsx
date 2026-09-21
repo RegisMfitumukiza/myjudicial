@@ -293,6 +293,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                           }}
                           layout="grid"
                           showArrow={false}
+                          expertName={profile.displayName}
                         />
                       ))}
                     </div>

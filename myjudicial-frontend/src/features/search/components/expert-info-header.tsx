@@ -2,6 +2,7 @@ import { MapPin, Briefcase, CheckCircle, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
+import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 
 type ExpertInfoHeaderProps = {
   displayName: string;
@@ -27,6 +28,7 @@ export function ExpertInfoHeader({
   showTimezone = false,
 }: ExpertInfoHeaderProps) {
   const t = useTranslations("search");
+  const tSpecialties = useTranslations("specialties");
   return (
     <div>
       <div className="flex items-start gap-4">
@@ -35,7 +37,9 @@ export function ExpertInfoHeader({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-lg font-bold text-brand-dark dark:text-white">{displayName}</h3>
-              <p className="text-sm text-brand-dark/50 dark:text-white/50">{primarySpecialty ?? t("legalExpert")}</p>
+              <p className="text-sm text-brand-dark/50 dark:text-white/50">
+                {primarySpecialty ? getLocalizedSpecialty(primarySpecialty, tSpecialties) : t("legalExpert")}
+              </p>
             </div>
             {avgRating != null && avgRating > 0 && (
               <span className="flex shrink-0 items-center rounded-full bg-brand-dark/10 px-2.5 py-1 dark:bg-white/10">

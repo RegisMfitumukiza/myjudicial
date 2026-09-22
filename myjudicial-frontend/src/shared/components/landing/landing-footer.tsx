@@ -93,10 +93,7 @@ export default function LandingFooter() {
       links: [
         { label: t("links.aboutUs"), href: "/about" },
         { label: t("links.faqs"), href: "/faqs" },
-        { label: t("links.helpCenter"), href: "/help" },
         { label: t("links.contact"), href: "/contact" },
-        { label: t("links.careers"), href: "/careers" },
-        { label: t("links.newsroom"), href: "/press" },
       ],
     },
     {

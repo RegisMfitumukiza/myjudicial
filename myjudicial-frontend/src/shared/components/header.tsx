@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "./language-switcher";
 import { Menu, X, Bot, HelpCircle, Search, Scale, LayoutDashboard, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ProfileMenu } from "./profile-menu";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const t = useTranslations("header");
@@ -16,8 +17,36 @@ export function Header() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
   const mobileRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const lastScrollY = useRef(0);
+
+  // Smart scroll header: hide on scroll down, reveal on scroll up
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Always show when near the very top of the page
+      if (currentScrollY < 60) {
+        setVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      // Scrolling down -> hide header; Scrolling up -> reveal header
+      if (currentScrollY > lastScrollY.current + 8) {
+        if (!mobileOpen) setVisible(false);
+      } else if (currentScrollY < lastScrollY.current - 8) {
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [mobileOpen]);
 
   const isAdvocate = session?.user?.role === "EXPERT";
   const advocateHref = isAdvocate ? "/expert/dashboard" : "/sign-up?role=EXPERT";
@@ -66,7 +95,12 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+    <header
+      className={cn(
+        "sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-transform duration-300 ease-in-out",
+        visible ? "translate-y-0" : "-translate-y-full"
+      )}
+    >
       <div className="mx-auto flex max-w-[1400px] h-16 items-center gap-2 px-4 sm:px-6">
 
         {/* Logo */}

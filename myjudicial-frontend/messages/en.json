@@ -3640,38 +3640,112 @@
       "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
     },
     "hero": {
-      "badge": "Simple · Transparent · Protected",
-      "title": "Your Path from Legal Question to Trusted Counsel",
-      "subtitle": "Discover how we verify Bar credentials, protect your payments in escrow, and deliver seamless consultations in three simple steps."
+      "badge": "Verified Advocates · Escrow Protection · Clear Outcomes",
+      "title": "How MyJudicial Connects You with Trusted Legal Counsel",
+      "subtitle": "From your initial legal question to verified resolution. Learn how Rwanda Bar Association accreditation, modern digital booking, and secure Mobile Money escrow work together."
     },
-    "steps": {
-      "title": "Four steps to resolve your legal issue",
+    "tabs": {
+      "clients": "For Citizens & Businesses",
+      "advocates": "For Certified Advocates"
+    },
+    "clientJourney": {
+      "badge": "Step-by-step Client Experience",
+      "title": "How to Consult with an Advocate",
+      "subtitle": "Four simple stages to access high quality, certified legal assistance anywhere in Rwanda.",
       "step1": {
-        "title": "1. Find or Match",
-        "text": "Browse our directory of verified experts by practice area, or describe your issue to our AI Assistant to get matched with the right specialist instantly."
+        "tag": "Step 01",
+        "title": "Search or AI Legal Triage",
+        "desc": "Browse our directory by practice area and location, or describe your situation in plain Kinyarwanda, English, or French to our AI Assistant to identify matching specialists instantly."
       },
       "step2": {
-        "title": "2. Compare & Choose",
-        "text": "Review profiles, verified credentials, client ratings, and clear upfront pricing. No hidden fees or surprises."
+        "tag": "Step 02",
+        "title": "Compare Verified Credentials & Rates",
+        "desc": "Inspect Rwanda Bar Association Roll registration, verified courtroom experience, peer ratings, and upfront consultation fees with zero hidden surprises."
       },
       "step3": {
-        "title": "3. Book Securely",
-        "text": "Select a time that works for you and pay securely via Mobile Money (MoMo). Your payment is held in escrow until the consultation is complete."
+        "tag": "Step 03",
+        "title": "Book with Escrow Protection",
+        "desc": "Select a calendar slot that fits your schedule. Pay securely via MTN Mobile Money, Airtel Money, or Card. Funds remain locked safely in escrow until the session is completed."
       },
       "step4": {
-        "title": "4. Consult & Review",
-        "text": "Meet with your lawyer via secure video call or in person. After the session, leave a review to help others in the community."
+        "tag": "Step 04",
+        "title": "Meet & Resolve via Chosen Modality",
+        "desc": "Join an encrypted in-browser video call, receive a direct phone call, or meet face-to-face at their registered law chambers. After the session, leave an authentic review."
       }
     },
-    "payment": {
-      "title": "Secure Payments & Escrow",
-      "text": "Your financial security is our priority. When you book a consultation, your payment is held securely in our escrow system. The lawyer only gets paid after your consultation is successfully completed. If the lawyer doesn't show up, you get a full refund.",
-      "momo": "We accept MTN Mobile Money and Airtel Money for seamless transactions across Rwanda."
+    "advocateJourney": {
+      "badge": "For Legal Professionals",
+      "title": "How Advocates Practice on MyJudicial",
+      "subtitle": "Grow your legal practice with digital tools, guaranteed escrow payouts, and zero payment chasing.",
+      "step1": {
+        "tag": "Step 01",
+        "title": "Apply with Bar Credentials",
+        "desc": "Register with your official Rwanda Bar Association Roll number, law firm credentials, and national ID for professional accreditation."
+      },
+      "step2": {
+        "tag": "Step 02",
+        "title": "Compliance & Vetting Check",
+        "desc": "Our legal compliance team validates your Bar certificate, active status, and disciplinary standing before activating your verified badge."
+      },
+      "step3": {
+        "tag": "Step 03",
+        "title": "Configure Services & Calendar",
+        "desc": "Set your own consultation fees, define your working hours, and choose which delivery modes you offer (Video, Phone, or In-Person at your chambers)."
+      },
+      "step4": {
+        "tag": "Step 04",
+        "title": "Conduct Sessions & Guaranteed Payouts",
+        "desc": "Consult with verified clients across Rwanda. Once consultations conclude, funds are deposited directly to your Mobile Money or bank account."
+      }
+    },
+    "modalities": {
+      "badge": "Flexible Consultation Modes",
+      "title": "Three Ways to Meet Your Advocate",
+      "subtitle": "Choose the consultation style that best matches your legal matter and location in Rwanda.",
+      "video": {
+        "title": "Encrypted Video Consultation",
+        "desc": "Directly in your browser with no app downloads required. Includes document screen-sharing and encrypted audio-video.",
+        "feature1": "End-to-end encrypted session",
+        "feature2": "Document & evidence screen sharing",
+        "feature3": "Join from any smartphone or PC"
+      },
+      "phone": {
+        "title": "Direct Phone Consultation",
+        "desc": "For immediate advice or situations with low internet bandwidth. The advocate calls your verified phone number on schedule.",
+        "feature1": "Works on all telecom networks (MTN / Airtel)",
+        "feature2": "Ideal for urgent advice or remote areas",
+        "feature3": "No internet connection required for the call"
+      },
+      "inPerson": {
+        "title": "In-Person Chambers Meeting",
+        "desc": "Meet your advocate face-to-face at their officially registered law office or chambers in Kigali or across Rwanda.",
+        "feature1": "Chambers location provided upon booking",
+        "feature2": "Physical review of original legal files",
+        "feature3": "Formal legal representation prep"
+      }
+    },
+    "trustFramework": {
+      "badge": "Accreditation & Trust",
+      "title": "The MyJudicial Trust Guarantee",
+      "subtitle": "Built in accordance with Rwanda Bar Association standards and legal ethics.",
+      "item1": {
+        "title": "100% Bar-Vetted Advocates",
+        "desc": "Every single advocate is cross-checked against the official Rwanda Bar Association Roll before taking any consultations."
+      },
+      "item2": {
+        "title": "Regulated Escrow Safeguards",
+        "desc": "Your money never goes directly to an unverified third party. Funds stay locked until the consultation is completed satisfactorily."
+      },
+      "item3": {
+        "title": "Authentic Client Ratings",
+        "desc": "Only clients who have paid for and completed a consultation can leave a review. Zero fake or incentivized reviews."
+      }
     },
     "cta": {
-      "title": "Ready to resolve your legal issue?",
-      "startNow": "Start Now",
-      "contactSupport": "Contact Support"
+      "title": "Ready to get trusted legal assistance?",
+      "subtitle": "Connect with an accredited Rwanda Bar Association advocate in minutes.",
+      "findLawyer": "Find a Lawyer Now",
+      "joinAsAdvocate": "Join as an Advocate"
     }
   },
   "intake": {
@@ -4423,83 +4497,141 @@
   },
   "pricingPage": {
     "meta": {
-      "title": "Pricing | MyJudicial",
-      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
+      "title": "Transparent Pricing | MyJudicial",
+      "description": "Upfront legal fees, zero surprise invoices, and 100% escrow protection for legal consultations across Rwanda."
     },
     "hero": {
       "badge": "Zero Hidden Fees · Escrow Protected",
       "title": "Transparent Legal Fees. Total Peace of Mind.",
-      "subtitle": "Fixed consultation rates agreed upfront with your advocate. Payments are held securely in escrow and only released once your session completes."
+      "subtitle": "Fixed consultation rates set by certified advocates upfront. Zero surprise invoices, with 100% of your funds protected in secure Mobile Money escrow until your consultation is completed."
     },
-    "howItWorks": {
-      "title": "How Pricing Works",
-      "points": {
-        "fixedFees": {
-          "title": "Fixed Fees Set by Lawyers",
-          "text": "Every lawyer sets their own hourly or consultation rate. You can easily compare prices before booking."
-        },
-        "platformFee": {
-          "title": "Small Platform Fee",
-          "text": "We charge a minimal transaction fee on bookings to maintain the platform and secure escrow system."
-        },
-        "escrow": {
-          "title": "Secure Escrow Protection",
-          "text": "Your payment is held safely in escrow. The lawyer only gets paid after your consultation is complete."
-        }
+    "pillars": {
+      "badge": "Clear & Predictable",
+      "title": "How Legal Pricing Works on MyJudicial",
+      "subtitle": "Traditional legal hiring is plagued by opaque hourly billing and surprise retainers. MyJudicial brings complete financial clarity.",
+      "advocateRates": {
+        "title": "Advocate-Set Fixed Rates",
+        "desc": "Each certified advocate defines their own transparent consultation fees based on experience and specialty. You see the exact total before confirming."
+      },
+      "transparentPlatformFee": {
+        "title": "All-Inclusive Platform Support",
+        "desc": "A modest fee covers HD encrypted video rooms, instant SMS reminders, calendar sync, and regulated escrow custody. No extra checkout fees."
+      },
+      "noRetainers": {
+        "title": "Zero Opaque Retainers",
+        "desc": "Pay per consultation or agreed scope. You never have to deposit large open-ended retainers without understanding where every Franc goes."
       }
     },
-    "tiers": {
-      "free": {
-        "name": "Discovery",
-        "price": "Free",
-        "desc": "Perfect for initial research",
-        "features": [
-          "Browse all verified lawyers",
-          "Compare practice areas and fees",
-          "Read client reviews",
-          "Basic AI Assistant triage"
-        ],
-        "cta": "Start Searching"
+    "escrowPipeline": {
+      "badge": "100% Escrow Protection",
+      "title": "How the Escrow Guarantee Works",
+      "subtitle": "Your payment is protected at every single moment of the booking lifecycle.",
+      "step1": {
+        "step": "01",
+        "title": "Book & Fund Escrow",
+        "desc": "Select a slot and pay via MTN MoMo, Airtel Money, or Card. Funds are securely locked in MyJudicial Escrow."
       },
-      "consultation": {
-        "name": "Consultation",
-        "price": "Variable",
-        "desc": "Book an expert for advice",
-        "features": [
-          "Fixed upfront pricing",
-          "Secure MoMo payments",
-          "Escrow payment protection",
-          "Video or in-person meetings",
-          "Leave a public review"
-        ],
-        "cta": "Find a Lawyer",
-        "badge": "Most Popular"
+      "step2": {
+        "step": "02",
+        "title": "Advocate Confirmation",
+        "desc": "The certified advocate accepts and prepares for your consultation session with your case context."
       },
-      "lawyer": {
-        "name": "For Lawyers",
-        "price": "Commission",
-        "desc": "Grow your legal practice",
-        "features": [
-          "Free verified profile listing",
-          "Manage calendar and bookings",
-          "Guaranteed payment via escrow",
-          "Invoicing and analytics",
-          "Client review system"
-        ],
-        "cta": "Join as a Lawyer"
+      "step3": {
+        "step": "03",
+        "title": "Session Completed",
+        "desc": "Meet your lawyer via secure video, direct phone call, or in-person at their Kigali office."
+      },
+      "step4": {
+        "step": "04",
+        "title": "Payout or 100% Refund",
+        "desc": "Funds are released to the advocate only after the session. If the advocate cancels or no-shows, you get an automatic full refund."
+      },
+      "guaranteeBadge": "Money-Back Guarantee",
+      "guaranteeText": "If your advocate fails to attend or cancels the consultation, your payment is refunded 100% back to your Mobile Money account immediately."
+    },
+    "benchmarks": {
+      "badge": "Market Benchmarks",
+      "title": "Typical Legal Consultation Rates in Rwanda",
+      "subtitle": "Representative pricing ranges observed across verified advocates on MyJudicial.",
+      "item1": {
+        "title": "Initial Legal Advice",
+        "duration": "30 – 45 Minutes",
+        "range": "20,000 – 45,000 RWF",
+        "desc": "Ideal for preliminary legal assessment, rights clarification, and identifying legal options.",
+        "feature1": "Video, Phone, or In-person",
+        "feature2": "Direct Q&A with advocate",
+        "feature3": "Actionable next steps summary"
+      },
+      "item2": {
+        "title": "In-Depth Consultation & Strategy",
+        "duration": "60 Minutes",
+        "range": "50,000 – 100,000 RWF",
+        "desc": "Comprehensive analysis of contentious matters, disputes, employment issues, or property transactions.",
+        "feature1": "Pre-session file review",
+        "feature2": "Detailed legal risk evaluation",
+        "feature3": "Written follow-up recommendations"
+      },
+      "item3": {
+        "title": "Document & Contract Review",
+        "duration": "Flat Service",
+        "range": "60,000 – 150,000 RWF",
+        "desc": "Thorough clause-by-clause legal review of commercial leases, employment contracts, or sales agreements.",
+        "feature1": "Line-by-line risk highlighting",
+        "feature2": "Compliance with Rwanda laws",
+        "feature3": "30-min debrief call included"
       }
     },
-    "escrow": {
-      "title": "Protected by MyJudicial Escrow",
-      "text": "When you book a consultation, your MTN MoMo or Airtel Money payment is transferred to a secure escrow account managed by MyJudicial. The funds are only released to the lawyer after the consultation has taken place. If the lawyer cancels or fails to show up, you receive a full refund automatically.",
-      "badge": "100% Secure"
+    "comparison": {
+      "badge": "Why MyJudicial",
+      "title": "Traditional Legal Hiring vs. MyJudicial",
+      "subtitle": "See the difference transparent pricing and modern technology make for your legal matters.",
+      "traditionalHeader": "Traditional Law Practice",
+      "myjudicialHeader": "MyJudicial Marketplace",
+      "row1": {
+        "feature": "Fee Predictability",
+        "traditional": "Unpredictable hourly billing with open-ended clock running",
+        "myjudicial": "Upfront fixed fees agreed before booking"
+      },
+      "row2": {
+        "feature": "Upfront Retainers",
+        "traditional": "Heavy advance retainer deposits required with no guarantees",
+        "myjudicial": "Pay strictly per consultation or agreed milestone"
+      },
+      "row3": {
+        "feature": "Payment & Receipts",
+        "traditional": "Opaque cash transactions or difficult wire transfers",
+        "myjudicial": "Instant MTN MoMo & Airtel Money with digital receipts"
+      },
+      "row4": {
+        "feature": "Cancellation Protection",
+        "traditional": "No recourse or delayed refunds if lawyer misses appointment",
+        "myjudicial": "100% automated refund guarantee held in escrow"
+      },
+      "row5": {
+        "feature": "Credential Verification",
+        "traditional": "Client must manually verify Bar credentials and track record",
+        "myjudicial": "Every advocate pre-vetted with Rwanda Bar Association"
+      }
+    },
+    "faqs": {
+      "badge": "Got Questions?",
+      "title": "Pricing & Payment FAQs",
+      "subtitle": "Clear answers to common questions about fees, payments, and our escrow guarantee.",
+      "q1": "Are there any hidden fees added during checkout?",
+      "a1": "No. The total price you see on the advocate's profile and booking screen is the exact and final amount debited from your Mobile Money or card.",
+      "q2": "What happens if the advocate doesn't show up?",
+      "a2": "Because your payment is held in MyJudicial Escrow rather than paid directly to the lawyer, our system issues an automatic 100% refund back to your MoMo or card account if the consultation does not take place.",
+      "q3": "Can an advocate demand more money during the consultation?",
+      "a3": "Never for the booked session. The agreed fee covers the entire duration and scope booked. If you subsequently decide to hire the advocate for ongoing courtroom litigation or broader work, they will issue a formal separate quotation.",
+      "q4": "Which payment methods are accepted in Rwanda?",
+      "a4": "We accept MTN Mobile Money, Airtel Money, and international Visa/Mastercard payments. All payments are processed over encrypted channels."
     },
     "cta": {
-      "title": "Ready to get started?",
-      "subtitle": "Join thousands of Rwandans who have found the right legal help on MyJudicial.",
-      "button": "Find a Lawyer"
-    },
-    "mostPopular": "Most Popular"
+      "title": "Experience transparent legal support today",
+      "subtitle": "Browse verified advocates, compare clear rates, and book your consultation in minutes.",
+      "button": "Find a Lawyer Now",
+      "secondary": "How It Works"
+    }
   },
   "public": {
     "bookings": {

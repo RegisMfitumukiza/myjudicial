@@ -4955,43 +4955,117 @@
     "readArticles": "Soma ingingo"
   },
   "howItWorksPage": {
-    "hero": {
-      "badge": "Uko Bikora",
-      "title": "Uko MyJudicial igufasha kubona umwavoka",
-      "subtitle": "Uburyo bworoshye, bwihuse kandi bwizewe bwo kubona inama z'amategeko zinoze mu Rwanda."
+    "meta": {
+      "title": "Uburyo Bigenda | MyJudicial",
+      "description": "Menya uko ushaka, ugisha inama, kandi ukorana n'abavoka b'inzobere bemejwe kuri MyJudicial mu ntambwe enye zoroshye."
     },
-    "steps": {
-      "title": "Intambwe 4 zoroshye zo kugisha inama",
+    "hero": {
+      "badge": "Abavoka Bemejwe · Ubwishyu Burinzwe · Ibisubizo Bisobanutse",
+      "title": "Uko MyJudicial Iguhuza n'Abavoka Wizewe mu Rwanda",
+      "subtitle": "Kuva ku kibazo cyawe cya mbere cy'amategeko kugeza gikemutse. Menya uburyo kwemezwa n'Urugaga rw'Abavoka, gufata gahunda mu buryo bw'ikoranabuhanga, n'ubwirinzi bwa Mobile Money bikorana."
+    },
+    "tabs": {
+      "clients": "Ku Baturage & Ubucuruzi",
+      "advocates": "Ku Bavoka Bemejwe"
+    },
+    "clientJourney": {
+      "badge": "Urugendo rw'Umukiriya Intambwe ku Yindi",
+      "title": "Uburyo Wagisha Inama Umwavoka",
+      "subtitle": "Intambwe enye zoroshye zo kubona ubufasha bw'amategeko bwizewe aho waba uri hose mu Rwanda.",
       "step1": {
-        "title": "1. Shakisha cyangwa ubaze AI",
-        "text": "Hitamo ishami ry'amategeko, akarere n'ibiciro, cyangwa usobanurire AI igufashe kubona umwavoka ukwiriye."
+        "tag": "Intambwe 01",
+        "title": "Shakisha cyangwa Ukoreshe AI y'Amategeko",
+        "desc": "Rondera urutonde rw'abavoka ukurikije urwego rw'amategeko n'akarere, cyangwa usobanurire Umufasha wa AI ikibazo mu Kinyarwanda, Icyongereza, cyangwa Igifaransa aguhuze n'umuhanga ako kanya."
       },
       "step2": {
-        "title": "2. Hitamo umunsi n'isaha",
-        "text": "Hitamo serivisi y'amategeko wifuza n'igihe kikunogeye: inama kuri videwo, kuri terefone cyangwa guhura ku biro."
+        "tag": "Intambwe 02",
+        "title": "Gereranya Ibyangombwa n'Ibiciro",
+        "desc": "Suzuma nimero yo mu Rugaga rw'Abavoka mu Rwanda, uburambe mu manza, ibitekerezo by'abandi bakiriya, n'ibiciro bisobanutse bitarimo amananiza."
       },
       "step3": {
-        "title": "3. Ishyura mu mutekano",
-        "text": "Ishyura ukoresheje MTN MoMo cyangwa Airtel Money. Amafaranga yawe arindwa kugeza inama irangiye."
+        "tag": "Intambwe 03",
+        "title": "Fata Gahunda n'Ubwirinzi bw'Amafaranga",
+        "desc": "Hitamo igihe kigunogeye. Ishyura mu mutekano ukoresheje MTN MoMo, Airtel Money, cyangwa Ikarita. Amafaranga aguma arinzwe kugeza inama irangiye neza."
       },
       "step4": {
-        "title": "4. Gisha inama umwavoka",
-        "text": "Vugana n'umwavoka wemewe n'Urugaga rw'Abavoka, umusobanurire ikibazo cyawe aguhe inama z'umwuga."
+        "tag": "Intambwe 04",
+        "title": "Gisha Inama mu Buryo Wihitiyemo",
+        "desc": "Koresha amashusho arinzwe, hamagarwa kuri telefoni yawe, cyangwa uhure n'umwavoka imbonankubone ku biro bye. Inama irangiye, tanga igitekerezo cyawe cy'ukuri."
       }
     },
-    "payment": {
-      "title": "Umutekano usesuye ku mafaranga wishyuye",
-      "text": "Amafaranga yawe ntabwo ahabwa umwavoka kugeza igihe inama y'amategeko irangiye neza. Iyo umwavoka atabonetse, urayabwirwa yose.",
-      "momo": "Kwishyura byoroshye kandi byihuse binyuze kuri MTN Mobile Money na Airtel Money."
+    "advocateJourney": {
+      "badge": "Ku Banyamwuga b'Amategeko",
+      "title": "Uko Abavoka Bakorera Kuri MyJudicial",
+      "subtitle": "Zamura umwuga wawe w'amategeko ukoresheje ikoranabuhanga rigezweho, kubona ubwishyu bwizewe, no kwirinda guhora wishyuza abakiriya.",
+      "step1": {
+        "tag": "Intambwe 01",
+        "title": "Gusaba Ukoresheje Ibyangombwa by'Urugaga",
+        "desc": "Iyandikishe ukoresheje nimero yawe yo mu Rugaga rw'Abavoka mu Rwanda, ibiranga ibiro byawe, n'indangamuntu yawe."
+      },
+      "step2": {
+        "tag": "Intambwe 02",
+        "title": "Gusuzuma no Kwemeza Ibyangombwa",
+        "desc": "Itsinda ryacu ry'amategeko risuzuma icyangombwa cyawe n'uko uhagaze mu Rugaga mbere yo kuguha ikimenyetso cy'umwavoka wemewe."
+      },
+      "step3": {
+        "tag": "Intambwe 03",
+        "title": "Gushyiraho Ibiciro na Gahunda yawe",
+        "desc": "Igenere ibiciro by'inama, igihe ubonetse, n'uburyo wemera (Amashusho, Telefoni, cyangwa ku Biro byawe)."
+      },
+      "step4": {
+        "tag": "Intambwe 04",
+        "title": "Gukora Inama no Kubona Ubwishyu Bwizewe",
+        "desc": "Gisha inama abakiriya bagenzuwe. Inama irangiye, amafaranga ahita yoherezwa kuri Mobile Money yawe cyangwa kuri konti ya banki."
+      }
+    },
+    "modalities": {
+      "badge": "Uburyo Bw'Inama Butandukanye",
+      "title": "Uburyo Butatu bwo Guhura n'Umwavoka",
+      "subtitle": "Hitamo uburyo buhuye neza n'ubwoko bw'ikibazo cyawe n'aho uherereye mu Rwanda.",
+      "video": {
+        "title": "Inama y'Amashusho Arinzwe",
+        "desc": "Kuri interineti yawe utiriwe ukuramo porogaramu nshya. Ushobora kwerekana inyandiko n'ibimenyetso mu mutekano usesuye.",
+        "feature1": "Inama ifite umutekano usesuye",
+        "feature2": "Kwerekana inyandiko n'ibimenyetso",
+        "feature3": "Kwinjira kuri telefoni cyangwa mudasobwa"
+      },
+      "phone": {
+        "title": "Inama yo Guhamagara Kuri Telefoni",
+        "desc": "Ikwiriye inama zihuse cyangwa aho interineti idafite imbaraga. Umwavoka aguhamagara ku murongo wawe ku gihe mwemeranyijweho.",
+        "feature1": "Ikora ku mirongo yose (MTN / Airtel)",
+        "feature2": "Ikwiriye ibibazo byihutirwa",
+        "feature3": "Ntibisaba interineti yo guhamagara"
+      },
+      "inPerson": {
+        "title": "Guhura Imbonankubone ku Biro",
+        "desc": "Hura n'umwavoka wawe imbonankubone ku biro bye byemewe i Kigali cyangwa mu Ntara.",
+        "feature1": "Aderesi y'ibiro ihabwa umukiriya amaze kwishyura",
+        "feature2": "Gusuzuma inyandiko z'umwimerere",
+        "feature3": "Gutegura guhagararirwa mu nkiko"
+      }
+    },
+    "trustFramework": {
+      "badge": "Ubwizerane & Ibisabwa",
+      "title": "Isezerano ry'Umutekano rya MyJudicial",
+      "subtitle": "Byubatse bishingiye ku mahame agenga Urugaga rw'Abavoka mu Rwanda n'indangagaciro z'umwuga.",
+      "item1": {
+        "title": "100% By'Abavoka Bagenzuwe mu Rugaga",
+        "desc": "Buri mwavoka abanza kugenzurwa ku rutonde rwemewe rw'Urugaga rw'Abavoka mu Rwanda mbere y'uko ahabwa gahunda n'umukiriya."
+      },
+      "item2": {
+        "title": "Ubwirinzi bw'Ubwishyu Bwemewe",
+        "desc": "Amafaranga yawe ntajya mu ntoki z'umuntu utazwi. Aguma arinzwe kugeza igihe inama ibereye kandi ikagenda neza."
+      },
+      "item3": {
+        "title": "Ibitekerezo Nyakuri by'Abakiriya",
+        "desc": "Abakiriya bishyuye kandi bagisha inama gusa ni bo bemerewe gutanga igitekerezo. Nta bitekerezo by'amahimbano."
+      }
     },
     "cta": {
-      "title": "Tangira ubu",
-      "startNow": "Shaka Umwavoka",
-      "contactSupport": "Baza ikibazo"
-    },
-    "meta": {
-      "title": "How It Works | MyJudicial",
-      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
+      "title": "Witeguye kubona ubufasha bw'amategeko bwizewe?",
+      "subtitle": "Ihuze n'umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda mu minota mike.",
+      "findLawyer": "Shaka Umwavoka Ubu",
+      "joinAsAdvocate": "Iyandikishe nk'Umwavoka"
     }
   },
   "legalPages": {
@@ -5284,82 +5358,142 @@
     "clearSearch": "Gusiba ibyo washakishije"
   },
   "pricingPage": {
+    "meta": {
+      "title": "Ibiciro Bisobanutse | MyJudicial",
+      "description": "Ibiciro bisobanutse by'abavoka, nta mafaranga yihishe, hamwe n'ubwirinzi bwuzuye bw'ubwishyu mu Rwanda."
+    },
     "hero": {
-      "badge": "Ibiciro & Kwishyura",
-      "title": "Ibiciro bisobanutse, nta kiguzi cy'ibanga",
-      "subtitle": "Banza umenye igiciro cy'umwavoka mbere yo kwiyemeza. Amafaranga yawe arindwa kugeza uhawe serivisi."
+      "badge": "Nta Mafaranga Yihishe · Ubwishyu Burinzwe",
+      "title": "Ibiciro By'Amategeko Bisobanutse. Umutekano Wuzuye.",
+      "subtitle": "Ibiciro by'inama z'amategeko bishyirwaho n'abavoka babyigiye mbere yo gufata gahunda. Nta fagitire itunguranye, kandi amafaranga yawe arinzwe 100% kuri Mobile Money kugeza inama irangiye neza."
     },
-    "howItWorks": {
-      "title": "Ibiciro biteye bite?",
-      "points": {
-        "fixedFees": {
-          "title": "Ibiciro bizwi mbere",
-          "text": "Buri mwavoka ashyiraho ibiciro bye byo kugisha inama. Umenya amafaranga wishingira mbere yo kwemeza gahunda."
-        },
-        "platformFee": {
-          "title": "Ibiciro bibumbye byose",
-          "text": "Nta yandi mafaranga wishyuzwa yiyongereyeho. Icyo ubona nicyo cyonyine wishyura."
-        },
-        "escrow": {
-          "title": "Kwirinda igihombo",
-          "text": "Amafaranga yawe abikwa mu mutekano. Iyo inama itabaye, urayasubizwa yose nta kabuza."
-        }
+    "pillars": {
+      "badge": "Kuri Buri Wese & Birasobanutse",
+      "title": "Uburyo Ibiciro Bikora Kuri MyJudicial",
+      "subtitle": "Gushaka umwavoka mu buryo bwa kera byarangwaga n'ibiciro bitazwi ndetse n'ingwate zitunguranye. MyJudicial izana umucyo usesuye mu mikorere y'amafaranga.",
+      "advocateRates": {
+        "title": "Ibiciro Byashyizweho n'Umwavoka",
+        "desc": "Buri mwavoka wemewe agena ibiciro bye by'inama ashingiye ku bunararibonye bwe. Ubona igiteranyo cyose mbere yo kwemeza gahunda."
+      },
+      "transparentPlatformFee": {
+        "title": "Inkunga Yuzuye y'Urubuga",
+        "desc": "Amafaranga makeya akubiyemo icyumba cy'amashusho y'umutekano (Video HD), ubutumwa bugufi (SMS) bwo kwibutsa, ndetse n'ubwirinzi bw'ubwishyu. Nta mafaranga y'inyongera atunguranye."
+      },
+      "noRetainers": {
+        "title": "Nta Ngwate Zidasobanutse",
+        "desc": "Ishyura kuri buri nama cyangwa umurimo wemeranyijweho. Ntabwo usabwa kubitsa ingwate nini utazi aho buri Faranga rizajya."
       }
     },
-    "tiers": {
-      "free": {
-        "name": "Gushakisha no Kureba",
-        "price": "Ubuntu",
-        "desc": "Ku baturage n'ibigo bishaka kubona umwavoka ukwiriye cyangwa gukoresha AI.",
-        "features": [
-          "Gushakisha abavoka bemewe nta kiguzi",
-          "Gushungura ukurikije ishami ry'amategeko n'igiciro",
-          "Gukoresha AI mu gusesengura ikibazo",
-          "Kureba uburambe n'ibitekerezo by'abandi bakiriya"
-        ],
-        "cta": "Tangira gushakisha"
+    "escrowPipeline": {
+      "badge": "100% Ubwirinzi Bw'Ubwishyu",
+      "title": "Uburyo Ubwirinzi Bw'Ubwishyu Bukora",
+      "subtitle": "Amafaranga yawe arinzwe muri buri ntambwe yo gufata gahunda.",
+      "step1": {
+        "step": "01",
+        "title": "Fata Gahunda & Ishyura",
+        "desc": "Hitamo isaha ikunogeye wishyure ukoresheje MTN MoMo, Airtel Money, cyangwa Ikarita. Amafaranga ahita arindirwa mu mutekano kuri MyJudicial."
       },
-      "consultation": {
-        "name": "Kugisha Inama Umwavoka",
-        "price": "Guhera ku 15,000 RWF",
-        "desc": "Inama y'umwuga kandi y'ibanga n'umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda.",
-        "badge": "Ikunzwe cyane",
-        "features": [
-          "Inama kuri videwo, kuri terefone cyangwa ku biro",
-          "Gusuzuma inyandiko n'amasezerano yawe",
-          "Ubujyanama bwihariye hakurikijwe amategeko y'u Rwanda",
-          "Umutekano wo kwishyura urinzwe na MoMo"
-        ],
-        "cta": "Fata gahunda y'inama"
+      "step2": {
+        "step": "02",
+        "title": "Kwemezwa n'Umwavoka",
+        "desc": "Umwavoka wemewe yakira gahunda kandi ategura ibijyanye n'ikibazo cyawe mbere y'inama."
       },
-      "lawyer": {
-        "name": "Ku Bavoka",
-        "price": "Konti y'umwuga",
-        "desc": "Ku bavoka bemewe n'Urugaga rw'Abavoka bifuza kwakira abakiriya banyuze ku ikoranabuhanga.",
-        "features": [
-          "Konti yemejwe n'Urugaga rw'Abavoka",
-          "Gahunda yo gufata gahunda zikora mu buryo bwikora",
-          "Kwishyurwa mu mutekano binyuze kuri MoMo",
-          "Ibikoresho byo gukurikirana abakiriya na dosiye"
-        ],
-        "cta": "Iyandikishe nk'Umwavoka"
+      "step3": {
+        "step": "03",
+        "title": "Inama Irakorwa",
+        "desc": "Vugana n'umwavoka wawe ukoresheje amashusho y'umutekano, guhamagara kuri telefoni, cyangwa imbonankubone ku biro bye i Kigali."
+      },
+      "step4": {
+        "step": "04",
+        "title": "Kurekura Amafaranga cyangwa Gusubizwa 100%",
+        "desc": "Amafaranga ahabwa umwavoka ari uko inama irangiye neza. Umwavoka nadasohoza inama cyangwa ntiyitabire, uhita usubizwa amafaranga yawe yose ako kanya."
+      },
+      "guaranteeBadge": "Gusubizwa Amafaranga Birizewe",
+      "guaranteeText": "Umwavoka wawe ntiyitabira cyangwa akisubiraho ku nama, amafaranga yawe ahita asubizwa 100% kuri Mobile Money yawe ako kanya."
+    },
+    "benchmarks": {
+      "badge": "Ibiciro Bikunze Gukoreshwa",
+      "title": "Ibiciro Bisanzwe by'Inama z'Amategeko mu Rwanda",
+      "subtitle": "Ugereranyije ibiciro bikunze kugaragara ku bavoka bemejwe bari kuri MyJudicial.",
+      "item1": {
+        "title": "Inama ya Mbere y'Amategeko",
+        "duration": "Iminota 30 – 45",
+        "range": "20,000 – 45,000 RWF",
+        "desc": "Ikwiriye ku gusobanukirwa uburenganzira bwawe, gusuzuma ikibazo, no kumenya inzira zemewe n'amategeko wakurikiza.",
+        "feature1": "Amashusho, Telefoni, cyangwa ku Biro",
+        "feature2": "Kubaza umwavoka imbonankubone",
+        "feature3": "Incamake y'intambwe zikurikiraho"
+      },
+      "item2": {
+        "title": "Inama Yimbitse & Gahunda y'Ikibazo",
+        "duration": "Iminota 60",
+        "range": "50,000 – 100,000 RWF",
+        "desc": "Gusesengura byimbitse amakimbirane, ibibazo by'amasambu n'imitungo, akazi, cyangwa amasezerano y'ubucuruzi akomeye.",
+        "feature1": "Gusuzuma inyandiko mbere y'inama",
+        "feature2": "Gusesengura ingaruka z'amategeko",
+        "feature3": "Inyandiko y'inama z'umwavoka ikurikira"
+      },
+      "item3": {
+        "title": "Gusuzuma Inyandiko n'Amasezerano",
+        "duration": "Serivisi ku Giciro Kizwi",
+        "range": "60,000 – 150,000 RWF",
+        "desc": "Gusoma no gusesengura ingingo ku yindi ku masezerano y'ubukode, amasezerano y'akazi, cyangwa kugura n'ikodesha.",
+        "feature1": "Kugaragaza ingingo ziteje impungenge",
+        "feature2": "Guhuza n'amategeko y'u Rwanda",
+        "feature3": "Inama y'iminota 30 yo kubisobanura"
       }
     },
-    "escrow": {
-      "badge": "Umutekano Usesuye",
-      "title": "Uburyo Amafaranga yawe Arindwa na MyJudicial",
-      "text": "Iyo wishyuye ukoresheje MTN MoMo cyangwa Airtel Money, amafaranga ntabwo ahita ahabwa umwavoka ako kanya. Ahubwo arindwa neza na MyJudicial akamugeraho ari uko inama yarangiye neza. Iyo inama itabaye, amafaranga yawe uyasubizwa yose ijana ku ijana."
+    "comparison": {
+      "badge": "Impamvu MyJudicial",
+      "title": "Uburyo Bwa Kera vs. MyJudicial",
+      "subtitle": "Reba itandukaniro ry'ibiciro bisobanutse n'ikoranabuhanga rigezweho mu gukemura ibibazo byawe by'amategeko.",
+      "traditionalHeader": "Uburyo Bwa Kera Bw'Abavoka",
+      "myjudicialHeader": "Urubuga rwa MyJudicial",
+      "row1": {
+        "feature": "Kumenya Igiciro Mbere",
+        "traditional": "Kubara amafaranga ku masaha bitazwi iherezo ryayo",
+        "myjudicial": "Igiciro kizwi kandi cyemeranyijweho mbere yo kwemeza"
+      },
+      "row2": {
+        "feature": "Ingwate za Mbere",
+        "traditional": "Gusabwa amafaranga menshi y'ingwate nta cyizere cy'igihe bizafatira",
+        "myjudicial": "Kwishyura gusa inama uhawe cyangwa umurimo urangiye"
+      },
+      "row3": {
+        "feature": "Ubwishyu & Inyemezabwishyu",
+        "traditional": "Amafaranga mu ntoki adafitiwe inyemezabwishyu zizewe",
+        "myjudicial": "Kwishyura ako kanya kuri MTN MoMo & Airtel Money ufite inyemezabwishyu"
+      },
+      "row4": {
+        "feature": "Kurengerwa Iyo Inama Itabaye",
+        "traditional": "Kutishyurwa cyangwa gutinda gusubizwa amafaranga iyo umwavoka ataje",
+        "myjudicial": "Gusubizwa 100% by'amafaranga byikora binyuze mu burinzi bw'ubwishyu"
+      },
+      "row5": {
+        "feature": "Gusuzuma Ibyangombwa by'Umwavoka",
+        "traditional": "Umuturage yishakishiriza niba umwavoka abarizwa mu Rugaga rw'Abavoka",
+        "myjudicial": "Buri mwavoka asuzumwa mbere n'Urugaga rw'Abavoka mu Rwanda"
+      }
+    },
+    "faqs": {
+      "badge": "Ufite Ibibazo?",
+      "title": "Ibibazo Bikunze Kubazwa ku Biciro n'Ubwishyu",
+      "subtitle": "Ibisubizo bisobanutse ku bijyanye n'amafaranga, ubwishyu, n'ubwirinzi bwacu.",
+      "q1": "Ese hari andi mafaranga yihishe yongerwaho mu kwishyura?",
+      "a1": "Oya. Igiciro ubona ku mwirondoro w'umwavoka no ku rupapuro rw'ubwishyu ni cyo gusa kigabanywa kuri Mobile Money yawe cyangwa ikarita.",
+      "q2": "Bigenda bite iyo umwavoka atitabiriye inama?",
+      "a2": "Kubera ko amafaranga yawe arindirwa muri MyJudicial aho guhita ahabwa umwavoka, urubuga ruhita ruyagusubiza 100% ako kanya iyo inama itabaye.",
+      "q3": "Ese umwavoka ashobora gusaba andi mafaranga mu gihe cy'inama?",
+      "a3": "Ntibyemewe na gato ku nama yafashwe. Amafaranga yishyuwe akubiyemo igihe cyose n'ikibazo byemeranyijweho. Niba mwifuza gukomeza ku zindi nzego z'urubanza mu nkiko, azaguha inyandiko nshya y'igiciro cyabyo.",
+      "q4": "Ni ubuhe buryo bw'ubwishyu bwemewe mu Rwanda?",
+      "a4": "Twakira MTN Mobile Money, Airtel Money, hamwe n'amakarita mpuzamahanga ya Visa na Mastercard. Ubwishyu bwose burinzwe kandi bufite umutekano usesuye."
     },
     "cta": {
-      "title": "Bona inama z'amategeko uyu munsi",
-      "subtitle": "Amagana y'abavoka b'inzobere biteguye kugufasha mu bibazo byawe byose by'amategeko.",
-      "button": "Shaka umwavoka ubu"
-    },
-    "meta": {
-      "title": "Pricing | MyJudicial",
-      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
-    },
-    "mostPopular": "Ikunzwe cyane"
+      "title": "Tangira kubona ubufasha bw'amategeko busobanutse uyu munsi",
+      "subtitle": "Rondera abavoka bemejwe, gereranya ibiciro bisobanutse, kandi ufate gahunda mu minota mike.",
+      "button": "Shaka Umwavoka Ubu",
+      "secondary": "Uburyo Bigenda"
+    }
   },
   "resourcesPage": {
     "hero": {

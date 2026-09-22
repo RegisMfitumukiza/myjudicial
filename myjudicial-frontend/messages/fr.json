@@ -4955,43 +4955,117 @@
     "readArticles": "Lire les articles"
   },
   "howItWorksPage": {
-    "hero": {
-      "badge": "Guide d'Utilisation",
-      "title": "Comment fonctionne MyJudicial",
-      "subtitle": "Un parcours transparent, sécurisé et rapide pour obtenir l'assistance juridique dont vous avez besoin."
+    "meta": {
+      "title": "Comment ça Marche | MyJudicial",
+      "description": "Découvrez comment trouver, consulter et engager des avocats certifiés sur MyJudicial en quatre étapes simples."
     },
-    "steps": {
-      "title": "4 étapes simples vers votre conseil juridique",
+    "hero": {
+      "badge": "Avocats Certifiés · Séquestre Sécurisé · Résultats Clairs",
+      "title": "Comment MyJudicial vous connecte aux meilleurs avocats",
+      "subtitle": "De votre première question juridique jusqu'à sa résolution. Découvrez comment l'accréditation du Barreau du Rwanda, la réservation numérique et le séquestre Mobile Money s'articulent."
+    },
+    "tabs": {
+      "clients": "Pour les Citoyens & Entreprises",
+      "advocates": "Pour les Avocats Certifiés"
+    },
+    "clientJourney": {
+      "badge": "Parcours Client Étape par Étape",
+      "title": "Comment consulter un avocat",
+      "subtitle": "Quatre étapes simples pour accéder à un accompagnement juridique certifié partout au Rwanda.",
       "step1": {
-        "title": "1. Recherchez ou demandez à l'IA",
-        "text": "Filtrez par domaine, localisation et honoraires, ou décrivez votre litige à notre IA pour être orienté immédiatement."
+        "tag": "Étape 01",
+        "title": "Recherche ou Triage Juridique par l'IA",
+        "desc": "Parcourez notre annuaire par domaine et localisation, ou décrivez votre litige en kinyarwanda, anglais ou français à notre Assistant IA pour être orienté immédiatement."
       },
       "step2": {
-        "title": "2. Choisissez un créneau",
-        "text": "Sélectionnez le service souhaité et la date qui vous convient : consultation vidéo, téléphonique ou en cabinet."
+        "tag": "Étape 02",
+        "title": "Comparez les Titres & Honoraires",
+        "desc": "Consultez l'inscription au Tableau du Barreau du Rwanda, l'expérience en prétoire, les avis vérifiés et les honoraires forfaitaires sans frais cachés."
       },
       "step3": {
-        "title": "3. Payez en toute sécurité",
-        "text": "Réglez par MTN MoMo ou Airtel Money. Vos fonds sont retenus sous séquestre sécurisé jusqu'à la consultation."
+        "tag": "Étape 03",
+        "title": "Réservez avec Protection sous Séquestre",
+        "desc": "Choisissez un créneau d'agenda adapté à vos disponibilités. Payez en toute sécurité via MTN MoMo, Airtel Money ou Carte. Les fonds restent sous séquestre jusqu'à la fin de la séance."
       },
       "step4": {
-        "title": "4. Réalisez la consultation",
-        "text": "Échangez en direct avec votre avocat certifié et recevez un avis juridique professionnel et personnalisé."
+        "tag": "Étape 04",
+        "title": "Consultez selon le Mode Choisi",
+        "desc": "Participez à une visioconférence chiffrée, recevez un appel téléphonique direct ou rencontrez l'avocat en son cabinet. Partagez ensuite votre retour d'expérience."
       }
     },
-    "payment": {
-      "title": "Protection absolue des paiements",
-      "text": "Vos fonds ne sont versés à l'avocat qu'une fois votre consultation terminée. Si l'avocat n'honore pas le rendez-vous, vous êtes intégralement remboursé.",
-      "momo": "Paiements instantanés par MTN Mobile Money et Airtel Money sécurisés."
+    "advocateJourney": {
+      "badge": "Pour les Professionnels du Droit",
+      "title": "Comment exercer sur MyJudicial",
+      "subtitle": "Développez votre clientèle grâce à des outils numériques modernes, des paiements garantis sous séquestre et sans relance d'impayés.",
+      "step1": {
+        "tag": "Étape 01",
+        "title": "Candidature avec Justificatifs du Barreau",
+        "desc": "Inscrivez-vous avec votre numéro au Tableau du Barreau du Rwanda, les coordonnées de votre cabinet et votre pièce d'identité nationale."
+      },
+      "step2": {
+        "tag": "Étape 02",
+        "title": "Contrôle de Conformité & Validation",
+        "desc": "Notre équipe juridique contrôle votre certificat d'exercice et votre statut auprès du Conseil de l'Ordre avant d'activer votre badge vérifié."
+      },
+      "step3": {
+        "tag": "Étape 03",
+        "title": "Paramétrez vos Services & Agenda",
+        "desc": "Fixez librement vos honoraires de consultation, définissez vos plages de disponibilité et choisissez vos modes d'exercice (Vidéo, Téléphone ou Cabinet)."
+      },
+      "step4": {
+        "tag": "Étape 04",
+        "title": "Réalisez vos Consultations & Encaissez",
+        "desc": "Consultez des clients qualifiés. Dès la fin de la consultation, vos honoraires sont débloqués directement sur votre compte Mobile Money ou bancaire."
+      }
+    },
+    "modalities": {
+      "badge": "Modes de Consultation Flexibles",
+      "title": "Trois Façons d'Échanger avec votre Avocat",
+      "subtitle": "Choisissez le format de consultation le mieux adapté à votre situation et à votre localisation au Rwanda.",
+      "video": {
+        "title": "Consultation Vidéo Chiffrée",
+        "desc": "Directement depuis votre navigateur web sans aucun téléchargement d'application. Comprend le partage de documents et un flux vidéo haute sécurité.",
+        "feature1": "Session chiffrée de bout en bout",
+        "feature2": "Partage d'écran et de pièces du dossier",
+        "feature3": "Accessible sur smartphone ou ordinateur"
+      },
+      "phone": {
+        "title": "Consultation Téléphonique Directe",
+        "desc": "Idéal pour un conseil rapide ou dans les zones à faible connectivité internet. L'avocat compose directement votre numéro vérifié à l'heure convenue.",
+        "feature1": "Fonctionne sur tous les réseaux (MTN / Airtel)",
+        "feature2": "Parfait pour les urgences ou zones rurales",
+        "feature3": "Aucune connexion internet requise pour l'appel"
+      },
+      "inPerson": {
+        "title": "Rendez-vous en Cabinet",
+        "desc": "Rencontrez votre avocat en personne dans son cabinet officiellement enregistré à Kigali ou en province.",
+        "feature1": "Adresse exacte du cabinet transmise à la réservation",
+        "feature2": "Examen physique des dossiers et actes originaux",
+        "feature3": "Préparation d'une représentation en justice"
+      }
+    },
+    "trustFramework": {
+      "badge": "Accréditation & Confiance",
+      "title": "La Garantie de Confiance MyJudicial",
+      "subtitle": "Établie en stricte conformité avec les règles déontologiques du Barreau du Rwanda.",
+      "item1": {
+        "title": "100% d'Avocats Contrôlés au Barreau",
+        "desc": "Chaque avocat fait l'objet d'un recoupement avec le Tableau officiel de l'Ordre des Avocats du Rwanda avant toute prise de rendez-vous."
+      },
+      "item2": {
+        "title": "Garantie de Séquestre Réglementée",
+        "desc": "Votre argent n'est jamais transféré directement à un tiers sans validation. Les fonds restent verrouillés jusqu'à la bonne tenue de la consultation."
+      },
+      "item3": {
+        "title": "Avis Clients Authentiques",
+        "desc": "Seuls les clients ayant effectivement réservé et effectué une consultation peuvent publier un avis. Zéro faux avis."
+      }
     },
     "cta": {
-      "title": "Commencez dès aujourd'hui",
-      "startNow": "Trouver un avocat",
-      "contactSupport": "Poser une question"
-    },
-    "meta": {
-      "title": "How It Works | MyJudicial",
-      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
+      "title": "Prêt à obtenir une assistance juridique de confiance ?",
+      "subtitle": "Mettez-vous en relation avec un avocat membre du Barreau du Rwanda en quelques clics.",
+      "findLawyer": "Trouver un Avocat",
+      "joinAsAdvocate": "Rejoindre comme Avocat"
     }
   },
   "legalPages": {
@@ -5284,82 +5358,142 @@
     "clearSearch": "Effacer la recherche"
   },
   "pricingPage": {
+    "meta": {
+      "title": "Tarification Transparente | MyJudicial",
+      "description": "Honoraires d'avocats transparents, zéro frais cachés et 100% de protection sous séquestre pour vos consultations juridiques au Rwanda."
+    },
     "hero": {
-      "badge": "Honoraires & Tarifs",
-      "title": "Tarification transparente, sans frais cachés",
-      "subtitle": "Consultez les tarifs de chaque avocat avant de vous engager. Paiement sécurisé sous séquestre avec garantie de remboursement."
+      "badge": "Zéro Frais Cachés · Protégé sous Séquestre",
+      "title": "Honoraires Juridiques Clairs. Sérénité Totale.",
+      "subtitle": "Tarifs de consultation fixés à l'avance par des avocats certifiés. Aucune facture surprise, avec 100% de vos fonds sécurisés sous séquestre Mobile Money jusqu'à la fin de la séance."
     },
-    "howItWorks": {
-      "title": "Comment fonctionnent les tarifs ?",
-      "points": {
-        "fixedFees": {
-          "title": "Honoraires forfaitaires",
-          "text": "Chaque avocat fixe ses honoraires de consultation à l'avance. Vous savez exactement combien vous payez avant de confirmer."
-        },
-        "platformFee": {
-          "title": "Frais inclus",
-          "text": "Nos frais de fonctionnement sont intégrés de manière transparente. Aucun supplément imprévu lors du paiement."
-        },
-        "escrow": {
-          "title": "Garantie sous séquestre",
-          "text": "Votre argent est conservé en lieu sûr. Si votre consultation n'a pas lieu, vous êtes remboursé immédiatement."
-        }
+    "pillars": {
+      "badge": "Clarté & Prévisibilité",
+      "title": "Comment fonctionne la tarification sur MyJudicial",
+      "subtitle": "Le recours traditionnel aux avocats souffre d'une facturation horaire opaque et de provisions imprévues. MyJudicial apporte une clarté financière totale.",
+      "advocateRates": {
+        "title": "Tarifs Fixes Définis par l'Avocat",
+        "desc": "Chaque avocat certifié définit ses honoraires de consultation en fonction de son expérience et de sa spécialité. Vous connaissez le montant exact avant de réserver."
+      },
+      "transparentPlatformFee": {
+        "title": "Support Plateforme Tout-en-Un",
+        "desc": "Des frais réduits couvrent la salle vidéo HD chiffrée, les rappels SMS instantanés, la gestion d'agenda et la garde sous séquestre réglementée. Aucun frais supplémentaire lors du paiement."
+      },
+      "noRetainers": {
+        "title": "Fin des Provisions Floues",
+        "desc": "Payez à la consultation ou selon les étapes convenues. Vous n'avez jamais à verser de lourdes avances imprécises sans savoir où va chaque Franc."
       }
     },
-    "tiers": {
-      "free": {
-        "name": "Découverte & Recherche",
-        "price": "Gratuit",
-        "desc": "Pour les citoyens et entreprises souhaitant trouver le bon avocat ou poser une question à l'IA.",
-        "features": [
-          "Recherche illimitée d'avocats certifiés",
-          "Filtrage par domaine juridique et tarif",
-          "Triage de dossier par l'IA MyJudicial",
-          "Consultation des avis et qualifications"
-        ],
-        "cta": "Commencer la recherche"
+    "escrowPipeline": {
+      "badge": "100% Protection sous Séquestre",
+      "title": "Comment fonctionne la Garantie de Séquestre",
+      "subtitle": "Votre paiement est protégé à chaque étape du cycle de réservation.",
+      "step1": {
+        "step": "01",
+        "title": "Réservation & Dépôt sous Séquestre",
+        "desc": "Sélectionnez un créneau et payez via MTN MoMo, Airtel Money ou Carte. Les fonds sont verrouillés en toute sécurité dans le séquestre MyJudicial."
       },
-      "consultation": {
-        "name": "Consultation avec un Avocat",
-        "price": "Dès 15 000 RWF",
-        "desc": "Échange personnalisé et confidentiel avec un avocat membre du Barreau du Rwanda.",
-        "badge": "Le plus demandé",
-        "features": [
-          "Entretien vidéo, téléphonique ou en cabinet",
-          "Examen approfondi de vos documents légaux",
-          "Conseils sur mesure sous le droit rwandais",
-          "Paiement protégé par séquestre MoMo"
-        ],
-        "cta": "Réserver une consultation"
+      "step2": {
+        "step": "02",
+        "title": "Confirmation de l'Avocat",
+        "desc": "L'avocat certifié valide le rendez-vous et prépare votre séance de consultation à partir du contexte de votre dossier."
       },
-      "lawyer": {
-        "name": "Pour les Avocats",
-        "price": "Adhésion pro",
-        "desc": "Pour les avocats certifiés du Barreau souhaitant développer leur clientèle numérique.",
-        "features": [
-          "Profil officiel vérifié par le Barreau",
-          "Prise de rendez-vous et agenda automatisés",
-          "Encaissement garanti par Mobile Money",
-          "Outils de gestion de dossiers et clients"
-        ],
-        "cta": "Rejoindre en tant qu'avocat"
+      "step3": {
+        "step": "03",
+        "title": "Consultation Réalisée",
+        "desc": "Échangez avec votre avocat par vidéo sécurisée, appel téléphonique direct ou en personne dans son cabinet à Kigali."
+      },
+      "step4": {
+        "step": "04",
+        "title": "Paiement ou Remboursement à 100%",
+        "desc": "Les fonds ne sont versés à l'avocat qu'après la séance. En cas d'annulation ou d'absence de l'avocat, vous recevez un remboursement intégral immédiat."
+      },
+      "guaranteeBadge": "Garantie Remboursement",
+      "guaranteeText": "Si votre avocat ne se présente pas ou annule la consultation, votre paiement est remboursé à 100% sur votre compte Mobile Money instantanément."
+    },
+    "benchmarks": {
+      "badge": "Repères Tarifaires",
+      "title": "Tarifs Habituels de Consultation au Rwanda",
+      "subtitle": "Fourchettes de prix constatées auprès des avocats vérifiés sur la plateforme MyJudicial.",
+      "item1": {
+        "title": "Conseil Juridique Initial",
+        "duration": "30 – 45 Minutes",
+        "range": "20 000 – 45 000 RWF",
+        "desc": "Idéal pour une première évaluation juridique, la clarification de vos droits et l'orientation stratégique.",
+        "feature1": "Vidéo, Téléphone ou Cabinet",
+        "feature2": "Échange direct avec l'avocat",
+        "feature3": "Synthèse des prochaines étapes"
+      },
+      "item2": {
+        "title": "Consultation Approfondie & Stratégie",
+        "duration": "60 Minutes",
+        "range": "50 000 – 100 000 RWF",
+        "desc": "Analyse complète des litiges, conflits fonciers, litiges de travail ou transactions commerciales complexes.",
+        "feature1": "Examen des pièces avant la séance",
+        "feature2": "Évaluation détaillée des risques juridiques",
+        "feature3": "Recommandations écrites de suivi"
+      },
+      "item3": {
+        "title": "Revue de Contrat & Documents",
+        "duration": "Prestation Forfaitaire",
+        "range": "60 000 – 150 000 RWF",
+        "desc": "Relecture juridique approfondie de baux commerciaux, contrats de travail ou conventions de vente.",
+        "feature1": "Identification clause par clause des risques",
+        "feature2": "Conformité au droit rwandais",
+        "feature3": "Appel de synthèse de 30 min inclus"
       }
     },
-    "escrow": {
-      "badge": "Sécurité Maximale",
-      "title": "Le Paiement sous Séquestre MyJudicial",
-      "text": "Lorsque vous effectuez un paiement par MTN MoMo ou Airtel Money, les fonds ne sont pas immédiatement remis à l'avocat. Ils sont placés sur un compte de séquestre sécurisé. Ils ne sont débloqués qu'une fois la consultation confirmée. Vous êtes ainsi protégé à 100% contre les absences ou imprévus."
+    "comparison": {
+      "badge": "Pourquoi MyJudicial",
+      "title": "Cabinet Traditionnel vs. MyJudicial",
+      "subtitle": "Découvrez la différence d'une tarification transparente et d'une technologie moderne pour vos démarches juridiques.",
+      "traditionalHeader": "Cabinet d'Avocats Traditionnel",
+      "myjudicialHeader": "Plateforme MyJudicial",
+      "row1": {
+        "feature": "Prévisibilité des Honoraires",
+        "traditional": "Facturation horaire imprévisible avec compteur ouvert",
+        "myjudicial": "Honoraires fixes convenus avant la réservation"
+      },
+      "row2": {
+        "feature": "Provisions Initiales",
+        "traditional": "Lourdes avances exigées sans garantie de résultat ou délai",
+        "myjudicial": "Paiement strict à la consultation ou à l'étape convenue"
+      },
+      "row3": {
+        "feature": "Paiement & Reçus",
+        "traditional": "Paiements en espèces opaques ou virements bancaires lents",
+        "myjudicial": "Paiement instantané MTN MoMo & Airtel Money avec reçu numérique"
+      },
+      "row4": {
+        "feature": "Protection en Cas d'Annulation",
+        "traditional": "Aucun recours ou remboursement difficile si l'avocat est absent",
+        "myjudicial": "Garantie de remboursement automatique à 100% sous séquestre"
+      },
+      "row5": {
+        "feature": "Vérification des Qualifications",
+        "traditional": "Le client doit vérifier lui-même l'inscription au Barreau",
+        "myjudicial": "Chaque avocat est pré-vérifié auprès du Barreau du Rwanda"
+      }
+    },
+    "faqs": {
+      "badge": "Questions Fréquentes",
+      "title": "FAQ Tarification & Paiement",
+      "subtitle": "Des réponses claires à vos questions sur les honoraires, les paiements et notre garantie sous séquestre.",
+      "q1": "Y a-t-il des frais cachés ajoutés lors du paiement ?",
+      "a1": "Non. Le montant total affiché sur le profil de l'avocat et lors de la confirmation est le montant exact débité de votre compte Mobile Money ou carte.",
+      "q2": "Que se passe-t-il si l'avocat ne se présente pas ?",
+      "a2": "Votre paiement étant conservé dans le séquestre MyJudicial plutôt que remis à l'avocat, notre système déclenche un remboursement automatique à 100% si le rendez-vous n'est pas honoré.",
+      "q3": "Un avocat peut-il demander un supplément pendant la consultation ?",
+      "a3": "Jamais pour la séance réservée. Le tarif convenu couvre l'intégralité du temps et du périmètre réservé. Si vous souhaitez ensuite engager l'avocat pour une procédure en justice, un devis officiel distinct sera établi.",
+      "q4": "Quels sont les modes de paiement acceptés au Rwanda ?",
+      "a4": "Nous acceptons MTN Mobile Money, Airtel Money ainsi que les cartes Visa/Mastercard internationales. Toutes les transactions sont sécurisées et chiffrées."
     },
     "cta": {
-      "title": "Obtenez une réponse juridique dès aujourd'hui",
-      "subtitle": "Des centaines d'avocats vérifiés sont prêts à vous accompagner dans toutes vos démarches.",
-      "button": "Trouver mon avocat"
-    },
-    "meta": {
-      "title": "Pricing | MyJudicial",
-      "description": "Transparent pricing for legal services. Compare fixed fees, book consultations, and pay securely via escrow."
-    },
-    "mostPopular": "Le plus populaire"
+      "title": "Bénéficiez d'une assistance juridique transparente dès aujourd'hui",
+      "subtitle": "Consultez les profils vérifiés, comparez les tarifs et réservez votre consultation en quelques minutes.",
+      "button": "Trouver un Avocat",
+      "secondary": "Comment ça marche"
+    }
   },
   "resourcesPage": {
     "hero": {

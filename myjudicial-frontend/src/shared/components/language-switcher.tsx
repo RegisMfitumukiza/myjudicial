@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LOCALES = [
@@ -76,11 +76,9 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={t("language")}
-          className="flex h-9 items-center gap-1 rounded-full px-2 text-sm font-medium text-inherit transition-colors hover:bg-accent/20"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent/20 text-inherit"
         >
           <Globe size={16} />
-          <span className="hidden md:inline">{locale.toUpperCase()}</span>
-          <ChevronDown size={12} className={`transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
         {open && (
           <div className="absolute right-0 top-full z-50 mt-2 w-40 rounded-xl border border-border bg-card py-1 shadow-xl text-foreground">

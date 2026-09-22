@@ -2,7 +2,6 @@
 
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
-import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { Logo } from "@/shared/components/logo";
 import { MapPin } from "lucide-react";
 import { useSocialLinks } from "@/features/settings/hooks/useSocialLinks";
@@ -183,8 +182,7 @@ export default function LandingFooter() {
           </p>
 
           {/* Language switcher + social icons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 order-1 md:order-2 md:pr-16 lg:pr-20">
-            <LanguageSwitcher variant="compact" />
+          <div className="flex flex-wrap items-center justify-center gap-3 order-1 md:order-2 md:pr-16 lg:pr-20">
 
             {activeSocials.length > 0 && (
               <div

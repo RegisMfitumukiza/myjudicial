@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Users,
   Briefcase,
@@ -88,6 +89,11 @@ const tooltipStyle = {
 };
 
 export default function AnalyticsPage() {
+  const t = useTranslations("admin.analytics");
+  const tExp = useTranslations("admin.experts");
+  const tComp = useTranslations("admin.compliance");
+  const locale = useLocale();
+
   const [period, setPeriod] = useState<TimePeriod>("30days");
   const [showCustomDate, setShowCustomDate] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -122,6 +128,17 @@ export default function AnalyticsPage() {
   const comms = (commsRes as any)?.data?.data ?? null;
   const compliance = (complianceRes as any)?.data?.data ?? null;
 
+  const formatDateTick = (val: string) => {
+    if (!val) return "";
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val;
+      return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
+    } catch {
+      return val;
+    }
+  };
+
   const userGrowthData = useMemo(() => {
     if (!users?.timeSeries) return [];
     return users.timeSeries.map((item: any) => ({
@@ -144,26 +161,32 @@ export default function AnalyticsPage() {
     if (!(bookings as any)?.summary) return [];
     const s = (bookings as any).summary;
     return [
-      { name: "Completed", value: s.completed || 0, color: COLORS.success },
-      { name: "Pending", value: s.pending || 0, color: COLORS.warning },
-      { name: "Cancelled", value: s.cancelled || 0, color: COLORS.danger },
+      { name: t("completed"), value: s.completed || 0, color: COLORS.success },
+      { name: t("pending"), value: s.pending || 0, color: COLORS.warning },
+      { name: t("cancelled"), value: s.cancelled || 0, color: COLORS.danger },
     ].filter((item) => item.value > 0);
-  }, [bookings]);
+  }, [bookings, t]);
 
-  const communicationChannelsData =
-    comms?.byChannel?.map((item: any, index: number) => ({
-      name: item.channel,
-      value: item.count,
-      color: PIE_COLORS[index % PIE_COLORS.length],
-    })) || [];
+  const communicationChannelsData = useMemo(() => {
+    return (
+      comms?.byChannel?.map((item: any, index: number) => ({
+        name: item.channel,
+        value: item.count,
+        color: PIE_COLORS[index % PIE_COLORS.length],
+      })) || []
+    );
+  }, [comms]);
 
-  const topExperts =
-    experts?.topRated?.slice(0, 10).map((item: any) => ({
-      name: item.displayName,
-      rating: item.averageRating || 0,
-      reviews: item.reviewCount || 0,
-      bookings: item.bookingCount || 0,
-    })) || [];
+  const topExperts = useMemo(() => {
+    return (
+      experts?.topRated?.slice(0, 10).map((item: any) => ({
+        name: item.displayName,
+        rating: item.averageRating || 0,
+        reviews: item.reviewCount || 0,
+        bookings: item.bookingCount || 0,
+      })) || []
+    );
+  }, [experts]);
 
   const bookingVolumeData = useMemo(() => {
     if (!bookings?.timeSeries) return [];
@@ -175,12 +198,15 @@ export default function AnalyticsPage() {
     }));
   }, [bookings]);
 
-  const expertRevenueData =
-    experts?.topRated?.slice(0, 5).map((item: any) => ({
-      name: item.displayName,
-      revenue: item.totalRevenue || 0,
-      bookings: item.bookingCount || 0,
-    })) || [];
+  const expertRevenueData = useMemo(() => {
+    return (
+      experts?.topRated?.slice(0, 5).map((item: any) => ({
+        name: item.displayName,
+        revenue: item.totalRevenue || 0,
+        bookings: item.bookingCount || 0,
+      })) || []
+    );
+  }, [experts]);
 
   useEffect(() => {
     let cancelled = false;
@@ -254,12 +280,12 @@ export default function AnalyticsPage() {
     return (
       <div className="space-y-6 p-6 lg:p-8">
         <PageHeader
-          title="Platform Analytics"
-          description="Comprehensive insights and metrics across the platform"
+          title={t("title")}
+          description={t("subtitle")}
         />
         <ErrorState
-          title="Failed to load analytics"
-          message="Unable to fetch analytics data. Please try again later."
+          title={t("failedToLoad")}
+          message={t("unableToFetch")}
         />
       </div>
     );
@@ -268,8 +294,8 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Platform Analytics"
-        description="Comprehensive insights and metrics across the platform"
+        title={t("title")}
+        description={t("subtitle")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Select
@@ -286,11 +312,11 @@ export default function AnalyticsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="7days">Last 7 Days</SelectItem>
-                <SelectItem value="30days">Last 30 Days</SelectItem>
-                <SelectItem value="90days">Last 90 Days</SelectItem>
-                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="today">{t("today")}</SelectItem>
+                <SelectItem value="7days">{t("last7Days")}</SelectItem>
+                <SelectItem value="30days">{t("last30Days")}</SelectItem>
+                <SelectItem value="90days">{t("last90Days")}</SelectItem>
+                <SelectItem value="year">{t("thisYear")}</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -299,7 +325,7 @@ export default function AnalyticsPage() {
               onClick={() => setShowCustomDate(!showCustomDate)}
             >
               <Filter className="h-4 w-4" />
-              Custom Range
+              {t("customRange")}
             </Button>
           </div>
         }
@@ -308,11 +334,11 @@ export default function AnalyticsPage() {
       {showCustomDate && (
         <Card>
           <CardContent>
-            <h3 className="mb-3 text-sm font-medium text-foreground">Custom Date Range</h3>
+            <h3 className="mb-3 text-sm font-medium text-foreground">{t("customDateRange")}</h3>
             <div className="flex flex-wrap items-end gap-4">
               <div className="min-w-[200px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                  Start Date
+                  {t("startDate")}
                 </label>
                 <Input
                   type="date"
@@ -322,7 +348,7 @@ export default function AnalyticsPage() {
               </div>
               <div className="min-w-[200px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                  End Date
+                  {t("endDate")}
                 </label>
                 <Input
                   type="date"
@@ -339,7 +365,7 @@ export default function AnalyticsPage() {
                 }}
                 disabled={!startDate || !endDate}
               >
-                Apply
+                {t("apply")}
               </Button>
             </div>
           </CardContent>
@@ -348,22 +374,22 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Users"
-          value={summary?.platform?.totalUsers?.toLocaleString() || "0"}
+          label={t("totalUsers")}
+          value={summary?.platform?.totalUsers?.toLocaleString(locale) || "0"}
           icon={Users}
         />
         <StatCard
-          label="Active Experts"
-          value={summary?.platform?.activeExperts?.toLocaleString() || "0"}
+          label={t("activeExperts")}
+          value={summary?.platform?.activeExperts?.toLocaleString(locale) || "0"}
           icon={Briefcase}
         />
         <StatCard
-          label="Total Bookings"
-          value={(bookings as any)?.summary?.total?.toLocaleString() || "0"}
+          label={t("totalBookings")}
+          value={(bookings as any)?.summary?.total?.toLocaleString(locale) || "0"}
           icon={Calendar}
         />
         <StatCard
-          label="Total Revenue"
+          label={t("totalRevenue")}
           value={formatRWF(revenue?.totals?.totalRevenue)}
           icon={DollarSign}
         />
@@ -372,12 +398,12 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>User Growth</CardTitle>
+            <CardTitle>{t("userGrowth")}</CardTitle>
           </CardHeader>
           <CardContent>
             {userGrowthData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="h-64">
@@ -405,6 +431,7 @@ export default function AnalyticsPage() {
                       dataKey="date"
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={12}
+                      tickFormatter={formatDateTick}
                     />
                     <YAxis
                       stroke="hsl(var(--muted-foreground))"
@@ -427,12 +454,12 @@ export default function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Revenue Trends</CardTitle>
+            <CardTitle>{t("revenueTrends")}</CardTitle>
           </CardHeader>
           <CardContent>
             {revenueChartData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="h-64">
@@ -446,6 +473,7 @@ export default function AnalyticsPage() {
                       dataKey="date"
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={12}
+                      tickFormatter={formatDateTick}
                     />
                     <YAxis
                       stroke="hsl(var(--muted-foreground))"
@@ -458,14 +486,14 @@ export default function AnalyticsPage() {
                       dataKey="revenue"
                       stroke="hsl(var(--primary))"
                       strokeWidth={2}
-                      name="Total Revenue"
+                      name={t("totalRevenue")}
                     />
                     <Line
                       type="monotone"
                       dataKey="platformFees"
                       stroke="hsl(var(--muted-foreground))"
                       strokeWidth={2}
-                      name="Platform Fees"
+                      name={t("platformFees")}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -478,12 +506,12 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Booking Status Distribution</CardTitle>
+            <CardTitle>{t("bookingStatusDistribution")}</CardTitle>
           </CardHeader>
           <CardContent>
             {bookingStatusData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="flex h-64 items-center">
@@ -519,7 +547,7 @@ export default function AnalyticsPage() {
                           {item.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {item.value.toLocaleString()} bookings
+                          {item.value.toLocaleString(locale)} {t("bookings")}
                         </p>
                       </div>
                     </div>
@@ -532,12 +560,12 @@ export default function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Communication Channels</CardTitle>
+            <CardTitle>{t("communicationChannels")}</CardTitle>
           </CardHeader>
           <CardContent>
             {communicationChannelsData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="flex h-64 items-center">
@@ -574,7 +602,7 @@ export default function AnalyticsPage() {
                           {item.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {item.value.toLocaleString()} messages
+                          {item.value.toLocaleString(locale)} {t("messages")}
                         </p>
                       </div>
                     </div>
@@ -592,7 +620,7 @@ export default function AnalyticsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Booking Comparison (Current vs Previous Period)
+                  {t("bookingComparison")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -601,7 +629,7 @@ export default function AnalyticsPage() {
                     <BarChart
                       data={[
                         {
-                          name: "Total",
+                          name: t("totalBookings"),
                           current:
                             bookingsComp.data.comparisons.totalBookings
                               ?.current || 0,
@@ -610,7 +638,7 @@ export default function AnalyticsPage() {
                               ?.previous || 0,
                         },
                         {
-                          name: "Completed",
+                          name: t("completed"),
                           current:
                             bookingsComp.data.comparisons.completedBookings
                               ?.current || 0,
@@ -638,13 +666,13 @@ export default function AnalyticsPage() {
                       <Bar
                         dataKey="current"
                         fill="hsl(var(--primary))"
-                        name="Current Period"
+                        name={t("currentPeriod")}
                         radius={[4, 4, 0, 0]}
                       />
                       <Bar
                         dataKey="previous"
                         fill="hsl(var(--muted))"
-                        name="Previous Period"
+                        name={t("previousPeriod")}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -656,7 +684,7 @@ export default function AnalyticsPage() {
           {revenueComp?.data?.comparisons && (
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Comparison (RWF &apos;000)</CardTitle>
+                <CardTitle>{t("revenueComparison")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-64">
@@ -664,7 +692,7 @@ export default function AnalyticsPage() {
                     <BarChart
                       data={[
                         {
-                          name: "Revenue",
+                          name: t("totalRevenue"),
                           current: Math.round(
                             (revenueComp.data.comparisons.totalRevenue
                               ?.current || 0) / 1000
@@ -675,7 +703,7 @@ export default function AnalyticsPage() {
                           ),
                         },
                         {
-                          name: "Fees",
+                          name: t("platformFees"),
                           current: Math.round(
                             (revenueComp.data.comparisons.platformFees
                               ?.current || 0) / 1000
@@ -705,13 +733,13 @@ export default function AnalyticsPage() {
                       <Bar
                         dataKey="current"
                         fill="hsl(var(--primary))"
-                        name="Current Period"
+                        name={t("currentPeriod")}
                         radius={[4, 4, 0, 0]}
                       />
                       <Bar
                         dataKey="previous"
                         fill="hsl(var(--muted))"
-                        name="Previous Period"
+                        name={t("previousPeriod")}
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -726,12 +754,12 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Booking Volume Trends</CardTitle>
+            <CardTitle>{t("bookingVolumeTrends")}</CardTitle>
           </CardHeader>
           <CardContent>
             {bookingVolumeData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="h-64">
@@ -745,6 +773,7 @@ export default function AnalyticsPage() {
                       dataKey="date"
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={12}
+                      tickFormatter={formatDateTick}
                     />
                     <YAxis
                       stroke="hsl(var(--muted-foreground))"
@@ -755,19 +784,19 @@ export default function AnalyticsPage() {
                     <Bar
                       dataKey="completed"
                       fill={COLORS.success}
-                      name="Completed"
+                      name={t("completed")}
                       radius={[4, 4, 0, 0]}
                     />
                     <Bar
                       dataKey="pending"
                       fill={COLORS.warning}
-                      name="Pending"
+                      name={t("pending")}
                       radius={[4, 4, 0, 0]}
                     />
                     <Bar
                       dataKey="cancelled"
                       fill={COLORS.danger}
-                      name="Cancelled"
+                      name={t("cancelled")}
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
@@ -779,12 +808,12 @@ export default function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Experts by Revenue</CardTitle>
+            <CardTitle>{t("topExpertsByRevenue")}</CardTitle>
           </CardHeader>
           <CardContent>
             {expertRevenueData.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-muted-foreground">No data available</p>
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
               </div>
             ) : (
               <div className="h-64">
@@ -809,7 +838,7 @@ export default function AnalyticsPage() {
                     <Tooltip
                       contentStyle={tooltipStyle}
                       formatter={(value: any) =>
-                        [`RWF ${value.toLocaleString()}`, "Revenue"]
+                        [`RWF ${Number(value || 0).toLocaleString(locale)}`, t("totalRevenue")]
                       }
                     />
                     <Bar
@@ -827,13 +856,13 @@ export default function AnalyticsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Geographic Distribution (Rwanda)</CardTitle>
+          <CardTitle>{t("geographicDistribution")}</CardTitle>
         </CardHeader>
         <CardContent>
           {geographicData.length === 0 ? (
             <div className="flex h-64 items-center justify-center">
               <p className="text-sm text-muted-foreground">
-                No geographic data available
+                {t("noGeographicData")}
               </p>
             </div>
           ) : (
@@ -859,7 +888,7 @@ export default function AnalyticsPage() {
                     />
                     <Tooltip
                       contentStyle={tooltipStyle}
-                      formatter={(value: any) => [`${value} experts`, "Experts"]}
+                      formatter={(value: any) => [`${Number(value || 0).toLocaleString(locale)} ${t("experts")}`, t("experts")]}
                     />
                     <Bar
                       dataKey="experts"
@@ -876,18 +905,18 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-2">
                       <MapPin className="h-5 w-5 text-primary" />
                       <span className="text-sm font-medium text-primary">
-                        Total Regions
+                        {t("totalRegions")}
                       </span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-primary">
-                      {geographicData.length}
+                      {geographicData.length.toLocaleString(locale)}
                     </p>
                   </div>
                   <div className="rounded-lg bg-primary/10 p-4">
                     <div className="flex items-center gap-2">
                       <Briefcase className="h-5 w-5 text-primary" />
                       <span className="text-sm font-medium text-primary">
-                        Top City
+                        {t("topCity")}
                       </span>
                     </div>
                     <p className="mt-2 text-sm font-bold text-primary">
@@ -898,7 +927,7 @@ export default function AnalyticsPage() {
 
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium text-foreground">
-                    City Breakdown
+                    {t("cityBreakdown")}
                   </h4>
                   {geographicData.map((region: any, index: number) => (
                     <div
@@ -919,7 +948,7 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="flex items-center gap-4 text-sm">
                         <span className="text-muted-foreground">
-                          {region.experts} experts
+                          {Number(region.experts || 0).toLocaleString(locale)} {t("experts")}
                         </span>
                         <span className="text-muted-foreground">
                           {region.percentage}%
@@ -936,12 +965,12 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Avg Rating"
-          value={reviews?.average?.toFixed(1) || "N/A"}
+          label={t("avgRating")}
+          value={reviews?.average ? reviews.average.toFixed(1) : "N/A"}
           icon={Star}
         />
         <StatCard
-          label="Completion Rate"
+          label={t("completionRate")}
           value={
             (bookings as any)?.summary?.completionRate
               ? `${(bookings as any).summary.completionRate.toFixed(1)}%`
@@ -950,26 +979,26 @@ export default function AnalyticsPage() {
           icon={CheckCircle}
         />
         <StatCard
-          label="Active Sessions"
-          value={comms?.totalSessions?.toLocaleString() || "0"}
+          label={t("activeSessions")}
+          value={comms?.totalSessions?.toLocaleString(locale) || "0"}
           icon={Activity}
         />
         <StatCard
-          label="Compliance Issues"
-          value={((compliance?.expired || 0) + (compliance?.expiringSoon || 0)).toString()}
+          label={t("complianceIssues")}
+          value={((compliance?.expired || 0) + (compliance?.expiringSoon || 0)).toLocaleString(locale)}
           icon={AlertCircle}
         />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Top Performing Experts</CardTitle>
+          <CardTitle>{t("topPerformingExperts")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {topExperts.length === 0 ? (
             <div className="flex h-48 items-center justify-center">
               <p className="text-sm text-muted-foreground">
-                No expert data available
+                {t("noExpertData")}
               </p>
             </div>
           ) : (
@@ -978,19 +1007,19 @@ export default function AnalyticsPage() {
                 <thead className="border-b border-border bg-muted/50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Rank
+                      {t("rank")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Expert
+                      {tExp("expert")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Rating
+                      {tExp("rating")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Reviews
+                      {t("reviews")}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Bookings
+                      {t("bookings")}
                     </th>
                   </tr>
                 </thead>
@@ -1034,10 +1063,10 @@ export default function AnalyticsPage() {
                         </div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                        {expert.reviews.toLocaleString()}
+                        {expert.reviews.toLocaleString(locale)}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                        {expert.bookings.toLocaleString()}
+                        {expert.bookings.toLocaleString(locale)}
                       </td>
                     </tr>
                   ))}
@@ -1050,17 +1079,17 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <StatCard
-          label="Platform Fees"
+          label={t("platformFees")}
           value={formatRWF(revenue?.totals?.platformFees)}
           icon={BarChart3}
         />
         <StatCard
-          label="Expert Payouts"
+          label={t("expertPayouts")}
           value={formatRWF(revenue?.totals?.expertPayouts)}
           icon={DollarSign}
         />
         <StatCard
-          label="Escrow Locked"
+          label={t("escrowLocked")}
           value={formatRWF(revenue?.totals?.escrowLocked)}
           icon={Clock}
         />
@@ -1069,7 +1098,7 @@ export default function AnalyticsPage() {
       {compliance && (
         <Card>
           <CardHeader>
-            <CardTitle>Compliance Status</CardTitle>
+            <CardTitle>{t("complianceStatus")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -1078,9 +1107,9 @@ export default function AnalyticsPage() {
                   <CheckCircle className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Verified</p>
+                  <p className="text-xs text-muted-foreground">{tComp("verified")}</p>
                   <p className="text-lg font-bold text-foreground">
-                    {compliance.verified || 0}
+                    {(compliance.verified || 0).toLocaleString(locale)}
                   </p>
                 </div>
               </div>
@@ -1091,10 +1120,10 @@ export default function AnalyticsPage() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    Expiring Soon
+                    {t("expiringSoon")}
                   </p>
                   <p className="text-lg font-bold text-foreground">
-                    {compliance.expiringSoon || 0}
+                    {(compliance.expiringSoon || 0).toLocaleString(locale)}
                   </p>
                 </div>
               </div>
@@ -1104,9 +1133,9 @@ export default function AnalyticsPage() {
                   <XCircle className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Expired</p>
+                  <p className="text-xs text-muted-foreground">{tComp("expired")}</p>
                   <p className="text-lg font-bold text-foreground">
-                    {compliance.expired || 0}
+                    {(compliance.expired || 0).toLocaleString(locale)}
                   </p>
                 </div>
               </div>
@@ -1116,9 +1145,9 @@ export default function AnalyticsPage() {
                   <AlertCircle className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Pending</p>
+                  <p className="text-xs text-muted-foreground">{t("pending")}</p>
                   <p className="text-lg font-bold text-foreground">
-                    {compliance.pending || 0}
+                    {(compliance.pending || 0).toLocaleString(locale)}
                   </p>
                 </div>
               </div>

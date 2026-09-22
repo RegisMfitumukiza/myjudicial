@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { User, Key, Palette, Save, Lock, Smartphone, Globe, CheckCircle, AlertTriangle, Monitor } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
@@ -8,6 +8,7 @@ import { usePatchAuthMe, UpdateMeDtoPreferredLanguage } from "@/api/generated";
 import { apiFetch } from "@/lib/api/client";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { toast } from "sonner";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { Button } from "@/shared/components/ui/button";
@@ -24,12 +25,6 @@ import {
 
 type TabId = "profile" | "account" | "preferences";
 
-const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "account", label: "Account", icon: Key },
-  { id: "preferences", label: "Preferences", icon: Palette },
-];
-
 interface SessionInfo {
   id: string;
   device: string;
@@ -44,7 +39,7 @@ function getInitials(first: string, last: string) {
   return (first[0] + last[0]).toUpperCase();
 }
 
-function LoginHistoryTable({ userId }: { userId: string }) {
+function LoginHistoryTable({ userId, t, locale }: { userId: string; t: (key: string) => string; locale: string }) {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,7 +69,7 @@ function LoginHistoryTable({ userId }: { userId: string }) {
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
         <Globe size={18} className="mr-2" />
-        No login history available
+        {t("noLoginHistory")}
       </div>
     );
   }
@@ -85,10 +80,10 @@ function LoginHistoryTable({ userId }: { userId: string }) {
         <div key={log.id || idx} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
           <div>
             <p className="text-sm font-medium text-foreground capitalize">
-              {log.action?.toLowerCase() === "login" ? "Logged in" : log.action}
+              {log.action?.toLowerCase() === "login" ? t("loggedIn") : log.action}
             </p>
             <p className="text-xs text-muted-foreground">
-              {log.createdAt ? new Date(log.createdAt).toLocaleString() : "Unknown time"}
+              {log.createdAt ? new Date(log.createdAt).toLocaleString(locale) : t("unknownTime")}
             </p>
           </div>
           <span className="text-xs text-muted-foreground">{log.ipAddress || ""}</span>
@@ -98,7 +93,7 @@ function LoginHistoryTable({ userId }: { userId: string }) {
   );
 }
 
-function AccountActivityTable({ userId }: { userId: string }) {
+function AccountActivityTable({ userId, t, locale }: { userId: string; t: (key: string) => string; locale: string }) {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -128,7 +123,7 @@ function AccountActivityTable({ userId }: { userId: string }) {
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
         <Globe size={18} className="mr-2" />
-        No activity recorded yet
+        {t("noActivityYet")}
       </div>
     );
   }
@@ -142,7 +137,7 @@ function AccountActivityTable({ userId }: { userId: string }) {
               {log.action?.replace(/_/g, " ").toLowerCase()}
             </p>
             <p className="text-xs text-muted-foreground">
-              {log.entityType && `${log.entityType} · `}{log.createdAt ? new Date(log.createdAt).toLocaleString() : ""}
+              {log.entityType && `${log.entityType} · `}{log.createdAt ? new Date(log.createdAt).toLocaleString(locale) : ""}
             </p>
           </div>
           <span className="ml-2 shrink-0 text-xs text-muted-foreground">{log.ipAddress || ""}</span>
@@ -153,10 +148,18 @@ function AccountActivityTable({ userId }: { userId: string }) {
 }
 
 export default function AdminProfilePage() {
+  const t = useTranslations("admin.profile");
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
   const patchAuthMe = usePatchAuthMe();
+
+  const tabs = useMemo<{ id: TabId; label: string; icon: React.ElementType }[]>(() => [
+    { id: "profile", label: t("profileTab"), icon: User },
+    { id: "account", label: t("accountTab"), icon: Key },
+    { id: "preferences", label: t("preferencesTab"), icon: Palette },
+  ], [t]);
 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 
@@ -205,7 +208,7 @@ export default function AdminProfilePage() {
   /* Read hash from URL for tab navigation */
   useEffect(() => {
     const hash = window.location.hash.replace("#", "") as TabId;
-    if (hash && TABS.some((t) => t.id === hash)) {
+    if (hash && (hash === "profile" || hash === "account" || hash === "preferences")) {
       setActiveTab(hash);
     } else if (!hash) {
       setActiveTab("profile");
@@ -216,7 +219,7 @@ export default function AdminProfilePage() {
   useEffect(() => {
     const onHashChange = () => {
       const hash = window.location.hash.replace("#", "") as TabId;
-      if (hash && TABS.some((t) => t.id === hash)) {
+      if (hash && (hash === "profile" || hash === "account" || hash === "preferences")) {
         setActiveTab(hash);
       } else if (!hash) {
         setActiveTab("profile");
@@ -245,9 +248,9 @@ export default function AdminProfilePage() {
         method: "PATCH",
         body: { firstName: firstName.trim(), lastName: lastName.trim(), phone: phone.trim() },
       });
-      toast.success("Profile updated");
+      toast.success(t("profileUpdated"));
     } catch {
-      toast.error("Failed to update profile");
+      toast.error(t("profileUpdateFailed"));
     } finally {
       setSavingProfile(false);
     }
@@ -260,11 +263,11 @@ export default function AdminProfilePage() {
     setPasswordSuccess(false);
 
     if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters");
+      setPasswordError(t("minChars"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPasswordError(t("passwordsNoMatch"));
       return;
     }
 
@@ -278,9 +281,9 @@ export default function AdminProfilePage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast.success("Password changed");
+      toast.success(t("passwordChanged"));
     } catch (err: any) {
-      setPasswordError(err?.message ?? "Failed to change password");
+      setPasswordError(err?.message ?? t("passwordChangeFailed"));
     } finally {
       setChangingPassword(false);
     }
@@ -291,10 +294,10 @@ export default function AdminProfilePage() {
     setSavingLanguage(true);
     try {
       await patchAuthMe.mutateAsync({ data: { preferredLanguage: language } });
-      toast.success("Preferences saved");
+      toast.success(t("preferencesSaved"));
       router.replace(pathname, { locale: language });
     } catch {
-      toast.error("Failed to save preferences");
+      toast.error(t("preferencesFailed"));
     } finally {
       setSavingLanguage(false);
     }
@@ -309,11 +312,11 @@ export default function AdminProfilePage() {
       const list = (res.data?.data ?? res.data ?? []) as SessionInfo[];
       setSessions(list);
     } catch {
-      setSessionsError("Failed to load sessions");
+      setSessionsError(t("loadSessionsFailed"));
     } finally {
       setLoadingSessions(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (activeTab === "account") {
@@ -327,9 +330,9 @@ export default function AdminProfilePage() {
     try {
       await apiFetch(`/auth/sessions/${sessionId}`, { method: "DELETE" });
       setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-      toast.success("Session revoked");
+      toast.success(t("sessionRevoked"));
     } catch {
-      toast.error("Failed to revoke session");
+      toast.error(t("sessionRevokeFailed"));
     } finally {
       setRevokingSessionId(null);
     }
@@ -349,12 +352,12 @@ export default function AdminProfilePage() {
       setNotifsError(
         err instanceof Error
           ? err.message
-          : "Failed to load notification preferences",
+          : t("notificationsLoadFailed"),
       );
     } finally {
       setLoadingNotifs(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (activeTab === "preferences") {
@@ -371,9 +374,9 @@ export default function AdminProfilePage() {
         method: "PUT",
         body: { email: notifEmail, push: notifPush, inApp: notifInApp },
       });
-      toast.success("Notification preferences saved");
+      toast.success(t("notificationsSaved"));
     } catch {
-      setNotifsError("Failed to save notification preferences");
+      setNotifsError(t("notificationsSaveFailed"));
     } finally {
       setSavingNotifs(false);
     }
@@ -382,7 +385,7 @@ export default function AdminProfilePage() {
   if (!user) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading profile..." />
+        <LoadingSpinner label={t("loadingProfile")} />
       </div>
     );
   }
@@ -390,8 +393,8 @@ export default function AdminProfilePage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Profile"
-        description="Manage your personal information, account security, and preferences"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {/* Name + role banner */}
@@ -416,7 +419,7 @@ export default function AdminProfilePage() {
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-border bg-muted p-0.5">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => handleTabClick(id)}
@@ -437,13 +440,13 @@ export default function AdminProfilePage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+              <CardTitle>{t("personalInformation")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="pf-first-name">
-                    First Name
+                    {t("firstName")}
                   </label>
                   <Input
                     id="pf-first-name"
@@ -454,7 +457,7 @@ export default function AdminProfilePage() {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="pf-last-name">
-                    Last Name
+                    {t("lastName")}
                   </label>
                   <Input
                     id="pf-last-name"
@@ -465,7 +468,7 @@ export default function AdminProfilePage() {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="pf-email">
-                    Email
+                    {t("email")}
                   </label>
                   <Input
                     id="pf-email"
@@ -473,18 +476,18 @@ export default function AdminProfilePage() {
                     value={user.email ?? ""}
                     readOnly
                   />
-                  <p className="mt-1 text-xs text-muted-foreground">Email cannot be changed</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("emailReadOnly")}</p>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="pf-phone">
-                    Phone
+                    {t("phone")}
                   </label>
                   <Input
                     id="pf-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+250 7XX XXX XXX"
+                    placeholder={t("phonePlaceholder")}
                   />
                 </div>
               </div>
@@ -498,18 +501,18 @@ export default function AdminProfilePage() {
                 ) : (
                   <Save size={15} />
                 )}
-                Save Changes
+                {t("saveChanges")}
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Login History</CardTitle>
-              <p className="text-sm text-muted-foreground">Recent login activity on your account</p>
+              <CardTitle>{t("loginHistory")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("loginHistoryDesc")}</p>
             </CardHeader>
             <CardContent>
-              <LoginHistoryTable userId={user.id} />
+              <LoginHistoryTable userId={user.id} t={t} locale={locale} />
             </CardContent>
           </Card>
         </div>
@@ -521,13 +524,13 @@ export default function AdminProfilePage() {
           <form onSubmit={handleChangePassword}>
             <Card>
               <CardHeader>
-                <CardTitle>Change Password</CardTitle>
+                <CardTitle>{t("changePassword")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="max-w-md space-y-4">
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="ac-current-pw">
-                      Current Password
+                      {t("currentPassword")}
                     </label>
                     <Input
                       id="ac-current-pw"
@@ -538,7 +541,7 @@ export default function AdminProfilePage() {
                   </div>
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="ac-new-pw">
-                      New Password
+                      {t("newPassword")}
                     </label>
                     <Input
                       id="ac-new-pw"
@@ -547,12 +550,12 @@ export default function AdminProfilePage() {
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
                     {newPassword && newPassword.length < 8 && (
-                      <p className="mt-1 text-xs text-destructive">Minimum 8 characters</p>
+                      <p className="mt-1 text-xs text-destructive">{t("minChars")}</p>
                     )}
                   </div>
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-foreground" htmlFor="ac-confirm-pw">
-                      Confirm New Password
+                      {t("confirmNewPassword")}
                     </label>
                     <Input
                       id="ac-confirm-pw"
@@ -561,7 +564,7 @@ export default function AdminProfilePage() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                     {confirmPassword && newPassword !== confirmPassword && (
-                      <p className="mt-1 text-xs text-destructive">Passwords do not match</p>
+                      <p className="mt-1 text-xs text-destructive">{t("passwordsNoMatch")}</p>
                     )}
                   </div>
                 </div>
@@ -576,7 +579,7 @@ export default function AdminProfilePage() {
                 {passwordSuccess && (
                   <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-primary">
                     <CheckCircle size={15} />
-                    Password updated successfully
+                    {t("passwordSuccess")}
                   </div>
                 )}
 
@@ -590,7 +593,7 @@ export default function AdminProfilePage() {
                   ) : (
                     <Lock size={15} />
                   )}
-                  Update Password
+                  {t("updatePassword")}
                 </Button>
               </CardContent>
             </Card>
@@ -598,27 +601,27 @@ export default function AdminProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Two-Factor Authentication</CardTitle>
-              <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+              <CardTitle>{t("twoFactor")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("twoFactorDesc")}</p>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between rounded-lg border border-dashed border-border px-4 py-3">
                 <div className="flex items-center gap-3">
                   <Smartphone size={18} className="text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Authenticator app</span>
+                  <span className="text-sm text-muted-foreground">{t("authenticatorApp")}</span>
                 </div>
                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                  Not configured
+                  {t("notConfigured")}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">2FA setup will be available in a future update</p>
+              <p className="mt-2 text-xs text-muted-foreground">{t("twoFactorFuture")}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Active Sessions</CardTitle>
-              <p className="text-sm text-muted-foreground">Devices and sessions currently logged into your account</p>
+              <CardTitle>{t("activeSessions")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("activeSessionsDesc")}</p>
             </CardHeader>
             <CardContent>
               {loadingSessions ? (
@@ -631,7 +634,7 @@ export default function AdminProfilePage() {
               ) : sessions.length === 0 ? (
                 <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
                   <Monitor size={18} className="mr-2" />
-                  No active sessions
+                  {t("noActiveSessions")}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -648,15 +651,15 @@ export default function AdminProfilePage() {
                         <Monitor size={18} className="shrink-0 text-muted-foreground" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-foreground">
-                            {s.device || "Unknown device"}
+                            {s.device || t("unknownDevice")}
                             {s.isCurrent && (
                               <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-primary">
-                                Current
+                                {t("current")}
                               </span>
                             )}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {s.browser && `${s.browser} · `}{s.ip && `${s.ip} · `}Last active: {s.lastActive ? new Date(s.lastActive).toLocaleDateString() : "N/A"}
+                            {s.browser && `${s.browser} · `}{s.ip && `${s.ip} · `}{t("lastActive")}: {s.lastActive ? new Date(s.lastActive).toLocaleDateString(locale) : t("na")}
                           </p>
                         </div>
                       </div>
@@ -670,7 +673,7 @@ export default function AdminProfilePage() {
                           {revokingSessionId === s.id ? (
                             <span className="animate-spin">↻</span>
                           ) : (
-                            "Revoke"
+                            t("revoke")
                           )}
                         </Button>
                       )}
@@ -683,11 +686,11 @@ export default function AdminProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Account Activity</CardTitle>
-              <p className="text-sm text-muted-foreground">A log of recent actions performed on your account</p>
+              <CardTitle>{t("accountActivity")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("accountActivityDesc")}</p>
             </CardHeader>
             <CardContent>
-              <AccountActivityTable userId={user.id} />
+              <AccountActivityTable userId={user.id} t={t} locale={locale} />
             </CardContent>
           </Card>
         </div>
@@ -698,21 +701,21 @@ export default function AdminProfilePage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Appearance</CardTitle>
-              <p className="text-sm text-muted-foreground">Choose how the platform looks for you</p>
+              <CardTitle>{t("appearance")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("appearanceDesc")}</p>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
                 <ThemeToggle />
-                <span className="text-sm text-muted-foreground">Toggle light / dark mode</span>
+                <span className="text-sm text-muted-foreground">{t("toggleTheme")}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Language</CardTitle>
-              <p className="text-sm text-muted-foreground">Select your preferred interface language</p>
+              <CardTitle>{t("language")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("languageDesc")}</p>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
@@ -725,9 +728,9 @@ export default function AdminProfilePage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                    <SelectItem value="rw">Kinyarwanda</SelectItem>
+                    <SelectItem value="en">{t("langEn")}</SelectItem>
+                    <SelectItem value="fr">{t("langFr")}</SelectItem>
+                    <SelectItem value="rw">{t("langRw")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -741,15 +744,15 @@ export default function AdminProfilePage() {
                 ) : (
                   <Save size={15} />
                 )}
-                Save Language Preference
+                {t("saveLanguage")}
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Notification Preferences</CardTitle>
-              <p className="text-sm text-muted-foreground">Control which notifications you receive</p>
+              <CardTitle>{t("notificationPreferences")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("notificationPreferencesDesc")}</p>
             </CardHeader>
             <CardContent>
               {loadingNotifs ? (
@@ -758,8 +761,8 @@ export default function AdminProfilePage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Email Notifications</p>
-                      <p className="text-xs text-muted-foreground">Receive updates via email</p>
+                      <p className="text-sm font-medium text-foreground">{t("emailNotifications")}</p>
+                      <p className="text-xs text-muted-foreground">{t("emailNotificationsDesc")}</p>
                     </div>
                     <Switch
                       checked={notifEmail}
@@ -768,8 +771,8 @@ export default function AdminProfilePage() {
                   </div>
                   <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Push Notifications</p>
-                      <p className="text-xs text-muted-foreground">Receive push notifications for booking state changes</p>
+                      <p className="text-sm font-medium text-foreground">{t("pushNotifications")}</p>
+                      <p className="text-xs text-muted-foreground">{t("pushNotificationsDesc")}</p>
                     </div>
                     <Switch
                       checked={notifPush}
@@ -778,8 +781,8 @@ export default function AdminProfilePage() {
                   </div>
                   <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-foreground">In-App Notifications</p>
-                      <p className="text-xs text-muted-foreground">Receive notifications inside the platform</p>
+                      <p className="text-sm font-medium text-foreground">{t("inAppNotifications")}</p>
+                      <p className="text-xs text-muted-foreground">{t("inAppNotificationsDesc")}</p>
                     </div>
                     <Switch
                       checked={notifInApp}
@@ -795,7 +798,7 @@ export default function AdminProfilePage() {
                     ) : (
                       <Save size={15} />
                     )}
-                    Save Notification Preferences
+                    {t("saveNotifications")}
                   </Button>
                   {notifsError && (
                     <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">

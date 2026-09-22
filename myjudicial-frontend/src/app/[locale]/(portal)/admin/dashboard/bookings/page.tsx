@@ -21,8 +21,8 @@ import {
   type Booking,
   type GetAdminBookingsStatus,
 } from "@/api/generated";
-import { format } from "date-fns";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
+import { useTranslations, useLocale } from "next-intl";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -64,34 +64,6 @@ const getStatusTone = (status: Booking["status"]): StatusTone => {
   return map[status] ?? "neutral";
 };
 
-const getStatusLabel = (status: Booking["status"]): string => {
-  const map: Record<Booking["status"], string> = {
-    PENDING: "Pending",
-    CONFIRMED: "Confirmed",
-    ACTIVE: "Active",
-    COMPLETED: "Completed",
-    CANCELLED: "Cancelled",
-    REFUNDED: "Refunded",
-  };
-  return map[status] ?? status;
-};
-
-const formatCurrency = (amount: number, currency = "RWF") => {
-  return new Intl.NumberFormat("en-RW", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatDateTime = (dateString: string) => {
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy HH:mm");
-  } catch {
-    return dateString;
-  }
-};
-
 function clientName(booking: Booking): string {
   if (!booking.citizen) return "Client";
   return `${booking.citizen.firstName} ${booking.citizen.lastName}`.trim() || "Client";
@@ -104,6 +76,8 @@ function bookingAmount(booking: Booking): { amount: number; currency: string } {
 }
 
 export default function BookingsPage() {
+  const t = useTranslations("admin.bookings");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const { isBookingFirst } = usePaymentMode();
   const [page, setPage] = useState(1);
@@ -119,9 +93,42 @@ export default function BookingsPage() {
   const [showBulkRefundModal, setShowBulkRefundModal] = useState(false);
   const [bulkRefundReason, setBulkRefundReason] = useState("");
   const [bulkRefundPercentage, setBulkRefundPercentage] = useState<50 | 100>(100);
-  // Complete confirmation dialogs (replacing window.confirm)
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [showBulkCompleteModal, setShowBulkCompleteModal] = useState(false);
+
+  const getStatusLabel = (status: Booking["status"]): string => {
+    const map: Record<Booking["status"], string> = {
+      PENDING: t("pending"),
+      CONFIRMED: t("confirmed"),
+      ACTIVE: t("active"),
+      COMPLETED: t("completed"),
+      CANCELLED: t("cancelled"),
+      REFUNDED: t("refunded"),
+    };
+    return map[status] ?? status;
+  };
+
+  const formatCurrency = (amount: number, currency = "RWF") => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDateTime = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const listParams = {
     page: String(page),
@@ -257,10 +264,10 @@ export default function BookingsPage() {
   if (bookingsError) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <PageHeader title="Bookings Management" description="Manage all platform consultations and bookings" />
+        <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState
-          title="Failed to load bookings"
-          message={bookingsError instanceof Error ? bookingsError.message : "Unknown error occurred"}
+          title={t("failedToLoad")}
+          message={bookingsError instanceof Error ? bookingsError.message : t("unknownError")}
         />
       </div>
     );
@@ -269,40 +276,40 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Bookings Management"
-        description="Manage all platform consultations and bookings"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
           <StatCard
-            label="Total"
+            label={t("total")}
             value={stats.totalBookings.toLocaleString()}
             icon={Calendar}
           />
           <StatCard
-            label="Pending"
+            label={t("pending")}
             value={stats.counts.PENDING.toLocaleString()}
             icon={Clock}
           />
           <StatCard
-            label="Confirmed"
+            label={t("confirmed")}
             value={stats.counts.CONFIRMED.toLocaleString()}
             icon={CheckCheck}
           />
           <StatCard
-            label="Completed"
+            label={t("completed")}
             value={stats.counts.COMPLETED.toLocaleString()}
             icon={CheckCheck}
           />
           <StatCard
-            label="Revenue"
+            label={t("revenue")}
             value={formatCurrency(stats.totalRevenue)}
             icon={DollarSign}
           />
           <StatCard
-            label="Refunded"
+            label={t("refunded")}
             value={stats.counts.REFUNDED.toLocaleString()}
             icon={DollarSign}
           />
@@ -323,36 +330,36 @@ export default function BookingsPage() {
                 }}
               >
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="All Status" />
+                  <SelectValue placeholder={t("allStatus")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                  <SelectItem value="REFUNDED">Refunded</SelectItem>
+                  <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                  <SelectItem value="PENDING">{t("pending")}</SelectItem>
+                  <SelectItem value="CONFIRMED">{t("confirmed")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("active")}</SelectItem>
+                  <SelectItem value="COMPLETED">{t("completed")}</SelectItem>
+                  <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
+                  <SelectItem value="REFUNDED">{t("refunded")}</SelectItem>
                 </SelectContent>
               </Select>
               <Input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                placeholder="From"
+                placeholder={t("from")}
               />
               <Input
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                placeholder="To"
+                placeholder={t("to")}
               />
             </div>
             <Input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by client or expert name..."
+              placeholder={t("searchPlaceholder")}
               className="lg:w-64"
             />
           </div>
@@ -364,7 +371,7 @@ export default function BookingsPage() {
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-6 py-3">
-            <span className="text-sm font-medium text-foreground">{selectedIds.size} selected</span>
+            <span className="text-sm font-medium text-foreground">{t("selected", { count: selectedIds.size })}</span>
             {bulkCompletable.length > 0 && (
               <Button
                 size="xs"
@@ -373,7 +380,7 @@ export default function BookingsPage() {
                 disabled={completeMutation.isPending}
               >
                 <CheckCheck size={14} />
-                Complete ({bulkCompletable.length})
+                {t("completeN", { count: bulkCompletable.length })}
               </Button>
             )}
             {!isBookingFirst && bulkRefundable.length > 0 && (
@@ -384,7 +391,7 @@ export default function BookingsPage() {
                 disabled={refundMutation.isPending}
               >
                 <DollarSign size={14} />
-                Refund ({bulkRefundable.length})
+                {t("refundN", { count: bulkRefundable.length })}
               </Button>
             )}
             <Button
@@ -393,7 +400,7 @@ export default function BookingsPage() {
               onClick={() => setSelectedIds(new Set())}
               className="ml-auto"
             >
-              Clear selection
+              {t("clearSelection")}
             </Button>
           </div>
         )}
@@ -409,13 +416,13 @@ export default function BookingsPage() {
                     className="h-4 w-4 rounded border-input"
                   />
                 </th>
-                <th className="px-6 py-4">Client</th>
-                <th className="px-6 py-4">Expert</th>
-                <th className="px-6 py-4">Service</th>
-                <th className="px-6 py-4">Scheduled</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4">{t("client")}</th>
+                <th className="px-6 py-4">{t("expert")}</th>
+                <th className="px-6 py-4">{t("service")}</th>
+                <th className="px-6 py-4">{t("scheduled")}</th>
+                <th className="px-6 py-4">{t("status")}</th>
+                <th className="px-6 py-4">{t("amount")}</th>
+                <th className="px-6 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -424,8 +431,8 @@ export default function BookingsPage() {
                   <td colSpan={8} className="px-6 py-12 text-center">
                     <EmptyState
                       icon={Calendar}
-                      title={search.trim() ? "No bookings match your search." : "No bookings found."}
-                      description={search.trim() ? "Try adjusting your search criteria." : "There are no bookings yet."}
+                      title={search.trim() ? t("noBookingsSearch") : t("noBookings")}
+                      description=""
                     />
                   </td>
                 </tr>
@@ -452,7 +459,7 @@ export default function BookingsPage() {
                           </div>
                           <div>
                             <p className="font-medium text-foreground hover:underline">{name}</p>
-                            <p className="text-xs text-muted-foreground">{booking.citizen?.email ?? "\u2014"}</p>
+                            <p className="text-xs text-muted-foreground">{booking.citizen?.email ?? "—"}</p>
                           </div>
                         </Link>
                       </td>
@@ -465,19 +472,19 @@ export default function BookingsPage() {
                             <p className="font-medium text-foreground">
                               {booking.expert?.displayName ?? "Expert"}
                             </p>
-                            <p className="text-xs text-muted-foreground">{booking.expert?.user?.email ?? "\u2014"}</p>
+                            <p className="text-xs text-muted-foreground">{booking.expert?.user?.email ?? "—"}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <p className="font-medium text-foreground">
-                          {booking.service?.name ?? "Consultation"}
+                          {booking.service?.name ?? t("consultation")}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <div>
                           <p className="text-foreground">{formatDateTime(booking.scheduledStart)}</p>
-                          <p className="text-xs text-muted-foreground">to {formatDateTime(booking.scheduledEnd)}</p>
+                          <p className="text-xs text-muted-foreground">{t("to")} {formatDateTime(booking.scheduledEnd)}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -488,8 +495,8 @@ export default function BookingsPage() {
                       <td className="px-6 py-4">
                         <span className="font-medium text-foreground">{formatCurrency(amount, currency)}</span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           {booking.status === "ACTIVE" && (
                             <Button
                               size="xs"
@@ -498,7 +505,7 @@ export default function BookingsPage() {
                               disabled={completeMutation.isPending}
                             >
                               <CheckCheck size={14} />
-                              Complete
+                              {t("complete")}
                             </Button>
                           )}
                           {!isBookingFirst && (booking.status === "CONFIRMED" || booking.status === "COMPLETED") && (
@@ -509,7 +516,7 @@ export default function BookingsPage() {
                               disabled={refundMutation.isPending}
                             >
                               <DollarSign size={14} />
-                              Refund
+                              {t("refund")}
                             </Button>
                           )}
                         </div>
@@ -526,7 +533,7 @@ export default function BookingsPage() {
         {pagination && pagination.pages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.pages} ({pagination.total} total)
+              {pagination.page} / {pagination.pages} ({pagination.total})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -535,7 +542,7 @@ export default function BookingsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                Previous
+                ←
               </Button>
               <Button
                 variant="outline"
@@ -543,7 +550,7 @@ export default function BookingsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.pages}
               >
-                Next
+                →
               </Button>
             </div>
           </div>
@@ -554,16 +561,16 @@ export default function BookingsPage() {
       <Dialog open={showRefundModal} onOpenChange={setShowRefundModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Process Refund</DialogTitle>
+            <DialogTitle>{t("processRefund")}</DialogTitle>
             <DialogDescription>
-              Refund booking for <span className="font-medium text-foreground">{selectedBooking ? clientName(selectedBooking) : ""}</span>
+              {t("refundBookingFor", { name: selectedBooking ? clientName(selectedBooking) : "" })}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-foreground">
-                Refund Amount *
+                {t("refundAmount")} *
               </label>
               <div className="mt-2 flex gap-3">
                 {(() => {
@@ -593,16 +600,16 @@ export default function BookingsPage() {
 
             <div>
               <label className="text-sm font-medium text-foreground">
-                Reason for refund *
+                {t("reasonForRefund")} *
               </label>
               <textarea
                 className="mt-2 flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
                 rows={4}
-                placeholder="Provide a detailed reason for the refund..."
+                placeholder={t("refundReasonPlaceholder")}
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
               />
-              <p className="mt-1 text-xs text-muted-foreground">Minimum 5 characters required</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("minChars")}</p>
             </div>
           </div>
 
@@ -616,14 +623,14 @@ export default function BookingsPage() {
                 setSelectedBooking(null);
               }}
             >
-              Cancel
+              {t("processing")}
             </Button>
             <Button
               variant="destructive"
               onClick={confirmRefund}
               disabled={refundReason.trim().length < 5 || refundMutation.isPending}
             >
-              {refundMutation.isPending ? "Processing..." : "Confirm Refund"}
+              {refundMutation.isPending ? t("processing") : t("confirmRefund")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -633,14 +640,14 @@ export default function BookingsPage() {
       <Dialog open={showBulkRefundModal} onOpenChange={setShowBulkRefundModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Bulk Refund</DialogTitle>
+            <DialogTitle>{t("bulkRefund")}</DialogTitle>
             <DialogDescription>
-              Refund <span className="font-medium text-foreground">{bulkRefundable.length}</span> booking(s)
+              {t("refundNBookings", { count: bulkRefundable.length })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Refund Amount *</label>
+              <label className="text-sm font-medium text-foreground">{t("refundAmount")} *</label>
               <div className="mt-2 flex gap-3">
                 <Button
                   variant={bulkRefundPercentage === 50 ? "default" : "outline"}
@@ -659,11 +666,11 @@ export default function BookingsPage() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Reason for refund *</label>
+              <label className="text-sm font-medium text-foreground">{t("reasonForRefund")} *</label>
               <textarea
                 className="mt-2 flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
                 rows={4}
-                placeholder="Provide a detailed reason for the refund..."
+                placeholder={t("refundReasonPlaceholder")}
                 value={bulkRefundReason}
                 onChange={(e) => setBulkRefundReason(e.target.value)}
               />
@@ -681,7 +688,7 @@ export default function BookingsPage() {
               onClick={confirmBulkRefund}
               disabled={bulkRefundReason.trim().length < 5 || refundMutation.isPending}
             >
-              {refundMutation.isPending ? "Processing..." : `Refund ${bulkRefundable.length} Booking(s)`}
+              {refundMutation.isPending ? t("processing") : t("refundNBookingAction", { count: bulkRefundable.length })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -693,13 +700,9 @@ export default function BookingsPage() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mark as Completed</DialogTitle>
+            <DialogTitle>{t("markAsComplete")}</DialogTitle>
             <DialogDescription>
-              Mark booking for{" "}
-              <span className="font-medium text-foreground">
-                {selectedBooking ? clientName(selectedBooking) : ""}
-              </span>{" "}
-              as completed? This will release escrow to the expert.
+              {t("markCompleteConfirm")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -713,7 +716,7 @@ export default function BookingsPage() {
               onClick={confirmComplete}
               disabled={completeMutation.isPending}
             >
-              {completeMutation.isPending ? "Processing..." : "Confirm Complete"}
+              {completeMutation.isPending ? t("processing") : t("confirmComplete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -725,11 +728,9 @@ export default function BookingsPage() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Bulk Mark as Completed</DialogTitle>
+            <DialogTitle>{t("markAsComplete")}</DialogTitle>
             <DialogDescription>
-              Mark{" "}
-              <span className="font-medium text-foreground">{bulkCompletable.length}</span>{" "}
-              booking(s) as completed? Escrow will be released for each booking.
+              {t("markBulkCompleteConfirm", { count: bulkCompletable.length })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -743,7 +744,7 @@ export default function BookingsPage() {
               onClick={confirmBulkComplete}
               disabled={completeMutation.isPending}
             >
-              {completeMutation.isPending ? "Processing..." : `Complete ${bulkCompletable.length} Booking(s)`}
+              {completeMutation.isPending ? t("processing") : t("confirmComplete")}
             </Button>
           </DialogFooter>
         </DialogContent>

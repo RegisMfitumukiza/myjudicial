@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
-import { format } from "date-fns";
+import { useTranslations, useLocale } from "next-intl";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -125,15 +125,6 @@ const getRoleTone = (role: UserRole): StatusTone => {
   return map[role];
 };
 
-const getRoleLabel = (role: UserRole) => {
-  const labels: Record<UserRole, string> = {
-    CITIZEN: "Citizen",
-    EXPERT: "Expert",
-    ADMIN: "Admin",
-  };
-  return labels[role];
-};
-
 const getStatusTone = (status: AccountStatus): StatusTone => {
   const map: Record<AccountStatus, StatusTone> = {
     ACTIVE: "active",
@@ -144,26 +135,9 @@ const getStatusTone = (status: AccountStatus): StatusTone => {
   return map[status];
 };
 
-const getStatusLabel = (status: AccountStatus) => {
-  const labels: Record<AccountStatus, string> = {
-    ACTIVE: "Active",
-    INACTIVE: "Inactive",
-    SUSPENDED: "Suspended",
-    DELETED: "Deleted",
-  };
-  return labels[status];
-};
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "Never";
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy");
-  } catch {
-    return dateString;
-  }
-};
-
 export default function UsersPage() {
+  const t = useTranslations("admin.users");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,6 +148,38 @@ export default function UsersPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [actionReason, setActionReason] = useState("");
   const [newStatus, setNewStatus] = useState<AccountStatus>("INACTIVE");
+
+  const getRoleLabel = (role: UserRole) => {
+    const labels: Record<UserRole, string> = {
+      CITIZEN: t("citizens"),
+      EXPERT: t("experts"),
+      ADMIN: t("admins"),
+    };
+    return labels[role] ?? role;
+  };
+
+  const getStatusLabel = (status: AccountStatus) => {
+    const labels: Record<AccountStatus, string> = {
+      ACTIVE: t("active"),
+      INACTIVE: t("inactive"),
+      SUSPENDED: t("allStatus"),
+      DELETED: t("deleted"),
+    };
+    return labels[status] ?? status;
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "—";
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   // Fetch stats
   const { data: statsData, isLoading: loadingStats } = useQuery({
@@ -257,10 +263,10 @@ export default function UsersPage() {
   if (error) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <PageHeader title="User Management" description="Manage all platform users and accounts" />
+        <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState
-          title="Failed to load users"
-          message={error instanceof Error ? error.message : "Unknown error occurred"}
+          title={t("failedToLoad")}
+          message={error instanceof Error ? error.message : t("unknownError")}
         />
       </div>
     );
@@ -269,35 +275,35 @@ export default function UsersPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="User Management"
-        description="Manage all platform users and accounts"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           <StatCard
-            label="Total Users"
+            label={t("totalUsers")}
             value={stats.totalUsers}
             icon={Users}
           />
           <StatCard
-            label="Citizens"
+            label={t("citizens")}
             value={stats.byRole.citizens}
             icon={UserCheck}
           />
           <StatCard
-            label="Experts"
+            label={t("experts")}
             value={stats.byRole.experts}
             icon={Briefcase}
           />
           <StatCard
-            label="Admins"
+            label={t("admins")}
             value={stats.byRole.admins}
             icon={Shield}
           />
           <StatCard
-            label="Active"
+            label={t("active")}
             value={stats.byStatus.active}
             icon={UserCheck}
           />
@@ -312,7 +318,7 @@ export default function UsersPage() {
               <Search size={18} className="shrink-0 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search by name or email..."
+                placeholder={t("search")}
                 className="border-0 bg-transparent shadow-none focus-visible:ring-0"
                 value={searchQuery}
                 onChange={(e) => {
@@ -332,13 +338,13 @@ export default function UsersPage() {
                 }}
               >
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="All Roles" />
+                  <SelectValue placeholder={t("allRoles")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Roles</SelectItem>
-                  <SelectItem value="CITIZEN">Citizens</SelectItem>
-                  <SelectItem value="EXPERT">Experts</SelectItem>
-                  <SelectItem value="ADMIN">Admins</SelectItem>
+                  <SelectItem value="ALL">{t("allRoles")}</SelectItem>
+                  <SelectItem value="CITIZEN">{t("citizens")}</SelectItem>
+                  <SelectItem value="EXPERT">{t("experts")}</SelectItem>
+                  <SelectItem value="ADMIN">{t("admins")}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -350,13 +356,13 @@ export default function UsersPage() {
                 }}
               >
                 <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="All Status" />
+                  <SelectValue placeholder={t("allStatus")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                  <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                  <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("active")}</SelectItem>
+                  <SelectItem value="INACTIVE">{t("inactive")}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t("allStatus")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -370,12 +376,12 @@ export default function UsersPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-6 py-4">User</th>
-                <th className="px-6 py-4">Role</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Joined</th>
-                <th className="px-6 py-4">Last Login</th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4">{t("user")}</th>
+                <th className="px-6 py-4">{t("role")}</th>
+                <th className="px-6 py-4">{t("status")}</th>
+                <th className="px-6 py-4">{t("user")}</th>
+                <th className="px-6 py-4">{t("lastLogin")}</th>
+                <th className="px-6 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -384,8 +390,7 @@ export default function UsersPage() {
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <EmptyState
                       icon={Users}
-                      title="No users found"
-                      description="No users match your current filters."
+                      title={t("noUsers")}
                     />
                   </td>
                 </tr>
@@ -428,8 +433,8 @@ export default function UsersPage() {
                     <td className="px-6 py-4">
                       <span className="text-muted-foreground">{formatDate(user.lastLoginAt)}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         {user.accountStatus !== "DELETED" && (
                           <>
                             <Button
@@ -438,7 +443,7 @@ export default function UsersPage() {
                               onClick={() => handleChangeStatus(user)}
                               disabled={updateStatusMutation.isPending}
                             >
-                              {user.accountStatus === "ACTIVE" ? "Deactivate" : "Activate"}
+                              {user.accountStatus === "ACTIVE" ? t("deactivate") : t("activate")}
                             </Button>
                             <Button
                               size="xs"
@@ -447,7 +452,7 @@ export default function UsersPage() {
                               disabled={deleteMutation.isPending}
                             >
                               <Trash2 size={14} />
-                              Delete
+                              {t("delete")}
                             </Button>
                           </>
                         )}
@@ -464,7 +469,7 @@ export default function UsersPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+              {pagination.page} / {pagination.totalPages} ({pagination.total})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -473,7 +478,7 @@ export default function UsersPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                Previous
+                ←
               </Button>
               <Button
                 variant="outline"
@@ -481,7 +486,7 @@ export default function UsersPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
               >
-                Next
+                →
               </Button>
             </div>
           </div>
@@ -492,20 +497,19 @@ export default function UsersPage() {
       <Dialog open={showStatusModal} onOpenChange={setShowStatusModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change User Status</DialogTitle>
+            <DialogTitle>{t("changeStatus")}</DialogTitle>
             <DialogDescription>
-              Change status for <span className="font-medium text-foreground">{selectedUser?.fullName}</span> to{" "}
-              <span className="font-medium text-foreground">{newStatus}</span>?
+              {t("changeStatusConfirm", { name: selectedUser?.fullName ?? "", status: newStatus })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Reason (optional)
+              {t("reasonOptional")}
             </label>
             <textarea
               className="flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               rows={3}
-              placeholder="Provide a reason for status change..."
+              placeholder={t("reasonPlaceholder")}
               value={actionReason}
               onChange={(e) => setActionReason(e.target.value)}
             />
@@ -519,13 +523,13 @@ export default function UsersPage() {
                 setSelectedUser(null);
               }}
             >
-              Cancel
+              {t("confirm")}
             </Button>
             <Button
               onClick={confirmStatusChange}
               disabled={updateStatusMutation.isPending}
             >
-              {updateStatusMutation.isPending ? "Changing..." : "Confirm"}
+              {updateStatusMutation.isPending ? t("changing") : t("confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -535,23 +539,23 @@ export default function UsersPage() {
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User Account</DialogTitle>
+            <DialogTitle>{t("deleteAccount")}</DialogTitle>
             <DialogDescription>
-              You are about to delete <span className="font-medium text-foreground">{selectedUser?.fullName}</span>. This action cannot be easily reversed.
+              {t("deleteConfirm", { name: selectedUser?.fullName ?? "" })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Reason for deletion *
+              {t("reasonForDeletion")}
             </label>
             <textarea
               className="flex min-h-[80px] w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none"
               rows={4}
-              placeholder="Provide a detailed reason for deletion..."
+              placeholder={t("reasonPlaceholderDelete")}
               value={actionReason}
               onChange={(e) => setActionReason(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">Minimum 10 characters required</p>
+            <p className="text-xs text-muted-foreground">{t("minCharsRequired")}</p>
           </div>
           <DialogFooter>
             <Button
@@ -562,14 +566,14 @@ export default function UsersPage() {
                 setSelectedUser(null);
               }}
             >
-              Cancel
+              {t("confirm")}
             </Button>
             <Button
               variant="destructive"
               onClick={confirmDelete}
               disabled={actionReason.trim().length < 10 || deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete Account"}
+              {deleteMutation.isPending ? t("deleting") : t("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

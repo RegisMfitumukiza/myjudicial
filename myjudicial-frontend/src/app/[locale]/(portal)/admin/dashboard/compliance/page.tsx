@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { Link } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -98,25 +100,11 @@ const sendWarningEmail = async (expertId: string) => {
   return apiFetch(`/admin/compliance/${expertId}/send-warning`, { method: "POST" });
 };
 
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "Not set";
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy");
-  } catch {
-    return dateString;
-  }
-};
-
 const getUrgencyTone = (days: number | null | undefined): "destructive" | "warning" | "neutral" => {
   if (days === null || days === undefined) return "neutral";
   if (days <= 7) return "destructive";
   if (days <= 15) return "warning";
   return "neutral";
-};
-
-const getUrgencyLabel = (days: number | null | undefined): string => {
-  if (days === null || days === undefined) return "N/A";
-  return `${days} days`;
 };
 
 function ExpertTable({
@@ -126,6 +114,8 @@ function ExpertTable({
   activeTab,
   sendWarningMutation,
   onPageChange,
+  t,
+  locale,
 }: {
   experts: Expert[];
   pagination: ExpertsResponse["pagination"] | undefined;
@@ -133,10 +123,30 @@ function ExpertTable({
   activeTab: "expiring" | "expired" | "suspended";
   sendWarningMutation: { mutate: (id: string) => void; isPending: boolean };
   onPageChange: (page: number) => void;
+  t: (key: string, values?: any) => string;
+  locale: string;
 }) {
   if (isLoading) {
-    return <LoadingSpinner label={`Loading ${activeTab} experts...`} />;
+    return <LoadingSpinner label={t("loading")} />;
   }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return t("notSet");
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getUrgencyLabel = (days: number | null | undefined): string => {
+    if (days === null || days === undefined) return t("na");
+    return `${days} ${locale === "fr" ? "jours" : locale === "rw" ? "iminsi" : "days"}`;
+  };
 
   return (
     <>
@@ -145,17 +155,17 @@ function ExpertTable({
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-6 py-4">Expert</th>
-                <th className="px-6 py-4">Bar Number</th>
+                <th className="px-6 py-4">{t("totalExperts")}</th>
+                <th className="px-6 py-4">{t("barNumber")}</th>
                 <th className="px-6 py-4">
-                  {activeTab === "suspended" ? "Suspended" : "Credentials Expiry"}
+                  {activeTab === "suspended" ? t("suspended") : t("credentialsExpiry")}
                 </th>
                 <th className="px-6 py-4">
-                  {activeTab === "expiring" && "Days Until Expiry"}
-                  {activeTab === "expired" && "Days Overdue"}
+                  {activeTab === "expiring" && t("daysUntilExpiry")}
+                  {activeTab === "expired" && t("daysOverdue")}
                   {activeTab === "suspended" && "Status"}
                 </th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -166,10 +176,10 @@ function ExpertTable({
                       icon={activeTab === "suspended" ? Ban : Calendar}
                       title={
                         activeTab === "expiring"
-                          ? "No experts with expiring credentials"
+                          ? t("noExpiring")
                           : activeTab === "expired"
-                            ? "No experts with expired credentials"
-                            : "No suspended experts"
+                            ? t("noExpired")
+                            : t("noSuspended")
                       }
                     />
                   </td>
@@ -189,12 +199,12 @@ function ExpertTable({
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-mono text-sm text-foreground">{expert.barNumber || "N/A"}</span>
+                      <span className="font-mono text-sm text-foreground">{expert.barNumber || t("na")}</span>
                     </td>
                     <td className="px-6 py-4">
                       {activeTab === "suspended" ? (
                         <span className="text-foreground">
-                          {expert.suspendedAt ? formatDistanceToNow(new Date(expert.suspendedAt), { addSuffix: true }) : "N/A"}
+                          {expert.suspendedAt ? formatDistanceToNow(new Date(expert.suspendedAt), { addSuffix: true }) : t("na")}
                         </span>
                       ) : (
                         <span className="text-foreground">{formatDate(expert.credentialsExpiry)}</span>
@@ -214,25 +224,27 @@ function ExpertTable({
                       {activeTab === "suspended" && (
                         <StatusBadge tone="destructive">
                           <Ban size={12} />
-                          Suspended
+                          {t("suspended")}
                         </StatusBadge>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         {(activeTab === "expiring" || activeTab === "expired") && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => sendWarningMutation.mutate(expert.id)}
+                            onClick={() => sendWarningMutation.mutate(expert.expertId || expert.id)}
                             disabled={sendWarningMutation.isPending}
                           >
                             <Mail size={14} />
-                            Send Warning
+                            {t("sendWarning")}
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon-sm">
-                          <Eye size={14} />
+                        <Button variant="ghost" size="icon-sm" asChild>
+                          <Link href={`/admin/dashboard/experts/${expert.expertId || expert.id}`}>
+                            <Eye size={14} />
+                          </Link>
                         </Button>
                       </div>
                     </td>
@@ -247,7 +259,7 @@ function ExpertTable({
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-6 py-4">
           <p className="text-sm text-muted-foreground">
-            Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+            {pagination.page} / {pagination.totalPages} ({pagination.total})
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -256,7 +268,7 @@ function ExpertTable({
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
             >
-              Previous
+              ←
             </Button>
             <Button
               variant="outline"
@@ -264,7 +276,7 @@ function ExpertTable({
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
             >
-              Next
+              →
             </Button>
           </div>
         </div>
@@ -274,6 +286,8 @@ function ExpertTable({
 }
 
 export default function CompliancePage() {
+  const t = useTranslations("admin.compliance");
+  const locale = useLocale();
   const [activeTab, setActiveTab] = useState<"expiring" | "expired" | "suspended">("expiring");
   const [expiringPage, setExpiringPage] = useState(1);
   const [expiredPage, setExpiredPage] = useState(1);
@@ -306,10 +320,10 @@ export default function CompliancePage() {
   const sendWarningMutation = useMutation({
     mutationFn: (expertId: string) => sendWarningEmail(expertId),
     onSuccess: () => {
-      toast.success("Warning email sent successfully");
+      toast.success(t("warningSent"));
     },
     onError: () => {
-      toast.error("Failed to send warning email");
+      toast.error(t("failedToLoad"));
     },
   });
 
@@ -318,7 +332,7 @@ export default function CompliancePage() {
   if (loadingStats) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading compliance data..." />
+        <LoadingSpinner label={t("loading")} />
       </div>
     );
   }
@@ -327,12 +341,12 @@ export default function CompliancePage() {
     return (
       <div className="space-y-6 p-6 lg:p-8">
         <PageHeader
-          title="Compliance Dashboard"
-          description="Monitor expert credentials and compliance status"
+          title={t("title")}
+          description={t("subtitle")}
         />
         <ErrorState
-          title="Failed to load compliance data"
-          message="Unable to fetch compliance overview. Please try again later."
+          title={t("failedToLoad")}
+          message={t("unableToFetch")}
         />
       </div>
     );
@@ -351,39 +365,39 @@ export default function CompliancePage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Compliance Dashboard"
-        description="Monitor expert credentials and compliance status"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           <StatCard
-            label="Total Experts"
+            label={t("totalExperts")}
             value={stats.totalExperts}
             icon={Users}
           />
           <StatCard
-            label="Verified"
+            label={t("verified")}
             value={stats.verifiedExperts}
             icon={CheckCircle}
           />
           <StatCard
-            label="Expiring Soon"
+            label={t("expiringSoon")}
             value={stats.expiringCount}
             icon={AlertTriangle}
           />
           <StatCard
-            label="Expired"
+            label={t("expired")}
             value={stats.expiredCount}
             icon={XCircle}
           />
           <StatCard
-            label="Suspended"
+            label={t("suspended")}
             value={stats.suspendedCount}
             icon={Ban}
           />
           <StatCard
-            label="Compliance Rate"
+            label={t("complianceRate")}
             value={`${stats.complianceRate.toFixed(1)}%`}
             icon={TrendingUp}
           />
@@ -394,15 +408,15 @@ export default function CompliancePage() {
         <TabsList variant="line">
           <TabsTrigger value="expiring">
             <AlertTriangle size={14} />
-            Expiring Soon ({stats?.expiringCount ?? 0})
+            {t("expiringSoonN", { n: stats?.expiringCount ?? 0 })}
           </TabsTrigger>
           <TabsTrigger value="expired">
             <XCircle size={14} />
-            Expired ({stats?.expiredCount ?? 0})
+            {t("expiredN", { n: stats?.expiredCount ?? 0 })}
           </TabsTrigger>
           <TabsTrigger value="suspended">
             <Ban size={14} />
-            Suspended ({stats?.suspendedCount ?? 0})
+            {t("suspendedN", { n: stats?.suspendedCount ?? 0 })}
           </TabsTrigger>
         </TabsList>
 
@@ -413,7 +427,7 @@ export default function CompliancePage() {
                 <CardContent>
                   <div className="flex items-center gap-3">
                     <Clock size={16} className="text-muted-foreground" />
-                    <label className="text-sm font-medium text-foreground">Show expiring within:</label>
+                    <label className="text-sm font-medium text-foreground">{t("showExpiringWithin")}</label>
                     <Select
                       value={String(daysThreshold)}
                       onValueChange={(v) => {
@@ -425,11 +439,11 @@ export default function CompliancePage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="7">7 days</SelectItem>
-                        <SelectItem value="14">14 days</SelectItem>
-                        <SelectItem value="30">30 days</SelectItem>
-                        <SelectItem value="60">60 days</SelectItem>
-                        <SelectItem value="90">90 days</SelectItem>
+                        <SelectItem value="7">{t("days7")}</SelectItem>
+                        <SelectItem value="14">{t("days14")}</SelectItem>
+                        <SelectItem value="30">{t("days30")}</SelectItem>
+                        <SelectItem value="60">{t("days60")}</SelectItem>
+                        <SelectItem value="90">{t("days90")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -438,8 +452,8 @@ export default function CompliancePage() {
 
               {expiringError ? (
                 <ErrorState
-                  title="Failed to load expiring experts"
-                  message="Please try adjusting your filters or try again later."
+                  title={t("failedToLoad")}
+                  message={t("unableToFetch")}
                 />
               ) : (
                 <Card>
@@ -450,6 +464,8 @@ export default function CompliancePage() {
                     activeTab="expiring"
                     sendWarningMutation={sendWarningMutation}
                     onPageChange={handlePageChange}
+                    t={t}
+                    locale={locale}
                   />
                 </Card>
               )}
@@ -461,8 +477,8 @@ export default function CompliancePage() {
           {activeTab === "expired" && (
             expiredError ? (
               <ErrorState
-                title="Failed to load expired experts"
-                message="Please try adjusting your filters or try again later."
+                title={t("failedToLoad")}
+                message={t("unableToFetch")}
               />
             ) : (
               <Card>
@@ -473,6 +489,8 @@ export default function CompliancePage() {
                   activeTab="expired"
                   sendWarningMutation={sendWarningMutation}
                   onPageChange={handlePageChange}
+                  t={t}
+                  locale={locale}
                 />
               </Card>
             )
@@ -483,8 +501,8 @@ export default function CompliancePage() {
           {activeTab === "suspended" && (
             suspendedError ? (
               <ErrorState
-                title="Failed to load suspended experts"
-                message="Please try adjusting your filters or try again later."
+                title={t("failedToLoad")}
+                message={t("unableToFetch")}
               />
             ) : (
               <Card>
@@ -495,6 +513,8 @@ export default function CompliancePage() {
                   activeTab="suspended"
                   sendWarningMutation={sendWarningMutation}
                   onPageChange={handlePageChange}
+                  t={t}
+                  locale={locale}
                 />
               </Card>
             )

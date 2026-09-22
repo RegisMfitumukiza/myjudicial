@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import {
-  Plus, Pencil, Trash2, GripVertical, Search, Loader2, X,
-  ChevronDown, ChevronUp, Eye, EyeOff,
+  Plus, Pencil, Trash2, GripVertical, Search, Loader2,
+  Eye, EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
+import { useTranslations } from "next-intl";
 import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
@@ -32,6 +33,7 @@ interface Specialty {
 const EMPTY_FORM = { slug: "", label: "", description: "", icon: "", group: "", sortOrder: 0 };
 
 export default function SpecialtiesPage() {
+  const t = useTranslations("admin.specialties");
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -55,7 +57,7 @@ export default function SpecialtiesPage() {
         const items = res?.data ?? [];
         setSpecialties(Array.isArray(items) ? items : []);
       })
-      .catch(() => toast.error("Failed to load specialties"))
+      .catch(() => toast.error(t("failedToLoad")))
       .finally(() => setLoading(false));
   }
 
@@ -91,7 +93,7 @@ export default function SpecialtiesPage() {
 
   async function handleSave() {
     if (!form.slug || !form.label) {
-      toast.error("Slug and label are required");
+      toast.error(t("slugRequired2"));
       return;
     }
     setSaving(true);
@@ -104,16 +106,16 @@ export default function SpecialtiesPage() {
       };
       if (editing) {
         await apiFetch(`/specialties/admin/${editing.id}`, { method: "PUT", body });
-        toast.success("Specialty updated");
+        toast.success(t("updated"));
       } else {
         await apiFetch("/specialties/admin", { method: "POST", body });
-        toast.success("Specialty created");
+        toast.success(t("created"));
       }
       setDialogOpen(false);
       loadSpecialties();
       loadGroups();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save");
+      toast.error(err instanceof Error ? err.message : t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -124,18 +126,18 @@ export default function SpecialtiesPage() {
       await apiFetch(`/specialties/admin/${id}/toggle`, { method: "PATCH" });
       loadSpecialties();
     } catch {
-      toast.error("Failed to toggle");
+      toast.error(t("toggleFailed"));
     }
   }
 
   async function handleDelete(id: string) {
     try {
       await apiFetch(`/specialties/admin/${id}`, { method: "DELETE" });
-      toast.success("Specialty deleted");
+      toast.success(t("deleted"));
       setDeleteConfirm(null);
       loadSpecialties();
     } catch {
-      toast.error("Failed to delete");
+      toast.error(t("deleteFailed"));
     }
   }
 
@@ -144,11 +146,11 @@ export default function SpecialtiesPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Practice Areas"
-        description="Manage the legal specialties available during registration and expert profiles."
+        title={t("title")}
+        description={t("subtitle")}
         actions={
           <Button onClick={openCreate} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Specialty
+            <Plus className="h-4 w-4" /> {t("addSpecialty")}
           </Button>
         }
       />
@@ -158,7 +160,7 @@ export default function SpecialtiesPage() {
         <div className="relative flex-1 sm:max-w-xs">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search specialties..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -169,12 +171,14 @@ export default function SpecialtiesPage() {
           onChange={(e) => setFilterGroup(e.target.value)}
           className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
         >
-          <option value="all">All Groups</option>
+          <option value="all">{t("allGroups")}</option>
           {groups.map((g) => (
             <option key={g} value={g}>{g}</option>
           ))}
         </select>
-        <span className="text-xs text-muted-foreground">{filtered.length} specialties</span>
+        <span className="text-xs text-muted-foreground">
+          {t("specialtiesCount", { count: filtered.length })}
+        </span>
       </div>
 
       {/* List */}
@@ -183,9 +187,9 @@ export default function SpecialtiesPage() {
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-sm text-muted-foreground">No specialties found.</p>
+            <p className="text-sm text-muted-foreground">{t("noSpecialties")}</p>
             <Button variant="outline" className="mt-3" onClick={openCreate}>
-              <Plus className="mr-2 h-4 w-4" /> Create first specialty
+              <Plus className="mr-2 h-4 w-4" /> {t("createFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -216,7 +220,7 @@ export default function SpecialtiesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggle(s.id)}
-                    title={s.isActive ? "Deactivate" : "Activate"}
+                    title={s.isActive ? t("deactivate") : t("activate")}
                   >
                     {s.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                   </Button>
@@ -242,12 +246,12 @@ export default function SpecialtiesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Specialty" : "Create Specialty"}</DialogTitle>
+            <DialogTitle>{editing ? t("editSpecialty") : t("createSpecialty")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="spec-slug">Slug *</Label>
+                <Label htmlFor="spec-slug">{t("slugRequired")}</Label>
                 <Input
                   id="spec-slug"
                   value={form.slug}
@@ -255,10 +259,10 @@ export default function SpecialtiesPage() {
                   placeholder="family_law"
                   disabled={!!editing}
                 />
-                <p className="mt-1 text-[10px] text-muted-foreground">Lowercase, underscores. Cannot change after creation.</p>
+                <p className="mt-1 text-[10px] text-muted-foreground">{t("slugHint")}</p>
               </div>
               <div>
-                <Label htmlFor="spec-label">Label *</Label>
+                <Label htmlFor="spec-label">{t("labelRequired")}</Label>
                 <Input
                   id="spec-label"
                   value={form.label}
@@ -268,7 +272,7 @@ export default function SpecialtiesPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="spec-desc">Description</Label>
+              <Label htmlFor="spec-desc">{t("description")}</Label>
               <Input
                 id="spec-desc"
                 value={form.description}
@@ -278,7 +282,7 @@ export default function SpecialtiesPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="spec-icon">Icon (Lucide name)</Label>
+                <Label htmlFor="spec-icon">{t("icon")}</Label>
                 <Input
                   id="spec-icon"
                   value={form.icon}
@@ -287,7 +291,7 @@ export default function SpecialtiesPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="spec-group">Group</Label>
+                <Label htmlFor="spec-group">{t("group")}</Label>
                 <Input
                   id="spec-group"
                   value={form.group}
@@ -301,7 +305,7 @@ export default function SpecialtiesPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="spec-order">Sort Order</Label>
+              <Label htmlFor="spec-order">{t("sortOrder")}</Label>
               <Input
                 id="spec-order"
                 type="number"
@@ -313,10 +317,10 @@ export default function SpecialtiesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("cancel")}</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {editing ? "Update" : "Create"}
+              {editing ? t("update") : t("create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -326,18 +330,18 @@ export default function SpecialtiesPage() {
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete Specialty?</DialogTitle>
+            <DialogTitle>{t("deleteSpecialty")}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently remove the specialty. Experts using it will need to update their profiles.
+            {t("deleteConfirm")}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>{t("cancel")}</Button>
             <Button
               variant="destructive"
               onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
             >
-              Delete
+              {t("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

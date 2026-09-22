@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import { Link } from "@/i18n/routing";
 import {
   CalendarDays,
@@ -19,6 +19,7 @@ import {
   getGetAdminBookingsQueryKey,
 } from "@/api/generated";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations, useLocale } from "next-intl";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
@@ -34,26 +35,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/shared/components/ui/dialog";
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-}
-
-function formatDuration(start: string, end: string) {
-  const diff = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
-  return `${diff} min`;
-}
-
-const STATUS_STEPS = [
-  { key: "PENDING", label: "Booking Created", order: 1 },
-  { key: "CONFIRMED", label: "Payment Confirmed", order: 2 },
-  { key: "ACTIVE", label: "Consultation Active", order: 3 },
-  { key: "COMPLETED", label: "Completed", order: 4 },
-] as const;
 
 const STATUS_ORDER: Record<string, number> = {
   PENDING: 1, CONFIRMED: 2, ACTIVE: 3, COMPLETED: 4, CANCELLED: -1, REFUNDED: -1,
@@ -73,38 +54,68 @@ const getStatusTone = (status: string): StatusTone => {
 
 export default function AdminBookingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslations("admin.bookings");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const { booking, isLoading, error } = useBooking(id);
   const [showComplete, setShowComplete] = useState(false);
   const [showRefund, setShowRefund] = useState(false);
   const [refundPercentage, setRefundPercentage] = useState(100);
 
+  const statusSteps = useMemo(() => [
+    { key: "PENDING", label: t("bookingCreated"), order: 1 },
+    { key: "CONFIRMED", label: t("paymentConfirmed"), order: 2 },
+    { key: "ACTIVE", label: t("consultationActive"), order: 3 },
+    { key: "COMPLETED", label: t("completed"), order: 4 },
+  ], [t]);
+
+  const formatDate = (iso: string) => {
+    return new Date(iso).toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  };
+
+  const formatTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDuration = (start: string, end: string) => {
+    const diff = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
+    return t("durationMin", { min: diff });
+  };
+
+  const formatCurrency = (amount: number, currency = "RWF") => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const completeMutation = usePatchAdminBookingsIdComplete({
     mutation: {
       onSuccess: () => {
-        toast.success("Booking marked as complete. Escrow released.");
+        toast.success(t("bookingCompleteToast"));
         queryClient.invalidateQueries({ queryKey: getGetAdminBookingsQueryKey() });
         setShowComplete(false);
       },
-      onError: (err: Error) => toast.error(`Failed: ${err.message}`),
+      onError: (err: Error) => toast.error(t("failed") + `: ${err.message}`),
     },
   });
 
   const refundMutation = usePatchAdminBookingsIdRefund({
     mutation: {
       onSuccess: () => {
-        toast.success("Refund processed successfully.");
+        toast.success(t("refundProcessed"));
         queryClient.invalidateQueries({ queryKey: getGetAdminBookingsQueryKey() });
         setShowRefund(false);
       },
-      onError: (err: Error) => toast.error(`Refund failed: ${err.message}`),
+      onError: (err: Error) => toast.error(t("refundFailed", { msg: err.message })),
     },
   });
 
   if (isLoading) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading booking..." />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -113,16 +124,16 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
     return (
       <div className="space-y-6 p-6 lg:p-8">
         <PageHeader
-          title="Booking Detail"
+          title={t("title")}
           backHref="/admin/dashboard/bookings"
-          backLabel="Back to Bookings"
+          backLabel={t("backToBookings")}
         />
         <ErrorState
-          title="Failed to load booking"
-          message={error?.message ?? "Booking not found"}
+          title={t("failedToLoad")}
+          message={error?.message ?? t("bookingNotFound")}
           action={
             <Button asChild variant="outline" size="sm">
-              <Link href="/admin/dashboard/bookings">Back to Bookings</Link>
+              <Link href="/admin/dashboard/bookings">{t("backToBookings")}</Link>
             </Button>
           }
         />
@@ -138,10 +149,10 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title={booking.service?.name ?? "Consultation"}
+        title={booking.service?.name ?? t("consultation")}
         description={`Booking ${booking.id}`}
         backHref="/admin/dashboard/bookings"
-        backLabel="Back to Bookings"
+        backLabel={t("backToBookings")}
         actions={
           <StatusBadge tone={getStatusTone(booking.status)}>
             {booking.status}
@@ -154,12 +165,12 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Progress
+              {t("progress")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              {STATUS_STEPS.map((step, i) => {
+              {statusSteps.map((step, i) => {
                 const isReached = currentOrder >= step.order;
                 return (
                   <div key={step.key} className="flex flex-1 items-center gap-2">
@@ -181,7 +192,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                         {step.label}
                       </span>
                     </div>
-                    {i < STATUS_STEPS.length - 1 && (
+                    {i < statusSteps.length - 1 && (
                       <div
                         className={`flex-1 h-px ${
                           currentOrder > step.order ? "bg-primary dark:bg-white" : "bg-border"
@@ -203,7 +214,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             <XCircle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
             <div>
               <h3 className="text-sm font-bold text-destructive">
-                {booking.status === "CANCELLED" ? "Booking Cancelled" : "Booking Refunded"}
+                {booking.status === "CANCELLED" ? t("bookingCancelled") : t("bookingRefunded")}
               </h3>
               {booking.cancellationReason && (
                 <p className="mt-1 text-sm text-destructive/80">{booking.cancellationReason}</p>
@@ -219,7 +230,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Schedule
+              {t("schedule")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -227,7 +238,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
               <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-foreground">{formatDate(booking.scheduledStart)}</p>
-                <p className="text-xs text-muted-foreground">Date</p>
+                <p className="text-xs text-muted-foreground">{t("scheduled")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -237,7 +248,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                   {formatTime(booking.scheduledStart)} &mdash; {formatTime(booking.scheduledEnd)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Duration: {formatDuration(booking.scheduledStart, booking.scheduledEnd)}
+                  {t("duration")}: {formatDuration(booking.scheduledStart, booking.scheduledEnd)}
                 </p>
               </div>
             </div>
@@ -246,9 +257,9 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                 <Clock className="h-4 w-4 shrink-0 text-success" />
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    Actual: {Math.round((new Date((booking as any).actualEndTime).getTime() - new Date((booking as any).actualStartTime).getTime()) / 60000)} min
+                    {t("actualMin", { min: Math.round((new Date((booking as any).actualEndTime).getTime() - new Date((booking as any).actualStartTime).getTime()) / 60000) })}
                   </p>
-                  <p className="text-xs text-muted-foreground">Consultation Duration</p>
+                  <p className="text-xs text-muted-foreground">{t("consultationDuration")}</p>
                 </div>
               </div>
             )}
@@ -259,7 +270,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Client
+              {t("client")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -283,7 +294,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Expert
+              {t("expert")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -307,30 +318,30 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Payment
+              {t("payment")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Status</span>
+              <span className="text-muted-foreground">{t("allStatus")}</span>
               <span className="font-semibold text-foreground">{booking.paymentStatus}</span>
             </div>
             {booking.paymentReferenceId && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Reference</span>
+                <span className="text-muted-foreground">{t("reference")}</span>
                 <span className="font-medium text-foreground text-xs">{booking.paymentReferenceId}</span>
               </div>
             )}
             {booking.platformFee != null && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Platform Fee</span>
-                <span className="font-medium text-foreground">RWF {Number(booking.platformFee).toLocaleString()}</span>
+                <span className="text-muted-foreground">{t("platformFee")}</span>
+                <span className="font-medium text-foreground">{formatCurrency(Number(booking.platformFee))}</span>
               </div>
             )}
             {booking.expertPayout != null && (
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Expert Payout</span>
-                <span className="font-medium text-foreground">RWF {Number(booking.expertPayout).toLocaleString()}</span>
+                <span className="text-muted-foreground">{t("expertPayout")}</span>
+                <span className="font-medium text-foreground">{formatCurrency(Number(booking.expertPayout))}</span>
               </div>
             )}
           </CardContent>
@@ -342,7 +353,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         <Card>
           <CardHeader>
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Client Notes
+              {t("clientNotes")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -359,7 +370,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             onClick={() => setShowComplete(true)}
           >
             <CheckCircle size={15} />
-            Mark Complete & Release Escrow
+            {t("markCompleteRelease")}
           </Button>
         )}
         {canRefund && (
@@ -369,7 +380,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             onClick={() => setShowRefund(true)}
           >
             <Banknote size={15} />
-            Process Refund
+            {t("processRefund")}
           </Button>
         )}
       </div>
@@ -378,9 +389,9 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
       <Dialog open={showComplete} onOpenChange={setShowComplete}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mark as complete?</DialogTitle>
+            <DialogTitle>{t("markAsComplete")}</DialogTitle>
             <DialogDescription>
-              This will release the escrowed funds to the expert and mark the booking as COMPLETED.
+              {t("markAsCompleteDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -394,7 +405,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
               disabled={completeMutation.isPending}
               onClick={() => completeMutation.mutate({ id: booking.id })}
             >
-              {completeMutation.isPending ? "Processing..." : "Confirm Complete"}
+              {completeMutation.isPending ? t("processing") : t("confirmComplete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -404,9 +415,9 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
       <Dialog open={showRefund} onOpenChange={setShowRefund}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Process refund?</DialogTitle>
+            <DialogTitle>{t("processRefund")}</DialogTitle>
             <DialogDescription>
-              Select refund percentage. The remaining amount will be released to the expert.
+              {t("processRefundDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
@@ -417,7 +428,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                 className="flex-1"
                 onClick={() => setRefundPercentage(pct)}
               >
-                {pct}% Refund
+                {t("pctRefund", { pct })}
               </Button>
             ))}
           </div>
@@ -433,7 +444,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
               disabled={refundMutation.isPending}
               onClick={() => refundMutation.mutate({ id: booking.id, data: { reason: `${refundPercentage}% refund administered by admin`, percentage: refundPercentage as 50 | 100 } })}
             >
-              {refundMutation.isPending ? "Processing..." : `Confirm ${refundPercentage}% Refund`}
+              {refundMutation.isPending ? t("processing") : t("confirmPctRefund", { pct: refundPercentage })}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -54,24 +54,30 @@ const STATUS_TONE: Record<string, "success" | "pending" | "destructive" | "neutr
   HIDDEN: "destructive",
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  APPROVED: "Approved",
-  PENDING: "Pending",
-  HIDDEN: "Hidden",
-};
-
-const formatDate = (dateString: string) => {
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy");
-  } catch {
-    return dateString;
-  }
-};
-
 export default function ReviewsPage() {
+  const t = useTranslations("admin.reviews");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<ReviewStatus>("ALL");
+
+  const STATUS_LABEL: Record<string, string> = {
+    APPROVED: t("approved"),
+    PENDING: t("pending"),
+    HIDDEN: t("hidden"),
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const { data: stats, isLoading: statsLoading } = useQuery<ReviewStats>({
     queryKey: ["admin-reviews-stats"],
@@ -112,7 +118,7 @@ export default function ReviewsPage() {
   if (statsLoading || reviewsLoading) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading reviews..." />
+        <LoadingSpinner label={t("loading")} />
       </div>
     );
   }
@@ -121,15 +127,15 @@ export default function ReviewsPage() {
     return (
       <div className="space-y-6 p-6 lg:p-8">
         <PageHeader
-          title="Reviews Management"
-          description="Moderate and manage platform reviews"
+          title={t("title")}
+          description={t("subtitle")}
         />
         <ErrorState
-          title="Failed to load reviews"
+          title={t("failedToLoad")}
           message={
             reviewsError instanceof Error
               ? reviewsError.message
-              : "Unknown error occurred"
+              : t("unknownError")
           }
         />
       </div>
@@ -139,24 +145,24 @@ export default function ReviewsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Reviews Management"
-        description="Moderate and manage platform reviews"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {stats && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <StatCard
-            label="Total Reviews"
+            label={t("totalReviews")}
             value={stats.totalReviews.toLocaleString()}
             icon={MessageSquare}
           />
           <StatCard
-            label="Average Rating"
+            label={t("averageRating")}
             value={stats.averageRating.toFixed(1)}
             icon={Star}
           />
           <StatCard
-            label="Pending Reports"
+            label={t("pendingReports")}
             value={stats.pendingReports.toLocaleString()}
             icon={AlertTriangle}
           />
@@ -173,13 +179,13 @@ export default function ReviewsPage() {
             }}
           >
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder={t("allStatus")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">All Status</SelectItem>
-              <SelectItem value="APPROVED">Approved</SelectItem>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="HIDDEN">Hidden</SelectItem>
+              <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+              <SelectItem value="APPROVED">{t("approved")}</SelectItem>
+              <SelectItem value="PENDING">{t("pending")}</SelectItem>
+              <SelectItem value="HIDDEN">{t("hidden")}</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -191,12 +197,12 @@ export default function ReviewsPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <th className="px-6 py-4">Expert</th>
-                  <th className="px-6 py-4">Client</th>
-                  <th className="px-6 py-4">Rating</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Actions</th>
+                  <th className="px-6 py-4">{t("expert")}</th>
+                  <th className="px-6 py-4">{t("client")}</th>
+                  <th className="px-6 py-4">{t("rating")}</th>
+                  <th className="px-6 py-4">{t("date")}</th>
+                  <th className="px-6 py-4">{t("status")}</th>
+                  <th className="px-6 py-4 text-right"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -205,8 +211,7 @@ export default function ReviewsPage() {
                     <td colSpan={6}>
                       <EmptyState
                         icon={MessageSquare}
-                        title="No reviews found"
-                        description="There are no reviews matching your current filter."
+                        title={t("noReviews")}
                       />
                     </td>
                   </tr>
@@ -249,8 +254,8 @@ export default function ReviewsPage() {
                           {STATUS_LABEL[review.status] ?? review.status}
                         </StatusBadge>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           {review.status !== "APPROVED" && (
                             <Button
                               variant="outline"
@@ -259,7 +264,7 @@ export default function ReviewsPage() {
                               disabled={moderateMutation.isPending}
                             >
                               <Eye size={14} />
-                              Approve
+                              {t("approve")}
                             </Button>
                           )}
                           {review.status !== "HIDDEN" && (
@@ -270,7 +275,7 @@ export default function ReviewsPage() {
                               disabled={moderateMutation.isPending}
                             >
                               <EyeOff size={14} />
-                              Hide
+                              {t("hide")}
                             </Button>
                           )}
                         </div>
@@ -285,7 +290,7 @@ export default function ReviewsPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+              {pagination.page} / {pagination.totalPages} ({pagination.total})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -294,7 +299,7 @@ export default function ReviewsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                Previous
+                ←
               </Button>
               <Button
                 variant="outline"
@@ -302,7 +307,7 @@ export default function ReviewsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
               >
-                Next
+                →
               </Button>
             </div>
           </div>

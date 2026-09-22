@@ -26,8 +26,11 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
-import { getGetNotificationsUnreadCountQueryKey, useGetNotificationsUnreadCount } from "@/api/generated";
-import { format } from "date-fns";
+import {
+  getGetNotificationsUnreadCountQueryKey,
+  useGetNotificationsUnreadCount,
+} from "@/api/generated";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
@@ -46,6 +49,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/shared/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 
 type NotificationChannel = "EMAIL" | "PUSH";
 type NotificationEvent =
@@ -143,30 +152,9 @@ const sendBroadcast = async (data: {
   return apiFetch("/admin/notifications/broadcast", { method: "POST", body: data });
 };
 
-const CHANNEL_LABELS: Record<NotificationChannel, string> = {
-  EMAIL: "Email",
-  PUSH: "In-App",
-};
-
 const CHANNEL_TONE: Record<NotificationChannel, StatusTone> = {
   EMAIL: "info",
   PUSH: "warning",
-};
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "\u2014";
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy HH:mm");
-  } catch {
-    return dateString;
-  }
-};
-
-const AUDIENCE_LABELS: Record<string, string> = {
-  ALL: "All Users",
-  EXPERT: "Experts Only",
-  CITIZEN: "Citizens Only",
-  ADMIN: "Admins Only",
 };
 
 function getNotificationEventIcon(event?: string) {
@@ -181,10 +169,45 @@ function getNotificationEventIcon(event?: string) {
 }
 
 export default function NotificationsPage() {
+  const t = useTranslations("admin.notifications");
+  const tClient = useTranslations("clientDashboard.notifications");
+  const tAudit = useTranslations("admin.auditLogs");
+  const tPagination = useTranslations("common.pagination");
+  const locale = useLocale();
+
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as "inbox" | "compose" | "history") || "inbox";
   const [activeTab, setActiveTab] = useState<"inbox" | "compose" | "history">(initialTab);
+
+  const [selectedLog, setSelectedLog] = useState<NotificationLog | null>(null);
+
+  const channelLabels: Record<NotificationChannel, string> = {
+    EMAIL: "Email",
+    PUSH: "In-App",
+  };
+
+  const audienceLabels: Record<string, string> = {
+    ALL: t("allUsers"),
+    EXPERT: t("expertsOnly"),
+    CITIZEN: t("citizensOnly"),
+    ADMIN: t("adminsOnly"),
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "—";
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   useEffect(() => {
     const tab = searchParams.get("tab") as "inbox" | "compose" | "history" | null;
@@ -236,9 +259,9 @@ export default function NotificationsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-notifications"] });
       queryClient.invalidateQueries({ queryKey: getGetNotificationsUnreadCountQueryKey() });
-      toast.success("All notifications marked as read");
+      toast.success(tClient("markAllRead"));
     },
-    onError: () => toast.error("Failed to mark notifications as read"),
+    onError: () => toast.error(tClient("failedToLoad")),
   });
 
   const markSingleReadMutation = useMutation({
@@ -247,7 +270,7 @@ export default function NotificationsPage() {
       queryClient.invalidateQueries({ queryKey: ["my-notifications"] });
       queryClient.invalidateQueries({ queryKey: getGetNotificationsUnreadCountQueryKey() });
     },
-    onError: () => toast.error("Failed to mark notification as read"),
+    onError: () => toast.error(tClient("failedToLoad")),
   });
 
   const myNotifications = inboxData?.data ?? [];
@@ -335,44 +358,44 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Notifications"
-        description="Send broadcasts and view notification history"
+        title={tClient("title")}
+        description={t("subtitle")}
       />
 
       {loadingStats ? (
-        <LoadingSpinner label="Loading notification data..." />
+        <LoadingSpinner />
       ) : stats ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
-            label="Total Logs"
-            value={stats.totalLogs.toLocaleString()}
+            label={t("totalLogs")}
+            value={stats.totalLogs.toLocaleString(locale)}
             icon={Bell}
           />
           <StatCard
-            label="Sent Today"
-            value={stats.sentToday.toLocaleString()}
+            label={t("sentToday")}
+            value={stats.sentToday.toLocaleString(locale)}
             icon={TrendingUp}
           />
           <StatCard
-            label="Sent This Week"
-            value={stats.sentThisWeek.toLocaleString()}
+            label={t("sentThisWeek")}
+            value={stats.sentThisWeek.toLocaleString(locale)}
             icon={BarChart3}
           />
           <StatCard
-            label="Success Rate"
+            label={t("successRate")}
             value={`${stats.successRate}%`}
             icon={CheckCircle}
           />
           <StatCard
-            label="Failed (7 days)"
-            value={stats.failedRecent.toLocaleString()}
+            label={t("failed7d")}
+            value={stats.failedRecent.toLocaleString(locale)}
             icon={BarChart3}
           />
           <Card>
             <CardContent className="pt-5">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  By Channel
+                  {t("byChannel")}
                 </p>
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Users className="h-4 w-4" aria-hidden="true" />
@@ -382,9 +405,11 @@ export default function NotificationsPage() {
                 {stats.byChannel.map((item) => (
                   <div key={item.channel} className="flex items-center gap-2 text-sm">
                     <StatusBadge tone={CHANNEL_TONE[item.channel]} dot={false}>
-                      {CHANNEL_LABELS[item.channel]}
+                      {channelLabels[item.channel]}
                     </StatusBadge>
-                    <span className="font-medium text-foreground">{item.count}</span>
+                    <span className="font-medium text-foreground">
+                      {item.count.toLocaleString(locale)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -400,7 +425,7 @@ export default function NotificationsPage() {
         <TabsList variant="line" className="w-full justify-start">
           <TabsTrigger value="inbox" className="gap-2">
             <Inbox size={14} />
-            Inbox
+            {tClient("title")}
             {unreadCount > 0 && (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
                 {unreadCount > 99 ? "99+" : unreadCount}
@@ -409,11 +434,11 @@ export default function NotificationsPage() {
           </TabsTrigger>
           <TabsTrigger value="compose" className="gap-2">
             <Send size={14} />
-            Send Broadcast
+            {t("sendBroadcast")}
           </TabsTrigger>
           <TabsTrigger value="history" className="gap-2">
             <Clock size={14} />
-            System Logs
+            {t("history")}
           </TabsTrigger>
         </TabsList>
 
@@ -426,7 +451,7 @@ export default function NotificationsPage() {
                 size="sm"
                 onClick={() => { setInboxFilter("all"); setInboxPage(1); }}
               >
-                All
+                {tClient("tabs.all")}
               </Button>
               <Button
                 variant={inboxFilter === "unread" ? "default" : "outline"}
@@ -434,7 +459,7 @@ export default function NotificationsPage() {
                 onClick={() => { setInboxFilter("unread"); setInboxPage(1); }}
                 className="gap-1.5"
               >
-                Unread
+                {tClient("tabs.unread")}
                 {unreadCount > 0 && (
                   <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1 text-[10px] font-bold text-foreground">
                     {unreadCount}
@@ -451,25 +476,25 @@ export default function NotificationsPage() {
                 disabled={markAllReadMutation.isPending}
               >
                 <CheckCheck size={14} />
-                Mark all as read
+                {tClient("markAllRead")}
               </Button>
             )}
           </div>
 
           {/* Inbox List */}
           {loadingInbox ? (
-            <LoadingSpinner label="Loading personal notifications..." />
+            <LoadingSpinner />
           ) : inboxError ? (
             <ErrorState
-              title="Failed to load notifications"
+              title={tClient("failedToLoad")}
               message={inboxError instanceof Error ? inboxError.message : "Unable to load inbox notifications."}
               onRetry={() => queryClient.invalidateQueries({ queryKey: ["my-notifications"] })}
             />
           ) : myNotifications.length === 0 ? (
             <EmptyState
               icon={Inbox}
-              title="No notifications"
-              description={inboxFilter === "unread" ? "You have no unread notifications." : "You have no notifications yet."}
+              title={tClient("noNotifications")}
+              description={inboxFilter === "unread" ? tClient("noUnreadDesc") : tClient("noNotificationsDesc")}
             />
           ) : (
             <div className="space-y-3">
@@ -496,7 +521,7 @@ export default function NotificationsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             {isUnread && (
-                              <span className="h-2 w-2 rounded-full bg-brand-blue shrink-0" title="Unread" />
+                              <span className="h-2 w-2 rounded-full bg-brand-blue shrink-0" />
                             )}
                             <h4 className={`text-sm ${isUnread ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}`}>
                               {n.subject || "Notification"}
@@ -518,7 +543,6 @@ export default function NotificationsPage() {
                             className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
                             onClick={() => markSingleReadMutation.mutate(n.id)}
                             disabled={markSingleReadMutation.isPending}
-                            title="Mark as read"
                           >
                             <CheckCheck size={14} className="sm:mr-1" />
                             <span className="hidden sm:inline">Mark read</span>
@@ -534,7 +558,11 @@ export default function NotificationsPage() {
               {inboxPagination && inboxPagination.pages > 1 && (
                 <div className="flex items-center justify-between border-t border-border pt-4">
                   <p className="text-xs text-muted-foreground">
-                    Page {inboxPagination.page} of {inboxPagination.pages} ({inboxPagination.total} total)
+                    {t("showingPage", {
+                      page: inboxPagination.page,
+                      totalPages: inboxPagination.pages,
+                      total: inboxPagination.total,
+                    })}
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -543,7 +571,7 @@ export default function NotificationsPage() {
                       onClick={() => setInboxPage((p) => Math.max(p - 1, 1))}
                       disabled={inboxPage === 1}
                     >
-                      Previous
+                      {tPagination("previous")}
                     </Button>
                     <Button
                       variant="outline"
@@ -551,7 +579,7 @@ export default function NotificationsPage() {
                       onClick={() => setInboxPage((p) => p + 1)}
                       disabled={inboxPage >= inboxPagination.pages}
                     >
-                      Next
+                      {tPagination("next")}
                     </Button>
                   </div>
                 </div>
@@ -563,62 +591,62 @@ export default function NotificationsPage() {
         <TabsContent value="compose" className="mt-6">
           <Card>
             <CardContent className="pt-5">
-              <h2 className="mb-4 text-lg font-semibold text-foreground">Send Broadcast</h2>
+              <h2 className="mb-4 text-lg font-semibold text-foreground">{t("sendBroadcast")}</h2>
 
               <div className="space-y-4">
                 <div>
                   <label htmlFor="title" className="mb-1 block text-sm font-medium text-foreground">
-                    Title <span className="text-destructive">*</span>
+                    {t("title")}
                   </label>
                   <Input
                     id="title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter notification title"
+                    placeholder={t("titlePlaceholder")}
                     maxLength={200}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {title.length}/200 characters
+                    {title.length}/200 {t("characters")}
                   </p>
                 </div>
 
                 <div>
                   <label htmlFor="message" className="mb-1 block text-sm font-medium text-foreground">
-                    Message <span className="text-destructive">*</span>
+                    {t("message")}
                   </label>
                   <Textarea
                     id="message"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Enter notification message"
+                    placeholder={t("messagePlaceholder")}
                     rows={6}
                     maxLength={1000}
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {message.length}/1000 characters
+                    {message.length}/1000 {t("characters")}
                   </p>
                 </div>
 
                 <div>
                   <label htmlFor="audience" className="mb-1 block text-sm font-medium text-foreground">
-                    Audience <span className="text-destructive">*</span>
+                    {t("audience")}
                   </label>
                   <Select value={audience} onValueChange={setAudience}>
                     <SelectTrigger id="audience" className="w-full">
-                      <SelectValue placeholder="Select audience" />
+                      <SelectValue placeholder={t("audience")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">All Users</SelectItem>
-                      <SelectItem value="CITIZEN">Citizens Only</SelectItem>
-                      <SelectItem value="EXPERT">Experts Only</SelectItem>
-                      <SelectItem value="ADMIN">Admins Only</SelectItem>
+                      <SelectItem value="ALL">{t("allUsers")}</SelectItem>
+                      <SelectItem value="CITIZEN">{t("citizensOnly")}</SelectItem>
+                      <SelectItem value="EXPERT">{t("expertsOnly")}</SelectItem>
+                      <SelectItem value="ADMIN">{t("adminsOnly")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-foreground">
-                    Channels <span className="text-destructive">*</span>
+                    {t("channels")}
                   </label>
                   <div className="space-y-2">
                     <label className="flex cursor-pointer items-center gap-2">
@@ -639,12 +667,12 @@ export default function NotificationsPage() {
                         className="h-4 w-4 rounded border-input accent-primary"
                       />
                       <Bell size={16} className="text-warning" />
-                      <span className="text-sm text-foreground">In-App Notification</span>
+                      <span className="text-sm text-foreground">In-App</span>
                     </label>
                   </div>
                   {selectedChannels.length === 0 && (
                     <p className="mt-1 text-xs text-destructive">
-                      Please select at least one channel
+                      {t("selectChannel")}
                     </p>
                   )}
                 </div>
@@ -655,10 +683,10 @@ export default function NotificationsPage() {
                       <CheckCircle className="mt-0.5 h-5 w-5 text-success" />
                       <div>
                         <p className="text-sm font-medium text-success">
-                          Broadcast sent successfully!
+                          {t("broadcastSent")}
                         </p>
                         <p className="mt-1 text-sm text-success/80">
-                          The notification has been queued and will be sent to {AUDIENCE_LABELS[audience]}.
+                          {t("broadcastQueued", { audience: audienceLabels[audience] || audience })}
                         </p>
                       </div>
                     </div>
@@ -668,13 +696,13 @@ export default function NotificationsPage() {
                 {broadcastMutation.isError && (
                   <div className="rounded-lg bg-destructive/10 p-4">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="mt-0.5 h-5 w-5 text-destructive" />
+                      <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
                       <div>
                         <p className="text-sm font-medium text-destructive">
-                          Failed to send broadcast
+                          {t("failedToSend")}
                         </p>
                         <p className="mt-1 text-sm text-destructive/80">
-                          {(broadcastMutation.error as any)?.response?.data?.message || "An error occurred"}
+                          {(broadcastMutation.error as any)?.response?.data?.message || t("errorOccurred")}
                         </p>
                       </div>
                     </div>
@@ -694,12 +722,12 @@ export default function NotificationsPage() {
                     {broadcastMutation.isPending ? (
                       <>
                         <Clock className="h-4 w-4 animate-spin" />
-                        Sending...
+                        {t("sending")}
                       </>
                     ) : (
                       <>
                         <Send className="h-4 w-4" />
-                        Send Broadcast
+                        {t("sendBroadcast")}
                       </>
                     )}
                   </Button>
@@ -716,7 +744,7 @@ export default function NotificationsPage() {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
                   <div className="flex-1">
                     <label htmlFor="search" className="mb-1 block text-sm font-medium text-foreground">
-                      Search
+                      {t("search")}
                     </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -724,7 +752,7 @@ export default function NotificationsPage() {
                         id="search"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by recipient, subject..."
+                        placeholder={t("searchPlaceholder")}
                         className="pl-10"
                       />
                     </div>
@@ -732,17 +760,17 @@ export default function NotificationsPage() {
 
                   <div className="w-full lg:w-48">
                     <label htmlFor="channel-filter" className="mb-1 block text-sm font-medium text-foreground">
-                      Channel
+                      {tAudit("resource")}
                     </label>
                     <Select
                       value={channelFilter}
                       onValueChange={(v) => setChannelFilter(v as NotificationChannel | "ALL")}
                     >
                       <SelectTrigger id="channel-filter" className="w-full">
-                        <SelectValue placeholder="All Channels" />
+                        <SelectValue placeholder={t("allChannels")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ALL">All Channels</SelectItem>
+                        <SelectItem value="ALL">{t("allChannels")}</SelectItem>
                         <SelectItem value="EMAIL">Email</SelectItem>
                         <SelectItem value="PUSH">In-App</SelectItem>
                       </SelectContent>
@@ -751,19 +779,19 @@ export default function NotificationsPage() {
 
                   <div className="w-full lg:w-48">
                     <label htmlFor="sent-filter" className="mb-1 block text-sm font-medium text-foreground">
-                      Status
+                      {tAudit("action")}
                     </label>
                     <Select
                       value={sentFilter}
                       onValueChange={(v) => setSentFilter(v as "ALL" | "SENT" | "UNSENT")}
                     >
                       <SelectTrigger id="sent-filter" className="w-full">
-                        <SelectValue placeholder="All Statuses" />
+                        <SelectValue placeholder={t("allStatuses")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ALL">All Statuses</SelectItem>
-                        <SelectItem value="SENT">Sent</SelectItem>
-                        <SelectItem value="UNSENT">Unsent / Failed</SelectItem>
+                        <SelectItem value="ALL">{t("allStatuses")}</SelectItem>
+                        <SelectItem value="SENT">{t("sent")}</SelectItem>
+                        <SelectItem value="UNSENT">{t("failed")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -771,10 +799,10 @@ export default function NotificationsPage() {
                   <div className="flex gap-2">
                     <Button onClick={handleSearch}>
                       <Filter className="h-4 w-4" />
-                      Filter
+                      {t("filter")}
                     </Button>
                     <Button variant="outline" onClick={handleReset}>
-                      Reset
+                      {t("reset")}
                     </Button>
                   </div>
                 </div>
@@ -783,17 +811,17 @@ export default function NotificationsPage() {
 
             <Card>
               {loadingLogs ? (
-                <LoadingSpinner label="Loading logs..." />
+                <LoadingSpinner />
               ) : error ? (
                 <ErrorState
-                  title="Failed to load logs"
+                  title={t("failedToLoadLogs")}
                   onRetry={() => queryClient.invalidateQueries({ queryKey: ["admin-notifications-logs"] })}
                 />
               ) : logs.length === 0 ? (
                 <EmptyState
                   icon={Bell}
-                  title="No notification logs found"
-                  description="Try adjusting your filters or send a broadcast to see logs here."
+                  title={t("noLogs")}
+                  description={t("noLogsHint")}
                 />
               ) : (
                 <>
@@ -802,22 +830,22 @@ export default function NotificationsPage() {
                       <thead className="border-b border-border">
                         <tr>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Timestamp
+                            {tAudit("timestamp")}
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Recipient
+                            {tAudit("actor")}
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Channel
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Event
+                            {tAudit("action")}
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Status
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Actions
+                            {tAudit("actions")}
                           </th>
                         </tr>
                       </thead>
@@ -840,7 +868,7 @@ export default function NotificationsPage() {
                             </td>
                             <td className="whitespace-nowrap px-6 py-4">
                               <StatusBadge tone={CHANNEL_TONE[log.channel]} dot={false}>
-                                {CHANNEL_LABELS[log.channel]}
+                                {channelLabels[log.channel]}
                               </StatusBadge>
                             </td>
                             <td className="px-6 py-4 text-sm text-muted-foreground">
@@ -848,9 +876,9 @@ export default function NotificationsPage() {
                             </td>
                             <td className="whitespace-nowrap px-6 py-4">
                               {log.sent ? (
-                                <StatusBadge tone="success">Sent</StatusBadge>
+                                <StatusBadge tone="success">{t("sent")}</StatusBadge>
                               ) : log.errorMsg ? (
-                                <StatusBadge tone="destructive">Failed</StatusBadge>
+                                <StatusBadge tone="destructive">{t("failed")}</StatusBadge>
                               ) : (
                                 <StatusBadge tone="pending">Pending</StatusBadge>
                               )}
@@ -860,9 +888,10 @@ export default function NotificationsPage() {
                                 variant="ghost"
                                 size="sm"
                                 className="text-primary hover:text-primary/80"
+                                onClick={() => setSelectedLog(log)}
                               >
-                                <Eye className="h-4 w-4" />
-                                View
+                                <Eye className="h-4 w-4 mr-1" />
+                                {t("viewDetails")}
                               </Button>
                             </td>
                           </tr>
@@ -874,7 +903,11 @@ export default function NotificationsPage() {
                   {pagination && pagination.totalPages > 1 && (
                     <div className="flex items-center justify-between border-t border-border px-6 py-3">
                       <div className="text-sm text-muted-foreground">
-                        Showing page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+                        {t("showingPage", {
+                          page: pagination.page,
+                          totalPages: pagination.totalPages,
+                          total: pagination.total,
+                        })}
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -883,7 +916,7 @@ export default function NotificationsPage() {
                           onClick={() => setPage(page - 1)}
                           disabled={page === 1}
                         >
-                          Previous
+                          {tPagination("previous")}
                         </Button>
                         <Button
                           variant="outline"
@@ -891,7 +924,7 @@ export default function NotificationsPage() {
                           onClick={() => setPage(page + 1)}
                           disabled={page >= pagination.totalPages}
                         >
-                          Next
+                          {tPagination("next")}
                         </Button>
                       </div>
                     </div>
@@ -902,6 +935,90 @@ export default function NotificationsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Log Details Modal */}
+      {selectedLog && (
+        <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-primary" />
+                {t("viewDetails")}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 pt-2 text-sm">
+              <div className="grid grid-cols-2 gap-3 rounded-lg border border-border p-3 bg-muted/30">
+                <div>
+                  <p className="text-xs text-muted-foreground">{tAudit("timestamp")}</p>
+                  <p className="font-medium text-foreground">
+                    {formatDate(selectedLog.sentAt || selectedLog.createdAt)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{tAudit("action")}</p>
+                  <p className="font-medium text-foreground">
+                    {selectedLog.event.replace(/_/g, " ")}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Channel</p>
+                  <p className="font-medium text-foreground">
+                    {channelLabels[selectedLog.channel]}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="font-medium text-foreground">
+                    {selectedLog.sent ? t("sent") : selectedLog.errorMsg ? t("failed") : "Pending"}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {tAudit("actor")}
+                </p>
+                <div className="mt-1 rounded-md border border-border bg-card p-3">
+                  <p className="font-medium text-foreground">
+                    {selectedLog.user ? `${selectedLog.user.firstName} ${selectedLog.user.lastName}` : "Unknown"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{selectedLog.recipient}</p>
+                </div>
+              </div>
+
+              {selectedLog.subject && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Subject
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-foreground">
+                    {selectedLog.subject}
+                  </p>
+                </div>
+              )}
+
+              {selectedLog.body && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {t("message")}
+                  </p>
+                  <div className="mt-1 max-h-48 overflow-y-auto rounded-md border border-border bg-muted/40 p-3 text-xs leading-relaxed text-foreground whitespace-pre-wrap">
+                    {selectedLog.body}
+                  </div>
+                </div>
+              )}
+
+              {selectedLog.errorMsg && (
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                  <p className="font-semibold">{t("failed")}:</p>
+                  <p className="mt-0.5">{selectedLog.errorMsg}</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

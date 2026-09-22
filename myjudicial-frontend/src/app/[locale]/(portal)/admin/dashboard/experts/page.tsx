@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -25,7 +26,7 @@ import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Card } from "@/shared/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -78,15 +79,6 @@ interface BackendResponse {
     hasPrev: boolean;
   };
 }
-
-// ── Constants ──
-
-const TABS: { id: TabId; label: string; description: string }[] = [
-  { id: "all",       label: "All Experts",    description: "All registered legal experts" },
-  { id: "pending",   label: "Pending Review", description: "Awaiting credential verification" },
-  { id: "verified",  label: "Verified",       description: "Approved and active experts" },
-  { id: "suspended", label: "Suspended",      description: "Temporarily suspended accounts" },
-];
 
 // ── API functions ──
 
@@ -152,18 +144,6 @@ function expertStatusTone(
   }
 }
 
-function expertStatusLabel(
-  expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null,
-): string {
-  switch (expertStatus) {
-    case "VERIFIED":             return "Verified";
-    case "PENDING_VERIFICATION": return "Pending Review";
-    case "REJECTED":             return "Rejected";
-    case "SUSPENDED":            return "Suspended";
-    default:                     return "Draft";
-  }
-}
-
 function formatSpecialty(s: LegalSpecialty) {
   return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }
@@ -171,13 +151,22 @@ function formatSpecialty(s: LegalSpecialty) {
 // ── Page Component ──
 
 export default function ExpertsPage() {
+  const t = useTranslations("admin.experts");
+  const locale = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const tabs: { id: TabId; label: string; description: string }[] = useMemo(() => [
+    { id: "all",       label: t("allExperts"),    description: t("allExpertsDesc") },
+    { id: "pending",   label: t("pendingReview"), description: t("pendingReviewDesc") },
+    { id: "verified",  label: t("verified"),      description: t("verifiedDesc") },
+    { id: "suspended", label: t("suspended"),     description: t("suspendedDesc") },
+  ], [t]);
 
   const [activeTab, setActiveTab] = useState<TabId>(() => {
     if (typeof window !== "undefined") {
       const tab = new URLSearchParams(window.location.search).get("tab") as TabId | null;
-      if (tab && TABS.some((t) => t.id === tab)) return tab;
+      if (tab && (tab === "all" || tab === "pending" || tab === "verified" || tab === "suspended")) return tab;
     }
     return "all";
   });
@@ -187,6 +176,18 @@ export default function ExpertsPage() {
   const [selectedExpert, setSelectedExpert]   = useState<Expert | null>(null);
   const [suspendReason, setSuspendReason]     = useState("");
   const [showSuspendModal, setShowSuspendModal] = useState(false);
+
+  const expertStatusLabel = (
+    expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null,
+  ): string => {
+    switch (expertStatus) {
+      case "VERIFIED":             return t("verified");
+      case "PENDING_VERIFICATION": return t("pendingReview");
+      case "REJECTED":             return t("reject");
+      case "SUSPENDED":            return t("suspended");
+      default:                     return "Draft";
+    }
+  };
 
   const apiParams = useMemo(() => {
     const p: {
@@ -227,7 +228,7 @@ export default function ExpertsPage() {
       setShowSuspendModal(false);
       setSuspendReason("");
       setSelectedExpert(null);
-      toast.success("Expert suspended");
+      toast.success(t("expertSuspended"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -236,7 +237,7 @@ export default function ExpertsPage() {
     mutationFn: (id: string) => activateExpert(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-experts"] });
-      toast.success("Expert activated");
+      toast.success(t("expertActivated"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -255,14 +256,14 @@ export default function ExpertsPage() {
   const experts    = data?.experts ?? [];
   const pagination = data?.pagination;
   const stats      = statsData ?? { total: 0, pending: 0, verified: 0, suspended: 0 };
-  const currentTab = TABS.find((t) => t.id === activeTab) ?? TABS[0];
+  const currentTab = tabs.find((t) => t.id === activeTab) ?? tabs[0];
 
   // ── Render ──
 
   if (isLoading && !data) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading experts..." />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -270,9 +271,9 @@ export default function ExpertsPage() {
   if (error && !data) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <PageHeader title="Expert Management" />
+        <PageHeader title={t("title")} />
         <ErrorState
-          title="Failed to load experts"
+          title={t("failedToLoad")}
           message={(error as Error).message}
         />
       </div>
@@ -283,29 +284,29 @@ export default function ExpertsPage() {
     <div className="space-y-6 p-6 lg:p-8">
       {/* Header */}
       <PageHeader
-        title="Expert Management"
+        title={t("title")}
         description={currentTab.description}
       />
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
-          label="Total Experts"
+          label={t("totalExperts")}
           value={stats.total.toLocaleString()}
           icon={Users}
         />
         <StatCard
-          label="Pending Review"
+          label={t("pendingReview")}
           value={stats.pending.toLocaleString()}
           icon={Clock}
         />
         <StatCard
-          label="Verified"
+          label={t("verified")}
           value={stats.verified.toLocaleString()}
           icon={BadgeCheck}
         />
         <StatCard
-          label="Suspended"
+          label={t("suspended")}
           value={stats.suspended.toLocaleString()}
           icon={Ban}
         />
@@ -313,7 +314,7 @@ export default function ExpertsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-lg border border-border bg-muted p-0.5">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <Button
             key={tab.id}
             variant="ghost"
@@ -334,7 +335,7 @@ export default function ExpertsPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search by name or email..."
+          placeholder={t("search")}
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
           className="pl-9"
@@ -347,12 +348,12 @@ export default function ExpertsPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Expert</th>
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Specialties</th>
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rating</th>
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Joined</th>
-                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("expert")}</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("status")}</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("specialties")}</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("rating")}</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("joined")}</th>
+                <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -368,8 +369,8 @@ export default function ExpertsPage() {
                   <td colSpan={6}>
                     <EmptyState
                       icon={Inbox}
-                      title="No experts found"
-                      description="No experts match your current filters."
+                      title={t("noExperts")}
+                      description=""
                     />
                   </td>
                 </tr>
@@ -427,7 +428,7 @@ export default function ExpertsPage() {
 
                   {/* Joined */}
                   <td className="px-6 py-4 text-xs text-muted-foreground">
-                    {new Date(expert.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    {new Date(expert.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
                   </td>
 
                   {/* Actions */}
@@ -442,7 +443,7 @@ export default function ExpertsPage() {
                           id={`btn-activate-${expert.id}`}
                           className="bg-green-600 text-white hover:bg-green-700"
                         >
-                          <CheckCheck size={13} /> Activate
+                          <CheckCheck size={13} /> {t("activate")}
                         </Button>
                       ) : (
                         <Button
@@ -452,7 +453,7 @@ export default function ExpertsPage() {
                           disabled={suspendMutation.isPending}
                           id={`btn-suspend-${expert.id}`}
                         >
-                          <Ban size={13} /> Suspend
+                          <Ban size={13} /> {t("suspend")}
                         </Button>
                       )}
                       <Button
@@ -462,7 +463,7 @@ export default function ExpertsPage() {
                         id={`btn-view-${expert.id}`}
                       >
                         <Link href={`/admin/dashboard/experts/${expert.id}`}>
-                          <Eye size={13} /> View
+                          <Eye size={13} /> {t("view")}
                         </Link>
                       </Button>
                     </div>
@@ -477,7 +478,7 @@ export default function ExpertsPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+              {pagination.page} / {pagination.totalPages} ({pagination.total})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -486,7 +487,7 @@ export default function ExpertsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                Previous
+                ←
               </Button>
               <Button
                 variant="outline"
@@ -494,7 +495,7 @@ export default function ExpertsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
               >
-                Next
+                →
               </Button>
             </div>
           </div>
@@ -511,19 +512,19 @@ export default function ExpertsPage() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Suspend Expert</DialogTitle>
+            <DialogTitle>{t("suspendExpert")}</DialogTitle>
             <DialogDescription>
-              You are about to suspend <span className="font-medium text-foreground">{selectedExpert?.fullName}</span>.
+              {t("suspendConfirm", { name: selectedExpert?.fullName ?? "" })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Reason <span className="text-destructive">*</span>
+              {t("reason")} <span className="text-destructive">*</span>
             </label>
             <textarea
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 outline-none"
               rows={4}
-              placeholder="Provide a detailed reason (min 10 characters)..."
+              placeholder={t("reasonPlaceholder")}
               value={suspendReason}
               onChange={(e) => setSuspendReason(e.target.value)}
             />
@@ -543,7 +544,7 @@ export default function ExpertsPage() {
               }}
               disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
             >
-              Confirm Suspension
+              {t("confirmSuspension")}
             </Button>
           </DialogFooter>
         </DialogContent>

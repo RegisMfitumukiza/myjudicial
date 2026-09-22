@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
-import { format } from "date-fns";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
@@ -42,7 +42,6 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 
 type PaymentStatus = "PENDING" | "AUTHORIZED" | "PAID" | "FAILED" | "REFUNDED";
-type EscrowStatus = "PENDING" | "LOCKED" | "HELD_IN_ESCROW" | "DISBURSED_TO_EXPERT" | "REFUNDED";
 
 interface FinanceStats {
   revenue: {
@@ -90,28 +89,6 @@ interface Payment {
   };
 }
 
-interface EscrowLedger {
-  id: string;
-  roomId: string;
-  bookingId: string;
-  lawyerWalletPhone: string | null;
-  totalFeeRwf: number;
-  status: EscrowStatus;
-  createdAt: string;
-  settledAt: string | null;
-  citizen: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  expert: {
-    id: string;
-    displayName: string;
-    momoNumber: string | null;
-  };
-}
-
 interface FailedSettlement {
   id: string;
   bookingId: string;
@@ -137,18 +114,6 @@ interface FailedSettlement {
 interface PaymentsResponse {
   data: {
     payments: Payment[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
-  };
-}
-
-interface EscrowResponse {
-  data: {
-    ledgers: EscrowLedger[];
     pagination: {
       page: number;
       limit: number;
@@ -196,14 +161,6 @@ const retryPayout = async (bookingId: string, reason: string) => {
   return apiFetch("/admin/finance/retry-payout", { method: "POST", body: { bookingId, reason } });
 };
 
-const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  PENDING: "Pending",
-  AUTHORIZED: "Authorized",
-  PAID: "Paid",
-  FAILED: "Failed",
-  REFUNDED: "Refunded",
-};
-
 const PAYMENT_STATUS_TONE: Record<PaymentStatus, StatusTone> = {
   PENDING: "pending",
   AUTHORIZED: "active",
@@ -212,49 +169,49 @@ const PAYMENT_STATUS_TONE: Record<PaymentStatus, StatusTone> = {
   REFUNDED: "neutral",
 };
 
-const ESCROW_STATUS_LABELS: Record<EscrowStatus, string> = {
-  PENDING: "Pending",
-  LOCKED: "warning",
-  HELD_IN_ESCROW: "Held",
-  DISBURSED_TO_EXPERT: "Disbursed",
-  REFUNDED: "Refunded",
-};
-
-const ESCROW_STATUS_TONE: Record<EscrowStatus, StatusTone> = {
-  PENDING: "neutral",
-  LOCKED: "warning",
-  HELD_IN_ESCROW: "info",
-  DISBURSED_TO_EXPERT: "success",
-  REFUNDED: "destructive",
-};
-
-const formatCurrency = (amount: number, currency: string = "RWF") => {
-  return new Intl.NumberFormat("en-RW", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "\u2014";
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy HH:mm");
-  } catch {
-    return dateString;
-  }
-};
-
 export default function FinancePage() {
+  const t = useTranslations("admin.finance");
+  const locale = useLocale();
   const queryClient = useQueryClient();
   const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
-  const [activeTab, setActiveTab] = useState<"payments" | "escrow" | "failed">("payments");
+  const [activeTab, setActiveTab] = useState<"payments" | "failed">("payments");
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentStatus | "ALL">("ALL");
   const [selectedPayment, setSelectedPayment] = useState<FailedSettlement | null>(null);
   const [showRetryModal, setShowRetryModal] = useState(false);
   const [retryReason, setRetryReason] = useState("");
+
+  const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+    PENDING: t("pending"),
+    AUTHORIZED: t("authorized"),
+    PAID: t("paid"),
+    FAILED: t("failed"),
+    REFUNDED: t("allStatus"),
+  };
+
+  const formatCurrency = (amount: number, currency: string = "RWF") => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "—";
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const { data: statsData, isLoading: loadingStats } = useQuery({
     queryKey: ["admin-finance-stats"],
@@ -313,7 +270,7 @@ export default function FinancePage() {
   if (loadingStats) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading finance data..." />
+        <LoadingSpinner label={t("loading")} />
       </div>
     );
   }
@@ -321,8 +278,8 @@ export default function FinancePage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Finance & Payments"
-        description="Payment tracking, escrow management, and settlements"
+        title={t("title")}
+        description={t("subtitle")}
       />
 
       {(isBookingFirst || paymentModeLoading) && (
@@ -344,31 +301,31 @@ export default function FinancePage() {
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
           <StatCard
-            label="Total Revenue"
+            label={t("totalRevenue")}
             value={formatCurrency(stats.revenue.total)}
             icon={DollarSign}
           />
           <StatCard
-            label="Expert Payouts"
+            label={t("expertPayouts")}
             value={formatCurrency(stats.revenue.payouts)}
             icon={TrendingUp}
           />
           <StatCard
-            label="Platform Fees"
+            label={t("platformFees")}
             value={formatCurrency(stats.revenue.platformFees)}
             icon={TrendingDown}
           />
           <StatCard
-            label="Pending"
+            label={t("pending")}
             value={stats.payments.pending}
             icon={Clock}
           />
           <StatCard
-            label="Escrow Holds"
+            label={t("escrowHolds")}
             value={stats.escrow.holds}
           />
           <StatCard
-            label="Failed"
+            label={t("failed")}
             value={stats.payments.failed}
             icon={AlertCircle}
           />
@@ -378,14 +335,14 @@ export default function FinancePage() {
       <Tabs
         value={activeTab}
         onValueChange={(v) => {
-          setActiveTab(v as "payments" | "escrow" | "failed");
+          setActiveTab(v as "payments" | "failed");
           setPage(1);
         }}
       >
         <TabsList variant="line" className="w-full justify-start">
-          <TabsTrigger value="payments">All Payments</TabsTrigger>
+          <TabsTrigger value="payments">{t("allPayments")}</TabsTrigger>
           <TabsTrigger value="failed">
-            Failed Settlements
+            {t("failedSettlements")}
             {stats && stats.payments.failed > 0 && (
               <span className="ml-2 inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
                 {stats.payments.failed}
@@ -402,7 +359,7 @@ export default function FinancePage() {
                   <div className="flex flex-1 items-center gap-2">
                     <Search size={16} className="text-muted-foreground" />
                     <Input
-                      placeholder="Search by transaction ref, name..."
+                      placeholder={t("searchPlaceholder")}
                       className="border-0 bg-transparent shadow-none focus-visible:ring-0"
                       value={searchQuery}
                       onChange={(e) => {
@@ -420,14 +377,14 @@ export default function FinancePage() {
                       }}
                     >
                       <SelectTrigger className="w-[160px]">
-                        <SelectValue placeholder="All Status" />
+                        <SelectValue placeholder={t("allStatus")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ALL">All Status</SelectItem>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="PAID">Paid</SelectItem>
-                        <SelectItem value="FAILED">Failed</SelectItem>
-                        <SelectItem value="REFUNDED">Refunded</SelectItem>
+                        <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                        <SelectItem value="PENDING">{t("pending")}</SelectItem>
+                        <SelectItem value="PAID">{t("paid")}</SelectItem>
+                        <SelectItem value="FAILED">{t("failed")}</SelectItem>
+                        <SelectItem value="REFUNDED">{t("allStatus")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -436,10 +393,10 @@ export default function FinancePage() {
 
               <Card>
                 {loadingPayments ? (
-                  <LoadingSpinner label="Loading payments..." />
+                  <LoadingSpinner label={t("loading")} />
                 ) : paymentsError ? (
                   <ErrorState
-                    title="Failed to load payments"
+                    title={t("failedToLoad")}
                     onRetry={() => queryClient.invalidateQueries({ queryKey: ["admin-finance-payments"] })}
                   />
                 ) : (
@@ -448,14 +405,14 @@ export default function FinancePage() {
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            <th className="px-6 py-4">Transaction</th>
-                            <th className="px-6 py-4">Citizen</th>
-                            <th className="px-6 py-4">Expert</th>
-                            <th className="px-6 py-4">Amount</th>
-                            <th className="px-6 py-4">Platform Fee</th>
-                            <th className="px-6 py-4">Expert Payout</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4">Paid At</th>
+                            <th className="px-6 py-4">{t("transaction")}</th>
+                            <th className="px-6 py-4">{t("citizen")}</th>
+                            <th className="px-6 py-4">{t("expert")}</th>
+                            <th className="px-6 py-4">{t("amount")}</th>
+                            <th className="px-6 py-4">{t("platformFee")}</th>
+                            <th className="px-6 py-4">{t("expertPayout")}</th>
+                            <th className="px-6 py-4">{t("allStatus")}</th>
+                            <th className="px-6 py-4">{t("paidAt")}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -464,8 +421,7 @@ export default function FinancePage() {
                               <td colSpan={8}>
                                 <EmptyState
                                   icon={DollarSign}
-                                  title="No payments found"
-                                  description="No payments match your current filters."
+                                  title={t("noPayments")}
                                 />
                               </td>
                             </tr>
@@ -476,7 +432,7 @@ export default function FinancePage() {
                                   <div>
                                     <p className="font-medium text-foreground">{payment.txRef}</p>
                                     <p className="text-xs text-muted-foreground">
-                                      {payment.providerTransactionId || "\u2014"}
+                                      {payment.providerTransactionId || "—"}
                                     </p>
                                   </div>
                                 </td>
@@ -524,8 +480,8 @@ export default function FinancePage() {
                     {paymentsPagination && paymentsPagination.totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-border px-6 py-4">
                         <p className="text-sm text-muted-foreground">
-                          Page {paymentsPagination.page} of {paymentsPagination.totalPages} (
-                          {paymentsPagination.total} total)
+                          Page {paymentsPagination.page} / {paymentsPagination.totalPages} (
+                          {paymentsPagination.total})
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -534,7 +490,7 @@ export default function FinancePage() {
                             onClick={() => setPage(page - 1)}
                             disabled={page === 1}
                           >
-                            Previous
+                            ←
                           </Button>
                           <Button
                             variant="outline"
@@ -542,7 +498,7 @@ export default function FinancePage() {
                             onClick={() => setPage(page + 1)}
                             disabled={page === paymentsPagination.totalPages}
                           >
-                            Next
+                            →
                           </Button>
                         </div>
                       </div>
@@ -558,10 +514,10 @@ export default function FinancePage() {
           {activeTab === "failed" && (
             <Card>
               {loadingFailed ? (
-                <LoadingSpinner label="Loading settlements..." />
+                <LoadingSpinner label={t("loading")} />
               ) : failedError ? (
                 <ErrorState
-                  title="Failed to load settlements"
+                  title={t("failedToLoadSettlements")}
                   onRetry={() => queryClient.invalidateQueries({ queryKey: ["admin-finance-failed"] })}
                 />
               ) : (
@@ -570,13 +526,13 @@ export default function FinancePage() {
                     <table className="w-full text-left text-sm">
                       <thead>
                         <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          <th className="px-6 py-4">Booking</th>
-                          <th className="px-6 py-4">Expert</th>
-                          <th className="px-6 py-4">Citizen</th>
-                          <th className="px-6 py-4">Payout Amount</th>
-                          <th className="px-6 py-4">MoMo Number</th>
-                          <th className="px-6 py-4">Last Attempt</th>
-                          <th className="px-6 py-4">Actions</th>
+                          <th className="px-6 py-4">{t("booking")}</th>
+                          <th className="px-6 py-4">{t("expert")}</th>
+                          <th className="px-6 py-4">{t("citizen")}</th>
+                          <th className="px-6 py-4">{t("expertPayout")}</th>
+                          <th className="px-6 py-4">{t("momoNumber")}</th>
+                          <th className="px-6 py-4">{t("lastAttempt")}</th>
+                          <th className="px-6 py-4 text-right"></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border">
@@ -585,8 +541,8 @@ export default function FinancePage() {
                             <td colSpan={7}>
                               <EmptyState
                                 icon={RefreshCw}
-                                title="No failed settlements"
-                                description="All payouts have been processed successfully."
+                                title={t("noFailed")}
+                                description={t("allProcessed")}
                               />
                             </td>
                           </tr>
@@ -622,14 +578,14 @@ export default function FinancePage() {
                               <td className="px-6 py-4">
                                 <p className="text-muted-foreground">
                                   {payment.expert.momoNumber || (
-                                    <span className="text-destructive">Not set</span>
+                                    <span className="text-destructive">{t("noMoMo")}</span>
                                   )}
                                 </p>
                               </td>
                               <td className="px-6 py-4">
                                 <span className="text-muted-foreground">{formatDate(payment.updatedAt)}</span>
                               </td>
-                              <td className="px-6 py-4">
+                              <td className="px-6 py-4 text-right">
                                 <Button
                                   variant="default"
                                   size="sm"
@@ -637,7 +593,7 @@ export default function FinancePage() {
                                   disabled={!payment.expert.momoNumber || retryMutation.isPending}
                                 >
                                   <RefreshCw size={14} />
-                                  Retry Payout
+                                  {t("retryPayout")}
                                 </Button>
                               </td>
                             </tr>
@@ -650,8 +606,7 @@ export default function FinancePage() {
                   {failedPagination && failedPagination.totalPages > 1 && (
                     <div className="flex items-center justify-between border-t border-border px-6 py-4">
                       <p className="text-sm text-muted-foreground">
-                        Page {failedPagination.page} of {failedPagination.totalPages} ({failedPagination.total}{" "}
-                        total)
+                        Page {failedPagination.page} / {failedPagination.totalPages} ({failedPagination.total})
                       </p>
                       <div className="flex items-center gap-2">
                         <Button
@@ -660,7 +615,7 @@ export default function FinancePage() {
                           onClick={() => setPage(page - 1)}
                           disabled={page === 1}
                         >
-                          Previous
+                          ←
                         </Button>
                         <Button
                           variant="outline"
@@ -668,7 +623,7 @@ export default function FinancePage() {
                           onClick={() => setPage(page + 1)}
                           disabled={page === failedPagination.totalPages}
                         >
-                          Next
+                          →
                         </Button>
                       </div>
                     </div>
@@ -689,31 +644,32 @@ export default function FinancePage() {
       }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Retry Payout</DialogTitle>
+            <DialogTitle>{t("retryPayoutModal")}</DialogTitle>
             <DialogDescription>
-              Retry payout for <span className="font-medium text-foreground">{selectedPayment?.expert.displayName}</span> (
-              {selectedPayment && formatCurrency(selectedPayment.expertPayout)})
+              {t("retryPayoutFor", {
+                name: selectedPayment?.expert.displayName ?? "",
+                amount: selectedPayment ? formatCurrency(selectedPayment.expertPayout) : "",
+              })}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
-                Reason for retry *
+                {t("reasonForRetry")}
               </label>
               <Textarea
                 rows={4}
-                placeholder="Explain why the payout is being retried..."
+                placeholder={t("retryReasonPlaceholder")}
                 value={retryReason}
                 onChange={(e) => setRetryReason(e.target.value)}
               />
-              <p className="mt-1 text-xs text-muted-foreground">Minimum 10 characters required</p>
             </div>
 
             {selectedPayment && !selectedPayment.expert.momoNumber && (
               <div className="rounded-lg bg-destructive/10 p-3">
                 <p className="text-sm text-destructive">
-                  Expert has no MoMo number set. Payout will fail unless number is added.
+                  {t("noMoMo")}
                 </p>
               </div>
             )}
@@ -734,7 +690,7 @@ export default function FinancePage() {
               onClick={confirmRetry}
               disabled={retryReason.trim().length < 10 || retryMutation.isPending || !selectedPayment?.expert.momoNumber}
             >
-              {retryMutation.isPending ? "Retrying..." : "Retry Payout"}
+              {retryMutation.isPending ? t("retrying") : t("retryPayout")}
             </Button>
           </DialogFooter>
         </DialogContent>

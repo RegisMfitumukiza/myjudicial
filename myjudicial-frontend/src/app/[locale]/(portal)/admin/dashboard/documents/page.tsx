@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
@@ -80,6 +80,7 @@ const SENSITIVITY_BADGE: Record<string, string> = {
 
 export default function DocumentsPage() {
   const t = useTranslations("admin.documents");
+  const locale = useLocale();
 
   const [role, setRole] = useState<"ALL" | "CLIENT" | "EXPERT">("ALL");
   const [sensitivity, setSensitivity] = useState<"ALL" | "PUBLIC" | "PRIVATE" | "CONFIDENTIAL">("ALL");
@@ -282,7 +283,7 @@ export default function DocumentsPage() {
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{formatBytes(doc.fileSize)}</td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {new Date(doc.createdAt).toLocaleDateString("en-GB", {
+                          {new Date(doc.createdAt).toLocaleDateString(locale, {
                             day: "numeric",
                             month: "short",
                             year: "numeric",

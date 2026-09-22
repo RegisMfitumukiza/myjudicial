@@ -8,7 +8,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -58,13 +58,6 @@ function allRequiredDocsSubmitted(record: VerificationRecord): boolean {
   return !!(record.identityDocumentObjectKey && record.barCertificateObjectKey);
 }
 
-function missingRequiredDocs(record: VerificationRecord): string[] {
-  const missing: string[] = [];
-  if (!record.identityDocumentObjectKey) missing.push("Identity Document");
-  if (!record.barCertificateObjectKey) missing.push("Bar Certificate");
-  return missing;
-}
-
 const STATUS_TONE: Record<string, "pending" | "success" | "destructive" | "neutral"> = {
   PENDING: "pending",
   APPROVED: "success",
@@ -74,8 +67,17 @@ const STATUS_TONE: Record<string, "pending" | "success" | "destructive" | "neutr
 
 export default function AdminVerificationsPage() {
   const t = useTranslations("admin.verifications");
+  const tExp = useTranslations("admin.experts");
+  const locale = useLocale();
   const { data, isLoading } = useGetAdminVerificationQueue();
   const [statusFilter, setStatusFilter] = useState<string>("PENDING");
+
+  function getMissingRequiredDocs(record: VerificationRecord): string[] {
+    const missing: string[] = [];
+    if (!record.identityDocumentObjectKey) missing.push(tExp("identityDocument"));
+    if (!record.barCertificateObjectKey) missing.push(tExp("barCertificate"));
+    return missing;
+  }
 
   const allRecords: VerificationRecord[] = (data as any)?.status === 200
     ? (data as any).data.data
@@ -174,7 +176,7 @@ export default function AdminVerificationsPage() {
               <tbody>
                 {records.map((record) => {
                   const allReady = allRequiredDocsSubmitted(record);
-                  const missing = missingRequiredDocs(record);
+                  const missing = getMissingRequiredDocs(record);
                   const submittedCount = [
                     record.identityDocumentObjectKey,
                     record.barCertificateObjectKey,
@@ -202,12 +204,12 @@ export default function AdminVerificationsPage() {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-warning">
-                            <AlertTriangle size={12} /> Missing: {missing.join(", ")}
+                            <AlertTriangle size={12} /> {tExp("missing")}: {missing.join(", ")}
                           </span>
                         )}
                       </td>
                       <td className="px-5 py-3.5 text-muted-foreground">
-                        {new Date(record.createdAt).toLocaleDateString("en-GB", {
+                        {new Date(record.createdAt).toLocaleDateString(locale, {
                           day: "numeric", month: "short", year: "numeric",
                         })}
                       </td>

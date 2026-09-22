@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { Link } from "@/i18n/routing";
 import { useGetAdminAnalyticsSummary, useGetAdminAnalyticsRevenue, useGetAdminVerificationQueue } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard";
 import { StatCard } from "@/shared/components/dashboard";
 import { DashboardSkeleton } from "@/shared/components/dashboard";
@@ -33,6 +33,7 @@ function resolveValue(obj: any, path: string[]): number | null {
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin.dashboard");
+  const locale = useLocale();
   const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
   const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
   const { data: verifRes } = useGetAdminVerificationQueue();
@@ -62,10 +63,10 @@ export default function AdminDashboardPage() {
   const chartData = useMemo(() => {
     if (!revenue?.timeSeries) return [];
     return revenue.timeSeries.map((item) => ({
-      day: new Date(item.date).toLocaleDateString("en-GB", { weekday: "short" }),
+      day: new Date(item.date).toLocaleDateString(locale, { weekday: "short" }),
       amount: item.revenue,
     }));
-  }, [revenue]);
+  }, [revenue, locale]);
 
   // Most recent verification activity (newest first) for the activity feed
   const recentVerifications = useMemo(() => {

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
-import { format } from "date-fns";
+import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
@@ -145,8 +145,6 @@ const exportLogs = async (format: "csv" | "json", filters: any) => {
   if (filters.fromDate) queryParams.append("fromDate", filters.fromDate);
   if (filters.toDate) queryParams.append("toDate", filters.toDate);
 
-  // Use apiFetchBlob which reads auth from the NextAuth cookie session —
-  // NOT from sessionStorage/localStorage (which NextAuth v5 does not use).
   const blob = await apiFetchBlob(
     `/admin/audit-logs/export?${queryParams.toString()}`,
   );
@@ -159,24 +157,6 @@ const exportLogs = async (format: "csv" | "json", filters: any) => {
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
-};
-
-const ACTION_LABELS: Record<AuditAction, string> = {
-  CREATE: "Create",
-  UPDATE: "Update",
-  DELETE: "Delete",
-  LOGIN: "Login",
-  LOGOUT: "Logout",
-  VERIFY: "Verify",
-  REJECT: "Reject",
-  BOOK: "Book",
-  CANCEL: "Cancel",
-  PAYMENT: "Payment",
-  ESCROW_LOCKED: "Escrow Locked",
-  ESCROW_RELEASED: "Escrow Released",
-  UPLOAD: "Upload",
-  DOWNLOAD: "Download",
-  SHARE: "Share",
 };
 
 const ACTION_TONE: Record<AuditAction, StatusTone> = {
@@ -197,19 +177,6 @@ const ACTION_TONE: Record<AuditAction, StatusTone> = {
   SHARE: "info",
 };
 
-const RESOURCE_LABELS: Record<AuditResource, string> = {
-  USER: "User",
-  EXPERT: "Expert",
-  BOOKING: "Booking",
-  SERVICE: "Service",
-  REVIEW: "Review",
-  VERIFICATION: "Verification",
-  PAYMENT: "Payment",
-  DOCUMENT: "Document",
-  CONVERSATION: "Conversation",
-  MESSAGE: "Message",
-};
-
 const RESOURCE_TONE: Record<AuditResource, StatusTone> = {
   USER: "info",
   EXPERT: "success",
@@ -223,15 +190,9 @@ const RESOURCE_TONE: Record<AuditResource, StatusTone> = {
   MESSAGE: "info",
 };
 
-const formatDate = (dateString: string) => {
-  try {
-    return format(new Date(dateString), "MMM dd, yyyy HH:mm");
-  } catch {
-    return dateString;
-  }
-};
-
 export default function AuditLogsPage() {
+  const t = useTranslations("admin.auditLogs");
+  const locale = useLocale();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionFilter, setActionFilter] = useState<AuditAction | "ALL">("ALL");
@@ -243,6 +204,51 @@ export default function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [exporting, setExporting] = useState(false);
+
+  const ACTION_LABELS: Record<AuditAction, string> = {
+    CREATE: t("actionCreate"),
+    UPDATE: t("actionUpdate"),
+    DELETE: t("actionDelete"),
+    LOGIN: t("actionLogin"),
+    LOGOUT: t("actionLogout"),
+    VERIFY: t("actionVerify"),
+    REJECT: t("actionReject"),
+    BOOK: t("actionBook"),
+    CANCEL: t("actionCancel"),
+    PAYMENT: t("actionPayment"),
+    ESCROW_LOCKED: t("actionEscrowLocked"),
+    ESCROW_RELEASED: t("actionEscrowReleased"),
+    UPLOAD: t("actionUpload"),
+    DOWNLOAD: t("actionDownload"),
+    SHARE: t("actionShare"),
+  };
+
+  const RESOURCE_LABELS: Record<AuditResource, string> = {
+    USER: t("resourceUser"),
+    EXPERT: t("resourceExpert"),
+    BOOKING: t("resourceBooking"),
+    SERVICE: t("resourceService"),
+    REVIEW: t("resourceReview"),
+    VERIFICATION: t("resourceVerification"),
+    PAYMENT: t("resourcePayment"),
+    DOCUMENT: t("resourceDocument"),
+    CONVERSATION: t("resourceConversation"),
+    MESSAGE: t("resourceMessage"),
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   const { data: statsData, isLoading: loadingStats } = useQuery({
     queryKey: ["admin-audit-stats"],
@@ -267,17 +273,17 @@ export default function AuditLogsPage() {
   const pagination = logsData?.data?.pagination;
   const stats = statsData?.data;
 
-  const handleExport = async (format: "csv" | "json") => {
+  const handleExport = async (formatType: "csv" | "json") => {
     setExporting(true);
     try {
-      await exportLogs(format, {
+      await exportLogs(formatType, {
         action: actionFilter !== "ALL" ? actionFilter : undefined,
         resource: resourceFilter !== "ALL" ? resourceFilter : undefined,
         fromDate,
         toDate,
       });
-    } catch (error) {
-      console.error("Export failed:", error);
+    } catch (err) {
+      console.error("Export failed:", err);
     } finally {
       setExporting(false);
     }
@@ -291,7 +297,7 @@ export default function AuditLogsPage() {
   if (loadingStats || loadingLogs) {
     return (
       <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner label="Loading audit logs..." />
+        <LoadingSpinner label={t("loading")} />
       </div>
     );
   }
@@ -300,12 +306,12 @@ export default function AuditLogsPage() {
     return (
       <div className="space-y-6 p-6 lg:p-8">
         <PageHeader
-          title="Audit Logs"
-          description="System activity tracking and monitoring"
+          title={t("title")}
+          description={t("subtitle")}
         />
         <ErrorState
-          title="Failed to load audit logs"
-          message="We could not load the audit logs. Please try again."
+          title={t("failedToLoad")}
+          message=""
           onRetry={() => {
             window.location.reload();
           }}
@@ -317,8 +323,8 @@ export default function AuditLogsPage() {
   return (
     <div className="space-y-6 p-6 lg:p-8">
       <PageHeader
-        title="Audit Logs"
-        description="System activity tracking and monitoring"
+        title={t("title")}
+        description={t("subtitle")}
         actions={
           <>
             <Button
@@ -328,7 +334,7 @@ export default function AuditLogsPage() {
               disabled={exporting}
             >
               <Download size={16} />
-              Export CSV
+              {exporting ? t("exporting") : t("exportCsv")}
             </Button>
             <Button
               size="sm"
@@ -336,7 +342,7 @@ export default function AuditLogsPage() {
               disabled={exporting}
             >
               <Download size={16} />
-              Export JSON
+              {exporting ? t("exporting") : t("exportJson")}
             </Button>
           </>
         }
@@ -345,29 +351,29 @@ export default function AuditLogsPage() {
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           <StatCard
-            label="Total Logs"
+            label={t("totalEvents")}
             value={stats.totalLogs.toLocaleString()}
             icon={FileText}
           />
           <StatCard
-            label="Today"
+            label={t("today")}
             value={stats.byPeriod.today}
             icon={Activity}
           />
           <StatCard
-            label="This Week"
+            label={t("thisWeek")}
             value={stats.byPeriod.thisWeek}
             icon={Calendar}
           />
           <StatCard
-            label="This Month"
-            value={stats.byPeriod.thisMonth}
-            icon={Database}
-          />
-          <StatCard
-            label="Critical (7d)"
+            label={t("criticalActions")}
             value={stats.recentCritical}
             icon={AlertTriangle}
+          />
+          <StatCard
+            label={t("retention")}
+            value={`${stats.retentionDays} ${t("days")}`}
+            icon={Database}
           />
         </div>
       )}
@@ -378,7 +384,7 @@ export default function AuditLogsPage() {
             <div className="flex items-center gap-2">
               <Search size={16} className="text-muted-foreground" />
               <Input
-                placeholder="Search logs..."
+                placeholder={t("searchPlaceholder")}
                 className="border-0 bg-transparent shadow-none focus-visible:ring-0"
                 value={searchQuery}
                 onChange={(e) => {
@@ -396,17 +402,17 @@ export default function AuditLogsPage() {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="All Actions" />
+                <SelectValue placeholder={t("allActions")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Actions</SelectItem>
-                <SelectItem value="CREATE">Create</SelectItem>
-                <SelectItem value="UPDATE">Update</SelectItem>
-                <SelectItem value="DELETE">Delete</SelectItem>
-                <SelectItem value="LOGIN">Login</SelectItem>
-                <SelectItem value="LOGOUT">Logout</SelectItem>
-                <SelectItem value="VERIFY">Verify</SelectItem>
-                <SelectItem value="REJECT">Reject</SelectItem>
+                <SelectItem value="ALL">{t("allActions")}</SelectItem>
+                <SelectItem value="CREATE">{t("actionCreate")}</SelectItem>
+                <SelectItem value="UPDATE">{t("actionUpdate")}</SelectItem>
+                <SelectItem value="DELETE">{t("actionDelete")}</SelectItem>
+                <SelectItem value="LOGIN">{t("actionLogin")}</SelectItem>
+                <SelectItem value="LOGOUT">{t("actionLogout")}</SelectItem>
+                <SelectItem value="VERIFY">{t("actionVerify")}</SelectItem>
+                <SelectItem value="REJECT">{t("actionReject")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -418,15 +424,15 @@ export default function AuditLogsPage() {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="All Resources" />
+                <SelectValue placeholder={t("allResources")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Resources</SelectItem>
-                <SelectItem value="USER">User</SelectItem>
-                <SelectItem value="EXPERT">Expert</SelectItem>
-                <SelectItem value="BOOKING">Booking</SelectItem>
-                <SelectItem value="PAYMENT">Payment</SelectItem>
-                <SelectItem value="DOCUMENT">Document</SelectItem>
+                <SelectItem value="ALL">{t("allResources")}</SelectItem>
+                <SelectItem value="USER">{t("resourceUser")}</SelectItem>
+                <SelectItem value="EXPERT">{t("resourceExpert")}</SelectItem>
+                <SelectItem value="BOOKING">{t("resourceBooking")}</SelectItem>
+                <SelectItem value="PAYMENT">{t("resourcePayment")}</SelectItem>
+                <SelectItem value="DOCUMENT">{t("resourceDocument")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -436,15 +442,15 @@ export default function AuditLogsPage() {
                 className="flex-1"
                 value={dateFromDraft}
                 onChange={(e) => setDateFromDraft(e.target.value)}
-                placeholder="From date"
+                placeholder={t("startDate")}
               />
-              <span className="text-muted-foreground">\u2013</span>
+              <span className="text-muted-foreground">–</span>
               <Input
                 type="date"
                 className="flex-1"
                 value={dateToDraft}
                 onChange={(e) => setDateToDraft(e.target.value)}
-                placeholder="To date"
+                placeholder={t("endDate")}
               />
               <Button
                 size="sm"
@@ -454,7 +460,7 @@ export default function AuditLogsPage() {
                   setPage(1);
                 }}
               >
-                Apply
+                {t("apply")}
               </Button>
               {(fromDate || toDate) && (
                 <Button
@@ -468,7 +474,7 @@ export default function AuditLogsPage() {
                     setPage(1);
                   }}
                 >
-                  Clear
+                  {t("reset")}
                 </Button>
               )}
             </div>
@@ -481,13 +487,13 @@ export default function AuditLogsPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-6 py-4">Timestamp</th>
-                <th className="px-6 py-4">Actor</th>
-                <th className="px-6 py-4">Action</th>
-                <th className="px-6 py-4">Resource</th>
-                <th className="px-6 py-4">Description</th>
-                <th className="px-6 py-4">IP Address</th>
-                <th className="px-6 py-4">Actions</th>
+                <th className="px-6 py-4">{t("timestamp")}</th>
+                <th className="px-6 py-4">{t("actor")}</th>
+                <th className="px-6 py-4">{t("action")}</th>
+                <th className="px-6 py-4">{t("resource")}</th>
+                <th className="px-6 py-4">{t("details")}</th>
+                <th className="px-6 py-4">{t("ipAddress")}</th>
+                <th className="px-6 py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -496,8 +502,7 @@ export default function AuditLogsPage() {
                   <td colSpan={7}>
                     <EmptyState
                       icon={FileText}
-                      title="No audit logs found"
-                      description="Try adjusting your filters."
+                      title={t("noLogs")}
                     />
                   </td>
                 </tr>
@@ -529,20 +534,19 @@ export default function AuditLogsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <p className="max-w-xs truncate text-muted-foreground">
-                        {log.description || "\u2014"}
+                        {log.description || "—"}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-muted-foreground">{log.ipAddress || "\u2014"}</span>
+                      <span className="text-muted-foreground">{log.ipAddress || "—"}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-right">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleViewDetails(log)}
                       >
                         <Eye size={14} />
-                        View
                       </Button>
                     </td>
                   </tr>
@@ -555,7 +559,7 @@ export default function AuditLogsPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages} ({pagination.total.toLocaleString()} total)
+              {pagination.page} / {pagination.totalPages} ({pagination.total.toLocaleString()})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -564,7 +568,7 @@ export default function AuditLogsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                Previous
+                ←
               </Button>
               <Button
                 variant="outline"
@@ -572,7 +576,7 @@ export default function AuditLogsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
               >
-                Next
+                →
               </Button>
             </div>
           </div>
@@ -583,13 +587,7 @@ export default function AuditLogsPage() {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Database size={14} />
           <span>
-            Logs retained for <strong>{stats.retentionDays} days</strong>
-            {stats.oldestLogDate && (
-              <>
-                {" \u00b7 "}Oldest log: {format(new Date(stats.oldestLogDate), "MMM d, yyyy")}
-              </>
-            )}
-            {" \u00b7 "}Auto-cleanup runs daily at 04:00
+            {t("retentionDesc", { days: stats.retentionDays })}
           </span>
         </div>
       )}
@@ -597,17 +595,17 @@ export default function AuditLogsPage() {
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Audit Log Details</DialogTitle>
+            <DialogTitle>{t("logDetails")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Log ID</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("eventId")}</label>
                 <p className="mt-1 font-mono text-sm text-foreground">{selectedLog?.id}</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Timestamp</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("timestamp")}</label>
                 <p className="mt-1 text-sm text-foreground">
                   {selectedLog && formatDate(selectedLog.createdAt)}
                 </p>
@@ -616,7 +614,7 @@ export default function AuditLogsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Action</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("action")}</label>
                 <div className="mt-1">
                   {selectedLog && (
                     <StatusBadge tone={ACTION_TONE[selectedLog.action]} dot={false}>
@@ -626,7 +624,7 @@ export default function AuditLogsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Resource</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("resource")}</label>
                 <div className="mt-1">
                   {selectedLog && (
                     <StatusBadge tone={RESOURCE_TONE[selectedLog.resource]} dot={false}>
@@ -639,7 +637,7 @@ export default function AuditLogsPage() {
 
             {selectedLog?.actor && (
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Actor</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("actor")}</label>
                 <div className="mt-1 rounded-lg border border-border bg-muted/50 p-3">
                   <p className="font-medium text-foreground">{selectedLog.actor.fullName}</p>
                   <p className="text-sm text-muted-foreground">{selectedLog.actor.email}</p>
@@ -657,7 +655,7 @@ export default function AuditLogsPage() {
 
             {selectedLog?.description && (
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Description</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("details")}</label>
                 <p className="mt-1 text-sm text-foreground">{selectedLog.description}</p>
               </div>
             )}
@@ -665,13 +663,13 @@ export default function AuditLogsPage() {
             <div className="grid grid-cols-2 gap-4">
               {selectedLog?.ipAddress && (
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground">IP Address</label>
+                  <label className="block text-xs font-medium text-muted-foreground">{t("ipAddress")}</label>
                   <p className="mt-1 font-mono text-sm text-foreground">{selectedLog.ipAddress}</p>
                 </div>
               )}
               {selectedLog?.userAgent && (
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground">User Agent</label>
+                  <label className="block text-xs font-medium text-muted-foreground">{t("userAgent")}</label>
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{selectedLog.userAgent}</p>
                 </div>
               )}
@@ -679,7 +677,7 @@ export default function AuditLogsPage() {
 
             {selectedLog?.metadata && Object.keys(selectedLog.metadata).length > 0 && (
               <div>
-                <label className="block text-xs font-medium text-muted-foreground">Metadata</label>
+                <label className="block text-xs font-medium text-muted-foreground">{t("metadata")}</label>
                 <pre className="mt-1 overflow-auto rounded-lg border border-border bg-muted/50 p-3 text-xs text-foreground">
                   {JSON.stringify(selectedLog.metadata, null, 2)}
                 </pre>
@@ -688,7 +686,7 @@ export default function AuditLogsPage() {
           </div>
 
           <DialogFooter>
-            <Button onClick={() => setShowDetailModal(false)}>Close</Button>
+            <Button onClick={() => setShowDetailModal(false)}>{t("close")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

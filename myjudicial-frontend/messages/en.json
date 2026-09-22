@@ -178,7 +178,8 @@
       "openInNewTab": "Open in new tab",
       "previewNotAvailable": "Preview not available for this file type.",
       "downloadFile": "Download File",
-      "download": "Download"
+      "download": "Download",
+      "actionFailed": "Action failed. Please try again."
     },
     "users": {
       "title": "User Management",
@@ -290,7 +291,8 @@
       "refundProcessed": "Refund processed successfully.",
       "failed": "Failed: ...",
       "refundFailed": "Refund failed: ...",
-      "unknownError": "Unknown error occurred"
+      "unknownError": "Unknown error occurred",
+      "actionFailed": "Action failed. Please try again."
     },
     "verifications": {
       "title": "Verifications Queue",
@@ -1719,6 +1721,35 @@
       "description": "An unexpected error occurred. Please try again.",
       "tryAgain": "Try again",
       "retry": "Try Again"
+    },
+    "api": {
+      "unauthorized": "You are not authorized to access this resource",
+      "sessionExpired": "Your session has expired. Please log in again",
+      "invalidCredentials": "Invalid email or password",
+      "otpInvalid": "Invalid or expired OTP code",
+      "otpExpired": "OTP code has expired. Please request a new one",
+      "otpAttemptsExceeded": "Too many verification attempts. Please request a new code",
+      "phoneInUse": "This phone number is already registered",
+      "bookingUnavailable": "This time slot is no longer available",
+      "bookingNotFound": "Booking not found",
+      "bookingAlreadyCancelled": "This booking has already been cancelled",
+      "cannotCancelBooking": "This booking cannot be cancelled",
+      "insufficientFunds": "Insufficient funds for this transaction",
+      "paymentFailed": "Payment processing failed. Please try again",
+      "paymentAlreadyProcessed": "Payment has already been processed",
+      "expertNotFound": "Expert not found",
+      "expertNotVerified": "This expert has not been verified yet",
+      "expertSuspended": "This expert account is currently suspended",
+      "profileIncomplete": "Please complete your profile before proceeding",
+      "fileTooLarge": "File size exceeds maximum allowed (5MB)",
+      "invalidFileType": "Invalid file type. Allowed types: PDF, DOC, DOCX, JPG, PNG",
+      "documentNotFound": "Document not found",
+      "rateLimitExceeded": "Too many requests. Please slow down",
+      "serviceUnavailable": "Service temporarily unavailable. Please try again later",
+      "serverError": "An unexpected error occurred. Please try again later",
+      "validationError": "Please check your input and try again",
+      "networkError": "Network error. Please check your connection",
+      "unknown": "Something went wrong. Please try again"
     }
   },
   "expertDashboard": {
@@ -3179,7 +3210,8 @@
       "revokeFailed": "Failed to revoke session",
       "languageSaved": "Language preference saved",
       "languageFailed": "Failed to save language preference",
-      "notificationsSaved": "Notification preferences saved"
+      "notificationsSaved": "Notification preferences saved",
+      "verificationUploadFailed": "Verification document upload failed"
     },
     "expertDashboard": {
       "welcome": "Good day, {name}",
@@ -4831,7 +4863,8 @@
         "other": "Other reason"
       },
       "contactRate": "Contact",
-      "legalServices": "Legal Services"
+      "legalServices": "Legal Services",
+      "actionFailed": "Action failed. Please try again."
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -5606,5 +5639,13 @@
       "inPerson": "In-Person",
       "email": "Email Consultation"
     }
+  },
+  "location": {
+    "gpsNotSupported": "GPS is not supported by your device",
+    "locationDenied": "Location access denied. Please enable location services.",
+    "locationUnavailable": "Location information unavailable.",
+    "locationTimeout": "Location request timed out.",
+    "locationFailed": "Location detection failed",
+    "invalidCoordinates": "Please enter valid coordinates (Latitude: -90 to 90, Longitude: -180 to 180)"
   }
 }

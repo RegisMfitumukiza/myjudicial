@@ -1,12 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { AuthorizationError, NotFoundError, ValidationError } from "../../shared/errors/index.js";
 
 export class SavedExpertController {
-  static async listSavedExperts(req: Request, res: Response) {
+  static async listSavedExperts(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: "Unauthorized" });
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const saved = await prisma.savedExpert.findMany({
@@ -43,27 +44,26 @@ export class SavedExpertController {
         })),
       });
     } catch (error) {
-      console.error("List saved experts error:", error);
-      return res.status(500).json({ success: false, message: "Failed to list saved experts" });
+      next(error);
     }
   }
 
-  static async saveExpert(req: Request, res: Response) {
+  static async saveExpert(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: "Unauthorized" });
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const { expertId } = req.body;
       if (!expertId) {
-        return res.status(400).json({ success: false, message: "expertId is required" });
+        throw new ValidationError("REQUIRED_FIELD_MISSING");
       }
 
       // Check expert exists
       const expert = await prisma.expertProfile.findUnique({ where: { id: expertId } });
       if (!expert) {
-        return res.status(404).json({ success: false, message: "Expert not found" });
+        throw new NotFoundError("EXPERT_NOT_FOUND");
       }
 
       // Upsert (idempotent)
@@ -78,16 +78,15 @@ export class SavedExpertController {
         data: { id: saved.id, expertId: saved.expertId, savedAt: saved.createdAt },
       });
     } catch (error) {
-      console.error("Save expert error:", error);
-      return res.status(500).json({ success: false, message: "Failed to save expert" });
+      next(error);
     }
   }
 
-  static async removeSavedExpert(req: Request, res: Response) {
+  static async removeSavedExpert(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: "Unauthorized" });
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const expertId = req.params.expertId as string;
@@ -97,7 +96,7 @@ export class SavedExpertController {
       });
 
       if (!existing) {
-        return res.status(404).json({ success: false, message: "Not saved" });
+        throw new NotFoundError("EXPERT_NOT_FOUND");
       }
 
       await prisma.savedExpert.delete({
@@ -106,16 +105,15 @@ export class SavedExpertController {
 
       return res.status(200).json({ success: true, message: "Expert removed from saved list" });
     } catch (error) {
-      console.error("Remove saved expert error:", error);
-      return res.status(500).json({ success: false, message: "Failed to remove saved expert" });
+      next(error);
     }
   }
 
-  static async checkSaved(req: Request, res: Response) {
+  static async checkSaved(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        return res.status(401).json({ success: false, message: "Unauthorized" });
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const expertId = req.params.expertId as string;
@@ -129,8 +127,7 @@ export class SavedExpertController {
         data: { saved: !!existing },
       });
     } catch (error) {
-      console.error("Check saved error:", error);
-      return res.status(500).json({ success: false, message: "Failed to check saved status" });
+      next(error);
     }
   }
 }

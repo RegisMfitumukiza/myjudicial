@@ -396,25 +396,25 @@ export default function ExpertDetailPage() {
   const suspendMutation = useMutation({
     mutationFn: ({ reason }: { reason: string }) => suspendExpert(expertId, reason),
     onSuccess: () => { invalidate(); setShowSuspendModal(false); setSuspendReason(""); toast.success(t("expertSuspended")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const activateMutation = useMutation({
     mutationFn: () => activateExpert(expertId),
     onSuccess: () => { invalidate(); toast.success(t("expertActivated")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const approveMutation = useMutation({
     mutationFn: () => approveVerification(expert!.verificationId!),
     onSuccess: () => { invalidate(); toast.success(t("verificationApproved")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const rejectMutation = useMutation({
     mutationFn: (reason: string) => rejectVerification(expert!.verificationId!, reason),
     onSuccess: () => { invalidate(); setShowRejectForm(false); setRejectReason(""); toast.success(t("verificationRejected")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const reminderMutation = useMutation({
@@ -427,19 +427,19 @@ export default function ExpertDetailPage() {
           : t("reminderSent")
       );
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const correctionsMutation = useMutation({
     mutationFn: (notes: string) => requestCorrections(expert!.verificationId!, notes),
     onSuccess: () => { invalidate(); setShowCorrectionsForm(false); setCorrectionNotes(""); toast.success(t("correctionsSent")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const resetMutation = useMutation({
     mutationFn: () => resetToDraft(expertId),
     onSuccess: () => { invalidate(); toast.success(t("resetSuccess")); },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   if (isLoading) {
@@ -862,7 +862,7 @@ export default function ExpertDetailPage() {
                       <div className="flex gap-2">
                         <Button
                           variant="destructive"
-                          onClick={() => { if (rejectReason.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } rejectMutation.mutate(rejectReason.trim()); }}
+                          onClick={() => { if (rejectReason.trim().length < 10) { toast.error(t("minChars")); return; } rejectMutation.mutate(rejectReason.trim()); }}
                           disabled={rejectMutation.isPending || rejectReason.trim().length < 10}
                         >
                           {t("confirmRejection")}
@@ -887,7 +887,7 @@ export default function ExpertDetailPage() {
                       />
                       <div className="flex gap-2">
                         <Button
-                          onClick={() => { if (correctionNotes.trim().length < 10) { toast.error("Please enter at least 10 characters"); return; } correctionsMutation.mutate(correctionNotes.trim()); }}
+                          onClick={() => { if (correctionNotes.trim().length < 10) { toast.error(t("minChars")); return; } correctionsMutation.mutate(correctionNotes.trim()); }}
                           disabled={correctionsMutation.isPending || correctionNotes.trim().length < 10}
                           className="bg-yellow-600 text-white hover:bg-yellow-700"
                         >

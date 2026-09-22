@@ -114,8 +114,8 @@ export default function SpecialtiesPage() {
       setDialogOpen(false);
       loadSpecialties();
       loadGroups();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("saveFailed"));
+    } catch {
+      toast.error(t("saveFailed"));
     } finally {
       setSaving(false);
     }

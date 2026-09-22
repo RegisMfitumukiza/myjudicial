@@ -400,7 +400,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           toast.success(t("verificationSubmitted"));
         } catch (verifyError) {
           console.error("Verification submission failed:", verifyError);
-          toast.error(verifyError instanceof Error ? verifyError.message : "Verification document upload failed");
+          toast.error(t("verificationUploadFailed"));
         }
       }
 
@@ -409,18 +409,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       router.push("/expert/dashboard");
     } catch (error) {
       console.error("Profile submission error:", error);
-      
-      // Show detailed validation errors if available
-      if (error instanceof Error) {
-        const apiError = error as Error & { errors?: string[] };
-        if (Array.isArray(apiError.errors) && apiError.errors.length > 0) {
-          apiError.errors.forEach((err: string) => toast.error(err));
-        } else {
-          toast.error(error.message || t("profileCreateFailed"));
-        }
-      } else {
-        toast.error(t("profileCreateFailed"));
-      }
+      toast.error(t("profileCreateFailed"));
     } finally {
       setIsSubmitting(false);
     }

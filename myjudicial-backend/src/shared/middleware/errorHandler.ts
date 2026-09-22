@@ -7,6 +7,8 @@ import { getErrorMessage, getAvailableErrorCodes } from "../utils/i18n-messages.
 
 type ErrorResponse = {
   success: false;
+  /** Machine-readable error code for frontend i18n mapping (e.g. "BOOKING_UNAVAILABLE"). */
+  code?: string;
   message: string;
   errors?: string[];
 };
@@ -33,14 +35,20 @@ export const globalErrorHandler = (
   if (error instanceof AppError) {
     const errorCode = error.message;
     const availableCodes = getAvailableErrorCodes();
-    
+
     // If the error message matches a known translation key, translate it.
     // Otherwise, use the original message (for backwards compatibility).
-    const translatedMessage = availableCodes.includes(errorCode as any)
+    const isKnownCode = availableCodes.includes(errorCode as any);
+    const translatedMessage = isKnownCode
       ? getErrorMessage(errorCode as any, userLanguage)
       : errorCode;
-      
+
+    // Determine the machine-readable code to forward (for frontend i18n mapping).
+    // Prefer explicit error.code, then fall back to the message string if it's a known code.
+    const responseCode = error.code ?? (isKnownCode ? errorCode : undefined);
+
     const body: ErrorResponse = { success: false, message: translatedMessage };
+    if (responseCode) body.code = responseCode;
     if (error.errors?.length) body.errors = error.errors;
     res.status(error.statusCode).json(body);
     return;
@@ -51,6 +59,7 @@ export const globalErrorHandler = (
     const errors = error.issues.map((i) => i.message);
     res.status(400).json({
       success: false,
+      code: "VALIDATION_ERROR",
       message: getErrorMessage('VALIDATION_ERROR', userLanguage),
       errors,
     } satisfies ErrorResponse);
@@ -60,25 +69,31 @@ export const globalErrorHandler = (
   // Prisma known errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     let mapped: AppError;
+    let code: string;
     switch (error.code) {
       case "P2002":
         mapped = new ConflictError("A record with that value already exists");
+        code = "CONFLICT";
         break;
       case "P2025":
         mapped = new NotFoundError("Record");
+        code = "NOT_FOUND";
         break;
       case "P2003":
         mapped = new ValidationError(getErrorMessage('VALIDATION_ERROR', userLanguage));
+        code = "VALIDATION_ERROR";
         break;
       case "P1001": // Can't reach database server
       case "P1002": // Connection timed out
       case "P1003": // Database does not exist
         mapped = new AppError(getErrorMessage('SERVICE_UNAVAILABLE', userLanguage), 503);
+        code = "SERVICE_UNAVAILABLE";
         break;
       default:
         mapped = new AppError(getErrorMessage('DATABASE_ERROR', userLanguage), 400);
+        code = "DATABASE_ERROR";
     }
-    res.status(mapped.statusCode).json({ success: false, message: mapped.message });
+    res.status(mapped.statusCode).json({ success: false, code, message: mapped.message });
     return;
   }
 
@@ -88,5 +103,5 @@ export const globalErrorHandler = (
       ? getErrorMessage('SERVER_ERROR', userLanguage)
       : (error instanceof Error ? error.message : "Unknown error");
 
-  res.status(500).json({ success: false, message } satisfies ErrorResponse);
+  res.status(500).json({ success: false, code: "SERVER_ERROR", message } satisfies ErrorResponse);
 };

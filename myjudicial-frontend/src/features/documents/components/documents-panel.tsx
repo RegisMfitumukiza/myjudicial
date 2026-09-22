@@ -60,8 +60,8 @@ export function DocumentsPanel() {
           toast.success(t("documentUploaded"));
           queryClient.invalidateQueries({ queryKey: getGetFilesQueryKey() });
         },
-        onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("uploadFailed"));
+        onError: () => {
+          toast.error(t("uploadFailed"));
         },
       }
     );
@@ -82,8 +82,8 @@ export function DocumentsPanel() {
         a.click();
       }
       setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("downloadFailed"));
+    } catch {
+      toast.error(t("downloadFailed"));
     } finally {
       setDownloadingFileId(null);
     }
@@ -98,8 +98,8 @@ export function DocumentsPanel() {
           toast.success(t("documentDeleted"));
           queryClient.invalidateQueries({ queryKey: getGetFilesQueryKey() });
         },
-        onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("deleteFailed"));
+        onError: () => {
+          toast.error(t("deleteFailed"));
         },
       }
     );

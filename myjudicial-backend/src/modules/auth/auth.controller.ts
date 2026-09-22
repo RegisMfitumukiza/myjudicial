@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service.js";
 import { sendSuccess, sendCreated, sendNoContent } from "../../shared/utils/response.js";
+import { ValidationError } from "../../shared/errors/index.js";
 import type {
   RegisterDto,
   SendOtpDto,
@@ -142,8 +143,7 @@ export const AuthController = {
   updatePhoto: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.file) {
-        res.status(400).json({ success: false, message: "No photo file provided" });
-        return;
+        throw new ValidationError("REQUIRED_FIELD_MISSING");
       }
       const result = await AuthService.updateAvatar(
         req.user!.id,

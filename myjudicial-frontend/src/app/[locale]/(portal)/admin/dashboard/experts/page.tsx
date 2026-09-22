@@ -230,7 +230,7 @@ export default function ExpertsPage() {
       setSelectedExpert(null);
       toast.success(t("expertSuspended"));
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const activateMutation = useMutation({
@@ -239,7 +239,7 @@ export default function ExpertsPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-experts"] });
       toast.success(t("expertActivated"));
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   // ── Event handlers ──

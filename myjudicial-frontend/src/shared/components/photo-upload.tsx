@@ -202,9 +202,9 @@ export function ExpertPhotoUploader({
       setPhotoUrl(confirmedUrl);
       toast.success(t("photoUpdated"));
       onSuccess?.(confirmedUrl);
-    } catch (err) {
+    } catch {
       setPhotoUrl(currentImageUrl ?? null);
-      toast.error(err instanceof Error ? err.message : t("uploadFailed"));
+      toast.error(t("uploadFailed"));
     } finally {
       setUploading(false);
     }

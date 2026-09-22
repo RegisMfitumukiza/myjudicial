@@ -131,7 +131,8 @@
       "openInNewTab": "Fungura mu rupapuro rushya",
       "previewNotAvailable": "Kuburikiranya ntago ari ryaraboneka kuri ubu bwoko bw'idosiye.",
       "downloadFile": "Kurura idosiye",
-      "download": "Kurura"
+      "download": "Kurura",
+      "actionFailed": "Igikorwa cyanze. Nyamuneka gerageza ukundi."
     },
     "users": {
       "title": "Kuyoboza abakoresha",
@@ -243,7 +244,8 @@
       "refundProcessed": "Uguhe subiza korwe neza.",
       "failed": "Byanze: ...",
       "refundFailed": "Uguhe subiza byanze: ...",
-      "unknownError": "Hariho ikibazo kitazwi"
+      "unknownError": "Hariho ikibazo kitazwi",
+      "actionFailed": "Igikorwa cyanze. Nyamuneka gerageza ukundi."
     },
     "verifications": {
       "title": "Ibikondo vy'Ukwemeza",
@@ -1146,6 +1148,35 @@
       "description": "Habaye ikosa ritunguranye. Ongera ugerageze.",
       "tryAgain": "Ongera ugerageze",
       "retry": "Ongera ugerageze"
+    },
+    "api": {
+      "unauthorized": "Ntabwo ufite uburenganzira bwo kubona iyi resurusi",
+      "sessionExpired": "Igihe cy'umukono wawe cyararangiye. Nyamuneka ongera winjire",
+      "invalidCredentials": "Imeri cyangwa ijambo ry'ibanga bidakwiye",
+      "otpInvalid": "Kode ya OTP ntiyemewe cyangwa yararangiye",
+      "otpExpired": "Kode ya OTP yararangiye. Nyamuneka saba iyindi",
+      "otpAttemptsExceeded": "Bikemera byinshi byabaye mu kugenzura. Nyamuneka saba kode nshya",
+      "phoneInUse": "Iyi nimero ya telephone isanzwe iyandikishijwe",
+      "bookingUnavailable": "Iyi gihe ntikiri iboneka",
+      "bookingNotFound": "Gahunda ntiyabonetse",
+      "bookingAlreadyCancelled": "Iyi gahunda yari yarahagaritswe",
+      "cannotCancelBooking": "Iyi gahunda ntishobora guhagarikwa",
+      "insufficientFunds": "Amafaranga ntabwo ahagije kuri iyi soko",
+      "paymentFailed": "Kwishyura byanze. Nyamuneka gerageza ukundi",
+      "paymentAlreadyProcessed": "Kwishyura byari byakozwe",
+      "expertNotFound": "Inzobere ntiyabonetse",
+      "expertNotVerified": "Iyi nzobere ntiyaremezwa",
+      "expertSuspended": "Konti y'iyi nzobere yarahagaritswe",
+      "profileIncomplete": "Nyamuneka uzuza umwirondoro wawe mbere yo gukomeza",
+      "fileTooLarge": "Ingano y'idosiye irenze igipimo cyemewe (5MB)",
+      "invalidFileType": "Ubwoko bw'idosiye ntibwemewe. Ubwoko bwemewe: PDF, DOC, DOCX, JPG, PNG",
+      "documentNotFound": "Inyandiko ntiyabonetse",
+      "rateLimitExceeded": "Urasaba kenshi cyane. Nyamuneka tegereza gato",
+      "serviceUnavailable": "Serivisi ntiboneka muri iki gihe. Nyamuneka gerageza nyuma",
+      "serverError": "Hariho ikibazo kitunguranye. Nyamuneka gerageza nyuma",
+      "validationError": "Nyamuneka suzuma icyo wanditse hanyuma ugerageze ukundi",
+      "networkError": "Ikibazo cya murandasi. Nyamuneka suzuma internet yawe",
+      "unknown": "Hari ikibazo cyavutse. Nyamuneka gerageza ukundi"
     }
   },
   "expertOnboarding": {
@@ -1373,7 +1404,8 @@
       "revokeFailed": "Byanze guhindura kwinjira",
       "languageSaved": "Ururimi rwabitswe",
       "languageFailed": "Byanze gukora ururimi",
-      "notificationsSaved": "Amatangazo yabitswe"
+      "notificationsSaved": "Amatangazo yabitswe",
+      "verificationUploadFailed": "Gushyiraho inyandiko zo kwemeza byanze"
     },
     "expertDashboard": {
       "welcome": "Mwaramutse, {name}",
@@ -2140,7 +2172,8 @@
         "other": "Izindi mpamvu"
       },
       "contactRate": "Baza igiciro",
-      "legalServices": "Ubufasha mu by'amategeko"
+      "legalServices": "Ubufasha mu by'amategeko",
+      "actionFailed": "Igikorwa cyanze. Nyamuneka gerageza ukundi."
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -5602,5 +5635,13 @@
       "inPerson": "Imbonankubone",
       "email": "Inama kuri Imeyili"
     }
+  },
+  "location": {
+    "gpsNotSupported": "GPS ntabwo ishyigikiwe n'igikoresho cyawe",
+    "locationDenied": "Uruhushya rwo kumenya aho uri rwanze. Nyamuneka fungura serivisi z'aho uri.",
+    "locationUnavailable": "Amakuru y'aho uri ntaboneka.",
+    "locationTimeout": "Igihe cyo gushaka aho uri cyarangiye.",
+    "locationFailed": "Kumenya aho uri byanze",
+    "invalidCoordinates": "Nyamuneka injiza imirongo nyakuri (Ubugari: -90 kugeza 90, Uburebure: -180 kugeza 180)"
   }
 }

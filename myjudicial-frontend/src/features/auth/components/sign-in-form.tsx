@@ -132,10 +132,8 @@ export function SignInForm() {
       setOtpExpired(false);
       toast.success(t("codeSentCheckInbox"));
       countdown.start();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : t("failedToSendCode");
-      setError(msg);
-      toast.error(msg);
+    } catch {
+      setError(t("failedToSendCode"));
     } finally {
       setIsLoading(false);
     }
@@ -167,10 +165,9 @@ export function SignInForm() {
       toast.success(t("signedInSuccessfully"));
       router.push(postAuthPath);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t("emailVerificationFailed");
+      const msg = err instanceof Error && err.message ? err.message : t("emailVerificationFailed");
       setOtpCode("");
       setError(msg);
-      toast.error(msg);
     } finally {
       setIsLoading(false);
       isVerifyingRef.current = false;
@@ -188,9 +185,8 @@ export function SignInForm() {
       setOtpExpired(false);
       toast.success(t("newCodeSent"));
       countdown.start();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : t("failedToResend");
-      toast.error(msg);
+    } catch {
+      toast.error(t("failedToResend"));
     } finally {
       setIsResending(false);
     }
@@ -229,9 +225,8 @@ export function SignInForm() {
       toast.success(t("signedInAsAdmin"));
       router.push(postAuthPath);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t("adminSignInFailed");
+      const msg = err instanceof Error && err.message ? err.message : t("adminSignInFailed");
       setError(msg);
-      toast.error(msg);
     } finally {
       setIsLoading(false);
       isVerifyingRef.current = false;

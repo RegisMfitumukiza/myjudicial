@@ -2,7 +2,7 @@ import { getErrorMessage } from "../../shared/utils/i18n-messages.js";
 import { Request, Response, NextFunction } from "express";
 import { BookingService } from "./booking.service.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
-import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
+import { NotFoundError, ValidationError, AuthorizationError } from "../../shared/errors/index.js";
 import type { CreateBookingDto, UpdateBookingDto, AdminListBookingsQuery, AdminRefundDto, AdminStatsQuery } from "./booking.schemas.js";
 import { BookingStatus, PaymentStatus } from "../../generated/prisma/client.js";
 
@@ -13,8 +13,7 @@ export const BookingController = {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const page = parseInt(req.query.page as string) || 1;
@@ -49,8 +48,7 @@ export const BookingController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const booking = await BookingService.getBookingById(id, userId);
@@ -78,8 +76,7 @@ export const BookingController = {
       const dto: CreateBookingDto = req.body;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
      const { booking, payment } = await BookingService.createBooking({...dto, citizenId: userId });
@@ -108,8 +105,7 @@ export const BookingController = {
       const dto: UpdateBookingDto = req.body;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const booking = await BookingService.updateBooking(id, userId, {
@@ -150,8 +146,7 @@ export const BookingController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const { reason } = req.body;
@@ -252,8 +247,7 @@ export const BookingController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const token = await BookingService.generateLiveKitToken(id, userId);
@@ -322,8 +316,7 @@ export const BookingController = {
       const adminUserId = req.user?.id;
 
       if (!adminUserId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const booking = await BookingService.adminCompleteBooking(bookingId, adminUserId);
@@ -348,8 +341,7 @@ export const BookingController = {
       const dto = req.body as AdminRefundDto;
 
       if (!adminUserId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       await BookingService.adminRefundBooking(bookingId, adminUserId, dto.reason, dto.percentage);
@@ -373,8 +365,7 @@ export const BookingController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const { booking, payment } = await BookingService.retryPayment(id, userId, req.body);
@@ -399,8 +390,7 @@ export const BookingController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const booking = await BookingService.acceptBooking(id, userId);
@@ -425,8 +415,7 @@ export const BookingController = {
       const role = req.user?.role;
 
       if (!userId || !role) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const result = await BookingService.rescheduleBooking(id, userId, role, req.body);
@@ -451,8 +440,7 @@ export const BookingController = {
       const role = req.user?.role;
 
       if (!userId || !role) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const result = await BookingService.approveReschedule(id, userId, role);
@@ -477,8 +465,7 @@ export const BookingController = {
       const role = req.user?.role;
 
       if (!userId || !role) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const result = await BookingService.declineReschedule(id, userId, role, req.body?.reason);

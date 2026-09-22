@@ -131,7 +131,8 @@
       "openInNewTab": "Ouvrir dans un nouvel onglet",
       "previewNotAvailable": "Aperçu non disponible pour ce type de fichier.",
       "downloadFile": "Télécharger le fichier",
-      "download": "Télécharger"
+      "download": "Télécharger",
+      "actionFailed": "L'action a échoué. Veuillez réessayer."
     },
     "users": {
       "title": "Gestion des utilisateurs",
@@ -243,7 +244,8 @@
       "refundProcessed": "Remboursement traité avec succès.",
       "failed": "Échec : ...",
       "refundFailed": "Échec du remboursement : ...",
-      "unknownError": "Une erreur inconnue s'est produite"
+      "unknownError": "Une erreur inconnue s'est produite",
+      "actionFailed": "L'action a échoué. Veuillez réessayer."
     },
     "verifications": {
       "title": "File de vérifications",
@@ -1146,6 +1148,35 @@
       "description": "Une erreur inattendue est survenue. Veuillez réessayer.",
       "tryAgain": "Réessayer",
       "retry": "Réessayer"
+    },
+    "api": {
+      "unauthorized": "Vous n'êtes pas autorisé à accéder à cette ressource",
+      "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter",
+      "invalidCredentials": "E-mail ou mot de passe invalide",
+      "otpInvalid": "Code OTP invalide ou expiré",
+      "otpExpired": "Le code OTP a expiré. Veuillez en demander un nouveau",
+      "otpAttemptsExceeded": "Trop de tentatives de vérification. Veuillez demander un nouveau code",
+      "phoneInUse": "Ce numéro de téléphone est déjà enregistré",
+      "bookingUnavailable": "Ce créneau horaire n'est plus disponible",
+      "bookingNotFound": "Réservation introuvable",
+      "bookingAlreadyCancelled": "Cette réservation a déjà été annulée",
+      "cannotCancelBooking": "Cette réservation ne peut pas être annulée",
+      "insufficientFunds": "Fonds insuffisants pour cette transaction",
+      "paymentFailed": "Le traitement du paiement a échoué. Veuillez réessayer",
+      "paymentAlreadyProcessed": "Le paiement a déjà été traité",
+      "expertNotFound": "Expert introuvable",
+      "expertNotVerified": "Cet expert n'a pas encore été vérifié",
+      "expertSuspended": "Ce compte expert est actuellement suspendu",
+      "profileIncomplete": "Veuillez compléter votre profil avant de continuer",
+      "fileTooLarge": "La taille du fichier dépasse le maximum autorisé (5 Mo)",
+      "invalidFileType": "Type de fichier invalide. Types autorisés : PDF, DOC, DOCX, JPG, PNG",
+      "documentNotFound": "Document introuvable",
+      "rateLimitExceeded": "Trop de requêtes. Veuillez ralentir",
+      "serviceUnavailable": "Service temporairement indisponible. Veuillez réessayer plus tard",
+      "serverError": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard",
+      "validationError": "Veuillez vérifier votre saisie et réessayer",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion",
+      "unknown": "Une erreur s'est produite. Veuillez réessayer"
     }
   },
   "expertOnboarding": {
@@ -1373,7 +1404,8 @@
       "revokeFailed": "Échec de la révocation de la session",
       "languageSaved": "Préférence linguistique enregistrée",
       "languageFailed": "Échec de l'enregistrement de la préférence linguistique",
-      "notificationsSaved": "Préférences de notification enregistrées"
+      "notificationsSaved": "Préférences de notification enregistrées",
+      "verificationUploadFailed": "Le téléchargement des documents de vérification a échoué"
     },
     "expertDashboard": {
       "welcome": "Bonne journée, {name}",
@@ -2140,7 +2172,8 @@
         "other": "Autre motif"
       },
       "contactRate": "Sur devis",
-      "legalServices": "Services juridiques"
+      "legalServices": "Services juridiques",
+      "actionFailed": "L'action a échoué. Veuillez réessayer."
     },
     "aiChat": {
       "title": "AI Legal Assistant",
@@ -5602,5 +5635,13 @@
       "inPerson": "En personne",
       "email": "Consultation par e-mail"
     }
+  },
+  "location": {
+    "gpsNotSupported": "Le GPS n'est pas pris en charge par votre appareil",
+    "locationDenied": "Accès à la localisation refusé. Veuillez activer les services de localisation.",
+    "locationUnavailable": "Informations de localisation indisponibles.",
+    "locationTimeout": "La demande de localisation a expiré.",
+    "locationFailed": "La détection de l'emplacement a échoué",
+    "invalidCoordinates": "Veuillez entrer des coordonnées valides (Latitude: -90 à 90, Longitude: -180 à 180)"
   }
 }

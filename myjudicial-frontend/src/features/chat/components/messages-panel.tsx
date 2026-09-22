@@ -526,7 +526,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
             setEditContent("");
             invalidateAfterSend(activeId);
           },
-          onError: (error) => toast.error(error instanceof Error ? error.message : t("editFailed")),
+          onError: () => toast.error(t("editFailed")),
         }
       );
       return;
@@ -546,8 +546,8 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
           setReplyTo(null);
           invalidateAfterSend(activeId);
         },
-        onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("sendFailed"));
+        onError: () => {
+          toast.error(t("sendFailed"));
         },
       }
     );
@@ -565,7 +565,7 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
       { messageId: msg.id },
       {
         onSuccess: () => invalidateAfterSend(activeId),
-        onError: (error) => toast.error(error instanceof Error ? error.message : t("deleteFailed")),
+        onError: () => toast.error(t("deleteFailed")),
       }
     );
   }
@@ -599,13 +599,13 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
         },
         {
           onSuccess: () => invalidateAfterSend(activeId),
-          onError: (error) => {
-            toast.error(error instanceof Error ? error.message : t("sendAttachmentFailed"));
+          onError: () => {
+            toast.error(t("sendAttachmentFailed"));
           },
         }
       );
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("uploadFailed"));
+    } catch {
+      toast.error(t("uploadFailed"));
     }
   }
 
@@ -623,8 +623,8 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
         a.click();
       }
       setTimeout(() => URL.revokeObjectURL(url), 10_000);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("downloadFailed"));
+    } catch {
+      toast.error(t("downloadFailed"));
     } finally {
       setDownloadingAttachmentId(null);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { 
   ProfilePhotoReminder, 
   CompactPhotoReminder, 
@@ -61,7 +62,7 @@ export default function PhotoReminderDemo() {
   const handleUploadClick = () => {
     console.log('Upload button clicked');
     // In real app: navigate to upload page or open modal
-    alert('Would navigate to photo upload page');
+    toast.info('Navigate to photo upload page');
   };
 
   return (

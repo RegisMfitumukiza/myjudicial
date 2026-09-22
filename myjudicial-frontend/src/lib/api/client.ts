@@ -177,12 +177,16 @@ function makeError(payload: any, status?: number): Error {
     message = `${message}: ${payload.errors.join("; ")}`;
   }
   const error: any = new Error(message);
+  // Attach the machine-readable code so callers can map it to frontend i18n keys
+  // without depending on the pre-translated backend message string.
+  if (payload?.code) error.code = payload.code;
   if (Array.isArray(payload?.errors)) error.errors = payload.errors;
   // Attach the HTTP status so callers (e.g. React Query's retry logic) can
   // distinguish permanent client errors (4xx) from transient server/network ones.
   if (status !== undefined) error.status = status;
   return error;
 }
+
 
 /**
  * Core fetch with automatic token refresh on 401 errors.

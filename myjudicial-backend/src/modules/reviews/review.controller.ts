@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ReviewService } from "./review.service.js";
+import { AuthorizationError } from "../../shared/errors/index.js";
 import type { ReviewStatus } from "../../generated/prisma/client.js";
 import type {
   CreateReviewDto,
@@ -27,8 +28,7 @@ export const ReviewController = {
       const dto: CreateReviewDto = req.body;
 
       if (!citizenId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const review = await ReviewService.createReview(bookingId, citizenId, dto);
@@ -102,8 +102,7 @@ export const ReviewController = {
       const query = (req.validatedQuery ?? req.query) as unknown as ListMyReviewsQuery;
 
       if (!citizenId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const page = parseInt(query.page || "1") || 1;
@@ -136,8 +135,7 @@ export const ReviewController = {
       const dto: UpdateReviewDto = req.body;
 
       if (!citizenId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const review = await ReviewService.updateReview(reviewId, citizenId, dto);
@@ -162,8 +160,7 @@ export const ReviewController = {
       const citizenId = req.user?.id;
 
       if (!citizenId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       await ReviewService.deleteReview(reviewId, citizenId);
@@ -306,8 +303,7 @@ export const ReviewController = {
       const dto: ExpertReplyDto = req.body;
 
       if (!expertId) {
-        res.status(403).json({ error: "Expert profile required" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const reply = await ReviewService.replyToReview(reviewId, expertId, dto);
@@ -329,8 +325,7 @@ export const ReviewController = {
       const dto: UpdateExpertReplyDto = req.body;
 
       if (!expertId) {
-        res.status(403).json({ error: "Expert profile required" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const reply = await ReviewService.updateReply(reviewId, expertId, dto);
@@ -351,8 +346,7 @@ export const ReviewController = {
       const expertId = req.user?.expertProfileId;
 
       if (!expertId) {
-        res.status(403).json({ error: "Expert profile required" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       await ReviewService.deleteReply(reviewId, expertId);
@@ -374,8 +368,7 @@ export const ReviewController = {
       const dto: ReactToReviewDto = req.body;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       await ReviewService.reactToReview(reviewId, userId, dto);
@@ -395,8 +388,7 @@ export const ReviewController = {
       const userId = req.user?.id;
 
       if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       await ReviewService.removeReaction(reviewId, userId);
@@ -418,8 +410,7 @@ export const ReviewController = {
       const dto: ReportReviewDto = req.body;
 
       if (!reporterId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
+        throw new AuthorizationError("UNAUTHORIZED");
       }
 
       const report = await ReviewService.reportReview(reviewId, reporterId, dto);

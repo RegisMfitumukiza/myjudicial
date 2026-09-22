@@ -209,8 +209,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
           window.location.href = data.payment.paymentLink;
         }
       },
-      onError: (error: Error) => {
-        toast.error(`${t("bookingFailed")}: ${error.message}`);
+      onError: () => {
+        toast.error(t("bookingFailed"));
       },
     });
   }

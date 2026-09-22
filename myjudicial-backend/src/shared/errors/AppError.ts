@@ -1,17 +1,21 @@
 /**
  * Base application error. All domain-specific errors extend this.
- * Carries an HTTP status code and an optional structured errors array
+ * Carries an HTTP status code, an optional machine-readable `code` for
+ * frontend i18n mapping, and an optional structured errors array
  * for Zod-style field-level validation messages.
  */
 export class AppError extends Error {
   readonly statusCode: number;
   readonly isOperational: boolean;
+  /** Machine-readable error code forwarded to the client (e.g. "BOOKING_UNAVAILABLE"). */
+  readonly code?: string;
   readonly errors?: string[];
 
-  constructor(message: string, statusCode = 500, errors?: string[]) {
+  constructor(message: string, statusCode = 500, errors?: string[], code?: string) {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
+    this.code = code ?? (message === message.toUpperCase() && !message.includes(' ') ? message : undefined);
     this.errors = errors;
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);

@@ -48,8 +48,8 @@ export function LanguageSettingsCard() {
           queryClient.invalidateQueries({ queryKey: getGetAuthMeQueryKey() });
           router.replace(pathname, { locale: language });
         },
-        onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t("failedToSave"));
+        onError: () => {
+          toast.error(t("failedToSave"));
         },
       }
     );

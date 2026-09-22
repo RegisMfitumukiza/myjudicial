@@ -102,7 +102,20 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     [ConnectionQuality.Unknown]: { label: "", dot: "bg-gray-400" },
   };
   const quality = qualityInfo[connectionQuality];
-  const errorMessage = error === "connectionLost" ? t("connectionLost") : error;
+  const errorMessage =
+    error === "connectionLost"
+      ? t("connectionLost")
+      : error === "failedToJoin"
+      ? t("failedToJoin")
+      : error === "roomDeleted"
+      ? t("roomDeleted")
+      : error === "serverShutdown"
+      ? t("serverShutdown")
+      : error === "participantRemoved"
+      ? t("participantRemoved")
+      : error === "duplicateIdentity"
+      ? t("duplicateIdentity")
+      : (error ? t("connectionError") : "");
 
   if (status === "connecting") {
     return (

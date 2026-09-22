@@ -16,6 +16,8 @@ import { debounce } from 'lodash';
 import { apiFetchEnvelope } from '@/lib/api/client';
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface LocationData {
   latitude: number;
@@ -54,6 +56,7 @@ interface FreeLocationInputProps {
 }
 
 export function FreeLocationInput({ value, onChange, required = false }: FreeLocationInputProps) {
+  const t = useTranslations('location');
   const [activeMethod, setActiveMethod] = useState<'address' | 'district' | 'gps' | 'coordinates' | 'landmarks' | 'map'>('address');
   const [addressQuery, setAddressQuery] = useState('');
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
@@ -157,7 +160,7 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
 
   const detectGPSLocation = async () => {
     if (!navigator.geolocation) {
-      alert('GPS not supported by your device');
+      toast.error(t('gpsNotSupported'));
       return;
     }
 
@@ -202,19 +205,19 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
       },
       (error) => {
         setIsLoading(false);
-        let message = 'Location detection failed';
+        let message = t('locationFailed');
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            message = 'Location access denied. Please enable location services.';
+            message = t('locationDenied');
             break;
           case error.POSITION_UNAVAILABLE:
-            message = 'Location information unavailable.';
+            message = t('locationUnavailable');
             break;
           case error.TIMEOUT:
-            message = 'Location request timed out.';
+            message = t('locationTimeout');
             break;
         }
-        alert(message);
+        toast.error(message);
       },
       {
         enableHighAccuracy: true,
@@ -253,7 +256,7 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
     const lng = parseFloat(manualLng);
     
     if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      alert('Please enter valid coordinates (Latitude: -90 to 90, Longitude: -180 to 180)');
+      toast.error(t('invalidCoordinates'));
       return;
     }
     

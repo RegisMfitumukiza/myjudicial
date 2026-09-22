@@ -163,7 +163,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expert-reviews", id] });
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   const reportMutation = useMutation({
@@ -175,7 +175,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
       setReportReason("");
       setReportDetails("");
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: () => toast.error(t("actionFailed")),
   });
 
   function handleBookClick() {

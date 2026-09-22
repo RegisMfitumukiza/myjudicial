@@ -97,7 +97,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         queryClient.invalidateQueries({ queryKey: getGetAdminBookingsQueryKey() });
         setShowComplete(false);
       },
-      onError: (err: Error) => toast.error(t("failed") + `: ${err.message}`),
+      onError: () => toast.error(t("actionFailed")),
     },
   });
 
@@ -108,7 +108,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         queryClient.invalidateQueries({ queryKey: getGetAdminBookingsQueryKey() });
         setShowRefund(false);
       },
-      onError: (err: Error) => toast.error(t("refundFailed", { msg: err.message })),
+      onError: () => toast.error(t("refundFailed")),
     },
   });
 

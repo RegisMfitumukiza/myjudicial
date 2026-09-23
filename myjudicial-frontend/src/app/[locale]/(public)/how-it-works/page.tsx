@@ -14,14 +14,29 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
+    alternates: {
+      canonical: `https://myjudicial.rw/${locale}/how-it-works`,
+      languages: {
+        en: "https://myjudicial.rw/en/how-it-works",
+        fr: "https://myjudicial.rw/fr/how-it-works",
+        rw: "https://myjudicial.rw/rw/how-it-works",
+        "x-default": "https://myjudicial.rw/en/how-it-works",
+      },
+    },
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: "https://myjudicial.rw/how-it-works",
+      url: `https://myjudicial.rw/${locale}/how-it-works`,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png" }],
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "How MyJudicial Works" }],
       locale: locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US",
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+      images: ["/og-image.png"],
     },
   };
 }

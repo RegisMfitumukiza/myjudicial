@@ -4990,116 +4990,152 @@
   },
   "howItWorksPage": {
     "meta": {
-      "title": "Comment ça Marche | MyJudicial",
-      "description": "Découvrez comment trouver, consulter et engager des avocats certifiés sur MyJudicial en quatre étapes simples."
+      "title": "Comment ça marche | Plateforme Juridique MyJudicial",
+      "description": "Découvrez comment MyJudicial met en relation les justiciables avec des avocats certifiés du Barreau du Rwanda grâce à la préparation des dossiers, la réservation sous séquestre, la vidéo LiveKit chiffrée et la continuité judiciaire."
     },
     "hero": {
-      "badge": "Avocats Certifiés · Séquestre Sécurisé · Résultats Clairs",
-      "title": "Comment MyJudicial vous connecte aux meilleurs avocats",
-      "subtitle": "De votre première question juridique jusqu'à sa résolution. Découvrez comment l'accréditation du Barreau du Rwanda, la réservation numérique et le séquestre Mobile Money s'articulent."
+      "badge": "Accréditation Barreau du Rwanda · Séquestre Garanti · Continuité Judiciaire",
+      "title": "Comment MyJudicial Facilite Vos Consultations Juridiques",
+      "subtitle": "De la préparation du dossier au conseil juridique chiffré et à la représentation formelle devant les tribunaux. Transparent, sécurisé et spécialement conçu pour le droit rwandais."
     },
     "tabs": {
-      "clients": "Pour les Citoyens & Entreprises",
-      "advocates": "Pour les Avocats Certifiés"
+      "clients": "Pour Citoyens & Entreprises",
+      "advocates": "Pour Avocats Certifiés"
     },
     "clientJourney": {
-      "badge": "Parcours Client Étape par Étape",
-      "title": "Comment consulter un avocat",
-      "subtitle": "Quatre étapes simples pour accéder à un accompagnement juridique certifié partout au Rwanda.",
+      "badge": "Expérience Client Étape par Étape",
+      "title": "Quatre Étapes vers un Conseil Juridique Professionnel",
+      "subtitle": "Un processus structuré et transparent conçu pour vous offrir clarté, confidentialité et expertise juridique certifiée partout au Rwanda.",
       "step1": {
         "tag": "Étape 01",
-        "title": "Recherche ou Triage Juridique par l'IA",
-        "desc": "Parcourez notre annuaire par domaine et localisation, ou décrivez votre litige en kinyarwanda, anglais ou français à notre Assistant IA pour être orienté immédiatement."
+        "title": "Préparation du Dossier & Preuves",
+        "desc": "Décrivez votre situation en kinyarwanda, anglais ou français, ou utilisez notre assistant IA pour un triage immédiat. Téléversez en toute sécurité vos titres fonciers UPI, contrats ou convocations avant l'entretien."
       },
       "step2": {
         "tag": "Étape 02",
-        "title": "Comparez les Titres & Honoraires",
-        "desc": "Consultez l'inscription au Tableau du Barreau du Rwanda, l'expérience en prétoire, les avis vérifiés et les honoraires forfaitaires sans frais cachés."
+        "title": "Comparez les Avocats & Honoraires",
+        "desc": "Consultez l'inscription au tableau de l'Ordre des Avocats du Rwanda, l'expérience judiciaire, les spécialités et les tarifs fixes de consultation sans mauvaise surprise."
       },
       "step3": {
         "tag": "Étape 03",
-        "title": "Réservez avec Protection sous Séquestre",
-        "desc": "Choisissez un créneau d'agenda adapté à vos disponibilités. Payez en toute sécurité via MTN MoMo, Airtel Money ou Carte. Les fonds restent sous séquestre jusqu'à la fin de la séance."
+        "title": "Réservez avec Séquestre Protégé",
+        "desc": "Choisissez un créneau disponible. Votre règlement est consigné en toute sécurité sous séquestre via MTN Mobile Money, Airtel Money ou Carte. Les fonds ne sont libérés qu'après l'entretien."
       },
       "step4": {
         "tag": "Étape 04",
-        "title": "Consultez selon le Mode Choisi",
-        "desc": "Participez à une visioconférence chiffrée, recevez un appel téléphonique direct ou rencontrez l'avocat en son cabinet. Partagez ensuite votre retour d'expérience."
+        "title": "Consultez & Obtenez une Stratégie Précise",
+        "desc": "Rejoignez votre avocat en visioconférence chiffrée dans votre navigateur, par appel direct ou en cabinet à Kigali. Obtenez un avis juridique clair et des recommandations pratiques."
       }
     },
     "advocateJourney": {
-      "badge": "Pour les Professionnels du Droit",
-      "title": "Comment exercer sur MyJudicial",
-      "subtitle": "Développez votre clientèle grâce à des outils numériques modernes, des paiements garantis sous séquestre et sans relance d'impayés.",
+      "badge": "Pratique Professionnelle des Avocats",
+      "title": "Comment les Avocats Exercent sur MyJudicial",
+      "subtitle": "Optimisez l'accueil des dossiers, éliminez les impayés et développez votre clientèle au Rwanda et auprès de la diaspora.",
       "step1": {
         "tag": "Étape 01",
-        "title": "Candidature avec Justificatifs du Barreau",
-        "desc": "Inscrivez-vous avec votre numéro au Tableau du Barreau du Rwanda, les coordonnées de votre cabinet et votre pièce d'identité nationale."
+        "title": "Vérification d'Identité & Barreau",
+        "desc": "Inscrivez-vous avec votre numéro au tableau du Barreau du Rwanda, votre certificat d'exercice et votre pièce d'identité. Notre équipe de conformité valide votre statut actif."
       },
       "step2": {
         "tag": "Étape 02",
-        "title": "Contrôle de Conformité & Validation",
-        "desc": "Notre équipe juridique contrôle votre certificat d'exercice et votre statut auprès du Conseil de l'Ordre avant d'activer votre badge vérifié."
+        "title": "Fixez vos Tarifs & Disponibilités",
+        "desc": "Conservez une totale indépendance professionnelle. Déterminez vos honoraires de consultation, vos plages horaires et activez vos modes de délivrance (Vidéo, Téléphone ou Cabinet)."
       },
       "step3": {
         "tag": "Étape 03",
-        "title": "Paramétrez vos Services & Agenda",
-        "desc": "Fixez librement vos honoraires de consultation, définissez vos plages de disponibilité et choisissez vos modes d'exercice (Vidéo, Téléphone ou Cabinet)."
+        "title": "Examinez les Éléments du Dossier",
+        "desc": "Recevez la synthèse du client et les pièces justificatives téléversées (titres UPI, contrats, courriers) avant la consultation pour intervenir en étant parfaitement préparé."
       },
       "step4": {
         "tag": "Étape 04",
-        "title": "Réalisez vos Consultations & Encaissez",
-        "desc": "Consultez des clients qualifiés. Dès la fin de la consultation, vos honoraires sont débloqués directement sur votre compte Mobile Money ou bancaire."
+        "title": "Consultation & Paiement Garanti",
+        "desc": "Délivrez vos conseils en toute sérénité. À la conclusion de la séance, les fonds séquestrés sont automatiquement transférés vers votre compte Mobile Money ou compte bancaire rwandais."
       }
     },
     "modalities": {
-      "badge": "Modes de Consultation Flexibles",
-      "title": "Trois Façons d'Échanger avec votre Avocat",
-      "subtitle": "Choisissez le format de consultation le mieux adapté à votre situation et à votre localisation au Rwanda.",
+      "badge": "Modalités de Consultation",
+      "title": "Trois Façons de Consulter Votre Avocat",
+      "subtitle": "Choisissez la formule adaptée à votre affaire juridique, vos exigences de confidentialité et votre connectivité.",
       "video": {
-        "title": "Consultation Vidéo Chiffrée",
-        "desc": "Directement depuis votre navigateur web sans aucun téléchargement d'application. Comprend le partage de documents et un flux vidéo haute sécurité.",
-        "feature1": "Session chiffrée de bout en bout",
-        "feature2": "Partage d'écran et de pièces du dossier",
-        "feature3": "Accessible sur smartphone ou ordinateur"
+        "title": "Visioconférence Chiffrée dans le Navigateur",
+        "desc": "Fonctionne directement dans votre navigateur via WebRTC sans installer de logiciel. Partagez vos documents et titres fonciers en direct avec un chiffrement 256 bits audio-vidéo.",
+        "feature1": "Séance chiffrée de bout en bout (256 bits)",
+        "feature2": "Partage d'écran pour documents et titres fonciers (UPI)",
+        "feature3": "Accessible sur tout smartphone ou ordinateur"
       },
       "phone": {
         "title": "Consultation Téléphonique Directe",
-        "desc": "Idéal pour un conseil rapide ou dans les zones à faible connectivité internet. L'avocat compose directement votre numéro vérifié à l'heure convenue.",
-        "feature1": "Fonctionne sur tous les réseaux (MTN / Airtel)",
-        "feature2": "Parfait pour les urgences ou zones rurales",
-        "feature3": "Aucune connexion internet requise pour l'appel"
+        "desc": "Conçue pour les clients en zones rurales ou à faible couverture internet. Votre avocat vous appelle directement sur votre ligne téléphonique vérifiée à l'heure convenue.",
+        "feature1": "Appel réseau direct sur MTN Rwanda ou Airtel",
+        "feature2": "Aucune connexion internet ni données requises",
+        "feature3": "Idéal pour un conseil urgent et rapide"
       },
       "inPerson": {
         "title": "Rendez-vous en Cabinet",
-        "desc": "Rencontrez votre avocat en personne dans son cabinet officiellement enregistré à Kigali ou en province.",
-        "feature1": "Adresse exacte du cabinet transmise à la réservation",
-        "feature2": "Examen physique des dossiers et actes originaux",
-        "feature3": "Préparation d'une représentation en justice"
+        "desc": "Rencontrez votre avocat en personne à son cabinet ou étude officiellement enregistrée à Kigali ou en province pour l'examen des pièces physiques originales.",
+        "feature1": "Adresse du cabinet et modalités d'accueil confirmées",
+        "feature2": "Examen minutieux des originaux et cachets officiels",
+        "feature3": "Recommandé pour contentieux lourds et signatures"
+      },
+      "roomMockup": {
+        "liveBadge": "EN DIRECT",
+        "encryptionBadge": "WEBRTC CHIFFRÉ 256 BITS",
+        "advocateName": "Me. Jean-Paul Habimana",
+        "advocateRole": "Avocat Senior · Barreau du Rwanda",
+        "barRoll": "Tableau de l'Ordre n° 482",
+        "documentTitle": "Examen du Certificat Foncier",
+        "documentType": "Extrait du Registre Foncier National",
+        "documentUpi": "UPI: 1/02/03/04/5892 - Gasabo, Kigali",
+        "verifiedDoc": "Authenticité Vérifiée · Autorité Foncière du Rwanda",
+        "sessionTime": "Restant: 34:12",
+        "muteTooltip": "Couper micro",
+        "cameraTooltip": "Caméra active",
+        "screenShareTooltip": "Partage de document",
+        "leaveTooltip": "Terminer la séance"
       }
     },
-    "trustFramework": {
-      "badge": "Accréditation & Confiance",
-      "title": "La Garantie de Confiance MyJudicial",
-      "subtitle": "Établie en stricte conformité avec les règles déontologiques du Barreau du Rwanda.",
-      "item1": {
-        "title": "100% d'Avocats Contrôlés au Barreau",
-        "desc": "Chaque avocat fait l'objet d'un recoupement avec le Tableau officiel de l'Ordre des Avocats du Rwanda avant toute prise de rendez-vous."
+    "continuity": {
+      "badge": "Continuité Judiciaire",
+      "title": "De la Consultation à la Représentation en Justice",
+      "subtitle": "La consultation n'est que la première étape. Voici comment MyJudicial permet de passer du conseil en ligne à l'action en justice devant les juridictions rwandaises.",
+      "step1": {
+        "tag": "Phase 01",
+        "title": "Diagnostic & Analyse Juridique",
+        "desc": "Durant votre entretien de 45 minutes, l'avocat évalue la solidité juridique de votre dossier, analyse les pièces, identifie les lois applicables et détermine la meilleure stratégie."
       },
-      "item2": {
-        "title": "Garantie de Séquestre Réglementée",
-        "desc": "Votre argent n'est jamais transféré directement à un tiers sans validation. Les fonds restent verrouillés jusqu'à la bonne tenue de la consultation."
+      "step2": {
+        "tag": "Phase 02",
+        "title": "Convention d'Honoraires & Procuration",
+        "desc": "Si une représentation est nécessaire, votre avocat établit une convention d'honoraires officielle avec mandat de représentation (procuration) pour plaider en justice ou rédiger vos actes."
       },
-      "item3": {
-        "title": "Avis Clients Authentiques",
-        "desc": "Seuls les clients ayant effectivement réservé et effectué une consultation peuvent publier un avis. Zéro faux avis."
+      "step3": {
+        "tag": "Phase 03",
+        "title": "Procédure Judiciaire & Suivi Numérique",
+        "desc": "Votre avocat assure votre représentation devant les tribunaux de base, de grande instance, la Haute Cour ou les tribunaux de commerce (via l'IECMS) avec un suivi sécurisé des conclusions."
       }
+    },
+    "faqs": {
+      "badge": "FAQ Pratique",
+      "title": "Questions Fréquentes sur le Fonctionnement",
+      "subtitle": "Tout ce que vous devez savoir pour préparer, réserver et tenir votre consultation sur MyJudicial.",
+      "q1": "Je réside dans la diaspora rwandaise (USA, Europe, CAE). Puis-je consulter un avocat pour un litige foncier ou d'affaires au Rwanda ?",
+      "a1": "Oui. Une part importante de nos usagers réside à l'étranger. Vous pouvez régler par carte bancaire internationale, choisir un créneau selon votre fuseau horaire et consulter votre avocat en visioconférence chiffrée pour examiner des titres fonciers (UPI), statuts d'entreprise ou dossiers successoraux.",
+      "q2": "Quelles sont les langues parlées par les avocats sur MyJudicial ?",
+      "a2": "Tous les avocats inscrits sur MyJudicial maîtrisent au moins deux des langues officielles du Rwanda. Vous pouvez filtrer et consulter en kinyarwanda, français ou anglais, vous garantissant d'échanger dans la langue où vous êtes le plus à l'aise.",
+      "q3": "Dois-je télécharger Zoom, Teams ou une application pour participer à la visioconférence ?",
+      "a3": "Non. Notre espace de consultation s'exécute directement dans votre navigateur web (Chrome, Safari, Firefox, Edge) grâce à LiveKit WebRTC. Aucun téléchargement ni création de compte tiers n'est requis sur mobile ou ordinateur.",
+      "q4": "Comment se déroule la consultation téléphonique si ma connexion internet est faible ?",
+      "a4": "Si vous optez pour la consultation téléphonique, aucune connexion internet n'est nécessaire. À l'heure du rendez-vous, l'avocat compose directement votre numéro mobile vérifié MTN ou Airtel.",
+      "q5": "Puis-je transmettre mes titres de propriété (UPI), contrats ou assignations avant le rendez-vous ?",
+      "a5": "Oui. Lors de la prise de rendez-vous, vous pouvez téléverser vos documents PDF ou photos de pièces justificatives. Votre avocat y a accès de manière strictement confidentielle avant l'appel pour arriver pleinement préparé.",
+      "q6": "L'avocat peut-il me représenter au tribunal après notre consultation en ligne ?",
+      "a6": "Oui. La consultation constitue souvent la base d'une représentation complète. Si votre dossier exige une action en justice ou une négociation formelle, l'avocat établira une convention d'honoraires et une procuration pour vous représenter devant les tribunaux rwandais via l'IECMS."
     },
     "cta": {
-      "title": "Prêt à obtenir une assistance juridique de confiance ?",
-      "subtitle": "Mettez-vous en relation avec un avocat membre du Barreau du Rwanda en quelques clics.",
+      "title": "Prêt à obtenir un conseil juridique certifié au Rwanda ?",
+      "subtitle": "Entrez en contact avec un avocat accrédité du Barreau du Rwanda en quelques minutes ou rejoignez le réseau d'avocats.",
       "findLawyer": "Trouver un Avocat",
-      "joinAsAdvocate": "Rejoindre comme Avocat"
+      "joinAsAdvocate": "Postuler comme Avocat"
     }
   },
   "legalPages": {

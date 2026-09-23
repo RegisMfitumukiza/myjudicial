@@ -3659,116 +3659,152 @@
   },
   "howItWorksPage": {
     "meta": {
-      "title": "How It Works | MyJudicial",
-      "description": "Learn how to find, consult, and hire verified legal experts on MyJudicial in four simple steps."
+      "title": "How It Works | MyJudicial Legal Marketplace",
+      "description": "Discover how MyJudicial connects clients with certified Rwanda Bar Association advocates through pre-consultation intake, escrow booking, encrypted LiveKit video, and courtroom continuity."
     },
     "hero": {
-      "badge": "Verified Advocates · Escrow Protection · Clear Outcomes",
-      "title": "How MyJudicial Connects You with Trusted Legal Counsel",
-      "subtitle": "From your initial legal question to verified resolution. Learn how Rwanda Bar Association accreditation, modern digital booking, and secure Mobile Money escrow work together."
+      "badge": "Rwanda Bar Accreditation · Escrow Protection · Courtroom Continuity",
+      "title": "How MyJudicial Powers Verified Legal Consultations",
+      "subtitle": "From pre-consultation case preparation to encrypted advisory and formal courtroom representation. Transparent, secure, and built specifically for Rwandan law."
     },
     "tabs": {
       "clients": "For Citizens & Businesses",
       "advocates": "For Certified Advocates"
     },
     "clientJourney": {
-      "badge": "Step-by-step Client Experience",
-      "title": "How to Consult with an Advocate",
-      "subtitle": "Four simple stages to access high quality, certified legal assistance anywhere in Rwanda.",
+      "badge": "Operational Client Experience",
+      "title": "Four Stages to Professional Legal Counsel",
+      "subtitle": "A transparent, structured process designed to give you clarity, confidentiality, and trusted advocacy anywhere in Rwanda.",
       "step1": {
         "tag": "Step 01",
-        "title": "Search or AI Legal Triage",
-        "desc": "Browse our directory by practice area and location, or describe your situation in plain Kinyarwanda, English, or French to our AI Assistant to identify matching specialists instantly."
+        "title": "Case Intake & Evidence Preparation",
+        "desc": "Describe your legal matter in plain Kinyarwanda, English, or French, or use our AI Assistant for instant triage. Securely upload UPI land titles, contracts, or summons before your session."
       },
       "step2": {
         "tag": "Step 02",
-        "title": "Compare Verified Credentials & Rates",
-        "desc": "Inspect Rwanda Bar Association Roll registration, verified courtroom experience, peer ratings, and upfront consultation fees with zero hidden surprises."
+        "title": "Compare Verified Advocates & Rates",
+        "desc": "Inspect Rwanda Bar Association Roll standing, courtroom seniority, certified specialties, and upfront consultation fees with zero hidden markups or guesswork."
       },
       "step3": {
         "tag": "Step 03",
-        "title": "Book with Escrow Protection",
-        "desc": "Select a calendar slot that fits your schedule. Pay securely via MTN Mobile Money, Airtel Money, or Card. Funds remain locked safely in escrow until the session is completed."
+        "title": "Book with Regulated Escrow",
+        "desc": "Select a live calendar slot. Your fee is locked securely in regulated escrow via MTN Mobile Money, Airtel Money, or Card. Funds are only disbursed after satisfactory session completion."
       },
       "step4": {
         "tag": "Step 04",
-        "title": "Meet & Resolve via Chosen Modality",
-        "desc": "Join an encrypted in-browser video call, receive a direct phone call, or meet face-to-face at their registered law chambers. After the session, leave an authentic review."
+        "title": "Consult & Receive Actionable Strategy",
+        "desc": "Meet via our encrypted in-browser video room, direct phone call, or physical Kigali chambers. Receive structured legal opinions, document notes, and clear next steps."
       }
     },
     "advocateJourney": {
-      "badge": "For Legal Professionals",
-      "title": "How Advocates Practice on MyJudicial",
-      "subtitle": "Grow your legal practice with digital tools, guaranteed escrow payouts, and zero payment chasing.",
+      "badge": "Advocate Practice Workflow",
+      "title": "How Accredited Advocates Practice on MyJudicial",
+      "subtitle": "Streamline client intake, eliminate payment chasing, and expand your legal chambers across Rwanda and the diaspora.",
       "step1": {
         "tag": "Step 01",
-        "title": "Apply with Bar Credentials",
-        "desc": "Register with your official Rwanda Bar Association Roll number, law firm credentials, and national ID for professional accreditation."
+        "title": "Identity & Bar Roll Verification",
+        "desc": "Register with your official Rwanda Bar Association Roll number, practicing certificate, and National ID. Our compliance team verifies your active standing."
       },
       "step2": {
         "tag": "Step 02",
-        "title": "Compliance & Vetting Check",
-        "desc": "Our legal compliance team validates your Bar certificate, active status, and disciplinary standing before activating your verified badge."
+        "title": "Set Custom Rates & Availability",
+        "desc": "Retain full professional autonomy. Set your own consultation rates, define working hours, and toggle delivery modes (Encrypted Video, Phone, or Kigali Chambers)."
       },
       "step3": {
         "tag": "Step 03",
-        "title": "Configure Services & Calendar",
-        "desc": "Set your own consultation fees, define your working hours, and choose which delivery modes you offer (Video, Phone, or In-Person at your chambers)."
+        "title": "Review Case Brief & Evidence",
+        "desc": "Receive organized client intake summaries and uploaded evidence files (land UPIs, employment letters, agreements) prior to the call so you arrive fully prepared."
       },
       "step4": {
         "tag": "Step 04",
-        "title": "Conduct Sessions & Guaranteed Payouts",
-        "desc": "Consult with verified clients across Rwanda. Once consultations conclude, funds are deposited directly to your Mobile Money or bank account."
+        "title": "Conduct Session & Direct Escrow Payout",
+        "desc": "Deliver your legal advice with confidence. Upon session completion, escrow funds are deposited automatically to your Mobile Money or Rwandan bank account."
       }
     },
     "modalities": {
-      "badge": "Flexible Consultation Modes",
+      "badge": "Consultation Modalities",
       "title": "Three Ways to Meet Your Advocate",
-      "subtitle": "Choose the consultation style that best matches your legal matter and location in Rwanda.",
+      "subtitle": "Choose the consultation style that best matches your legal matter, confidentiality preference, and connectivity.",
       "video": {
-        "title": "Encrypted Video Consultation",
-        "desc": "Directly in your browser with no app downloads required. Includes document screen-sharing and encrypted audio-video.",
-        "feature1": "End-to-end encrypted session",
-        "feature2": "Document & evidence screen sharing",
-        "feature3": "Join from any smartphone or PC"
+        "title": "Encrypted In-Browser Video",
+        "desc": "Pure browser-based WebRTC with zero software downloads. Features secure screen sharing for real-time document examination and 256-bit audio-video encryption.",
+        "feature1": "256-bit end-to-end encrypted session",
+        "feature2": "Live document & land title (UPI) screen share",
+        "feature3": "Runs on any mobile or desktop web browser"
       },
       "phone": {
-        "title": "Direct Phone Consultation",
-        "desc": "For immediate advice or situations with low internet bandwidth. The advocate calls your verified phone number on schedule.",
-        "feature1": "Works on all telecom networks (MTN / Airtel)",
-        "feature2": "Ideal for urgent advice or remote areas",
-        "feature3": "No internet connection required for the call"
+        "title": "Direct Telecom Phone Call",
+        "desc": "Engineered for clients in remote districts or areas with low mobile data coverage. Your advocate initiates a direct carrier voice call to your verified phone on schedule.",
+        "feature1": "Carrier connection on MTN Rwanda or Airtel",
+        "feature2": "Zero internet or data connection required",
+        "feature3": "Ideal for fast verbal triage and immediate advice"
       },
       "inPerson": {
         "title": "In-Person Chambers Meeting",
-        "desc": "Meet your advocate face-to-face at their officially registered law office or chambers in Kigali or across Rwanda.",
-        "feature1": "Chambers location provided upon booking",
-        "feature2": "Physical review of original legal files",
-        "feature3": "Formal legal representation prep"
+        "desc": "Meet your advocate face-to-face at their officially registered law office or chambers in Kigali or secondary cities for in-depth physical review of legal files.",
+        "feature1": "Chambers address and reception details confirmed",
+        "feature2": "Physical inspection of original deeds and stamps",
+        "feature3": "Recommended for major litigation & signing"
+      },
+      "roomMockup": {
+        "liveBadge": "LIVE SESSION",
+        "encryptionBadge": "256-BIT ENCRYPTED WEBRTC",
+        "advocateName": "Me. Jean-Paul Habimana",
+        "advocateRole": "Senior Advocate · Rwanda Bar Association",
+        "barRoll": "RBA Roll #482",
+        "documentTitle": "Land Certificate Review",
+        "documentType": "Official Land Registry Extract",
+        "documentUpi": "UPI: 1/02/03/04/5892 - Gasabo, Kigali",
+        "verifiedDoc": "Authenticity Verified · Rwanda Land Management and Use Authority",
+        "sessionTime": "Remaining: 34:12",
+        "muteTooltip": "Mute Audio",
+        "cameraTooltip": "Camera On",
+        "screenShareTooltip": "Sharing Land Title",
+        "leaveTooltip": "Conclude Consultation"
       }
     },
-    "trustFramework": {
-      "badge": "Accreditation & Trust",
-      "title": "The MyJudicial Trust Guarantee",
-      "subtitle": "Built in accordance with Rwanda Bar Association standards and legal ethics.",
-      "item1": {
-        "title": "100% Bar-Vetted Advocates",
-        "desc": "Every single advocate is cross-checked against the official Rwanda Bar Association Roll before taking any consultations."
+    "continuity": {
+      "badge": "Case Continuum",
+      "title": "From Consultation to Courtroom Representation",
+      "subtitle": "A consultation is only the first step. Here is how MyJudicial bridges online advice into formal legal action across Rwanda's judicial system.",
+      "step1": {
+        "tag": "Phase 01",
+        "title": "Discovery & Legal Diagnostic",
+        "desc": "During your 45-minute consultation, the advocate evaluates the merits of your case, reviews evidence, identifies applicable Rwandan laws, and outlines strategic options."
       },
-      "item2": {
-        "title": "Regulated Escrow Safeguards",
-        "desc": "Your money never goes directly to an unverified third party. Funds stay locked until the consultation is completed satisfactorily."
+      "step2": {
+        "tag": "Phase 02",
+        "title": "Formal Engagement & Retainer Agreement",
+        "desc": "If formal representation is required, your advocate issues an official retainer agreement (convention d'honoraires) with power of attorney (procuration) for court proceedings or contract drafting."
       },
-      "item3": {
-        "title": "Authentic Client Ratings",
-        "desc": "Only clients who have paid for and completed a consultation can leave a review. Zero fake or incentivized reviews."
+      "step3": {
+        "tag": "Phase 03",
+        "title": "Litigation & Secure Document Continuity",
+        "desc": "Your advocate represents you before Rwandan Primary, Intermediate, High, or Commercial Courts (via IECMS), keeping ongoing case briefs and judicial rulings synchronized."
       }
+    },
+    "faqs": {
+      "badge": "Operational FAQs",
+      "title": "Frequently Asked Operational Questions",
+      "subtitle": "Everything you need to know about preparing, booking, and consulting on MyJudicial.",
+      "q1": "I am in the Rwandan diaspora (USA, Europe, EAC). Can I consult an advocate about land or business in Rwanda?",
+      "a1": "Yes. A substantial portion of our clients reside abroad in the diaspora. You can pay with international credit or debit cards, schedule consultations across international time zones, and meet your advocate via our encrypted in-browser video room to review land titles (UPI), commercial contracts, or succession documents.",
+      "q2": "What languages do advocates on MyJudicial speak?",
+      "a2": "All advocates on MyJudicial are fluent in at least two of Rwanda's official legal languages. You can filter and consult in Kinyarwanda, English, or French, ensuring you can explain your situation in the language you feel most comfortable with.",
+      "q3": "Do I need to download Zoom, Teams, or an app to join the consultation?",
+      "a3": "No. Our consultation room runs 100% inside your web browser (Safari, Chrome, Firefox, Edge) using LiveKit WebRTC. You do not need to install software, sign up for third-party accounts, or download any plugins on your computer or mobile phone.",
+      "q4": "How does the direct telephone consultation work if my internet is weak?",
+      "a4": "If you choose the Phone Consultation modality, you do not need an internet connection. At the scheduled consultation time, the advocate will place a direct carrier telephone call to the verified MTN or Airtel mobile number you provided during booking.",
+      "q5": "Can I upload land title documents (UPI), contracts, or court summons before the call?",
+      "a5": "Yes. During the intake process, you can securely upload PDF documents, scanned deeds, or photo evidence. Your advocate has confidential access to these files prior to the session, ensuring they arrive fully prepared rather than spending billable consultation minutes reading documents.",
+      "q6": "Can the advocate represent me in court after our online consultation?",
+      "a6": "Yes. Online consultations frequently lead to full legal representation. If your matter requires courtroom litigation, contract drafting, or negotiation, the advocate will provide an official engagement agreement (convention d'honoraires) and power of attorney (procuration) to represent you before Rwandan courts via the Integrated Electronic Case Management System (IECMS)."
     },
     "cta": {
-      "title": "Ready to get trusted legal assistance?",
-      "subtitle": "Connect with an accredited Rwanda Bar Association advocate in minutes.",
+      "title": "Ready to get trusted legal counsel in Rwanda?",
+      "subtitle": "Connect with an accredited Rwanda Bar Association advocate in minutes or expand your legal practice.",
       "findLawyer": "Find a Lawyer Now",
-      "joinAsAdvocate": "Join as an Advocate"
+      "joinAsAdvocate": "Apply as an Advocate"
     }
   },
   "intake": {

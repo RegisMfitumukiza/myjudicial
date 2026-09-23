@@ -4990,116 +4990,152 @@
   },
   "howItWorksPage": {
     "meta": {
-      "title": "Uburyo Bigenda | MyJudicial",
-      "description": "Menya uko ushaka, ugisha inama, kandi ukorana n'abavoka b'inzobere bemejwe kuri MyJudicial mu ntambwe enye zoroshye."
+      "title": "Uko Bikora | Urubuga rw'Amategeko rwa MyJudicial",
+      "description": "Menya uko MyJudicial igufasha kubona no kugisha inama abavugizi b'amategeko bemewe n'Urugaga rw'Abavugizi mu Rwanda binyuze mu gutegura dosiye, ubwishyu burinzwe, no kunganirwa mu nkiko."
     },
     "hero": {
-      "badge": "Abavoka Bemejwe · Ubwishyu Burinzwe · Ibisubizo Bisobanutse",
-      "title": "Uko MyJudicial Iguhuza n'Abavoka Wizewe mu Rwanda",
-      "subtitle": "Kuva ku kibazo cyawe cya mbere cy'amategeko kugeza gikemutse. Menya uburyo kwemezwa n'Urugaga rw'Abavoka, gufata gahunda mu buryo bw'ikoranabuhanga, n'ubwirinzi bwa Mobile Money bikorana."
+      "badge": "Abavugizi Bemewe n'Urugaga · Ubwishyu Burinzwe · Kunganirwa mu Nkiko",
+      "title": "Uko MyJudicial Igufasha Kubona Ubufasha mu Mategeko",
+      "subtitle": "Kuva mu gutegura ikibazo cyawe kugeza ku nama z'inzobere zirinze n'ihagararirwa mu nkiko z'u Rwanda. Mu buryo bunoze, bwizewe kandi bukurikiza amategeko y'u Rwanda."
     },
     "tabs": {
-      "clients": "Ku Baturage & Ubucuruzi",
-      "advocates": "Ku Bavoka Bemejwe"
+      "clients": "Ku Banyarwanda n'Ubucuruzi",
+      "advocates": "Ku Bavugizi b'Amategeko"
     },
     "clientJourney": {
-      "badge": "Urugendo rw'Umukiriya Intambwe ku Yindi",
-      "title": "Uburyo Wagisha Inama Umwavoka",
-      "subtitle": "Intambwe enye zoroshye zo kubona ubufasha bw'amategeko bwizewe aho waba uri hose mu Rwanda.",
+      "badge": "Uko Umukiriya Abikora Intambwe ku Yindi",
+      "title": "Intambwe Ine zo Kugisha Inama Inzobere mu Mategeko",
+      "subtitle": "Uburyo bunoze kandi bwizewe bugufasha kubona inama z'abavugizi b'amategeko aho waba uri hose mu Rwanda no hanze yarwo.",
       "step1": {
-        "tag": "Intambwe 01",
-        "title": "Shakisha cyangwa Ukoreshe AI y'Amategeko",
-        "desc": "Rondera urutonde rw'abavoka ukurikije urwego rw'amategeko n'akarere, cyangwa usobanurire Umufasha wa AI ikibazo mu Kinyarwanda, Icyongereza, cyangwa Igifaransa aguhuze n'umuhanga ako kanya."
+        "tag": "Intambwe ya 01",
+        "title": "Gutegura Ikibazo n'Ibyangombwa",
+        "desc": "Sobanura ikibazo cyawe mu Kinyarwanda, Icyongereza cyangwa Igifaransa, cyangwa ukoreshe Umufasha wacu wa AI. Shyiraho ibyangombwa by'ubutaka UPI, amasezerano cyangwa imyanzuro y'urukiko mbere y'inama."
       },
       "step2": {
-        "tag": "Intambwe 02",
-        "title": "Gereranya Ibyangombwa n'Ibiciro",
-        "desc": "Suzuma nimero yo mu Rugaga rw'Abavoka mu Rwanda, uburambe mu manza, ibitekerezo by'abandi bakiriya, n'ibiciro bisobanutse bitarimo amananiza."
+        "tag": "Intambwe ya 02",
+        "title": "Guhitamo Umuvugizi n'Ibiciro Bye",
+        "desc": "Reba niba umuvugizi yanditse ku Rutonde rw'Urugaga rw'Abavugizi (Rwanda Bar Association), ubunararibonye bwe mu nkiko, n'igiciro cya buri konsiltasiyo nta bindi bishingiye ku gukekeranya."
       },
       "step3": {
-        "tag": "Intambwe 03",
-        "title": "Fata Gahunda n'Ubwirinzi bw'Amafaranga",
-        "desc": "Hitamo igihe kigunogeye. Ishyura mu mutekano ukoresheje MTN MoMo, Airtel Money, cyangwa Ikarita. Amafaranga aguma arinzwe kugeza inama irangiye neza."
+        "tag": "Intambwe ya 03",
+        "title": "Gufata Umwanya n'Ubwishyu Burinzwe",
+        "desc": "Hitamo umunsi n'isaha bikunogeye. Wishyure binyuze kuri MTN Mobile Money, Airtel Money cyangwa Ikarita. Amafaranga aguma mu bubiko bwizewe (escrow) akarekurwa ari uko inama irangiye neza."
       },
       "step4": {
-        "tag": "Intambwe 04",
-        "title": "Gisha Inama mu Buryo Wihitiyemo",
-        "desc": "Koresha amashusho arinzwe, hamagarwa kuri telefoni yawe, cyangwa uhure n'umwavoka imbonankubone ku biro bye. Inama irangiye, tanga igitekerezo cyawe cy'ukuri."
+        "tag": "Intambwe ya 04",
+        "title": "Guhura n'Umuvugizi & Kubona Umwanzuro",
+        "desc": "Hura n'umuvugizi binyuze kuri videwo y'ibanga muri telefoni cyangwa mudasobwa, kumuhamagara kuri telefoni, cyangwa kumusanga mu biro bye i Kigali. Hanyuma ubone inama n'ingamba zifatika."
       }
     },
     "advocateJourney": {
-      "badge": "Ku Banyamwuga b'Amategeko",
-      "title": "Uko Abavoka Bakorera Kuri MyJudicial",
-      "subtitle": "Zamura umwuga wawe w'amategeko ukoresheje ikoranabuhanga rigezweho, kubona ubwishyu bwizewe, no kwirinda guhora wishyuza abakiriya.",
+      "badge": "Imikorere y'Abavugizi b'Amategeko",
+      "title": "Uko Abavugizi b'Amategeko Bakorera kuri MyJudicial",
+      "subtitle": "Kwakira amadosiye mu buryo bworoshye, guca burundu ibirarane by'amafaranga, no kwagura abakugana mu Rwanda no mu mahanga.",
       "step1": {
-        "tag": "Intambwe 01",
-        "title": "Gusaba Ukoresheje Ibyangombwa by'Urugaga",
-        "desc": "Iyandikishe ukoresheje nimero yawe yo mu Rugaga rw'Abavoka mu Rwanda, ibiranga ibiro byawe, n'indangamuntu yawe."
+        "tag": "Intambwe ya 01",
+        "title": "Kugenzura Umwirondoro n'Urugaga",
+        "desc": "Iyandikishe ukoresheje numero yawe yo ku Rutonde rw'Urugaga rw'Abavugizi mu Rwanda (RBA), uruhushya rwo gukora, n'indangamuntu. Itsinda ryacu rireba niba uri umunyamuryango wemewe."
       },
       "step2": {
-        "tag": "Intambwe 02",
-        "title": "Gusuzuma no Kwemeza Ibyangombwa",
-        "desc": "Itsinda ryacu ry'amategeko risuzuma icyangombwa cyawe n'uko uhagaze mu Rugaga mbere yo kuguha ikimenyetso cy'umwavoka wemewe."
+        "tag": "Intambwe ya 02",
+        "title": "Gushyiraho Ibiciro n'Amasaha",
+        "desc": "Guma wigenge ku mwuga wawe. Shyiraho ibiciro byawe bya konsiltasiyo, amasaha ukoreraho, n'uburyo utangamo ubufasha (Videwo, Telefoni, cyangwa mu Biro byawe)."
       },
       "step3": {
-        "tag": "Intambwe 03",
-        "title": "Gushyiraho Ibiciro na Gahunda yawe",
-        "desc": "Igenere ibiciro by'inama, igihe ubonetse, n'uburyo wemera (Amashusho, Telefoni, cyangwa ku Biro byawe)."
+        "tag": "Intambwe ya 03",
+        "title": "Gusuzuma Incamake n'Ibyangombwa",
+        "desc": "Akira incamake y'ikibazo cy'umukiriya n'inyandiko yatanze (UPI y'ubutaka, amasezerano, amabaruwa) mbere yo guhura na we kugira ngo winjire mu nama witeguye neza."
       },
       "step4": {
-        "tag": "Intambwe 04",
-        "title": "Gukora Inama no Kubona Ubwishyu Bwizewe",
-        "desc": "Gisha inama abakiriya bagenzuwe. Inama irangiye, amafaranga ahita yoherezwa kuri Mobile Money yawe cyangwa kuri konti ya banki."
+        "tag": "Intambwe ya 04",
+        "title": "Gutanga Inama & Kwakira Ubwishyu",
+        "desc": "Tanga ubufasha mu mutuzo n'ubunyamwuga. Iyo inama irangiye, amafaranga yari abitswe muri escrow ahita yoherezwa ako kanya kuri Mobile Money yawe cyangwa kuri konti ya banki mu Rwanda."
       }
     },
     "modalities": {
-      "badge": "Uburyo Bw'Inama Butandukanye",
-      "title": "Uburyo Butatu bwo Guhura n'Umwavoka",
-      "subtitle": "Hitamo uburyo buhuye neza n'ubwoko bw'ikibazo cyawe n'aho uherereye mu Rwanda.",
+      "badge": "Uburyo bwo Guhura",
+      "title": "Uburyo Butatu bwo Guhura n'Umuvugizi Wawe",
+      "subtitle": "Hitamo uburyo buhuye n'imiterere y'ikibazo cyawe, ibanga ukeneye, n'uburyo ubona murandasi.",
       "video": {
-        "title": "Inama y'Amashusho Arinzwe",
-        "desc": "Kuri interineti yawe utiriwe ukuramo porogaramu nshya. Ushobora kwerekana inyandiko n'ibimenyetso mu mutekano usesuye.",
-        "feature1": "Inama ifite umutekano usesuye",
-        "feature2": "Kwerekana inyandiko n'ibimenyetso",
-        "feature3": "Kwinjira kuri telefoni cyangwa mudasobwa"
+        "title": "Videwo Yizewe Muri Porogaramu",
+        "desc": "Bikora ako kanya muri telefoni cyangwa mudasobwa yawe utiriwe ukuramo porogaramu. Bisaba gusa gufungura urubuga, ukaba wanamurika inyandiko n'ibyemezo by'ubutaka mu mutekano usesuye.",
+        "feature1": "Umutekano ukomeye w'ibanga wa 256-bit",
+        "feature2": "Kumurika inyandiko n'ibyemezo by'ubutaka (UPI) ako kanya",
+        "feature3": "Bikora kuri telefoni cyangwa mudasobwa yose"
       },
       "phone": {
-        "title": "Inama yo Guhamagara Kuri Telefoni",
-        "desc": "Ikwiriye inama zihuse cyangwa aho interineti idafite imbaraga. Umwavoka aguhamagara ku murongo wawe ku gihe mwemeranyijweho.",
-        "feature1": "Ikora ku mirongo yose (MTN / Airtel)",
-        "feature2": "Ikwiriye ibibazo byihutirwa",
-        "feature3": "Ntibisaba interineti yo guhamagara"
+        "title": "Guhamagara Kuri Telefoni Isanzwe",
+        "desc": "Biteganyirijwe abantu bari mu bice by'ibyaro cyangwa aho murandasi itameze neza. Umuvugizi aguhamagara ako kanya kuri nimero yawe ya telefoni wemeje ku gihe mwashyizeho.",
+        "feature1": "Ihamagara rikora kuri MTN Rwanda cyangwa Airtel",
+        "feature2": "Ntibisaba murandasi cyangwa ama inite ya interineti",
+        "feature3": "Byiza cyane ku nama z'ikitaraganya n'ubujyanama bwihuse"
       },
       "inPerson": {
-        "title": "Guhura Imbonankubone ku Biro",
-        "desc": "Hura n'umwavoka wawe imbonankubone ku biro bye byemewe i Kigali cyangwa mu Ntara.",
-        "feature1": "Aderesi y'ibiro ihabwa umukiriya amaze kwishyura",
-        "feature2": "Gusuzuma inyandiko z'umwimerere",
-        "feature3": "Gutegura guhagararirwa mu nkiko"
+        "title": "Guhurira mu Biro by'Umuvugizi",
+        "desc": "Hura amaso ku yandi n'umuvugizi wawe mu biro bye byemewe i Kigali cyangwa mu zindi ntara kugira ngo musuzumire hamwe inyandiko z'umwimerere.",
+        "feature1": "Aderesi n'ibisobanuro by'ibiro bihabwa umukiriya",
+        "feature2": "Gusuzuma inyandiko n'ibimenyetso by'umwimerere",
+        "feature3": "Byiza ku bibazo bigiye kujya mu nkiko no gusinya amasezerano"
+      },
+      "roomMockup": {
+        "liveBadge": "KONSILTASIYO IRI KURIBA",
+        "encryptionBadge": "WEBRTC Y'IBANGA RYA 256-BIT",
+        "advocateName": "Me. Jean-Paul Habimana",
+        "advocateRole": "Umuvugizi Mukuru · Urugaga rw'Abavugizi mu Rwanda",
+        "barRoll": "Nomero ku Rutonde: RBA #482",
+        "documentTitle": "Isuzuma ry'Icyemezo cy'Ubutaka",
+        "documentType": "Inyandiko y'Ubutaka y'Umwimerere",
+        "documentUpi": "UPI: 1/02/03/04/5892 - Gasabo, Kigali",
+        "verifiedDoc": "Icyangombwa Cyemejwe · Ikigo cy'Igihugu Gishinzwe Ubutaka",
+        "sessionTime": "Hasigaye: 34:12",
+        "muteTooltip": "Funga Ijwi",
+        "cameraTooltip": "Kamera Iraka",
+        "screenShareTooltip": "Kumurika Icyemezo cy'Ubutaka",
+        "leaveTooltip": "Gusoza Inama"
       }
     },
-    "trustFramework": {
-      "badge": "Ubwizerane & Ibisabwa",
-      "title": "Isezerano ry'Umutekano rya MyJudicial",
-      "subtitle": "Byubatse bishingiye ku mahame agenga Urugaga rw'Abavoka mu Rwanda n'indangagaciro z'umwuga.",
-      "item1": {
-        "title": "100% By'Abavoka Bagenzuwe mu Rugaga",
-        "desc": "Buri mwavoka abanza kugenzurwa ku rutonde rwemewe rw'Urugaga rw'Abavoka mu Rwanda mbere y'uko ahabwa gahunda n'umukiriya."
+    "continuity": {
+      "badge": "Gukomeza Dosiye",
+      "title": "Kuva ku Bujyanama Kugeza mu Nkiko z'u Rwanda",
+      "subtitle": "Konsiltasiyo ni intambwe ya mbere gusa. Dore uko MyJudicial igufasha kuva ku nama yo kuri murandasi ukagera ku guhagararirwa mu mategeko n'inkiko z'u Rwanda.",
+      "step1": {
+        "tag": "Icyiciro cya 01",
+        "title": "Gusuzuma Ikibazo n'Ingamba",
+        "desc": "Mu minota 45 y'inama, umuvugizi asuzuma ingingo z'amategeko, ibimenyetso ufite, amategeko y'u Rwanda agenga ikibazo cyawe, n'ingamba zikwiriye gukurikizwa."
       },
-      "item2": {
-        "title": "Ubwirinzi bw'Ubwishyu Bwemewe",
-        "desc": "Amafaranga yawe ntajya mu ntoki z'umuntu utazwi. Aguma arinzwe kugeza igihe inama ibereye kandi ikagenda neza."
+      "step2": {
+        "tag": "Icyiciro cya 02",
+        "title": "Amasezerano yo Kunganirwa n'Ububasha",
+        "desc": "Niba bikenewe ko akunganira, umuvugizi akora amasezerano yo kunganirwa (convention d'honoraires) n'inyandiko y'ububasha (procuration) yo kukuburanira cyangwa kukunogereza inyandiko."
       },
-      "item3": {
-        "title": "Ibitekerezo Nyakuri by'Abakiriya",
-        "desc": "Abakiriya bishyuye kandi bagisha inama gusa ni bo bemerewe gutanga igitekerezo. Nta bitekerezo by'amahimbano."
+      "step3": {
+        "tag": "Icyiciro cya 03",
+        "title": "Kuburana mu Nkiko no Gukurikirana Dosiye",
+        "desc": "Umuvugizi akunganira mu Nkiko z'Ibanze, Izisumbuye, Urukiko Rukuru cyangwa Urukiko rw'Ubucuruzi (binyuze muri IECMS) ukomeza kubona amakuru n'imyanzuro byose ahantu hamwe hizewe."
       }
+    },
+    "faqs": {
+      "badge": "Ibibazo Bikunze Kubazwa",
+      "title": "Ibibazo n'Ibisubizo ku Mikorere ya MyJudicial",
+      "subtitle": "Ibintu byose ukwiye kumenya ku bijyanye no gutegura, gufata umwanya no kugisha inama umuvugizi.",
+      "q1": "Mba muri Diaspora (Amerika, Uburayi, EAC). Ese nshobora kugisha inama umuvugizi ku bibazo by'ubutaka cyangwa ubucuruzi mu Rwanda?",
+      "a1": "Yego rwose. Abakiriya bacu benshi baba mu mahanga (diaspora). Ushobora kwishyura ukoresheje amakarita mpuzamahanga (Visa/Mastercard), guhitamo isaha ihuye n'isaha y'aho uherereye, no guhura n'umuvugizi binyuze kuri videwo yacu y'ibanga mugasuzuma icyemezo cy'ubutaka UPI, amasezerano y'ubucuruzi, cyangwa iby'izungura.",
+      "q2": "Abavugizi b'amategeko bakoresha izihe ndimi kuri MyJudicial?",
+      "a2": "Abavugizi bose bari kuri MyJudicial bavuga nibura indimi ebyiri mu ndimi zemewe mu mategeko y'u Rwanda. Ushobora gushungura ugahitamo umuvugizi ukoresha Ikinyarwanda, Icyongereza cyangwa Igifaransa, kugira ngo usobanure ikibazo cyawe mu rurimi wumva neza kurusha izindi.",
+      "q3": "Ese nkeneye gukuramo Zoom, Teams cyangwa indi porogaramu kugira ngo njye mu nama?",
+      "a3": "Oya rwose. Icyumba cyacu cy'inama gikora 100% muri porogaramu isanzwe usomeraho imbuga za interineti (Chrome, Safari, Firefox, Edge) hifashishijwe LiveKit WebRTC. Ntibisaba gushyiramo porogaramu nshya cyangwa gufungura indi konti kuri telefoni cyangwa mudasobwa yawe.",
+      "q4": "Ese guhamagara kuri telefoni isanzwe bikora bite niba nta murandasi mfite?",
+      "a4": "Niba wahisemo uburyo bwo guhamagarwa kuri telefoni (Phone Consultation), ntusabwa kugira murandasi. Ku isaha mwapanze, umuvugizi w'amategeko aguhamagara ako kanya kuri nimero yawe ya MTN cyangwa Airtel watanze ubwo wafataga umwanya.",
+      "q5": "Ese nshobora kohereza inyandiko z'ubutaka (UPI), amasezerano cyangwa impapuro z'urukiko mbere y'inama?",
+      "a5": "Yego. Mu gihe wuzuza ibisabwa, ushobora gushyiraho inyandiko za PDF cyangwa amafoto y'ibyangombwa byawe mu buryo bw'ibanga rikomeye. Umuvugizi abisoma mbere y'uko inama itangira kugira ngo aze yiteguye neza aho gutakaza iminota y'inama asoma inyandiko.",
+      "q6": "Ese umuvugizi ashobora kunkurikirana mu rukiko nyuma y'inama twagiranye kuri interineti?",
+      "a6": "Yego cyane. Konsiltasiyo ni yo ifungura amarembo yo kunganirwa mu buryo bwuzuye. Niba ikibazo cyawe kigomba kugezwa mu rukiko cyangwa kigakenera amasezerano akomeye, umuvugizi azaguha amasezerano yo kunganirwa (convention d'honoraires) n'inyandiko y'ububasha (procuration) yo kukuburanira mu nkiko z'u Rwanda binyuze muri IECMS."
     },
     "cta": {
-      "title": "Witeguye kubona ubufasha bw'amategeko bwizewe?",
-      "subtitle": "Ihuze n'umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda mu minota mike.",
-      "findLawyer": "Shaka Umwavoka Ubu",
-      "joinAsAdvocate": "Iyandikishe nk'Umwavoka"
+      "title": "Witeguye kubona inama z'umuvugizi w'amategeko wemewe mu Rwanda?",
+      "subtitle": "Hura n'umuvugizi wanditse mu Rugaga rw'Abavugizi mu Rwanda mu minota mike cyangwa ifatanye natwe mu kwagura umurimo wawe.",
+      "findLawyer": "Shaka Umuvugizi Ako Kanya",
+      "joinAsAdvocate": "Saba Kwinjira nk'Umuvugizi"
     }
   },
   "legalPages": {

@@ -73,6 +73,7 @@
   --input: 214 32% 88%;
   --ring: 212 59% 35%;
   --radius: 0.5rem;
+  --header-offset: 4rem;
 
   /* Charts */
   --chart-1: 212 59% 35%;

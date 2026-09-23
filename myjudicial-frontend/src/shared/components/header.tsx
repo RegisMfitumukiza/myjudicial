@@ -48,6 +48,17 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [mobileOpen]);
 
+  // Synchronize CSS custom property --header-offset for seamless sub-bar docking
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--header-offset",
+      visible ? "4rem" : "0px"
+    );
+    return () => {
+      document.documentElement.style.setProperty("--header-offset", "4rem");
+    };
+  }, [visible]);
+
   const isAdvocate = session?.user?.role === "EXPERT";
   const advocateHref = isAdvocate ? "/expert/dashboard" : "/sign-up?role=EXPERT";
   const advocateLabel = isAdvocate ? t("advocateDashboard") : t("joinAsAdvocate");
@@ -80,9 +91,10 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
-  // Close mobile drawer on route change
+  // Close mobile drawer and reveal header on route change
   useEffect(() => {
     setMobileOpen(false);
+    setVisible(true);
   }, [pathname]);
 
   const navLinkClass = (href: string) => {

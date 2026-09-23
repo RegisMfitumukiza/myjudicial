@@ -425,7 +425,7 @@ function LawyerProfileContent({ params }: { params: Promise<{ id: string }> }) {
               </div>
 
               {/* Sticky Subnavigation Bar */}
-              <div className="sticky top-16 z-20 rounded-xl border border-brand-border/40 bg-card/95 px-2.5 sm:px-3 py-2 shadow-sm backdrop-blur-md dark:border-white/10">
+              <div className="sticky top-[calc(var(--header-offset,4rem)+0.5rem)] z-20 rounded-xl border border-brand-border/40 bg-card/95 px-2.5 sm:px-3 py-2 shadow-sm backdrop-blur-md dark:border-white/10 transition-[top] duration-300 ease-in-out">
                 <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth">
                   <button
                     ref={(el) => { tabRefs.current["overview"] = el; }}

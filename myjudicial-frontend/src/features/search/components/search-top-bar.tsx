@@ -32,7 +32,9 @@ export function SearchTopBar({
   return (
     <div
       className={`z-40 border-b border-border bg-background ${
-        isFixedLayout ? "relative" : "sticky top-16"
+        isFixedLayout
+          ? "relative"
+          : "sticky top-[var(--header-offset,4rem)] transition-[top] duration-300 ease-in-out"
       }`}
     >
       <div

@@ -362,8 +362,8 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ── STICKY SEARCH ZONE ────────────────────────────────────────────── */}
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-y border-border shadow-xs">
+      {/* ── SEARCH ZONE ─────────────────────────────────────────────────── */}
+      <div className="relative z-30 bg-background border-y border-border shadow-xs">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-2.5 sm:py-3">
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 w-full">
 

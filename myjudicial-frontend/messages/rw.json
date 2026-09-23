@@ -5400,6 +5400,8 @@
       "badge": "Nta Mafaranga Yihishe · Ubwishyu Burinzwe",
       "title": "Ibiciro By'Amategeko Bisobanutse. Umutekano Wuzuye.",
       "subtitle": "Ibiciro by'inama z'amategeko bishyirwaho n'abavoka babyigiye mbere yo gufata gahunda. Nta fagitire itunguranye, kandi amafaranga yawe arinzwe 100% kuri Mobile Money kugeza inama irangiye neza.",
+      "findLawyer": "Shaka Umwavoka Ako Kanya",
+      "howItWorks": "Uko Bikora",
       "trustBadges": {
         "momo": "MTN Mobile Money",
         "airtel": "Airtel Money",
@@ -5600,8 +5602,8 @@
     "cta": {
       "title": "Tangira kubona ubufasha bw'amategeko busobanutse uyu munsi",
       "subtitle": "Rondera abavoka bemejwe, gereranya ibiciro bisobanutse, kandi ufate gahunda mu minota mike.",
-      "button": "Shaka Umwavoka Ubu",
-      "secondary": "Uburyo Bigenda"
+      "findLawyer": "Shaka Umwavoka Ubu",
+      "joinAsAdvocate": "Iyandikishe nk'Umwavoka"
     }
   },
   "resourcesPage": {

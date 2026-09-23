@@ -5400,6 +5400,8 @@
       "badge": "Zéro Frais Cachés · Protégé sous Séquestre",
       "title": "Honoraires Juridiques Clairs. Sérénité Totale.",
       "subtitle": "Tarifs de consultation fixés à l'avance par des avocats certifiés. Aucune facture surprise, avec 100% de vos fonds sécurisés sous séquestre Mobile Money jusqu'à la fin de la séance.",
+      "findLawyer": "Trouver un Avocat",
+      "howItWorks": "Comment ça marche",
       "trustBadges": {
         "momo": "MTN Mobile Money",
         "airtel": "Airtel Money",
@@ -5600,8 +5602,8 @@
     "cta": {
       "title": "Bénéficiez d'une assistance juridique transparente dès aujourd'hui",
       "subtitle": "Consultez les profils vérifiés, comparez les tarifs et réservez votre consultation en quelques minutes.",
-      "button": "Trouver un Avocat",
-      "secondary": "Comment ça marche"
+      "findLawyer": "Trouver un Avocat",
+      "joinAsAdvocate": "Devenir Avocat Partenaire"
     }
   },
   "resourcesPage": {

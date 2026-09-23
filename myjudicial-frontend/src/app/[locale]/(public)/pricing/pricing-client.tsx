@@ -58,13 +58,13 @@ export default function PricingClient() {
               href="/search"
               className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-6 py-3 text-sm font-bold shadow-sm transition-all active:scale-[0.98]"
             >
-              {t("cta.button")} <ArrowRight size={16} />
+              {t("hero.findLawyer")} <ArrowRight size={16} />
             </Link>
             <Link
               href="/how-it-works"
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-6 py-3 text-sm font-semibold text-foreground transition-all shadow-2xs"
             >
-              {t("cta.secondary")}
+              {t("hero.howItWorks")}
             </Link>
           </div>
 
@@ -608,13 +608,13 @@ export default function PricingClient() {
               href="/search"
               className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
             >
-              {t("cta.button")} <ArrowRight size={16} />
+              {t("cta.findLawyer")} <ArrowRight size={16} />
             </Link>
             <Link
-              href="/how-it-works"
+              href="/sign-up?role=EXPERT"
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
             >
-              {t("cta.secondary")}
+              {t("cta.joinAsAdvocate")}
             </Link>
           </div>
         </div>

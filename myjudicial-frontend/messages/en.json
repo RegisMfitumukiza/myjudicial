@@ -4538,6 +4538,8 @@
       "badge": "Zero Hidden Fees · Escrow Protected",
       "title": "Transparent Legal Fees. Total Peace of Mind.",
       "subtitle": "Fixed consultation rates set by certified advocates upfront. Zero surprise invoices, with 100% of your funds protected in secure Mobile Money escrow until your consultation is completed.",
+      "findLawyer": "Find a Lawyer Now",
+      "howItWorks": "How It Works",
       "trustBadges": {
         "momo": "MTN Mobile Money",
         "airtel": "Airtel Money",
@@ -4738,8 +4740,8 @@
     "cta": {
       "title": "Experience transparent legal support today",
       "subtitle": "Browse verified advocates, compare clear rates, and book your consultation in minutes.",
-      "button": "Find a Lawyer Now",
-      "secondary": "How It Works"
+      "findLawyer": "Find a Lawyer Now",
+      "joinAsAdvocate": "Join as an Advocate"
     }
   },
   "public": {

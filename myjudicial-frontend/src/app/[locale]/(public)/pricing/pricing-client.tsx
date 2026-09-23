@@ -295,11 +295,10 @@ export default function PricingClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-              <Lock size={12} />
-              <span>{t("escrowPipeline.badge")}</span>
-            </div>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
+              {t("escrowPipeline.badge")}
+            </span>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               {t("escrowPipeline.title")}
             </h2>
             <p className="mt-3 text-sm sm:text-base text-muted-foreground">

@@ -5418,6 +5418,27 @@
         "desc": "Payez à la consultation ou selon les étapes convenues. Vous n'avez jamais à verser de lourdes avances imprécises sans savoir où va chaque Franc."
       }
     },
+    "beforeBooking": {
+      "badge": "Transparence Précontractuelle",
+      "title": "Ce que vous voyez avant de réserver",
+      "subtitle": "Une visibilité complète sur chaque détail de votre réservation avant même de saisir votre numéro de téléphone ou votre code PIN.",
+      "item1": {
+        "title": "Profil & Titres de l'Avocat",
+        "desc": "Numéro officiel au Tableau de l'Ordre des Avocats du Rwanda, expérience vérifiée au prétoire et avis clients authentiques."
+      },
+      "item2": {
+        "title": "Prestation & Durée Définies",
+        "desc": "Périmètre précis (Conseil Initial, Session Stratégique, Examen de Pièces) avec durée exacte (30, 45 ou 60 minutes)."
+      },
+      "item3": {
+        "title": "Tarif Forfaitaire Exact en RWF",
+        "desc": "Le montant global et définitif débité de votre compte. L'infrastructure technique et la garde sous séquestre sont incluses."
+      },
+      "item4": {
+        "title": "Disponibilités d'Agenda en Temps Réel",
+        "desc": "Créneaux d'agenda synchronisés en direct avec l'emploi du temps professionnel de l'avocat à l'heure de Kigali."
+      }
+    },
     "escrowPipeline": {
       "badge": "100% Protection sous Séquestre",
       "title": "Comment fonctionne la Garantie de Séquestre",
@@ -5513,14 +5534,22 @@
       "badge": "Questions Fréquentes",
       "title": "FAQ Tarification & Paiement",
       "subtitle": "Des réponses claires à vos questions sur les honoraires, les paiements et notre garantie sous séquestre.",
-      "q1": "Y a-t-il des frais cachés ajoutés lors du paiement ?",
-      "a1": "Non. Le montant total affiché sur le profil de l'avocat et lors de la confirmation est le montant exact débité de votre compte Mobile Money ou carte.",
-      "q2": "Que se passe-t-il si l'avocat ne se présente pas ?",
-      "a2": "Votre paiement étant conservé dans le séquestre MyJudicial plutôt que remis à l'avocat, notre système déclenche un remboursement automatique à 100% si le rendez-vous n'est pas honoré.",
-      "q3": "Un avocat peut-il demander un supplément pendant la consultation ?",
-      "a3": "Jamais pour la séance réservée. Le tarif convenu couvre l'intégralité du temps et du périmètre réservé. Si vous souhaitez ensuite engager l'avocat pour une procédure en justice, un devis officiel distinct sera établi.",
-      "q4": "Quels sont les modes de paiement acceptés au Rwanda ?",
-      "a4": "Nous acceptons MTN Mobile Money, Airtel Money ainsi que les cartes Visa/Mastercard internationales. Toutes les transactions sont sécurisées et chiffrées."
+      "q1": "Comment sont fixés les honoraires juridiques ?",
+      "a1": "Chaque avocat certifié fixe librement ses honoraires forfaitaires sur MyJudicial en fonction de son expérience, de sa spécialité et du travail de préparation. Chaque prestation présente un périmètre et une durée clairement définis.",
+      "q2": "Puis-je voir le montant exact avant de réserver ?",
+      "a2": "Oui. Vous visualisez toujours le tarif total en Francs Rwandais (RWF), la durée de consultation et le mode de déroulement avant de confirmer ou d'autoriser le paiement.",
+      "q3": "Qu'est-ce qui est inclus dans le tarif affiché ?",
+      "a3": "Le tarif affiché couvre l'intégralité de la consultation, la relecture des pièces préalables, la liaison sécurisée (vidéo ou téléphonique) et la gestion sous séquestre. Aucun frais de dossier supplémentaire n'est ajouté lors du paiement.",
+      "q4": "L'avocat peut-il modifier le tarif après ma réservation ?",
+      "a4": "Jamais pour une réservation confirmée. Le prix convenu engage les parties pour cette séance. Si vous décidez ultérieurement de mandater l'avocat pour un contentieux ou une mission distincte, une proposition tarifaire formelle séparée vous sera remise.",
+      "q5": "Comment fonctionne le paiement par Mobile Money au Rwanda ?",
+      "a5": "Nous nous associons à AzamPay pour proposer un paiement direct par Mobile Money. Lors de la réservation, saisissez votre numéro MTN (078/079) ou Airtel (072/073). Vous recevez instantanément une invite USSD sur votre téléphone pour valider le montant avec votre code PIN.",
+      "q6": "Que signifie le séquestre (escrow) sur MyJudicial ?",
+      "a6": "Le séquestre signifie que votre argent n'est pas versé directement à l'avocat à l'avance. Les fonds sont conservés en sécurité par la plateforme jusqu'à la tenue de la consultation. L'avocat perçoit son règlement uniquement après la réalisation de la séance.",
+      "q7": "Que se passe-t-il en cas d'annulation ou d'absence de l'avocat ?",
+      "a7": "Si un avocat annule ou ne se présente pas, 100% de vos fonds sont immédiatement recrédités sur votre compte Mobile Money. Vous pouvez également reprogrammer votre rendez-vous avec l'avocat avant l'heure prévue sans pénalité.",
+      "q8": "Y a-t-il des frais cachés ou des factures imprévues ?",
+      "a8": "Aucun. MyJudicial supprime les compteurs horaires imprévisibles, les provisions opaques et les commissions surprises au paiement. Le prix affiché est rigoureusement le prix payé."
     },
     "cta": {
       "title": "Bénéficiez d'une assistance juridique transparente dès aujourd'hui",

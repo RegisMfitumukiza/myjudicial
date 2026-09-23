@@ -4556,6 +4556,27 @@
         "desc": "Pay per consultation or agreed scope. You never have to deposit large open-ended retainers without understanding where every Franc goes."
       }
     },
+    "beforeBooking": {
+      "badge": "Pre-Commitment Transparency",
+      "title": "What You See Before You Book",
+      "subtitle": "Complete clarity on every booking detail before you ever enter your phone number or PIN.",
+      "item1": {
+        "title": "Advocate Profile & Credentials",
+        "desc": "Official Rwanda Bar Association Roll registration, verified courtroom experience, and authentic client ratings."
+      },
+      "item2": {
+        "title": "Defined Service & Duration",
+        "desc": "Specific scope (Initial Advice, Strategy Session, Document Review) with precise duration (30, 45, or 60 minutes)."
+      },
+      "item3": {
+        "title": "Exact Flat Fee in RWF",
+        "desc": "The complete and final fee debited from your account. Platform infrastructure and escrow custody are all-inclusive."
+      },
+      "item4": {
+        "title": "Live Calendar Availability",
+        "desc": "Real-time calendar slots synchronized with the advocate's working schedule in Africa/Kigali time."
+      }
+    },
     "escrowPipeline": {
       "badge": "100% Escrow Protection",
       "title": "How the Escrow Guarantee Works",
@@ -4651,14 +4672,22 @@
       "badge": "Got Questions?",
       "title": "Pricing & Payment FAQs",
       "subtitle": "Clear answers to common questions about fees, payments, and our escrow guarantee.",
-      "q1": "Are there any hidden fees added during checkout?",
-      "a1": "No. The total price you see on the advocate's profile and booking screen is the exact and final amount debited from your Mobile Money or card.",
-      "q2": "What happens if the advocate doesn't show up?",
-      "a2": "Because your payment is held in MyJudicial Escrow rather than paid directly to the lawyer, our system issues an automatic 100% refund back to your MoMo or card account if the consultation does not take place.",
-      "q3": "Can an advocate demand more money during the consultation?",
-      "a3": "Never for the booked session. The agreed fee covers the entire duration and scope booked. If you subsequently decide to hire the advocate for ongoing courtroom litigation or broader work, they will issue a formal separate quotation.",
-      "q4": "Which payment methods are accepted in Rwanda?",
-      "a4": "We accept MTN Mobile Money, Airtel Money, and international Visa/Mastercard payments. All payments are processed over encrypted channels."
+      "q1": "How are legal service fees determined?",
+      "a1": "Each certified advocate independently sets their fixed fees on MyJudicial based on their experience, specialty, and preparation required. Every service has a clearly stated scope and duration.",
+      "q2": "Can I see the exact price before booking?",
+      "a2": "Yes. You always see the complete fee in Rwandan Francs (RWF), the consultation duration, and the delivery mode before you confirm or authorize payment.",
+      "q3": "What is included in the displayed price?",
+      "a3": "The displayed fee covers the full consultation duration, pre-session brief review, encrypted video or phone connection, and secure escrow handling. There are no additional platform surcharges at checkout.",
+      "q4": "Can a lawyer change the fee after I book?",
+      "a4": "Never for an active booking. The price agreed at booking is legally binding for that session. If you subsequently decide to hire the advocate for ongoing courtroom litigation or separate casework, they will provide a distinct formal quotation.",
+      "q5": "How does payment work via Mobile Money in Rwanda?",
+      "a5": "We partner with AzamPay to provide direct Mobile Money checkout. When booking, enter your MTN (078/079) or Airtel (072/073) number. You will receive an instant USSD prompt on your phone to authorize the fee with your PIN.",
+      "q6": "What does escrow mean on MyJudicial?",
+      "a6": "Escrow means your money is not paid directly to the advocate upfront. Funds are held safely in platform custody until the consultation has taken place. The advocate is disbursed their payout only after session delivery.",
+      "q7": "What happens if I need to cancel or the lawyer does not attend?",
+      "a7": "If an advocate cancels or fails to attend, 100% of your funds are refunded immediately back to your Mobile Money account. You can also reschedule your session with the advocate prior to start time without penalty.",
+      "q8": "Are there any hidden fees or extra invoices?",
+      "a8": "None. MyJudicial eliminates unpredictable hourly meters, hidden retainers, and checkout processing surcharges. What you see is exactly what you pay."
     },
     "cta": {
       "title": "Experience transparent legal support today",

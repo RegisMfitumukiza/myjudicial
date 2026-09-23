@@ -5418,6 +5418,27 @@
         "desc": "Ishyura kuri buri nama cyangwa umurimo wemeranyijweho. Ntabwo usabwa kubitsa ingwate nini utazi aho buri Faranga rizajya."
       }
     },
+    "beforeBooking": {
+      "badge": "Umucyo Mbere yo Kwiyemeza",
+      "title": "Ibyo Ubona Mbere yo Gufata Gahunda",
+      "subtitle": "Kumenya neza amakuru yose ya gahunda yawe mbere y'uko winjiza nimero yawe ya telefoni cyangwa umubare w'ibanga (PIN).",
+      "item1": {
+        "title": "Umwirondoro n'Ibyangombwa by'Umwavoka",
+        "desc": "Nimero y'ubwanditsi mu Rugaga rw'Abavoka mu Rwanda, uburambe bwemewe mu manza, ndetse n'amanota y'abakiriya bahaye inama mbere."
+      },
+      "item2": {
+        "title": "Serivisi n'Igihe Byasobanuwe",
+        "desc": "Imiterere y'umurimo (Inama ya Mbere, Gahunda y'Ikibazo, Gusuzuma Inyandiko) hamwe n'igihe nyacyo (Iminota 30, 45, cyangwa 60)."
+      },
+      "item3": {
+        "title": "Igiciro Nyacyo Kizwi mu Mafaranga y'u Rwanda (RWF)",
+        "desc": "Amafaranga yose hamwe azagabanywa kuri konti yawe. Ikoranabuhanga ry'urubuga hamwe n'ubwirinzi bw'amafaranga byose birimo."
+      },
+      "item4": {
+        "title": "Ingengabihe y'Umwavoka Iteguye Ako Kanya",
+        "desc": "Amasaha aboneka y'umwavoka ahita agaragara ako kanya hakurikijwe isaha y'i Kigali."
+      }
+    },
     "escrowPipeline": {
       "badge": "100% Ubwirinzi Bw'Ubwishyu",
       "title": "Uburyo Ubwirinzi Bw'Ubwishyu Bukora",
@@ -5513,14 +5534,22 @@
       "badge": "Ufite Ibibazo?",
       "title": "Ibibazo Bikunze Kubazwa ku Biciro n'Ubwishyu",
       "subtitle": "Ibisubizo bisobanutse ku bijyanye n'amafaranga, ubwishyu, n'ubwirinzi bwacu.",
-      "q1": "Ese hari andi mafaranga yihishe yongerwaho mu kwishyura?",
-      "a1": "Oya. Igiciro ubona ku mwirondoro w'umwavoka no ku rupapuro rw'ubwishyu ni cyo gusa kigabanywa kuri Mobile Money yawe cyangwa ikarita.",
-      "q2": "Bigenda bite iyo umwavoka atitabiriye inama?",
-      "a2": "Kubera ko amafaranga yawe arindirwa muri MyJudicial aho guhita ahabwa umwavoka, urubuga ruhita ruyagusubiza 100% ako kanya iyo inama itabaye.",
-      "q3": "Ese umwavoka ashobora gusaba andi mafaranga mu gihe cy'inama?",
-      "a3": "Ntibyemewe na gato ku nama yafashwe. Amafaranga yishyuwe akubiyemo igihe cyose n'ikibazo byemeranyijweho. Niba mwifuza gukomeza ku zindi nzego z'urubanza mu nkiko, azaguha inyandiko nshya y'igiciro cyabyo.",
-      "q4": "Ni ubuhe buryo bw'ubwishyu bwemewe mu Rwanda?",
-      "a4": "Twakira MTN Mobile Money, Airtel Money, hamwe n'amakarita mpuzamahanga ya Visa na Mastercard. Ubwishyu bwose burinzwe kandi bufite umutekano usesuye."
+      "q1": "Ibiciro bya serivisi z'amategeko bigenwa gute?",
+      "a1": "Buri mwavoka wemewe agena ku giti cye ibiciro bye bihamye kuri MyJudicial ashingiye ku bunararibonye bwe, ubuhanga mu mwuga, n'igihe cyo gutegura dosiye. Buri serivisi igira igihe n'intego bisobanutse neza.",
+      "q2": "Ese nshobora kumenya igiciro nyacyo mbere yo gufata gahunda?",
+      "a2": "Yego. Burigihe ubona igiciro cyose mu Mafaranga y'u Rwanda (RWF), igihe inama izamara, n'uburyo izakorwamo mbere yo kwemeza cyangwa kwishyura.",
+      "q3": "Ni iki gikubiye mu giciro kigaragazwa?",
+      "a3": "Igiciro kigaragazwa gikubiyemo igihe cyose cy'inama, gusuzuma inyandiko zatanzwe mbere, ihuza rishingiye ku mutekano (amashusho cyangwa telefoni), hamwe n'ubwirinzi bw'ubwishyu. Nta mafaranga y'inyongera yongerwaho mu kwishyura.",
+      "q4": "Ese umwavoka ashobora guhindura igiciro nyuma yo gufata gahunda?",
+      "a4": "Ntibyemewe na gato ku nama yamaze kwemezwa. Igiciro mwemeranyijweho kigomba kubahirizwa. Niba mwifuza gukomeza kumushyiraho mu manza z'urukiko cyangwa indi mirimo itandukanye, azaguha inyandiko y'ibiciro yihariye.",
+      "q5": "Kwishyura ukoresheje Mobile Money mu Rwanda bikora gute?",
+      "a5": "Dufatanyije na AzamPay itanga uburyo bwihuse bwo kwishyura bwa Mobile Money. Mu gihe cyo kwishyura, andika nimero yawe ya MTN (078/079) cyangwa Airtel (072/073). Uhita wakira ubutumwa (USSD) kuri telefoni yawe busaba gushyiramo umubare w'ibanga (PIN) kugira ngo wemeze ubwishyu.",
+      "q6": "Ubwirinzi bw'ubwishyu (escrow) busobanura iki kuri MyJudicial?",
+      "a6": "Bivuze ko amafaranga yawe adahita ahabwa umwavoka mbere y'igihe. Amafaranga arindirwa mu mutekano n'urubuga kugeza inama irangiye neza. Umwavoka ahabwa igihembo cye nyuma yo gusohoza inama.",
+      "q7": "Bigenda bite iyo nifuza guhagarika gahunda cyangwa umwavoka ntiyitabire?",
+      "a7": "Iyo umwavoka ahagaritse inama cyangwa ntiyitabire, uhita usubizwa 100% by'amafaranga yawe kuri konti yawe ya Mobile Money ako kanya. Ushobora kandi guhindura isaha y'inama n'umwavoka mbere y'uko igihe kigera nta bihano.",
+      "q8": "Ese hari andi mafaranga yihishe cyangwa fagitire zitunguranye?",
+      "a8": "Nta na make. MyJudicial ikuraho ibiciro bibarirwa ku masaha bitazwi iherezo, ingwate zidasobanutse, n'amafaranga y'inyongera mu kwishyura. Icyo ubonye ni cyo wishyura nta gihindutse."
     },
     "cta": {
       "title": "Tangira kubona ubufasha bw'amategeko busobanutse uyu munsi",

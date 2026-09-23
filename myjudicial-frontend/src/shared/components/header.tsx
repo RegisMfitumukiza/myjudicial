@@ -91,10 +91,11 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
-  // Close mobile drawer and reveal header on route change
+  // Close mobile drawer, reveal header, and scroll to top on route change
   useEffect(() => {
     setMobileOpen(false);
     setVisible(true);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [pathname]);
 
   const navLinkClass = (href: string) => {

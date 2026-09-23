@@ -4633,7 +4633,8 @@
         "desc": "Ideal for preliminary legal assessment, rights clarification, and identifying legal options.",
         "feature1": "Video, Phone, or In-person",
         "feature2": "Direct Q&A with advocate",
-        "feature3": "Actionable next steps summary"
+        "feature3": "Actionable next steps summary",
+        "cta": "Browse Advocates Under 45,000 RWF"
       },
       "item2": {
         "title": "In-Depth Consultation & Strategy",
@@ -4642,7 +4643,8 @@
         "desc": "Comprehensive analysis of contentious matters, disputes, employment issues, or property transactions.",
         "feature1": "Pre-session file review",
         "feature2": "Detailed legal risk evaluation",
-        "feature3": "Written follow-up recommendations"
+        "feature3": "Written follow-up recommendations",
+        "cta": "Browse Strategic Counsel"
       },
       "item3": {
         "title": "Document & Contract Review",
@@ -4651,7 +4653,33 @@
         "desc": "Thorough clause-by-clause legal review of commercial leases, employment contracts, or sales agreements.",
         "feature1": "Line-by-line risk highlighting",
         "feature2": "Compliance with Rwanda laws",
-        "feature3": "30-min debrief call included"
+        "feature3": "30-min debrief call included",
+        "cta": "Browse Contract Specialists"
+      },
+      "seniorityNotice": {
+        "badge": "Rwanda Bar Association Standards",
+        "title": "How Advocate Rates Work in Rwanda",
+        "desc": "Under Rwanda Bar Association regulations, advocates establish independent fees reflecting their professional standing: Junior Advocates (Stage) offer accessible initial counsel, experienced advocates (Grand Tableau) handle contentious disputes and property matters, while Senior Counsel (15+ years) lead complex corporate and appellate transactions.",
+        "tag1": "Junior Advocate (Stage): Accessible Rates",
+        "tag2": "Grand Tableau: Experienced Litigators",
+        "tag3": "Senior Counsel: High-Stakes Advisory"
+      }
+    },
+    "platformEconomics": {
+      "badge": "Radical Fee Transparency",
+      "title": "How MyJudicial Operates Financially",
+      "subtitle": "We believe in radical clarity. Here is how our marketplace model operates for clients and advocates.",
+      "clientZeroFees": {
+        "title": "0% Client Surcharges",
+        "desc": "The consultation rate shown on the advocate's profile is the exact and final amount debited from your Mobile Money account. No surprise booking or platform fees at checkout."
+      },
+      "modestCommission": {
+        "title": "Sustainable Platform Commission",
+        "desc": "MyJudicial retains a modest platform commission deducted from the advocate's completed payout to maintain encrypted video rooms, SMS alerts, calendar sync, and regulated escrow custody."
+      },
+      "instantReceipts": {
+        "title": "Instant Tax & Business Receipts",
+        "desc": "Every consultation payment generates an official, downloadable electronic receipt with transaction references, enabling seamless business expense reporting and tax accounting."
       }
     },
     "comparison": {
@@ -5922,6 +5950,17 @@
       "subtitle": "Introduce yourself or explore how our platform empowers citizens and advocates today.",
       "explorePlatform": "Explore How It Works",
       "sendCv": "Send Your Application"
+    }
+  },
+  "lawyerProfile": {
+    "meta": {
+      "title": "{name} — {specialty} | MyJudicial",
+      "description": "Book a consultation with {name}, a verified {specialty} advocate in Rwanda. Fixed fees, instant online booking.",
+      "fallbackTitle": "Verified Legal Expert | MyJudicial",
+      "fallbackDescription": "Book a consultation with a verified legal expert in Rwanda on MyJudicial. Fixed fees, instant booking.",
+      "bookTitle": "Book Consultation with {name} | MyJudicial",
+      "bookDescription": "Schedule a legal session with {name}, a {specialty} expert on MyJudicial. Fixed fees, secure video or in-person consultation.",
+      "bookFallbackTitle": "Book a Legal Consultation | MyJudicial"
     }
   }
 }

@@ -5495,7 +5495,8 @@
         "desc": "Idéal pour une première évaluation juridique, la clarification de vos droits et l'orientation stratégique.",
         "feature1": "Vidéo, Téléphone ou Cabinet",
         "feature2": "Échange direct avec l'avocat",
-        "feature3": "Synthèse des prochaines étapes"
+        "feature3": "Synthèse des prochaines étapes",
+        "cta": "Trouver un Avocat à Moins de 45 000 RWF"
       },
       "item2": {
         "title": "Consultation Approfondie & Stratégie",
@@ -5504,7 +5505,8 @@
         "desc": "Analyse complète des litiges, conflits fonciers, litiges de travail ou transactions commerciales complexes.",
         "feature1": "Examen des pièces avant la séance",
         "feature2": "Évaluation détaillée des risques juridiques",
-        "feature3": "Recommandations écrites de suivi"
+        "feature3": "Recommandations écrites de suivi",
+        "cta": "Consulter un Avocat Stratège"
       },
       "item3": {
         "title": "Revue de Contrat & Documents",
@@ -5513,7 +5515,33 @@
         "desc": "Relecture juridique approfondie de baux commerciaux, contrats de travail ou conventions de vente.",
         "feature1": "Identification clause par clause des risques",
         "feature2": "Conformité au droit rwandais",
-        "feature3": "Appel de synthèse de 30 min inclus"
+        "feature3": "Appel de synthèse de 30 min inclus",
+        "cta": "Consulter un Spécialiste des Contrats"
+      },
+      "seniorityNotice": {
+        "badge": "Normes du Barreau du Rwanda",
+        "title": "Comment fonctionnent les tarifs d'avocats au Rwanda",
+        "desc": "Conformément aux règles du Barreau du Rwanda, les avocats fixent librement leurs honoraires selon leur ancienneté : les Avocats Stagiaires proposent des tarifs accessibles pour les démarches courantes, les Avocats au Grand Tableau gèrent les contentieux et litiges fonciers, tandis que les Avocats Seniors (15+ ans) interviennent sur les dossiers complexes d'entreprises et d'appel.",
+        "tag1": "Avocat Stagiaire : Tarifs Accessibles",
+        "tag2": "Grand Tableau : Plaideurs Expérimentés",
+        "tag3": "Avocat Senior : Conseil Stratégique Majeur"
+      }
+    },
+    "platformEconomics": {
+      "badge": "Transparence Économique Totale",
+      "title": "Le Fonctionnement Financier de MyJudicial",
+      "subtitle": "Nous croyons en une clarté radicale. Voici comment fonctionne notre modèle économique pour les clients et les avocats.",
+      "clientZeroFees": {
+        "title": "0% de Frais Cachés pour le Client",
+        "desc": "Le tarif de consultation affiché sur le profil de l'avocat est le montant exact et définitif débité de votre compte Mobile Money. Aucun frais surprise lors du paiement."
+      },
+      "modestCommission": {
+        "title": "Commission de Plateforme Durable",
+        "desc": "MyJudicial retient une commission modeste déduite du paiement final de l'avocat pour financer les salles vidéo chiffrées, les alertes SMS, l'agenda et la garde sous séquestre réglementée."
+      },
+      "instantReceipts": {
+        "title": "Reçus Fiscaux & Professionnels Instantanés",
+        "desc": "Chaque consultation donne lieu à un reçu électronique officiel téléchargeable avec références de transaction, facilitant la comptabilité et la déduction fiscale pour les entreprises."
       }
     },
     "comparison": {
@@ -5920,6 +5948,17 @@
       "subtitle": "Présentez-vous ou découvrez comment notre plateforme accompagne citoyens et avocats dès aujourd'hui.",
       "explorePlatform": "Découvrir le fonctionnement",
       "sendCv": "Envoyer votre candidature"
+    }
+  },
+  "lawyerProfile": {
+    "meta": {
+      "title": "{name} — {specialty} | MyJudicial",
+      "description": "Réservez une consultation avec {name}, avocat(e) vérifié(e) en {specialty} au Rwanda. Tarifs fixes, réservation en ligne instantanée.",
+      "fallbackTitle": "Expert Juridique Vérifié | MyJudicial",
+      "fallbackDescription": "Réservez une consultation avec un expert juridique vérifié au Rwanda sur MyJudicial. Tarifs fixes, réservation instantanée.",
+      "bookTitle": "Réserver une Consultation avec {name} | MyJudicial",
+      "bookDescription": "Planifiez une session juridique avec {name}, expert(e) en {specialty} sur MyJudicial. Tarifs fixes, consultation vidéo ou en personne.",
+      "bookFallbackTitle": "Réserver une Consultation Juridique | MyJudicial"
     }
   }
 }

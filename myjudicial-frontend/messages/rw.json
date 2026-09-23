@@ -5495,7 +5495,8 @@
         "desc": "Ikwiriye ku gusobanukirwa uburenganzira bwawe, gusuzuma ikibazo, no kumenya inzira zemewe n'amategeko wakurikiza.",
         "feature1": "Amashusho, Telefoni, cyangwa ku Biro",
         "feature2": "Kubaza umwavoka imbonankubone",
-        "feature3": "Incamake y'intambwe zikurikiraho"
+        "feature3": "Incamake y'intambwe zikurikiraho",
+        "cta": "Shaka Abavoka Munsi ya 45,000 RWF"
       },
       "item2": {
         "title": "Inama Yimbitse & Gahunda y'Ikibazo",
@@ -5504,7 +5505,8 @@
         "desc": "Gusesengura byimbitse amakimbirane, ibibazo by'amasambu n'imitungo, akazi, cyangwa amasezerano y'ubucuruzi akomeye.",
         "feature1": "Gusuzuma inyandiko mbere y'inama",
         "feature2": "Gusesengura ingaruka z'amategeko",
-        "feature3": "Inyandiko y'inama z'umwavoka ikurikira"
+        "feature3": "Inyandiko y'inama z'umwavoka ikurikira",
+        "cta": "Shaka Abavoka ku Bibazo Bikomeye"
       },
       "item3": {
         "title": "Gusuzuma Inyandiko n'Amasezerano",
@@ -5513,7 +5515,33 @@
         "desc": "Gusoma no gusesengura ingingo ku yindi ku masezerano y'ubukode, amasezerano y'akazi, cyangwa kugura n'ikodesha.",
         "feature1": "Kugaragaza ingingo ziteje impungenge",
         "feature2": "Guhuza n'amategeko y'u Rwanda",
-        "feature3": "Inama y'iminota 30 yo kubisobanura"
+        "feature3": "Inama y'iminota 30 yo kubisobanura",
+        "cta": "Shaka Abahanga mu Masezerano"
+      },
+      "seniorityNotice": {
+        "badge": "Amategeko y'Urugaga rw'Abavoka mu Rwanda",
+        "title": "Uburyo Ibiciro by'Abavoka Bihagaze mu Rwanda",
+        "desc": "Hakurikijwe amategeko y'Urugaga rw'Abavoka mu Rwanda, abavoka bishyiriraho ibiciro bitewe n'inararibonye: Abavoka b'Abamenyerezwa (Stage) batanga inama zoroheje ku giciro cyiza, Abavoka bari ku Rutonde Rukuru (Grand Tableau) bafite uburambe mu manza n'imitungo, naho Abavoka Bakuru (imyaka 15+) bakurikirana ibibazo bikomeye by'ubucuruzi n'ubujurire.",
+        "tag1": "Umwavoka w'Umumenyerezwa: Ibiciro Byoroheje",
+        "tag2": "Urutonde Rukuru: Uburambe mu Manza",
+        "tag3": "Umwavoka Mukuru: Inama Zikomeye"
+      }
+    },
+    "platformEconomics": {
+      "badge": "Ubusobanuro busesuye ku Mafaranga",
+      "title": "Uburyo Imari n'Amafaranga Bikora kuri MyJudicial",
+      "subtitle": "Twizera ubusobanuro busesuye. Dore uko urubuga rukora ku bakiriya no ku bavoka.",
+      "clientZeroFees": {
+        "title": "0% y'Amafaranga y'Inyongera ku Mukiriya",
+        "desc": "Igiciro cy'inama kigaragara ku mwavoka nicyo cyonyine kigabanywa kuri Mobile Money yawe. Nta mafaranga y'inyongera acibwa mu kwishyura."
+      },
+      "modestCommission": {
+        "title": "Amafaranga Afasha Urubuga Gukora",
+        "desc": "MyJudicial ifata ijanisha rito rikwa ku mafaranga y'umwavoka amaze gusohoza inama, kugira ngo hishyurwe amashusho y'umutekano, ubutumwa bwa SMS, n'ubwirinzi bw'amafaranga."
+      },
+      "instantReceipts": {
+        "title": "Inyemezabwishyu Yemewe n'Amategeko Ako Kanya",
+        "desc": "Buri kwishyura inama bitanga inyemezabwishyu y'ikoranabuhanga ikubiyemo amakuru yose y'ubwishyu, ifasha ibigo n'abikorera mu ibaruramari no gusora."
       }
     },
     "comparison": {
@@ -5920,6 +5948,17 @@
       "subtitle": "Igaragaze cyangwa urebe uko urubuga rwacu rufasha abaturage n'abavoka muri iki gihe.",
       "explorePlatform": "Reba Uburyo Bigenda",
       "sendCv": "Ohereza Dosiye Yawe"
+    }
+  },
+  "lawyerProfile": {
+    "meta": {
+      "title": "{name} — {specialty} | MyJudicial",
+      "description": "Buka ikiganiro na {name}, umuvoka wigenewe {specialty} mu Rwanda. Ibiciro bisa, gufata gahunda vuba kuri internet.",
+      "fallbackTitle": "Inzobere mu Mategeko Yemejwe | MyJudicial",
+      "fallbackDescription": "Buka ikiganiro n'inzobere mu mategeko yemejwe mu Rwanda kuri MyJudicial. Ibiciro bisa, gufata gahunda vuba.",
+      "bookTitle": "Buka Ikiganiro na {name} | MyJudicial",
+      "bookDescription": "Teganya ikiganiro cy'amategeko na {name}, inzobere mu {specialty} kuri MyJudicial. Ibiciro bisa, ikiganiro kuri video cyangwa mu muntu.",
+      "bookFallbackTitle": "Buka Ikiganiro cy'Amategeko | MyJudicial"
     }
   }
 }

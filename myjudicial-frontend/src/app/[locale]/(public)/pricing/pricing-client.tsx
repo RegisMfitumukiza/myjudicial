@@ -17,7 +17,11 @@ import {
   BadgeCheck,
   Smartphone,
   CheckCircle2,
-  Video,
+  FileText,
+  Coins,
+  Receipt,
+  Sparkles,
+  Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -34,7 +38,7 @@ export default function PricingClient() {
       {/* ── 1. Hero Section & Trust Rails ────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          {/* Unified Platform Hero Badge (matches landing-client convention) */}
+          {/* Exactly ONE Unified Platform Hero Badge per platform design system */}
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
             <ShieldCheck size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
@@ -48,7 +52,7 @@ export default function PricingClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Action CTAs (Platform-wide standard: brand-dark light / white-black dark) */}
+          {/* Action CTAs */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/search"
@@ -144,11 +148,11 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 3. What You See Before You Book (Split Showcase + Mockup) ─── */}
+      {/* ── 3. What You See Before You Book (Open Editorial Layout + Booking Card) ─── */}
       <section className="py-16 sm:py-24 border-b border-border bg-background">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            {/* Left 7 cols: Explanations */}
+            {/* Left 7 cols: Open Editorial Feature List (Spacious & Breathable) */}
             <div className="lg:col-span-7">
               <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
                 {t("beforeBooking.badge")}
@@ -160,54 +164,71 @@ export default function PricingClient() {
                 {t("beforeBooking.subtitle")}
               </p>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {/* Unboxed, Generously Spaced Feature Breakdown */}
+              <div className="mt-10 space-y-7">
                 {/* Feature 1 */}
-                <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
-                  <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <BadgeCheck size={18} className="text-emerald-500 shrink-0" />
-                    <span>{t("beforeBooking.item1.title")}</span>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
+                    <BadgeCheck size={20} className="text-emerald-500" />
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t("beforeBooking.item1.desc")}
-                  </p>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">
+                      {t("beforeBooking.item1.title")}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-lg">
+                      {t("beforeBooking.item1.desc")}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Feature 2 */}
-                <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
-                  <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <Clock size={18} className="text-foreground shrink-0" />
-                    <span>{t("beforeBooking.item2.title")}</span>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
+                    <Clock size={20} className="text-brand-dark dark:text-white" />
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t("beforeBooking.item2.desc")}
-                  </p>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">
+                      {t("beforeBooking.item2.title")}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-lg">
+                      {t("beforeBooking.item2.desc")}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Feature 3 */}
-                <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
-                  <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <Banknote size={18} className="text-foreground shrink-0" />
-                    <span>{t("beforeBooking.item3.title")}</span>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
+                    <Banknote size={20} className="text-amber-500" />
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t("beforeBooking.item3.desc")}
-                  </p>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">
+                      {t("beforeBooking.item3.title")}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-lg">
+                      {t("beforeBooking.item3.desc")}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Feature 4 */}
-                <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
-                  <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <CalendarCheck size={18} className="text-foreground shrink-0" />
-                    <span>{t("beforeBooking.item4.title")}</span>
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
+                    <CalendarCheck size={20} className="text-blue-500" />
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                    {t("beforeBooking.item4.desc")}
-                  </p>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">
+                      {t("beforeBooking.item4.title")}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-lg">
+                      {t("beforeBooking.item4.desc")}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right 5 cols: Realistic Pre-Booking Card Mockup */}
+            {/* Right 5 cols: Authentic Pre-Booking Card Mockup */}
             <div className="lg:col-span-5">
               <div className="relative rounded-2xl border-2 border-border/80 bg-card p-6 shadow-xl transition-all">
                 {/* Header: Verified Advocate Badge */}
@@ -233,55 +254,57 @@ export default function PricingClient() {
                   </span>
                 </div>
 
-                {/* Session Details */}
-                <div className="mt-4 space-y-3 text-xs">
-                  <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Service</span>
+                {/* Pre-Booking Transparency Fields */}
+                <div className="mt-5 space-y-3.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Service</span>
                     <span className="font-semibold text-foreground">
                       {t("beforeBooking.mockup.service")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Format</span>
-                    <span className="font-semibold text-foreground flex items-center gap-1">
-                      <Video size={12} className="text-muted-foreground" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Format</span>
+                    <span className="font-semibold text-foreground">
                       {t("beforeBooking.mockup.duration")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Appointment</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Appointment</span>
                     <span className="font-semibold text-foreground">
                       {t("beforeBooking.mockup.date")}
                     </span>
                   </div>
                 </div>
 
-                {/* Price Box */}
-                <div className="mt-5 rounded-xl border border-border bg-background p-4 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] text-muted-foreground block">
-                      {t("beforeBooking.mockup.feeLabel")}
-                    </span>
-                    <span className="text-xl font-extrabold text-foreground tracking-tight">
-                      {t("beforeBooking.mockup.feeValue")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                    <Lock size={12} />
-                    <span>{t("beforeBooking.mockup.escrowProtected")}</span>
+                {/* Pricing Box with Escrow Badge */}
+                <div className="mt-6 rounded-xl border border-border bg-background p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] text-muted-foreground block font-medium">
+                        {t("beforeBooking.mockup.feeLabel")}
+                      </span>
+                      <span className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                        {t("beforeBooking.mockup.feeValue")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-lg border border-border bg-accent/60 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-2xs">
+                      <Lock size={12} className="text-foreground shrink-0" />
+                      <span>{t("beforeBooking.mockup.escrowProtected")}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Mockup Button (Platform standard button) */}
-                <div className="mt-5 space-y-2">
+                {/* Checkout Trigger */}
+                <div className="mt-5">
                   <button
                     disabled
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black py-3 text-xs font-bold opacity-90 cursor-default"
+                    aria-label="Example booking button"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground text-background py-3 text-xs sm:text-sm font-bold shadow-sm opacity-90 cursor-default"
                   >
-                    <Smartphone size={14} />
+                    <Smartphone size={16} />
                     <span>{t("beforeBooking.mockup.cta")}</span>
                   </button>
-                  <p className="text-[11px] text-center text-muted-foreground">
+                  <p className="mt-2.5 text-center text-[11px] text-muted-foreground font-medium">
                     {t("beforeBooking.mockup.zeroSurcharge")}
                   </p>
                 </div>
@@ -291,7 +314,7 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 4. Connected Visual Escrow Pipeline ──────────────────────── */}
+      {/* ── 4. The 4-Stage Escrow Protection Lifecycle ───────────────── */}
       <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
@@ -306,10 +329,9 @@ export default function PricingClient() {
             </p>
           </div>
 
-          {/* Connected 4-Stage Pipeline */}
+          {/* 4 Connected Stages with Desktop Track Line */}
           <div className="relative">
-            {/* Desktop connecting track line */}
-            <div className="hidden lg:block absolute top-12 left-10 right-10 h-0.5 bg-border/80 -z-0" />
+            <div className="hidden lg:block absolute top-12 left-10 right-10 h-0.5 bg-border -z-0" />
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 relative z-10">
               {[1, 2, 3, 4].map((stepNum) => {
@@ -317,16 +339,19 @@ export default function PricingClient() {
                 return (
                   <div
                     key={stepNum}
-                    className="relative flex flex-col rounded-2xl border border-border bg-card p-6 shadow-xs transition-all hover:border-border/90"
+                    className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-xs transition-all hover:border-border/90"
                   >
                     <div className="flex items-center justify-between mb-4">
-                      {/* Crisp high-contrast stage pill */}
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black font-mono text-xs font-extrabold shadow-xs">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-sm font-bold text-foreground font-mono">
                         {t(`escrowPipeline.${stepKey}.step`)}
                       </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Stage {stepNum}
-                      </span>
+                      {stepNum === 4 ? (
+                        <span className="flex h-7 px-2.5 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          100% Secure
+                        </span>
+                      ) : (
+                        <span className="h-2 w-2 rounded-full bg-border" />
+                      )}
                     </div>
                     <h3 className="text-base font-bold text-foreground">
                       {t(`escrowPipeline.${stepKey}.title`)}
@@ -340,27 +365,23 @@ export default function PricingClient() {
             </div>
           </div>
 
-          {/* 100% Money Back Guarantee Banner */}
-          <div className="mt-10 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <ShieldCheck size={24} />
+          {/* 100% Money-Back Guarantee Banner */}
+          <div className="mt-12 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 sm:p-8 text-center max-w-3xl mx-auto shadow-xs">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">
+              <ShieldCheck size={15} />
+              <span>{t("escrowPipeline.guaranteeBadge")}</span>
             </div>
-            <div className="flex-1">
-              <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
-                {t("escrowPipeline.guaranteeBadge")}
-              </h4>
-              <p className="mt-0.5 text-xs sm:text-sm text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed">
-                {t("escrowPipeline.guaranteeText")}
-              </p>
-            </div>
+            <p className="text-sm sm:text-base font-medium text-foreground leading-relaxed">
+              {t("escrowPipeline.guaranteeText")}
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ── 5. Typical Market Benchmarks (Consultation Guide) ───────── */}
+      {/* ── 5. Typical Market Benchmarks (Functional Rate Explorer) ──── */}
       <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("benchmarks.badge")}
             </span>
@@ -372,26 +393,23 @@ export default function PricingClient() {
             </p>
           </div>
 
+          {/* 3 Authentic Scope Cards with Functional Filter URLs */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((itemNum) => {
               const itemKey = `item${itemNum}` as "item1" | "item2" | "item3";
-              const isPopular = itemNum === 2;
+              // Functional search query mapping for real marketplace discovery
+              const searchHref =
+                itemNum === 1
+                  ? "/search?maxBudget=45000&sort=PRICE_ASC"
+                  : itemNum === 2
+                  ? "/search?maxBudget=100000"
+                  : "/search?specialty=Corporate%20%26%20Commercial";
 
               return (
                 <div
                   key={itemNum}
-                  className={`relative flex flex-col rounded-3xl p-6 sm:p-8 transition-all ${
-                    isPopular
-                      ? "border-2 border-brand-dark dark:border-white bg-background shadow-xl"
-                      : "border border-border bg-background shadow-xs hover:border-border/80"
-                  }`}
+                  className="flex flex-col rounded-3xl border border-border bg-background p-6 sm:p-8 shadow-xs transition-all hover:border-border/90 hover:shadow-sm"
                 >
-                  {isPopular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-dark text-white dark:bg-white dark:text-black px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
-                      Recommended
-                    </span>
-                  )}
-
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium mb-2">
                     <Clock size={14} className="text-foreground" />
                     <span>{t(`benchmarks.${itemKey}.duration`)}</span>
@@ -427,25 +445,107 @@ export default function PricingClient() {
                   </div>
 
                   <Link
-                    href="/search"
-                    className={`inline-flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs sm:text-sm font-bold transition-all ${
-                      isPopular
-                        ? "bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 shadow-sm"
-                        : "border border-border bg-card hover:bg-accent text-foreground shadow-2xs"
-                    }`}
+                    href={searchHref}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 py-3 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-[0.98]"
                   >
-                    <span>{t("cta.button")}</span>
+                    <span>{t(`benchmarks.${itemKey}.cta`)}</span>
                     <ArrowRight size={14} />
                   </Link>
                 </div>
               );
             })}
           </div>
+
+          {/* Rwanda Bar Seniority Transparency Callout Strip */}
+          <div className="mt-12 rounded-2xl border border-border bg-muted/30 p-6 sm:p-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="max-w-2xl">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-mono">
+                  {t("benchmarks.seniorityNotice.badge")}
+                </span>
+                <h4 className="mt-1 text-base sm:text-lg font-bold text-foreground">
+                  {t("benchmarks.seniorityNotice.title")}
+                </h4>
+                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {t("benchmarks.seniorityNotice.desc")}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
+                  {t("benchmarks.seniorityNotice.tag1")}
+                </span>
+                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
+                  {t("benchmarks.seniorityNotice.tag2")}
+                </span>
+                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
+                  {t("benchmarks.seniorityNotice.tag3")}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── 6. Comparison: Traditional vs MyJudicial ────────────────── */}
+      {/* ── 6. Radical Fee Transparency: Platform Economics ─────────── */}
       <section className="py-16 sm:py-24 border-b border-border bg-background">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
+              {t("platformEconomics.badge")}
+            </span>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {t("platformEconomics.title")}
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+              {t("platformEconomics.subtitle")}
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* 1. Client 0% Fees */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
+                <Coins size={22} className="text-emerald-500" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                {t("platformEconomics.clientZeroFees.title")}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {t("platformEconomics.clientZeroFees.desc")}
+              </p>
+            </div>
+
+            {/* 2. Platform Support */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
+                <Sparkles size={22} className="text-brand-dark dark:text-white" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                {t("platformEconomics.modestCommission.title")}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {t("platformEconomics.modestCommission.desc")}
+              </p>
+            </div>
+
+            {/* 3. Official Receipts */}
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs sm:col-span-2 lg:col-span-1">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
+                <Receipt size={22} className="text-blue-500" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">
+                {t("platformEconomics.instantReceipts.title")}
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {t("platformEconomics.instantReceipts.desc")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. Comparison: Traditional vs MyJudicial ────────────────── */}
+      <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
@@ -460,7 +560,7 @@ export default function PricingClient() {
           </div>
 
           {/* Responsive Comparison Table */}
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
             {/* Desktop Table View */}
             <div className="hidden md:block">
               <table className="w-full text-left border-collapse">
@@ -547,8 +647,8 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 7. Pricing FAQs Accordion (8 Practical Questions) ────────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-card">
+      {/* ── 8. Pricing FAQs Accordion (8 Practical Questions) ────────── */}
+      <section className="py-16 sm:py-24 border-b border-border bg-background">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
@@ -573,8 +673,8 @@ export default function PricingClient() {
                   key={faqNum}
                   className={`rounded-2xl border transition-all ${
                     isOpen
-                      ? "border-border bg-background shadow-xs ring-1 ring-border"
-                      : "border-border bg-background hover:border-border/80"
+                      ? "border-border bg-card shadow-xs ring-1 ring-border"
+                      : "border-border bg-card hover:border-border/80"
                   }`}
                 >
                   <button
@@ -602,7 +702,7 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 8. Bottom CTA (Elevated Surface - Harmonizes with Footer) ── */}
+      {/* ── 9. Bottom CTA (Elevated Surface - Harmonizes with Footer) ── */}
       <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/80 to-background py-16 sm:py-20 text-foreground">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">

@@ -5399,7 +5399,13 @@
     "hero": {
       "badge": "Nta Mafaranga Yihishe · Ubwishyu Burinzwe",
       "title": "Ibiciro By'Amategeko Bisobanutse. Umutekano Wuzuye.",
-      "subtitle": "Ibiciro by'inama z'amategeko bishyirwaho n'abavoka babyigiye mbere yo gufata gahunda. Nta fagitire itunguranye, kandi amafaranga yawe arinzwe 100% kuri Mobile Money kugeza inama irangiye neza."
+      "subtitle": "Ibiciro by'inama z'amategeko bishyirwaho n'abavoka babyigiye mbere yo gufata gahunda. Nta fagitire itunguranye, kandi amafaranga yawe arinzwe 100% kuri Mobile Money kugeza inama irangiye neza.",
+      "trustBadges": {
+        "momo": "MTN Mobile Money",
+        "airtel": "Airtel Money",
+        "cards": "Visa / Mastercard",
+        "bar": "Urugaga rw'Abavoka mu Rwanda"
+      }
     },
     "pillars": {
       "badge": "Kuri Buri Wese & Birasobanutse",
@@ -5437,6 +5443,18 @@
       "item4": {
         "title": "Ingengabihe y'Umwavoka Iteguye Ako Kanya",
         "desc": "Amasaha aboneka y'umwavoka ahita agaragara ako kanya hakurikijwe isaha y'i Kigali."
+      },
+      "mockup": {
+        "lawyerName": "Me Jean-Paul Habimana",
+        "barRoll": "Umubare mu Rugaga #412",
+        "service": "Inama ku Butaka n'Imitungo",
+        "duration": "Iminota 45 · Amashusho y'Umutekano",
+        "date": "Uyu Munsi · 15:00 CAT",
+        "feeLabel": "Igiciro Cyose Hamwe Kizwi",
+        "feeValue": "35,000 RWF",
+        "escrowProtected": "100% Amafaranga Arinzwe",
+        "cta": "Ishyura ukoresheje Mobile Money",
+        "zeroSurcharge": "Nta mafaranga y'inyongera. 35,000 RWF gusa aragabanywa."
       }
     },
     "escrowPipeline": {

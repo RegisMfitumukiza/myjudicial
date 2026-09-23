@@ -4537,7 +4537,13 @@
     "hero": {
       "badge": "Zero Hidden Fees · Escrow Protected",
       "title": "Transparent Legal Fees. Total Peace of Mind.",
-      "subtitle": "Fixed consultation rates set by certified advocates upfront. Zero surprise invoices, with 100% of your funds protected in secure Mobile Money escrow until your consultation is completed."
+      "subtitle": "Fixed consultation rates set by certified advocates upfront. Zero surprise invoices, with 100% of your funds protected in secure Mobile Money escrow until your consultation is completed.",
+      "trustBadges": {
+        "momo": "MTN Mobile Money",
+        "airtel": "Airtel Money",
+        "cards": "Visa / Mastercard",
+        "bar": "Rwanda Bar Roll"
+      }
     },
     "pillars": {
       "badge": "Clear & Predictable",
@@ -4575,6 +4581,18 @@
       "item4": {
         "title": "Live Calendar Availability",
         "desc": "Real-time calendar slots synchronized with the advocate's working schedule in Africa/Kigali time."
+      },
+      "mockup": {
+        "lawyerName": "Me. Jean-Paul Habimana",
+        "barRoll": "Rwanda Bar Roll #412",
+        "service": "Property & Land Assessment",
+        "duration": "45 min · Encrypted Video",
+        "date": "Today · 15:00 CAT",
+        "feeLabel": "All-Inclusive Flat Fee",
+        "feeValue": "35,000 RWF",
+        "escrowProtected": "100% Escrow Protected",
+        "cta": "Pay with Mobile Money",
+        "zeroSurcharge": "Zero checkout fees. Exactly 35,000 RWF debited."
       }
     },
     "escrowPipeline": {

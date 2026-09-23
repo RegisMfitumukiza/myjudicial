@@ -49,10 +49,10 @@ export default function HowItWorksClient() {
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero Section ────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-16 sm:py-24">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-blue-950/20 via-background to-background py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-dark/15 bg-brand-dark/5 dark:border-white/15 dark:bg-white/5 px-3.5 py-1 text-xs font-semibold text-brand-dark dark:text-brand-gold">
-            <Award size={14} className="text-emerald-600 dark:text-emerald-400" />
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
+            <Award size={14} className="text-blue-600 dark:text-blue-400" />
             <span>{t("hero.badge")}</span>
           </div>
 
@@ -64,11 +64,11 @@ export default function HowItWorksClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Perspective Tab Switcher */}
+          {/* Perspective Tab Switcher (Rock-solid contrast) */}
           <div
             role="tablist"
             aria-label="Perspective selection"
-            className="mt-10 inline-flex rounded-2xl border border-border bg-card p-1.5 shadow-sm"
+            className="mt-10 inline-flex rounded-2xl border border-border bg-card p-1.5 shadow-xs"
           >
             <button
               role="tab"
@@ -78,7 +78,7 @@ export default function HowItWorksClient() {
               onClick={() => handleTabChange("clients")}
               className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "clients"
-                  ? "bg-brand-dark text-on-brand dark:bg-white dark:text-brand-dark shadow-sm"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               }`}
             >
@@ -92,7 +92,7 @@ export default function HowItWorksClient() {
               onClick={() => handleTabChange("advocates")}
               className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "advocates"
-                  ? "bg-brand-dark text-on-brand dark:bg-white dark:text-brand-dark shadow-sm"
+                  ? "bg-blue-600 text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               }`}
             >
@@ -111,7 +111,7 @@ export default function HowItWorksClient() {
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark dark:text-brand-gold">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
               {activeTab === "clients"
                 ? t("clientJourney.badge")
                 : t("advocateJourney.badge")}
@@ -128,54 +128,58 @@ export default function HowItWorksClient() {
             </p>
           </div>
 
-          {/* 4 Step Progressive Grid */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((stepNum) => {
-              const stepKey = `step${stepNum}` as "step1" | "step2" | "step3" | "step4";
-              const prefix = activeTab === "clients" ? "clientJourney" : "advocateJourney";
+          {/* 4 Step Progressive Grid with Desktop Connector Line */}
+          <div className="relative">
+            <div className="hidden lg:block absolute top-12 left-10 right-10 h-0.5 bg-border/80 -z-0" />
 
-              // Icon mapping based on tab and step
-              const Icon =
-                activeTab === "clients"
-                  ? stepNum === 1
-                    ? Search
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 relative z-10">
+              {[1, 2, 3, 4].map((stepNum) => {
+                const stepKey = `step${stepNum}` as "step1" | "step2" | "step3" | "step4";
+                const prefix = activeTab === "clients" ? "clientJourney" : "advocateJourney";
+
+                // Icon mapping based on tab and step
+                const Icon =
+                  activeTab === "clients"
+                    ? stepNum === 1
+                      ? Search
+                      : stepNum === 2
+                      ? Scale
+                      : stepNum === 3
+                      ? CalendarCheck
+                      : Video
+                    : stepNum === 1
+                    ? FileCheck
                     : stepNum === 2
-                    ? Scale
+                    ? UserCheck
                     : stepNum === 3
                     ? CalendarCheck
-                    : Video
-                  : stepNum === 1
-                  ? FileCheck
-                  : stepNum === 2
-                  ? UserCheck
-                  : stepNum === 3
-                  ? CalendarCheck
-                  : Lock;
+                    : Lock;
 
-              return (
-                <div
-                  key={stepNum}
-                  className="group relative flex flex-col rounded-2xl border border-border bg-background p-6 shadow-sm transition-all hover:border-brand-dark/30 hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between mb-5">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white transition-colors group-hover:bg-brand-dark group-hover:text-on-brand dark:group-hover:bg-white dark:group-hover:text-brand-dark">
-                      <Icon size={20} />
-                    </span>
-                    <span className="text-xs font-bold text-muted-foreground font-mono">
-                      {t(`${prefix}.${stepKey}.tag`)}
-                    </span>
+                return (
+                  <div
+                    key={stepNum}
+                    className="group relative flex flex-col rounded-2xl border border-border bg-background p-6 shadow-xs transition-all hover:border-blue-500/40 hover:shadow-sm"
+                  >
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                        <Icon size={20} />
+                      </span>
+                      <span className="flex h-7 px-2.5 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground font-mono">
+                        {t(`${prefix}.${stepKey}.tag`)}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-foreground">
+                      {t(`${prefix}.${stepKey}.title`)}
+                    </h3>
+
+                    <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {t(`${prefix}.${stepKey}.desc`)}
+                    </p>
                   </div>
-
-                  <h3 className="text-base font-bold text-foreground">
-                    {t(`${prefix}.${stepKey}.title`)}
-                  </h3>
-
-                  <p className="mt-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    {t(`${prefix}.${stepKey}.desc`)}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -184,7 +188,7 @@ export default function HowItWorksClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark dark:text-brand-gold">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
               {t("modalities.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -197,8 +201,8 @@ export default function HowItWorksClient() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* 1. Video */}
-            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
                 <Video size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -209,23 +213,23 @@ export default function HowItWorksClient() {
               </p>
               <div className="mt-auto border-t border-border pt-4 space-y-2">
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.video.feature1")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.video.feature2")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.video.feature3")}</span>
                 </div>
               </div>
             </div>
 
             {/* 2. Phone */}
-            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <Phone size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -236,23 +240,23 @@ export default function HowItWorksClient() {
               </p>
               <div className="mt-auto border-t border-border pt-4 space-y-2">
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.phone.feature1")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.phone.feature2")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.phone.feature3")}</span>
                 </div>
               </div>
             </div>
 
             {/* 3. In-Person */}
-            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm sm:col-span-2 lg:col-span-1">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+            <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs sm:col-span-2 lg:col-span-1">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <Building size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -263,15 +267,15 @@ export default function HowItWorksClient() {
               </p>
               <div className="mt-auto border-t border-border pt-4 space-y-2">
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.inPerson.feature1")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.inPerson.feature2")}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <span>{t("modalities.inPerson.feature3")}</span>
                 </div>
               </div>
@@ -284,7 +288,7 @@ export default function HowItWorksClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark dark:text-brand-gold">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
               {t("trustFramework.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -303,9 +307,9 @@ export default function HowItWorksClient() {
               return (
                 <div
                   key={num}
-                  className="rounded-2xl border border-border bg-background p-6 shadow-sm"
+                  className="rounded-2xl border border-border bg-background p-6 shadow-xs"
                 >
-                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
                     <ItemIcon size={22} />
                   </div>
                   <h3 className="text-base font-bold text-foreground">
@@ -321,13 +325,13 @@ export default function HowItWorksClient() {
         </div>
       </section>
 
-      {/* ── 5. Bottom Action CTA ────────────────────────────────────── */}
-      <section className="bg-brand-dark py-16 sm:py-20 text-on-brand">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+      {/* ── 5. Bottom Action CTA (Elevated Surface - Harmonizes with Footer) ── */}
+      <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/80 to-background py-16 sm:py-20 text-foreground">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
             {t("cta.title")}
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm sm:text-base text-on-brand/80 leading-relaxed">
+          <p className="mx-auto mt-4 max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed">
             {t("cta.subtitle")}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -335,13 +339,13 @@ export default function HowItWorksClient() {
               <>
                 <Link
                   href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-bold text-brand-dark shadow-lg transition hover:bg-white/90"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
                 >
                   {t("cta.findLawyer")} <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition"
                 >
                   {t("cta.joinAsAdvocate")}
                 </Link>
@@ -350,13 +354,13 @@ export default function HowItWorksClient() {
               <>
                 <Link
                   href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-bold text-brand-dark shadow-lg transition hover:bg-white/90"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
                 >
                   {t("cta.joinAsAdvocate")} <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-7 py-3 text-sm font-semibold text-on-brand transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition"
                 >
                   {t("cta.findLawyer")}
                 </Link>

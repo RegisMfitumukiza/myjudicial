@@ -5399,7 +5399,13 @@
     "hero": {
       "badge": "Zéro Frais Cachés · Protégé sous Séquestre",
       "title": "Honoraires Juridiques Clairs. Sérénité Totale.",
-      "subtitle": "Tarifs de consultation fixés à l'avance par des avocats certifiés. Aucune facture surprise, avec 100% de vos fonds sécurisés sous séquestre Mobile Money jusqu'à la fin de la séance."
+      "subtitle": "Tarifs de consultation fixés à l'avance par des avocats certifiés. Aucune facture surprise, avec 100% de vos fonds sécurisés sous séquestre Mobile Money jusqu'à la fin de la séance.",
+      "trustBadges": {
+        "momo": "MTN Mobile Money",
+        "airtel": "Airtel Money",
+        "cards": "Visa / Mastercard",
+        "bar": "Tableau du Barreau du Rwanda"
+      }
     },
     "pillars": {
       "badge": "Clarté & Prévisibilité",
@@ -5437,6 +5443,18 @@
       "item4": {
         "title": "Disponibilités d'Agenda en Temps Réel",
         "desc": "Créneaux d'agenda synchronisés en direct avec l'emploi du temps professionnel de l'avocat à l'heure de Kigali."
+      },
+      "mockup": {
+        "lawyerName": "Me Jean-Paul Habimana",
+        "barRoll": "Barreau du Rwanda n° 412",
+        "service": "Conseil en Droit Foncier & Immobilier",
+        "duration": "45 min · Vidéo Chiffrée",
+        "date": "Aujourd'hui · 15h00 CAT",
+        "feeLabel": "Tarif Forfaitaire Tout Inclus",
+        "feeValue": "35 000 RWF",
+        "escrowProtected": "100% Sécurisé sous Séquestre",
+        "cta": "Payer par Mobile Money",
+        "zeroSurcharge": "Zéro frais supplémentaire. Exactement 35 000 RWF débités."
       }
     },
     "escrowPipeline": {

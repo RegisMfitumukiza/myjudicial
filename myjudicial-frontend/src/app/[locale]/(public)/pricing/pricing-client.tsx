@@ -378,116 +378,8 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 5. Typical Market Benchmarks (Functional Rate Explorer) ──── */}
+      {/* ── 5. Radical Fee Transparency: Platform Economics ─────────── */}
       <section className="py-16 sm:py-24 border-b border-border bg-card">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
-              {t("benchmarks.badge")}
-            </span>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              {t("benchmarks.title")}
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-              {t("benchmarks.subtitle")}
-            </p>
-          </div>
-
-          {/* 3 Authentic Scope Cards with Functional Filter URLs */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((itemNum) => {
-              const itemKey = `item${itemNum}` as "item1" | "item2" | "item3";
-              // Functional search query mapping for real marketplace discovery
-              const searchHref =
-                itemNum === 1
-                  ? "/search?maxBudget=45000&sort=PRICE_ASC"
-                  : itemNum === 2
-                  ? "/search?maxBudget=100000"
-                  : "/search?specialty=Corporate%20%26%20Commercial";
-
-              return (
-                <div
-                  key={itemNum}
-                  className="flex flex-col rounded-3xl border border-border bg-background p-6 sm:p-8 shadow-xs transition-all hover:border-border/90 hover:shadow-sm"
-                >
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium mb-2">
-                    <Clock size={14} className="text-foreground" />
-                    <span>{t(`benchmarks.${itemKey}.duration`)}</span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-foreground">
-                    {t(`benchmarks.${itemKey}.title`)}
-                  </h3>
-
-                  <div className="mt-4 mb-3">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                      {t(`benchmarks.${itemKey}.range`)}
-                    </span>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-6">
-                    {t(`benchmarks.${itemKey}.desc`)}
-                  </p>
-
-                  <div className="mt-auto border-t border-border pt-5 space-y-2.5 mb-6">
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm text-foreground">
-                      <Check size={15} className="text-emerald-500 shrink-0" />
-                      <span>{t(`benchmarks.${itemKey}.feature1`)}</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm text-foreground">
-                      <Check size={15} className="text-emerald-500 shrink-0" />
-                      <span>{t(`benchmarks.${itemKey}.feature2`)}</span>
-                    </div>
-                    <div className="flex items-center gap-2.5 text-xs sm:text-sm text-foreground">
-                      <Check size={15} className="text-emerald-500 shrink-0" />
-                      <span>{t(`benchmarks.${itemKey}.feature3`)}</span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href={searchHref}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 py-3 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-[0.98]"
-                  >
-                    <span>{t(`benchmarks.${itemKey}.cta`)}</span>
-                    <ArrowRight size={14} />
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Rwanda Bar Seniority Transparency Callout Strip */}
-          <div className="mt-12 rounded-2xl border border-border bg-muted/30 p-6 sm:p-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-2xl">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-mono">
-                  {t("benchmarks.seniorityNotice.badge")}
-                </span>
-                <h4 className="mt-1 text-base sm:text-lg font-bold text-foreground">
-                  {t("benchmarks.seniorityNotice.title")}
-                </h4>
-                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {t("benchmarks.seniorityNotice.desc")}
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
-                  {t("benchmarks.seniorityNotice.tag1")}
-                </span>
-                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
-                  {t("benchmarks.seniorityNotice.tag2")}
-                </span>
-                <span className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
-                  {t("benchmarks.seniorityNotice.tag3")}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. Radical Fee Transparency: Platform Economics ─────────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-background">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
@@ -544,8 +436,8 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 7. Comparison: Traditional vs MyJudicial ────────────────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-card">
+      {/* ── 6. Comparison: Traditional vs MyJudicial ────────────────── */}
+      <section className="py-16 sm:py-24 border-b border-border bg-background">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
@@ -560,7 +452,7 @@ export default function PricingClient() {
           </div>
 
           {/* Responsive Comparison Table */}
-          <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             {/* Desktop Table View */}
             <div className="hidden md:block">
               <table className="w-full text-left border-collapse">
@@ -647,8 +539,8 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 8. Pricing FAQs Accordion (8 Practical Questions) ────────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-background">
+      {/* ── 7. Pricing FAQs Accordion (8 Practical Questions) ────────── */}
+      <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
@@ -673,8 +565,8 @@ export default function PricingClient() {
                   key={faqNum}
                   className={`rounded-2xl border transition-all ${
                     isOpen
-                      ? "border-border bg-card shadow-xs ring-1 ring-border"
-                      : "border-border bg-card hover:border-border/80"
+                      ? "border-border bg-background shadow-xs ring-1 ring-border"
+                      : "border-border bg-background hover:border-border/80"
                   }`}
                 >
                   <button
@@ -702,7 +594,7 @@ export default function PricingClient() {
         </div>
       </section>
 
-      {/* ── 9. Bottom CTA (Elevated Surface - Harmonizes with Footer) ── */}
+      {/* ── 8. Bottom CTA (Elevated Surface - Harmonizes with Footer) ── */}
       <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/80 to-background py-16 sm:py-20 text-foreground">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">

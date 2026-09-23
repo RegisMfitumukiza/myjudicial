@@ -17,11 +17,9 @@ import {
   BadgeCheck,
   Smartphone,
   CheckCircle2,
-  FileText,
   Coins,
   Receipt,
   Sparkles,
-  Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -256,21 +254,21 @@ export default function PricingClient() {
 
                 {/* Pre-Booking Transparency Fields */}
                 <div className="mt-5 space-y-3.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Service</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground shrink-0">Service</span>
+                    <span className="font-semibold text-foreground text-right">
                       {t("beforeBooking.mockup.service")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Format</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground shrink-0">Format</span>
+                    <span className="font-semibold text-foreground text-right">
                       {t("beforeBooking.mockup.duration")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Appointment</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-muted-foreground shrink-0">Appointment</span>
+                    <span className="font-semibold text-foreground text-right">
                       {t("beforeBooking.mockup.date")}
                     </span>
                   </div>
@@ -278,7 +276,7 @@ export default function PricingClient() {
 
                 {/* Pricing Box with Escrow Badge */}
                 <div className="mt-6 rounded-xl border border-border bg-background p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
                       <span className="text-[11px] text-muted-foreground block font-medium">
                         {t("beforeBooking.mockup.feeLabel")}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Search,
@@ -21,9 +22,22 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-export default function HowItWorksPage() {
+function HowItWorksContent() {
   const t = useTranslations("howItWorksPage");
-  const [activeTab, setActiveTab] = useState<"clients" | "advocates">("clients");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const isAdvocateTab = tabParam === "advocates" || tabParam === "lawyers";
+  const [activeTab, setActiveTab] = useState<"clients" | "advocates">(
+    isAdvocateTab ? "advocates" : "clients"
+  );
+
+  useEffect(() => {
+    if (tabParam === "advocates" || tabParam === "lawyers") {
+      setActiveTab("advocates");
+    } else if (tabParam === "clients") {
+      setActiveTab("clients");
+    }
+  }, [tabParam]);
 
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
@@ -309,5 +323,13 @@ export default function HowItWorksPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function HowItWorksPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <HowItWorksContent />
+    </Suspense>
   );
 }

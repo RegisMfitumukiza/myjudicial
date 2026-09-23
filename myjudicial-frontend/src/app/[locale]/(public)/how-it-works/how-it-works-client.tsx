@@ -49,10 +49,11 @@ export default function HowItWorksClient() {
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero Section ────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-blue-950/20 via-background to-background py-16 sm:py-24">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-            <Award size={14} className="text-blue-600 dark:text-blue-400" />
+          {/* Unified Platform Hero Badge (matches landing-client convention) */}
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
+            <Award size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
           </div>
 
@@ -64,7 +65,7 @@ export default function HowItWorksClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Perspective Tab Switcher (Rock-solid contrast) */}
+          {/* Perspective Tab Switcher (Platform-wide standard active state) */}
           <div
             role="tablist"
             aria-label="Perspective selection"
@@ -78,7 +79,7 @@ export default function HowItWorksClient() {
               onClick={() => handleTabChange("clients")}
               className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "clients"
-                  ? "bg-blue-600 text-white shadow-xs"
+                  ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               }`}
             >
@@ -92,7 +93,7 @@ export default function HowItWorksClient() {
               onClick={() => handleTabChange("advocates")}
               className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
                 activeTab === "advocates"
-                  ? "bg-blue-600 text-white shadow-xs"
+                  ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               }`}
             >
@@ -111,7 +112,7 @@ export default function HowItWorksClient() {
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {activeTab === "clients"
                 ? t("clientJourney.badge")
                 : t("advocateJourney.badge")}
@@ -158,10 +159,10 @@ export default function HowItWorksClient() {
                 return (
                   <div
                     key={stepNum}
-                    className="group relative flex flex-col rounded-2xl border border-border bg-background p-6 shadow-xs transition-all hover:border-blue-500/40 hover:shadow-sm"
+                    className="group relative flex flex-col rounded-2xl border border-border bg-background p-6 shadow-xs transition-all hover:border-border/90"
                   >
                     <div className="flex items-center justify-between mb-5">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground transition-colors group-hover:bg-brand-dark group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
                         <Icon size={20} />
                       </span>
                       <span className="flex h-7 px-2.5 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground font-mono">
@@ -188,7 +189,7 @@ export default function HowItWorksClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("modalities.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -202,7 +203,7 @@ export default function HowItWorksClient() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* 1. Video */}
             <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground">
                 <Video size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -229,7 +230,7 @@ export default function HowItWorksClient() {
 
             {/* 2. Phone */}
             <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground">
                 <Phone size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -256,7 +257,7 @@ export default function HowItWorksClient() {
 
             {/* 3. In-Person */}
             <div className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs sm:col-span-2 lg:col-span-1">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground">
                 <Building size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -288,7 +289,7 @@ export default function HowItWorksClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("trustFramework.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -309,7 +310,7 @@ export default function HowItWorksClient() {
                   key={num}
                   className="rounded-2xl border border-border bg-background p-6 shadow-xs"
                 >
-                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
                     <ItemIcon size={22} />
                   </div>
                   <h3 className="text-base font-bold text-foreground">
@@ -339,13 +340,13 @@ export default function HowItWorksClient() {
               <>
                 <Link
                   href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
                 >
                   {t("cta.findLawyer")} <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
                 >
                   {t("cta.joinAsAdvocate")}
                 </Link>
@@ -354,13 +355,13 @@ export default function HowItWorksClient() {
               <>
                 <Link
                   href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
                 >
                   {t("cta.joinAsAdvocate")} <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
                 >
                   {t("cta.findLawyer")}
                 </Link>

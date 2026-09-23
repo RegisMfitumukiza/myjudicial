@@ -18,8 +18,6 @@ import {
   Smartphone,
   CheckCircle2,
   Video,
-  FileCheck,
-  Building2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -34,10 +32,11 @@ export default function PricingClient() {
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero Section & Trust Rails ────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-blue-950/20 via-background to-background py-16 sm:py-24">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-16 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-            <ShieldCheck size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+          {/* Unified Platform Hero Badge (matches landing-client convention) */}
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
+            <ShieldCheck size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
           </div>
 
@@ -49,17 +48,17 @@ export default function PricingClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Action CTAs (Solid contrast in all themes) */}
+          {/* Action CTAs (Platform-wide standard: brand-dark light / white-black dark) */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-6 py-3 text-sm font-bold shadow-sm transition-all active:scale-[0.98]"
             >
               {t("cta.button")} <ArrowRight size={16} />
             </Link>
             <Link
               href="/how-it-works"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/80 hover:bg-accent px-6 py-3 text-sm font-semibold text-foreground transition-all"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-6 py-3 text-sm font-semibold text-foreground transition-all shadow-2xs"
             >
               {t("cta.secondary")}
             </Link>
@@ -67,19 +66,19 @@ export default function PricingClient() {
 
           {/* Authentic Payment Rails & Trust Badges Strip */}
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3 sm:gap-6 border-t border-border/60 pt-8 text-xs font-semibold text-muted-foreground">
-            <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card/70 px-3.5 py-2 shadow-xs">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
               <Smartphone size={15} className="text-amber-500 shrink-0" />
               <span>{t("hero.trustBadges.momo")}</span>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card/70 px-3.5 py-2 shadow-xs">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
               <Smartphone size={15} className="text-rose-500 shrink-0" />
               <span>{t("hero.trustBadges.airtel")}</span>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card/70 px-3.5 py-2 shadow-xs">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
               <CreditCard size={15} className="text-blue-500 shrink-0" />
               <span>{t("hero.trustBadges.cards")}</span>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card/70 px-3.5 py-2 shadow-xs">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
               <Scale size={15} className="text-emerald-500 shrink-0" />
               <span>{t("hero.trustBadges.bar")}</span>
             </div>
@@ -91,7 +90,7 @@ export default function PricingClient() {
       <section className="py-16 sm:py-20 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("pillars.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -104,8 +103,8 @@ export default function PricingClient() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Pillar 1 */}
-            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-blue-500/40 hover:shadow-sm">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-border/80 hover:shadow-sm">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-foreground">
                 <Scale size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -117,8 +116,8 @@ export default function PricingClient() {
             </div>
 
             {/* Pillar 2 */}
-            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-emerald-500/40 hover:shadow-sm">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-border/80 hover:shadow-sm">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-foreground">
                 <CheckCircle2 size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -130,8 +129,8 @@ export default function PricingClient() {
             </div>
 
             {/* Pillar 3 */}
-            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-amber-500/40 hover:shadow-sm sm:col-span-2 lg:col-span-1">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <div className="flex flex-col rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs transition-all hover:border-border/80 hover:shadow-sm sm:col-span-2 lg:col-span-1">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-foreground">
                 <Banknote size={24} />
               </div>
               <h3 className="text-lg font-bold text-foreground">
@@ -151,7 +150,7 @@ export default function PricingClient() {
           <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
             {/* Left 7 cols: Explanations */}
             <div className="lg:col-span-7">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
                 {t("beforeBooking.badge")}
               </span>
               <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -176,7 +175,7 @@ export default function PricingClient() {
                 {/* Feature 2 */}
                 <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
                   <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <Clock size={18} className="text-blue-500 shrink-0" />
+                    <Clock size={18} className="text-foreground shrink-0" />
                     <span>{t("beforeBooking.item2.title")}</span>
                   </div>
                   <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
@@ -187,7 +186,7 @@ export default function PricingClient() {
                 {/* Feature 3 */}
                 <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
                   <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <Banknote size={18} className="text-amber-500 shrink-0" />
+                    <Banknote size={18} className="text-foreground shrink-0" />
                     <span>{t("beforeBooking.item3.title")}</span>
                   </div>
                   <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
@@ -198,7 +197,7 @@ export default function PricingClient() {
                 {/* Feature 4 */}
                 <div className="rounded-xl border border-border bg-card p-4.5 shadow-xs">
                   <div className="flex items-center gap-2.5 text-sm font-bold text-foreground">
-                    <CalendarCheck size={18} className="text-purple-500 shrink-0" />
+                    <CalendarCheck size={18} className="text-foreground shrink-0" />
                     <span>{t("beforeBooking.item4.title")}</span>
                   </div>
                   <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
@@ -214,7 +213,7 @@ export default function PricingClient() {
                 {/* Header: Verified Advocate Badge */}
                 <div className="flex items-start justify-between border-b border-border pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground font-bold">
                       JH
                     </div>
                     <div>
@@ -222,7 +221,7 @@ export default function PricingClient() {
                         <h4 className="text-sm font-bold text-foreground">
                           {t("beforeBooking.mockup.lawyerName")}
                         </h4>
-                        <BadgeCheck size={14} className="text-blue-600 dark:text-blue-400" />
+                        <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
                       </div>
                       <span className="text-[11px] font-mono text-muted-foreground">
                         {t("beforeBooking.mockup.barRoll")}
@@ -245,7 +244,7 @@ export default function PricingClient() {
                   <div className="flex items-center justify-between text-muted-foreground">
                     <span>Format</span>
                     <span className="font-semibold text-foreground flex items-center gap-1">
-                      <Video size={12} className="text-blue-500" />
+                      <Video size={12} className="text-muted-foreground" />
                       {t("beforeBooking.mockup.duration")}
                     </span>
                   </div>
@@ -273,11 +272,11 @@ export default function PricingClient() {
                   </div>
                 </div>
 
-                {/* Mockup Button */}
+                {/* Mockup Button (Platform standard button) */}
                 <div className="mt-5 space-y-2">
                   <button
                     disabled
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white py-3 text-xs font-bold opacity-90 cursor-default"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black py-3 text-xs font-bold opacity-90 cursor-default"
                   >
                     <Smartphone size={14} />
                     <span>{t("beforeBooking.mockup.cta")}</span>
@@ -319,11 +318,11 @@ export default function PricingClient() {
                 return (
                   <div
                     key={stepNum}
-                    className="relative flex flex-col rounded-2xl border border-border bg-card p-6 shadow-xs transition-all hover:border-blue-500/30"
+                    className="relative flex flex-col rounded-2xl border border-border bg-card p-6 shadow-xs transition-all hover:border-border/90"
                   >
                     <div className="flex items-center justify-between mb-4">
                       {/* Crisp high-contrast stage pill */}
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white font-mono text-xs font-extrabold shadow-xs">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black font-mono text-xs font-extrabold shadow-xs">
                         {t(`escrowPipeline.${stepKey}.step`)}
                       </span>
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -363,7 +362,7 @@ export default function PricingClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("benchmarks.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -384,18 +383,18 @@ export default function PricingClient() {
                   key={itemNum}
                   className={`relative flex flex-col rounded-3xl p-6 sm:p-8 transition-all ${
                     isPopular
-                      ? "border-2 border-blue-600 dark:border-blue-500 bg-background shadow-xl"
+                      ? "border-2 border-brand-dark dark:border-white bg-background shadow-xl"
                       : "border border-border bg-background shadow-xs hover:border-border/80"
                   }`}
                 >
                   {isPopular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 text-white px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-dark text-white dark:bg-white dark:text-black px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider shadow-xs">
                       Recommended
                     </span>
                   )}
 
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium mb-2">
-                    <Clock size={14} className="text-blue-500" />
+                    <Clock size={14} className="text-foreground" />
                     <span>{t(`benchmarks.${itemKey}.duration`)}</span>
                   </div>
 
@@ -432,8 +431,8 @@ export default function PricingClient() {
                     href="/search"
                     className={`inline-flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs sm:text-sm font-bold transition-all ${
                       isPopular
-                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-sm"
-                        : "border border-border bg-card hover:bg-accent text-foreground"
+                        ? "bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 shadow-sm"
+                        : "border border-border bg-card hover:bg-accent text-foreground shadow-2xs"
                     }`}
                   >
                     <span>{t("cta.button")}</span>
@@ -450,7 +449,7 @@ export default function PricingClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-background">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("comparison.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -474,7 +473,7 @@ export default function PricingClient() {
                     <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-muted-foreground w-3/8">
                       {t("comparison.traditionalHeader")}
                     </th>
-                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 w-3/8 bg-blue-500/[0.04] dark:bg-blue-500/[0.08] border-l border-border">
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-foreground w-3/8 bg-accent/40 border-l border-border">
                       {t("comparison.myjudicialHeader")}
                     </th>
                   </tr>
@@ -495,7 +494,7 @@ export default function PricingClient() {
                             <span>{t(`comparison.${rowKey}.traditional`)}</span>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-foreground font-medium bg-blue-500/[0.02] dark:bg-blue-500/[0.05] border-l border-border">
+                        <td className="py-4 px-6 text-foreground font-medium bg-accent/[0.15] border-l border-border">
                           <div className="flex items-center gap-2.5">
                             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
                               <Check size={13} />
@@ -530,12 +529,12 @@ export default function PricingClient() {
                         <span>{t(`comparison.${rowKey}.traditional`)}</span>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2.5 text-xs text-foreground bg-blue-500/5 dark:bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">
+                    <div className="flex items-start gap-2.5 text-xs text-foreground bg-accent/40 p-3 rounded-xl border border-border">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 mt-0.5">
                         <Check size={12} />
                       </span>
                       <div>
-                        <span className="font-bold block text-blue-600 dark:text-blue-400">
+                        <span className="font-bold block text-foreground">
                           {t("comparison.myjudicialHeader")}:
                         </span>
                         <span>{t(`comparison.${rowKey}.myjudicial`)}</span>
@@ -553,7 +552,7 @@ export default function PricingClient() {
       <section className="py-16 sm:py-24 border-b border-border bg-card">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("faqs.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -575,7 +574,7 @@ export default function PricingClient() {
                   key={faqNum}
                   className={`rounded-2xl border transition-all ${
                     isOpen
-                      ? "border-blue-500/40 bg-background shadow-xs"
+                      ? "border-border bg-background shadow-xs ring-1 ring-border"
                       : "border-border bg-background hover:border-border/80"
                   }`}
                 >
@@ -588,7 +587,7 @@ export default function PricingClient() {
                     <ChevronDown
                       size={18}
                       className={`text-muted-foreground transition-transform duration-200 shrink-0 ${
-                        isOpen ? "rotate-180 text-blue-500" : ""
+                        isOpen ? "rotate-180 text-foreground" : ""
                       }`}
                     />
                   </button>
@@ -616,13 +615,13 @@ export default function PricingClient() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
             >
               {t("cta.button")} <ArrowRight size={16} />
             </Link>
             <Link
               href="/how-it-works"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
             >
               {t("cta.secondary")}
             </Link>

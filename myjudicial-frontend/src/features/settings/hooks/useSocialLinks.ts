@@ -21,10 +21,10 @@ interface PublicSettingsResponse {
 }
 
 export const DEFAULT_SOCIAL_LINKS: SocialLinks = {
-  x: "https://twitter.com/myjudicial",
-  linkedin: "https://linkedin.com/company/myjudicial",
-  facebook: "https://facebook.com/myjudicial",
-  instagram: "https://instagram.com/myjudicial",
+  x: "",
+  linkedin: "",
+  facebook: "",
+  instagram: "",
   youtube: "",
   whatsapp: "",
 };

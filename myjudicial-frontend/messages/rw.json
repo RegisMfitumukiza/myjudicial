@@ -2475,13 +2475,15 @@
       "columns": {
         "findLawyer": "Shaka Inkunga y'Amategeko",
         "forLawyers": "Ku Bavoka",
-        "company": "Sosiyete & Inkunga",
-        "legal": "Amategeko & Icyizere"
+        "company": "Sosiyete & Amategeko",
+        "legal": "Amategeko & Icyizere",
+        "practiceAreas": "Inzego z'Ubuhanga",
+        "platform": "Urubuga & Ibiciro"
       },
       "links": {
         "findLawyer": "Shaka Umwavoka",
         "practiceAreas": "Inzego z'Ubuhanga",
-        "pricing": "Ibiciro Bisobanutse",
+        "pricing": "Ibiciro Bisobanutse & Ubwirinzi",
         "howItWorks": "Uburyo Bigenda",
         "aiAssistant": "Umufasha wa AI w'Amategeko",
         "becomeExpert": "Iyandikishe nk'Umwavoka",
@@ -2489,16 +2491,25 @@
         "verification": "Ibisabwa n'Urugaga rw'Abavoka",
         "partners": "Inzego Zitugana",
         "aboutUs": "Abo Turi Bo",
-        "faqs": "Ibibazo Bikunzwe (FAQ)",
+        "faqs": "Ifashamugisha & Ibibazo Bikunzwe",
         "helpCenter": "Ifashamugisha",
-        "contact": "Twandikire & Aho Turi",
-        "careers": "Akazi",
+        "contact": "Twandikire & Ubufasha",
+        "careers": "Imyanya y'Akazi",
         "newsroom": "Itangazo & Amakuru",
         "privacyPolicy": "Politike y'Ibanga",
         "termsOfService": "Amategeko y'Ikoresha",
-        "cookies": "Politike ya Cookies"
+        "cookies": "Politike ya Cookies",
+        "landLaw": "Amategeko y'Ubutaka n'Imitungo",
+        "commercialLaw": "Amategeko y'Ubucuruzi & Amasosiyete",
+        "familyLaw": "Amategeko y'Umuryango n'Izungura",
+        "employmentLaw": "Amategeko y'Umurimo n'Akazi",
+        "criminalLaw": "Kunganira mu Manza Mpanabyaha",
+        "allPracticeAreas": "Inzego Zose z'Ubuhanga",
+        "howAdvocatesWork": "Uko Abavoka Bakora"
       },
-      "copyright": "MyJudicial, Inc. Uburenganzira bwose bwubahirizwa."
+      "copyright": "MyJudicial, Inc. Uburenganzira bwose bwubahirizwa.",
+      "supportEmail": "support@myjudicial.com",
+      "disclaimer": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abavoka bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ntabwo ari ibiro by'avoka kandi ntitutanga ubufasha bw'amategeko mu buryo bweruye."
     },
     "meta": {
       "title": "MyJudicial | Shaka Abavoka Bemejwe mu Rwanda",
@@ -3148,6 +3159,29 @@
     "meta": {
       "title": "About Us | MyJudicial",
       "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
+    },
+    "ecosystem": {
+      "badge": "Inzego Dukorana Nazo",
+      "title": "Byubatse ku bufatanye n'Inzego z'Amategeko n'Imari mu Rwanda",
+      "subtitle": "MyJudicial ikorana n'inzego zizewe mu Rwanda kugira ngo yimakaze ubunyamwuga n'umutekano w'ubwishyu mu bwishingizi.",
+      "legal": {
+        "title": "Amategeko n'Urugaga rw'Abavoka",
+        "desc": "Guhuza amakuru n'Urutonde rw'Urugaga rw'Abavoka mu Rwanda. Buri mwavoka asuzumirwa icyangombwa cy'umwuga n'uko ahagaze mu rugaga."
+      },
+      "financial": {
+        "title": "Ubwishingizi bw'Amafaranga & Mobile Money",
+        "desc": "Ihuza ritaziguye na MTN Mobile Money, Airtel Money, na banki zizewe kugira ngo amafaranga yawe arindwe 100% mu mutekano."
+      },
+      "regulatory": {
+        "title": "Ibijyanye n'Amategeko & Kurinda Amakuru",
+        "desc": "Gukorera ku mategeko y'u Rwanda no kubahiriza Itegeko No. 058/2021 rirebana no kurinda amakuru bwite y'abantu."
+      },
+      "partnerCta": "Ubufatanye bw'Inzego",
+      "partnerCtaDesc": "Uri urwego rw'amategeko, umuryango utegamiye kuri leta, cyangwa ikigo cyifuza gukorana natwe?"
+    },
+    "disclaimer": {
+      "title": "Itangazo ry'Amategeko",
+      "text": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abavoka bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ntabwo ari ibiro by'avoka kandi ntitutanga ubufasha bw'amategeko mu buryo bweruye."
     }
   },
   "clientDashboard": {
@@ -5777,5 +5811,68 @@
     "locationTimeout": "Igihe cyo gushaka aho uri cyarangiye.",
     "locationFailed": "Kumenya aho uri byanze",
     "invalidCoordinates": "Nyamuneka injiza imirongo nyakuri (Ubugari: -90 kugeza 90, Uburebure: -180 kugeza 180)"
+  },
+  "careersPage": {
+    "meta": {
+      "title": "Imyanya y'Akazi & Kwaka Akazi | MyJudicial",
+      "description": "Fatanya n'itsinda rigezweho ritezimbere ubutabera mu Rwanda. Menya imikorere, amakipe, no kohereza dosiye yawe."
+    },
+    "hero": {
+      "badge": "Akazi muri MyJudicial",
+      "title": "Kubaka Ikoranabuhanga ry'Ubutabera mu Rwanda",
+      "subtitle": "Turi itsinda ryiyemeje gukoresha ikoranabuhanga, ubwenge bw'ubukorano (AI), n'amahame y'ubuvoka mu gufasha abaturage bose."
+    },
+    "whyJoin": {
+      "badge": "Gukora muri MyJudicial",
+      "title": "Impamvu Wagakwiye Gukorana Natwe",
+      "subtitle": "Injira muri sosiyete nshya ifite icyerekezo i Kigali ifite n'uruhare runini mu iterambere ry'ubutabera muri Afurika y'Uburasirazuba.",
+      "impact": {
+        "title": "Uruhare Rutaziguye ku Butabera",
+        "desc": "Buri kintu ukora kigira uruhare mu gufasha abaturage, imiryango, n'ubucuruzi gukemura ibibazo by'amategeko n'abavoka bemejwe."
+      },
+      "tech": {
+        "title": "Ikoranabuhanga Ryizewe",
+        "desc": "Dukoresha Next.js, TypeScript, PostgreSQL, Prisma, AI igezweho, ndetse n'ubwishyu bwa Mobile Money burinzwe."
+      },
+      "culture": {
+        "title": "Ubwigenge & Gukorera mu Mucyo",
+        "desc": "Duha agaciro kwigira, kwihuta mu bikorwa, kuvugisha ukuri, no kubahiriza amategeko n'umutekano w'amakuru."
+      }
+    },
+    "departments": {
+      "badge": "Amakipe Yacu",
+      "title": "Inzego Z'Impano Dushaka",
+      "subtitle": "Mu gihe turimo kwagura ibikorwa byacu i Kigali, dushaka abahanga mu nzego enye z'ingenzi.",
+      "engineering": {
+        "title": "Abahanga mu Ikoranabuhanga & AI",
+        "desc": "Abubatsi ba porogaramu za mudasobwa na telefoni, umutekano w'ikoranabuhanga, n'ubushakashatsi bwa AI."
+      },
+      "legalCompliance": {
+        "title": "Ubushakashatsi bw'Amategeko & Urugaga",
+        "desc": "Abanyamategeko b'u Rwanda, abagenzura iyubahirizwa ry'amategeko n'amahame y'ubuvoka, n'imikoranire n'inzego."
+      },
+      "operations": {
+        "title": "Imicungire y'Ibikorwa & Iterambere",
+        "desc": "Abahuza b'urusobe rw'abavoka, abasesengura iby'ubwishyu n'ubwirinzi, n'abayobora iyakirwa ry'abakiriya."
+      },
+      "support": {
+        "title": "Ifashamugisha & Kwita ku Bakiriya",
+        "desc": "Abafasha abakiriya mu ndimi eshatu: Ikinyarwanda, Icyongereza, n'Igifaransa babafasha mu bwitonzi."
+      }
+    },
+    "talentPool": {
+      "badge": "Kwakira Ubusabe Buhoraho",
+      "title": "Gusaba Akazi no Kwiyandikisha mu Bategereje",
+      "subtitle": "Niyo nta myanya yihariye yaba itangajwe, duhora dusuzuma ubusabe bw'abantu b'abahanga bifuza gufatanya natwe muri uyu mushinga.",
+      "instruction": "Ohereza umwirondoro wawe (CV), imirimo wakoze (portfolio/GitHub), n'ibaruwa igusobanura kuri:",
+      "email": "careers@myjudicial.com",
+      "locationNotice": "Imyanya ikorera ku biro byacu i Kigali, hamwe n'uburyo bwo gukorera mu rugo ku mirimo imwe n'imwe y'ikoranabuhanga."
+    },
+    "cta": {
+      "title": "Witeguye gufatanya natwe guhindura ubutabera?",
+      "subtitle": "Igaragaze cyangwa urebe uko urubuga rwacu rufasha abaturage n'abavoka muri iki gihe.",
+      "explorePlatform": "Reba Uburyo Bigenda",
+      "sendCv": "Ohereza Dosiye Yawe"
+    }
   }
 }

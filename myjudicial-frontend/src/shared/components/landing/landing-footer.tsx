@@ -3,10 +3,10 @@
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/shared/components/logo";
-import { MapPin } from "lucide-react";
+import { MapPin, Mail, ShieldAlert } from "lucide-react";
 import { useSocialLinks } from "@/features/settings/hooks/useSocialLinks";
 
-/* ── Inline SVG icons (no extra deps) ──────────────────────────────── */
+/* ── Inline SVG icons (zero external deps) ─────────────────────────── */
 function XIcon(p: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
@@ -52,7 +52,6 @@ function WhatsAppIcon(p: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-/* ── Social icon map ────────────────────────────────────────────────── */
 const SOCIAL_ICON_MAP = {
   x: { Icon: XIcon, label: "X (Twitter)" },
   linkedin: { Icon: LinkedInIcon, label: "LinkedIn" },
@@ -62,21 +61,30 @@ const SOCIAL_ICON_MAP = {
   whatsapp: { Icon: WhatsAppIcon, label: "WhatsApp" },
 } as const;
 
-/* ── Component ─────────────────────────────────────────────────────── */
 export default function LandingFooter() {
   const t = useTranslations("landing.footer");
   const { socialLinks } = useSocialLinks();
 
-  /* 4 clean columns — all routes verified to exist */
+  /* ── 4 Industrial Deep-Sitemap Columns ────────────────────────── */
   const FOOTER_COLS = [
     {
-      heading: t("columns.findLawyer"),
+      heading: t("columns.practiceAreas"),
       links: [
-        { label: t("links.findLawyer"), href: "/search" },
-        { label: t("links.practiceAreas"), href: "/practice-areas" },
+        { label: t("links.landLaw"), href: "/search?specialty=LAND_LAW" },
+        { label: t("links.commercialLaw"), href: "/search?specialty=COMMERCIAL_LAW" },
+        { label: t("links.familyLaw"), href: "/search?specialty=FAMILY_LAW" },
+        { label: t("links.employmentLaw"), href: "/search?specialty=EMPLOYMENT_LAW" },
+        { label: t("links.criminalLaw"), href: "/search?specialty=CRIMINAL_LAW" },
+        { label: t("links.allPracticeAreas"), href: "/practice-areas" },
+      ],
+    },
+    {
+      heading: t("columns.platform"),
+      links: [
         { label: t("links.pricing"), href: "/pricing" },
         { label: t("links.howItWorks"), href: "/how-it-works" },
         { label: t("links.aiAssistant"), href: "/ai" },
+        { label: t("links.findLawyer"), href: "/search" },
       ],
     },
     {
@@ -84,21 +92,17 @@ export default function LandingFooter() {
       links: [
         { label: t("links.becomeExpert"), href: "/sign-up?role=EXPERT" },
         { label: t("links.advocateSignIn"), href: "/sign-in" },
+        { label: t("links.howAdvocatesWork"), href: "/how-it-works" },
         { label: t("links.verification"), href: "/how-it-works" },
-        { label: t("links.partners"), href: "/partners" },
       ],
     },
     {
       heading: t("columns.company"),
       links: [
         { label: t("links.aboutUs"), href: "/about" },
+        { label: t("links.careers"), href: "/careers" },
         { label: t("links.faqs"), href: "/faqs" },
         { label: t("links.contact"), href: "/contact" },
-      ],
-    },
-    {
-      heading: t("columns.legal"),
-      links: [
         { label: t("links.privacyPolicy"), href: "/privacy" },
         { label: t("links.termsOfService"), href: "/terms" },
         { label: t("links.cookies"), href: "/cookies" },
@@ -106,44 +110,65 @@ export default function LandingFooter() {
     },
   ];
 
-  /* Only render social icons where the admin has set a non-empty URL */
+  /* Only render social icons when a real non-empty URL has been configured */
   const activeSocials = (
-    Object.entries(SOCIAL_ICON_MAP) as [keyof typeof SOCIAL_ICON_MAP, { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string }][]
+    Object.entries(SOCIAL_ICON_MAP) as [
+      keyof typeof SOCIAL_ICON_MAP,
+      { Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string }
+    ][]
   ).filter(([key]) => {
     const url = socialLinks[key];
     return typeof url === "string" && url.trim().length > 0;
   });
 
   return (
-    <footer className="border-t border-border bg-card">
-      {/* ── Brand Identity Strip ─────────────────────────────────────── */}
+    <footer className="border-t border-border bg-card text-foreground" role="contentinfo">
+      {/* ── Brand Identity & Platform Summary ─────────────────────────── */}
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-10 pb-8 border-b border-border">
-        <div className="flex flex-col gap-3 max-w-xl">
+        <div className="flex flex-col gap-3 max-w-2xl">
           <Logo iconSize={20} fontSize="text-[17px]" className="text-brand-dark dark:text-white" />
-          <p className="text-sm font-medium text-foreground leading-snug">
+          
+          <p className="text-sm font-semibold text-foreground leading-snug">
             {t("tagline")}
           </p>
+          
           <p className="text-xs text-muted-foreground leading-relaxed">
             {t("subtagline")}
           </p>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-            <MapPin size={12} className="shrink-0" />
-            <span>{t("kigaliRwanda")}</span>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-0.5">
+            <div className="flex items-center gap-1.5">
+              <MapPin size={12} className="shrink-0 text-brand-dark dark:text-brand-gold" />
+              <span>{t("kigaliRwanda")}</span>
+            </div>
+            <span className="text-border hidden sm:inline">·</span>
+            <div className="flex items-center gap-1.5">
+              <Mail size={12} className="shrink-0 text-brand-dark dark:text-brand-gold" />
+              <a href={`mailto:${t("supportEmail")}`} className="hover:text-foreground hover:underline">
+                {t("supportEmail")}
+              </a>
+            </div>
+          </div>
+
+          {/* Legal Ethics / Regulatory Notice */}
+          <div className="mt-2 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/20 p-3 text-[11px] text-muted-foreground leading-relaxed">
+            <ShieldAlert size={14} className="shrink-0 text-muted-foreground mt-0.5" />
+            <span>{t("disclaimer")}</span>
           </div>
         </div>
       </div>
 
-      {/* ── 4 Nav Columns ────────────────────────────────────────────── */}
+      {/* ── 4 Deep-Sitemap Columns ────────────────────────────────────── */}
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-10 border-b border-border">
         {/*
           Mobile:  2 cols  (grid-cols-2)
           Tablet:  4 cols  (sm:grid-cols-4)
-          Desktop: 4 cols with more breathing room
+          Desktop: 4 cols with generous spacing
         */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 sm:gap-x-8">
           {FOOTER_COLS.map((col) => (
             <div key={col.heading} className="min-w-0">
-              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/70">
+              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/75">
                 {col.heading}
               </h4>
               <ul className="space-y-2.5">
@@ -151,7 +176,7 @@ export default function LandingFooter() {
                   <li key={link.href + link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4 leading-snug block"
+                      className="text-xs sm:text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4 leading-snug block py-0.5"
                     >
                       {link.label}
                     </Link>
@@ -163,28 +188,21 @@ export default function LandingFooter() {
         </div>
       </div>
 
-      {/* ── Bottom Bar ───────────────────────────────────────────────── */}
-      {/*
-        Mobile:  stacked (flex-col, items-center, text-center)
-        Desktop: one row  (md:flex-row, md:justify-between)
-        Right-side gap ensures the fixed AI chat button never overlaps
-        the social icons or language switcher on any viewport.
-      */}
+      {/* ── Bottom Bar: Copyright & Dynamic Social Icons ──────────────── */}
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-5">
         <div className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
-
-          {/* Copyright */}
+          
+          {/* Dynamic Copyright */}
           <p className="text-xs text-muted-foreground order-2 md:order-1">
             © {new Date().getFullYear()} {t("copyright")}
           </p>
 
-          {/* Language switcher + social icons */}
+          {/* Social Icons Container with clearance for floating bot button */}
           <div className="flex flex-wrap items-center justify-center gap-3 order-1 md:order-2 md:pr-16 lg:pr-20">
-
             {activeSocials.length > 0 && (
               <div
                 className="flex flex-wrap items-center gap-2"
-                aria-label="Social media links"
+                aria-label="Social media channels"
               >
                 {activeSocials.map(([key, { Icon, label }]) => {
                   const href = socialLinks[key] as string;
@@ -197,7 +215,7 @@ export default function LandingFooter() {
                       aria-label={label}
                       className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-all hover:border-foreground/30 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <Icon className="h-[15px] w-[15px]" />
+                      <Icon className="h-[14px] w-[14px]" />
                     </a>
                   );
                 })}

@@ -2474,31 +2474,42 @@
       "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
         "findLawyer": "Trouver un avocat",
-        "forLawyers": "Pour les avocats",
-        "company": "Entreprise & aide",
-        "legal": "Juridique & conformité"
+        "forLawyers": "Pour les Avocats",
+        "company": "Société & Légal",
+        "legal": "Juridique & conformité",
+        "practiceAreas": "Domaines Juridiques",
+        "platform": "Plateforme & Tarifs"
       },
       "links": {
-        "findLawyer": "Trouver un avocat",
+        "findLawyer": "Trouver un Avocat",
         "practiceAreas": "Domaines de droit",
-        "pricing": "Tarifs transparents",
-        "howItWorks": "Comment ça marche",
-        "aiAssistant": "Assistant IA",
-        "becomeExpert": "Rejoindre comme avocat",
-        "advocateSignIn": "Connexion avocat",
-        "verification": "Normes du Barreau & vérification",
+        "pricing": "Tarification & Séquestre",
+        "howItWorks": "Comment ça Marche",
+        "aiAssistant": "Assistant Juridique IA",
+        "becomeExpert": "Rejoindre comme Avocat",
+        "advocateSignIn": "Connexion Avocat",
+        "verification": "Normes & Contrôle Barreau",
         "partners": "Institutions partenaires",
-        "aboutUs": "À propos de MyJudicial",
-        "faqs": "Foire aux questions (FAQ)",
+        "aboutUs": "À Propos de MyJudicial",
+        "faqs": "Aide & FAQ",
         "helpCenter": "Centre d'aide",
-        "contact": "Contact & bureaux",
+        "contact": "Contact & Support",
         "careers": "Carrières",
         "newsroom": "Presse & actualités",
-        "privacyPolicy": "Politique de confidentialité",
-        "termsOfService": "Conditions d'utilisation",
-        "cookies": "Politique des cookies"
+        "privacyPolicy": "Politique de Confidentialité",
+        "termsOfService": "Conditions Générales",
+        "cookies": "Politique des Cookies",
+        "landLaw": "Droit Foncier & Immobilier",
+        "commercialLaw": "Droit des Affaires & Sociétés",
+        "familyLaw": "Droit de la Famille & Successions",
+        "employmentLaw": "Droit du Travail & Emploi",
+        "criminalLaw": "Défense Pénale",
+        "allPracticeAreas": "Tous les Domaines",
+        "howAdvocatesWork": "Comment Exercer sur MyJudicial"
       },
-      "copyright": "MyJudicial, Inc. Tous droits réservés."
+      "copyright": "MyJudicial, Inc. Tous droits réservés.",
+      "supportEmail": "support@myjudicial.com",
+      "disclaimer": "MyJudicial est une plateforme technologique indépendante mettant en relation les justiciables avec des avocats inscrits au Barreau du Rwanda. MyJudicial n'est pas un cabinet d'avocats et ne fournit pas directement de conseils juridiques."
     },
     "meta": {
       "title": "MyJudicial | Trouvez des Avocats Certifiés au Rwanda",
@@ -3148,6 +3159,29 @@
     "meta": {
       "title": "About Us | MyJudicial",
       "description": "Learn about MyJudicial, Rwanda's premier platform connecting clients with verified legal experts."
+    },
+    "ecosystem": {
+      "badge": "Écosystème Institutionnel",
+      "title": "Conçu avec les Institutions Juridiques & Financières du Rwanda",
+      "subtitle": "MyJudicial collabore avec des institutions reconnues au Rwanda pour garantir des normes d'excellence et une exécution rigoureuse du séquestre.",
+      "legal": {
+        "title": "Cadre Légal & Barreau du Rwanda",
+        "desc": "Recoupement avec le Tableau officiel de l'Ordre des Avocats du Rwanda. La validité du droit d'exercice de chaque avocat est systématiquement contrôlée."
+      },
+      "financial": {
+        "title": "Séquestre Financier & Mobile Money",
+        "desc": "Intégration directe avec MTN MoMo, Airtel Money et des comptes de séquestre bancaires agréés pour garantir la protection totale des fonds."
+      },
+      "regulatory": {
+        "title": "Conformité Légale & Protection des Données",
+        "desc": "Fonctionnement en stricte conformité avec la Loi n° 058/2021 relative à la protection des données personnelles et de la vie privée au Rwanda."
+      },
+      "partnerCta": "Partenariats Institutionnels",
+      "partnerCtaDesc": "Vous êtes une institution juridique, une ONG ou un partenaire institutionnel souhaitant collaborer ?"
+    },
+    "disclaimer": {
+      "title": "Mention Réglementaire",
+      "text": "MyJudicial est une plateforme technologique indépendante mettant en relation les justiciables avec des avocats inscrits au Barreau du Rwanda. MyJudicial n'est pas un cabinet d'avocats et ne fournit pas directement de conseils juridiques."
     }
   },
   "clientDashboard": {
@@ -5777,5 +5811,68 @@
     "locationTimeout": "La demande de localisation a expiré.",
     "locationFailed": "La détection de l'emplacement a échoué",
     "invalidCoordinates": "Veuillez entrer des coordonnées valides (Latitude: -90 à 90, Longitude: -180 à 180)"
+  },
+  "careersPage": {
+    "meta": {
+      "title": "Carrières & Vivier de Talents | MyJudicial",
+      "description": "Rejoignez l'équipe qui modernise l'accès au droit au Rwanda. Découvrez notre culture, nos métiers et postulez spontanément."
+    },
+    "hero": {
+      "badge": "Carrières chez MyJudicial",
+      "title": "Bâtissez l'Infrastructure Numérique de la Justice au Rwanda",
+      "subtitle": "Nous sommes une équipe engagée alliant ingénierie logicielle, intelligence artificielle et déontologie juridique pour aider des millions de citoyens."
+    },
+    "whyJoin": {
+      "badge": "Travailler chez MyJudicial",
+      "title": "Pourquoi Nous Rejoindre",
+      "subtitle": "Rejoignez une startup ambitieuse basée à Kigali avec un véritable impact sociétal à travers l'Afrique de l'Est.",
+      "impact": {
+        "title": "Impact Direct sur la Justice",
+        "desc": "Chaque fonctionnalité déployée aide concrètement citoyens, familles et entreprises à résoudre leurs litiges avec des avocats certifiés."
+      },
+      "tech": {
+        "title": "Technologies de Haute Confiance",
+        "desc": "Nous développons avec Next.js, TypeScript, PostgreSQL, Prisma, des modèles d'IA et des séquestres Mobile Money télécom en temps réel."
+      },
+      "culture": {
+        "title": "Culture d'Autonomie & Transparence",
+        "desc": "Nous valorisons la responsabilité, la rapidité d'exécution, la franchise intellectuelle et le respect absolu de la vie privée."
+      }
+    },
+    "departments": {
+      "badge": "Nos Pôles",
+      "title": "Les Profils que Nous Recherchons",
+      "subtitle": "Dans le cadre de notre développement à Kigali, nous recherchons des talents exceptionnels dans quatre domaines clés.",
+      "engineering": {
+        "title": "Ingénierie Logicielle & IA",
+        "desc": "Développeurs full-stack, architectes sécurité et spécialistes IA/NLP concevant des solutions juridiques fiables."
+      },
+      "legalCompliance": {
+        "title": "Recherche Juridique & Conformité Barreau",
+        "desc": "Juristes rwandais, responsables de conformité déontologique et spécialistes des relations institutionnelles."
+      },
+      "operations": {
+        "title": "Opérations & Croissance Réseau",
+        "desc": "Coordinateurs du réseau d'avocats, analystes financiers du séquestre et gestionnaires de l'intégration client."
+      },
+      "support": {
+        "title": "Support Client & Confiance",
+        "desc": "Conseillers trilingues apportant un accompagnement bienveillant en kinyarwanda, anglais et français."
+      }
+    },
+    "talentPool": {
+      "badge": "Candidatures Spontanées",
+      "title": "Candidature Libre & Vivier de Talents",
+      "subtitle": "Même en l'absence de poste ouvert spécifique, nous examinons en continu les profils d'exception qui partagent notre mission.",
+      "instruction": "Envoyez votre CV, lien portfolio ou GitHub, et quelques mots de motivation à :",
+      "email": "careers@myjudicial.com",
+      "locationNotice": "Postes en mode hybride à notre siège de Kigali, avec télétravail flexible pour certaines fonctions techniques."
+    },
+    "cta": {
+      "title": "Prêt à façonner l'avenir de la legal tech ?",
+      "subtitle": "Présentez-vous ou découvrez comment notre plateforme accompagne citoyens et avocats dès aujourd'hui.",
+      "explorePlatform": "Découvrir le fonctionnement",
+      "sendCv": "Envoyer votre candidature"
+    }
   }
 }

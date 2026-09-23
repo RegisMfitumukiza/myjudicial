@@ -44,6 +44,29 @@
       "title": "Ready to get started?",
       "joinLawyer": "Join as a Lawyer",
       "findLawyer": "Find a Lawyer"
+    },
+    "ecosystem": {
+      "badge": "Institutional Ecosystem",
+      "title": "Built with Rwanda's Legal & Financial Institutions",
+      "subtitle": "MyJudicial collaborates with accredited institutions across Rwanda to ensure professional standards and seamless escrow execution.",
+      "legal": {
+        "title": "Legal Framework & Bar Standards",
+        "desc": "Cross-referenced with the official Rwanda Bar Association (RBA) Roll of Advocates. Every practicing lawyer's active license and standing is verified."
+      },
+      "financial": {
+        "title": "Escrow Banking & Mobile Money",
+        "desc": "Integrated with MTN Mobile Money, Airtel Money, and licensed commercial banking escrow custody to guarantee 100% funds protection."
+      },
+      "regulatory": {
+        "title": "Regulatory & Data Compliance",
+        "desc": "Operating in strict compliance with Law No. 058/2021 relating to the protection of personal data and privacy in Rwanda."
+      },
+      "partnerCta": "Institutional Inquiries",
+      "partnerCtaDesc": "Are you a legal institution, bar council, NGO, or corporate partner looking to collaborate?"
+    },
+    "disclaimer": {
+      "title": "Regulatory Notice",
+      "text": "MyJudicial is an independent technology platform connecting clients with accredited Rwanda Bar Association advocates. MyJudicial is not a law firm and does not provide legal representation directly."
     }
   },
   "admin": {
@@ -3942,30 +3965,41 @@
       "columns": {
         "findLawyer": "Find Legal Help",
         "forLawyers": "For Advocates",
-        "company": "Company & Support",
-        "legal": "Legal & Trust"
+        "company": "Company & Legal",
+        "legal": "Legal & Trust",
+        "practiceAreas": "Practice Areas",
+        "platform": "Platform & Pricing"
       },
       "links": {
         "findLawyer": "Find a Lawyer",
         "practiceAreas": "Practice Areas",
-        "pricing": "Transparent Pricing",
+        "pricing": "Transparent Pricing & Escrow",
         "howItWorks": "How It Works",
         "aiAssistant": "AI Legal Assistant",
         "becomeExpert": "Join as an Advocate",
         "advocateSignIn": "Advocate Sign In",
         "verification": "Bar Standards & Vetting",
         "partners": "Partner Institutions",
-        "aboutUs": "About Us",
-        "faqs": "Frequently Asked Questions",
+        "aboutUs": "About MyJudicial",
+        "faqs": "Help & FAQs",
         "helpCenter": "Help Center",
-        "contact": "Contact & Office",
+        "contact": "Contact & Support",
         "careers": "Careers",
         "newsroom": "Press & Newsroom",
         "privacyPolicy": "Privacy Policy",
         "termsOfService": "Terms of Service",
-        "cookies": "Cookie Policy"
+        "cookies": "Cookie Policy",
+        "landLaw": "Land & Property Law",
+        "commercialLaw": "Corporate & Commercial",
+        "familyLaw": "Family & Succession",
+        "employmentLaw": "Labor & Employment",
+        "criminalLaw": "Criminal Defense",
+        "allPracticeAreas": "All Practice Areas",
+        "howAdvocatesWork": "How Advocates Work"
       },
-      "copyright": "MyJudicial, Inc. All rights reserved."
+      "copyright": "MyJudicial, Inc. All rights reserved.",
+      "supportEmail": "support@myjudicial.com",
+      "disclaimer": "MyJudicial is an independent technology platform connecting clients with accredited Rwanda Bar Association advocates. MyJudicial is not a law firm and does not provide legal representation directly."
     },
     "hero": {
       "badge": "Rwanda's Certified Legal Network",
@@ -5779,5 +5813,68 @@
     "locationTimeout": "Location request timed out.",
     "locationFailed": "Location detection failed",
     "invalidCoordinates": "Please enter valid coordinates (Latitude: -90 to 90, Longitude: -180 to 180)"
+  },
+  "careersPage": {
+    "meta": {
+      "title": "Careers & Talent Pool | MyJudicial",
+      "description": "Join the team modernizing access to justice in Rwanda. Explore culture, engineering, compliance, and spontaneous applications."
+    },
+    "hero": {
+      "badge": "Careers at MyJudicial",
+      "title": "Build the Digital Infrastructure of Justice in Rwanda",
+      "subtitle": "We are a mission-driven team combining software engineering, artificial intelligence, and Rwandan legal ethics to empower millions of citizens."
+    },
+    "whyJoin": {
+      "badge": "Life at MyJudicial",
+      "title": "Why Build With Us",
+      "subtitle": "Join an ambitious startup based in Kigali with real societal impact across East Africa.",
+      "impact": {
+        "title": "Direct Impact on Justice",
+        "desc": "Every feature you ship directly helps citizens, families, and businesses resolve critical legal challenges with verified counsel."
+      },
+      "tech": {
+        "title": "High-Trust Tech Stack",
+        "desc": "We build with Next.js, TypeScript, PostgreSQL, Prisma, AI model pipelines, and real-time telecom Mobile Money escrow integrations."
+      },
+      "culture": {
+        "title": "Autonomous & Transparent Culture",
+        "desc": "We value ownership, speed, intellectual honesty, and deep respect for the rule of law and user privacy."
+      }
+    },
+    "departments": {
+      "badge": "Our Teams",
+      "title": "Disciplines We Hire For",
+      "subtitle": "As we scale our operations in Kigali, we seek exceptional talent across four key pillars.",
+      "engineering": {
+        "title": "Software & AI Engineering",
+        "desc": "Full-stack web engineers, security architects, and AI/NLP research specialists building reliable legal tech."
+      },
+      "legalCompliance": {
+        "title": "Legal Research & Bar Compliance",
+        "desc": "Rwandan legal researchers, ethics compliance officers, and institutional relations specialists."
+      },
+      "operations": {
+        "title": "Operations & Marketplace Growth",
+        "desc": "Advocate network coordinators, financial escrow analysts, and client onboarding managers."
+      },
+      "support": {
+        "title": "Customer Success & Trust",
+        "desc": "Trilingual customer advocates delivering compassionate support in Kinyarwanda, English, and French."
+      }
+    },
+    "talentPool": {
+      "badge": "Rolling Applications",
+      "title": "Spontaneous Applications & Talent Pool",
+      "subtitle": "Even when specific requisitions are not publicly posted, we continuously review exceptional candidates who believe in our mission.",
+      "instruction": "Send your CV, portfolio or GitHub link, and a short introduction to:",
+      "email": "careers@myjudicial.com",
+      "locationNotice": "Hybrid roles based at our Kigali headquarters, with flexible remote arrangements for select technical functions."
+    },
+    "cta": {
+      "title": "Ready to shape the future of legal tech?",
+      "subtitle": "Introduce yourself or explore how our platform empowers citizens and advocates today.",
+      "explorePlatform": "Explore How It Works",
+      "sendCv": "Send Your Application"
+    }
   }
 }

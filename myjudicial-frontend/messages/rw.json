@@ -3686,45 +3686,113 @@
   },
   "contactPage": {
     "meta": {
-      "title": "Contact Us | MyJudicial",
-      "description": "Get in touch with the MyJudicial team for support, partnerships, or general inquiries."
+      "title": "Twandikire | MyJudicial",
+      "description": "Vugana n'ikipe ya MyJudicial ku bijyanye n'ubufasha, ubufatanye, cyangwa ibindi bibazo muri rusange."
     },
     "hero": {
       "badge": "Twandikire",
-      "title": "Turahari ku bwanyu",
-      "subtitle": "Ufite ikibazo cyangwa ukeneye ubufasha? Ikipe ya MyJudicial i Kigali iriteguye kugufasha."
+      "title": "Turahari ku Bwanyu",
+      "subtitle": "Ikipe yacu ishinzwe ibikorwa by'amategeko i Kigali iriteguye kugufasha ku bijyanye n'abakiriya, kugenzura abunganizi, cyangwa ubufatanye n'inzego."
+    },
+    "trustPillars": {
+      "sla": "Igisubizo mu Masaha 2",
+      "slaDesc": "Ibiro byihariye bishinzwe abaguzi",
+      "compliance": "Yubahiriza Itegeko No 058/2021",
+      "complianceDesc": "Ibanga ry'amategeko n'umutekano w'amakuru",
+      "languages": "Ubufasha mu Ndimi 3",
+      "languagesDesc": "Ikinyarwanda, Igifaransa n'Icyongereza"
     },
     "info": {
-      "title": "Aho wadusanga",
-      "email": "support@myjudicial.rw",
+      "title": "Aho Wadusanga",
+      "email": "contact@myjudicial.rw",
       "location": "Kigali, u Rwanda",
-      "hours": "Kuwa mbere kugeza kuwa gatanu: 08:00 – 18:00 CAT"
+      "hours": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)"
+    },
+    "departments": {
+      "client": {
+        "title": "Ubufasha bw'Abaturage n'Abakiriya",
+        "desc": "Ubufasha mu gutumiza inama z'amategeko, ibyumba by'amashusho bya LiveKit, no kubitsa mu bwishingizi bwa MoMo/Airtel.",
+        "email": "support@myjudicial.rw"
+      },
+      "advocate": {
+        "title": "Igenzura ry'Abunganizi mu Mategeko",
+        "desc": "Igenzura ry'abanyamuryango b'Urugaga rw'Abavoka mu Rwanda (RBA), gufungura amakonti y'umwuga, no kwishyurwa.",
+        "email": "advocates@myjudicial.rw"
+      },
+      "institutional": {
+        "title": "Ubufatanye bw'Inzego",
+        "desc": "Gukorana n'urugaga rw'abunganizi, imishinga y'ubutabera y'imiryango itegamiye kuri leta, n'ibigo by'ubucuruzi.",
+        "email": "partners@myjudicial.rw"
+      }
+    },
+    "office": {
+      "title": "Icyicaro Gikuru i Kigali",
+      "building": "Centenary House, Etaje ya 4, KN 3 Ave & KN 4 St",
+      "district": "Umujyi rwagati wa Nyarugenge, Kigali, u Rwanda",
+      "landmark": "Hegereye Urukiko rw'Ubucuruzi rwa Nyarugenge",
+      "poBox": "B.P. 2848, Kigali",
+      "hotline": "+250 788 312 456",
+      "whatsapp": "Kuvugana kuri WhatsApp",
+      "openGoogleMaps": "Fungura muri Google Maps",
+      "openAppleMaps": "Fungura muri Apple Maps"
     },
     "form": {
-      "title": "Tyoherereze ubutumwa",
-      "name": "Amazina yose",
-      "email": "Imeli yawe",
-      "subject": "Impamvu y'ubutumwa",
-      "message": "Ubutumwa bwawe",
-      "submit": "Ohereza ubutumwa",
-      "businessHoursLabel": "Amasaha y'akazi",
+      "title": "Tyoherereze Ubutumwa",
+      "subtitle": "Uzuza amakuru yawe hano hasi maze ikipe yacu y'abanyamategeko iguhe igisubizo mu maguru mashya.",
+      "categoryLabel": "Urwego Bireba",
+      "categories": {
+        "client": "Ubufasha bw'Abakiriya",
+        "advocate": "Igenzura ry'Abunganizi",
+        "institutional": "Ubufatanye bw'Inzego",
+        "general": "Ikibazo Rusange"
+      },
+      "name": "Amazina Yose",
+      "email": "Aderesi ya Imeli",
+      "phone": "Nimero ya Telefone",
+      "reference": "Nimero y'Urubanza / Gahunda (Bishatse)",
+      "subject": "Impamvu y'Ubutumwa",
+      "message": "Ubutumwa Bwawe",
+      "submit": "Ohereza Ubutumwa",
+      "submitting": "Kohereza...",
+      "businessHoursLabel": "Amasaha y'Akazi",
       "businessHoursValue": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 CAT",
       "subjectPlaceholder": "Ni gute twagufasha?",
-      "messagePlaceholder": "Sobanura ikibazo cyawe mu buryo burambuye..."
+      "messagePlaceholder": "Sobanura ikibazo cyawe cy'amategeko, igitekerezo cy'ubufatanye, cyangwa ubufasha ukeneye...",
+      "directEmailNotice": "Wifuza gukoresha imeli yawe bwite?",
+      "openEmailApp": "Ohereza Imeli Ako Kanya",
+      "successTitle": "Ubutumwa bwoherejwe Neza",
+      "successDesc": "Ubutumwa bwawe bwahaye nimero y'ubugenzuzi",
+      "successSla": "Ikipe yacu ishinzwe ibikorwa i Kigali igiye gusuzuma ubutumwa bwawe kandi iguhe igisubizo kuri imeli mu masaha 2 y'akazi.",
+      "sendAnother": "Ohereza Ubundi Butumwa"
     },
     "labels": {
       "email": "Imeli",
-      "location": "Aho dukorera",
-      "hours": "Amasaha yo gukora"
+      "location": "Aho Dukorera",
+      "hours": "Amasaha y'Akazi"
     },
     "formPlaceholders": {
-      "name": "Kwizera Jean",
-      "email": "kwizera@example.com",
+      "name": "urug. Jean-Luc Mugisha",
+      "email": "urug. mugisha@example.com",
+      "phone": "0788 123 456",
+      "reference": "urug. MJ-2026-4821",
       "subject": "Ni iki twagufasha?",
-      "message": "Sobanura ubutumwa bwawe..."
+      "message": "Sobanura ubutumwa bwawe mu buryo burambuye..."
     },
-    "mapTitle": "Aho MyJudicial iherereye",
-    "officeMapTitle": "Icyicaro gikuru cya MyJudicial i Kigali, mu Rwanda"
+    "selfService": {
+      "title": "Ukeneye Umwunganizi Cyangwa Ibisubizo Ako Kanya?",
+      "subtitle": "Koresha urubuga rwacu rurimo abavoka bemewe n'ibisubizo byihuse bitagusaba gutegereza.",
+      "card1Title": "Shaka Umwunganizi Wemejwe",
+      "card1Desc": "Shakisha mu bavoka barenga 100 b'Urugaga rw'u Rwanda bafite uburambe buzwi mu nkiko n'ibiciro bisobanutse.",
+      "card1Action": "Shakisha Abavoka",
+      "card2Title": "Ibiciro Bisobanutse n'Ubwishingizi",
+      "card2Desc": "Menya uko amafaranga wishyuye kuri MoMo cyangwa Airtel aguma mu bwishingizi bwizewe kugeza inama irangiye.",
+      "card2Action": "Reba Ibiciro",
+      "card3Title": "Ibibazo Bikunze Kubazwa (FAQs)",
+      "card3Desc": "Amabwiriza y'uburyo bwo gufata gahunda, gushyiraho ibyangombwa by'ubutaka UPI, no kwinjira mu nama y'amashusho.",
+      "card3Action": "Reba Ibibazo Rusange"
+    },
+    "mapTitle": "Aho MyJudicial Iherereye",
+    "officeMapTitle": "Icyicaro Gikuru cya MyJudicial i Kigali, mu Rwanda"
   },
   "expertDashboard": {
     "aiCaseTitle": "AI Case Analysis",

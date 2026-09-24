@@ -3686,42 +3686,110 @@
   },
   "contactPage": {
     "meta": {
-      "title": "Contact Us | MyJudicial",
-      "description": "Get in touch with the MyJudicial team for support, partnerships, or general inquiries."
+      "title": "Contactez-nous | MyJudicial",
+      "description": "Prenez contact avec l'équipe de MyJudicial pour toute assistance, partenariat ou demande générale."
     },
     "hero": {
-      "badge": "Contactez-nous",
-      "title": "Nous sommes à votre écoute",
-      "subtitle": "Une question juridique, un partenariat ou besoin d'assistance ? Notre équipe à Kigali est à votre disposition."
+      "badge": "Contact",
+      "title": "Nous Sommes à Votre Écoute",
+      "subtitle": "Notre équipe d'opérations juridiques à Kigali est disponible pour accompagner les justiciables, vérifier les avocats ou établir des partenariats institutionnels."
+    },
+    "trustPillars": {
+      "sla": "Réponse sous 2 heures",
+      "slaDesc": "Pôle d'opérations juridiques dédié",
+      "compliance": "Conforme à la Loi n° 058/2021",
+      "complianceDesc": "Traitement confidentiel et secret professionnel",
+      "languages": "Support trilingue",
+      "languagesDesc": "Kinyarwanda, Français & Anglais"
     },
     "info": {
-      "title": "Nos coordonnées",
-      "email": "support@myjudicial.rw",
+      "title": "Coordonnées Officielles",
+      "email": "contact@myjudicial.rw",
       "location": "Kigali, Rwanda",
-      "hours": "Du lundi au vendredi : 08h00 – 18h00 CAT"
+      "hours": "Lundi – Vendredi : 08h00 – 18h00 (CAT)"
+    },
+    "departments": {
+      "client": {
+        "title": "Assistance Citoyens & Clients",
+        "desc": "Aide pour les réservations, salons vidéo sécurisés LiveKit et questions sur le séquestre Mobile Money/Airtel.",
+        "email": "support@myjudicial.rw"
+      },
+      "advocate": {
+        "title": "Vérification & Tableau du Barreau",
+        "desc": "Vérification des titres du Barreau du Rwanda, intégration des profils professionnels et reversements.",
+        "email": "advocates@myjudicial.rw"
+      },
+      "institutional": {
+        "title": "Partenariats Institutionnels",
+        "desc": "Collaborations avec les barreaux, programmes d'accès au droit d'ONG et infrastructures juridiques d'entreprise.",
+        "email": "partners@myjudicial.rw"
+      }
+    },
+    "office": {
+      "title": "Siège Social de Kigali",
+      "building": "Centenary House, 4e Étage, KN 3 Ave & KN 4 St",
+      "district": "Quartier d'Affaires de Nyarugenge, Kigali, Rwanda",
+      "landmark": "Adjacent au Tribunal de Commerce de Nyarugenge",
+      "poBox": "B.P. 2848, Kigali",
+      "hotline": "+250 788 312 456",
+      "whatsapp": "Discuter sur WhatsApp",
+      "openGoogleMaps": "Ouvrir dans Google Maps",
+      "openAppleMaps": "Ouvrir dans Apple Maps"
     },
     "form": {
-      "title": "Envoyez-nous un message",
-      "name": "Nom complet",
-      "email": "Adresse e-mail",
-      "subject": "Objet de votre demande",
-      "message": "Votre message",
-      "submit": "Envoyer le message",
-      "businessHoursLabel": "Heures d'ouverture",
-      "businessHoursValue": "Lundi – Vendredi : 8h00 – 18h00 CAT",
+      "title": "Envoyez-nous un Message",
+      "subtitle": "Renseignez vos coordonnées ci-dessous ; notre équipe juridique vous répondra dans les plus brefs délais.",
+      "categoryLabel": "Pôle Concerné",
+      "categories": {
+        "client": "Support Justiciable",
+        "advocate": "Vérification Avocat",
+        "institutional": "Partenaires / Institutionnel",
+        "general": "Demande Générale"
+      },
+      "name": "Nom Complet",
+      "email": "Adresse E-mail",
+      "phone": "Numéro de Téléphone",
+      "reference": "N° de Dossier / Réservation (Facultatif)",
+      "subject": "Objet du Message",
+      "message": "Votre Message",
+      "submit": "Envoyer le Message",
+      "submitting": "Envoi en cours...",
+      "businessHoursLabel": "Heures d'Ouverture",
+      "businessHoursValue": "Lundi – Vendredi : 08h00 – 18h00 CAT",
       "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
-      "messagePlaceholder": "Décrivez votre demande en détail..."
+      "messagePlaceholder": "Décrivez votre situation juridique, projet de partenariat ou demande en détail...",
+      "directEmailNotice": "Vous préférez utiliser votre messagerie personnelle ?",
+      "openEmailApp": "Envoyer un e-mail direct",
+      "successTitle": "Message Envoyé avec Succès",
+      "successDesc": "Votre demande a reçu la référence de suivi",
+      "successSla": "Notre équipe d'opérations à Kigali examinera votre message et vous répondra sous 2 heures ouvrables par e-mail.",
+      "sendAnother": "Envoyer une autre demande"
     },
     "labels": {
       "email": "E-mail",
       "location": "Adresse",
-      "hours": "Heures d'ouverture"
+      "hours": "Heures d'Ouverture"
     },
     "formPlaceholders": {
-      "name": "Jean Dupont",
-      "email": "jean.dupont@example.com",
+      "name": "ex. Jean-Luc Mugisha",
+      "email": "ex. mugisha@example.com",
+      "phone": "0788 123 456",
+      "reference": "ex. MJ-2026-4821",
       "subject": "En quoi pouvons-nous vous aider ?",
-      "message": "Décrivez votre demande..."
+      "message": "Décrivez votre demande en détail..."
+    },
+    "selfService": {
+      "title": "Besoin d'une Réponse ou d'un Avocat Immédiat ?",
+      "subtitle": "Accédez à notre annuaire d'avocats vérifiés et à notre centre d'aide sans délai d'attente.",
+      "card1Title": "Trouver un Avocat Vérifié",
+      "card1Desc": "Consultez plus de 100 avocats inscrits au Barreau du Rwanda, avec expérience judiciaire attestée et honoraires transparents.",
+      "card1Action": "Rechercher un Avocat",
+      "card2Title": "Tarifs Fixes & Séquestre Garanti",
+      "card2Desc": "Découvrez comment vos paiements MoMo et Airtel sont conservés sous séquestre sécurisé jusqu'au terme de votre consultation.",
+      "card2Action": "Consulter les Tarifs",
+      "card3Title": "Centre d'Aide & Questions Fréquentes",
+      "card3Desc": "Guides pas à pas sur les réservations, le dépôt de titres fonciers UPI et l'accès aux salons vidéo chiffrés.",
+      "card3Action": "Consulter la FAQ"
     },
     "mapTitle": "Emplacement de MyJudicial",
     "officeMapTitle": "Siège de MyJudicial à Kigali, Rwanda"

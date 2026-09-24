@@ -1712,25 +1712,78 @@
     "hero": {
       "badge": "Contact",
       "title": "Get in Touch",
-      "subtitle": "We're here to help. Reach out to us for any questions or support."
+      "subtitle": "We're here to help. Reach out to our legal operations team in Kigali for client support, advocate verification, or institutional partnerships."
+    },
+    "trustPillars": {
+      "sla": "Response Within 2 Hours",
+      "slaDesc": "Dedicated legal operations desk",
+      "compliance": "Law No. 058/2021 Compliant",
+      "complianceDesc": "Confidential & privileged handling",
+      "languages": "Tri-Lingual Support",
+      "languagesDesc": "Kinyarwanda, English & French"
     },
     "info": {
       "title": "Contact Information",
-      "email": "info@myjudicial.rw",
+      "email": "contact@myjudicial.rw",
       "location": "Kigali, Rwanda",
-      "hours": "Monday - Friday: 8:00 AM - 5:00 PM (CAT)"
+      "hours": "Monday – Friday: 8:00 AM – 6:00 PM (CAT)"
+    },
+    "departments": {
+      "client": {
+        "title": "Citizen & Client Support",
+        "desc": "Help with consultation bookings, LiveKit video rooms, and Mobile Money/Airtel escrow inquiries.",
+        "email": "support@myjudicial.rw"
+      },
+      "advocate": {
+        "title": "Advocate & Bar Roll Verification",
+        "desc": "Rwanda Bar Association credential verification, professional profile onboarding, and payouts.",
+        "email": "advocates@myjudicial.rw"
+      },
+      "institutional": {
+        "title": "Institutional Partnerships",
+        "desc": "Bar council collaborations, NGO access-to-justice programs, and corporate legal infrastructure.",
+        "email": "partners@myjudicial.rw"
+      }
+    },
+    "office": {
+      "title": "Kigali Headquarters",
+      "building": "Centenary House, 4th Floor, KN 3 Ave & KN 4 St",
+      "district": "Nyarugenge Central Business District, Kigali, Rwanda",
+      "landmark": "Adjacent to the Commercial Court of Nyarugenge",
+      "poBox": "P.O. Box 2848, Kigali",
+      "hotline": "+250 788 312 456",
+      "whatsapp": "Chat on WhatsApp",
+      "openGoogleMaps": "Open in Google Maps",
+      "openAppleMaps": "Open in Apple Maps"
     },
     "form": {
-      "title": "Send us a message",
+      "title": "Send Us a Message",
+      "subtitle": "Fill in your details below and our legal operations team will get back to you promptly.",
+      "categoryLabel": "Inquiry Department",
+      "categories": {
+        "client": "Client Support",
+        "advocate": "Advocate Verification",
+        "institutional": "Institutional / Partners",
+        "general": "General Inquiry"
+      },
       "name": "Full Name",
       "email": "Email Address",
+      "phone": "Phone Number",
+      "reference": "Case / Booking ID (Optional)",
       "subject": "Subject",
       "message": "Your Message",
       "submit": "Send Message",
+      "submitting": "Sending...",
       "businessHoursLabel": "Business Hours",
       "businessHoursValue": "Monday – Friday: 8:00 AM – 6:00 PM CAT",
-      "subjectPlaceholder": "How can we help?",
-      "messagePlaceholder": "Describe your inquiry in detail..."
+      "subjectPlaceholder": "How can we help you?",
+      "messagePlaceholder": "Describe your legal matter, partnership proposal, or support inquiry in detail...",
+      "directEmailNotice": "Prefer using your personal email client?",
+      "openEmailApp": "Send Direct Email",
+      "successTitle": "Inquiry Submitted Successfully",
+      "successDesc": "Your message has been assigned Ticket Reference",
+      "successSla": "Our legal operations team in Kigali will review and reply within 2 business hours to your email.",
+      "sendAnother": "Send Another Inquiry"
     },
     "labels": {
       "email": "Email",
@@ -1738,10 +1791,25 @@
       "hours": "Business Hours"
     },
     "formPlaceholders": {
-      "name": "John Doe",
-      "email": "john@example.com",
+      "name": "e.g. Jean-Luc Mugisha",
+      "email": "e.g. mugisha@example.com",
+      "phone": "0788 123 456",
+      "reference": "e.g. MJ-2026-4821",
       "subject": "How can we help?",
-      "message": "Describe your inquiry..."
+      "message": "Describe your inquiry in detail..."
+    },
+    "selfService": {
+      "title": "Looking for Immediate Counsel or Answers?",
+      "subtitle": "Access our verified legal marketplace and resources without waiting for email correspondence.",
+      "card1Title": "Find a Verified Advocate",
+      "card1Desc": "Browse 100+ Rwanda Bar Association advocates with verified courtroom experience and transparent upfront fees.",
+      "card1Action": "Search Advocates",
+      "card2Title": "Transparent Pricing & Escrow",
+      "card2Desc": "Learn how MoMo and Airtel Money payments are held in regulated escrow until your consultation concludes.",
+      "card2Action": "Explore Pricing",
+      "card3Title": "Knowledge Center & FAQs",
+      "card3Desc": "Step-by-step guides on booking, uploading UPI land documents, and joining encrypted video rooms.",
+      "card3Action": "Browse FAQs"
     },
     "mapTitle": "MyJudicial Location",
     "officeMapTitle": "MyJudicial Headquarters in Kigali, Rwanda"

@@ -11,7 +11,15 @@
       "stats": {
         "verifiedExperts": "Verified Advocates",
         "completedConsultations": "Completed Consultations",
-        "totalClients": "Satisfied Clients"
+        "totalClients": "Satisfied Clients",
+        "barCertified": "100% Bar Certified",
+        "barCertifiedDesc": "Cross-checked on official RBA Roll",
+        "escrowProtected": "Escrow Protected",
+        "escrowProtectedDesc": "Funds held in regulated custody",
+        "nationwide": "30 Districts",
+        "nationwideDesc": "Kigali & Provincial coverage",
+        "languages": "Tri-Lingual Counsel",
+        "languagesDesc": "Kinyarwanda, English & French"
       }
     },
     "mission": {
@@ -22,8 +30,11 @@
     },
     "story": {
       "title": "Our Story",
+      "subtitle": "Bridging Rwanda's legal gap with trust, technology, and transparency.",
       "text1": "MyJudicial was born out of a simple observation: finding the right lawyer in Rwanda was often complicated, opaque, and intimidating for the average person or small business.",
-      "text2": "We realized that by leveraging technology, we could bridge the gap between talented legal professionals and those who need their services. Today, MyJudicial is a comprehensive ecosystem that not only helps clients find lawyers but also provides lawyers with the tools they need to manage and grow their practice."
+      "text2": "We realized that by leveraging technology, we could bridge the gap between talented legal professionals and those who need their services. Today, MyJudicial is a comprehensive ecosystem that not only helps clients find lawyers but also provides lawyers with the tools they need to manage and grow their practice.",
+      "challengeTitle": "The Legal Challenge in Rwanda",
+      "solutionTitle": "The Digital Legal Infrastructure"
     },
     "values": {
       "title": "Our Core Values",
@@ -38,6 +49,10 @@
       "trust": {
         "title": "Trust",
         "text": "Every lawyer on our platform is strictly vetted and verified. Your payments and data are always secure."
+      },
+      "compliance": {
+        "title": "Privacy & Legal Privilege",
+        "text": "Operating in strict compliance with Law No. 058/2021 on Personal Data Protection, with encrypted consultations preserving client privilege."
       }
     },
     "cta": {
@@ -62,7 +77,8 @@
         "desc": "Operating in strict compliance with Law No. 058/2021 relating to the protection of personal data and privacy in Rwanda."
       },
       "partnerCta": "Institutional Inquiries",
-      "partnerCtaDesc": "Are you a legal institution, bar council, NGO, or corporate partner looking to collaborate?"
+      "partnerCtaDesc": "Are you a legal institution, bar council, NGO, or corporate partner looking to collaborate?",
+      "partnerAction": "Partner with MyJudicial"
     },
     "disclaimer": {
       "title": "Regulatory Notice",

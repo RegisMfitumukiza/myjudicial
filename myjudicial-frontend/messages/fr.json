@@ -3122,7 +3122,15 @@
       "stats": {
         "verifiedExperts": "Avocats certifiés",
         "completedConsultations": "Consultations réalisées",
-        "totalClients": "Clients satisfaits"
+        "totalClients": "Clients satisfaits",
+        "barCertified": "100% Certifiés au Barreau",
+        "barCertifiedDesc": "Vérifiés sur le Tableau de l'Ordre (RBA)",
+        "escrowProtected": "Séquestre Réglementé",
+        "escrowProtectedDesc": "Fonds protégés jusqu'à la fin de la séance",
+        "nationwide": "30 Districts",
+        "nationwideDesc": "Couverture de Kigali et des Provinces",
+        "languages": "Conseil Trilingue",
+        "languagesDesc": "Kinyarwanda, Anglais et Français"
       }
     },
     "mission": {
@@ -3133,8 +3141,11 @@
     },
     "story": {
       "title": "Notre histoire",
+      "subtitle": "Rapprocher le droit et les citoyens rwandais grâce à la confiance, la technologie et la clarté.",
       "text1": "Fondée à Kigali, MyJudicial est née du constat que trouver un avocat qualifié et disponible était complexe, opaque et intimidant pour la majorité des citoyens.",
-      "text2": "Nous avons développé un pont numérique conforme aux régulations rwandaises permettant des consultations vérifiées, avec tarification claire et paiement sécurisé via Mobile Money."
+      "text2": "Nous avons développé un pont numérique conforme aux régulations rwandaises permettant des consultations vérifiées, avec tarification claire et paiement sécurisé via Mobile Money.",
+      "challengeTitle": "Le Défi Juridique au Rwanda",
+      "solutionTitle": "L'Infrastructure Juridique Numérique"
     },
     "values": {
       "title": "Nos valeurs fondamentales",
@@ -3149,6 +3160,10 @@
       "trust": {
         "title": "Confiance & Sécurité",
         "text": "Paiements retenus sous séquestre jusqu'à la tenue effective de la consultation et confidentialité absolue de vos données."
+      },
+      "compliance": {
+        "title": "Secret Professionnel & Données",
+        "text": "Conformité stricte avec la Loi n° 058/2021 sur la protection des données personnelles, avec des consultations chiffrées protégeant le secret d'avocat."
       }
     },
     "cta": {
@@ -3177,7 +3192,8 @@
         "desc": "Fonctionnement en stricte conformité avec la Loi n° 058/2021 relative à la protection des données personnelles et de la vie privée au Rwanda."
       },
       "partnerCta": "Partenariats Institutionnels",
-      "partnerCtaDesc": "Vous êtes une institution juridique, une ONG ou un partenaire institutionnel souhaitant collaborer ?"
+      "partnerCtaDesc": "Vous êtes une institution juridique, une ONG ou un partenaire institutionnel souhaitant collaborer ?",
+      "partnerAction": "Devenir Partenaire de MyJudicial"
     },
     "disclaimer": {
       "title": "Mention Réglementaire",

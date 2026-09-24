@@ -3122,7 +3122,15 @@
       "stats": {
         "verifiedExperts": "Abavoka bemewe",
         "completedConsultations": "Inama zatanzwe",
-        "totalClients": "Abaturage bafashijwe"
+        "totalClients": "Abaturage bafashijwe",
+        "barCertified": "100% Bemewe n'Urugaga",
+        "barCertifiedDesc": "Bagenzuwe ku Rutonde rw'Urugaga (RBA)",
+        "escrowProtected": "Ubwishyu Burinzwe",
+        "escrowProtectedDesc": "Amafaranga afatwa neza kugeza inama irangiye",
+        "nationwide": "Uturere 30 Twose",
+        "nationwideDesc": "Kigali n'Intara zose z'u Rwanda",
+        "languages": "Indimi 3 Zikoreshwa",
+        "languagesDesc": "Ikinyarwanda, Icyongereza n'Igifaransa"
       }
     },
     "mission": {
@@ -3133,8 +3141,11 @@
     },
     "story": {
       "title": "Amateka yacu",
+      "subtitle": "Guhuza ubutabera n'abaturage binyuze mu cyizere, ikoranabuhanga n'umucyo.",
       "text1": "MyJudicial yatangirijwe i Kigali nyuma yo kubona ko kubona umwavoka w'umwuga uhuye n'ikibazo cyawe byari bigoranye ku baturage benshi.",
-      "text2": "Twubatse urubuga rworohereza abantu kubona abavoka b'umwuga, kumenya ibiciro mbere yo gufata gahunda, no kwishyura mu mutekano binyuze kuri Mobile Money."
+      "text2": "Twubatse urubuga rworohereza abantu kubona abavoka b'umwuga, kumenya ibiciro mbere yo gufata gahunda, no kwishyura mu mutekano binyuze kuri Mobile Money.",
+      "challengeTitle": "Ikibazo Cyari Gihari mu Rwanda",
+      "solutionTitle": "Igisubizo Cy'Ikoranabuhanga"
     },
     "values": {
       "title": "Indangagaciro zacu",
@@ -3149,6 +3160,10 @@
       "trust": {
         "title": "Kwizera n'Umutekano",
         "text": "Amafaranga yawe arindwa neza kugeza igihe inama y'amategeko irangiye neza kandi amakuru yawe akagirwa ibanga rikomeye."
+      },
+      "compliance": {
+        "title": "Ibanga ry'Umukiriya n'Amategeko",
+        "text": "Twubahiriza Itegeko No 058/2021 ryerekeye kurengera amakuru bwite n'ubuzima bwite, n'ibanga ry'umunyamategeko n'umukiriya we."
       }
     },
     "cta": {
@@ -3177,7 +3192,8 @@
         "desc": "Gukorera ku mategeko y'u Rwanda no kubahiriza Itegeko No. 058/2021 rirebana no kurinda amakuru bwite y'abantu."
       },
       "partnerCta": "Ubufatanye bw'Inzego",
-      "partnerCtaDesc": "Uri urwego rw'amategeko, umuryango utegamiye kuri leta, cyangwa ikigo cyifuza gukorana natwe?"
+      "partnerCtaDesc": "Uri urwego rw'amategeko, umuryango utegamiye kuri leta, cyangwa ikigo cyifuza gukorana natwe?",
+      "partnerAction": "Fatanya na MyJudicial"
     },
     "disclaimer": {
       "title": "Itangazo ry'Amategeko",

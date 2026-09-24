@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import HowItWorksClient from "./how-it-works-client";
 
@@ -43,10 +42,14 @@ export async function generateMetadata({
 
 export default async function HowItWorksPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { locale } = await params;
+  const { tab } = await searchParams;
+  const initialTab = tab === "advocates" || tab === "lawyers" ? "advocates" : "clients";
   const t = await getTranslations({ locale, namespace: "howItWorksPage" });
 
   const jsonLd = {
@@ -103,9 +106,7 @@ export default async function HowItWorksPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
-        <HowItWorksClient />
-      </Suspense>
+      <HowItWorksClient initialTab={initialTab} />
     </>
   );
 }

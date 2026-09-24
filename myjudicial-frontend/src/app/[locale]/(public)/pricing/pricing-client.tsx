@@ -591,32 +591,6 @@ export default function PricingClient() {
           </div>
         </div>
       </section>
-
-      {/* ── 8. Bottom CTA (Elevated Surface - Harmonizes with Footer) ── */}
-      <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/80 to-background py-16 sm:py-20 text-foreground">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-            {t("cta.title")}
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-            {t("cta.subtitle")}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/search"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
-            >
-              {t("cta.findLawyer")} <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/sign-up?role=EXPERT"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
-            >
-              {t("cta.joinAsAdvocate")}
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

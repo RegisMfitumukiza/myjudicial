@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Link } from "@/i18n/routing";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import {
-  ArrowRight,
   Scale,
   ShieldCheck,
   Video,
@@ -26,36 +23,22 @@ import {
   SlidersHorizontal,
   Banknote,
   FileSignature,
-  FileCode,
   NotebookPen,
-  Send,
-  User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-export default function HowItWorksClient() {
+interface HowItWorksClientProps {
+  initialTab?: "clients" | "advocates";
+}
+
+export default function HowItWorksClient({ initialTab = "clients" }: HowItWorksClientProps) {
   const t = useTranslations("howItWorksPage");
-  const searchParams = useSearchParams();
-  const tabParam = searchParams.get("tab");
-  const isAdvocateTab = tabParam === "advocates" || tabParam === "lawyers";
-
-  const [activeTab, setActiveTab] = useState<"clients" | "advocates">(
-    isAdvocateTab ? "advocates" : "clients"
-  );
-
-  const [openFaq, setOpenFaq] = useState<number | null>(1);
-
-  useEffect(() => {
-    if (tabParam === "advocates" || tabParam === "lawyers") {
-      setActiveTab("advocates");
-    } else if (tabParam === "clients") {
-      setActiveTab("clients");
-    }
-  }, [tabParam]);
+  const [activeTab, setActiveTab] = useState<"clients" | "advocates">(initialTab);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleTabChange = (tab: "clients" | "advocates") => {
     setActiveTab(tab);
-    setOpenFaq(1); // Reset to first FAQ for the selected persona
+    setOpenFaq(null);
     const newQuery = tab === "advocates" ? "?tab=advocates" : "";
     window.history.replaceState(null, "", `${window.location.pathname}${newQuery}`);
   };
@@ -67,7 +50,7 @@ export default function HowItWorksClient() {
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero Section ────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-16 sm:py-24">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-14 sm:py-20">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           {/* Unified Platform Hero Badge */}
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
@@ -79,15 +62,15 @@ export default function HowItWorksClient() {
             {t("hero.title")}
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+          <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
             {t("hero.subtitle")}
           </p>
 
-          {/* Perspective Tab Switcher */}
+          {/* Perspective Tab Switcher (Refined container & pill margins) */}
           <div
             role="tablist"
             aria-label="Perspective selection"
-            className="mt-10 inline-flex rounded-2xl border border-border bg-card p-1.5 shadow-xs"
+            className="mt-8 inline-flex items-center rounded-2xl border border-border/80 bg-card/60 p-1.5 shadow-2xs backdrop-blur-xs"
           >
             <button
               role="tab"
@@ -95,10 +78,10 @@ export default function HowItWorksClient() {
               aria-controls="how-it-works-panel"
               id="tab-clients"
               onClick={() => handleTabChange("clients")}
-              className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+              className={`rounded-xl px-5 py-2.5 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 ${
                 activeTab === "clients"
-                  ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
               }`}
             >
               {t("tabs.clients")}
@@ -109,10 +92,10 @@ export default function HowItWorksClient() {
               aria-controls="how-it-works-panel"
               id="tab-advocates"
               onClick={() => handleTabChange("advocates")}
-              className={`rounded-xl px-5 py-2.5 text-xs sm:text-sm font-bold transition-all ${
+              className={`rounded-xl px-5 py-2.5 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 ${
                 activeTab === "advocates"
-                  ? "bg-brand-dark text-white dark:bg-white dark:text-black shadow-xs"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
               }`}
             >
               {t("tabs.advocates")}
@@ -126,10 +109,10 @@ export default function HowItWorksClient() {
         id="how-it-works-panel"
         role="tabpanel"
         aria-labelledby={activeTab === "clients" ? "tab-clients" : "tab-advocates"}
-        className="py-16 sm:py-24 border-b border-border bg-card"
+        className="py-12 sm:py-18 border-b border-border bg-card"
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {activeTab === "clients"
                 ? t("clientJourney.badge")
@@ -140,7 +123,7 @@ export default function HowItWorksClient() {
                 ? t("clientJourney.title")
                 : t("advocateJourney.title")}
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+            <p className="mt-2.5 text-sm sm:text-base text-muted-foreground">
               {activeTab === "clients"
                 ? t("clientJourney.subtitle")
                 : t("advocateJourney.subtitle")}
@@ -204,9 +187,9 @@ export default function HowItWorksClient() {
       </section>
 
       {/* ── 3. Consultation Modalities + Dual-Cockpit Room Mockup ──── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
+      <section className="py-12 sm:py-18 border-b border-border bg-muted/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("modalities.badge")}
             </span>
@@ -215,7 +198,7 @@ export default function HowItWorksClient() {
                 ? t("modalities.clientTitle")
                 : t("modalities.advocateTitle")}
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+            <p className="mt-2.5 text-sm sm:text-base text-muted-foreground">
               {activeTab === "clients"
                 ? t("modalities.clientSubtitle")
                 : t("modalities.advocateSubtitle")}
@@ -354,7 +337,7 @@ export default function HowItWorksClient() {
           </div>
 
           {/* ── Dynamic Dual-Cockpit LiveKit Consultation Room Mockup ── */}
-          <div className="mt-14 rounded-3xl border-2 border-border/80 bg-card p-4 sm:p-7 shadow-xl">
+          <div className="mt-12 rounded-3xl border-2 border-border/80 bg-card p-4 sm:p-7 shadow-xl">
             {activeTab === "clients" ? (
               /* ── A. Citizen / Client View Mockup ────────────────────── */
               <div>
@@ -623,16 +606,16 @@ export default function HowItWorksClient() {
       </section>
 
       {/* ── 4. Case Continuum & Courtroom Representation Bridge ──────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-card">
+      <section className="py-12 sm:py-18 border-b border-border bg-card">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("continuity.badge")}
             </span>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               {t("continuity.title")}
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+            <p className="mt-2.5 text-sm sm:text-base text-muted-foreground leading-relaxed">
               {t("continuity.subtitle")}
             </p>
           </div>
@@ -684,9 +667,9 @@ export default function HowItWorksClient() {
       </section>
 
       {/* ── 5. Persona-Specific Operational FAQs (Accordion) ─────────── */}
-      <section className="py-16 sm:py-24 border-b border-border bg-muted/20">
+      <section className="py-12 sm:py-18 bg-muted/20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground font-mono">
               {t("faqs.badge")}
             </span>
@@ -695,7 +678,7 @@ export default function HowItWorksClient() {
                 ? t("faqs.clientTitle")
                 : t("faqs.advocateTitle")}
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
+            <p className="mt-2.5 text-sm sm:text-base text-muted-foreground">
               {activeTab === "clients"
                 ? t("faqs.clientSubtitle")
                 : t("faqs.advocateSubtitle")}
@@ -764,55 +747,6 @@ export default function HowItWorksClient() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. Bottom Action CTA ────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/80 to-background py-16 sm:py-20 text-foreground">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
-            {activeTab === "clients"
-              ? t("cta.clientTitle")
-              : t("cta.advocateTitle")}
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-            {activeTab === "clients"
-              ? t("cta.clientSubtitle")
-              : t("cta.advocateSubtitle")}
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            {activeTab === "clients" ? (
-              <>
-                <Link
-                  href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
-                >
-                  {t("cta.findLawyer")} <ArrowRight size={16} />
-                </Link>
-                <Link
-                  href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
-                >
-                  {t("cta.joinAsAdvocate")}
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/sign-up?role=EXPERT"
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-7 py-3 text-sm font-bold shadow-md transition-all active:scale-[0.98]"
-                >
-                  {t("cta.joinAsAdvocate")} <ArrowRight size={16} />
-                </Link>
-                <Link
-                  href="/search"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card hover:bg-accent px-7 py-3 text-sm font-semibold text-foreground transition shadow-2xs"
-                >
-                  {t("cta.findLawyer")}
-                </Link>
-              </>
-            )}
           </div>
         </div>
       </section>

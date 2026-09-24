@@ -69,19 +69,19 @@ export default function PricingClient() {
           {/* Authentic Payment Rails & Trust Badges Strip */}
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3 sm:gap-6 border-t border-border/60 pt-8 text-xs font-semibold text-muted-foreground">
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
-              <Smartphone size={15} className="text-amber-500 shrink-0" />
+              <Smartphone size={15} className="text-foreground shrink-0" />
               <span>{t("hero.trustBadges.momo")}</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
-              <Smartphone size={15} className="text-rose-500 shrink-0" />
+              <Smartphone size={15} className="text-foreground shrink-0" />
               <span>{t("hero.trustBadges.airtel")}</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
-              <CreditCard size={15} className="text-blue-500 shrink-0" />
+              <CreditCard size={15} className="text-foreground shrink-0" />
               <span>{t("hero.trustBadges.cards")}</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-xs">
-              <Scale size={15} className="text-emerald-500 shrink-0" />
+              <Scale size={15} className="text-foreground shrink-0" />
               <span>{t("hero.trustBadges.bar")}</span>
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function PricingClient() {
                 {/* Feature 1 */}
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
-                    <BadgeCheck size={20} className="text-emerald-500" />
+                    <BadgeCheck size={20} />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-foreground">
@@ -182,7 +182,7 @@ export default function PricingClient() {
                 {/* Feature 2 */}
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
-                    <Clock size={20} className="text-brand-dark dark:text-white" />
+                    <Clock size={20} />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-foreground">
@@ -197,7 +197,7 @@ export default function PricingClient() {
                 {/* Feature 3 */}
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
-                    <Banknote size={20} className="text-amber-500" />
+                    <Banknote size={20} />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-foreground">
@@ -212,7 +212,7 @@ export default function PricingClient() {
                 {/* Feature 4 */}
                 <div className="flex items-start gap-4">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
-                    <CalendarCheck size={20} className="text-blue-500" />
+                    <CalendarCheck size={20} />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-foreground">
@@ -395,7 +395,7 @@ export default function PricingClient() {
             {/* 1. Client 0% Fees */}
             <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
-                <Coins size={22} className="text-emerald-500" />
+                <Coins size={22} />
               </div>
               <h3 className="text-base font-bold text-foreground">
                 {t("platformEconomics.clientZeroFees.title")}
@@ -408,7 +408,7 @@ export default function PricingClient() {
             {/* 2. Platform Support */}
             <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
-                <Sparkles size={22} className="text-brand-dark dark:text-white" />
+                <Sparkles size={22} />
               </div>
               <h3 className="text-base font-bold text-foreground">
                 {t("platformEconomics.modestCommission.title")}
@@ -421,7 +421,7 @@ export default function PricingClient() {
             {/* 3. Official Receipts */}
             <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs sm:col-span-2 lg:col-span-1">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground">
-                <Receipt size={22} className="text-blue-500" />
+                <Receipt size={22} />
               </div>
               <h3 className="text-base font-bold text-foreground">
                 {t("platformEconomics.instantReceipts.title")}

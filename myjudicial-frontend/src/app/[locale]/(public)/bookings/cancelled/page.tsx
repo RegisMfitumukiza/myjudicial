@@ -15,35 +15,35 @@ function CancelledContent() {
 
   return (
     <div className="mx-auto max-w-md px-6 py-16 text-center">
-      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-        <XCircle size={40} className="text-amber-600 dark:text-amber-400" />
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-accent text-foreground shadow-2xs">
+        <XCircle size={40} className="text-foreground" />
       </div>
 
-      <h1 className="mb-3 text-[28px] font-bold text-brand-red dark:text-white">
+      <h1 className="mb-3 text-2xl sm:text-[28px] font-bold text-foreground">
         {t("bookingCancelled")}
       </h1>
-      <p className="mb-6 text-[15px] text-brand-dark/70 dark:text-white/70">
+      <p className="mb-6 text-sm sm:text-base text-muted-foreground">
         {t("bookingCancelledDesc")}
       </p>
 
       {txRef && (
-        <div className="mb-6 rounded-xl border border-brand-border/20 bg-white p-4 dark:border-white/20 dark:bg-black">
-          <p className="mb-1 text-[11px] text-brand-dark/50 dark:text-white/50">{t("reference")}</p>
-          <p className="break-all font-mono text-[13px] font-semibold text-brand-dark dark:text-white">
+        <div className="mb-6 rounded-xl border border-border bg-card p-4 shadow-2xs">
+          <p className="mb-1 text-xs text-muted-foreground">{t("reference")}</p>
+          <p className="break-all font-mono text-xs font-semibold text-foreground">
             {txRef}
           </p>
         </div>
       )}
 
-      <div className="mb-8 rounded-xl bg-brand-dark/5 p-5 text-left dark:bg-white/5">
-        <h2 className="mb-3 flex items-center gap-2 text-[14px] font-bold text-brand-dark dark:text-white">
+      <div className="mb-8 rounded-2xl border border-border bg-card p-5 text-left shadow-2xs">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
           <HelpCircle size={16} />
           {tBooking("whatHappened")}
         </h2>
-        <p className="text-[13px] text-brand-dark/70 dark:text-white/70">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           {tBooking("reasonPaymentAbandoned")}
         </p>
-        <p className="mt-2 text-[13px] text-brand-dark/70 dark:text-white/70">
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
           {tBooking("noChargesMade")}
         </p>
       </div>
@@ -51,7 +51,7 @@ function CancelledContent() {
       <div className="flex flex-col gap-3">
         <Button
           asChild
-          className="w-full rounded-xl bg-brand-dark py-6 text-[14px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black"
+          className="w-full rounded-xl bg-brand-dark py-6 text-sm font-semibold text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 shadow-sm"
         >
           <Link href="/search">
             <ArrowLeft className="mr-2" size={16} />
@@ -61,7 +61,7 @@ function CancelledContent() {
 
         <Link
           href="/client/dashboard/support"
-          className="text-[13px] text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {t("contactSupport")}
         </Link>
@@ -72,7 +72,7 @@ function CancelledContent() {
 
 export default function BookingCancelledPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       <PublicNav />
       <Suspense fallback={null}>
         <CancelledContent />

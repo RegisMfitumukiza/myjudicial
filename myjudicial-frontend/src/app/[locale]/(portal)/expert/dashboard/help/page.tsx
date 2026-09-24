@@ -56,7 +56,7 @@ export default function HelpPage() {
           <div className="mt-4 space-y-3">
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <Mail size={14} aria-hidden="true" />
-              support@myjudicial.rw
+              support@myjudicial.com
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <Phone size={14} aria-hidden="true" />

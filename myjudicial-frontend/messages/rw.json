@@ -3704,7 +3704,7 @@
     },
     "info": {
       "title": "Aho Wadusanga",
-      "email": "contact@myjudicial.rw",
+      "email": "support@myjudicial.com",
       "location": "Kigali, u Rwanda",
       "hours": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)"
     },
@@ -3712,17 +3712,17 @@
       "client": {
         "title": "Ubufasha bw'Abaturage n'Abakiriya",
         "desc": "Ubufasha mu gutumiza inama z'amategeko, ibyumba by'amashusho bya LiveKit, no kubitsa mu bwishingizi bwa MoMo/Airtel.",
-        "email": "support@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "advocate": {
         "title": "Igenzura ry'Abunganizi mu Mategeko",
         "desc": "Igenzura ry'abanyamuryango b'Urugaga rw'Abavoka mu Rwanda (RBA), gufungura amakonti y'umwuga, no kwishyurwa.",
-        "email": "advocates@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "institutional": {
         "title": "Ubufatanye bw'Inzego",
         "desc": "Gukorana n'urugaga rw'abunganizi, imishinga y'ubutabera y'imiryango itegamiye kuri leta, n'ibigo by'ubucuruzi.",
-        "email": "partners@myjudicial.rw"
+        "email": "support@myjudicial.com"
       }
     },
     "office": {
@@ -5125,7 +5125,7 @@
       "title": "Ufite ibindi bibazo cyangwa ukeneye ubufasha butaziguye?",
       "subtitle": "Itsinda ryacu ry'ubufasha i Kigali ryiteguye kugufasha ku bibazo byo gufata umwanya, ubwishyu bwa escrow, cyangwa ubufasha bwa tekiniki.",
       "contact": "Vugana n'Itsinda ry'Ubufasha",
-      "emailSupport": "Imeri y'ubufasha: support@myjudicial.rw"
+      "emailSupport": "Imeri y'ubufasha: support@myjudicial.com"
     },
     "search": {
       "resultsCount": "Ibibazo {count} byabonetse",

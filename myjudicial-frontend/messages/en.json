@@ -1724,7 +1724,7 @@
     },
     "info": {
       "title": "Contact Information",
-      "email": "contact@myjudicial.rw",
+      "email": "support@myjudicial.com",
       "location": "Kigali, Rwanda",
       "hours": "Monday – Friday: 8:00 AM – 6:00 PM (CAT)"
     },
@@ -1732,17 +1732,17 @@
       "client": {
         "title": "Citizen & Client Support",
         "desc": "Help with consultation bookings, LiveKit video rooms, and Mobile Money/Airtel escrow inquiries.",
-        "email": "support@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "advocate": {
         "title": "Advocate & Bar Roll Verification",
         "desc": "Rwanda Bar Association credential verification, professional profile onboarding, and payouts.",
-        "email": "advocates@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "institutional": {
         "title": "Institutional Partnerships",
         "desc": "Bar council collaborations, NGO access-to-justice programs, and corporate legal infrastructure.",
-        "email": "partners@myjudicial.rw"
+        "email": "support@myjudicial.com"
       }
     },
     "office": {
@@ -3299,7 +3299,7 @@
       "title": "Still have questions or need direct assistance?",
       "subtitle": "Our local support team in Kigali is available to assist you with booking inquiries, escrow payments, or technical support.",
       "contact": "Contact Support Team",
-      "emailSupport": "Email support: support@myjudicial.rw"
+      "emailSupport": "Email support: support@myjudicial.com"
     },
     "search": {
       "resultsCount": "{count} questions found",

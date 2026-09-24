@@ -3704,7 +3704,7 @@
     },
     "info": {
       "title": "Coordonnées Officielles",
-      "email": "contact@myjudicial.rw",
+      "email": "support@myjudicial.com",
       "location": "Kigali, Rwanda",
       "hours": "Lundi – Vendredi : 08h00 – 18h00 (CAT)"
     },
@@ -3712,17 +3712,17 @@
       "client": {
         "title": "Assistance Citoyens & Clients",
         "desc": "Aide pour les réservations, salons vidéo sécurisés LiveKit et questions sur le séquestre Mobile Money/Airtel.",
-        "email": "support@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "advocate": {
         "title": "Vérification & Tableau du Barreau",
         "desc": "Vérification des titres du Barreau du Rwanda, intégration des profils professionnels et reversements.",
-        "email": "advocates@myjudicial.rw"
+        "email": "support@myjudicial.com"
       },
       "institutional": {
         "title": "Partenariats Institutionnels",
         "desc": "Collaborations avec les barreaux, programmes d'accès au droit d'ONG et infrastructures juridiques d'entreprise.",
-        "email": "partners@myjudicial.rw"
+        "email": "support@myjudicial.com"
       }
     },
     "office": {
@@ -5125,7 +5125,7 @@
       "title": "Vous avez d'autres questions ou besoin d'une assistance directe ?",
       "subtitle": "Notre équipe locale à Kigali est à votre disposition pour vous assister dans vos démarches de réservation ou vos paiements.",
       "contact": "Contacter l'Assistance",
-      "emailSupport": "Assistance par email : support@myjudicial.rw"
+      "emailSupport": "Assistance par email : support@myjudicial.com"
     },
     "search": {
       "resultsCount": "{count} questions trouvées",

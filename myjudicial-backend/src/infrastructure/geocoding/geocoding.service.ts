@@ -100,7 +100,7 @@ export class GeocodingService {
         `addressdetails=1`,
         {
           headers: {
-            'User-Agent': 'MyJudicial/1.0 (legal-platform@myjudicial.rw)' // Required by Nominatim
+            'User-Agent': 'MyJudicial/1.0 (legal-platform@myjudicial.com)' // Required by Nominatim
           }
         }
       );
@@ -299,7 +299,7 @@ export class GeocodingService {
         `format=json&addressdetails=1`,
         {
           headers: {
-            'User-Agent': 'MyJudicial/1.0 (legal-platform@myjudicial.rw)'
+            'User-Agent': 'MyJudicial/1.0 (legal-platform@myjudicial.com)'
           }
         }
       );

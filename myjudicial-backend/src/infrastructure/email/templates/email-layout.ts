@@ -90,7 +90,7 @@ const emailFooter = (): string => `
           <span style="color:#475569;">|</span>
           <a href="${FRONTEND_URL}/experts" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Find Experts</a>
           <span style="color:#475569;">|</span>
-          <a href="mailto:support@myjudicial.rw" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Support</a>
+          <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Support</a>
         </td>
       </tr>
       <tr>

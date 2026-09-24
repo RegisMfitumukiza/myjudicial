@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Link } from "@/i18n/routing";
 import {
   Search,
@@ -48,7 +48,24 @@ export default function FaqsClient() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const questionsContainerRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(e.target as Node)
+      ) {
+        setCategoryDropdownOpen(false);
+      }
+    };
+    if (categoryDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [categoryDropdownOpen]);
 
   const CATEGORIES: {
     key: CategoryKey;
@@ -137,6 +154,10 @@ export default function FaqsClient() {
     }
   };
 
+  const activeCategory =
+    CATEGORIES.find((c) => c.key === selectedCategory) || CATEGORIES[0];
+  const ActiveCategoryIcon = activeCategory.Icon;
+
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero & Search Control Center ─────────────────────────── */}
@@ -156,26 +177,118 @@ export default function FaqsClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Search Box */}
-          <div className="mx-auto mt-8 max-w-2xl relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("hero.searchPlaceholder")}
-              className="h-13 w-full rounded-2xl border border-border bg-card pl-12 pr-10 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:ring-2 focus:ring-brand-dark/10"
-            />
-            {searchQuery && (
+          {/* Search Zone matching Landing Page UI/UX */}
+          <div className="mx-auto mt-8 max-w-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {/* Category Picker Pill (Matching Landing Page Category Button) */}
+            <div className="relative shrink-0" ref={categoryDropdownRef}>
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition"
-                aria-label="Clear search"
+                onClick={() => setCategoryDropdownOpen((v) => !v)}
+                aria-expanded={categoryDropdownOpen}
+                aria-haspopup="listbox"
+                aria-label={t("sidebarTitle")}
+                className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-xs sm:text-[13px] font-semibold text-foreground shadow-xs hover:shadow-md transition"
               >
-                <X size={16} />
+                <ActiveCategoryIcon size={14} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="truncate max-w-[140px] sm:max-w-none">{activeCategory.label}</span>
+                <ChevronDown
+                  size={12}
+                  className={`transition-transform duration-200 text-muted-foreground shrink-0 ${
+                    categoryDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-            )}
+
+              {categoryDropdownOpen && (
+                <div
+                  role="listbox"
+                  className="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-card p-2 shadow-xl"
+                >
+                  {CATEGORIES.map(({ key, label, Icon, count }) => {
+                    const isSelected = selectedCategory === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => {
+                          handleCategorySelect(key);
+                          setCategoryDropdownOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs sm:text-sm transition ${
+                          isSelected
+                            ? "bg-brand-dark text-white dark:bg-white dark:text-black font-semibold"
+                            : "hover:bg-accent text-foreground"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2 truncate">
+                          <Icon
+                            size={14}
+                            className={
+                              isSelected ? "text-white dark:text-black" : "text-muted-foreground"
+                            }
+                          />
+                          <span className="truncate">{label}</span>
+                        </span>
+                        <span
+                          className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
+                            isSelected
+                              ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Search Pill Input (Matching Landing Page Search Box) */}
+            <div className="flex min-w-0 flex-1 items-center rounded-full border border-border bg-card shadow-xs hover:shadow-md transition-shadow focus-within:border-brand-dark dark:focus-within:border-white focus-within:ring-2 focus-within:ring-brand-dark/10">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    questionsContainerRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
+                }}
+                placeholder={t("hero.searchPlaceholder")}
+                aria-label={t("hero.searchPlaceholder")}
+                className="flex-1 min-w-0 bg-transparent px-4 py-2 sm:py-2.5 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
+                  aria-label={t("search.clear")}
+                >
+                  <X size={14} />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  questionsContainerRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }}
+                className="mr-1 sm:mr-1.5 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-brand-dark text-white dark:bg-white dark:text-black transition hover:opacity-90 shadow-2xs"
+                aria-label={t("hero.searchPlaceholder")}
+              >
+                <Search size={14} strokeWidth={2.5} />
+              </button>
+            </div>
           </div>
 
           {/* Popular Search Shortcuts */}

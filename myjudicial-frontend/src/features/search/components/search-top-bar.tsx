@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal, Map as MapIcon, List } from "lucide-react";
+import { Search, SlidersHorizontal, Map as MapIcon, List, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type SearchTopBarProps = {
@@ -53,6 +53,16 @@ export function SearchTopBar({
             aria-label={t("searchPlaceholder")}
             className="flex-1 bg-transparent px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchQueryChange("")}
+              className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
           <button
             type="button"
             onClick={onSearch}

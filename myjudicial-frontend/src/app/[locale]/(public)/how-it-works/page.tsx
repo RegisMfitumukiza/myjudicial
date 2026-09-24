@@ -41,10 +41,71 @@ export async function generateMetadata({
   };
 }
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "howItWorksPage" });
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        name: t("clientJourney.title"),
+        description: t("clientJourney.subtitle"),
+        step: [
+          {
+            "@type": "HowToStep",
+            position: 1,
+            name: t("clientJourney.step1.title"),
+            text: t("clientJourney.step1.desc"),
+          },
+          {
+            "@type": "HowToStep",
+            position: 2,
+            name: t("clientJourney.step2.title"),
+            text: t("clientJourney.step2.desc"),
+          },
+          {
+            "@type": "HowToStep",
+            position: 3,
+            name: t("clientJourney.step3.title"),
+            text: t("clientJourney.step3.desc"),
+          },
+          {
+            "@type": "HowToStep",
+            position: 4,
+            name: t("clientJourney.step4.title"),
+            text: t("clientJourney.step4.desc"),
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: [1, 2, 3, 4, 5, 6].map((num) => ({
+          "@type": "Question",
+          name: t(`faqs.clientQ${num}` as any),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: t(`faqs.clientA${num}` as any),
+          },
+        })),
+      },
+    ],
+  };
+
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <HowItWorksClient />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <HowItWorksClient />
+      </Suspense>
+    </>
   );
 }

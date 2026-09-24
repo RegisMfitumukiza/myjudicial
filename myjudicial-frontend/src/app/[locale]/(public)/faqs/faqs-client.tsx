@@ -50,9 +50,8 @@ export default function FaqsClient() {
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
   const questionsContainerRef = useRef<HTMLDivElement>(null);
   const heroSearchInputRef = useRef<HTMLInputElement>(null);
-  const sidebarSearchInputRef = useRef<HTMLInputElement>(null);
 
-  // Press "/" to focus search from anywhere without scrolling
+  // Press "/" to focus search from anywhere
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -61,9 +60,11 @@ export default function FaqsClient() {
         document.activeElement?.tagName !== "TEXTAREA"
       ) {
         e.preventDefault();
-        if (window.innerWidth >= 1024 && sidebarSearchInputRef.current) {
-          sidebarSearchInputRef.current.focus();
-        } else if (heroSearchInputRef.current) {
+        if (heroSearchInputRef.current) {
+          heroSearchInputRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
           heroSearchInputRef.current.focus();
         }
       }
@@ -165,10 +166,10 @@ export default function FaqsClient() {
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
       {/* ── 1. Hero & Search Control Center ─────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background pt-14 pb-12 sm:pt-20 sm:pb-16">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background pt-9 pb-7 sm:pt-12 sm:pb-9">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
           {/* Badge */}
-          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
             <HelpCircle size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
           </div>
@@ -177,12 +178,12 @@ export default function FaqsClient() {
             {t("hero.title")}
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+          <p className="mx-auto mt-2.5 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
             {t("hero.subtitle")}
           </p>
 
           {/* Hero Search Pill (Clean, full-width, centered) */}
-          <div className="mx-auto mt-8 max-w-2xl">
+          <div className="mx-auto mt-6 max-w-2xl">
             <div className="flex w-full items-center rounded-full border border-border bg-card shadow-xs hover:shadow-md transition-shadow focus-within:border-brand-dark dark:focus-within:border-white focus-within:ring-2 focus-within:ring-brand-dark/10">
               <div className="pl-4.5 text-muted-foreground shrink-0">
                 <Search size={16} />
@@ -202,7 +203,7 @@ export default function FaqsClient() {
                 }}
                 placeholder={t("hero.searchPlaceholder")}
                 aria-label={t("hero.searchPlaceholder")}
-                className="flex-1 min-w-0 bg-transparent px-3.5 py-3 text-xs sm:text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                className="flex-1 min-w-0 bg-transparent px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
               {searchQuery && (
                 <button
@@ -231,7 +232,7 @@ export default function FaqsClient() {
           </div>
 
           {/* Popular Search Shortcuts */}
-          <div className="mx-auto mt-4 max-w-2xl flex flex-wrap items-center justify-center gap-2 text-xs">
+          <div className="mx-auto mt-3 max-w-2xl flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs">
             <span className="text-muted-foreground font-medium flex items-center gap-1">
               <Sparkles size={12} className="text-brand-dark dark:text-white" />
               {t("search.popularTagsLabel")}
@@ -241,7 +242,7 @@ export default function FaqsClient() {
                 key={tag}
                 type="button"
                 onClick={() => setSearchQuery(tag)}
-                className="rounded-lg border border-border/80 bg-card px-2.5 py-1 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition shadow-2xs font-mono text-[11px]"
+                className="rounded-full border border-border/80 bg-card px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition shadow-2xs"
               >
                 {tag}
               </button>
@@ -251,7 +252,7 @@ export default function FaqsClient() {
       </section>
 
       {/* ── 2. Two-Column Knowledge Hub Body ─────────────────────────── */}
-      <section className="py-10 sm:py-16 bg-muted/20 flex-1">
+      <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 bg-muted/20 flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Mobile Category Scroll (Visible on Mobile/Tablet, Hidden on Desktop) */}
           <div className="lg:hidden mb-6 overflow-x-auto no-scrollbar pb-1">
@@ -291,32 +292,7 @@ export default function FaqsClient() {
             {/* Left Column: Desktop Sticky Category Sidebar */}
             <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-4">
               <div className="rounded-2xl border border-border bg-card p-3 shadow-xs">
-                {/* Instant Sidebar Search — never need to scroll back up! */}
-                <div className="mb-2 pb-2.5 border-b border-border/60">
-                  <div className="relative flex items-center rounded-xl border border-border bg-background shadow-2xs focus-within:border-brand-dark dark:focus-within:border-white focus-within:ring-1 focus-within:ring-brand-dark/20 transition">
-                    <Search size={13} className="ml-2.5 text-muted-foreground shrink-0" />
-                    <input
-                      ref={sidebarSearchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t("sidebarSearchPlaceholder")}
-                      className="w-full bg-transparent px-2.5 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setSearchQuery("")}
-                        className="mr-1.5 p-0.5 text-muted-foreground hover:text-foreground"
-                        aria-label={t("search.clear")}
-                      >
-                        <X size={12} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground font-mono">
+                <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground font-mono">
                   {t("sidebarTitle")}
                 </div>
                 <nav className="space-y-1">
@@ -376,30 +352,6 @@ export default function FaqsClient() {
 
             {/* Right Column: Questions Accordion & Live Results */}
             <main ref={questionsContainerRef} className="lg:col-span-8 min-h-[550px] space-y-4 scroll-mt-24">
-              {/* Mobile Quick Search Bar (never need to scroll up to hero on phone) */}
-              <div className="lg:hidden mb-2">
-                <div className="flex items-center rounded-xl border border-border bg-card px-3.5 py-2 shadow-2xs focus-within:border-brand-dark dark:focus-within:border-white focus-within:ring-1 focus-within:ring-brand-dark/20 transition">
-                  <Search size={14} className="text-muted-foreground shrink-0 mr-2" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t("sidebarSearchPlaceholder")}
-                    className="flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="text-muted-foreground hover:text-foreground p-0.5 ml-1"
-                      aria-label={t("search.clear")}
-                    >
-                      <X size={13} />
-                    </button>
-                  )}
-                </div>
-              </div>
-
               {/* Active Category Header & Search Status */}
               <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
@@ -451,7 +403,7 @@ export default function FaqsClient() {
                           aria-expanded={isOpen}
                         >
                           <div className="pr-4 space-y-1.5">
-                            <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+                            <span className="inline-block rounded-md bg-muted/80 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
                               {getCategoryBadge(item.category)}
                             </span>
                             <div className="text-foreground leading-snug">

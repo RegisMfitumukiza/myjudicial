@@ -57,8 +57,8 @@ export default function HelpClient() {
                 href="/faqs"
                 className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-border/90 hover:shadow-md"
               >
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-foreground transition-colors group-hover:bg-brand-dark group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black shadow-2xs">
-                  <Icon size={24} className="transition-colors" />
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
+                  <Icon size={24} />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">{t(`topics.${key}.title`)}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{t(`topics.${key}.desc`)}</p>

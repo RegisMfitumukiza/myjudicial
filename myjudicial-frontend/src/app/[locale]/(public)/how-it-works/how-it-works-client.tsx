@@ -163,7 +163,7 @@ export default function HowItWorksClient({ initialTab = "clients" }: HowItWorksC
                     className="group relative flex flex-col rounded-2xl border border-border bg-background p-6 shadow-xs transition-all hover:border-border/90"
                   >
                     <div className="flex items-center justify-between mb-5">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground transition-colors group-hover:bg-brand-dark group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-foreground shadow-2xs">
                         <Icon size={20} />
                       </span>
                       <span className="flex h-7 px-2.5 items-center justify-center rounded-lg bg-muted text-xs font-bold text-muted-foreground font-mono">

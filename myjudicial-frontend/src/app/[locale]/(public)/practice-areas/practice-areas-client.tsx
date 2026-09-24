@@ -318,8 +318,8 @@ export default function PracticeAreasClient() {
                     <div>
                       {/* Icon & Count Header */}
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground transition-all duration-200 group-hover:bg-brand-dark group-hover:text-white group-hover:scale-105 dark:group-hover:bg-white dark:group-hover:text-black shadow-xs">
-                          <Icon size={24} className="transition-colors" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground shadow-2xs">
+                          <Icon size={24} />
                         </div>
                         <span className="inline-flex items-center gap-1 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-semibold text-foreground">
                           {area.expertCount === 1

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { Link } from "@/i18n/routing";
 import {
   Search,
@@ -13,23 +13,62 @@ import {
   Scale,
   Users,
   Wallet,
+  Sparkles,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type CategoryKey = "all" | "clients" | "advocates" | "escrow" | "trust";
+
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) return <>{text}</>;
+  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
+  const parts = text.split(regex);
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === query.trim().toLowerCase() ? (
+          <mark
+            key={i}
+            className="rounded-xs bg-brand-dark/15 dark:bg-white/20 text-foreground font-semibold px-1 py-0.5"
+          >
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
 
 export default function FaqsClient() {
   const t = useTranslations("faqsPage");
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+  const questionsContainerRef = useRef<HTMLDivElement>(null);
 
-  const CATEGORIES: { key: CategoryKey; label: string; Icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
-    { key: "all", label: t("categories.all"), Icon: HelpCircle },
-    { key: "clients", label: t("categories.clients"), Icon: Users },
-    { key: "advocates", label: t("categories.advocates"), Icon: Scale },
-    { key: "escrow", label: t("categories.escrow"), Icon: Wallet },
-    { key: "trust", label: t("categories.trust"), Icon: ShieldCheck },
+  const CATEGORIES: {
+    key: CategoryKey;
+    label: string;
+    Icon: React.ComponentType<{ size?: number; className?: string }>;
+    count: number;
+  }[] = [
+    { key: "all", label: t("categories.all"), Icon: HelpCircle, count: 16 },
+    { key: "clients", label: t("categories.clients"), Icon: Users, count: 5 },
+    { key: "advocates", label: t("categories.advocates"), Icon: Scale, count: 4 },
+    { key: "escrow", label: t("categories.escrow"), Icon: Wallet, count: 4 },
+    { key: "trust", label: t("categories.trust"), Icon: ShieldCheck, count: 3 },
+  ];
+
+  const POPULAR_TAGS = [
+    t("search.tagEscrow"),
+    t("search.tagDiaspora"),
+    t("search.tagMoMo"),
+    t("search.tagCourt"),
+    t("search.tagCancel"),
   ];
 
   // All 16 structured items
@@ -63,6 +102,19 @@ export default function FaqsClient() {
     });
   }, [ALL_ITEMS, selectedCategory, searchQuery]);
 
+  const isSearching = searchQuery.trim().length > 0;
+
+  const handleCategorySelect = (key: CategoryKey) => {
+    setSelectedCategory(key);
+    // If user is scrolled down, smoothly scroll to top of questions list without violent jumps
+    if (questionsContainerRef.current) {
+      const rect = questionsContainerRef.current.getBoundingClientRect();
+      if (rect.top < 80) {
+        questionsContainerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
   const toggleItem = (id: string) => {
     setOpenItems((prev) => ({
       ...prev,
@@ -87,9 +139,10 @@ export default function FaqsClient() {
 
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
-      {/* ── 1. Hero & Instant Search ─────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-14 sm:py-20">
+      {/* ── 1. Hero & Unified Control Center ─────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background pt-14 pb-10 sm:pt-20 sm:pb-14">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+          {/* Hero Badge */}
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
             <HelpCircle size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
@@ -103,7 +156,7 @@ export default function FaqsClient() {
             {t("hero.subtitle")}
           </p>
 
-          {/* Search Input */}
+          {/* Search Box */}
           <div className="mx-auto mt-8 max-w-2xl relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -117,34 +170,58 @@ export default function FaqsClient() {
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition"
                 aria-label="Clear search"
               >
                 <X size={16} />
               </button>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* ── 2. Category Filter Pills ─────────────────────────────────── */}
-      <section className="border-b border-border bg-card/40 py-4 sticky top-14 z-20 backdrop-blur-md">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2 min-w-max justify-start sm:justify-center">
-            {CATEGORIES.map(({ key, label, Icon }) => {
+          {/* Popular Search Shortcuts */}
+          <div className="mx-auto mt-4 max-w-2xl flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-muted-foreground font-medium flex items-center gap-1">
+              <Sparkles size={12} className="text-brand-dark dark:text-white" />
+              {t("search.popularTagsLabel")}
+            </span>
+            {POPULAR_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setSearchQuery(tag)}
+                className="rounded-lg border border-border/80 bg-card px-2.5 py-1 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition shadow-2xs font-mono text-[11px]"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          {/* Non-Sticky Category Filter Pills (Unified with Hero) */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pt-2">
+            {CATEGORIES.map(({ key, label, Icon, count }) => {
               const isSelected = selectedCategory === key;
               return (
                 <button
                   key={key}
-                  onClick={() => setSelectedCategory(key)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${
+                  type="button"
+                  onClick={() => handleCategorySelect(key)}
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all ${
                     isSelected
                       ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border border-border/60 bg-background"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card border border-border bg-background"
                   }`}
                 >
                   <Icon size={14} className={isSelected ? "text-white dark:text-black" : "text-muted-foreground"} />
                   <span>{label}</span>
+                  <span
+                    className={`rounded-md px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+                      isSelected
+                        ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -152,13 +229,35 @@ export default function FaqsClient() {
         </div>
       </section>
 
-      {/* ── 3. Questions Accordion List ──────────────────────────────── */}
-      <section className="py-12 sm:py-18 bg-muted/20 flex-1">
+      {/* ── 2. Questions Section with Stable Height ─────────────────── */}
+      <section
+        ref={questionsContainerRef}
+        className="py-12 sm:py-16 bg-muted/20 flex-1 min-h-[550px]"
+      >
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Search Result Counter & Active Filter Badge */}
+          {isSearching && (
+            <div className="mb-6 flex items-center justify-between border-b border-border pb-3 text-xs sm:text-sm text-muted-foreground">
+              <span>
+                {t("search.resultsCount", { count: filteredItems.length })}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="font-semibold text-brand-dark dark:text-white hover:underline flex items-center gap-1"
+              >
+                <X size={14} />
+                {t("search.clear")}
+              </button>
+            </div>
+          )}
+
           {filteredItems.length > 0 ? (
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {filteredItems.map((item) => {
-                const isOpen = !!openItems[item.id];
+                // Auto-expand items when searching, otherwise respect manual toggle
+                const isOpen = isSearching ? true : !!openItems[item.id];
+
                 return (
                   <div
                     key={item.id}
@@ -169,15 +268,18 @@ export default function FaqsClient() {
                     }`}
                   >
                     <button
+                      type="button"
                       onClick={() => toggleItem(item.id)}
                       className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-semibold text-foreground focus:outline-none"
                       aria-expanded={isOpen}
                     >
-                      <div className="pr-4 space-y-1">
-                        <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                      <div className="pr-4 space-y-1.5">
+                        <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                           {getCategoryBadge(item.category)}
                         </span>
-                        <div className="text-foreground">{item.q}</div>
+                        <div className="text-foreground leading-snug">
+                          <HighlightMatch text={item.q} query={searchQuery} />
+                        </div>
                       </div>
                       <ChevronDown
                         size={18}
@@ -188,7 +290,7 @@ export default function FaqsClient() {
                     </button>
                     {isOpen && (
                       <div className="px-5 pb-5 text-xs sm:text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
-                        {item.a}
+                        <HighlightMatch text={item.a} query={searchQuery} />
                       </div>
                     )}
                   </div>
@@ -218,7 +320,7 @@ export default function FaqsClient() {
             </div>
           )}
 
-          {/* ── 4. Direct Escalation Card ──────────────────────────────── */}
+          {/* ── 3. Direct Support Escalation Card ──────────────────────── */}
           <div className="mt-14 rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="max-w-xl">

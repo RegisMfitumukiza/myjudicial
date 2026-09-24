@@ -5037,6 +5037,16 @@
       "subtitle": "Notre équipe locale à Kigali est à votre disposition pour vous assister dans vos démarches de réservation ou vos paiements.",
       "contact": "Contacter l'Assistance",
       "emailSupport": "Assistance par email : support@myjudicial.rw"
+    },
+    "search": {
+      "resultsCount": "{count} questions trouvées",
+      "clear": "Effacer la recherche",
+      "popularTagsLabel": "Sujets fréquents :",
+      "tagEscrow": "Séquestre",
+      "tagDiaspora": "Diaspora",
+      "tagMoMo": "Mobile Money",
+      "tagCourt": "Représentation en Justice",
+      "tagCancel": "Annulation"
     }
   },
   "helpPage": {

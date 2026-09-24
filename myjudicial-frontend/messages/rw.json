@@ -5037,6 +5037,16 @@
       "subtitle": "Itsinda ryacu ry'ubufasha i Kigali ryiteguye kugufasha ku bibazo byo gufata umwanya, ubwishyu bwa escrow, cyangwa ubufasha bwa tekiniki.",
       "contact": "Vugana n'Itsinda ry'Ubufasha",
       "emailSupport": "Imeri y'ubufasha: support@myjudicial.rw"
+    },
+    "search": {
+      "resultsCount": "Ibibazo {count} byabonetse",
+      "clear": "Gukuraho ibyo washakishije",
+      "popularTagsLabel": "Ibyo benshi babaza:",
+      "tagEscrow": "Escrow",
+      "tagDiaspora": "Diaspora",
+      "tagMoMo": "Mobile Money",
+      "tagCourt": "Kunganirwa mu Nkiko",
+      "tagCancel": "Guhagarika Inama"
     }
   },
   "helpPage": {

@@ -1,54 +1,249 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Link } from "@/i18n/routing";
-import { ArrowRight, MessageSquare } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  HelpCircle,
+  Mail,
+  ArrowRight,
+  X,
+  ShieldCheck,
+  Scale,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import FaqSection from "@/shared/components/landing/faq-section";
+
+type CategoryKey = "all" | "clients" | "advocates" | "escrow" | "trust";
 
 export default function FaqsClient() {
   const t = useTranslations("faqsPage");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+
+  const CATEGORIES: { key: CategoryKey; label: string; Icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+    { key: "all", label: t("categories.all"), Icon: HelpCircle },
+    { key: "clients", label: t("categories.clients"), Icon: Users },
+    { key: "advocates", label: t("categories.advocates"), Icon: Scale },
+    { key: "escrow", label: t("categories.escrow"), Icon: Wallet },
+    { key: "trust", label: t("categories.trust"), Icon: ShieldCheck },
+  ];
+
+  // All 16 structured items
+  const ALL_ITEMS = useMemo(() => {
+    return Array.from({ length: 16 }, (_, i) => {
+      const itemKey = `item${i + 1}` as const;
+      return {
+        id: itemKey,
+        category: t(`items.${itemKey}.category`) as "clients" | "advocates" | "escrow" | "trust",
+        q: t(`items.${itemKey}.q`),
+        a: t(`items.${itemKey}.a`),
+      };
+    });
+  }, [t]);
+
+  // Filtered items by category & search query
+  const filteredItems = useMemo(() => {
+    return ALL_ITEMS.filter((item) => {
+      const matchesCategory =
+        selectedCategory === "all" || item.category === selectedCategory;
+
+      if (!matchesCategory) return false;
+
+      if (!searchQuery.trim()) return true;
+
+      const qLower = item.q.toLowerCase();
+      const aLower = item.a.toLowerCase();
+      const queryLower = searchQuery.toLowerCase().trim();
+
+      return qLower.includes(queryLower) || aLower.includes(queryLower);
+    });
+  }, [ALL_ITEMS, selectedCategory, searchQuery]);
+
+  const toggleItem = (id: string) => {
+    setOpenItems((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case "clients":
+        return t("categories.clients");
+      case "advocates":
+        return t("categories.advocates");
+      case "escrow":
+        return t("categories.escrow");
+      case "trust":
+        return t("categories.trust");
+      default:
+        return category;
+    }
+  };
 
   return (
-    <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-brand-dark/[.06] to-background py-16 sm:py-24">
+    <div className="flex flex-col bg-background text-foreground min-h-screen">
+      {/* ── 1. Hero & Instant Search ─────────────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background py-14 sm:py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-dark/10 bg-brand-dark/5 px-3 py-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-brand-dark/70">
-              {t("hero.badge")}
-            </span>
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
+            <HelpCircle size={14} className="text-brand-dark dark:text-white shrink-0" />
+            <span>{t("hero.badge")}</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.15] text-balance">
             {t("hero.title")}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+
+          <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
             {t("hero.subtitle")}
           </p>
+
+          {/* Search Input */}
+          <div className="mx-auto mt-8 max-w-2xl relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("hero.searchPlaceholder")}
+              className="h-13 w-full rounded-2xl border border-border bg-card pl-12 pr-10 text-sm text-foreground shadow-xs outline-none placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:ring-2 focus:ring-brand-dark/10"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                aria-label="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
-      {/* FAQ Section from shared components */}
-      <div className="-mt-16 sm:-mt-24">
-        <FaqSection />
-      </div>
-
-      {/* CTA */}
-      <section className="border-t border-border bg-background py-16 sm:py-24">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-dark/10">
-            <MessageSquare size={32} className="text-brand-dark" />
+      {/* ── 2. Category Filter Pills ─────────────────────────────────── */}
+      <section className="border-b border-border bg-card/40 py-4 sticky top-14 z-20 backdrop-blur-md">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 min-w-max justify-start sm:justify-center">
+            {CATEGORIES.map(({ key, label, Icon }) => {
+              const isSelected = selectedCategory === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setSelectedCategory(key)}
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all ${
+                    isSelected
+                      ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border border-border/60 bg-background"
+                  }`}
+                >
+                  <Icon size={14} className={isSelected ? "text-white dark:text-black" : "text-muted-foreground"} />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
           </div>
-          <h2 className="text-2xl font-bold text-foreground sm:text-3xl">{t("cta.title")}</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
-            {t("cta.subtitle")}
-          </p>
-          <div className="mt-8 flex items-center justify-center">
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-8 py-3.5 text-sm font-bold text-on-brand shadow-lg transition hover:bg-brand-dark/90"
-            >
-              {t("cta.contact")} <ArrowRight size={16} />
-            </Link>
+        </div>
+      </section>
+
+      {/* ── 3. Questions Accordion List ──────────────────────────────── */}
+      <section className="py-12 sm:py-18 bg-muted/20 flex-1">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {filteredItems.length > 0 ? (
+            <div className="space-y-3.5">
+              {filteredItems.map((item) => {
+                const isOpen = !!openItems[item.id];
+                return (
+                  <div
+                    key={item.id}
+                    className={`rounded-2xl border transition-all ${
+                      isOpen
+                        ? "border-border bg-card shadow-xs ring-1 ring-border"
+                        : "border-border bg-card hover:border-border/80"
+                    }`}
+                  >
+                    <button
+                      onClick={() => toggleItem(item.id)}
+                      className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-semibold text-foreground focus:outline-none"
+                      aria-expanded={isOpen}
+                    >
+                      <div className="pr-4 space-y-1">
+                        <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                          {getCategoryBadge(item.category)}
+                        </span>
+                        <div className="text-foreground">{item.q}</div>
+                      </div>
+                      <ChevronDown
+                        size={18}
+                        className={`text-muted-foreground transition-transform duration-200 shrink-0 ${
+                          isOpen ? "rotate-180 text-foreground" : ""
+                        }`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-5 text-xs sm:text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
+                        {item.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Empty State */
+            <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center max-w-md mx-auto my-8">
+              <Search className="mx-auto h-8 w-8 text-muted-foreground/60 mb-3" />
+              <h3 className="text-base font-bold text-foreground">
+                {t("emptyState.noResults")}
+              </h3>
+              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                {t("emptyState.suggestion")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedCategory("all");
+                }}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-accent transition"
+              >
+                {t("emptyState.clearSearch")}
+              </button>
+            </div>
+          )}
+
+          {/* ── 4. Direct Escalation Card ──────────────────────────────── */}
+          <div className="mt-14 rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="max-w-xl">
+                <div className="flex items-center gap-2 text-brand-dark dark:text-white font-bold text-xs uppercase tracking-widest font-mono mb-2">
+                  <Mail size={14} />
+                  <span>Kigali Support Team</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                  {t("cta.title")}
+                </h3>
+                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {t("cta.subtitle")}
+                </p>
+                <div className="mt-2 text-xs text-muted-foreground font-mono">
+                  {t("cta.emailSupport")}
+                </div>
+              </div>
+
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-6 py-3 text-xs sm:text-sm font-bold shadow-xs transition shrink-0"
+              >
+                {t("cta.contact")} <ArrowRight size={15} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

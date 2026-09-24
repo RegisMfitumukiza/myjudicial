@@ -3103,18 +3103,114 @@
   },
   "faqsPage": {
     "meta": {
-      "title": "Frequently Asked Questions | MyJudicial",
-      "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
+      "title": "Help Center & FAQs | MyJudicial",
+      "description": "Search answers to common questions about booking verified Rwanda Bar advocates, Mobile Money escrow protection, consultation modalities, and advocate onboarding."
     },
     "hero": {
-      "badge": "FAQs",
-      "title": "Frequently Asked Questions",
-      "subtitle": "Everything you need to know about finding and hiring a legal expert on MyJudicial."
+      "badge": "Knowledge Base & FAQs",
+      "title": "How Can We Help You?",
+      "subtitle": "Find clear, verified answers about consulting advocates, escrow safeguards, and legal practice on MyJudicial.",
+      "searchPlaceholder": "Search questions by topic (e.g. escrow, diaspora, cancel, momo)..."
+    },
+    "categories": {
+      "all": "All Questions",
+      "clients": "For Clients & Citizens",
+      "advocates": "For Certified Advocates",
+      "escrow": "Payments & Escrow",
+      "trust": "Trust, Ethics & Privacy"
+    },
+    "emptyState": {
+      "noResults": "No matching questions found.",
+      "suggestion": "Try different search terms or contact our support team in Kigali directly.",
+      "clearSearch": "Clear search filter"
+    },
+    "items": {
+      "item1": {
+        "category": "clients",
+        "q": "How do I choose and book a verified advocate on MyJudicial?",
+        "a": "Browse our directory by practice area, language, or location, or describe your situation to our AI Legal Assistant for instant triage. Select an advocate, pick an available calendar slot, and confirm your booking with escrow protection."
+      },
+      "item2": {
+        "category": "clients",
+        "q": "What languages do advocates on MyJudicial consult in?",
+        "a": "All advocates are fluent in at least two of Rwanda's official legal languages. You can filter and consult in Kinyarwanda, English, or French to ensure complete clarity and comfort."
+      },
+      "item3": {
+        "category": "clients",
+        "q": "I live in the Rwandan diaspora. Can I consult an advocate about land, succession, or business?",
+        "a": "Yes. You can pay with international credit or debit cards, schedule consultations across international time zones, and meet via our encrypted in-browser video room to review land certificates (UPI), business contracts, or succession files."
+      },
+      "item4": {
+        "category": "clients",
+        "q": "Do I need to download Zoom, Teams, or an app to join the video consultation?",
+        "a": "No. Our consultation room runs 100% inside your web browser using LiveKit WebRTC. You do not need to download or install any external software on your computer or phone."
+      },
+      "item5": {
+        "category": "clients",
+        "q": "Can the advocate represent me in court after our online consultation?",
+        "a": "Yes. Online consultations serve as an initial diagnostic session. If your case requires litigation, your advocate can issue an official retainer agreement (convention d'honoraires) and power of attorney (procuration) to represent you before Rwandan courts via the IECMS."
+      },
+      "item6": {
+        "category": "advocates",
+        "q": "How and when do advocates receive consultation payouts?",
+        "a": "Payouts are automated and guaranteed. Once you conclude the consultation and submit the session brief, the escrow balance is released immediately to your registered MTN Mobile Money, Airtel Money, or Rwandan commercial bank account."
+      },
+      "item7": {
+        "category": "advocates",
+        "q": "Do advocates retain full autonomy over their consultation rates and schedule?",
+        "a": "Yes. In accordance with Rwanda Bar Association standards, advocates independently set their consultation fees and configure their available hours. MyJudicial does not fix prices or impose mandatory tariffs."
+      },
+      "item8": {
+        "category": "advocates",
+        "q": "How is my Rwanda Bar Association (RBA) accreditation vetted?",
+        "a": "Every advocate is verified against the official Rwanda Bar Association Roll, practicing certificate, and National ID before their profile is published. Only advocates in active good standing are admitted."
+      },
+      "item9": {
+        "category": "advocates",
+        "q": "What happens if a client fails to attend the scheduled consultation?",
+        "a": "Your professional time is protected. If a client fails to attend without cancelling at least 24 hours in advance, the consultation fee held in escrow is disbursed to the advocate in accordance with platform cancellation policy."
+      },
+      "item10": {
+        "category": "escrow",
+        "q": "How does the regulated escrow system protect my money?",
+        "a": "When you book a consultation, your payment is held safely in a regulated escrow custody account. The advocate is only paid after the consultation has concluded satisfactorily. If a session is cancelled or the advocate does not attend, your funds are refunded."
+      },
+      "item11": {
+        "category": "escrow",
+        "q": "Which payment methods are accepted on MyJudicial?",
+        "a": "We accept MTN Mobile Money and Airtel Money for local payments, as well as Visa and Mastercard debit and credit cards for domestic and international clients."
+      },
+      "item12": {
+        "category": "escrow",
+        "q": "Are there any hidden fees, platform surcharges, or extra invoices?",
+        "a": "No. The consultation fee displayed on the advocate's profile is the total, final amount. There are no hidden booking fees, subscription traps, or unexpected charges."
+      },
+      "item13": {
+        "category": "escrow",
+        "q": "What is the refund and cancellation policy?",
+        "a": "Clients can reschedule or cancel a consultation for a full refund up to 24 hours before the scheduled time. If an advocate fails to join a session, the client receives a 100% immediate escrow refund."
+      },
+      "item14": {
+        "category": "trust",
+        "q": "Are all lawyers on MyJudicial accredited by the Rwanda Bar Association?",
+        "a": "Yes. Every single legal expert on MyJudicial is an accredited advocate cross-checked against the official Rwanda Bar Association Roll. We do not allow unverified third parties to offer legal counsel."
+      },
+      "item15": {
+        "category": "trust",
+        "q": "Is my consultation recorded by the platform?",
+        "a": "No. We never record video or audio consultations. All sessions use peer-to-peer encrypted WebRTC to preserve strict legal professional secrecy and attorney-client privilege."
+      },
+      "item16": {
+        "category": "trust",
+        "q": "How does MyJudicial comply with Rwandan Data Protection Law No. 058/2021?",
+        "a": "All client data, uploaded evidence, and intake documents are encrypted and stored in compliance with Law No. 058/2021 relating to the protection of personal data. Only your chosen advocate has confidential access to your case documents."
+      }
     },
     "cta": {
-      "title": "Still have questions?",
-      "subtitle": "Can't find the answer you're looking for? Our support team is here to help.",
-      "contact": "Contact Support"
+      "title": "Still have questions or need direct assistance?",
+      "subtitle": "Our local support team in Kigali is available to assist you with booking inquiries, escrow payments, or technical support.",
+      "contact": "Contact Support Team",
+      "emailSupport": "Email support: support@myjudicial.rw"
     }
   },
   "features": {

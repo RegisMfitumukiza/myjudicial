@@ -92,8 +92,6 @@ export default function LandingFooter() {
       links: [
         { label: t("links.becomeExpert"), href: "/sign-up?role=EXPERT" },
         { label: t("links.advocateSignIn"), href: "/sign-in" },
-        { label: t("links.practiceGuide"), href: "/how-it-works?tab=advocates" },
-        { label: t("links.verification"), href: "/about#ecosystem" },
       ],
     },
     {

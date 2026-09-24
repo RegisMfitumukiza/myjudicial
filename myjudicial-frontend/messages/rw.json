@@ -4928,19 +4928,115 @@
     }
   },
   "faqsPage": {
+    "meta": {
+      "title": "Ibiro by'Ubufasha & Ibibazo Bikunze Kubazwa | MyJudicial",
+      "description": "Shakisha ibisubizo by'ibibazo bikunze kubazwa ku bijyanye no gufata umwanya n'abavugizi b'amategeko bemewe mu Rwanda, ubwishyu burinzwe muri escrow, n'uburyo bwo kwiyandikisha."
+    },
     "hero": {
-      "badge": "Ibibazo Bikunze Kubazwa",
-      "title": "Ibisobanuro ku bibazo bikunze kubazwa",
-      "subtitle": "Bona ibisubizo byihuse ku mikorere ya MyJudicial, kwemeza abavoka n'umutekano wo kwishyura."
+      "badge": "Ibisobanuro & Ibibazo Bikunze Kubazwa",
+      "title": "Twagufasha Gute Uyu Munsi?",
+      "subtitle": "Bona ibisubizo byizewe ku bijyanye no kugisha inama abavugizi b'amategeko, ubwirinzi bw'amafaranga muri escrow, n'imikorere ya MyJudicial.",
+      "searchPlaceholder": "Shakisha ikibazo ukurikije icyo ushaka (urugero: escrow, diaspora, gusubizwa amafaranga, momo)..."
+    },
+    "categories": {
+      "all": "Ibibazo Byose",
+      "clients": "Ku Bakiriya n'Abanyarwanda",
+      "advocates": "Ku Bavugizi b'Amategeko",
+      "escrow": "Ubwishyu & Escrow",
+      "trust": "Ibanga & Umutekano"
+    },
+    "emptyState": {
+      "noResults": "Nta kibazo gihuye n'ibyo ushakishije cyabonetse.",
+      "suggestion": "Gerageza andi magambo cyangwa uvugane n'itsinda ryacu ry'ubufasha i Kigali ako kanya.",
+      "clearSearch": "Gukuraho ibyo washakishije"
+    },
+    "items": {
+      "item1": {
+        "category": "clients",
+        "q": "Mbona nte kandi ngafata nte umwanya n'umuvugizi w'amategeko wemewe kuri MyJudicial?",
+        "a": "Shakisha mu rutonde rwacu ukurikije ubwoko bw'ikibazo, ururimi cyangwa aho aherereye, cyangwa usobanurire Umufasha wacu wa AI. Hitamo umuvugizi, uhitemo isaha ikunogeye, hanyuma wishyure mu buryo burinzwe bwa escrow."
+      },
+      "item2": {
+        "category": "clients",
+        "q": "Abavugizi b'amategeko bakoresha izihe ndimi kuri MyJudicial?",
+        "a": "Abavugizi bose bavuga nibura indimi ebyiri mu ndimi zemewe mu mategeko y'u Rwanda. Ushobora gushungura ugahitamo umuvugizi ukoresha Ikinyarwanda, Icyongereza cyangwa Igifaransa."
+      },
+      "item3": {
+        "category": "clients",
+        "q": "Mba muri Diaspora. Ese nshobora kugisha inama umuvugizi ku bibazo by'ubutaka, izungura cyangwa ubucuruzi?",
+        "a": "Yego rwose. Ushobora kwishyura ukoresheje ikarita mpuzamahanga (Visa/Mastercard), guhitamo isaha ihuye n'aho uri, no guhura n'umuvugizi kuri videwo y'ibanga mugasuzuma icyemezo cy'ubutaka UPI n'amasezerano."
+      },
+      "item4": {
+        "category": "clients",
+        "q": "Ese nkeneye gukuramo Zoom, Teams cyangwa indi porogaramu kugira ngo njye mu nama ya videwo?",
+        "a": "Oya rwose. Icyumba cyacu cy'inama gikora 100% muri porogaramu isanzwe usomeraho imbuga za interineti hifashishijwe LiveKit WebRTC. Ntibisaba gukuramo indi porogaramu kuri telefoni cyangwa mudasobwa."
+      },
+      "item5": {
+        "category": "clients",
+        "q": "Ese umuvugizi ashobora kunkurikirana mu rukiko nyuma y'inama twagiranye kuri interineti?",
+        "a": "Yego cyane. Konsiltasiyo iba intambwe yo gusuzuma ikibazo. Iyo kigiye mu rukiko, umuvugizi aguha amasezerano yo kunganirwa (convention d'honoraires) n'inyandiko y'ububasha (procuration) yo kukuburanira mu nkiko z'u Rwanda binyuze muri IECMS."
+      },
+      "item6": {
+        "category": "advocates",
+        "q": "Ese abavugizi b'amategeko bakira bate amafaranga ya konsiltasiyo?",
+        "a": "Kwakira ubwishyu byikora kandi birizewe 100%. Iyo usoje inama ukanatanga incamake y'imyanzuro, amafaranga yari abitswe muri escrow ahita yoherezwa ako kanya kuri MTN Mobile Money, Airtel Money cyangwa kuri banki yawe mu Rwanda."
+      },
+      "item7": {
+        "category": "advocates",
+        "q": "Ese umuvugizi agumana uburenganzira bwo kwishyiriraho ibiciro n'amasaha akoreraho?",
+        "a": "Yego cyane. Mu kubahiriza amahame y'Urugaga rw'Abavugizi mu Rwanda, buri muvugizi yigenga mu gushyiraho ibiciro by'ubujyanama n'amasaha abonekeraho. MyJudicial ntigena ibiciro cyangwa ngo igutegeke uko ukora."
+      },
+      "item8": {
+        "category": "advocates",
+        "q": "Bagenzura bate ko umuvugizi ari umunyamuryango wemewe w'Urugaga rw'Abavugizi (RBA)?",
+        "a": "Buri muvugizi agenzurwa ko yanditse ku Rutonde rw'Urugaga rw'Abavugizi mu Rwanda, akagenzurirwa uruhushya rwo gukora n'indangamuntu mbere y'uko konti ye yemezwa ku rubuga."
+      },
+      "item9": {
+        "category": "advocates",
+        "q": "Bigenda bite iyo umukiriya atitabiriye inama ku gihe mwapanze?",
+        "a": "Umwanya wawe urarinzwe. Iyo umukiriya ataje mu nama kandi atabimenyesheje nibura amasaha 24 mbere, amafaranga yari abitswe muri escrow ahabwa umuvugizi hakurikijwe amabwiriza yo guhagarika inama."
+      },
+      "item10": {
+        "category": "escrow",
+        "q": "Uburyo bwa escrow burinda bute amafaranga yanjye?",
+        "a": "Iyo wishe, amafaranga yawe abikwa kuri konti yizewe ya escrow. Umuvugizi yishyurwa gusa ari uko inama irangiye neza. Inama nihagarikwa cyangwa umuvugizi ntaze, amafaranga yawe uyasubizwa yose."
+      },
+      "item11": {
+        "category": "escrow",
+        "q": "Ni ubuhe buryo bwo kwishyura bwemewe kuri MyJudicial?",
+        "a": "Twemera MTN Mobile Money na Airtel Money ku bakiriya bo mu Rwanda, ndetse n'amakarita ya Visa na Mastercard ku bakiriya bo mu Rwanda no mu mahanga."
+      },
+      "item12": {
+        "category": "escrow",
+        "q": "Ese hari andi mafaranga y'inyongera cyangwa ay'uburiganya acibwa?",
+        "a": "Oya rwose. Igiciro ubona ku mwirondoro w'umuvugizi ni cyo cyonyine wishyura. Nta yandi mafaranga y'ubwishingizi cyangwa ay'ubufatabuguzi acibwa mu ibanga."
+      },
+      "item13": {
+        "category": "escrow",
+        "q": "Amabwiriza yo guhagarika inama no gusubizwa amafaranga ateye ate?",
+        "a": "Ushobora guhindura igihe cyangwa guhagarika inama ugasubizwa amafaranga yawe yose mbere y'amasaha 24 y'inama. Iyo umuvugizi atabonetse, umukiriya ahita asubizwa amafaranga ye 100% ako kanya."
+      },
+      "item14": {
+        "category": "trust",
+        "q": "Ese abavugizi bose bari kuri MyJudicial bemewe n'Urugaga rw'Abavugizi mu Rwanda?",
+        "a": "Yego. Buri muvugizi wese uri kuri MyJudicial agenzurwa ku Rutonde rw'Urugaga rw'Abavugizi mu Rwanda (RBA). Ntidushobora kwemerera umuntu utemewe gutanga ubujyanama mu mategeko."
+      },
+      "item15": {
+        "category": "trust",
+        "q": "Ese ibiganiro by'inama birafatwa mu majwi cyangwa amashusho na porogaramu?",
+        "a": "Oya rwose. Ntitwigera dufata amajwi cyangwa amashusho y'inama. Itumanaho ryose rikoresha ikoranabuhanga ry'ibanga rya WebRTC kugira ngo ibanga ry'umwuga w'amategeko ryubahirizwe 100%."
+      },
+      "item16": {
+        "category": "trust",
+        "q": "MyJudicial yubahiriza ite Itegeko ry'u Rwanda No. 058/2021 ryerekeye kurinda amakuru bwite?",
+        "a": "Amakuru yose n'inyandiko zishyirwaho birindwa mu buryo bukomeye hakurikijwe Itegeko No. 058/2021. Umuvugizi wahisemo wenyine ni we ufite uburenganzira bwo kureba inyandiko z'ikibazo cyawe mu ibanga."
+      }
     },
     "cta": {
-      "title": "Ntiwabonye igisubizo cy'ikibazo cyawe?",
-      "subtitle": "Ikipe yacu ishinzwe gufasha abakiriya i Kigali yiteguye kugusubiza no kugufasha.",
-      "contact": "Twandikire ubufasha"
-    },
-    "meta": {
-      "title": "Frequently Asked Questions | MyJudicial",
-      "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
+      "title": "Ufite ibindi bibazo cyangwa ukeneye ubufasha butaziguye?",
+      "subtitle": "Itsinda ryacu ry'ubufasha i Kigali ryiteguye kugufasha ku bibazo byo gufata umwanya, ubwishyu bwa escrow, cyangwa ubufasha bwa tekiniki.",
+      "contact": "Vugana n'Itsinda ry'Ubufasha",
+      "emailSupport": "Imeri y'ubufasha: support@myjudicial.rw"
     }
   },
   "helpPage": {

@@ -4928,19 +4928,115 @@
     }
   },
   "faqsPage": {
+    "meta": {
+      "title": "Centre d'Aide & FAQ | MyJudicial",
+      "description": "Trouvez les réponses à vos questions sur la réservation d'avocats certifiés du Barreau du Rwanda, le séquestre Mobile Money, les modes de consultation et l'inscription des avocats."
+    },
     "hero": {
-      "badge": "Foire Aux Questions",
-      "title": "Questions fréquentes",
-      "subtitle": "Trouvez des réponses claires sur le fonctionnement de MyJudicial, la vérification des avocats et la sécurité des paiements."
+      "badge": "Base de Connaissances & FAQ",
+      "title": "Comment Pouvons-nous Vous Aider ?",
+      "subtitle": "Trouvez des réponses claires et vérifiées sur les consultations d'avocats, les garanties de séquestre et la pratique sur MyJudicial.",
+      "searchPlaceholder": "Recherchez par mot-clé (ex: séquestre, diaspora, annulation, momo)..."
+    },
+    "categories": {
+      "all": "Toutes les Questions",
+      "clients": "Pour Citoyens & Clients",
+      "advocates": "Pour Avocats Certifiés",
+      "escrow": "Paiements & Séquestre",
+      "trust": "Confidentialité & Déontologie"
+    },
+    "emptyState": {
+      "noResults": "Aucune question trouvée pour cette recherche.",
+      "suggestion": "Essayez d'autres mots-clés ou contactez directement notre équipe d'assistance à Kigali.",
+      "clearSearch": "Effacer la recherche"
+    },
+    "items": {
+      "item1": {
+        "category": "clients",
+        "q": "Comment choisir et réserver un avocat certifié sur MyJudicial ?",
+        "a": "Parcourez notre annuaire par domaine juridique, langue ou ville, ou décrivez votre cas à notre assistant juridique IA pour un triage immédiat. Sélectionnez un confrère, choisissez un créneau disponible et réglez en toute sécurité sous séquestre."
+      },
+      "item2": {
+        "category": "clients",
+        "q": "Quelles sont les langues pratiquées par les avocats sur MyJudicial ?",
+        "a": "Tous les avocats maîtrisent au moins deux des langues officielles du Rwanda. Vous pouvez filtrer et consulter en kinyarwanda, français ou anglais selon votre préférence."
+      },
+      "item3": {
+        "category": "clients",
+        "q": "Je réside dans la diaspora. Puis-je consulter un avocat pour un litige foncier, successoral ou d'affaires ?",
+        "a": "Oui. Vous pouvez régler par carte bancaire internationale, choisir un créneau selon votre fuseau horaire et consulter votre avocat en visioconférence chiffrée pour examiner des titres fonciers (UPI), statuts d'entreprise ou dossiers successoraux."
+      },
+      "item4": {
+        "category": "clients",
+        "q": "Dois-je télécharger Zoom, Teams ou une application pour rejoindre la visioconférence ?",
+        "a": "Non. Notre espace de consultation s'exécute directement dans votre navigateur web via LiveKit WebRTC. Aucun téléchargement ni création de compte tiers n'est requis sur mobile ou ordinateur."
+      },
+      "item5": {
+        "category": "clients",
+        "q": "L'avocat peut-il me représenter au tribunal après notre consultation en ligne ?",
+        "a": "Oui. La consultation en ligne constitue une première séance de diagnostic. Si votre dossier exige une action en justice, l'avocat établira une convention d'honoraires et une procuration pour vous représenter devant les tribunaux rwandais via l'IECMS."
+      },
+      "item6": {
+        "category": "advocates",
+        "q": "Comment et quand les avocats perçoivent-ils les honoraires de consultation ?",
+        "a": "Les règlements sont automatisés et garantis. Dès que vous concluez la séance et validez la fiche de conclusions, le montant séquestré est versé instantanément sur votre compte MTN Mobile Money, Airtel Money ou compte bancaire rwandais."
+      },
+      "item7": {
+        "category": "advocates",
+        "q": "L'avocat conserve-t-il sa totale liberté de fixation des tarifs et horaires ?",
+        "a": "Oui. Conformément aux règles déontologiques du Barreau du Rwanda, les avocats fixent librement leurs honoraires de consultation et leurs plages de disponibilité. MyJudicial n'impose aucun barème obligatoire."
+      },
+      "item8": {
+        "category": "advocates",
+        "q": "Comment l'inscription au tableau du Barreau du Rwanda est-elle vérifiée ?",
+        "a": "Chaque confrère est vérifié auprès du tableau officiel de l'Ordre des Avocats du Rwanda, de son certificat d'exercice et de sa carte nationale d'identité avant publication de son profil."
+      },
+      "item9": {
+        "category": "advocates",
+        "q": "Que se passe-t-il si le client ne se présente pas au rendez-vous convenu ?",
+        "a": "Votre temps professionnel est protégé. En cas d'absence injustifiée sans préavis d'au moins 24 heures, les fonds consignés sous séquestre sont versés à l'avocat conformément aux conditions générales d'annulation."
+      },
+      "item10": {
+        "category": "escrow",
+        "q": "Comment le système de séquestre réglementé protège-t-il mon argent ?",
+        "a": "Lors de la réservation, vos fonds sont conservés sur un compte de cantonnement réglementé. L'avocat n'est rémunéré qu'après la tenue effective de la consultation. En cas d'annulation ou d'absence de l'avocat, vous êtes intégralement remboursé."
+      },
+      "item11": {
+        "category": "escrow",
+        "q": "Quels sont les moyens de paiement acceptés sur MyJudicial ?",
+        "a": "Nous acceptons MTN Mobile Money et Airtel Money pour les règlements locaux, ainsi que les cartes bancaires Visa et Mastercard pour les usagers nationaux et internationaux."
+      },
+      "item12": {
+        "category": "escrow",
+        "q": "Y a-t-il des frais cachés ou des factures imprévues ?",
+        "a": "Non. Le montant indiqué sur la fiche de l'avocat correspond au prix total et définitif. Aucun frais d'abonnement ni surcoût caché n'est prélevé."
+      },
+      "item13": {
+        "category": "escrow",
+        "q": "Quelle est la politique d'annulation et de remboursement ?",
+        "a": "Vous pouvez reporter ou annuler votre séance avec remboursement intégral jusqu'à 24 heures avant l'horaire prévu. Si un avocat ne se présente pas, vous recevez un remboursement immédiat à 100%."
+      },
+      "item14": {
+        "category": "trust",
+        "q": "Tous les juristes sur MyJudicial sont-ils membres du Barreau du Rwanda ?",
+        "a": "Oui. Chaque professionnel inscrit sur MyJudicial est un avocat en exercice inscrit au tableau de l'Ordre des Avocats du Rwanda. Aucune personne non habilitée n'est admise à donner des consultations."
+      },
+      "item15": {
+        "category": "trust",
+        "q": "Ma consultation est-elle enregistrée par la plateforme ?",
+        "a": "Non. Nous n'enregistrons aucun échange vidéo ou audio. Toutes les liaisons utilisent le protocole WebRTC chiffré de bout en bout pour garantir le secret professionnel le plus strict."
+      },
+      "item16": {
+        "category": "trust",
+        "q": "Comment MyJudicial respecte-t-elle la loi rwandaise n° 058/2021 sur les données personnelles ?",
+        "a": "Les données des usagers et les pièces transmises sont chiffrées conformément à la loi n° 058/2021 sur la protection des données personnelles. Seul l'avocat que vous avez choisi a accès à vos éléments de dossier."
+      }
     },
     "cta": {
-      "title": "Vous n'avez pas trouvé votre réponse ?",
-      "subtitle": "Notre équipe d'assistance à Kigali est disponible pour vous accompagner.",
-      "contact": "Contactez le support"
-    },
-    "meta": {
-      "title": "Frequently Asked Questions | MyJudicial",
-      "description": "Find answers to common questions about using MyJudicial, booking lawyers, and making payments."
+      "title": "Vous avez d'autres questions ou besoin d'une assistance directe ?",
+      "subtitle": "Notre équipe locale à Kigali est à votre disposition pour vous assister dans vos démarches de réservation ou vos paiements.",
+      "contact": "Contacter l'Assistance",
+      "emailSupport": "Assistance par email : support@myjudicial.rw"
     }
   },
   "helpPage": {

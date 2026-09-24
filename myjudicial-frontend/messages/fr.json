@@ -4946,6 +4946,7 @@
       "trust": "Confidentialité & Déontologie"
     },
     "sidebarTitle": "Parcourir par catégorie",
+    "sidebarSearchPlaceholder": "Rechercher ou filtrer...",
     "kigaliTeam": "Équipe d'assistance de Kigali",
     "kigaliNotice": "Vous ne trouvez pas ce que vous cherchez ? Notre équipe locale à Kigali est prête à vous aider.",
     "verifiedAnswers": "Affichage de {count} réponses vérifiées",

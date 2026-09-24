@@ -3120,6 +3120,7 @@
       "trust": "Trust, Ethics & Privacy"
     },
     "sidebarTitle": "Browse by Category",
+    "sidebarSearchPlaceholder": "Search or filter questions...",
     "kigaliTeam": "Kigali Support Team",
     "kigaliNotice": "Can't find what you're looking for? Our local team in Kigali is ready to assist you.",
     "verifiedAnswers": "Showing {count} verified answers",

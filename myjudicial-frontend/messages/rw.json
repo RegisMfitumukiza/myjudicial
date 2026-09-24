@@ -4945,6 +4945,10 @@
       "escrow": "Ubwishyu & Escrow",
       "trust": "Ibanga & Umutekano"
     },
+    "sidebarTitle": "Shakisha ku Cyiciro",
+    "kigaliTeam": "Ikipe Idushyigikiye i Kigali",
+    "kigaliNotice": "Ntubonye icyo ushaka? Ikipe yacu i Kigali yiteguye kugufasha.",
+    "verifiedAnswers": "Herekanwa ibisubizo {count} byemejwe",
     "emptyState": {
       "noResults": "Nta kibazo gihuye n'ibyo ushakishije cyabonetse.",
       "suggestion": "Gerageza andi magambo cyangwa uvugane n'itsinda ryacu ry'ubufasha i Kigali ako kanya.",

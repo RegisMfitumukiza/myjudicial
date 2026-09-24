@@ -4945,6 +4945,10 @@
       "escrow": "Paiements & Séquestre",
       "trust": "Confidentialité & Déontologie"
     },
+    "sidebarTitle": "Parcourir par catégorie",
+    "kigaliTeam": "Équipe d'assistance de Kigali",
+    "kigaliNotice": "Vous ne trouvez pas ce que vous cherchez ? Notre équipe locale à Kigali est prête à vous aider.",
+    "verifiedAnswers": "Affichage de {count} réponses vérifiées",
     "emptyState": {
       "noResults": "Aucune question trouvée pour cette recherche.",
       "suggestion": "Essayez d'autres mots-clés ou contactez directement notre équipe d'assistance à Kigali.",

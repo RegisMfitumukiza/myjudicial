@@ -106,7 +106,7 @@ export default function FaqsClient() {
 
   const handleCategorySelect = (key: CategoryKey) => {
     setSelectedCategory(key);
-    // If user is scrolled down, smoothly scroll to top of questions list without violent jumps
+    // Smoothly ensure questions header is in view without jumping
     if (questionsContainerRef.current) {
       const rect = questionsContainerRef.current.getBoundingClientRect();
       if (rect.top < 80) {
@@ -139,10 +139,10 @@ export default function FaqsClient() {
 
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
-      {/* ── 1. Hero & Unified Control Center ─────────────────────────── */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background pt-14 pb-10 sm:pt-20 sm:pb-14">
+      {/* ── 1. Hero & Search Control Center ─────────────────────────── */}
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-brand-dark/[0.04] via-background to-background pt-14 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          {/* Hero Badge */}
+          {/* Badge */}
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
             <HelpCircle size={14} className="text-brand-dark dark:text-white shrink-0" />
             <span>{t("hero.badge")}</span>
@@ -195,157 +195,231 @@ export default function FaqsClient() {
               </button>
             ))}
           </div>
-
-          {/* Non-Sticky Category Filter Pills (Unified with Hero) */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 pt-2">
-            {CATEGORIES.map(({ key, label, Icon, count }) => {
-              const isSelected = selectedCategory === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => handleCategorySelect(key)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all ${
-                    isSelected
-                      ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card border border-border bg-background"
-                  }`}
-                >
-                  <Icon size={14} className={isSelected ? "text-white dark:text-black" : "text-muted-foreground"} />
-                  <span>{label}</span>
-                  <span
-                    className={`rounded-md px-1.5 py-0.2 text-[10px] font-mono font-bold ${
-                      isSelected
-                        ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </section>
 
-      {/* ── 2. Questions Section with Stable Height ─────────────────── */}
-      <section
-        ref={questionsContainerRef}
-        className="py-12 sm:py-16 bg-muted/20 flex-1 min-h-[550px]"
-      >
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          {/* Search Result Counter & Active Filter Badge */}
-          {isSearching && (
-            <div className="mb-6 flex items-center justify-between border-b border-border pb-3 text-xs sm:text-sm text-muted-foreground">
-              <span>
-                {t("search.resultsCount", { count: filteredItems.length })}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="font-semibold text-brand-dark dark:text-white hover:underline flex items-center gap-1"
-              >
-                <X size={14} />
-                {t("search.clear")}
-              </button>
-            </div>
-          )}
-
-          {filteredItems.length > 0 ? (
-            <div className="space-y-3">
-              {filteredItems.map((item) => {
-                // Auto-expand items when searching, otherwise respect manual toggle
-                const isOpen = isSearching ? true : !!openItems[item.id];
-
+      {/* ── 2. Two-Column Knowledge Hub Body ─────────────────────────── */}
+      <section className="py-10 sm:py-16 bg-muted/20 flex-1">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Mobile Category Scroll (Visible on Mobile/Tablet, Hidden on Desktop) */}
+          <div className="lg:hidden mb-6 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex items-center gap-2 min-w-max">
+              {CATEGORIES.map(({ key, label, Icon, count }) => {
+                const isSelected = selectedCategory === key;
                 return (
-                  <div
-                    key={item.id}
-                    className={`rounded-2xl border transition-all ${
-                      isOpen
-                        ? "border-border bg-card shadow-xs ring-1 ring-border"
-                        : "border-border bg-card hover:border-border/80"
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => handleCategorySelect(key)}
+                    className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+                      isSelected
+                        ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
+                        : "text-muted-foreground hover:text-foreground border border-border bg-card"
                     }`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => toggleItem(item.id)}
-                      className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-semibold text-foreground focus:outline-none"
-                      aria-expanded={isOpen}
+                    <Icon size={14} className={isSelected ? "text-white dark:text-black" : "text-muted-foreground"} />
+                    <span>{label}</span>
+                    <span
+                      className={`rounded-md px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+                        isSelected
+                          ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
+                          : "bg-muted text-muted-foreground"
+                      }`}
                     >
-                      <div className="pr-4 space-y-1.5">
-                        <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
-                          {getCategoryBadge(item.category)}
-                        </span>
-                        <div className="text-foreground leading-snug">
-                          <HighlightMatch text={item.q} query={searchQuery} />
-                        </div>
-                      </div>
-                      <ChevronDown
-                        size={18}
-                        className={`text-muted-foreground transition-transform duration-200 shrink-0 ${
-                          isOpen ? "rotate-180 text-foreground" : ""
-                        }`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5 text-xs sm:text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
-                        <HighlightMatch text={item.a} query={searchQuery} />
-                      </div>
-                    )}
-                  </div>
+                      {count}
+                    </span>
+                  </button>
                 );
               })}
             </div>
-          ) : (
-            /* Empty State */
-            <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center max-w-md mx-auto my-8">
-              <Search className="mx-auto h-8 w-8 text-muted-foreground/60 mb-3" />
-              <h3 className="text-base font-bold text-foreground">
-                {t("emptyState.noResults")}
-              </h3>
-              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                {t("emptyState.suggestion")}
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("all");
-                }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-accent transition"
-              >
-                {t("emptyState.clearSearch")}
-              </button>
-            </div>
-          )}
+          </div>
 
-          {/* ── 3. Direct Support Escalation Card ──────────────────────── */}
-          <div className="mt-14 rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div className="max-w-xl">
-                <div className="flex items-center gap-2 text-brand-dark dark:text-white font-bold text-xs uppercase tracking-widest font-mono mb-2">
-                  <Mail size={14} />
-                  <span>Kigali Support Team</span>
+          {/* Grid Layout: 4 cols Left Sidebar (Sticky) + 8 cols Right Content */}
+          <div className="grid gap-8 lg:grid-cols-12 items-start">
+            {/* Left Column: Desktop Sticky Category Sidebar */}
+            <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-4">
+              <div className="rounded-2xl border border-border bg-card p-3 shadow-xs">
+                <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground font-mono">
+                  {t("sidebarTitle")}
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-foreground">
-                  {t("cta.title")}
-                </h3>
-                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {t("cta.subtitle")}
-                </p>
-                <div className="mt-2 text-xs text-muted-foreground font-mono">
-                  {t("cta.emailSupport")}
-                </div>
+                <nav className="space-y-1">
+                  {CATEGORIES.map(({ key, label, Icon, count }) => {
+                    const isSelected = selectedCategory === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleCategorySelect(key)}
+                        className={`w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold transition-all text-left ${
+                          isSelected
+                            ? "bg-brand-dark text-white dark:bg-white dark:text-black font-bold shadow-xs"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2.5 truncate">
+                          <Icon size={16} className={isSelected ? "text-white dark:text-black" : "text-muted-foreground"} />
+                          <span className="truncate">{label}</span>
+                        </span>
+                        <span
+                          className={`rounded-md px-2 py-0.5 text-[10px] font-mono font-bold shrink-0 ${
+                            isSelected
+                              ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </nav>
               </div>
 
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-6 py-3 text-xs sm:text-sm font-bold shadow-xs transition shrink-0"
-              >
-                {t("cta.contact")} <ArrowRight size={15} />
-              </Link>
-            </div>
+              {/* Quick Contact Card in Sidebar */}
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+                <div className="flex items-center gap-2 text-brand-dark dark:text-white font-bold text-xs uppercase tracking-widest font-mono mb-2">
+                  <Mail size={14} />
+                  <span>{t("kigaliTeam")}</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t("kigaliNotice")}
+                </p>
+                <div className="mt-3 text-[11px] text-muted-foreground font-mono">
+                  {t("cta.emailSupport")}
+                </div>
+                <Link
+                  href="/contact"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-bold text-foreground hover:bg-accent transition w-full justify-center shadow-2xs"
+                >
+                  <span>{t("cta.contact")}</span>
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
+            </aside>
+
+            {/* Right Column: Questions Accordion & Live Results */}
+            <main ref={questionsContainerRef} className="lg:col-span-8 min-h-[550px] space-y-4 scroll-mt-24">
+              {/* Active Category Header & Search Status */}
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                    {CATEGORIES.find((c) => c.key === selectedCategory)?.label}
+                  </h2>
+                  {isSearching ? (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("search.resultsCount", { count: filteredItems.length })}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("verifiedAnswers", { count: filteredItems.length })}
+                    </p>
+                  )}
+                </div>
+
+                {isSearching && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="text-xs font-semibold text-brand-dark dark:text-white hover:underline flex items-center gap-1"
+                  >
+                    <X size={13} />
+                    {t("search.clear")}
+                  </button>
+                )}
+              </div>
+
+              {filteredItems.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredItems.map((item) => {
+                    // Auto-expand items when searching, otherwise respect manual toggle
+                    const isOpen = isSearching ? true : !!openItems[item.id];
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`rounded-2xl border transition-all ${
+                          isOpen
+                            ? "border-border bg-card shadow-xs ring-1 ring-border"
+                            : "border-border bg-card hover:border-border/80"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleItem(item.id)}
+                          className="w-full flex items-center justify-between p-5 text-left text-sm sm:text-base font-semibold text-foreground focus:outline-none"
+                          aria-expanded={isOpen}
+                        >
+                          <div className="pr-4 space-y-1.5">
+                            <span className="inline-block rounded-md bg-muted px-2 py-0.5 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+                              {getCategoryBadge(item.category)}
+                            </span>
+                            <div className="text-foreground leading-snug">
+                              <HighlightMatch text={item.q} query={searchQuery} />
+                            </div>
+                          </div>
+                          <ChevronDown
+                            size={18}
+                            className={`text-muted-foreground transition-transform duration-200 shrink-0 ${
+                              isOpen ? "rotate-180 text-foreground" : ""
+                            }`}
+                          />
+                        </button>
+                        {isOpen && (
+                          <div className="px-5 pb-5 text-xs sm:text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
+                            <HighlightMatch text={item.a} query={searchQuery} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Empty State */
+                <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center max-w-md mx-auto my-8">
+                  <Search className="mx-auto h-8 w-8 text-muted-foreground/60 mb-3" />
+                  <h3 className="text-base font-bold text-foreground">
+                    {t("emptyState.noResults")}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                    {t("emptyState.suggestion")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("all");
+                    }}
+                    className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-accent transition"
+                  >
+                    {t("emptyState.clearSearch")}
+                  </button>
+                </div>
+              )}
+
+              {/* Mobile Escalation Card (Visible on mobile/tablet, hidden on desktop where sidebar handles it) */}
+              <div className="lg:hidden mt-8 rounded-3xl border border-border bg-card p-6 shadow-xs">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-brand-dark dark:text-white font-bold text-xs uppercase tracking-widest font-mono mb-1.5">
+                      <Mail size={14} />
+                      <span>{t("kigaliTeam")}</span>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">
+                      {t("cta.title")}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("cta.subtitle")}
+                    </p>
+                  </div>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand-dark text-white hover:bg-brand-dark/90 dark:bg-white dark:text-black dark:hover:bg-white/90 px-5 py-2.5 text-xs font-bold shadow-xs transition shrink-0"
+                  >
+                    {t("cta.contact")} <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
       </section>

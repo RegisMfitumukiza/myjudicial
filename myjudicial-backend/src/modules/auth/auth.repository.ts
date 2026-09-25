@@ -104,6 +104,7 @@ export const AuthRepository = {
     return prisma.user.update({
       where: { id: userId },
       data: { lastLoginAt: new Date() },
+      select: { id: true, lastLoginAt: true },
     });
   },
 
@@ -113,6 +114,7 @@ export const AuthRepository = {
   deleteUser: async (userId: string) => {
     return prisma.user.delete({
       where: { id: userId },
+      select: { id: true },
     });
   },
 

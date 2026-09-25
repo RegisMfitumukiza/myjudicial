@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 // DIRECT_URL is used for migrations (requires DDL support).

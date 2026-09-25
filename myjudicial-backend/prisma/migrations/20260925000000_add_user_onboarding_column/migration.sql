@@ -1,0 +1,2 @@
+-- Add onboarding JSON column to users table
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "onboarding" JSONB;

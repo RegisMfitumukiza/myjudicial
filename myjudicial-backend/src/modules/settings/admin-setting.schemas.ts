@@ -17,4 +17,16 @@ export const updateSettingsSchema = z.object({
   minEscrowDurationSeconds: z.number().int().min(0).optional(),
   paymentMode: z.enum(["BOOKING_FIRST", "PAYMENT_REQUIRED"]).optional(),
   socialLinks: socialLinksSchema.optional(),
+  // Company & Contact Details
+  supportEmail: z.string().email().optional(),
+  hotlinePhone: z.string().trim().optional(),
+  whatsappNumber: z.string().trim().optional(),
+  officeBuilding: z.string().trim().optional(),
+  officeStreet: z.string().trim().optional(),
+  officeDistrict: z.string().trim().optional(),
+  officePoBox: z.string().trim().optional(),
+  // Public Editorial Content (About Us)
+  aboutVision: z.string().trim().optional(),
+  aboutMission: z.string().trim().optional(),
+  aboutStory: z.string().trim().optional(),
 });

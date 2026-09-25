@@ -27,11 +27,22 @@ import {
   Compass,
 } from "lucide-react";
 
+import { usePlatformSettings } from "@/lib/api/settings";
+
 type DepartmentKey = "client" | "advocate" | "institutional" | "general";
 
 function ContactClientContent() {
   const t = useTranslations("contactPage");
+  const { settings } = usePlatformSettings();
   const searchParams = useSearchParams();
+
+  const activeEmail = settings.supportEmail || t("info.email");
+  const activeHotline = settings.hotlinePhone || t("office.hotline");
+  const activeWhatsapp = settings.whatsappNumber || activeHotline;
+  const activeBuilding = settings.officeBuilding || t("office.building");
+  const activeStreet = settings.officeStreet || "";
+  const activeDistrict = settings.officeDistrict || t("office.district");
+  const activePoBox = settings.officePoBox || t("office.poBox");
 
   // Read URL query parameter "?type=institutional" or "?type=advocate" etc.
   const initialType = searchParams.get("type");
@@ -65,25 +76,25 @@ function ContactClientContent() {
     { email: string; title: string; desc: string; icon: typeof Users }
   > = {
     client: {
-      email: t("departments.client.email"),
+      email: activeEmail,
       title: t("departments.client.title"),
       desc: t("departments.client.desc"),
       icon: Users,
     },
     advocate: {
-      email: t("departments.advocate.email"),
+      email: activeEmail,
       title: t("departments.advocate.title"),
       desc: t("departments.advocate.desc"),
       icon: UserCheck,
     },
     institutional: {
-      email: t("departments.institutional.email"),
+      email: activeEmail,
       title: t("departments.institutional.title"),
       desc: t("departments.institutional.desc"),
       icon: Building2,
     },
     general: {
-      email: t("info.email"),
+      email: activeEmail,
       title: t("form.categories.general"),
       desc: t("hero.subtitle"),
       icon: MessageSquare,
@@ -333,7 +344,7 @@ function ContactClientContent() {
                 {/* Telephone Hotline & WhatsApp */}
                 <div className="mt-6 pt-5 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <a
-                    href="tel:+250788312456"
+                    href={`tel:${activeHotline.replace(/\s+/g, "")}`}
                     className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/40 transition shadow-2xs"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
@@ -343,12 +354,12 @@ function ContactClientContent() {
                       <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                         {t("office.title")}
                       </p>
-                      <p className="text-xs font-bold text-foreground truncate">{t("office.hotline")}</p>
+                      <p className="text-xs font-bold text-foreground truncate">{activeHotline}</p>
                     </div>
                   </a>
 
                   <a
-                    href="https://wa.me/250788312456?text=Hello%20MyJudicial%20Legal%20Operations"
+                    href={`https://wa.me/${activeWhatsapp.replace(/[^0-9]/g, "")}?text=Hello%20MyJudicial%20Legal%20Operations`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 text-left hover:bg-muted/40 transition shadow-2xs"
@@ -360,7 +371,7 @@ function ContactClientContent() {
                       <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                         WhatsApp
                       </p>
-                      <p className="text-xs font-bold text-foreground truncate">{t("office.whatsapp")}</p>
+                      <p className="text-xs font-bold text-foreground truncate">{activeWhatsapp}</p>
                     </div>
                   </a>
                 </div>
@@ -374,13 +385,13 @@ function ContactClientContent() {
                     <h3 className="text-base font-bold text-foreground">{t("office.title")}</h3>
                   </div>
                   <span className="text-[11px] font-medium text-muted-foreground font-mono">
-                    {t("office.poBox")}
+                    {activePoBox}
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-1.5 text-xs text-muted-foreground leading-relaxed">
-                  <p className="font-semibold text-foreground">{t("office.building")}</p>
-                  <p>{t("office.district")}</p>
+                  <p className="font-semibold text-foreground">{activeBuilding}</p>
+                  <p>{activeStreet ? `${activeStreet}, ` : ""}{activeDistrict}</p>
                   <p className="text-[11px] text-muted-foreground italic">
                     {t("office.landmark")}
                   </p>

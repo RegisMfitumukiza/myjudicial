@@ -14,9 +14,27 @@ const router = Router();
 router.get(
   "/",
   asyncHandler(async (_req, res) => {
-    const paymentMode = await AdminSettingService.get("paymentMode");
-    const socialLinks = await AdminSettingService.get("socialLinks");
-    res.json({ success: true, data: { paymentMode, socialLinks } });
+    const all = await AdminSettingService.getAll();
+    const s = all.data;
+    res.json({
+      success: true,
+      data: {
+        platformName: s.platformName,
+        paymentMode: s.paymentMode,
+        maintenanceMode: s.maintenanceMode,
+        socialLinks: s.socialLinks,
+        supportEmail: s.supportEmail,
+        hotlinePhone: s.hotlinePhone,
+        whatsappNumber: s.whatsappNumber,
+        officeBuilding: s.officeBuilding,
+        officeStreet: s.officeStreet,
+        officeDistrict: s.officeDistrict,
+        officePoBox: s.officePoBox,
+        aboutVision: s.aboutVision,
+        aboutMission: s.aboutMission,
+        aboutStory: s.aboutStory,
+      },
+    });
   })
 );
 

@@ -29,6 +29,18 @@ export interface SettingsData {
    */
   paymentMode: PaymentMode;
   socialLinks: SocialLinks;
+  // Company Contact & Headquarter Location
+  supportEmail: string;
+  hotlinePhone: string;
+  whatsappNumber: string;
+  officeBuilding: string;
+  officeStreet: string;
+  officeDistrict: string;
+  officePoBox: string;
+  // Public Editorial Content (About Us)
+  aboutVision: string;
+  aboutMission: string;
+  aboutStory: string;
 }
 
 const DEFAULTS: SettingsData = {
@@ -46,6 +58,16 @@ const DEFAULTS: SettingsData = {
     youtube: "",
     whatsapp: "",
   },
+  supportEmail: "support@myjudicial.com",
+  hotlinePhone: "+250 788 312 456",
+  whatsappNumber: "+250 788 312 456",
+  officeBuilding: "Centenary House, 4th Floor",
+  officeStreet: "KN 3 Ave & KN 4 St",
+  officeDistrict: "Nyarugenge Central Business District, Kigali, Rwanda",
+  officePoBox: "P.O. Box 2848, Kigali",
+  aboutVision: "",
+  aboutMission: "",
+  aboutStory: "",
 };
 
 const KEYS: Record<keyof SettingsData, string> = {
@@ -56,6 +78,16 @@ const KEYS: Record<keyof SettingsData, string> = {
   minEscrowDurationSeconds: "min_escrow_duration_seconds",
   paymentMode: "payment_mode",
   socialLinks: "social_links",
+  supportEmail: "support_email",
+  hotlinePhone: "hotline_phone",
+  whatsappNumber: "whatsapp_number",
+  officeBuilding: "office_building",
+  officeStreet: "office_street",
+  officeDistrict: "office_district",
+  officePoBox: "office_po_box",
+  aboutVision: "about_vision",
+  aboutMission: "about_mission",
+  aboutStory: "about_story",
 };
 
 function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
@@ -79,6 +111,16 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
         ? "PAYMENT_REQUIRED"
         : DEFAULTS.paymentMode,
     socialLinks: parsedSocial,
+    supportEmail: (map.get(KEYS.supportEmail) as string) ?? DEFAULTS.supportEmail,
+    hotlinePhone: (map.get(KEYS.hotlinePhone) as string) ?? DEFAULTS.hotlinePhone,
+    whatsappNumber: (map.get(KEYS.whatsappNumber) as string) ?? DEFAULTS.whatsappNumber,
+    officeBuilding: (map.get(KEYS.officeBuilding) as string) ?? DEFAULTS.officeBuilding,
+    officeStreet: (map.get(KEYS.officeStreet) as string) ?? DEFAULTS.officeStreet,
+    officeDistrict: (map.get(KEYS.officeDistrict) as string) ?? DEFAULTS.officeDistrict,
+    officePoBox: (map.get(KEYS.officePoBox) as string) ?? DEFAULTS.officePoBox,
+    aboutVision: (map.get(KEYS.aboutVision) as string) ?? DEFAULTS.aboutVision,
+    aboutMission: (map.get(KEYS.aboutMission) as string) ?? DEFAULTS.aboutMission,
+    aboutStory: (map.get(KEYS.aboutStory) as string) ?? DEFAULTS.aboutStory,
   };
 }
 
@@ -117,6 +159,16 @@ export const AdminSettingService = {
     if (input.minEscrowDurationSeconds !== undefined) entries.push({ key: KEYS.minEscrowDurationSeconds, value: input.minEscrowDurationSeconds });
     if (input.paymentMode !== undefined) entries.push({ key: KEYS.paymentMode, value: input.paymentMode });
     if (input.socialLinks !== undefined) entries.push({ key: KEYS.socialLinks, value: input.socialLinks });
+    if (input.supportEmail !== undefined) entries.push({ key: KEYS.supportEmail, value: input.supportEmail });
+    if (input.hotlinePhone !== undefined) entries.push({ key: KEYS.hotlinePhone, value: input.hotlinePhone });
+    if (input.whatsappNumber !== undefined) entries.push({ key: KEYS.whatsappNumber, value: input.whatsappNumber });
+    if (input.officeBuilding !== undefined) entries.push({ key: KEYS.officeBuilding, value: input.officeBuilding });
+    if (input.officeStreet !== undefined) entries.push({ key: KEYS.officeStreet, value: input.officeStreet });
+    if (input.officeDistrict !== undefined) entries.push({ key: KEYS.officeDistrict, value: input.officeDistrict });
+    if (input.officePoBox !== undefined) entries.push({ key: KEYS.officePoBox, value: input.officePoBox });
+    if (input.aboutVision !== undefined) entries.push({ key: KEYS.aboutVision, value: input.aboutVision });
+    if (input.aboutMission !== undefined) entries.push({ key: KEYS.aboutMission, value: input.aboutMission });
+    if (input.aboutStory !== undefined) entries.push({ key: KEYS.aboutStory, value: input.aboutStory });
 
     if (entries.length === 0) return this.getAll();
 

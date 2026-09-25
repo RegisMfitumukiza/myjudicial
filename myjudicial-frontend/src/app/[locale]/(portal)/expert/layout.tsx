@@ -1,5 +1,10 @@
+import type { Metadata } from 'next';
 import { UserRole } from "@/features/auth/types";
 import { requireRole } from "@/server/auth/guards";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

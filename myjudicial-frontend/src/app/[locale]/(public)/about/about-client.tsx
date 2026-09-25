@@ -18,10 +18,16 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePublicStats } from "@/lib/api/landing";
+import { usePlatformSettings } from "@/lib/api/settings";
 
 export default function AboutClient() {
   const t = useTranslations("about");
   const { data: stats } = usePublicStats();
+  const { settings } = usePlatformSettings();
+
+  const activeMission = settings?.aboutMission?.trim() || t("mission.text");
+  const activeVision = settings?.aboutVision?.trim() || t("mission.visionText");
+  const customStory = settings?.aboutStory?.trim();
 
   return (
     <div className="flex flex-col bg-background text-foreground min-h-screen">
@@ -30,7 +36,7 @@ export default function AboutClient() {
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           {/* Unified Platform Hero Badge */}
           <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-2xs">
-            <Building2 size={14} className="text-brand-dark dark:text-white shrink-0" />
+            <Building2 size={14} className="text-foreground shrink-0" />
             <span>{t("hero.badge")}</span>
           </div>
 
@@ -91,8 +97,8 @@ export default function AboutClient() {
                 <Target size={22} />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t("mission.title")}</h2>
-              <p className="mt-3.5 text-sm sm:text-base leading-relaxed text-muted-foreground">
-                {t("mission.text")}
+              <p className="mt-3.5 text-sm sm:text-base leading-relaxed text-muted-foreground whitespace-pre-line">
+                {activeMission}
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-7 sm:p-8 shadow-xs relative overflow-hidden">
@@ -100,15 +106,15 @@ export default function AboutClient() {
                 <Compass size={22} />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t("mission.visionTitle")}</h2>
-              <p className="mt-3.5 text-sm sm:text-base leading-relaxed text-muted-foreground">
-                {t("mission.visionText")}
+              <p className="mt-3.5 text-sm sm:text-base leading-relaxed text-muted-foreground whitespace-pre-line">
+                {activeVision}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Our Story (Challenge & Digital Infrastructure) ───────────── */}
+      {/* ── Our Story (Challenge & Digital Infrastructure / Dynamic Story) ── */}
       <section className="bg-muted/20 py-16 sm:py-20 border-b border-border">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
@@ -120,27 +126,35 @@ export default function AboutClient() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* The Legal Challenge */}
-            <div className="rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs">
-              <div className="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 text-xs font-semibold text-foreground">
-                <span>{t("story.challengeTitle")}</span>
-              </div>
-              <p className="text-sm sm:text-base leading-relaxed text-muted-foreground">
-                {t("story.text1")}
+          {customStory ? (
+            <div className="rounded-2xl border border-border bg-card p-7 sm:p-9 shadow-xs max-w-3xl mx-auto">
+              <p className="text-sm sm:text-base leading-relaxed text-muted-foreground whitespace-pre-line">
+                {customStory}
               </p>
             </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* The Legal Challenge */}
+              <div className="rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs">
+                <div className="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 text-xs font-semibold text-foreground">
+                  <span>{t("story.challengeTitle")}</span>
+                </div>
+                <p className="text-sm sm:text-base leading-relaxed text-muted-foreground">
+                  {t("story.text1")}
+                </p>
+              </div>
 
-            {/* The Digital Infrastructure */}
-            <div className="rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs">
-              <div className="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 text-xs font-semibold text-foreground">
-                <span>{t("story.solutionTitle")}</span>
+              {/* The Digital Infrastructure */}
+              <div className="rounded-2xl border border-border bg-background p-6 sm:p-7 shadow-xs">
+                <div className="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1 text-xs font-semibold text-foreground">
+                  <span>{t("story.solutionTitle")}</span>
+                </div>
+                <p className="text-sm sm:text-base leading-relaxed text-muted-foreground">
+                  {t("story.text2")}
+                </p>
               </div>
-              <p className="text-sm sm:text-base leading-relaxed text-muted-foreground">
-                {t("story.text2")}
-              </p>
             </div>
-          </div>
+          )}
         </div>
       </section>
 

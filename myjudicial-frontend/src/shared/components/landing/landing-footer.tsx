@@ -4,7 +4,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/shared/components/logo";
 import { MapPin, Mail, ShieldAlert } from "lucide-react";
-import { useSocialLinks } from "@/features/settings/hooks/useSocialLinks";
+import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 
 /* ── Inline SVG icons (zero external deps) ─────────────────────────── */
 function XIcon(p: React.SVGProps<SVGSVGElement>) {
@@ -63,7 +63,9 @@ const SOCIAL_ICON_MAP = {
 
 export default function LandingFooter() {
   const t = useTranslations("landing.footer");
-  const { socialLinks } = useSocialLinks();
+  const { settings } = usePlatformSettings();
+  const socialLinks = settings.socialLinks;
+  const supportEmail = settings.supportEmail || t("supportEmail");
 
   /* ── 4 Industrial Deep-Sitemap Columns ────────────────────────── */
   const FOOTER_COLS = [
@@ -124,7 +126,7 @@ export default function LandingFooter() {
       {/* ── Brand Identity & Platform Summary ─────────────────────────── */}
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-10 pb-8 border-b border-border">
         <div className="flex flex-col gap-3 max-w-2xl">
-          <Logo iconSize={20} fontSize="text-[17px]" className="text-brand-dark dark:text-white" />
+          <Logo iconSize={20} fontSize="text-[17px]" className="text-foreground" />
           
           <p className="text-sm font-semibold text-foreground leading-snug">
             {t("tagline")}
@@ -136,14 +138,14 @@ export default function LandingFooter() {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-0.5">
             <div className="flex items-center gap-1.5">
-              <MapPin size={12} className="shrink-0 text-brand-dark dark:text-brand-gold" />
+              <MapPin size={12} className="shrink-0 text-foreground" />
               <span>{t("kigaliRwanda")}</span>
             </div>
             <span className="text-border hidden sm:inline">·</span>
             <div className="flex items-center gap-1.5">
-              <Mail size={12} className="shrink-0 text-brand-dark dark:text-brand-gold" />
-              <a href={`mailto:${t("supportEmail")}`} className="hover:text-foreground hover:underline">
-                {t("supportEmail")}
+              <Mail size={12} className="shrink-0 text-foreground" />
+              <a href={`mailto:${supportEmail}`} className="hover:text-foreground hover:underline">
+                {supportEmail}
               </a>
             </div>
           </div>

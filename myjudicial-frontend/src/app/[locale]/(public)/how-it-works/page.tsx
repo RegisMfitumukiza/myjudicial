@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getGlobalSeoDefaults } from "@/features/public-content/page-metadata";
 import HowItWorksClient from "./how-it-works-client";
 
 export async function generateMetadata({
@@ -9,6 +10,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "howItWorksPage.meta" });
+  const { ogImageUrl } = await getGlobalSeoDefaults();
 
   return {
     title: t("title"),
@@ -27,7 +29,7 @@ export async function generateMetadata({
       description: t("description"),
       url: `https://myjudicial.com/${locale}/how-it-works`,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: t("ogAlt") }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: t("ogAlt") }],
       locale: locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US",
       type: "website",
     },
@@ -35,7 +37,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
-      images: ["/og-image.png"],
+      images: [ogImageUrl],
     },
   };
 }

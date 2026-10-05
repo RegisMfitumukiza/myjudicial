@@ -125,11 +125,26 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const tCommon = useTranslations("common");
   const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
 
-  /* ── Auth gate: redirect unauthenticated users immediately ── */
+  /* ── Restore draft booking state if returning after sign-in ── */
   useEffect(() => {
-    if (authStatus === "loading") return;
-    requireAuth(pathname);
-  }, [authStatus, pathname]);
+    if (typeof window === "undefined" || !id) return;
+    try {
+      const saved = sessionStorage.getItem(`mj_pending_booking_${id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.selectedService) setSelectedService(parsed.selectedService);
+        if (typeof parsed.month === "number") setMonth(parsed.month);
+        if (typeof parsed.year === "number") setYear(parsed.year);
+        if (typeof parsed.selectedDate === "number") setSelectedDate(parsed.selectedDate);
+        if (parsed.selectedTime) setSelectedTime(parsed.selectedTime);
+        if (parsed.selectedSlot) setSelectedSlot(parsed.selectedSlot);
+        if (parsed.reason) setReason(parsed.reason);
+        sessionStorage.removeItem(`mj_pending_booking_${id}`);
+      }
+    } catch {
+      // ignore
+    }
+  }, [id]);
 
   const { data: expertProfile, isLoading: profileLoading, error: profileError } = useGetExpertsIdProfile(id);
   const { mutate: createBooking, isPending: isCreatingBooking } = useCreateBooking();
@@ -186,6 +201,29 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   function handleRequest() {
     if (!selectedSlot || !activeService || !id) return;
 
+    // Gated upon submission: if user is not authenticated or not a citizen, trigger sign-in
+    if (!requireAuth(pathname + (activeService.id ? `?serviceId=${activeService.id}` : ""))) {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem(
+            `mj_pending_booking_${id}`,
+            JSON.stringify({
+              selectedService: activeService.id,
+              selectedDate,
+              selectedTime,
+              selectedSlot,
+              reason,
+              month,
+              year,
+            })
+          );
+        } catch {
+          // ignore
+        }
+      }
+      return;
+    }
+
     const isPaymentRequired = !isBookingFirst;
     if (isPaymentRequired && (!paymentPhone || paymentPhone.length < 9)) {
       toast.error(t("invalidPhoneNumber"));
@@ -215,13 +253,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     });
   }
 
-  /* ── Show nothing while auth is resolving — the redirect is imminent ── */
-  if (authStatus === "loading" || authStatus === "unauthenticated") {
-    return <BookingSkeleton />;
-  }
-
-  /* ── Loading: show skeleton, never a blank spinner page ── */
-  if (profileLoading || servicesResult.isLoading || paymentModeLoading) {
+  /* ── Loading: show skeleton while initial profile or session resolves ── */
+  if (authStatus === "loading" || profileLoading || servicesResult.isLoading || paymentModeLoading) {
     return <BookingSkeleton />;
   }
 
@@ -240,6 +273,17 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
       {!confirmed ? (
         <>
           <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
+            {/* Back to Expert Profile Breadcrumb */}
+            <div className="mb-4">
+              <Link
+                href={`/lawyers/${id}`}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronLeft size={14} />
+                <span>{t("backToProfile")}: {profile.displayName}</span>
+              </Link>
+            </div>
+
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
 
               {/* LEFT */}
@@ -499,8 +543,21 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                     onClick={handleRequest}
                     className="mt-5 h-11 w-full gap-2 rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90 disabled:opacity-40"
                   >
-                    {isCreatingBooking ? t("processing") : isBookingFirst ? t("requestBooking") : t("payAndBook")} <ArrowRight size={15} />
+                    {isCreatingBooking
+                      ? t("processing")
+                      : authStatus === "unauthenticated"
+                        ? `${t("signInToBook")} • ${isBookingFirst ? t("requestBooking") : t("payAndBook")}`
+                        : isBookingFirst
+                          ? t("requestBooking")
+                          : t("payAndBook")}{" "}
+                    <ArrowRight size={15} />
                   </Button>
+
+                  {authStatus === "unauthenticated" && (
+                    <p className="mt-2.5 text-center text-[11px] text-muted-foreground leading-normal">
+                      {t("guestBookingPrompt")}
+                    </p>
+                  )}
 
                   <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1">

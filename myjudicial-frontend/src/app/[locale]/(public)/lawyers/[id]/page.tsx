@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getExpertsIdProfile } from "@/api/generated";
+import { getGlobalSeoDefaults } from "@/features/public-content/page-metadata";
 import { JsonLd } from "@/shared/components/seo/JsonLd";
 import LawyerClient from "./lawyer-client";
 
@@ -14,18 +15,21 @@ export async function generateMetadata({
   const localeOg =
     locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US";
 
+  // Fetch expert profile and global OG image in parallel
+  const [expertRes, { ogImageUrl }] = await Promise.all([
+    getExpertsIdProfile(id).catch(() => null),
+    getGlobalSeoDefaults(),
+  ]);
+
   try {
-    const res = await getExpertsIdProfile(id);
-    if (res.status === 200 && "data" in res.data && res.data.success) {
-      const expert = res.data.data;
+    if (expertRes && expertRes.status === 200 && "data" in expertRes.data && expertRes.data.success) {
+      const expert = expertRes.data.data;
       const specialty =
         expert.primarySpecialty
           ?.replace(/_/g, " ")
           .toLowerCase()
           .replace(/\b\w/g, (c: string) => c.toUpperCase()) ?? "";
       const name = expert.displayName ?? "";
-      const bio = expert.bio ?? "";
-      const city = expert.city ?? "Rwanda";
 
       const title = t("title", { name, specialty });
       const description = t("description", { name, specialty });
@@ -49,7 +53,7 @@ export async function generateMetadata({
           siteName: "MyJudicial",
           images: [
             {
-              url: "/og-image.png",
+              url: ogImageUrl,
               width: 1200,
               height: 630,
               alt: `${name} — ${specialty} | MyJudicial`,
@@ -62,7 +66,7 @@ export async function generateMetadata({
           card: "summary_large_image",
           title,
           description,
-          images: ["/og-image.png"],
+          images: [ogImageUrl],
         },
       };
     }
@@ -90,7 +94,7 @@ export async function generateMetadata({
       description: fallbackDesc,
       url: `https://myjudicial.com/${locale}/lawyers/${id}`,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
       locale: localeOg,
       type: "profile",
     },
@@ -98,7 +102,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: fallbackTitle,
       description: fallbackDesc,
-      images: ["/og-image.png"],
+      images: [ogImageUrl],
     },
   };
 }

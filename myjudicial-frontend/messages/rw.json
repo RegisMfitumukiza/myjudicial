@@ -1173,7 +1173,10 @@
       "reasonPaymentAbandoned": "Kwishyura byahagaritswe cyangwa igihe cyagenwe cyarangiye mbere yo kurangiza.",
       "noChargesMade": "Nta mafaranga yakuwe kuri konti yawe. Igihe wari watoranyije cyasubijwe mu bindi biboneka.",
       "browseLawyers": "Kongera gushaka abavoka"
-    }
+    },
+    "backToProfile": "Gusubira ku mwirondoro",
+    "signInToBook": "Injira kugira ngo utumize",
+    "guestBookingPrompt": "Ushobora guhitamo igihe ubu. Kwinjira bisabwa gusa mugihe wemeje gahunda yawe."
   },
   "common": {
     "loading": "Birimo gupakira...",

@@ -19,7 +19,7 @@ export function useRequireBookingAuth() {
     if (status === "loading") return false;
 
     if (status !== "authenticated") {
-      router.push(`/sign-in?callbackUrl=${encodeURIComponent(returnPath)}`);
+      router.replace(`/sign-in?callbackUrl=${encodeURIComponent(returnPath)}`);
       return false;
     }
 

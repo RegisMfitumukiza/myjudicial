@@ -1173,7 +1173,10 @@
       "reasonPaymentAbandoned": "Le paiement a été annulé ou a expiré avant finalisation.",
       "noChargesMade": "Aucun montant n'a été débité de votre compte. Votre créneau a été libéré.",
       "browseLawyers": "Parcourir à nouveau les avocats"
-    }
+    },
+    "backToProfile": "Retour au profil",
+    "signInToBook": "Se connecter pour réserver",
+    "guestBookingPrompt": "Vous pouvez choisir votre créneau maintenant. La connexion n'est requise qu'au moment de confirmer votre rendez-vous."
   },
   "common": {
     "loading": "Chargement...",

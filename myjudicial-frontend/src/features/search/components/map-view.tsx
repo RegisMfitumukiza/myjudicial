@@ -318,15 +318,15 @@ function createRichPopupHtml(props: {
     <div style="padding:0;min-width:280px;max-width:320px;font-family:system-ui,-apple-system,sans-serif;overflow:hidden">
 
       <div style="padding:14px 44px 10px 14px;position:relative;display:flex;gap:12px;align-items:flex-start">
-        <div style="position:relative;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:${BRAND};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">
+        <a href="${prefix}/lawyers/${props.lawyerId}" title="${props.t("viewProfile")}" style="text-decoration:none;position:relative;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:${BRAND};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
           ${props.avatarUrl
             ? `<img src="${props.avatarUrl}" alt="${props.name}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}" onerror="this.parentElement.innerHTML='${props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()}'" />`
             : props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()
           }
-        </div>
+        </a>
         <div style="min-width:0;flex:1">
           <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            <p style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.25;word-break:break-word">${props.name}</p>
+            <a href="${prefix}/lawyers/${props.lawyerId}" style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.25;word-break:break-word;text-decoration:none;cursor:pointer" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${props.name}</a>
             ${verifiedBadge}
           </div>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:3px">

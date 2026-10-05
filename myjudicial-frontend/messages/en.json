@@ -1307,7 +1307,10 @@
       "reasonPaymentAbandoned": "Payment was cancelled or timed out before completion.",
       "noChargesMade": "No charges were made to your account. Your slot has been released.",
       "browseLawyers": "Browse Lawyers Again"
-    }
+    },
+    "backToProfile": "Back to profile",
+    "signInToBook": "Sign in to Book",
+    "guestBookingPrompt": "You can select your consultation time now. Sign-in is only required when confirming your appointment."
   },
   "clientDashboard": {
     "messagesSubtitle": "Secure in-platform messaging with your lawyer",

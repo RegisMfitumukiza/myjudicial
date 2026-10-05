@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
+import { getGlobalSeoDefaults } from "@/features/public-content/page-metadata";
 
 export async function generateMetadata({
   params,
@@ -9,6 +10,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "helpPage.meta" });
+  const { ogImageUrl } = await getGlobalSeoDefaults();
 
   const languageUrls = {
     en: "https://myjudicial.com/en/help",
@@ -39,7 +41,7 @@ export async function generateMetadata({
       description: t("description"),
       url: pageUrl,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MyJudicial" }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: "MyJudicial" }],
       locale: locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US",
       type: "website",
     },
@@ -47,7 +49,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
-      images: ["/og-image.png"],
+      images: [ogImageUrl],
     },
   };
 }

@@ -158,4 +158,34 @@ export const uploadFarmImages = imageUpload.array("images", 10);
 export const uploadVerificationDocument =
   documentUpload.single("document");
 
+/**
+ * Single-image memory-storage upload for CMS / Admin Settings images.
+ * Accepts either "image" or "file" field (max 10 MB, images only).
+ */
+export const contentImageUpload = (req: any, res: any, next: any) => {
+  const upload = multer({
+    storage: memStorage,
+    limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+    fileFilter: (_req, file, cb) => {
+      if (!file.mimetype.startsWith("image/")) {
+        cb(new ValidationError("Only image files are allowed"));
+        return;
+      }
+      cb(null, true);
+    },
+  }).fields([{ name: "image", maxCount: 1 }, { name: "file", maxCount: 1 }]);
+
+  upload(req, res, (err: any) => {
+    if (err) return next(err);
+    if (req.files) {
+      if (req.files["image"]?.[0]) {
+        req.file = req.files["image"][0];
+      } else if (req.files["file"]?.[0]) {
+        req.file = req.files["file"][0];
+      }
+    }
+    next();
+  });
+};
+
 export default mixedUpload;

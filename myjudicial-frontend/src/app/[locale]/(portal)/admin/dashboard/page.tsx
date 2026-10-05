@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
 
   if (hasError) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("welcome")} description={t("subtitle")} />
         <ErrorState
           title={t("failedToLoad")}
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader title={t("welcome")} description={t("subtitle")} />
 
       {/* Action Required - only show if there are items needing attention */}
@@ -160,8 +160,8 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* Platform Overview - stable KPI grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* Platform Overview - Unified 6-metric responsive KPI grid */}
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         <StatCard
           label={t("totalUsers")}
           value={(platformStats?.totalUsers ?? 0).toLocaleString()}
@@ -184,10 +184,6 @@ export default function AdminDashboardPage() {
           value={formatRWF(platformStats?.totalRevenue)}
           icon={DollarSign}
         />
-      </div>
-
-      {/* Secondary Stats - stable, always rendered */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
         <StatCard
           label={t("newThisMonth")}
           value={(platformStats?.newUsersThisMonth ?? 0).toLocaleString()}
@@ -210,12 +206,12 @@ export default function AdminDashboardPage() {
             <p className="text-xs text-muted-foreground">{t("quickActionsDesc")}</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map((qa) => (
             <Link
               key={qa.href}
               href={qa.href}
-              className="group rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
+              className="group rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md min-w-0 flex flex-col justify-between"
             >
               <div className="flex items-start justify-between">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
@@ -229,11 +225,11 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Two-column: Recent verifications + Revenue chart */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 min-w-0">
         {/* Recent Verifications - single verification hub */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 min-w-0">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-base">{t("recentVerifications")}</CardTitle>
                 {pendingVerifications > 0 && (
@@ -259,7 +255,7 @@ export default function AdminDashboardPage() {
             {recentVerifications.length > 0 ? (
               <ul className="divide-y divide-border">
                 {recentVerifications.map((record) => (
-                  <li key={record.id} className="flex items-center gap-3 py-3">
+                  <li key={record.id} className="flex items-center gap-3 py-3 min-w-0">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <BadgeCheck className="h-4 w-4" aria-hidden="true" />
                     </div>
@@ -294,7 +290,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Revenue Chart */}
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-3 min-w-0 overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">{t("revenueLast7Days")}</CardTitle>
           </CardHeader>

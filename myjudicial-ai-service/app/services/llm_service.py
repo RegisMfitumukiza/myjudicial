@@ -2,6 +2,7 @@
 import httpx
 import json
 import logging
+import re
 import time
 from typing import Dict, Any, Optional, List
 
@@ -359,6 +360,26 @@ Translation:"""
                     return specialty
         return llm_specialty
 
+    COMMON_GREETINGS = {
+        "hello", "hi", "hey", "good morning", "good afternoon", "good evening", "how are you",
+        "bonjour", "bonsoir", "salut", "coucou", "comment ca va", "aide", "aidez moi", "aidez-moi",
+        "muraho", "mwiriwe", "bite", "amakuru", "ndabasuhuza", "mwaramutse", "mfasha", "uramutse",
+        "greetings", "test", "help", "help me"
+    }
+
+    def _is_greeting_or_short(self, text: str) -> bool:
+        """Detect if input is a conversational greeting or insufficient short query"""
+        cleaned = re.sub(r'[^\w\s]', '', text.lower()).strip()
+        if not cleaned:
+            return True
+        if cleaned in self.COMMON_GREETINGS:
+            return True
+        words = cleaned.split()
+        if len(words) <= 2 and not self._keyword_pre_classify(text):
+            if words[0] in self.COMMON_GREETINGS:
+                return True
+        return False
+
     async def analyze_case(
         self,
         text: str,
@@ -375,6 +396,37 @@ Translation:"""
             Structured case analysis with specialty, urgency, budget, etc.
         """
         start_time = time.time()
+
+        # Step 0: Check for conversational greeting or short non-case input
+        if self._is_greeting_or_short(text):
+            processing_time = time.time() - start_time
+            cleaned = text.lower().strip()
+            if any(w in cleaned for w in ["bonjour", "bonsoir", "salut", "comment"]):
+                greeting_msg = "Bonjour ! Je suis votre assistant juridique IA MyJudicial. Décrivez votre situation ou votre question juridique pour recevoir une orientation et des recommandations d'avocats certifiés."
+            elif any(w in cleaned for w in ["muraho", "mwiriwe", "bite", "amakuru", "mfasha"]):
+                greeting_msg = "Muraho! Ndi umufasha wawe mu by'amategeko wa MyJudicial. Sobanura ikibazo cyawe cyangwa ubufasha ukeneye kugira ngo ngufashe kugena inzira ikwiye no kuguha abanyamategeko babifitiye ubushobozi."
+            else:
+                greeting_msg = "Hello! I'm your MyJudicial AI Legal Assistant. Please describe your legal matter (such as a land dispute, employment issue, contract, or criminal case) so I can help evaluate it and match you with verified advocates."
+
+            return {
+                "success": True,
+                "analysis": {
+                    "specialty": "UNKNOWN",
+                    "urgency_level": "LOW",
+                    "jurisdiction": "RWANDA",
+                    "budget_range": {"min": 0, "max": 0, "currency": "RWF"},
+                    "key_entities": [],
+                    "suggested_documents": [],
+                    "confidence_score": 0.0,
+                    "reasoning": greeting_msg,
+                    "possible_legal_issues": [],
+                    "is_greeting": True,
+                    "greeting_message": greeting_msg
+                },
+                "llm_model": "heuristic",
+                "llm_provider": "local",
+                "processing_time": processing_time
+            }
 
         # Step 1: Keyword pre-classification
         keyword_specialty = self._keyword_pre_classify(text)

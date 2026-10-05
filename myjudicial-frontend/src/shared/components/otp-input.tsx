@@ -97,7 +97,7 @@ export function OtpInput({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 sm:gap-3" role="group" aria-label="One-time password input">
+      <div className="flex items-center justify-center gap-1.5 min-[360px]:gap-2 sm:gap-3" role="group" aria-label="One-time password input">
         {getValues().map((char, i) => (
           <input
             key={`${id}-${i}`}
@@ -114,13 +114,13 @@ export function OtpInput({
             onFocus={(e) => e.target.select()}
             aria-label={`Digit ${i + 1}`}
             className={cn(
-              "h-12 w-10 rounded-xl border text-center text-xl font-bold tracking-widest shadow-sm transition-all",
-              "focus:outline-none focus:ring-2 focus:ring-brand-blue/20",
+              "h-10 w-7 min-[320px]:h-11 min-[320px]:w-8 min-[360px]:h-12 min-[360px]:w-9 sm:w-10 rounded-lg min-[360px]:rounded-xl border text-center text-base min-[320px]:text-lg min-[360px]:text-xl font-bold tracking-widest shadow-sm transition-all shrink-0",
+              "focus:outline-none focus:ring-2 focus:ring-brand-dark/20 dark:focus:ring-white/20",
               char
-                ? "border-brand-blue bg-blue-50 text-brand-dark"
+                ? "border-brand-dark dark:border-white bg-accent text-foreground"
                 : error
-                  ? "border-red-300 bg-red-50/30 text-brand-dark"
-                  : "border-slate-200 bg-white text-brand-dark",
+                  ? "border-destructive bg-destructive/10 text-foreground"
+                  : "border-border bg-background text-foreground",
               disabled && "opacity-50 cursor-not-allowed",
             )}
           />

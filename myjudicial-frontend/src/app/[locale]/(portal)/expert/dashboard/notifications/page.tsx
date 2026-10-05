@@ -170,7 +170,7 @@ export default function NotificationsPage() {
   const hasUnread = unreadCount > 0;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={
@@ -184,6 +184,7 @@ export default function NotificationsPage() {
             size="sm"
             onClick={() => markAllReadMutation.mutate()}
             disabled={!hasUnread || markAllReadMutation.isPending}
+            className="w-full sm:w-auto"
           >
             {markAllReadMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -234,7 +235,7 @@ export default function NotificationsPage() {
                     className={cn(
                       "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
                       isUnread
-                        ? "bg-primary/10 text-primary"
+                        ? "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -254,7 +255,7 @@ export default function NotificationsPage() {
                     </p>
                   </div>
                   {isUnread && (
-                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                    <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-600 dark:bg-blue-500" />
                   )}
                 </div>
               );
@@ -262,7 +263,7 @@ export default function NotificationsPage() {
           </div>
 
           {pagination && pagination.totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border pt-4">
               <p className="text-sm text-muted-foreground">
                 {t("pageOf", { page: pagination.page, totalPages: pagination.totalPages, total: pagination.total })}
               </p>

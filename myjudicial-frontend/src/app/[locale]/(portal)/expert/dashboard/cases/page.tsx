@@ -132,21 +132,21 @@ export default function CasesPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("casesTitle")}
         description={t("casesDesc")}
         actions={
-          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5 max-w-full overflow-x-auto scrollbar-none">
             {TABS.map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={
+                className={`shrink-0 ${
                   activeTab === key
                     ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
                     : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                }
+                }`}
               >
                 {label}
                 <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary dark:bg-white/10 dark:text-white">
@@ -158,7 +158,7 @@ export default function CasesPage() {
         }
       />
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label={t("casesStatActive")} value={grouped.active.length} icon={Layers} />
         <StatCard label={t("casesStatAwaiting")} value={awaitingDecision} icon={Hourglass} />
         <StatCard label={t("casesStatCompleted")} value={grouped.completed.length} icon={CheckCircle2} />

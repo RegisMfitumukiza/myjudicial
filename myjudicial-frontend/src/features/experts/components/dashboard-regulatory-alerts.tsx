@@ -27,7 +27,7 @@ const SEVERITY_STYLES: Record<RegulatoryAlert["severity"], { border: string; bg:
 export function RegulatoryAlerts({ alerts }: RegulatoryAlertsProps) {
   const t = useTranslations("expertDashboard");
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0">
       <div className="flex items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-warning/10">
           <ShieldAlert size={14} className="text-warning" aria-hidden="true" />

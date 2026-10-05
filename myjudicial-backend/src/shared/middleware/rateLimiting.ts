@@ -232,3 +232,21 @@ export const perUserLimiter = rateLimit({
   },
   message: { success: false, message: "You are sending too many requests. Please slow down." },
 });
+
+/**
+ * Limiter for public form submissions (Careers application, Contact inquiries).
+ * Max 5 submissions per 15 minutes per IP in production (30 in development).
+ * Protects Brevo email quotas and administrative inboxes against flood attacks.
+ */
+export const publicFormLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: envMax("PUBLIC_FORM_RATE_LIMIT_MAX", isProd ? 5 : 30),
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createRedisStore("rl:public-form:"),
+  message: {
+    success: false,
+    message: "Too many form submissions from this network. Please wait a few minutes before submitting again.",
+  },
+});
+

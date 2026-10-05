@@ -27,7 +27,7 @@ export async function generateMetadata({
       description: t("description"),
       url: `https://myjudicial.com/${locale}/how-it-works`,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "How MyJudicial Works" }],
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: t("ogAlt") }],
       locale: locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US",
       type: "website",
     },
@@ -52,6 +52,38 @@ export default async function HowItWorksPage({
   const initialTab = tab === "advocates" || tab === "lawyers" ? "advocates" : "clients";
   const t = await getTranslations({ locale, namespace: "howItWorksPage" });
 
+  const clientSteps = [1, 2, 3, 4].map((stepNum) => ({
+    "@type": "HowToStep",
+    position: stepNum,
+    name: t(`clientJourney.step${stepNum}.title` as any),
+    text: t(`clientJourney.step${stepNum}.desc` as any),
+  }));
+
+  const advocateSteps = [1, 2, 3, 4].map((stepNum) => ({
+    "@type": "HowToStep",
+    position: stepNum,
+    name: t(`advocateJourney.step${stepNum}.title` as any),
+    text: t(`advocateJourney.step${stepNum}.desc` as any),
+  }));
+
+  const clientFaqs = [1, 2, 3, 4, 5, 6].map((num) => ({
+    "@type": "Question",
+    name: t(`faqs.clientQ${num}` as any),
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: t(`faqs.clientA${num}` as any),
+    },
+  }));
+
+  const advocateFaqs = [1, 2, 3, 4, 5, 6].map((num) => ({
+    "@type": "Question",
+    name: t(`faqs.advocateQ${num}` as any),
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: t(`faqs.advocateA${num}` as any),
+    },
+  }));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -59,43 +91,17 @@ export default async function HowItWorksPage({
         "@type": "HowTo",
         name: t("clientJourney.title"),
         description: t("clientJourney.subtitle"),
-        step: [
-          {
-            "@type": "HowToStep",
-            position: 1,
-            name: t("clientJourney.step1.title"),
-            text: t("clientJourney.step1.desc"),
-          },
-          {
-            "@type": "HowToStep",
-            position: 2,
-            name: t("clientJourney.step2.title"),
-            text: t("clientJourney.step2.desc"),
-          },
-          {
-            "@type": "HowToStep",
-            position: 3,
-            name: t("clientJourney.step3.title"),
-            text: t("clientJourney.step3.desc"),
-          },
-          {
-            "@type": "HowToStep",
-            position: 4,
-            name: t("clientJourney.step4.title"),
-            text: t("clientJourney.step4.desc"),
-          },
-        ],
+        step: clientSteps,
+      },
+      {
+        "@type": "HowTo",
+        name: t("advocateJourney.title"),
+        description: t("advocateJourney.subtitle"),
+        step: advocateSteps,
       },
       {
         "@type": "FAQPage",
-        mainEntity: [1, 2, 3, 4, 5, 6].map((num) => ({
-          "@type": "Question",
-          name: t(`faqs.clientQ${num}` as any),
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: t(`faqs.clientA${num}` as any),
-          },
-        })),
+        mainEntity: [...clientFaqs, ...advocateFaqs],
       },
     ],
   };

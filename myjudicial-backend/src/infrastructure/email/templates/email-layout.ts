@@ -7,13 +7,55 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 const EMAIL_LOGO_URL =
   process.env.EMAIL_LOGO_URL || `${FRONTEND_URL}/myjudicial-logo-white.png`;
 
+export type EmailLanguage = 'en' | 'fr' | 'rw';
+
+export interface EmailLayoutOptions {
+  previewText?: string;
+  language?: EmailLanguage;
+  tagline?: string;
+  copyrightNotice?: string;
+  hidePromotionalLinks?: boolean;
+}
+
+const DEFAULT_TAGLINES: Record<EmailLanguage, string> = {
+  en: "Rwanda Legal Services Platform",
+  fr: "Plateforme de services juridiques au Rwanda",
+  rw: "Urubuga rwa serivisi z'amategeko mu Rwanda",
+};
+
+const FOOTER_STRINGS: Record<EmailLanguage, { home: string; findExperts: string; support: string; allRightsReserved: string; location: string }> = {
+  en: {
+    home: "Home",
+    findExperts: "Find Experts",
+    support: "Support",
+    allRightsReserved: "All rights reserved.",
+    location: "Kigali, Rwanda",
+  },
+  fr: {
+    home: "Accueil",
+    findExperts: "Trouver des experts",
+    support: "Support",
+    allRightsReserved: "Tous droits réservés.",
+    location: "Kigali, Rwanda",
+  },
+  rw: {
+    home: "Ahabanza",
+    findExperts: "Shaka Inzobere",
+    support: "Ubufasha",
+    allRightsReserved: "Uburenganzira bwose burabitswe.",
+    location: "Kigali, u Rwanda",
+  },
+};
+
 /**
  * Build a full-page branded email layout.
  * Every email wraps its content in this shell for consistent branding.
  */
-export const emailLayout = (content: string, options?: { previewText?: string }): string => `
+export const emailLayout = (content: string, options?: EmailLayoutOptions): string => {
+  const language: EmailLanguage = options?.language || 'en';
+  return `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="${language}">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,23 +88,26 @@ export const emailLayout = (content: string, options?: { previewText?: string })
     <tr>
       <td align="center" style="padding:24px 16px;">
         <table class="email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="560" style="max-width:560px;margin:0 auto;">
-          ${emailHeader()}
+          ${emailHeader(options?.tagline, language)}
           ${content}
-          ${emailFooter()}
+          ${emailFooter(language, options?.copyrightNotice, options?.hidePromotionalLinks)}
         </table>
       </td>
     </tr>
   </table>
 </body>
 </html>`;
+};
 
 /**
  * Branded email header with logo.
  */
-const emailHeader = (): string => `
+const emailHeader = (tagline?: string, language: EmailLanguage = 'en'): string => {
+  const displayTagline = tagline || DEFAULT_TAGLINES[language] || DEFAULT_TAGLINES.en;
+  return `
 <tr>
   <td style="padding:32px 40px 24px;text-align:center;background-color:#24558d;border-radius:12px 12px 0 0;">
-    <a href="${FRONTEND_URL}" target="_blank" style="text-decoration:none;">
+    <a href="${FRONTEND_URL}/${language}" target="_blank" style="text-decoration:none;">
       <img
         src="${EMAIL_LOGO_URL}"
         alt="MyJudicial"
@@ -72,35 +117,56 @@ const emailHeader = (): string => `
       />
     </a>
     <p style="margin:10px 0 0;font-size:13px;color:#94a3b8;letter-spacing:0.5px;">
-      Rwanda Legal Services Platform
+      ${displayTagline}
     </p>
   </td>
 </tr>`;
+};
 
 /**
  * Branded email footer with links and legal text.
  */
-const emailFooter = (): string => `
+const emailFooter = (
+  language: EmailLanguage = 'en',
+  copyrightNotice?: string,
+  hidePromotionalLinks = false
+): string => {
+  const t = FOOTER_STRINGS[language] || FOOTER_STRINGS.en;
+  const currentYear = new Date().getFullYear();
+  let copyrightText = `&copy; ${currentYear} MyJudicial. ${t.allRightsReserved}`;
+
+  if (copyrightNotice && copyrightNotice.trim()) {
+    copyrightText = copyrightNotice.trim().replace(/^(?:&copy;|©|\(c\))\s*/i, `&copy; `);
+  }
+
+  const linksHtml = hidePromotionalLinks
+    ? `<a href="${FRONTEND_URL}/${language}" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.home}</a>
+       <span style="color:#475569;">|</span>
+       <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.support}</a>`
+    : `<a href="${FRONTEND_URL}/${language}" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.home}</a>
+       <span style="color:#475569;">|</span>
+       <a href="${FRONTEND_URL}/${language}/experts" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.findExperts}</a>
+       <span style="color:#475569;">|</span>
+       <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.support}</a>`;
+
+  return `
 <tr>
   <td style="padding:24px 40px 32px;background-color:#24558d;border-radius:0 0 12px 12px;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
       <tr>
         <td style="text-align:center;padding-bottom:16px;">
-          <a href="${FRONTEND_URL}" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Home</a>
-          <span style="color:#475569;">|</span>
-          <a href="${FRONTEND_URL}/experts" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Find Experts</a>
-          <span style="color:#475569;">|</span>
-          <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">Support</a>
+          ${linksHtml}
         </td>
       </tr>
       <tr>
-          <td style="text-align:center;border-top:1px solid #3a6ea8;padding-top:16px;">
+        <td style="text-align:center;border-top:1px solid #3a6ea8;padding-top:16px;">
           <p style="margin:0;color:#64748b;font-size:12px;line-height:1.6;">
-            &copy; ${new Date().getFullYear()} MyJudicial. All rights reserved.<br/>
-            Kigali, Rwanda
+            ${copyrightText}<br/>
+            ${t.location}
           </p>
         </td>
       </tr>
     </table>
   </td>
 </tr>`;
+};

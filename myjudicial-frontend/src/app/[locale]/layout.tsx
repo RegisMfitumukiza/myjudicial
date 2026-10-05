@@ -1,4 +1,4 @@
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTimeZone, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { IntlProvider } from "@/i18n/intl-provider";
@@ -25,10 +25,13 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  const messages = await getMessages();
+  const [messages, timeZone] = await Promise.all([
+    getMessages(),
+    getTimeZone(),
+  ]);
 
   return (
-    <IntlProvider locale={locale} messages={messages}>
+    <IntlProvider locale={locale} messages={messages} timeZone={timeZone}>
       {children}
       <Toaster position="top-right" richColors closeButton />
     </IntlProvider>

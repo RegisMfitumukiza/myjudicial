@@ -146,17 +146,17 @@ function SectionRow({
 }) {
   const t = useTranslations("landing");
   return (
-    <section className={`py-10 ${className}`}>
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
+    <section className={`py-8 sm:py-10 ${className}`}>
+      <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
+        <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-4">
           <div>
-            <h2 className="text-xl font-bold text-foreground sm:text-2xl">{title}</h2>
-            {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+            <h2 className="text-lg min-[360px]:text-xl font-bold text-foreground sm:text-2xl break-words">{title}</h2>
+            {subtitle && <p className="mt-1 text-xs min-[360px]:text-sm text-muted-foreground break-words">{subtitle}</p>}
           </div>
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="self-start sm:self-auto shrink-0 flex items-center gap-1 text-sm font-semibold text-brand-dark dark:text-white hover:underline"
+              className="self-start sm:self-auto shrink-0 flex items-center gap-1 text-xs min-[360px]:text-sm font-semibold text-brand-dark dark:text-white hover:underline"
             >
               {t("sections.viewAll")} <ChevronRight size={14} />
             </Link>
@@ -170,7 +170,7 @@ function SectionRow({
 
 function ExpertCardSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-4">
+    <div className="animate-pulse rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-4">
       <div className="flex items-start gap-3">
         <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
         <div className="flex-1 space-y-1.5">
@@ -192,7 +192,7 @@ function ExpertCardSkeleton() {
 
 function PracticeAreaSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-4">
+    <div className="animate-pulse rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-4">
       <div className="h-10 w-10 rounded-xl bg-muted" />
       <div className="mt-3 h-4 w-3/4 rounded bg-muted" />
       <div className="mt-1.5 h-3 w-1/2 rounded bg-muted" />
@@ -209,9 +209,9 @@ function ExpertHorizontalRow({
 }) {
   if (isLoading) {
     return (
-      <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 min-[360px]:-mx-4 min-[360px]:px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="w-[260px] shrink-0 sm:w-auto">
+          <div key={i} className="w-[230px] min-[360px]:w-[260px] shrink-0 sm:w-auto">
             <ExpertCardSkeleton />
           </div>
         ))}
@@ -220,9 +220,9 @@ function ExpertHorizontalRow({
   }
   if (!experts.length) return null;
   return (
-    <div className="flex gap-3.5 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+    <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 min-[360px]:-mx-4 min-[360px]:px-4 scrollbar-none snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
       {experts.map((e) => (
-        <div key={e.id} className="w-[260px] shrink-0 snap-start sm:w-auto">
+        <div key={e.id} className="w-[230px] min-[360px]:w-[260px] shrink-0 snap-start sm:w-auto">
           <ExpertCard expert={e} />
         </div>
       ))}
@@ -241,14 +241,15 @@ function PracticeAreaCard({ area }: { area: PracticeArea }) {
   return (
     <Link
       href={`/search?specialty=${encodeURIComponent(area.specialty)}`}
-      className="group flex flex-col items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30 w-full"
+      className="group flex flex-col items-start gap-2.5 sm:gap-3 rounded-2xl border border-border bg-card p-3.5 sm:p-4 text-left transition-all hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30 w-full min-w-0"
     >
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${SPECIALTY_ICON_CHIP} transition-transform group-hover:scale-105`}>
-        <Icon size={20} />
+      <div className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl ${SPECIALTY_ICON_CHIP} transition-transform group-hover:scale-105`}>
+        <Icon size={18} className="sm:hidden" />
+        <Icon size={20} className="hidden sm:block" />
       </div>
-      <div>
-        <p className="text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors">{label}</p>
-        <p className="text-[12px] text-muted-foreground">
+      <div className="min-w-0 w-full">
+        <p className="text-[13px] sm:text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors break-words leading-snug">{label}</p>
+        <p className="text-[11px] sm:text-[12px] text-muted-foreground mt-0.5 truncate">
           {t("card.expertCount", { count: area.expertCount })}
         </p>
       </div>
@@ -342,33 +343,35 @@ export default function LandingPage() {
     <div className="bg-background min-h-[calc(100vh-4rem)] pb-12 sm:pb-8">
 
       {/* ── HERO BANNER — value proposition for first-time visitors ───────── */}
-      <div className="bg-background pt-10 pb-7 sm:pt-14 sm:pb-9">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
-          {/* Verified Network Badge */}
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-3.5 sm:mb-4.5 shadow-xs">
-            <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
-            <span>{t("hero.badge")}</span>
+      <div className="bg-background pt-8 pb-6 sm:pt-14 sm:pb-9">
+        <div className="mx-auto max-w-4xl px-3 min-[360px]:px-4 sm:px-6 text-center">
+          <div className="mx-auto max-w-3xl text-center">
+            {/* Verified Network Badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3 py-1 sm:px-3.5 text-xs font-semibold text-foreground mb-3.5 sm:mb-5 shadow-2xs">
+              <BadgeCheck size={14} className="text-brand-dark dark:text-white shrink-0" />
+              <span className="truncate">{t("hero.badge")}</span>
+            </div>
+
+            {/* H1 Title */}
+            <h1 className="text-2xl min-[360px]:text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.16] sm:leading-[1.12] break-words text-balance">
+              {t("hero.title")}
+            </h1>
+
+            {/* Subtitle */}
+            <p className="mx-auto mt-3.5 sm:mt-4 max-w-2xl text-xs min-[360px]:text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed text-balance break-words">
+              {t("hero.subtitle")}
+            </p>
           </div>
-
-          {/* H1 Title */}
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.18] sm:leading-[1.14] text-balance">
-            {t("hero.title")}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="mx-auto mt-3.5 sm:mt-4.5 max-w-2xl text-base text-muted-foreground sm:text-lg leading-relaxed">
-            {t("hero.subtitle")}
-          </p>
         </div>
       </div>
 
       {/* ── SEARCH ZONE ─────────────────────────────────────────────────── */}
       <div className="relative z-30 bg-background border-y border-border shadow-xs">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-2.5 sm:py-3">
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 w-full">
+        <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6 py-2.5 sm:py-3">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 w-full min-w-0">
 
             {/* Left/Top Group: Specialty picker (sm+) + Full-Width Search Input */}
-            <div className="flex flex-1 items-center gap-2 w-full lg:max-w-2xl">
+            <div className="flex flex-1 items-center gap-2 w-full lg:max-w-2xl min-w-0">
               {/* Specialty picker (visible on sm+; on mobile it sits in the scrollable filter strip below) */}
               <div className="relative shrink-0 hidden sm:block" ref={categoryRef}>
                 <button
@@ -418,7 +421,7 @@ export default function LandingPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) router.push(`/search?q=${encodeURIComponent(search.trim())}`); }}
-                  className="flex-1 min-w-0 bg-transparent px-4 py-2 sm:py-2.5 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+                  className="flex-1 min-w-0 bg-transparent px-3 min-[360px]:px-4 py-2 sm:py-2.5 text-[12px] min-[360px]:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
                 />
                 {search && (
                   <button
@@ -440,7 +443,7 @@ export default function LandingPage() {
             </div>
 
             {/* Filters Row — on mobile/tablet it smoothly scrolls horizontally; on lg it sits inline */}
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5 lg:pb-0 w-full lg:w-auto shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none pb-0.5 lg:pb-0 w-full lg:w-auto shrink-0 min-w-0">
               {/* Specialty picker button on small mobile screens (< sm) */}
               <div className="relative shrink-0 sm:hidden">
                 <button
@@ -519,48 +522,51 @@ export default function LandingPage() {
       </div>
 
       {/* ── LIVE STATS & TRUST PROOF STRIP ───────────────────────────────── */}
-      <div className="border-b border-border bg-card/40 py-3.5 sm:py-4">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-          <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6">
+      <div className="border-b border-border bg-card/40 py-3 sm:py-4">
+        <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 sm:gap-x-6">
             {/* Live Metric Badges */}
             {showStats && (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 {publicStats!.totalLawyers > 0 && (
-                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                      <Scale size={15} />
+                  <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+                      <Scale size={14} className="sm:hidden" />
+                      <Scale size={15} className="hidden sm:block" />
                     </div>
-                    <div>
-                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                    <div className="min-w-0">
+                      <p className="text-xs min-[360px]:text-sm sm:text-base font-bold leading-tight text-foreground">
                         {publicStats!.totalLawyers.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.lawyers")}</p>
+                      <p className="text-[10px] min-[360px]:text-[11px] text-muted-foreground leading-none">{t("stats.lawyers")}</p>
                     </div>
                   </div>
                 )}
                 {publicStats!.totalPracticeAreas > 0 && (
-                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                      <LayoutGrid size={15} />
+                  <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+                      <LayoutGrid size={14} className="sm:hidden" />
+                      <LayoutGrid size={15} className="hidden sm:block" />
                     </div>
-                    <div>
-                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                    <div className="min-w-0">
+                      <p className="text-xs min-[360px]:text-sm sm:text-base font-bold leading-tight text-foreground">
                         {publicStats!.totalPracticeAreas.toLocaleString()}
                       </p>
-                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.areas")}</p>
+                      <p className="text-[10px] min-[360px]:text-[11px] text-muted-foreground leading-none">{t("stats.areas")}</p>
                     </div>
                   </div>
                 )}
                 {publicStats!.completedConsultations > 0 && (
-                  <div className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-card px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent text-foreground">
-                      <CalendarCheck size={15} />
+                  <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+                      <CalendarCheck size={14} className="sm:hidden" />
+                      <CalendarCheck size={15} className="hidden sm:block" />
                     </div>
-                    <div>
-                      <p className="text-sm sm:text-base font-bold leading-tight text-foreground">
+                    <div className="min-w-0">
+                      <p className="text-xs min-[360px]:text-sm sm:text-base font-bold leading-tight text-foreground">
                         {publicStats!.completedConsultations.toLocaleString()}<span className="text-brand-dark dark:text-white">+</span>
                       </p>
-                      <p className="text-[11px] text-muted-foreground leading-none">{t("stats.consultations")}</p>
+                      <p className="text-[10px] min-[360px]:text-[11px] text-muted-foreground leading-none">{t("stats.consultations")}</p>
                     </div>
                   </div>
                 )}
@@ -568,11 +574,11 @@ export default function LandingPage() {
             )}
 
             {/* Trust Badges */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-3.5 min-[360px]:gap-x-5 gap-y-2 text-[11px] min-[360px]:text-xs font-medium text-muted-foreground">
               {TRUST_BAR_KEYS.map(({ icon: Icon, key }) => (
                 <div key={key} className="flex items-center gap-1.5">
                   <Icon size={13} className="text-brand-dark dark:text-white shrink-0" />
-                  <span>{t(key)}</span>
+                  <span className="break-words">{t(key)}</span>
                 </div>
               ))}
             </div>
@@ -584,7 +590,7 @@ export default function LandingPage() {
       {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
           {areasLoading ? (
             <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
               </div>
             </SectionRow>
@@ -592,7 +598,7 @@ export default function LandingPage() {
             <SectionFadeIn show={showPracticeAreas}>
               <SectionRetryBoundary>
                 <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                  <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {practiceAreas?.map((area) => (
                       <PracticeAreaCard key={area.specialty} area={area} />
                     ))}
@@ -661,32 +667,32 @@ export default function LandingPage() {
                   {t("howItWorks.learnMore")} <ChevronRight size={14} />
                 </Link>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+              <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-3">
+                <div className="flex gap-3 min-[360px]:gap-4 rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-5 min-w-0">
+                  <div className="flex h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
                     <Search size={18} className="text-brand-dark dark:text-white" />
                   </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step1title")}</p>
-                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step1text")}</p>
+                  <div className="min-w-0">
+                    <p className="text-[13px] min-[360px]:text-[14px] font-semibold text-foreground break-words">{t("howItWorks.step1title")}</p>
+                    <p className="mt-1 text-xs min-[360px]:text-[13px] text-muted-foreground leading-relaxed break-words">{t("howItWorks.step1text")}</p>
                   </div>
                 </div>
-                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+                <div className="flex gap-3 min-[360px]:gap-4 rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-5 min-w-0">
+                  <div className="flex h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
                     <FileText size={18} className="text-brand-dark dark:text-white" />
                   </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step2title")}</p>
-                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step2text")}</p>
+                  <div className="min-w-0">
+                    <p className="text-[13px] min-[360px]:text-[14px] font-semibold text-foreground break-words">{t("howItWorks.step2title")}</p>
+                    <p className="mt-1 text-xs min-[360px]:text-[13px] text-muted-foreground leading-relaxed break-words">{t("howItWorks.step2text")}</p>
                   </div>
                 </div>
-                <div className="flex gap-4 rounded-2xl border border-border bg-card p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
+                <div className="flex gap-3 min-[360px]:gap-4 rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-5 min-w-0">
+                  <div className="flex h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10">
                     <CalendarCheck size={18} className="text-brand-dark dark:text-white" />
                   </div>
-                  <div>
-                    <p className="text-[14px] font-semibold text-foreground">{t("howItWorks.step3title")}</p>
-                    <p className="mt-1 text-[13px] text-muted-foreground leading-relaxed">{t("howItWorks.step3text")}</p>
+                  <div className="min-w-0">
+                    <p className="text-[13px] min-[360px]:text-[14px] font-semibold text-foreground break-words">{t("howItWorks.step3title")}</p>
+                    <p className="mt-1 text-xs min-[360px]:text-[13px] text-muted-foreground leading-relaxed break-words">{t("howItWorks.step3text")}</p>
                   </div>
                 </div>
               </div>
@@ -694,39 +700,42 @@ export default function LandingPage() {
           </section>
 
           {/* ⑦ AI Assistant CTA — core product differentiator */}
-          <section className="bg-background py-10">
-            <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-              <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-brand-dark/20 bg-brand-dark/5 dark:border-white/10 dark:bg-white/5 px-6 py-8">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark text-on-brand">
-                  <Bot size={26} />
+          <section className="bg-background py-8 sm:py-10">
+            <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-2xl border border-brand-dark/20 bg-brand-dark/5 dark:border-white/10 dark:bg-white/5 p-4 sm:p-6 lg:p-8">
+                <div className="flex h-11 w-11 min-[360px]:h-12 min-[360px]:w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark text-on-brand">
+                  <Bot size={22} className="min-[360px]:hidden" />
+                  <Bot size={24} className="hidden min-[360px]:block sm:hidden" />
+                  <Bot size={26} className="hidden sm:block" />
                 </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h3 className="text-lg font-bold text-foreground">{t("aiCta.title")}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{t("aiCta.subtitle")}</p>
+                <div className="flex-1 text-center sm:text-left min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-foreground break-words">{t("aiCta.title")}</h3>
+                  <p className="mt-1 text-xs sm:text-sm text-muted-foreground break-words leading-relaxed">{t("aiCta.subtitle")}</p>
                 </div>
                 <Link
                   href="/ai"
-                  className="shrink-0 flex items-center gap-2 rounded-full bg-brand-dark text-on-brand px-6 py-2.5 text-sm font-semibold transition hover:opacity-90"
+                  className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 rounded-full bg-brand-dark text-on-brand px-5 py-2.5 sm:px-6 text-sm font-semibold transition hover:opacity-90 text-center"
                 >
-                  {t("aiCta.button")} <ArrowRight size={14} />
+                  <span>{t("aiCta.button")}</span>
+                  <ArrowRight size={14} className="shrink-0" />
                 </Link>
               </div>
             </div>
           </section>
 
           {/* ⑦ Why Trust Us — final reassurance before footer, always present */}
-          <section className="bg-background py-10 border-t border-border">
-            <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-              <h2 className="mb-6 text-xl font-bold text-foreground sm:text-2xl">{t("trustWhy.title")}</h2>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <section className="bg-background py-8 sm:py-10 border-t border-border">
+            <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
+              <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-bold text-foreground sm:text-2xl">{t("trustWhy.title")}</h2>
+              <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 {TRUST_WHY_KEYS.map(({ icon: Icon, titleKey, descKey }) => (
-                  <div key={titleKey} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark/10">
+                  <div key={titleKey} className="flex flex-col gap-2.5 sm:gap-3 rounded-2xl border border-border bg-card p-3.5 min-[360px]:p-5 min-w-0">
+                    <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-brand-dark/10 shrink-0">
                       <Icon size={18} className="text-brand-dark dark:text-white" />
                     </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-foreground">{t(titleKey)}</p>
-                      <p className="mt-0.5 text-[12px] text-muted-foreground leading-relaxed">{t(descKey)}</p>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-foreground break-words">{t(titleKey)}</p>
+                      <p className="mt-0.5 text-[11px] sm:text-[12px] text-muted-foreground leading-relaxed break-words">{t(descKey)}</p>
                     </div>
                   </div>
                 ))}

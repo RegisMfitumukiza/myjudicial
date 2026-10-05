@@ -263,7 +263,7 @@ export default function BookingsPage() {
 
   if (bookingsError) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState
           title={t("failedToLoad")}
@@ -274,7 +274,7 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -282,7 +282,7 @@ export default function BookingsPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <StatCard
             label={t("total")}
             value={stats.totalBookings.toLocaleString()}
@@ -318,9 +318,9 @@ export default function BookingsPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap items-center gap-3">
+        <CardContent className="p-3.5 sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Filter size={16} className="shrink-0 text-muted-foreground" />
               <Select
                 value={statusFilter}
@@ -329,7 +329,7 @@ export default function BookingsPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full min-[360px]:w-[140px] flex-1 min-w-[120px]">
                   <SelectValue placeholder={t("allStatus")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -347,12 +347,14 @@ export default function BookingsPage() {
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
                 placeholder={t("from")}
+                className="w-full min-[360px]:w-auto flex-1 min-w-[120px]"
               />
               <Input
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
                 placeholder={t("to")}
+                className="w-full min-[360px]:w-auto flex-1 min-w-[120px]"
               />
             </div>
             <Input

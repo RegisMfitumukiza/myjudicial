@@ -46,7 +46,7 @@ export function ExpertAvatar({ src, name, size = "md", shape = "circle", classNa
 
   return (
     <div
-      className={`relative inline-flex shrink-0 items-center justify-center ${shapeClass} bg-brand-dark text-white dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/15 font-bold ${sizeClasses[size]} ${className}`}
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden ${shapeClass} bg-brand-dark text-white dark:bg-slate-800 dark:text-slate-100 dark:border dark:border-white/15 font-bold select-none ${sizeClasses[size]} ${className}`}
     >
       {showImage ? (
         <img
@@ -57,7 +57,7 @@ export function ExpertAvatar({ src, name, size = "md", shape = "circle", classNa
           onError={handleError}
         />
       ) : (
-        <span aria-hidden="true">{initials}</span>
+        <span aria-hidden="true" className="tracking-tight">{initials}</span>
       )}
     </div>
   );

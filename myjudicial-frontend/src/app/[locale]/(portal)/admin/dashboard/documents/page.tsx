@@ -192,7 +192,7 @@ export default function DocumentsPage() {
   ] as const;
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -218,7 +218,7 @@ export default function DocumentsPage() {
       {!isLoading && !isError && documents.length > 0 && (
         <>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative max-w-xs flex-1">
+            <div className="relative w-full sm:max-w-xs flex-1 min-w-[160px]">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
@@ -228,7 +228,7 @@ export default function DocumentsPage() {
               />
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {roleFilter.map((f) => (
                 <Button
                   key={f.value}

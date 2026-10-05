@@ -13,6 +13,7 @@
     "db:push": "cross-env DIRECT_URL=$DATABASE_URL prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:experts": "tsx prisma/seed-experts.ts",
+    "db:seed:content": "tsx prisma/seed-content-pages.ts",
     "fix:role": "tsx scripts/fix-user-role.ts",
     "test": "node tests/run.mjs",
     "test:coverage": "c8 --all --include=src --exclude=src/generated --reporter=text --reporter=lcov --check-coverage --lines=40 --statements=40 --functions=30 --branches=70 npm test",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,14 +9,6 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Field,
@@ -86,28 +78,28 @@ export function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <Card className="border-brand-border bg-card shadow-sm">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-semibold text-brand-dark">{t("newPasswordHeading")}</CardTitle>
-        <CardDescription className="text-muted-foreground">
+    <div className="w-full">
+      <div className="mb-6 space-y-1">
+        <h1 className="text-2xl font-semibold text-foreground">{t("newPasswordHeading")}</h1>
+        <p className="text-sm text-muted-foreground">
           {t("newPasswordDescription")}
-        </CardDescription>
-      </CardHeader>
+        </p>
+      </div>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <CardContent className="grid gap-4">
+        <div className="grid gap-4">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
           <Field>
-            <FieldLabel htmlFor="password" title={t("newPasswordLabel")} className="text-brand-dark">{t("newPasswordLabel")}</FieldLabel>
+            <FieldLabel htmlFor="password" title={t("newPasswordLabel")} className="text-foreground">{t("newPasswordLabel")}</FieldLabel>
             <FieldContent>
               <Input
                 id="password"
                 type="password"
                 disabled={isLoading}
-                className="border-brand-border focus-visible:ring-brand-blue/20"
+                className="border-border text-foreground focus-visible:ring-foreground/20"
                 {...form.register("password")}
               />
             </FieldContent>
@@ -117,25 +109,30 @@ export function ResetPasswordForm({ token }: { token: string }) {
             </p>
           </Field>
           <Field>
-            <FieldLabel htmlFor="confirmPassword" title={t("confirmPasswordLabel")} className="text-brand-dark">{t("confirmPasswordLabel")}</FieldLabel>
+            <FieldLabel htmlFor="confirmPassword" title={t("confirmPasswordLabel")} className="text-foreground">{t("confirmPasswordLabel")}</FieldLabel>
             <FieldContent>
               <Input
                 id="confirmPassword"
                 type="password"
                 disabled={isLoading}
-                className="border-brand-border focus-visible:ring-brand-blue/20"
+                className="border-border text-foreground focus-visible:ring-foreground/20"
                 {...form.register("confirmPassword")}
               />
             </FieldContent>
             <FieldError className="text-brand-alert">{form.formState.errors.confirmPassword?.message}</FieldError>
           </Field>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full bg-brand-dark text-on-brand hover:bg-brand-dark/90" type="submit" disabled={isLoading}>
+        </div>
+        <div className="mt-6 flex flex-col gap-4">
+          <Button className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 transition-opacity" type="submit" disabled={isLoading}>
             {isLoading ? t("resetting") : t("resetPasswordBtn")}
           </Button>
-        </CardFooter>
+          <p className="text-center text-sm text-muted-foreground">
+            <Link href="/sign-in" className="font-semibold text-brand-dark dark:text-white hover:underline transition-colors">
+              {t("backToSignIn")}
+            </Link>
+          </p>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }

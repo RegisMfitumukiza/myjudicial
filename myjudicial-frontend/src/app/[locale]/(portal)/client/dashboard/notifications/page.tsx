@@ -107,14 +107,14 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
-      <div className="mb-6 flex shrink-0 items-start justify-between">
+    <div className="flex flex-col p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+      <div className="mb-6 flex shrink-0 flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+          <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-gray-100 break-words">{t("title")}</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">{t("subtitle")}</p>
         </div>
         {unreadCount > 0 && (
-          <Button variant="outline" size="sm" onClick={handleMarkAllRead} disabled={isMarkingAll} className="gap-1.5 text-[13px]">
+          <Button variant="outline" size="sm" onClick={handleMarkAllRead} disabled={isMarkingAll} className="gap-1.5 text-[13px] shrink-0">
             {isMarkingAll ? <Loader2 size={14} className="animate-spin" /> : <CheckCheck size={14} />}
             {t("markAllRead")}
           </Button>

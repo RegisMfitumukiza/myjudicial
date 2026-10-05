@@ -331,7 +331,7 @@ export default function CompliancePage() {
 
   if (loadingStats) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <LoadingSpinner label={t("loading")} />
       </div>
     );
@@ -339,7 +339,7 @@ export default function CompliancePage() {
 
   if (statsError) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader
           title={t("title")}
           description={t("subtitle")}
@@ -363,14 +363,14 @@ export default function CompliancePage() {
   };
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
       />
 
       {stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <StatCard
             label={t("totalExperts")}
             value={stats.totalExperts}

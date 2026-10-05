@@ -269,14 +269,14 @@ export default function FinancePage() {
 
   if (loadingStats) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <LoadingSpinner label={t("loading")} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -299,7 +299,7 @@ export default function FinancePage() {
       )}
 
       {stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <StatCard
             label={t("totalRevenue")}
             value={formatCurrency(stats.revenue.total)}
@@ -339,7 +339,7 @@ export default function FinancePage() {
           setPage(1);
         }}
       >
-        <TabsList variant="line" className="w-full justify-start">
+        <TabsList variant="line" className="w-full justify-start overflow-x-auto scrollbar-none">
           <TabsTrigger value="payments">{t("allPayments")}</TabsTrigger>
           <TabsTrigger value="failed">
             {t("failedSettlements")}
@@ -355,9 +355,9 @@ export default function FinancePage() {
           {activeTab === "payments" && (
             <div className="space-y-6">
               <Card>
-                <CardContent className="flex flex-col gap-4 pt-5 lg:flex-row lg:items-center lg:justify-between">
+                <CardContent className="flex flex-col gap-3.5 p-3.5 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex flex-1 items-center gap-2">
-                    <Search size={16} className="text-muted-foreground" />
+                    <Search size={16} className="text-muted-foreground shrink-0" />
                     <Input
                       placeholder={t("searchPlaceholder")}
                       className="border-0 bg-transparent shadow-none focus-visible:ring-0"
@@ -368,7 +368,7 @@ export default function FinancePage() {
                       }}
                     />
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <Select
                       value={statusFilter}
                       onValueChange={(v) => {
@@ -376,7 +376,7 @@ export default function FinancePage() {
                         setPage(1);
                       }}
                     >
-                      <SelectTrigger className="w-[160px]">
+                      <SelectTrigger className="w-full min-[360px]:w-[160px]">
                         <SelectValue placeholder={t("allStatus")} />
                       </SelectTrigger>
                       <SelectContent>

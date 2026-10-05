@@ -34,15 +34,15 @@ export default function EarningsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 space-y-6 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
-        className="mb-6 shrink-0"
+        className="shrink-0"
       />
 
       {isBookingFirst && (
-        <Alert variant="warning" className="mb-6">
+        <Alert variant="warning">
           <AlertCircle />
           <AlertDescription>
             {t("paymentsDisabled")}
@@ -53,7 +53,7 @@ export default function EarningsPage() {
       {isLoading ? (
         <div className="flex min-h-0 flex-1 flex-col gap-6">
           {/* stat card skeletons */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[420px]:grid-cols-2 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm">
                 <Skeleton className="mb-3 h-4 w-28" />
@@ -85,8 +85,8 @@ export default function EarningsPage() {
           onRetry={() => refetch()}
         />
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="space-y-6 min-w-0">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[420px]:grid-cols-2 md:grid-cols-3">
             <StatCard
               label={t("netRevenue")}
               value={formatCurrency(earnings.netRevenue, earnings.currency)}
@@ -123,7 +123,7 @@ export default function EarningsPage() {
               />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[500px]">
                   <thead>
                     <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       <th className="px-5 py-3">{t("booking")}</th>

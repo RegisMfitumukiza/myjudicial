@@ -99,9 +99,9 @@ export default function PaymentsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1080px] space-y-6 p-6 lg:p-8">
+    <div className="mx-auto max-w-[1080px] space-y-6 p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-gray-100 break-words">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {t("subtitle")}
         </p>
@@ -137,14 +137,14 @@ export default function PaymentsPage() {
       ) : (
         <>
           {/* Stat cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {statCards.map(({ label, value, color, bg, border }) => (
-              <div key={label} className={`rounded-xl border ${border} bg-white dark:bg-gray-900 p-5 shadow-md`}>
-                <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${bg}`}>
+              <div key={label} className={`rounded-xl border ${border} bg-white dark:bg-gray-900 p-4 sm:p-5 shadow-md min-w-0 flex flex-col justify-between`}>
+                <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${bg} shrink-0`}>
                   <CreditCard size={18} className={color} />
                 </div>
-                <p className="text-2xl font-bold text-brand-dark dark:text-gray-100">{value}</p>
-                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-brand-dark dark:text-gray-100 truncate">{value}</p>
+                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400 truncate">{label}</p>
               </div>
             ))}
           </div>

@@ -67,6 +67,15 @@ class RecommendationService:
                         f"urgency={analysis.get('urgency_level')}, "
                         f"entities={analysis.get('key_entities', [])}")
             
+            # If greeting or unclassified general query, return without searching experts
+            if analysis.get("is_greeting") or analysis.get("specialty") == "UNKNOWN" or analysis.get("confidence_score", 1.0) == 0:
+                processing_time = time.time() - start_time
+                logger.info(f"Greeting or general inquiry, returning response without expert candidates ({processing_time:.2f}s)")
+                return self._build_response(
+                    success=True, query=query, analysis=analysis,
+                    recommendations=[], processing_time=processing_time,
+                )
+
             # Dynamic budget estimation from real expert data
             from app.db.repositories.expert_repository import expert_repository
             specialty = analysis.get("specialty")
@@ -113,7 +122,7 @@ class RecommendationService:
 
             if not search_results.get("success") or not search_results.get("results"):
                 return self._build_response(
-                    success=False, query=query, analysis=analysis,
+                    success=True, query=query, analysis=analysis,
                     recommendations=[], processing_time=processing_time,
                 )
             
@@ -213,7 +222,7 @@ class RecommendationService:
 
             if not search_results.get("success") or not search_results.get("results"):
                 return self._build_response(
-                    success=False, query=query, analysis=case_analysis,
+                    success=True, query=query, analysis=case_analysis,
                     recommendations=[], processing_time=processing_time,
                 )
             

@@ -117,7 +117,7 @@ export default function ReviewsPage() {
 
   if (statsLoading || reviewsLoading) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <LoadingSpinner label={t("loading")} />
       </div>
     );
@@ -125,7 +125,7 @@ export default function ReviewsPage() {
 
   if (reviewsError) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader
           title={t("title")}
           description={t("subtitle")}
@@ -143,14 +143,14 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
       />
 
       {stats && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <StatCard
             label={t("totalReviews")}
             value={stats.totalReviews.toLocaleString()}
@@ -178,7 +178,7 @@ export default function ReviewsPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder={t("allStatus")} />
             </SelectTrigger>
             <SelectContent>
@@ -288,7 +288,7 @@ export default function ReviewsPage() {
           </div>
         </CardContent>
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-border px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 sm:px-6 py-4">
             <p className="text-sm text-muted-foreground">
               {pagination.page} / {pagination.totalPages} ({pagination.total})
             </p>

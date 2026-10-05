@@ -147,21 +147,21 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("description")}
         actions={
-          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5 max-w-full overflow-x-auto scrollbar-none">
             {TAB_KEYS.map((key) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={
+                className={`shrink-0 ${
                   activeTab === key
                     ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
                     : "rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-                }
+                }`}
               >
                 {t(`tabs.${key}` as any)}
                 <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary dark:bg-white/10 dark:text-white">

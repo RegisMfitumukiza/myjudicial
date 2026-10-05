@@ -2,6 +2,7 @@ import { brevo, EMAIL_FROM_NAME, EMAIL_FROM_ADDRESS, EMAIL_REPLY_TO } from "./em
 import { prisma } from "../database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
 import { emailLayout } from "./templates/email-layout.js";
+import { AdminSettingService } from "../../modules/settings/admin-setting.service.js";
 import {
   button, tableRow, dataTable, alertBox, heading, paragraph,
   divider, contentBlock, badge, buildUrl, FRONTEND,
@@ -10,6 +11,18 @@ import { getEmailSubject, getEmailContent, EMAIL_CONTENT } from "./email-templat
 
 type Language = 'en' | 'fr' | 'rw';
 
+const getBrandingSettings = async (): Promise<{ tagline?: string; copyrightNotice?: string }> => {
+  try {
+    const res = await AdminSettingService.getAll();
+    return {
+      tagline: res.data.platformTagline,
+      copyrightNotice: res.data.copyrightNotice,
+    };
+  } catch {
+    return {};
+  }
+};
+
 type SendEmailParams = {
   to: { email: string; name?: string }[];
   subject: string;
@@ -17,6 +30,7 @@ type SendEmailParams = {
   textContent?: string;
   replyTo?: { email: string; name?: string };
   template?: string;
+  attachment?: Array<{ content?: string; url?: string; name: string }>;
 };
 
 /**
@@ -35,6 +49,7 @@ const sendEmail = async (params: SendEmailParams): Promise<void> => {
       htmlContent: params.htmlContent,
       textContent: params.textContent,
       replyTo: params.replyTo ?? { email: EMAIL_REPLY_TO },
+      attachment: params.attachment,
     });
 
     logger.info("Email sent", {
@@ -47,7 +62,8 @@ const sendEmail = async (params: SendEmailParams): Promise<void> => {
     logger.error("Failed to send email", {
       to: params.to.map((r) => r.email),
       subject: params.subject,
-      error,
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
     });
   }
 
@@ -63,7 +79,9 @@ const sendEmail = async (params: SendEmailParams): Promise<void> => {
       },
     });
   } catch (logError) {
-    logger.error("Failed to write email log", { error: logError });
+    logger.error("Failed to write email log", {
+      error: logError instanceof Error ? logError.message : String(logError),
+    });
   }
 };
 
@@ -88,6 +106,7 @@ export const sendWelcomeEmail = async (
   const loginButton = getEmailContent('WELCOME', 'loginButton', language);
   const didntCreate = getEmailContent('WELCOME', 'didntCreate', language);
 
+  const branding = await getBrandingSettings();
   const html = emailLayout(`
     ${contentBlock(
       heading(getEmailSubject('WELCOME', language)),
@@ -98,7 +117,12 @@ export const sendWelcomeEmail = async (
       divider(),
       paragraph(didntCreate, { color: "#94a3b8", size: "13px" }),
     )}
-  `, { previewText: `${getEmailSubject('WELCOME', language)}, ${firstName}` });
+  `, {
+    previewText: `${getEmailSubject('WELCOME', language)}, ${firstName}`,
+    language,
+    tagline: branding.tagline,
+    copyrightNotice: branding.copyrightNotice,
+  });
 
   await sendEmail({
     to: [{ email: to, name: firstName }],
@@ -125,13 +149,15 @@ export const sendOtpEmail = async (
   phone?: string,
   language: Language = 'en'
 ): Promise<void> => {
+  const headingText = getEmailContent('OTP', 'heading', language);
   const yourCode = getEmailContent('OTP', 'yourCode', language);
   const expiresWarning = getEmailContent('OTP', 'expiresWarning', language);
   const didntRequest = getEmailContent('OTP', 'didntRequest', language);
+  const branding = await getBrandingSettings();
 
   const html = emailLayout(`
     ${contentBlock(
-      heading("MyJudicial"),
+      heading(headingText),
       paragraph(yourCode),
       `
       <tr>
@@ -148,7 +174,13 @@ export const sendOtpEmail = async (
       divider(),
       paragraph(didntRequest, { size: "13px", color: "#94a3b8" }),
     )}
-  `, { previewText: `${getEmailSubject('OTP_CODE', language)}: ${otpCode}` });
+  `, {
+    previewText: `${getEmailSubject('OTP_CODE', language)}: ${otpCode}`,
+    language,
+    tagline: branding.tagline,
+    copyrightNotice: branding.copyrightNotice,
+    hidePromotionalLinks: true,
+  });
 
   await sendEmail({
     to: [{ email: to }],
@@ -172,20 +204,28 @@ export const sendMagicLinkEmail = async (
   const clickToLogin = getEmailContent('MAGIC_LINK', 'clickToLogin', language);
   const loginButton = getEmailContent('MAGIC_LINK', 'loginButton', language);
   const didntRequest = getEmailContent('MAGIC_LINK', 'didntRequest', language);
+  const subject = getEmailSubject('MAGIC_LINK', language);
+  const branding = await getBrandingSettings();
 
   const html = emailLayout(`
     ${contentBlock(
-      heading("MyJudicial"),
+      heading(subject),
       paragraph(clickToLogin),
       button(loginButton, magicLink),
       divider(),
       paragraph(didntRequest, { size: "13px", color: "#94a3b8" }),
     )}
-  `, { previewText: getEmailSubject('MAGIC_LINK', language) });
+  `, {
+    previewText: subject,
+    language,
+    tagline: branding.tagline,
+    copyrightNotice: branding.copyrightNotice,
+    hidePromotionalLinks: true,
+  });
 
   await sendEmail({
     to: [{ email: to }],
-    subject: getEmailSubject('MAGIC_LINK', language),
+    subject,
     template: "MAGIC_LINK",
     htmlContent: html,
     textContent: `${loginButton}: ${magicLink}\n\n${clickToLogin}`,
@@ -210,6 +250,7 @@ export const sendPasswordResetEmail = async (
   const expiresWarning = getEmailContent('PASSWORD_RESET', 'expiresWarning', language);
   const didntRequest = getEmailContent('PASSWORD_RESET', 'didntRequest', language);
   const subject = getEmailSubject('PASSWORD_RESET', language);
+  const branding = await getBrandingSettings();
 
   const html = emailLayout(`
     ${contentBlock(
@@ -221,7 +262,13 @@ export const sendPasswordResetEmail = async (
       divider(),
       paragraph(didntRequest, { size: "13px", color: "#94a3b8" }),
     )}
-  `, { previewText: `${subject}, ${name}` });
+  `, {
+    previewText: `${subject}, ${name}`,
+    language,
+    tagline: branding.tagline,
+    copyrightNotice: branding.copyrightNotice,
+    hidePromotionalLinks: true,
+  });
 
   await sendEmail({
     to: [{ email: to, name }],
@@ -1289,5 +1336,156 @@ export const sendBroadcastEmail = async (
     htmlContent: html,
   });
 };
+
+/**
+ * Send job application details to the recruiting/support inbox and an acknowledgement to the applicant.
+ */
+export const sendCareerApplicationEmail = async (params: {
+  fullName: string;
+  email: string;
+  phone?: string;
+  roleTitle?: string;
+  linkedin?: string;
+  portfolio?: string;
+  resumeLink?: string;
+  resumeFileName?: string;
+  resumeBase64?: string;
+  coverNote: string;
+  careersEmail: string;
+}): Promise<void> => {
+  const roleName = params.roleTitle || "General Talent Pool";
+  const subject = `[Job Application] ${roleName} — ${params.fullName}`;
+
+  const resumeSection = params.resumeLink
+    ? `<a href="${params.resumeLink}" target="_blank" style="color:#003366;text-decoration:underline;">${params.resumeLink}</a>`
+    : params.resumeFileName
+      ? `Attached file: <strong>${params.resumeFileName}</strong>`
+      : "Not provided";
+
+  const adminHtml = emailLayout(`
+    ${contentBlock(
+      heading("New Job Application Received"),
+      paragraph(`A new candidate has submitted an expression of interest through the MyJudicial Careers portal.`),
+      dataTable([
+        tableRow("Target Role", roleName),
+        tableRow("Applicant Name", params.fullName),
+        tableRow("Email Address", `<a href="mailto:${params.email}" style="color:#003366;">${params.email}</a>`),
+        tableRow("Phone Number", params.phone || "Not provided"),
+        tableRow("LinkedIn", params.linkedin ? `<a href="${params.linkedin}" target="_blank" style="color:#003366;">${params.linkedin}</a>` : "Not provided"),
+        tableRow("Portfolio / GitHub", params.portfolio ? `<a href="${params.portfolio}" target="_blank" style="color:#003366;">${params.portfolio}</a>` : "Not provided"),
+        tableRow("Resume / CV", resumeSection),
+      ].join("")),
+      heading("Cover Note / Why MyJudicial?", "h3"),
+      alertBox(params.coverNote.replace(/\n/g, "<br/>"), "info"),
+      divider(),
+      paragraph("You can reply directly to this email to contact the candidate.", { size: "12px", color: "#64748b" }),
+    )}
+  `, { previewText: `New Application: ${roleName} — ${params.fullName}` });
+
+  const attachments = params.resumeBase64 && params.resumeFileName
+    ? [{ name: params.resumeFileName, content: params.resumeBase64 }]
+    : undefined;
+
+  // 1. Send to hiring team
+  await sendEmail({
+    to: [{ email: params.careersEmail, name: "MyJudicial Recruiting" }],
+    replyTo: { email: params.email, name: params.fullName },
+    subject,
+    template: "CAREER_APPLICATION_INTERNAL",
+    htmlContent: adminHtml,
+    attachment: attachments,
+  });
+
+  // 2. Send acknowledgment to candidate
+  const applicantHtml = emailLayout(`
+    ${contentBlock(
+      heading("Application Received"),
+      paragraph(`Dear ${params.fullName},`),
+      paragraph(`Thank you for submitting your application for <strong>${roleName}</strong> at MyJudicial.`),
+      paragraph(`Our recruiting and leadership team will review your qualifications and experience. If your background aligns with our current hiring requirements, a member of our talent team will reach out directly within 3–5 business days to schedule an introductory conversation.`),
+      divider(),
+      paragraph("Best regards,<br/><strong>The MyJudicial Team</strong>"),
+    )}
+  `, { previewText: `Application Received: ${roleName}` });
+
+  await sendEmail({
+    to: [{ email: params.email, name: params.fullName }],
+    subject: `Application Received: ${roleName} — MyJudicial`,
+    template: "CAREER_APPLICATION_ACKNOWLEDGMENT",
+    htmlContent: applicantHtml,
+  });
+};
+
+export const sendContactInquiryEmail = async (params: {
+  ticketId: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  department: string;
+  reference?: string;
+  subject: string;
+  message: string;
+  supportEmail: string;
+}): Promise<void> => {
+  const categoryNames: Record<string, string> = {
+    client: "Citizen & Client Support",
+    advocate: "Advocate & Bar Roll Verification",
+    institutional: "Institutional Partnerships",
+    general: "General Inquiry",
+  };
+  const categoryTitle = categoryNames[params.department] || params.department;
+  const adminSubject = `[Inquiry #${params.ticketId}] [${categoryTitle}] ${params.subject} — ${params.fullName}`;
+
+  const adminHtml = emailLayout(`
+    ${contentBlock(
+      heading(`New Inquiry Received: #${params.ticketId}`),
+      paragraph(`A new message was submitted through the MyJudicial Contact Portal.`),
+      dataTable([
+        tableRow("Ticket ID", params.ticketId),
+        tableRow("Department", categoryTitle),
+        tableRow("Full Name", params.fullName),
+        tableRow("Email Address", `<a href="mailto:${params.email}" style="color:#003366;">${params.email}</a>`),
+        tableRow("Phone Number", params.phone || "Not provided"),
+        tableRow("Case / Booking Ref", params.reference || "None"),
+        tableRow("Subject", params.subject),
+      ].join("")),
+      heading("Inquiry Message", "h3"),
+      alertBox(params.message.replace(/\n/g, "<br/>"), "info"),
+      divider(),
+      paragraph("Reply directly to this email to respond to the sender.", { size: "12px", color: "#64748b" }),
+    )}
+  `, { previewText: `Inquiry #${params.ticketId} from ${params.fullName} (${categoryTitle})` });
+
+  // 1. Send to legal operations / support desk
+  await sendEmail({
+    to: [{ email: params.supportEmail, name: "MyJudicial Legal Operations" }],
+    replyTo: { email: params.email, name: params.fullName },
+    subject: adminSubject,
+    template: "CONTACT_INQUIRY_INTERNAL",
+    htmlContent: adminHtml,
+  });
+
+  // 2. Send acknowledgment to sender
+  const userHtml = emailLayout(`
+    ${contentBlock(
+      heading("We Received Your Message"),
+      paragraph(`Dear ${params.fullName},`),
+      paragraph(`Thank you for contacting MyJudicial. Your inquiry has been received by our legal operations desk and logged under reference ticket:`),
+      `<div style="margin: 20px 0; padding: 14px 20px; background: #f0f4f8; border: 1px solid #d9e2ec; border-radius: 12px; text-align: center; font-family: monospace; font-size: 18px; font-weight: bold; color: #003366; letter-spacing: 1px;">${params.ticketId}</div>`,
+      paragraph(`<strong>Department:</strong> ${categoryTitle}<br/><strong>Subject:</strong> ${params.subject}`),
+      paragraph(`Our team in Kigali reviews incoming matters during business hours (Monday – Friday, 8:00 AM – 6:00 PM CAT). You can expect a response to this email within <strong>2 business hours</strong>.`),
+      divider(),
+      paragraph("Warm regards,<br/><strong>MyJudicial Legal Operations Desk</strong><br/>Kigali, Rwanda"),
+    )}
+  `, { previewText: `Inquiry Received: Ticket #${params.ticketId}` });
+
+  await sendEmail({
+    to: [{ email: params.email, name: params.fullName }],
+    subject: `Inquiry Received: Ticket #${params.ticketId} — MyJudicial`,
+    template: "CONTACT_INQUIRY_ACKNOWLEDGMENT",
+    htmlContent: userHtml,
+  });
+};
+
 
 

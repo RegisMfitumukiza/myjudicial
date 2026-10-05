@@ -262,7 +262,7 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState
           title={t("failedToLoad")}
@@ -273,7 +273,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -281,7 +281,7 @@ export default function UsersPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           <StatCard
             label={t("totalUsers")}
             value={stats.totalUsers}
@@ -312,8 +312,8 @@ export default function UsersPage() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <CardContent className="p-3.5 sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-1 items-center gap-2">
               <Search size={18} className="shrink-0 text-muted-foreground" />
               <Input
@@ -328,7 +328,7 @@ export default function UsersPage() {
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Filter size={16} className="shrink-0 text-muted-foreground" />
               <Select
                 value={roleFilter}
@@ -337,7 +337,7 @@ export default function UsersPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full min-[360px]:w-[140px] flex-1 min-w-[120px]">
                   <SelectValue placeholder={t("allRoles")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,7 +355,7 @@ export default function UsersPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full min-[360px]:w-[140px] flex-1 min-w-[120px]">
                   <SelectValue placeholder={t("allStatus")} />
                 </SelectTrigger>
                 <SelectContent>

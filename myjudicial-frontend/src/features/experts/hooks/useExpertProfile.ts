@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { getExpertsProfileMe } from "@/api/generated";
 import { ExpertStatus } from "@/features/experts/types";
+import { UserRole } from "@/features/auth/types";
 import { apiFetch } from "@/lib/api/client";
 
 export interface ExpertProfile {
@@ -26,11 +27,13 @@ export interface ExpertProfile {
 export const EXPERT_PROFILE_QUERY_KEY = ["experts", "profile", "me"] as const;
 export const EXPERT_PHOTO_URL_QUERY_KEY = ["experts", "photo", "url"] as const;
 
-export function useExpertProfile() {
+export function useExpertProfile(options?: { enabled?: boolean }) {
   const { data: session } = useSession();
   const accessToken = (session as Record<string, unknown> | null)?.accessToken as
     | string
     | undefined;
+  const role = (session?.user as any)?.role;
+  const isExpert = role === UserRole.EXPERT || role === "EXPERT";
 
   return useQuery({
     queryKey: EXPERT_PROFILE_QUERY_KEY,
@@ -38,17 +41,22 @@ export function useExpertProfile() {
       const response = await getExpertsProfileMe();
       return response.status === 200 ? response.data.data : null;
     },
-    enabled: !!accessToken,
+    enabled: !!accessToken && isExpert && (options?.enabled ?? true),
     retry: false,
   });
 }
 
 /**
  * Fetches a fresh signed URL for the expert's profile photo.
- * Only runs when the profile has a profileImageObjectKey.
+ * Only runs when the user is an expert and the profile has a profileImageObjectKey.
  */
-export function useExpertPhotoUrl() {
-  const { data: profile } = useExpertProfile();
+export function useExpertPhotoUrl(options?: { enabled?: boolean }) {
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role;
+  const isExpert = role === UserRole.EXPERT || role === "EXPERT";
+  const isHookEnabled = isExpert && (options?.enabled ?? true);
+
+  const { data: profile } = useExpertProfile({ enabled: isHookEnabled });
   const hasPhoto = !!(profile as any)?.profileImageObjectKey;
 
   return useQuery({
@@ -60,7 +68,7 @@ export function useExpertPhotoUrl() {
       );
       return result.data?.photoUrl ?? null;
     },
-    enabled: hasPhoto,
+    enabled: isHookEnabled && hasPhoto,
     // Signed URLs expire — refetch every 50 minutes to stay fresh
     staleTime: 50 * 60 * 1000,
     retry: false,

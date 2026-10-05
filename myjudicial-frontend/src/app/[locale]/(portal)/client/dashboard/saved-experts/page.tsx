@@ -51,7 +51,7 @@ export default function SavedExpertsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[900px] space-y-6 p-6 lg:p-8">
+    <div className="mx-auto max-w-[900px] space-y-6 p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <Link
         href="/client/dashboard"
         className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
@@ -61,7 +61,7 @@ export default function SavedExpertsPage() {
       </Link>
 
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-gray-100 break-words">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
@@ -151,6 +151,6 @@ export default function SavedExpertsPage() {
           })}
         </div>
       )}
-    </main>
+    </div>
   );
 }

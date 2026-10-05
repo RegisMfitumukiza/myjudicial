@@ -404,7 +404,7 @@ export default function VerificationPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("titleVerification")}
         description={t("subtitleVerification")}
@@ -554,7 +554,7 @@ export default function VerificationPage() {
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+              <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-4">
                 <p className="text-xs text-muted-foreground">
                   {t("fileEncryptionNotice")}
                 </p>
@@ -564,6 +564,7 @@ export default function VerificationPage() {
                   disabled={
                     isSubmitting || (!identityFile && !certificateFile)
                   }
+                  className="w-full sm:w-auto"
                 >
                   {isSubmitting ? (
                     <Loader2 size={16} className="animate-spin" />

@@ -83,7 +83,7 @@ export default function QuotationsPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
         <LoadingSpinner label={t("loadingQuotations")} className="mt-12" />
       </div>
@@ -92,7 +92,7 @@ export default function QuotationsPage() {
 
   if (error) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState title={t("failedToLoad")} message={t("unknownError")} className="mt-6" />
       </div>
@@ -100,12 +100,12 @@ export default function QuotationsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
         actions={
-          <Button size="sm" onClick={() => setShowForm(!showForm)}>
+          <Button size="sm" onClick={() => setShowForm(!showForm)} className="w-full sm:w-auto">
             <Plus size={16} aria-hidden="true" />
             {t("newQuotation")}
           </Button>
@@ -113,7 +113,7 @@ export default function QuotationsPage() {
       />
 
       {showForm && (
-        <div className="mb-6 mt-6 rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="mb-6 mt-6 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-foreground">{t("createQuotationTitle")}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
@@ -173,7 +173,7 @@ export default function QuotationsPage() {
 
       <div className="mt-6 rounded-xl border border-border bg-card shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[540px] text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-4 font-medium">{t("thClient")}</th>

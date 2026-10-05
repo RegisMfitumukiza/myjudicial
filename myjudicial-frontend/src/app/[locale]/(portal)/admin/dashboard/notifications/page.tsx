@@ -356,7 +356,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={tClient("title")}
         description={t("subtitle")}
@@ -365,7 +365,7 @@ export default function NotificationsPage() {
       {loadingStats ? (
         <LoadingSpinner />
       ) : stats ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <StatCard
             label={t("totalLogs")}
             value={stats.totalLogs.toLocaleString(locale)}
@@ -422,7 +422,7 @@ export default function NotificationsPage() {
         value={activeTab}
         onValueChange={(v) => setActiveTab(v as "inbox" | "compose" | "history")}
       >
-        <TabsList variant="line" className="w-full justify-start">
+        <TabsList variant="line" className="w-full justify-start overflow-x-auto scrollbar-none">
           <TabsTrigger value="inbox" className="gap-2">
             <Inbox size={14} />
             {tClient("title")}
@@ -514,7 +514,7 @@ export default function NotificationsPage() {
                     <CardContent className="p-4 sm:p-5">
                       <div className="flex items-start gap-4">
                         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          isUnread ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                          isUnread ? "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400" : "bg-muted text-muted-foreground"
                         }`}>
                           <EventIcon size={20} />
                         </div>
@@ -556,7 +556,7 @@ export default function NotificationsPage() {
 
               {/* Pagination */}
               {inboxPagination && inboxPagination.pages > 1 && (
-                <div className="flex items-center justify-between border-t border-border pt-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border pt-4">
                   <p className="text-xs text-muted-foreground">
                     {t("showingPage", {
                       page: inboxPagination.page,
@@ -901,7 +901,7 @@ export default function NotificationsPage() {
                   </div>
 
                   {pagination && pagination.totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t border-border px-6 py-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 sm:px-6 py-3">
                       <div className="text-sm text-muted-foreground">
                         {t("showingPage", {
                           page: pagination.page,

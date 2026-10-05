@@ -444,7 +444,7 @@ export default function ExpertDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <LoadingSpinner label={t("loading")} />
       </div>
     );
@@ -452,7 +452,7 @@ export default function ExpertDetailPage() {
 
   if (error || !expert) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader
           title={t("title")}
           backHref="/admin/dashboard/experts"
@@ -497,7 +497,7 @@ export default function ExpertDetailPage() {
   const isRejected = expert.expertStatus === "REJECTED";
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Page Header */}
       <PageHeader
         title={displayName}

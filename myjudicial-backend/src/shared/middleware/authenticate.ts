@@ -89,15 +89,21 @@ export const authenticate = async (
     const cached = await redisGet(cacheKey);
 
     if (cached) {
-      const cachedUser = JSON.parse(cached) as AuthenticatedUser;
-      logger.debug("Using cached user data", {
-        userId: cachedUser.id,
-        email: cachedUser.email,
-        role: cachedUser.role,
-        tokenHash
-      });
-      req.user = cachedUser;
-      return next();
+      try {
+        const cachedUser = JSON.parse(cached) as AuthenticatedUser;
+        if (cachedUser && cachedUser.id) {
+          logger.debug("Using cached user data", {
+            userId: cachedUser.id,
+            email: cachedUser.email,
+            role: cachedUser.role,
+            tokenHash
+          });
+          req.user = cachedUser;
+          return next();
+        }
+      } catch (parseErr) {
+        logger.warn("Corrupted or empty user cache in Redis, bypassing cache", { cacheKey, err: parseErr });
+      }
     }
 
     // Load user from PostgreSQL

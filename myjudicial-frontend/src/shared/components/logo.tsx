@@ -12,7 +12,11 @@ interface LogoProps {
   fontSize?: string;
   href?: string;
   onClick?: () => void;
+  hideTextOnSmall?: boolean;
 }
+
+const LOGO_WIDTH = 491;
+const LOGO_HEIGHT = 351;
 
 export function Logo({
   className = "",
@@ -22,6 +26,7 @@ export function Logo({
   fontSize = "text-[14px]",
   href = "/",
   onClick,
+  hideTextOnSmall = false,
 }: LogoProps) {
   return (
     <Link
@@ -32,9 +37,9 @@ export function Logo({
       <Image
         src="/myjudicial-logo.png"
         alt="MyJudicial"
-        width={iconSize}
-        height={iconSize}
-        style={{ width: "auto", height: "auto" }}
+        width={LOGO_WIDTH}
+        height={LOGO_HEIGHT}
+        style={{ width: "auto", height: `${iconSize}px` }}
         className={`shrink-0 object-contain transition-transform group-hover:scale-105 ${
           light ? "brightness-0 invert" : ""
         }`}
@@ -43,7 +48,9 @@ export function Logo({
 
       {!iconOnly && (
         <span
-          className={`font-bold tracking-tight ${fontSize} ${
+          className={`font-bold tracking-tight whitespace-nowrap shrink-0 ${
+            hideTextOnSmall ? "hidden min-[400px]:inline" : ""
+          } ${fontSize} ${
             light ? "text-white" : "text-foreground"
           }`}
         >

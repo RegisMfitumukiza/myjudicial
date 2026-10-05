@@ -6,6 +6,17 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api/v1';
 
+async function safeJson(response: Response): Promise<any> {
+  if (response.status === 204) return null;
+  try {
+    const text = await response.text();
+    if (!text || !text.trim()) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 export const apiClient = {
   /**
    * Get the full backend API URL for an endpoint
@@ -29,7 +40,7 @@ export const apiClient = {
       method: 'GET',
       ...options,
     });
-    return response.json();
+    return safeJson(response);
   },
 
   /**
@@ -49,7 +60,7 @@ export const apiClient = {
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     });
-    return response.json();
+    return safeJson(response);
   },
 
   /**
@@ -69,7 +80,7 @@ export const apiClient = {
       body: data ? JSON.stringify(data) : undefined,
       ...options,
     });
-    return response.json();
+    return safeJson(response);
   },
 
   /**
@@ -83,6 +94,6 @@ export const apiClient = {
       method: 'DELETE',
       ...options,
     });
-    return response.json();
+    return safeJson(response);
   },
 };

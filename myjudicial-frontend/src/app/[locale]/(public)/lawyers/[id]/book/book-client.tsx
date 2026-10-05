@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, use, useMemo, Suspense } from "react";
 import { Link } from "@/i18n/routing";
@@ -43,11 +43,11 @@ function formatDateToParam(year: number, month: number, day: number) {
 /* ── Skeleton loader matching the booking page two-column layout ── */
 function BookingSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div key={i} className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2">
                 <div className="h-6 w-6 animate-pulse rounded-full bg-muted" />
                 <div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -56,15 +56,15 @@ function BookingSkeleton() {
                 <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
                 <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
                 {i === 2 && (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="h-20 animate-pulse rounded-xl bg-muted" />
                     <div className="h-20 animate-pulse rounded-xl bg-muted" />
                   </div>
                 )}
                 {i === 3 && (
-                  <div className="grid grid-cols-7 gap-1.5">
+                  <div className="grid grid-cols-7 gap-1 min-[340px]:gap-1.5">
                     {Array.from({ length: 14 }).map((_, j) => (
-                      <div key={j} className="h-9 animate-pulse rounded-lg bg-muted" />
+                      <div key={j} className="h-8 min-[340px]:h-9 animate-pulse rounded-lg bg-muted" />
                     ))}
                   </div>
                 )}
@@ -73,7 +73,7 @@ function BookingSkeleton() {
           ))}
         </div>
         <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
             <div className="h-5 w-40 animate-pulse rounded bg-muted mb-4" />
             <div className="space-y-3">
               <div className="h-4 w-full animate-pulse rounded bg-muted" />
@@ -239,17 +239,17 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     <div className="min-h-screen bg-background">
       {!confirmed ? (
         <>
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
 
               {/* LEFT */}
               <div className="space-y-6">
 
                 {/* 1. EXPERT INFORMATION */}
-                <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                  <div className="mb-5 flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand">1</span>
-                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("expertInformation")}</h2>
+                <section className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
+                  <div className="mb-4 sm:mb-5 flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand shrink-0">1</span>
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground truncate">{t("expertInformation")}</h2>
                   </div>
                   <ExpertInfoHeader
                     displayName={profile.displayName}
@@ -266,10 +266,10 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
                 {/* 2. SERVICE TYPE */}
                 {services.length > 0 && (
-                  <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                    <div className="mb-5 flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand">2</span>
-                      <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("selectServiceType")}</h2>
+                  <section className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
+                    <div className="mb-4 sm:mb-5 flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand shrink-0">2</span>
+                      <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground truncate">{t("selectServiceType")}</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {services.map((svc) => (
@@ -301,12 +301,12 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                 )}
 
                 {/* 3. CHOOSE DATE & TIME */}
-                <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                  <div className="mb-5 flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand">
+                <section className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
+                  <div className="mb-4 sm:mb-5 flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-on-brand shrink-0">
                       {activeService ? "3" : services.length > 0 ? "3" : "2"}
                     </span>
-                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("date")} & {t("time")}</h2>
+                    <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground truncate">{t("date")} & {t("time")}</h2>
                   </div>
 
                   {activeService?.deliveryMode === "IN_PERSON" ? (
@@ -319,15 +319,15 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                   ) : null}
 
-                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-[1fr_220px]">
+                  <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-[1fr_220px]">
                     {/* Calendar */}
                     <div>
-                      <div className="mb-3 flex items-center justify-between">
-                        <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
-                          <CalendarIcon className="h-4 w-4 text-foreground" />
-                          {t("selectConsultDate")} — {t(`months.${MONTH_KEYS[month]}`)} {year}
+                      <div className="mb-3 flex items-center justify-between gap-2 flex-wrap min-[340px]:flex-nowrap">
+                        <p className="flex items-center gap-1.5 text-xs min-[360px]:text-sm font-bold text-foreground min-w-0 truncate">
+                          <CalendarIcon className="h-4 w-4 text-foreground shrink-0" />
+                          <span className="truncate">{t("selectConsultDate")} — {t(`months.${MONTH_KEYS[month]}`)} {year}</span>
                         </p>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 shrink-0">
                           <button
                             type="button"
                             onClick={prevMonth}
@@ -347,13 +347,13 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
                       <div className="mb-1.5 grid grid-cols-7 text-center">
                         {DAY_KEYS.map((k) => (
-                          <div key={k} className="py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                          <div key={k} className="py-1 text-[9px] min-[340px]:text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
                             {t(`days.${k}`)}
                           </div>
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-7 gap-1.5">
+                      <div className="grid grid-cols-7 gap-1 min-[340px]:gap-1.5">
                         {Array.from({ length: firstDay }).map((_, i) => (
                           <div key={`empty-${i}`} />
                         ))}
@@ -370,7 +370,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                               type="button"
                               disabled={isPast}
                               onClick={() => { setSelectedDate(day); setSelectedTime(null); setSelectedSlot(null); }}
-                              className={`flex h-9 w-full items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
+                              className={`flex h-8 min-[340px]:h-9 w-full items-center justify-center rounded-lg text-xs min-[340px]:text-[13px] font-medium transition-colors ${
                                 isPast
                                   ? "cursor-not-allowed text-muted-foreground/40"
                                   : isSel
@@ -389,8 +389,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
                     {/* Time slots */}
                     <div>
-                      <div className="mb-3 flex items-center justify-between">
-                        <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                      <div className="mb-3 flex items-center justify-between gap-2 flex-wrap">
+                        <p className="flex items-center gap-1.5 text-xs min-[360px]:text-sm font-bold text-foreground">
                           {t("availableSlots")}
                         </p>
                         <TimeZonePicker
@@ -421,8 +421,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
                   {/* Reason */}
                   <div className="mt-6 border-t border-border pt-5">
-                    <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                      <MessageSquare className="h-4 w-4 text-foreground" />
+                    <label className="mb-2 flex items-center gap-1.5 text-xs min-[360px]:text-sm font-semibold text-foreground">
+                      <MessageSquare className="h-4 w-4 text-foreground shrink-0" />
                       {t("reason")} ({t("optional")})
                     </label>
                     <textarea
@@ -430,7 +430,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                       onChange={(e) => setReason(e.target.value)}
                       placeholder={t("describeIssue")}
                       rows={3}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-brand-dark"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-xs min-[360px]:text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-brand-dark"
                     />
                   </div>
                 </section>
@@ -444,11 +444,11 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   ].map(({ icon: Icon, title, desc }) => (
                     <div
                       key={title}
-                      className="rounded-xl border border-border bg-card p-4 text-center shadow-sm"
+                      className="rounded-xl border border-border bg-card p-3.5 min-[360px]:p-4 text-center shadow-sm"
                     >
                       <Icon className="mx-auto mb-2 h-5 w-5 text-foreground" />
-                      <p className="text-sm font-bold text-foreground">{title}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
+                      <p className="text-xs min-[360px]:text-sm font-bold text-foreground">{title}</p>
+                      <p className="mt-0.5 text-[11px] min-[360px]:text-xs text-muted-foreground">{desc}</p>
                     </div>
                   ))}
                 </div>
@@ -456,7 +456,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
               {/* RIGHT: Booking Summary */}
               <aside className="h-fit space-y-4 lg:sticky lg:top-24">
-                <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <div className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
                   <BookingSummaryCard
                     data={{
                       expertName: profile.displayName,
@@ -517,17 +517,18 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
         </>
       ) : (
         /* CONFIRMATION */
-        <div className="mx-auto max-w-lg px-4 py-16 sm:px-6">
-          <div className="rounded-2xl border border-border bg-card p-10 text-center shadow-sm">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-brand-dark/10">
-              <CheckCircle size={32} className="text-brand-dark" />
+        <div className="mx-auto max-w-lg px-3 min-[360px]:px-4 py-10 sm:py-16 sm:px-6">
+          <div className="rounded-2xl border border-border bg-card p-5 min-[360px]:p-8 sm:p-10 text-center shadow-sm">
+            <div className="mx-auto mb-4 sm:mb-5 flex h-14 w-14 min-[360px]:h-16 min-[360px]:w-16 items-center justify-center rounded-full bg-brand-dark/10">
+              <CheckCircle size={28} className="min-[360px]:hidden text-brand-dark" />
+              <CheckCircle size={32} className="hidden min-[360px]:block text-brand-dark" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">{isBookingFirst ? t("requestSent") : t("bookingCreated")}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h2 className="text-lg min-[360px]:text-xl font-bold text-foreground">{isBookingFirst ? t("requestSent") : t("bookingCreated")}</h2>
+            <p className="mt-1.5 sm:mt-2 text-xs min-[360px]:text-sm text-muted-foreground">
               {isBookingFirst ? t("awaitingExpertConfirmation") : t("redirectingToPayment")}
             </p>
 
-            <div className="mx-auto mt-6 max-w-sm rounded-xl border border-border bg-muted p-4 text-left">
+            <div className="mx-auto mt-5 sm:mt-6 max-w-sm rounded-xl border border-border bg-muted p-3.5 min-[360px]:p-4 text-left">
               <BookingSummaryCard
                 data={{
                   expertName: profile.displayName,
@@ -541,11 +542,11 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
               />
             </div>
 
-            <div className="mt-6 flex justify-center gap-3">
-              <Button asChild variant="outline" className="rounded-xl border-border text-xs">
+            <div className="mt-6 flex flex-col min-[360px]:flex-row justify-center gap-2.5 sm:gap-3">
+              <Button asChild variant="outline" className="w-full min-[360px]:w-auto rounded-xl border-border text-xs">
                 <Link href="/client/dashboard">{t("goToDashboard")}</Link>
               </Button>
-              <Button asChild className="rounded-xl bg-brand-dark text-xs text-on-brand hover:bg-brand-dark/90">
+              <Button asChild className="w-full min-[360px]:w-auto rounded-xl bg-brand-dark text-xs text-on-brand hover:bg-brand-dark/90">
                 <Link href="/search">{t("findAnotherLawyer")}</Link>
               </Button>
             </div>

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter, usePathname } from "@/i18n/routing";
+import { useRouter, usePathname, Link } from "@/i18n/routing";
 import {
-  User, Key, Palette, Loader2, Save, Lock, Globe, AlertTriangle,
-  CheckCircle, Monitor, Pencil, X, Check, Building2, BookOpen,
+  User, Palette, Loader2, Save, Globe, AlertTriangle,
+  Pencil, X, Check, Building2, BookOpen,
   MapPin, DollarSign, BadgeCheck, Briefcase, Hash, Languages,
-  FileText,
+  FileText, Sun, Moon, Laptop, ShieldCheck, ArrowUpRight,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -29,7 +30,6 @@ import { getErrorMessage } from "@/lib/utils";
 import { ExpertPhotoUploader } from "@/shared/components/photo-upload";
 import { useAuth } from "@/providers/auth-provider";
 import { EXPERT_PHOTO_URL_QUERY_KEY, useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
-import { ThemeToggle } from "@/shared/components/theme-toggle";
 import {
   PageHeader,
   StatusBadge,
@@ -53,23 +53,12 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 
-type TabId = "profile" | "account" | "preferences";
+type TabId = "profile" | "preferences";
 
 const TABS: { id: TabId; icon: React.ElementType }[] = [
   { id: "profile", icon: User },
-  { id: "account", icon: Key },
   { id: "preferences", icon: Palette },
 ];
-
-interface SessionInfo {
-  id: string;
-  device: string;
-  browser: string;
-  ip: string;
-  lastActive: string;
-  isCurrent: boolean;
-  createdAt: string;
-}
 
 type ProfileFormData = {
   displayName: string;
@@ -142,8 +131,9 @@ export default function ExpertProfilePage() {
   const patchAuthMe = usePatchAuthMe();
   const { refreshUser } = useAuth();
   const t = useTranslations("expertDashboard_profile");
-  const tChangePassword = useTranslations("expertDashboard_change-password");
+  const tSidebar = useTranslations("shared.sidebar");
   const locale = useLocale();
+  const { theme, setTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
 
@@ -159,23 +149,8 @@ export default function ExpertProfilePage() {
   const { data: signedPhotoUrl } = useExpertPhotoUrl();
   const displayPhotoUrl = confirmedPhotoUrl ?? signedPhotoUrl ?? null;
 
-  /* Account tab state */
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-
   /* Preferences tab state */
   const [language, setLanguage] = useState<keyof typeof UpdateMeDtoPreferredLanguage>("en");
-  const [savingLanguage, setSavingLanguage] = useState(false);
-
-  /* Session management */
-  const [sessions, setSessions] = useState<SessionInfo[]>([]);
-  const [loadingSessions, setLoadingSessions] = useState(false);
-  const [sessionsError, setSessionsError] = useState<string | null>(null);
-  const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null);
 
   /* Notification preferences */
   const [notifEmail, setNotifEmail] = useState(true);
@@ -285,24 +260,32 @@ export default function ExpertProfilePage() {
     if (lang) setLanguage(lang);
   }, [session]);
 
-  /* Hash-based tab navigation */
+  /* Hash-based tab navigation & security redirect */
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "") as TabId;
-    if (hash && TABS.some((t) => t.id === hash)) {
-      setActiveTab(hash);
+    const rawHash = window.location.hash.replace("#", "");
+    if (rawHash === "security" || rawHash === "account") {
+      router.replace("/expert/dashboard/security");
+    } else if (rawHash === "preferences") {
+      setActiveTab("preferences");
+    } else {
+      setActiveTab("profile");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const onHashChange = () => {
-      const hash = window.location.hash.replace("#", "") as TabId;
-      if (hash && TABS.some((t) => t.id === hash)) {
-        setActiveTab(hash);
+      const rawHash = window.location.hash.replace("#", "");
+      if (rawHash === "security" || rawHash === "account") {
+        router.replace("/expert/dashboard/security");
+      } else if (rawHash === "preferences") {
+        setActiveTab("preferences");
+      } else {
+        setActiveTab("profile");
       }
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
+  }, [router]);
 
   const handleTabClick = useCallback(
     (tabId: TabId) => {
@@ -345,83 +328,15 @@ export default function ExpertProfilePage() {
     setEditing(true);
   }
 
-  /* ── Account Tab Actions ── */
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError(null);
-    setPasswordSuccess(false);
-
-    if (newPassword.length < 8) {
-      setPasswordError(tChangePassword("errorMinLength"));
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError(tChangePassword("errorMismatch"));
-      return;
-    }
-
-    setChangingPassword(true);
-    try {
-      await apiFetch("/auth/admin/change-password", {
-        method: "POST",
-        body: { currentPassword, newPassword },
-      });
-      setPasswordSuccess(true);
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      toast.success(tChangePassword("successMessage"));
-    } catch (err: unknown) {
-      setPasswordError(getErrorMessage(err, tChangePassword("errorDefault")));
-    } finally {
-      setChangingPassword(false);
-    }
-  };
-
-  const fetchSessions = useCallback(async () => {
-    setLoadingSessions(true);
-    setSessionsError(null);
-    try {
-      const res: any = await apiFetch("/auth/sessions");
-      const list = (res.data?.data ?? res.data ?? []) as SessionInfo[];
-      setSessions(list);
-    } catch {
-      setSessionsError(t("failedLoadSessions"));
-    } finally {
-      setLoadingSessions(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (activeTab === "account") {
-      fetchSessions();
-    }
-  }, [activeTab, fetchSessions]);
-
-  const handleRevokeSession = async (sessionId: string) => {
-    setRevokingSessionId(sessionId);
-    try {
-      await apiFetch(`/auth/sessions/${sessionId}`, { method: "DELETE" });
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
-      toast.success(t("sessionRevoked"));
-    } catch {
-      toast.error(t("failedRevokeSession"));
-    } finally {
-      setRevokingSessionId(null);
-    }
-  };
-
   /* ── Preferences Tab Actions ── */
-  const handleSaveLanguage = async () => {
-    setSavingLanguage(true);
+  const handleLanguageChange = async (newLang: keyof typeof UpdateMeDtoPreferredLanguage) => {
+    setLanguage(newLang);
     try {
-      await patchAuthMe.mutateAsync({ data: { preferredLanguage: language } });
+      await patchAuthMe.mutateAsync({ data: { preferredLanguage: newLang } });
       toast.success(t("languageSaved"));
-      router.replace(pathname, { locale: language });
+      router.replace(pathname, { locale: newLang });
     } catch {
       toast.error(t("failedSaveLanguage"));
-    } finally {
-      setSavingLanguage(false);
     }
   };
 
@@ -472,42 +387,48 @@ export default function ExpertProfilePage() {
         : "?";
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader title={t("profileTitle")} description={t("profileSubtitle")} />
 
       {/* Name + role banner */}
-      <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex flex-col min-[380px]:flex-row items-center gap-4 rounded-xl border border-border bg-card p-3.5 min-[360px]:p-5 shadow-sm min-w-0 text-center min-[380px]:text-left">
         <ExpertPhotoUploader
           currentImageUrl={displayPhotoUrl}
           userName={profile?.displayName || session?.user?.name || "?"}
           size="md"
           onSuccess={handlePhotoSuccess}
         />
-        <div>
-          <p className="text-base font-semibold text-foreground">
+        <div className="min-w-0 w-full min-[380px]:w-auto">
+          <p className="text-base font-semibold text-foreground break-words">
             {profile?.displayName || session?.user?.name || t("defaultExpertName")}
           </p>
-          <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
+          <div className="flex flex-wrap items-center justify-center min-[380px]:justify-start gap-1.5 mt-0.5">
+            <p className="text-xs min-[360px]:text-sm text-muted-foreground break-all select-all">{session?.user?.email}</p>
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+              <Check size={11} className="stroke-[2.5]" />
+              Verified
+            </span>
+          </div>
           <span className="mt-1 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
             {t("expertBadge")}
           </span>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
+      {/* 2 Canonical Tabs: Profile & Preferences */}
+      <div className="flex gap-1 rounded-xl border border-border bg-muted p-1">
         {TABS.map(({ id, icon: Icon }) => (
           <button
             key={id}
             onClick={() => handleTabClick(id)}
-            className={`flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium transition-all ${
               activeTab === id
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-card shadow-sm text-foreground"
+                : "text-muted-foreground hover:bg-card/50"
             }`}
           >
-            <Icon size={14} />
-            <span className="hidden sm:inline">{(t as any)(`tabs.${id}`)}</span>
+            <Icon size={16} className="shrink-0" />
+            <span>{(t as any)(`tabs.${id}`)}</span>
           </button>
         ))}
       </div>
@@ -573,7 +494,13 @@ export default function ExpertProfilePage() {
                         </StatusBadge>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">{session?.user?.email || ""}</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <p className="text-sm text-muted-foreground">{session?.user?.email || ""}</p>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <Check size={10} className="stroke-[2.5]" />
+                        Verified
+                      </span>
+                    </div>
                     {!editing && profile?.user?.phone && (
                       <p className="text-sm text-muted-foreground">{profile.user.phone}</p>
                     )}
@@ -595,7 +522,7 @@ export default function ExpertProfilePage() {
                 </div>
 
                 <div className="rounded-xl border border-border bg-card shadow-sm lg:col-span-2">
-                  <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border px-4 sm:px-5 py-4">
                     <div>
                       <h2 className="text-base font-bold text-foreground">{t("professionalDetailsTitle")}</h2>
                       <p className="mt-0.5 text-sm text-muted-foreground">
@@ -603,12 +530,12 @@ export default function ExpertProfilePage() {
                       </p>
                     </div>
                     {editing ? (
-                      <div className="flex gap-2">
-                        <Button variant="ghost" onClick={cancelEditing} disabled={busy}>
+                      <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <Button variant="ghost" onClick={cancelEditing} disabled={busy} className="flex-1 sm:flex-none">
                           <X size={14} className="mr-1.5" />
                           {t("cancelBtn")}
                         </Button>
-                        <Button onClick={handleSaveProfile} disabled={busy}>
+                        <Button onClick={handleSaveProfile} disabled={busy} className="flex-1 sm:flex-none">
                           {busy ? (
                             <Loader2 size={14} className="mr-1.5 animate-spin" />
                           ) : (
@@ -618,16 +545,16 @@ export default function ExpertProfilePage() {
                         </Button>
                       </div>
                     ) : profile ? (
-                      <Button variant="outline" onClick={startEditing}>
+                      <Button variant="outline" onClick={startEditing} className="w-full sm:w-auto">
                         <Pencil size={14} className="mr-1.5" />
                         {t("editProfileBtn")}
                       </Button>
                     ) : null}
                   </div>
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     {editing ? (
                       <div className="space-y-5">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label htmlFor="displayName">{t("displayNameLabel")} *</Label>
                             <Input
@@ -657,7 +584,7 @@ export default function ExpertProfilePage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label htmlFor="barNumber">{t("barNumberLabel")} *</Label>
                             <Input
@@ -680,7 +607,7 @@ export default function ExpertProfilePage() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label htmlFor="primarySpecialty">{t("primarySpecialtyLabel")} *</Label>
                             <Select
@@ -719,7 +646,7 @@ export default function ExpertProfilePage() {
 
                         <div className="space-y-1.5">
                           <Label>{t("additionalSpecialtiesLabel")}</Label>
-                          <div className="grid grid-cols-2 gap-2 rounded-lg border border-border p-3 sm:grid-cols-3">
+                          <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg border border-border p-3">
                             {Object.entries(LEGAL_SPECIALTY_LABELS).map(([value, label]) => {
                               const checked = form.specialties.includes(value as LegalSpecialty);
                               return (
@@ -743,7 +670,7 @@ export default function ExpertProfilePage() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label htmlFor="baseConsultationFee">{t("consultationFeeLabel")}</Label>
                             <Input
@@ -770,7 +697,7 @@ export default function ExpertProfilePage() {
 
                         <Separator />
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <Label htmlFor="city">{t("cityLabel")}</Label>
                             <Input
@@ -832,182 +759,91 @@ export default function ExpertProfilePage() {
                   </div>
                 </div>
               </div>
+
+              {/* Security Settings Callout */}
+              <div className="rounded-xl border border-border/60 bg-muted/20 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{tSidebar("security")}</p>
+                    <p className="text-xs text-muted-foreground">{t("profileSubtitle")}</p>
+                  </div>
+                </div>
+                <Link
+                  href="/expert/dashboard/security"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors shrink-0"
+                >
+                  <span>{tSidebar("security")}</span>
+                  <ArrowUpRight size={14} />
+                </Link>
+              </div>
             </>
           )}
         </>
       )}
 
-      {/* ── Account Tab ── */}
-      {activeTab === "account" && (
-        <div className="space-y-4">
-          <form onSubmit={handleChangePassword} className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">{tChangePassword("title")}</h3>
-            <div className="max-w-md space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="ac-current-pw">
-                  {tChangePassword("labelCurrent")}
-                </Label>
-                <Input
-                  id="ac-current-pw"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder={tChangePassword("placeholderCurrent")}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ac-new-pw">
-                  {tChangePassword("labelNew")}
-                </Label>
-                <Input
-                  id="ac-new-pw"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={tChangePassword("placeholderNew")}
-                />
-                {newPassword && newPassword.length < 8 && (
-                  <p className="text-xs text-destructive">{tChangePassword("errorMinLength")}</p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ac-confirm-pw">
-                  {tChangePassword("labelConfirm")}
-                </Label>
-                <Input
-                  id="ac-confirm-pw"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder={tChangePassword("placeholderConfirm")}
-                />
-                {confirmPassword && newPassword !== confirmPassword && (
-                  <p className="text-xs text-destructive">{tChangePassword("errorMismatch")}</p>
-                )}
-              </div>
-            </div>
-
-            {passwordError && (
-              <div className="mt-3 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <AlertTriangle size={15} className="mt-0.5 shrink-0" />
-                {passwordError}
-              </div>
-            )}
-
-            {passwordSuccess && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
-                <CheckCircle size={15} className="text-primary" />
-                {tChangePassword("successMessage")}
-              </div>
-            )}
-
-            <Button type="submit" className="mt-4" disabled={changingPassword || !currentPassword || newPassword.length < 8 || newPassword !== confirmPassword}>
-              {changingPassword ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
-              {tChangePassword("submitButton")}
-            </Button>
-          </form>
-
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">{t("activeSessionsTitle")}</h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              {t("activeSessionsDesc")}
-            </p>
-            {loadingSessions ? (
-              <LoadingSpinner />
-            ) : sessionsError ? (
-              <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
-                <AlertTriangle size={18} className="mr-2" />
-                {sessionsError}
-              </div>
-            ) : sessions.length === 0 ? (
-              <EmptyState icon={Monitor} title={t("noActiveSessions")} className="py-8" />
-            ) : (
-              <div className="divide-y divide-border">
-                {sessions.map((s) => (
-                  <div
-                    key={s.id}
-                    className={`flex items-center justify-between gap-4 py-3 ${
-                      s.isCurrent ? "rounded-md bg-primary/5 px-3" : "px-1"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Monitor size={18} className="shrink-0 text-muted-foreground" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {s.device || t("unknownDevice")}
-                          {s.isCurrent && (
-                            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase text-primary">
-                              {t("currentBadge")}
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {s.browser && `${s.browser} · `}{s.ip && `${s.ip} · `}
-                          {t("lastActive")}: {s.lastActive ? new Date(s.lastActive).toLocaleDateString(locale) : t("notAvailable")}
-                        </p>
-                      </div>
-                    </div>
-                    {!s.isCurrent && (
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        onClick={() => handleRevokeSession(s.id)}
-                        disabled={revokingSessionId === s.id}
-                        className="shrink-0 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        {revokingSessionId === s.id ? <Loader2 size={14} className="animate-spin" /> : t("revokeBtn")}
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* ── Preferences Tab ── */}
       {activeTab === "preferences" && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">{t("appearanceTitle")}</h3>
+          {/* Visual Theme Selector */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+            <h3 className="mb-1 text-base font-bold text-foreground">{t("appearanceTitle")}</h3>
             <p className="mb-4 text-sm text-muted-foreground">{t("appearanceDesc")}</p>
-            <div className="flex items-center gap-4">
-              <ThemeToggle />
-              <span className="text-sm text-foreground">{t("toggleThemeDesc")}</span>
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-4 max-w-lg">
+              {[
+                { id: "light", label: "Light", icon: Sun },
+                { id: "dark", label: "Dark", icon: Moon },
+                { id: "system", label: "System", icon: Laptop },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSelected = theme === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setTheme(item.id)}
+                    className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-3 sm:p-4 text-center transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/10 text-primary font-semibold shadow-sm ring-1 ring-primary"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span className="text-xs sm:text-sm">{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-            <h3 className="mb-4 text-base font-bold text-foreground">{t("languageTitle")}</h3>
+          {/* Language Selection with Auto-Save */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+            <h3 className="mb-1 text-base font-bold text-foreground">{t("languageTitle")}</h3>
             <p className="mb-4 text-sm text-muted-foreground">{t("languageDesc")}</p>
             <div className="flex items-center gap-4">
-              <Globe size={18} className="text-muted-foreground" />
+              <Globe size={18} className="text-muted-foreground shrink-0" />
               <select
                 value={language}
-                onChange={(e) => setLanguage(e.target.value as keyof typeof UpdateMeDtoPreferredLanguage)}
-                className="h-10 max-w-xs rounded-lg border border-border bg-card px-3 text-sm text-foreground"
+                onChange={(e) => handleLanguageChange(e.target.value as keyof typeof UpdateMeDtoPreferredLanguage)}
+                className="h-10 w-full max-w-xs rounded-lg border border-border bg-card px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="en">{t("langEnglish")}</option>
                 <option value="fr">{t("langFrench")}</option>
                 <option value="rw">{t("langKinyarwanda")}</option>
               </select>
             </div>
-            <Button onClick={handleSaveLanguage} disabled={savingLanguage} className="mt-4">
-              {savingLanguage ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-              {t("saveLanguageBtn")}
-            </Button>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm">
             <h3 className="mb-4 text-base font-bold text-foreground">{t("notifsTitle")}</h3>
             <p className="mb-4 text-sm text-muted-foreground">{t("notifsDesc")}</p>
             {loadingNotifs ? (
               <LoadingSpinner />
             ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 min-[360px]:px-4 py-3">
+                  <div className="min-w-0 flex-1 mr-2">
                     <p className="text-sm font-medium text-foreground">{t("emailNotifs")}</p>
                     <p className="text-xs text-muted-foreground">{t("emailNotifsDesc")}</p>
                   </div>
@@ -1015,10 +851,11 @@ export default function ExpertProfilePage() {
                     checked={notifEmail}
                     onCheckedChange={(v) => setNotifEmail(v)}
                     aria-label={t("emailNotifs")}
+                    className="shrink-0"
                   />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 min-[360px]:px-4 py-3">
+                  <div className="min-w-0 flex-1 mr-2">
                     <p className="text-sm font-medium text-foreground">{t("pushNotifs")}</p>
                     <p className="text-xs text-muted-foreground">{t("pushNotifsDesc")}</p>
                   </div>
@@ -1026,10 +863,11 @@ export default function ExpertProfilePage() {
                     checked={notifPush}
                     onCheckedChange={(v) => setNotifPush(v)}
                     aria-label={t("pushNotifs")}
+                    className="shrink-0"
                   />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
-                  <div>
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 min-[360px]:px-4 py-3">
+                  <div className="min-w-0 flex-1 mr-2">
                     <p className="text-sm font-medium text-foreground">{t("inAppNotifs")}</p>
                     <p className="text-xs text-muted-foreground">{t("inAppNotifsDesc")}</p>
                   </div>
@@ -1037,9 +875,10 @@ export default function ExpertProfilePage() {
                     checked={notifInApp}
                     onCheckedChange={(v) => setNotifInApp(v)}
                     aria-label={t("inAppNotifs")}
+                    className="shrink-0"
                   />
                 </div>
-                <Button onClick={handleSaveNotifPrefs} disabled={savingNotifs} className="mt-4">
+                <Button onClick={handleSaveNotifPrefs} disabled={savingNotifs} className="mt-4 w-full sm:w-auto">
                   {savingNotifs ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                   {t("saveNotifsBtn")}
                 </Button>

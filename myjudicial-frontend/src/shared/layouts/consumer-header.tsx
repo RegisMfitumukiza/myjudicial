@@ -140,7 +140,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                 onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-brand-dark text-[11px] sm:text-xs font-bold text-on-brand">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-[#16324f] text-white dark:bg-blue-950/80 dark:text-blue-200 dark:border dark:border-blue-700/50 text-[11px] sm:text-xs font-bold">
                   {getInitials(user.firstName + " " + user.lastName)}
                 </div>
               </button>

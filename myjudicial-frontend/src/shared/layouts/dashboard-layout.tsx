@@ -34,9 +34,9 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
   // Citizens get consumer-style layout (top nav)
   if (user.role === UserRole.CITIZEN) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-x-auto">
         <ConsumerHeader user={user} pathname={pathname} />
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 min-w-[260px]">
           {children}
         </main>
       </div>
@@ -50,10 +50,12 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
       <AppSidebar user={user} pathname={pathname} />
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Add padding top on mobile to account for fixed header */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:pt-6 pt-20">
-          {children}
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        {/* Clear fixed mobile header on screens < 1024px, zero top offset on desktop */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 pt-16 lg:pt-0">
+          <div className="w-full min-w-0 min-h-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -13,10 +13,7 @@ const STATIC_ROUTES = [
   '/pricing',
   '/contact',
   '/help',
-  '/resources',
   '/partners',
-  '/blog',
-  '/press',
   '/careers',
   '/ai',
   '/terms',
@@ -30,16 +27,23 @@ function buildAlternates(path: string) {
   ) as Record<string, string>;
 }
 
+function getApiUrl(): string {
+  const base = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
+  const prefix = (process.env.NEXT_PUBLIC_API_PREFIX ?? '/api/v1').replace(/\/+$/, '');
+  return `${base}${prefix}`;
+}
+
 async function getExpertIds(): Promise<string[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
     const res = await fetch(
-      `${apiUrl}/experts?status=ACTIVE&limit=500&fields=id`,
+      `${getApiUrl()}/experts?status=ACTIVE&limit=500&fields=id`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
-    const json = await res.json();
-    const experts: Array<{ id: string }> = json?.data?.experts ?? json?.data ?? [];
+    const text = await res.text();
+    if (!text || !text.trim()) return [];
+    const json = JSON.parse(text);
+    const experts: Array<{ id: string }> = json?.data?.experts ?? (Array.isArray(json?.data) ? json.data : []);
     return experts.map((e) => e.id).filter(Boolean);
   } catch {
     return [];

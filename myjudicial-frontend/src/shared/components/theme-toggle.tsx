@@ -9,13 +9,17 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ variant = "default", className = "" }: ThemeToggleProps) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  };
 
   if (variant === "header") {
     return (
       <button
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className={`relative flex h-9 w-9 items-center justify-center rounded-full text-foreground/80 transition-colors hover:bg-accent hover:text-foreground ${className}`}
+        onClick={toggleTheme}
+        className={`relative flex h-9 w-9 items-center justify-center rounded-full text-black dark:text-white transition-colors hover:bg-accent/20 ${className}`}
         title="Toggle theme"
         aria-label="Toggle theme"
       >
@@ -28,7 +32,7 @@ export function ThemeToggle({ variant = "default", className = "" }: ThemeToggle
 
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
       className={`relative flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground ${className}`}
       title="Toggle theme"
       aria-label="Toggle theme"

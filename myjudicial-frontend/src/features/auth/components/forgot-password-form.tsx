@@ -70,25 +70,25 @@ export function ForgotPasswordForm() {
     return (
       <div>
         <div className="mb-5 flex justify-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-blue/10">
-            <CheckCircle2 className="h-7 w-7 text-brand-blue" />
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-foreground">
+            <CheckCircle2 className="h-7 w-7 text-foreground" />
           </span>
         </div>
-        <h1 className="mb-2 text-[22px] font-bold text-brand-dark">{t("checkEmail")}</h1>
+        <h1 className="mb-2 text-[22px] font-bold text-foreground">{t("checkEmail")}</h1>
         <p className="mb-7 text-sm leading-relaxed text-muted-foreground">
           {t("emailSentMsg1")}{" "}
-          <span className="font-semibold text-brand-dark">{form.getValues("email")}</span>
+          <span className="font-semibold text-foreground">{form.getValues("email")}</span>
           {t("emailSentMsg2")}
         </p>
 
         {devToken && (
-          <div className="mb-5 rounded-lg border border-brand-border bg-muted p-4 text-left">
+          <div className="mb-5 rounded-lg border border-border bg-muted p-4 text-left">
             <p className="mb-1 text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
               {t("devModeReset")}
             </p>
             <Link
               href={`/reset-password/${devToken}`}
-              className="break-all text-sm font-medium text-brand-blue underline hover:text-brand-dark"
+              className="break-all text-sm font-medium text-brand-dark dark:text-white underline hover:opacity-80"
             >
               {`${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/reset-password/${devToken}`}
             </Link>
@@ -97,7 +97,7 @@ export function ForgotPasswordForm() {
 
         <Button
           asChild
-          className="h-11 w-full rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90"
+          className="h-12 w-full rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 transition-opacity"
         >
           <Link href="/sign-in">{t("backToSignIn")}</Link>
         </Button>
@@ -108,7 +108,7 @@ export function ForgotPasswordForm() {
   return (
     <div>
       <div className="mb-7 space-y-1.5">
-        <h1 className="text-[22px] font-bold text-brand-dark">{t("accountRecovery")}</h1>
+        <h1 className="text-[22px] font-bold text-foreground">{t("accountRecovery")}</h1>
         <p className="text-sm text-muted-foreground">
           {t("emailVerificationPrimary")}
         </p>
@@ -122,7 +122,7 @@ export function ForgotPasswordForm() {
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
         <Field>
-          <FieldLabel htmlFor="email" className="text-sm font-medium text-brand-dark">
+          <FieldLabel htmlFor="email" className="text-sm font-medium text-foreground">
             {t("emailAddress")}
           </FieldLabel>
           <FieldContent>
@@ -133,7 +133,7 @@ export function ForgotPasswordForm() {
                 type="email"
                 placeholder={t("emailPlaceholder")}
                 disabled={isLoading}
-                className="h-11 rounded-lg border-brand-border pl-9 text-sm focus-visible:ring-brand-blue/20"
+                className="h-11 rounded-lg border-border pl-9 text-sm text-foreground focus-visible:ring-foreground/20"
                 {...form.register("email")}
               />
             </div>
@@ -146,7 +146,7 @@ export function ForgotPasswordForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 transition-opacity"
         >
           {isLoading ? t("sendingLink") : t("sendResetLink")}
           {!isLoading && <ArrowRight className="h-4 w-4" />}
@@ -155,7 +155,7 @@ export function ForgotPasswordForm() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {t("rememberEmail")}{" "}
-        <Link href="/sign-in" className="font-semibold text-brand-blue hover:underline">
+        <Link href="/sign-in" className="font-semibold text-brand-dark dark:text-white hover:underline transition-colors">
           {t("signInHere")}
         </Link>
       </p>

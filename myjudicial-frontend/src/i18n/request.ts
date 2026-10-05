@@ -16,7 +16,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    timeZone: 'UTC',
+    timeZone: 'Africa/Kigali',
     messages: messages[locale] ?? messages.en
   };
 });

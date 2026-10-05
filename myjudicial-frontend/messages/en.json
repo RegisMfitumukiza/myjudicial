@@ -11,6 +11,8 @@
       "stats": {
         "verifiedExperts": "Verified Advocates",
         "completedConsultations": "Completed Consultations",
+        "completedConsultationsDesc": "Milestone-verified & rated",
+        "verifiedConsultations": "Verified Consultations",
         "totalClients": "Satisfied Clients",
         "barCertified": "100% Bar Certified",
         "barCertifiedDesc": "Cross-checked on official RBA Roll",
@@ -83,6 +85,52 @@
     "disclaimer": {
       "title": "Regulatory Notice",
       "text": "MyJudicial is an independent technology platform connecting clients with accredited Rwanda Bar Association advocates. MyJudicial is not a law firm and does not provide legal representation directly."
+    },
+    "verification": {
+      "badge": "Advocate Verification Protocol",
+      "title": "The 4-Stage Advocate Verification Protocol",
+      "subtitle": "Every advocate on MyJudicial passes a documented, audited review before their profile goes live.",
+      "stage1Number": "01",
+      "stage1Badge": "Credentials",
+      "stage1Title": "Identity & License Verification",
+      "stage1Desc": "A government-issued ID and an active Rwanda Bar Association (RBA) licence are collected and checked by our review team before any profile is drafted.",
+      "stage2Number": "02",
+      "stage2Badge": "Bar Roll",
+      "stage2Title": "Official Roll Cross-Check",
+      "stage2Desc": "Registration details are cross-referenced against the official RBA Roll of Advocates to confirm the advocate is in good standing.",
+      "stage3Number": "03",
+      "stage3Badge": "Governance",
+      "stage3Title": "Conduct & Fee Review",
+      "stage3Desc": "Advocates agree to published fixed fees, escrow terms, and the platform code of conduct before offering consultations.",
+      "stage4Number": "04",
+      "stage4Badge": "Reviewed",
+      "stage4Title": "Go-Live Human Review",
+      "stage4Desc": "A final human review approves the published profile. Every step of the process is written to an audit log."
+    },
+    "milestones": {
+      "badge": "Platform Evolution",
+      "title": "Our Journey",
+      "subtitle": "From a simple matching idea to a governed marketplace, built in public.",
+      "item1Year": "2024",
+      "item1Title": "The Idea",
+      "item1Desc": "MyJudicial starts with a simple observation: finding a lawyer in Rwanda should not be opaque, slow, or intimidating.",
+      "item2Year": "2025",
+      "item2Title": "Verification & Escrow",
+      "item2Desc": "The advocate verification protocol and fee escrow are built, so credentials and payments are protected by default.",
+      "item3Year": "2026",
+      "item3Title": "An Open Marketplace",
+      "item3Desc": "A trilingual public platform ships with secure video consultations and AI-assisted case triage for clients across Rwanda."
+    },
+    "governance": {
+      "badge": "Governance & Ethics",
+      "title": "Institutional Governance & Ethics",
+      "subtitle": "Clear rules that keep the marketplace fair for clients and advocates alike.",
+      "rule1Title": "Escrow Release Only on Completion",
+      "rule1Desc": "A paid consultation fee is held in escrow and released to the advocate only after the consultation is completed, or refunded on cancellation.",
+      "rule2Title": "One Fee, One Consultation",
+      "rule2Desc": "Published fees are fixed and tied to a single consultation. There are no hidden charges, and disputes follow a documented process.",
+      "rule3Title": "Confidentiality by Design",
+      "rule3Desc": "Consultations are private, limited to the booked participants, and never recorded. Data is handled under Rwanda Law No. 058/2021."
     }
   },
   "admin": {
@@ -428,7 +476,95 @@
       "aboutCmsDesc": "Overrides the default static copy on the public About page. Leave empty to use default localized text.",
       "aboutVision": "Vision Statement",
       "aboutMission": "Mission Statement",
-      "aboutStory": "Company Story / Background"
+      "aboutStory": "Company Story / Background",
+      "seoTitle": "SEO & Open Graph Social Sharing",
+      "seoDesc": "Default metadata used for search engines and social sharing cards.",
+      "ogImageUrl": "Open Graph Image URL",
+      "ogImageUrlDesc": "1200 × 630 PNG/JPG shown in social share previews. Falls back to /og_image.png when empty.",
+      "defaultSeoTitle": "Default SEO Title",
+      "defaultSeoTitleDesc": "Appears in search results and browser tabs. Keep under 60 characters.",
+      "defaultSeoDesc": "Default SEO Description",
+      "defaultSeoDescHelper": "Summarizes the page in search results. Keep under 160 characters.",
+      "seoKeywords": "SEO Keywords",
+      "seoKeywordsDesc": "Comma-separated keywords to help search engines index the platform.",
+      "livePreview": "Live Preview",
+      "brandIdentityTitle": "Brand Identity & Public Tagline",
+      "brandIdentityDesc": "Public-facing identity and footer text.",
+      "platformTagline": "Platform Tagline",
+      "platformTaglineDesc": "Short slogan displayed in the hero section of the landing page.",
+      "copyrightNotice": "Copyright Notice",
+      "copyrightNoticeDesc": "Footer copyright line with the current year and legal entity.",
+      "supportHours": "Support Hours",
+      "supportHoursDesc": "Working hours displayed on the Contact page and in support emails.",
+      "coreValues": "Core Values",
+      "coreValuesDesc": "Values displayed on the About page. Each supports an optional icon.",
+      "valueTitle": "Value Title",
+      "valueIcon": "Icon",
+      "valueDescription": "Description",
+      "removeValue": "Remove value",
+      "resetValues": "Reset Defaults",
+      "addValue": "Add Value",
+      "milestones": "Company Milestones",
+      "milestonesDesc": "Timeline entries displayed on the About page.",
+      "milestoneYear": "Year / Period",
+      "milestoneTitle": "Milestone Title",
+      "milestoneDesc": "Description",
+      "removeMilestone": "Remove milestone",
+      "resetMilestones": "Reset Defaults",
+      "addMilestone": "Add Milestone",
+      "careersTitle": "Careers & Talent Operations",
+      "careersDesc": "Recruitment contact and hiring status shown on the Careers page.",
+      "careersRolesManaged": "Open positions are managed on the <link>Careers</link> page, where you can add full descriptions, requirements, and application details.",
+      "careersEmail": "Careers Email",
+      "hiringStatus": "Hiring Status",
+      "hiringActive": "Actively Hiring",
+      "hiringTalentPool": "Building Talent Pool",
+      "hiringPaused": "Paused",
+      "openPositions": "Open Positions",
+      "addPosition": "Add Position",
+      "noPositions": "No open positions yet. Add one to start recruiting.",
+      "removePosition": "Remove position",
+      "roleTitle": "Job Title",
+      "roleDepartment": "Department",
+      "roleLocation": "Location",
+      "roleType": "Employment Type",
+      "roleApplyUrl": "Apply Link (URL)",
+      "platformOpsTitle": "Platform Operations & Escrow",
+      "platformOpsDesc": "Escrow, payment, default role, and maintenance behavior for all transactions.",
+      "maintenanceNotice": "Maintenance Notice",
+      "maintenanceNoticeDesc": "Banner message broadcast to visitors while maintenance mode is enabled.",
+      "consultationRulesTitle": "Consultation Booking Governance",
+      "consultationRulesDesc": "Rules controlling how far in advance consultations can be booked and cancelled.",
+      "minAdvanceBookingHours": "Minimum Advance Booking (hours)",
+      "minAdvanceBookingHoursDesc": "How far in advance clients must book a consultation.",
+      "cancellationGraceHours": "Cancellation Grace Period (hours)",
+      "cancellationGraceHoursDesc": "Window before a consultation start during which a free cancellation is allowed.",
+      "legalDisclaimerTitle": "Legal Policies, Compliance & Supplemental FAQs",
+      "legalDisclaimerDesc": "Legal compliance details and supplemental FAQ content shown on Help and legal pages.",
+      "legalEffectiveDate": "Policies Effective Date",
+      "legalEffectiveDateDesc": "Date shown on policy pages as the last review/revision date.",
+      "dpoEmail": "DPO Contact Email",
+      "dpoEmailDesc": "Data Protection Officer mailbox for privacy and data requests.",
+      "legalDisclaimer": "Legal Disclaimer",
+      "supplementalFaqs": "Supplemental FAQs",
+      "supplementalFaqsDesc": "Extra Q&A pairs appended to the Help page FAQ section.",
+      "addFaq": "Add FAQ",
+      "noFaqs": "No supplemental FAQs yet. Add one to publish it.",
+      "faqQuestion": "Question",
+      "faqCategory": "Category",
+      "faqAnswer": "Answer",
+      "removeFaq": "Remove FAQ",
+      "tabGeneral": "Platform & Operations",
+      "tabAbout": "About Platform",
+      "tabCareers": "Careers Hub",
+      "tabLegal": "Legal & Policies",
+      "tabContent": "Page Content (CMS)",
+      "viewLivePage": "View Live Page",
+      "previewPage": "Preview Page",
+      "aboutTabDesc": "Manage mission, vision, founding narrative, core values, and milestones displayed on the public /about page.",
+      "careersTabDesc": "Single source of truth for hiring posture, recruitment email, and open positions displayed on /careers.",
+      "legalTabDesc": "Configure statutory disclaimers, DPO contact, legal effective dates, and supplemental FAQs.",
+      "contentTabDesc": "Multi-locale CMS block editor for managing public content pages, revisions, and translations."
     },
     "compliance": {
       "title": "Compliance Dashboard",
@@ -1605,58 +1741,6 @@
     "submitting": "Submitting...",
     "submitReview": "Submit Review"
   },
-  "comingSoonPage": {
-    "blog": {
-      "meta": {
-        "title": "Blog | MyJudicial",
-        "description": "Read the latest news and insights from MyJudicial."
-      },
-      "hero": {
-        "badge": "Blog",
-        "title": "The MyJudicial Blog",
-        "subtitle": "News, updates, and insights from our team and legal experts."
-      },
-      "comingSoon": {
-        "title": "Coming Soon",
-        "desc": "We are currently setting up our editorial team. Check back soon for our first publications."
-      }
-    },
-    "careers": {
-      "meta": {
-        "title": "Careers | MyJudicial",
-        "description": "Join the team at MyJudicial and help us democratize access to justice in Rwanda."
-      },
-      "hero": {
-        "badge": "Careers",
-        "title": "Join Our Team",
-        "subtitle": "Help us build the digital infrastructure for Rwanda's legal system."
-      },
-      "comingSoon": {
-        "title": "No Open Positions",
-        "desc": "We don't have any open roles at the moment, but we're always looking for great talent. Check back soon."
-      }
-    },
-    "press": {
-      "meta": {
-        "title": "Press & Media | MyJudicial",
-        "description": "Press releases, media kits, and news about MyJudicial."
-      },
-      "hero": {
-        "badge": "Press",
-        "title": "Press & Media",
-        "subtitle": "Everything you need to know about MyJudicial for your next story."
-      },
-      "comingSoon": {
-        "title": "Media Kit Coming Soon",
-        "desc": "Our press resources are currently being updated. For immediate media inquiries, please contact us."
-      }
-    },
-    "cta": {
-      "title": "Need something else?",
-      "button1": "Find a Lawyer",
-      "button2": "Contact Us"
-    }
-  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -1692,6 +1776,29 @@
     "active": "Active",
     "inactive": "Inactive",
     "description": "Description",
+    "emailPopover": {
+      "title": "Contact via Email",
+      "copyEmail": "Copy email address",
+      "copied": "Copied to clipboard!",
+      "copyFailed": "Failed to copy",
+      "sendVia": "Send email via",
+      "gmailWeb": "Gmail (Web)",
+      "outlookWeb": "Outlook (Web)",
+      "defaultApp": "Default Mail App",
+      "inBrowser": "Opens compose window in new tab",
+      "desktopApp": "Opens configured system email app"
+    },
+    "phonePopover": {
+      "title": "Contact via Phone",
+      "copyPhone": "Copy number",
+      "copied": "Copied to clipboard!",
+      "copyFailed": "Failed to copy",
+      "contactVia": "Contact options",
+      "directCall": "Direct Call",
+      "callInApp": "Opens phone dialer or default call app",
+      "whatsapp": "WhatsApp",
+      "whatsappDesc": "Chat or voice call via WhatsApp"
+    },
     "pagination": {
       "previous": "Previous",
       "next": "Next",
@@ -1745,7 +1852,10 @@
       "title": "Contact Information",
       "email": "support@myjudicial.com",
       "location": "Kigali, Rwanda",
-      "hours": "Monday – Friday: 8:00 AM – 6:00 PM (CAT)"
+      "hours": "Monday – Friday: 8:00 AM – 6:00 PM (CAT)",
+      "inboxTitle": "Official Operations Inbox",
+      "inboxDesc": "For client assistance, advocate onboarding, and institutional partnership inquiries.",
+      "appointmentNotice": "In-person consultations and advocate document verifications are held during standard business hours."
     },
     "departments": {
       "client": {
@@ -1772,8 +1882,10 @@
       "poBox": "P.O. Box 2848, Kigali",
       "hotline": "+250 788 312 456",
       "whatsapp": "Chat on WhatsApp",
+      "whatsappPrefill": "Hello MyJudicial Legal Operations",
       "openGoogleMaps": "Open in Google Maps",
-      "openAppleMaps": "Open in Apple Maps"
+      "openAppleMaps": "Open in Apple Maps",
+      "mapBadge": "Verified Headquarters • Kigali CBD"
     },
     "form": {
       "title": "Send Us a Message",
@@ -1785,9 +1897,11 @@
         "institutional": "Institutional / Partners",
         "general": "General Inquiry"
       },
+      "directedTo": "Directed to:",
       "name": "Full Name",
       "email": "Email Address",
       "phone": "Phone Number",
+      "phoneCountryCode": "Code",
       "reference": "Case / Booking ID (Optional)",
       "subject": "Subject",
       "message": "Your Message",
@@ -1802,7 +1916,35 @@
       "successTitle": "Inquiry Submitted Successfully",
       "successDesc": "Your message has been assigned Ticket Reference",
       "successSla": "Our legal operations team in Kigali will review and reply within 2 business hours to your email.",
-      "sendAnother": "Send Another Inquiry"
+      "sendAnother": "Send Another Inquiry",
+      "submitError": "Failed to send inquiry. Please check your connection or email us directly at support@myjudicial.com."
+    },
+    "validation": {
+      "nameRequired": "Full name is required",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Please enter a valid email address",
+      "subjectRequired": "Subject is required",
+      "messageRequired": "Message cannot be empty",
+      "messageMinLength": "Message must be at least 10 characters"
+    },
+    "actions": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyTicket": "Copy Ticket",
+      "ticketCopied": "Ticket reference copied",
+      "copyEmail": "Copy Email",
+      "emailCopied": "Email copied to clipboard"
+    },
+    "emailMenu": {
+      "trigger": "Open in Email",
+      "chooseEmailService": "Choose Email Service",
+      "gmail": "Gmail (Web)",
+      "outlook": "Outlook.com (Web)",
+      "defaultApp": "Default Mail App",
+      "emailInBrowser": "Opens in browser tab",
+      "emailOnDevice": "Opens local mail client",
+      "copyEmailAddress": "Copy Email Address",
+      "copyEmailAddressDesc": "Copy to clipboard"
     },
     "labels": {
       "email": "Email",
@@ -1818,6 +1960,7 @@
       "message": "Describe your inquiry in detail..."
     },
     "selfService": {
+      "badge": "Fast-Track Solutions",
       "title": "Looking for Immediate Counsel or Answers?",
       "subtitle": "Access our verified legal marketplace and resources without waiting for email correspondence.",
       "card1Title": "Find a Verified Advocate",
@@ -1945,10 +2088,10 @@
       "availableSlotsToday": "Available Slots Today",
       "nextBooking": "Next Booking",
       "noUpcomingBookings": "No upcoming bookings",
-      "basedOnReviews": "Based on {count} review{plural}",
+      "basedOnReviews": "{count, plural, =1 {Based on 1 review} other {Based on # reviews}}",
       "noReviewsYet": "No reviews yet",
       "availability": "Availability",
-      "slotsRemainingToday": "{count} slot{plural} remaining today",
+      "slotsRemainingToday": "{count, plural, =1 {1 slot remaining today} other {# slots remaining today}}",
       "noMoreSlotsToday": "No more slots today",
       "goOnlineToAccept": "Go online to accept bookings"
     },
@@ -3220,8 +3363,17 @@
       "clients": "For Clients & Citizens",
       "advocates": "For Certified Advocates",
       "escrow": "Payments & Escrow",
-      "trust": "Trust, Ethics & Privacy"
+      "trust": "Trust, Ethics & Privacy",
+      "general": "General Guidance"
     },
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "copyQuestionLink": "Copy link to answer",
+    "questionLinkCopied": "Link copied to clipboard!",
+    "directLink": "Direct link",
+    "hotlineLabel": "Direct hotline",
+    "hoursLabel": "Operating hours",
+    "shortcutHint": "Press / to search",
     "sidebarTitle": "Browse by Category",
     "sidebarSearchPlaceholder": "Search or filter questions...",
     "kigaliTeam": "Kigali Support Team",
@@ -3318,17 +3470,14 @@
       "title": "Still have questions or need direct assistance?",
       "subtitle": "Our local support team in Kigali is available to assist you with booking inquiries, escrow payments, or technical support.",
       "contact": "Contact Support Team",
-      "emailSupport": "Email support: support@myjudicial.com"
+      "emailSupport": "Email support: support@myjudicial.com",
+      "emailSupportLabel": "Email Support",
+      "copyEmail": "Copy email",
+      "emailCopied": "Email copied!"
     },
     "search": {
       "resultsCount": "{count} questions found",
-      "clear": "Clear search",
-      "popularTagsLabel": "Popular topics:",
-      "tagEscrow": "Escrow",
-      "tagDiaspora": "Diaspora",
-      "tagMoMo": "Mobile Money",
-      "tagCourt": "Court Representation",
-      "tagCancel": "Cancellation"
+      "clear": "Clear search"
     }
   },
   "features": {
@@ -3808,6 +3957,7 @@
     "listYourPractice": "List Your Practice",
     "joinAsAdvocate": "Join as Advocate",
     "advocateDashboard": "Advocate Portal",
+    "adminDashboard": "Admin Portal",
     "findLawyer": "Find a Lawyer",
     "practiceAreas": "Practice Areas",
     "aiAssistant": "AI Assistant",
@@ -3874,7 +4024,8 @@
   "howItWorksPage": {
     "meta": {
       "title": "How It Works | MyJudicial Legal Marketplace",
-      "description": "Discover how MyJudicial connects clients with certified Rwanda Bar Association advocates through pre-consultation intake, escrow booking, encrypted LiveKit video, and courtroom continuity."
+      "description": "Discover how MyJudicial connects clients with certified Rwanda Bar Association advocates through pre-consultation intake, escrow booking, encrypted LiveKit video, and courtroom continuity.",
+      "ogAlt": "How MyJudicial Works"
     },
     "hero": {
       "badge": "Rwanda Bar Accreditation · Escrow Protection · Courtroom Continuity",
@@ -3883,7 +4034,10 @@
     },
     "tabs": {
       "clients": "For Citizens & Businesses",
-      "advocates": "For Certified Advocates"
+      "advocates": "For Certified Advocates",
+      "aria": "Perspective selection",
+      "clientsShort": "Citizens",
+      "advocatesShort": "Advocates"
     },
     "clientJourney": {
       "badge": "Operational Client Experience",
@@ -3978,34 +4132,57 @@
         "advocateFeature3": "Seamless bridge to formal representation"
       },
       "clientRoom": {
-        "liveBadge": "LIVE SESSION",
-        "encryptionBadge": "256-BIT ENCRYPTED WEBRTC",
+        "badge": "LIVE SESSION",
+        "subBadge": "WEBRTC HD",
+        "tls": "256-Bit TLS",
+        "activeStream": "Active Audio Stream",
+        "audioCodec": "HD 48kHz",
         "advocateName": "Me. Jean-Paul Habimana",
-        "advocateRole": "Senior Advocate · Rwanda Bar Association",
-        "barRoll": "RBA Roll #482",
+        "advocateRole": "Senior Advocate · Rwanda Bar",
+        "barRoll": "Roll #482",
         "documentTitle": "Land Certificate Review",
         "documentType": "Official Land Registry Extract",
-        "documentUpi": "UPI: 1/02/03/04/5892 - Gasabo, Kigali",
-        "verifiedDoc": "Authenticity Verified · Rwanda Land Management and Use Authority",
+        "documentUpi": "UPI: 1/02/03/04/5892",
+        "verifiedDoc": "Authenticity Verified · Land Authority",
+        "metaProvince": "Province / District",
+        "metaProvinceValue": "Kigali City / Gasabo",
+        "metaZoning": "Zoning Code",
+        "metaZoningValue": "R1A - Residential",
+        "metaStatus": "Title Status",
+        "metaStatusValue": "Clean / No Encumbrances",
+        "metaShared": "Shared By",
+        "metaSharedValue": "Advocate Live Screen",
+        "youStatus": "You (Client) · Audio Active",
+        "engine": "LiveKit WebRTC",
         "sessionTime": "Remaining: 34:12",
-        "screenShareTooltip": "Sharing Land Title",
-        "leaveTooltip": "Conclude Consultation"
+        "callTitle": "Me. Jean-Paul & You"
       },
       "advocateRoom": {
-        "liveBadge": "ADVOCATE PRACTICE CONSOLE",
-        "encryptionBadge": "PRIVILEGED COUNSEL WEBRTC",
+        "badge": "COUNSEL CONSOLE",
+        "subBadge": "PRACTICE COCKPIT",
+        "tls": "256-Bit TLS",
+        "activeStream": "Client Connected · Audio Active",
+        "audioCodec": "LiveKit HD",
         "clientName": "Kalisa Eric",
+        "clientMatter": "Matter #5892",
         "clientRole": "Citizen Client · Gasabo District",
-        "clientMatter": "Land Boundary & Succession Inquiry",
-        "dossierTitle": "Client Intake Dossier & Evidence",
+        "dossierTitle": "Client Intake Dossier",
         "dossierType": "Pre-Consultation Submission",
-        "dossierUpi": "UPI: 1/02/03/04/5892 (Attached)",
-        "verifiedDoc": "Authenticity Verified · Rwanda Land Registry",
-        "clientSummary": "Client summary: Disputed parcel boundary following succession. Attached: 2021 Notarized Sale Deed & Cadastral Extract.",
-        "privateNotesTab": "Private Case Notes (Confidential to Advocate)",
-        "payoutAction": "Submit Brief & Release Escrow",
+        "dossierUpi": "UPI Attached",
+        "notesTitle": "Private Case Notes",
+        "verifiedBadge": "Verified",
+        "clientSummary": "Disputed parcel boundary following succession. 2021 Notarized Sale Deed & Cadastral Extract attached.",
+        "diagnosisLabel": "Advocate Diagnosis:",
+        "diagnosisText": "Cadastral boundary contestation requires surveyor inspection before formal writ filing at Gasabo Primary Court.",
+        "counselStatus": "Counsel Cockpit · Audio & Dossier Synced",
+        "engine": "LiveKit Console",
         "sessionTime": "Elapsed: 25:48",
-        "screenShareTooltip": "Screen Share Evidence"
+        "callTitle": "Kalisa Eric & Counsel"
+      },
+      "dock": {
+        "liveLabel": "Live Consultation",
+        "escrow": "Escrow Secured",
+        "tls": "256-Bit TLS"
       }
     },
     "continuity": {
@@ -4026,7 +4203,10 @@
         "tag": "Phase 03",
         "title": "Litigation & Secure Document Continuity",
         "desc": "Your advocate represents you before Rwandan Primary, Intermediate, High, or Commercial Courts (via IECMS), keeping ongoing case briefs and judicial rulings synchronized."
-      }
+      },
+      "check1": "Case Merit & Risk Diagnosis",
+      "check2": "Official Mandate & Procuration",
+      "check3": "IECMS Court Filings & Hearings"
     },
     "faqs": {
       "badge": "Operational FAQs",
@@ -4059,13 +4239,21 @@
       "advocateQ6": "How does MyJudicial maintain legal professional privilege and confidentiality?",
       "advocateA6": "All video and audio communications use peer-to-peer 256-bit encrypted WebRTC without platform eavesdropping or automated recording. Client data and uploaded evidence comply strictly with Law No. 058/2021 relating to the protection of personal data and Rwanda Bar confidentiality ethics."
     },
-    "cta": {
-      "clientTitle": "Ready to get trusted legal counsel in Rwanda?",
-      "clientSubtitle": "Connect with an accredited Rwanda Bar Association advocate in minutes.",
-      "advocateTitle": "Ready to modernize and grow your legal chambers?",
-      "advocateSubtitle": "Join accredited Rwanda Bar Association colleagues on MyJudicial and eliminate payment chasing.",
-      "findLawyer": "Find a Lawyer Now",
-      "joinAsAdvocate": "Apply as an Advocate"
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "micMuted": "Microphone Muted",
+    "camOff": "Camera Off",
+    "screenOff": "Screen Share Inactive",
+    "resetCall": "Reset Demo Call",
+    "controls": {
+      "micLabel": "Microphone",
+      "micTitle": "Microphone Active",
+      "camLabel": "Camera",
+      "camTitle": "Camera Active",
+      "screenLabel": "Screen Share",
+      "screenTitle": "Screen Share Active",
+      "endLabel": "Leave Consultation",
+      "endTitle": "End Consultation"
     }
   },
   "intake": {
@@ -4184,24 +4372,6 @@
     "popularSearches": {
       "title": "Popular Legal Searches",
       "subtitle": "Quick access to the most searched legal topics"
-    },
-    "resources": {
-      "title": "Legal Resources",
-      "subtitle": "Guides, FAQs, and tools to help you navigate the legal system",
-      "items": {
-        "helpCenter": "Help Center",
-        "helpCenterDesc": "Answers to common questions",
-        "legalGuides": "Legal Guides",
-        "legalGuidesDesc": "Free guides for everyday legal needs",
-        "faqs": "FAQs",
-        "faqsDesc": "Frequently asked questions",
-        "howBooking": "How Booking Works",
-        "howBookingDesc": "Step-by-step booking guide",
-        "paymentSecurity": "Payment Security",
-        "paymentSecurityDesc": "How your payments are protected",
-        "aiGuide": "AI Assistant Guide",
-        "aiGuideDesc": "Let AI match you to the right lawyer"
-      }
     },
     "trustWhy": {
       "title": "Why Trust MyJudicial?",
@@ -4520,27 +4690,209 @@
     "privacy": {
       "meta": {
         "title": "Privacy Policy | MyJudicial",
-        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
+        "description": "Learn how MyJudicial protects your personal data under Rwanda Law No. 058/2021 on Personal Data Protection and Privacy."
       },
       "hero": {
-        "badge": "Legal",
+        "badge": "Data Protection & Privacy",
         "title": "Privacy Policy",
-        "updated": "Last updated: July 15, 2026"
+        "updated": "Last updated: September 2026",
+        "updatedPrefix": "Last updated:",
+        "toc": {
+          "title": "On this page",
+          "print": "Print"
+        }
+      },
+      "rightsHelper": {
+        "badge": "Citizen Rights Portal",
+        "title": "Exercise Your Statutory Privacy Rights",
+        "subtitle": "Under Rwanda Law No. 058/2021 relating to the protection of personal data and privacy, you hold actionable statutory rights. Select a right below to view requirements or initiate a direct request with our Data Protection Officer.",
+        "statutorySlaBadge": "30-Day Statutory Resolution SLA",
+        "statutorySlaDesc": "Article 16-22 requirement: DPO responses must be issued within 30 calendar days.",
+        "selectPrompt": "Select a statutory right to inspect:",
+        "dpoContactLabel": "Official DPO Inquiries",
+        "supervisoryNotice": "Unsatisfied with our resolution? Under Article 47 of Law No. 058/2021, you have the statutory right to lodge a formal complaint with the National Cyber Security Authority / Data Protection Office (dpo.gov.rw).",
+        "emailDpoBtn": "Email Data Protection Officer",
+        "copyTemplateBtn": "Copy Request Template",
+        "openModalBtn": "Submit Statutory Request",
+        "modal": {
+          "badge": "Statutory Portal • Law No. 058/2021",
+          "title": "Submit Statutory Privacy Request",
+          "subtitle": "Submit your request directly to our Data Protection Officer. A verifiable statutory ticket with a 30-day resolution countdown will be generated.",
+          "labels": {
+            "rightType": "Statutory Right Requested",
+            "fullName": "Full Legal Name",
+            "fullNamePlaceholder": "e.g. Jean-Paul Gasana",
+            "email": "Account Email Address",
+            "emailPlaceholder": "e.g. citizen@example.rw",
+            "phone": "Contact Phone Number (Optional)",
+            "phonePlaceholder": "e.g. +250 788 123 456",
+            "details": "Specific Instructions or Scope",
+            "detailsPlaceholder": "Provide any helpful context (e.g. which consultations, specific documents, or reason for erasure)...",
+            "certification": "I solemnly certify that I am the authorized account holder or legal representative.",
+            "cancel": "Cancel",
+            "submit": "Submit Formal Request",
+            "submitting": "Registering Ticket..."
+          },
+          "success": {
+            "title": "Statutory Request Officially Logged",
+            "desc": "Your request has been filed with the Data Protection Office under Rwanda Law No. 058/2021. Your official tracking reference is:",
+            "copyRef": "Copy Reference",
+            "copied": "Copied!",
+            "slaNotice": "Statutory 30-Day SLA: Under Article 16-22 of Law No. 058/2021, our Data Protection Officer is legally bound to resolve your request within 30 calendar days.",
+            "emailNotice": "A confirmation has been sent to your email. You can quote this reference anytime if contacting compliance at",
+            "close": "Done"
+          }
+        },
+        "emailMenu": {
+          "trigger": "Open Email Client",
+          "chooseEmailService": "Choose email service",
+          "gmail": "Gmail",
+          "outlook": "Outlook / Hotmail",
+          "defaultApp": "Default Mail App",
+          "emailInBrowser": "Open webmail in browser tab",
+          "emailDesktopApp": "Apple Mail, Outlook Desktop, etc.",
+          "copyEmail": "Copy DPO Email Address",
+          "emailCopied": "DPO email address copied to clipboard",
+          "noDpoEmailNotice": "No dedicated DPO email is currently configured in platform settings. Please use the 'Submit Statutory Request' button to submit directly through the platform.",
+          "noEmailAssigned": "Data Protection Office (In-App Portal)"
+        },
+        "templateCopied": "Statutory request template copied to clipboard",
+        "templatePreviewLabel": "Statutory Request Template (Pre-filled)",
+        "selfServeAction": "Update Profile Settings Directly",
+        "rights": {
+          "access": {
+            "name": "Right of Access",
+            "article": "Article 16",
+            "description": "Request a complete copy of all personal records, consultation logs, and identity documents stored in our systems.",
+            "subject": "Statutory Data Access Request - Art. 16 Law No. 058/2021",
+            "template": "Dear Data Protection Officer,\n\nPursuant to Article 16 of Rwanda Law No. 058/2021, I hereby formally request a copy of all personal data concerning me processed by MyJudicial Ltd.\n\nAccount Email: [Your Email]\nFull Legal Name: [Your Name]\nPhone Number: [Your Phone]\n\nThank you for acknowledging receipt within the 30-day statutory timeline."
+          },
+          "rectification": {
+            "name": "Right to Rectification",
+            "article": "Article 18",
+            "description": "Correct outdated or inaccurate names, phone numbers, or advocate credentials. You can also self-serve immediately in your Profile.",
+            "subject": "Statutory Rectification Request - Art. 18 Law No. 058/2021",
+            "template": "Dear Data Protection Officer,\n\nPursuant to Article 18 of Rwanda Law No. 058/2021, I request rectification of the following inaccurate personal data associated with my account:\n\nAccount Email: [Your Email]\nIncorrect Field(s): [e.g. Phone number, name]\nCorrect Information: [New Value]\n\nThank you."
+          },
+          "erasure": {
+            "name": "Right to Erasure",
+            "article": "Article 19",
+            "description": "Request permanent deletion of your account, credentials, and uploaded vault documents, subject to mandatory 10-year financial tax laws.",
+            "subject": "Statutory Erasure Request - Art. 19 Law No. 058/2021",
+            "template": "Dear Data Protection Officer,\n\nPursuant to Article 19 of Rwanda Law No. 058/2021, I hereby request the permanent erasure of my personal data and closure of my MyJudicial account.\n\nAccount Email: [Your Email]\nFull Legal Name: [Your Name]\nReason: [e.g. Withdrawal of consent / No longer needed]\n\nI understand statutory financial accounting records may be retained as required by Rwandan law."
+          },
+          "portability": {
+            "name": "Right to Portability",
+            "article": "Article 21",
+            "description": "Receive an exported machine-readable archive (JSON / structured archive) of your consultations, profile, and case vault uploads.",
+            "subject": "Statutory Portability Request - Art. 21 Law No. 058/2021",
+            "template": "Dear Data Protection Officer,\n\nPursuant to Article 21 of Rwanda Law No. 058/2021, I request an export of my personal data in a structured, machine-readable format.\n\nAccount Email: [Your Email]\nFull Legal Name: [Your Name]\n\nThank you."
+          },
+          "objection": {
+            "name": "Right to Object",
+            "article": "Article 22",
+            "description": "Object to processing for informational or legitimate interest purposes. Operational security notices cannot be disabled.",
+            "subject": "Statutory Objection to Processing - Art. 22 Law No. 058/2021",
+            "template": "Dear Data Protection Officer,\n\nPursuant to Article 22 of Rwanda Law No. 058/2021, I hereby record my objection to the following data processing activities:\n\nAccount Email: [Your Email]\nSpecific Processing Objected To: [e.g. Platform informational newsletters / feature surveys]\n\nThank you."
+          }
+        }
       },
       "content": {
-        "intro": "MyJudicial (\"we\", \"our\", or \"us\") respects your privacy and is committed to protecting your personal data. This Privacy Policy informs you about how we look after your personal data when you visit our website (regardless of where you visit it from) and tells you about your privacy rights and how the law protects you.",
+        "cardTitle": "Data Protection Officer & Controller Contact",
+        "cardDesc": "For statutory requests, data access, or compliance inquiries under Rwanda Law No. 058/2021.",
+        "intro": "MyJudicial Ltd (\"MyJudicial\", \"we\", \"our\", or \"us\") respects your fundamental right to privacy and is steadfastly committed to safeguarding your personal data. This Privacy Policy informs you about how we collect, process, store, and protect your personal information when you access our legal services marketplace (myjudicial.com), and explains your statutory privacy rights under Rwanda Law No. 058/2021 of 13/10/2021 relating to the protection of personal data and privacy.",
         "sections": [
           {
-            "title": "1. Data We Collect",
-            "text": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows: Identity Data (first name, last name, username or similar identifier), Contact Data (billing address, delivery address, email address and telephone numbers), Financial Data (bank account and payment card details), Transaction Data (details about payments to and from you and other details of services you have purchased from us), Profile Data (your username and password, purchases or orders made by you, your interests, preferences, feedback and survey responses)."
+            "title": "1. Who We Are & Controller Identity",
+            "text": "MyJudicial Ltd (\"MyJudicial\", \"we\", \"our\", or \"us\") operates the premier digital legal-services platform in Rwanda, connecting citizens, entrepreneurs, and institutions with verified, certified advocates and legal professionals. For the purposes of Law No. 058/2021 relating to the protection of personal data and privacy, MyJudicial is the Data Controller responsible for personal data processed through our website (myjudicial.com) and associated marketplace services.\n\nOur registered headquarters are located at {{officeAddress}} ({{poBox}}). We have designated a Data Protection Officer (DPO) who can be contacted directly at {{dpoEmail}} for any statutory privacy requests or regulatory compliance inquiries."
           },
           {
-            "title": "2. How We Use Your Data",
-            "text": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances: Where we need to perform the contract we are about to enter into or have entered into with you. Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests. Where we need to comply with a legal obligation."
+            "title": "2. Scope of Services & Application",
+            "text": "This Privacy Policy governs the collection, processing, and protection of personal data across all services offered by MyJudicial, including:\n\n• Citizen and business client directory browsing, legal search, and map-based advocate discovery;\n• Client intake wizard and AI-assisted case triage;\n• Appointment scheduling, consultation management, and LiveKit encrypted video conferencing;\n• Secure escrow custody for consultation fee deposits and releases;\n• Encrypted document storage in the MyJudicial legal vault (OCI Object Storage);\n• Verified advocate profile hosting, onboarding, and compliance credentialing.\n\nScope Boundary: This policy applies strictly to the technical platform and infrastructure managed by MyJudicial. When you retain an advocate for legal representation in court or formal legal advisory, that advocate acts as an independent professional bound by statutory legal professional privilege, the Rwanda Bar Association Code of Conduct, and their own professional secrecy duties."
           },
           {
-            "title": "3. Data Security",
-            "text": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorised way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know. They will only process your personal data on our instructions and they are subject to a duty of confidentiality."
+            "title": "3. Information We Collect",
+            "text": "We collect only personal data necessary to provide our digital legal marketplace services. We categorize collected information into the following categories:\n\n• Account & Authentication Data: Full legal name, email address, telephone number, one-way hashed passwords (Argon2/bcrypt), federated OAuth account IDs (Google, LinkedIn), preferred language, and account role (Citizen, Expert, Admin).\n• Advocate & Legal Expert Professional Data: Display name, professional biography, law firm affiliation, physical office address, Rwanda Bar Association (RBA) roll number, active practicing certificate, national ID/passport copy, academic diplomas, verified legal specialties, consultation fee rates, and Mobile Money payout phone numbers.\n• Consultation & Booking Records: Selected legal service category, consultation delivery mode (video, phone, in-person), appointment date and duration, client intake summary notes, meeting room identifiers, and reschedule/cancellation history.\n• In-Platform Communications: Direct messages exchanged between clients and legal advocates, file attachments (PDFs, court notices, contracts), and message delivery timestamps.\n• Legal Vault Documents: Confidential case files, contracts, pleadings, deeds, and identification documents uploaded to the user vault. Files are encrypted client-side using AES-256-GCM before storage in OCI Object Storage.\n• Financial & Escrow Records: Mobile Money transaction references (MTN Mobile Money, Airtel Money), AzamPay gateway transaction identifiers, platform commission calculations, escrow deposit and payout ledger records. MyJudicial does NOT store debit/credit card numbers or Mobile Money PINs.\n• AI Triage Inquiries: Case descriptions submitted in text or voice audio, in-memory transcriptions, detected legal specialties, urgency assessments, and estimated budget parameters.\n• Location Data: Geolocation coordinates provided on-demand for map discovery (defaults to Kigali Central Business District: -1.9441, 30.0619); advocate office coordinates.\n• Technical & Audit Logs: IP addresses, browser user agent strings, login records, and immutable audit logs (AuditLog) tracking sensitive platform events."
+          },
+          {
+            "title": "4. How We Collect Your Information",
+            "text": "We collect personal data through transparent, direct, and automated mechanisms:\n\n• Directly Provided by You: When creating an account, filling out profile fields, submitting intake forms, uploading documents to the vault, exchanging messages, or paying consultation fees.\n• Automated Interactions: During your navigation of the platform, essential cookies, device attributes, IP addresses, and diagnostic error telemetry are automatically recorded to ensure system integrity and security.\n• Legal Expert Submissions: When advocates apply to join MyJudicial, submitting professional credentials, Bar certificates, identification, and schedule rules.\n• Official Verification Cross-Checks: To ensure trust and consumer protection, our compliance team cross-checks submitted credentials directly against the public Roll of Advocates maintained by the Rwanda Bar Association."
+          },
+          {
+            "title": "5. Purposes & How We Use Your Data",
+            "text": "MyJudicial processes personal data exclusively for the following specified, legitimate purposes:\n\n• Marketplace Operation & Account Management: Administering user registrations, authentication, role authorization, and user profile management.\n• Advocate Verification & Fraud Prevention: Verifying advocate Bar standing, preventing unauthorized representation, and safeguarding consumer trust.\n• Booking & Virtual Consultations: Facilitating appointment scheduling, calendar synchronization, and establishing secure WebRTC video rooms via LiveKit.\n• Escrow & Financial Settlement: Holding consultation fee deposits in escrow custody and executing disbursements to legal experts upon verified consultation delivery.\n• Encrypted Document Vault Services: Providing high-security, client-side encrypted cloud storage for legal documentation and case evidence.\n• AI-Assisted Intake Triage & Case Classification: Providing automated legal subject-matter classification, urgency assessment, and lawyer matchmaking based on public practice areas.\n• Operational Notifications & Service Messaging: Dispatching appointment reminders, authentication OTPs, payment confirmations, and system notifications via Brevo (SMS and email).\n• Platform Security, Auditing & Legal Compliance: Detecting cyber threats, investigating disputes, maintaining immutable audit trails, and satisfying statutory tax and regulatory reporting obligations under Rwandan law."
+          },
+          {
+            "title": "6. Legal Basis for Processing (Law No. 058/2021)",
+            "text": "Pursuant to Article 46 of Rwanda Law No. 058/2021 relating to the protection of personal data and privacy, MyJudicial processes your personal data under the following lawful bases:\n\n• Performance of a Contract (Article 46(1)(b)): Processing is necessary for the conclusion and performance of the contract between you and MyJudicial (terms of service, booking management, escrow fee custody, document storage, and account access).\n• Compliance with a Legal Obligation (Article 46(1)(c)): Processing is necessary to satisfy statutory obligations under Rwandan commercial law, financial record-keeping, anti-money laundering regulations, tax filings with the Rwanda Revenue Authority (RRA), and lawful judicial summonses.\n• Legitimate Interests (Article 46(1)(f)): Processing is necessary for the legitimate business interests of MyJudicial and its users—specifically verifying advocate credentials on the Bar Roll, preventing fraud and unauthorized practice of law, protecting infrastructure security, and maintaining immutable audit trails—provided these interests do not override your fundamental rights.\n• Explicit Consent (Article 46(1)(a)): Where applicable, we rely on your specific, informed consent for optional features, including granting device geolocation for interactive map search and uploading voice audio recordings for AI transcription. Consent may be revoked at any time."
+          },
+          {
+            "title": "7. How We Share Information & Recipients",
+            "text": "We do not sell, rent, or monetize your personal data. We disclose personal information solely to the following defined categories of recipients:\n\n• Designated Legal Experts: When you initiate an intake inquiry or confirm a consultation booking, your contact information, issue description, and shared documents are provided directly to that advocate.\n• Core Cloud & Hosting Providers:\n  - Database & Identity Hosting: Supabase / Amazon Web Services (AWS) data centers.\n  - Encrypted Document Vault: Oracle Cloud Infrastructure (OCI) Object Storage with Key Management Service (KMS) envelope encryption.\n  - Real-Time Virtual Consultations: LiveKit Cloud infrastructure for encrypted WebRTC video rooms.\n  - Transactional Communications: Brevo (formerly Sendinblue) for transactional email, booking alerts, and SMS dispatch.\n  - In-Memory Caching & Session Rate-Limiting: Upstash Redis.\n  - Payment Gateway & Escrow Aggregation: AzamPay for Mobile Money checkout and automated advocate disbursements.\n• Rwanda Bar Association & Regulatory Bodies: In instances of professional misconduct inquiries or credential cross-referencing.\n• Judicial Authorities & Law Enforcement: Where strictly mandated under a legally binding court order, subpoena, or statutory warrant issued by a competent Rwandan judicial authority."
+          },
+          {
+            "title": "8. Client-Lawyer Confidentiality & Legal Privilege",
+            "text": "Legal Professional Privilege: Under Rwandan law and the statutory regulations of the Rwanda Bar Association, legal counsel consultations and case materials enjoy statutory professional secrecy (secret professionnel). The advocate you consult is legally bound to preserve the confidentiality of all information disclosed in contemplation of legal representation.\n\nTechnical Platform Safeguards: MyJudicial is engineered to uphold this sacred duty. Documents uploaded to the legal vault are encrypted client-side using AES-256-GCM. MyJudicial personnel, support teams, and third-party vendors do not possess access to decrypt or review confidential client-advocate communications or case evidence, except where strictly required for authorized administrative maintenance under audited conditions or when compelled by a valid Rwandan court order."
+          },
+          {
+            "title": "9. AI-Assisted Features & Machine Learning Transparency",
+            "text": "MyJudicial incorporates modern artificial intelligence features through our microservice (myjudicial-ai-service) to streamline case triage and intake:\n\n• Voice Transcription (Whisper): When you record an audio intake note, our local Whisper speech recognition model transcribes the speech to text in-memory. Audio streams are not retained after transcription completes.\n• Case Subject-Matter Classification: Our language model (self-hosted Ollama with Qwen2.5 or dedicated enterprise cloud inference) analyzes the factual description of your inquiry to identify primary legal areas (such as Land Law, Family Law, or Commercial Law) and evaluate urgency indicators.\n• Semantic Vector Search: The inquiry text is converted into mathematical vector embeddings (using sentence-transformers all-MiniLM-L6-v2) to match matters against published advocate experience.\n• ABSOLUTELY NO MODEL TRAINING: Personal case descriptions, uploaded documents, voice recordings, and consultation data are NEVER used to train, retrain, or improve public or proprietary foundation models.\n• Informational Nature: AI triage suggestions are strictly informational tools designed to assist you in navigating the legal marketplace. The AI does NOT provide legal advice, does not draft binding pleadings without advocate review, and never substitutes for a licensed human lawyer."
+          },
+          {
+            "title": "10. Automated Decision-Making & Recommendation Ranking",
+            "text": "NO Automated Legal Decisions: MyJudicial does NOT subject users to automated decision-making processes that produce legal effects or similarly significant consequences (such as automated rejection of service, automated account termination, or automated fee liability).\n\nTransparent Multi-Factor Ranking Logic: When clients search for legal experts, our recommendation engine orders search results using an objective, multi-factor algorithm based on:\n\n1. Semantic Relevance (40%): Alignment between the user's matter description and the advocate's verified practice profile;\n2. Advocate Rating (25%): Historical review ratings submitted by verified clients from completed consultations;\n3. Budget Fit (15%): Comparison between the advocate's published flat consultation rate and the client's declared budget;\n4. Verified Review Volume (10%): Total number of completed client reviews;\n5. Professional Experience (5%): Documented years of practice since Bar admission;\n6. Specialty Match (5%): Direct alignment with the advocate's designated primary legal specialty.\n\nUser Autonomy: This ranking score is purely a sorting mechanism for discoverability. Clients retain complete discretion to filter, compare, and select any registered advocate regardless of ranking order."
+          },
+          {
+            "title": "11. Location Data & Geospatial Search",
+            "text": "On-Demand Geolocation: To assist citizens in discovering legal advocates with physical chambers in their vicinity or jurisdiction, MyJudicial offers an interactive map feature. Your browser requests location permission strictly when you click to discover nearby advocates.\n\nDefault & Fallback Coordinates: If you decline permission or if your device does not support geolocation, the platform defaults to the central business coordinates of Kigali (Nyarugenge District: -1.9441, 30.0619).\n\nNo Background Tracking: Client geographic coordinates are transmitted temporarily to execute a radius distance query against advocate office coordinates (using PostGIS ST_DWithin geospatial functions). Client coordinates are never tracked in the background and are never stored in user account records or profile tables."
+          },
+          {
+            "title": "12. Cookies & Similar Technologies",
+            "text": "Session & Functional Cookies: We utilize strictly necessary cookies to maintain secure authentication sessions (NextAuth session tokens, CSRF tokens, and Supabase auth keys) and remember interface preferences (such as your chosen language: English, French, Kinyarwanda; and theme: light or dark mode).\n\nNo Third-Party Ad Trackers: We do not deploy third-party advertising or cross-site tracking cookies.\n\nDedicated Cookie Policy: For a complete inventory of cookie names, storage lifespans, purposes, and browser control settings, please review our standalone Cookie Policy at /cookies."
+          },
+          {
+            "title": "13. Data Retention & Archival Governance",
+            "text": "Transparent Data Lifecycle: We retain your personal data strictly for as long as necessary to fulfill the purposes for which it was collected and to satisfy statutory requirements under Rwandan law:\n\n• Active User Accounts: Identity and account credentials remain active until you delete your account or request account closure.\n• Statutory Accounting & Financial Ledgers: Consultation fee transactions, escrow settlement logs, and billing invoices are retained for ten (10) years in compliance with Rwandan tax laws, commercial code regulations, and anti-money laundering requirements.\n• Legal Vault Documents: Uploaded case documents remain stored in your private vault until you delete them or close your account.\n• Security & System Audit Logs: Audit trails (AuditLog) are maintained for security analysis, forensic investigation, and fraud prevention.\n• Data Governance Roadmap: In accordance with supervisory guidance from the Data Protection Office (DPO Rwanda), MyJudicial is actively codifying automated data lifecycle purging jobs to systematically delete staging records upon statutory expiry."
+          },
+          {
+            "title": "14. Technical & Organizational Security Controls",
+            "text": "We implement defense-in-depth security measures to protect your personal data against accidental loss, unauthorized access, alteration, or disclosure:\n\n• Encryption in Transit: All communications between your device and our servers are encrypted using Transport Layer Security (TLS 1.3 / HTTPS).\n• Encryption at Rest & Vault Security: Sensitive documents stored in Oracle Cloud Infrastructure (OCI) Object Storage are protected by client-side AES-256-GCM encryption with envelope keys managed via OCI Key Management Service (KMS).\n• Password Hashing: User passwords are protected using salted, cryptographic one-way hashes (Argon2/bcrypt); plaintext passwords are never recorded.\n• Role-Based Access Controls (RBAC): Strict permission boundaries separate Citizen, Expert, and Administrator capabilities, ensuring platform personnel cannot access confidential user data without specific operational justification.\n• Immutable Audit Logging: Security-critical actions (authentication, credential verification, file access, escrow releases) are permanently logged to dedicated audit tables with IP addresses and timestamps."
+          },
+          {
+            "title": "15. International Data Transfers (Articles 40-42)",
+            "text": "Infrastructure Location: To guarantee enterprise resilience, fault tolerance, and scalable performance, MyJudicial utilizes reputable global cloud providers whose server infrastructure is situated outside the Republic of Rwanda:\n\n• Core Database & Authentication: Supabase / Amazon Web Services (AWS) data centers located in the European Union and the United States;\n• Encrypted Document Vault: Oracle Cloud Infrastructure (OCI) Object Storage facilities located in the United States and the European Union;\n• Video Consultation Streaming: LiveKit Cloud infrastructure operating across global edge facilities;\n• Transactional Email & SMS Delivery: Brevo data centers located in the European Union;\n• Cache Storage: Upstash Redis clusters located in the European Union and the United States.\n\nStatutory Compliance: In accordance with Articles 40, 41, and 42 of Rwanda Law No. 058/2021, transfers of personal data outside Rwanda are conducted under robust legal safeguards, including comprehensive Data Processing Agreements (DPAs) with standard contractual clauses, state-of-the-art encryption at rest and in transit, and the necessity of transfer for the performance of our contract with you (Article 42)."
+          },
+          {
+            "title": "16. Your Privacy Rights Under Rwanda Law No. 058/2021",
+            "text": "As a data subject under Law No. 058/2021, you are entitled to the following statutory rights regarding your personal information:\n\n• Right to be Informed (Articles 15 & 16): Right to receive clear, concise, and transparent information regarding how your data is processed.\n• Right of Access (Article 16): Right to obtain confirmation of whether we hold personal data concerning you and to receive a structured copy of that data.\n• Right to Rectification (Article 18): Right to request the immediate correction of inaccurate or incomplete personal data. You may also update your account details directly in Profile Settings.\n• Right to Erasure / Deletion (Article 19): Right to request the permanent erasure of your personal data where it is no longer required for the purposes collected or where you withdraw consent, subject to statutory retention obligations under Rwandan tax and commercial laws.\n• Right to Restriction of Processing (Article 20): Right to obtain restriction of processing during verification of data accuracy or lawful processing disputes.\n• Right to Data Portability (Article 21): Right to receive your personal data in a structured, commonly used, machine-readable format.\n• Right to Object (Article 22): Right to object to processing founded on legitimate interests or direct informational communications.\n• Right to Withdraw Consent (Article 46): Where processing is based on consent, you may withdraw consent at any time without retroactive impact.\n\nHow to Exercise Your Rights: Submit your request in writing to our Data Protection Officer at {{dpoEmail}}. To safeguard your identity, we may require identity verification prior to acting on your request. We will acknowledge receipt promptly and provide a substantive response within the statutory thirty (30) day timeframe prescribed by Law No. 058/2021."
+          },
+          {
+            "title": "17. Children's Privacy (Under 18)",
+            "text": "Eighteen (18) Age Requirement: The MyJudicial marketplace is strictly intended for individuals who are at least eighteen (18) years of age and possess full legal capacity to enter into binding legal agreements under the laws of Rwanda.\n\nMinors Requiring Legal Services: Pursuant to Article 9 of Law No. 058/2021, personal data of a child can only be processed with the verified consent of a parent or legal guardian. If legal counsel is sought on behalf of a child or minor (e.g. in family matters, inheritance, or protection cases), the consultation must be initiated, authorized, and managed by their lawful parent or legal guardian. If we discover an unsupervised account registered by a child under 18, we will immediately terminate the account and purge the corresponding data."
+          },
+          {
+            "title": "18. Service Communications & Marketing Preferences",
+            "text": "Transactional Messages: We transmit essential operational communications by SMS and email, including appointment reminders, security OTP verification codes, booking confirmations, escrow release notifications, and critical platform security notices. These communications are integral to service fulfillment and account security, and users cannot opt out of transactional notices while their account remains active.\n\nMarketing & Educational Communications: If MyJudicial provides optional informational legal guides, quarterly legal insights, or platform feature announcements, you will be given a clear choice to opt in. Every marketing message contains an immediate unsubscribe link allowing you to opt out at any time without affecting your operational platform access."
+          },
+          {
+            "title": "19. Third-Party Websites & Integrations",
+            "text": "External Platform Boundaries: The MyJudicial website may feature links to external third-party platforms, such as the Rwanda Bar Association (rwanda-bar.org), government portals, judicial dockets, or payment provider authentication gateways.\n\nIndependent Privacy Policies: MyJudicial does not exercise control over the information practices or policies of external websites. Following links to third-party domains is conducted at your own discretion, and we strongly encourage you to review the privacy notices of any external site you visit."
+          },
+          {
+            "title": "20. Data Breach Response & Statutory Notification",
+            "text": "Incident Management Protocol: MyJudicial maintains a documented incident response procedure to swiftly detect, isolate, and remediate suspected personal data breaches or unauthorized access events.\n\n48-Hour Supervisory Notification: In compliance with Article 43 of Rwanda Law No. 058/2021, where an incident constitutes a personal data breach, MyJudicial will notify the National Cyber Security Authority / Data Protection Office (NCSA DPO) within forty-eight (48) hours of becoming aware of the breach.\n\nData Subject Notification: In accordance with Article 44 of Law No. 058/2021, if the breach is likely to result in a high risk to your rights, freedoms, or financial security, we will notify you without undue delay, detailing the nature of the breach, the potential consequences, and the remedial actions taken to safeguard your data."
+          },
+          {
+            "title": "21. Supervisory Authority Complaints (NCSA / DPO Rwanda)",
+            "text": "Internal Escalation: If you have questions or concerns regarding our privacy practices, we invite you to contact our Data Protection Officer first at {{dpoEmail}}.\n\nStatutory Right to Complain: You have the statutory right under Law No. 058/2021 to lodge a formal complaint with Rwanda's designated supervisory authority for data protection:\n\nNational Cyber Security Authority (NCSA)\nData Protection Office (DPO)\nOfficial Web Portal: https://dpo.gov.rw\nOfficial Email: dpo@ncsa.gov.rw\nPhysical Location: Kigali, Republic of Rwanda"
+          },
+          {
+            "title": "22. Policy Updates & Versioning",
+            "text": "Periodic Revision: We may update this Privacy Policy periodically to reflect technological enhancements, operational changes, or revised supervisory guidance from the Data Protection Office.\n\nEffective Date & Last Updated: The effective date at the top of this document indicates when the current version was promulgated.\n\nNotification of Material Modifications: When material changes are made that substantially impact your rights or data governance standards, we will provide advance notification via prominent banners across the platform or direct email communication. Previous revisions are archived in our content management system and remain accessible upon request to our privacy team."
+          },
+          {
+            "title": "23. Contact Us & Data Protection Officer",
+            "text": "For any inquiries regarding this Privacy Policy, your personal data, or the exercise of your statutory rights under Law No. 058/2021, please reach out to our privacy office:\n\n• Data Controller: MyJudicial Ltd\n• Data Protection Officer (DPO) Email: {{dpoEmail}}\n• Customer Support Email: support@myjudicial.com\n• Telephone Hotline: {{hotlinePhone}}\n• Physical Address: {{officeAddress}}\n• Postal Address: {{poBox}}\n• Business Hours: {{workingHours}}"
           }
         ]
       }
@@ -4553,9 +4905,16 @@
       "hero": {
         "badge": "Legal",
         "title": "Terms of Service",
-        "updated": "Last updated: July 15, 2026"
+        "updated": "Last updated: July 15, 2026",
+        "updatedPrefix": "Last updated:",
+        "toc": {
+          "title": "On this page",
+          "print": "Print"
+        }
       },
       "content": {
+        "cardTitle": "Marketplace Terms & Dispute Administration",
+        "cardDesc": "For queries regarding advocacy agreements, fee escrow, or platform arbitration.",
         "intro": "These Terms of Service (\"Terms\") govern your access to and use of the MyJudicial website, apps, and services (collectively, the \"Services\"). Please read these Terms carefully before using our Services.",
         "sections": [
           {
@@ -4583,20 +4942,182 @@
         "description": "Information about how MyJudicial uses cookies on our platform."
       },
       "hero": {
-        "badge": "Legal",
+        "badge": "Cookie Governance",
         "title": "Cookie Policy",
-        "updated": "Last updated: July 15, 2026"
+        "updated": "Last updated: October 1, 2026",
+        "updatedPrefix": "Last updated:",
+        "toc": {
+          "title": "On this page",
+          "print": "Print"
+        }
+      },
+      "inspector": {
+        "badge": "Live Verification",
+        "title": "Your Active Browser Storage & Tracking Status",
+        "description": "Inspect the technical cookies and storage keys currently active in your browser session.",
+        "sessionLabel": "Authentication State",
+        "sessionAuth": "Authenticated User Session",
+        "sessionGuest": "Anonymous Guest Session",
+        "langLabel": "Language Cookie (NEXT_LOCALE)",
+        "themeLabel": "Visual Theme Preference",
+        "timezoneLabel": "Scheduling Timezone",
+        "trackersLabel": "Third-Party Ad Trackers",
+        "trackersValue": "0 Trackers (100% Tracking-Free)",
+        "resetBtn": "Reset UI Preferences",
+        "resetSuccess": "Preferences reset. Visual defaults restored."
+      },
+      "table": {
+        "scrollHint": "Scroll horizontally to view all columns",
+        "cardsView": "Cards",
+        "tableView": "Table",
+        "purposeLabel": "Purpose & Technical Role"
       },
       "content": {
-        "intro": "Our website uses cookies to distinguish you from other users of our website. This helps us to provide you with a good experience when you browse our website and also allows us to improve our site.",
+        "cardTitle": "Cookie Governance & Data Protection Office",
+        "cardDesc": "Technical inquiries regarding browser storage, session cookies, and technical privacy compliance.",
+        "intro": "This Cookie Policy provides a transparent, exhaustive inventory of all HTTP cookies, local storage mechanisms, and client-side technologies utilized by the MyJudicial digital legal platform under Rwanda Law No. 058/2021.",
         "sections": [
           {
-            "title": "What are cookies?",
-            "text": "A cookie is a small file of letters and numbers that we store on your browser or the hard drive of your computer if you agree. Cookies contain information that is transferred to your computer's hard drive."
+            "title": "1. Introduction & Statutory Scope",
+            "text": "MyJudicial Ltd (\"MyJudicial\", \"we\", \"our\", or \"us\") operates Rwanda's premier digital legal-services marketplace, connecting citizens, entrepreneurs, and institutions with certified, verified legal advocates.\n\nThis Cookie Policy explains how and why we utilize HTTP cookies, browser local storage (localStorage), session storage (sessionStorage), and similar web technologies when you visit our website (myjudicial.com) or access our platform services. This policy is established in full compliance with Law No. 058/2021 relating to the protection of personal data and privacy.\n\nScope Boundary: This document specifically addresses browser storage and client-side device identifiers. For comprehensive details regarding how we collect, process, safeguard, and retain personal information across our broader legal infrastructure, please refer to our full Privacy Policy."
           },
           {
-            "title": "How we use cookies",
-            "text": "We use strictly necessary cookies (required for the operation of our website), analytical/performance cookies (allow us to recognise and count the number of visitors), functionality cookies (used to recognise you when you return), and targeting cookies (record your visit, pages visited, and links followed)."
+            "title": "2. What Are Cookies & Browser Storage Technologies?",
+            "text": "Web applications use several standardized browser storage mechanisms to operate securely and reliably:\n\n• HTTP Cookies: Small alphanumeric text files saved on your computer, tablet, or smartphone by a web server. When you navigate between pages or return on a subsequent visit, your browser transmits these cookies back to our domain so that our system can authenticate your identity and maintain security.\n• HTML5 Local Storage (localStorage): A client-side key-value storage mechanism embedded in modern browsers. LocalStorage retains specific user preferences—such as your chosen visual theme or language—locally on your device without transmitting data in HTTP request headers.\n• HTML5 Session Storage (sessionStorage): A transient storage repository restricted strictly to the lifespan of an active browser tab. All sessionStorage items are instantly wiped when you close the tab or browser window."
+          },
+          {
+            "title": "3. Our Core Privacy Commitment: Zero Third-Party Tracking",
+            "text": "Unlike conventional consumer platforms, MyJudicial is designed from the ground up for strict confidentiality and legal professional integrity:\n\n• NO Third-Party Behavioral Tracking: We do not deploy Google Analytics, Meta Pixel, tracking beacons, or cross-site tracking scripts. Your browsing and inquiry history is never monitored across the web.\n• NO Advertising or Marketing Cookies: We do not permit ad networks, data brokers, or commercial marketing partners to place cookies on your device. We do not sell or monetize user data.\n• Privacy by Design: We intentionally engineer all marketplace features—including interactive map discovery and virtual video consultations—using open-source and privacy-preserving infrastructure that requires no third-party profiling."
+          },
+          {
+            "title": "4. Categories of Technologies We Use",
+            "text": "MyJudicial relies exclusively on three transparent, necessary categories of web technologies:\n\n• Strictly Necessary Technologies: Essential for the core operation, identity authentication, and cybersecurity of the platform. Without these technologies, user login, encrypted account sessions, and secure consultation bookings cannot function.\n• Preference & Localization Technologies: Enable the platform to remember your deliberate user choices—such as your preferred language (English, French, or Kinyarwanda), color theme mode (Light, Dark, or System), and appointment scheduling timezone.\n• Functional & Session State Technologies: Temporarily safeguard your navigation state—such as whether the dashboard sidebar is open or auto-saving multi-step onboarding wizard entries to prevent accidental data loss."
+          },
+          {
+            "title": "5. Comprehensive HTTP Cookie Inventory",
+            "text": "The following table documents all first-party HTTP cookies generated by the MyJudicial platform:",
+            "table": {
+              "columns": [
+                "Cookie Name",
+                "Category",
+                "Provider",
+                "Storage Type",
+                "Duration",
+                "Purpose"
+              ],
+              "rows": [
+                [
+                  "authjs.session-token",
+                  "Strictly Necessary",
+                  "First-Party (MyJudicial)",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "30 Days (if Remembered) or 8h-24h (Session)",
+                  "Maintains authenticated user session; stores encrypted JWT containing user ID, role, and API credentials."
+                ],
+                [
+                  "authjs.csrf-token",
+                  "Strictly Necessary",
+                  "First-Party (MyJudicial)",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "Browser Session",
+                  "Cryptographic token protecting authentication forms against Cross-Site Request Forgery (CSRF) attacks."
+                ],
+                [
+                  "authjs.callback-url",
+                  "Strictly Necessary",
+                  "First-Party (MyJudicial)",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "Browser Session",
+                  "Remembers post-authentication redirect destination so users return to their requested page after login."
+                ],
+                [
+                  "NEXT_LOCALE",
+                  "Preferences",
+                  "First-Party (MyJudicial / next-intl)",
+                  "HTTP Cookie",
+                  "1 Year (Persistent)",
+                  "Stores the user's explicit language choice (en, fr, or rw) to ensure localized routing and UI consistency."
+                ],
+                [
+                  "sidebar_state",
+                  "Functional",
+                  "First-Party (MyJudicial)",
+                  "HTTP Cookie",
+                  "7 Days (max-age=604800)",
+                  "Remembers whether the admin dashboard navigation sidebar is expanded or collapsed."
+                ]
+              ]
+            }
+          },
+          {
+            "title": "6. Browser LocalStorage & SessionStorage Inventory",
+            "text": "The following table documents client-side storage keys utilized across the MyJudicial frontend interface:",
+            "table": {
+              "columns": [
+                "Storage Key",
+                "Storage Mechanism",
+                "Category",
+                "Duration",
+                "Purpose"
+              ],
+              "rows": [
+                [
+                  "theme",
+                  "localStorage",
+                  "Preferences",
+                  "Persistent until cleared",
+                  "Stores user's visual interface preference (light, dark, or system mode) via next-themes."
+                ],
+                [
+                  "mj_lang",
+                  "localStorage",
+                  "Preferences",
+                  "Persistent until cleared",
+                  "Client-side cache of selected language code used for API request headers and AI translation triage."
+                ],
+                [
+                  "mj_timezone",
+                  "localStorage",
+                  "Functional / Preferences",
+                  "Persistent until cleared",
+                  "Stores client scheduling timezone (defaults to Africa/Kigali) for consultation booking time slot calculation."
+                ],
+                [
+                  "expert_onboarding_wizard_data",
+                  "localStorage",
+                  "Functional",
+                  "Transient (auto-cleared upon submission)",
+                  "Auto-saves drafted advocate onboarding application data to prevent data loss on accidental browser refresh."
+                ],
+                [
+                  "accessToken / refreshToken",
+                  "sessionStorage / localStorage",
+                  "Strictly Necessary",
+                  "Session or until sign-out",
+                  "Temporary client-side token cache for authenticated REST API calls; purged immediately upon user logout."
+                ]
+              ]
+            }
+          },
+          {
+            "title": "7. Third-Party Technical Services & Zero-Cookie Architecture",
+            "text": "We audit all external technical dependencies to guarantee they do not place tracking cookies on your device:\n\n• MapLibre GL Vector Maps: Interactive chamber location maps use open-source MapLibre GL with self-hosted vector tiles. No Google Maps cookies or Mapbox tracking identifiers are placed on your browser.\n• LiveKit WebRTC Virtual Consultations: Video consultations are powered by LiveKit Cloud using end-to-end encrypted WebSockets and WebRTC peer channels. LiveKit operates without placing persistent tracking cookies.\n• Artificial Intelligence Triage: Case triage inquiries are processed in-memory through our secure backend microservice. AI interactions set no client-side cookies or advertising trackers.\n• Supabase Realtime: WebSockets are utilized exclusively for real-time messaging and notification dispatch without setting persistent third-party cookies."
+          },
+          {
+            "title": "8. Legal Basis & Consent Under Law No. 058/2021",
+            "text": "Statutory Lawful Basis: Under Article 46 of Law No. 058/2021, the processing of data via strictly necessary cookies is justified by Contractual Performance (Article 46(1)(b)) and Legitimate Interests (Article 46(1)(f)) to secure platform infrastructure, authenticate accounts, and prevent fraud.\n\nUser-Requested Preferences: Preference cookies (such as language selection and theme mode) are stored strictly pursuant to your deliberate user requests to tailor the interface.\n\nWhy No Consent Banner Is Displayed: Because MyJudicial deploys ZERO non-essential advertising, targeting, or third-party profiling cookies, Rwandan and international data protection laws do not mandate an obstructive cookie banner. Should we ever introduce optional analytical or marketing tools in the future, we will deploy an explicit, prior-consent preference center before any such cookies are loaded."
+          },
+          {
+            "title": "9. How to Control, Inspect & Disable Cookies in Your Browser",
+            "text": "You have full technical control over cookies stored on your device. Every modern web browser provides settings allowing you to view, manage, block, or delete cookies:\n\n• Google Chrome: Settings → Privacy and security → Third-party cookies → See all site data and permissions.\n• Mozilla Firefox: Settings → Privacy & Security → Cookies and Site Data → Manage Data.\n• Apple Safari: Settings → Safari → Advanced → Privacy → Block all cookies.\n• Microsoft Edge: Settings → Cookies and site permissions → Manage and delete cookies and site data.\n\nConsequences of Disabling Cookies: If you configure your browser to block all cookies, you will be unable to sign in to your MyJudicial account, access the client/advocate portal, manage bookings, or execute secure payments. Public browsing of advocate profiles and directory search will remain available."
+          },
+          {
+            "title": "10. Updates to This Cookie Policy",
+            "text": "We may periodically update this Cookie Policy to reflect technical enhancements, architectural updates, or changes in applicable Rwandan regulations. When modifications occur, the \"Last updated\" date at the top of this document will be updated accordingly.\n\nWe encourage you to review this policy periodically to remain informed about our technical data practices."
+          },
+          {
+            "title": "11. Contact Us & Data Protection Inquiries",
+            "text": "For questions regarding this Cookie Policy, our browser storage practices, or to exercise your statutory rights under Law No. 058/2021, please reach out to our privacy office:\n\n• Data Controller: MyJudicial Ltd\n• Data Protection Officer (DPO) Email: {{dpoEmail}}\n• General Support Email: {{supportEmail}}\n• Telephone Hotline: {{hotlinePhone}}\n• Physical Headquarters: {{officeAddress}}\n• Postal Address: {{poBox}}\n• Business Hours: {{workingHours}}\n\nFor broader inquiries regarding personal data processing, please visit our comprehensive Privacy Policy."
           }
         ]
       }
@@ -5238,7 +5759,6 @@
       "becomeExpert": "Become an Expert",
       "verification": "Verification Process",
       "practiceManagement": "Practice Management",
-      "resources": "Resources",
       "helpCenter": "Help Center",
       "legalResources": "Legal Resources",
       "faqs": "FAQs",
@@ -5427,6 +5947,7 @@
       "analyzing": "Analyzing case & finding lawyers...",
       "openFullWorkspace": "Open in Full Case Workspace",
       "welcomeMessage": "Hello! I'm your MyJudicial AI Legal Assistant. Describe any legal matter in Rwanda to receive instant case triage and verified expert recommendations.",
+      "needMoreDetails": "Hello! Please describe what happened or what legal assistance you need (for example: land dispute, employment contract, unfair dismissal, or criminal issue) so I can analyze it and recommend verified advocates.",
       "triageResponse": "Based on your description, this case falls under **{specialty}** with **{urgency} urgency**.",
       "errorMessage": "I encountered an issue analyzing your request. You can also explore our full legal intake workspace directly.",
       "inputPlaceholder": "Describe your legal issue...",
@@ -5434,34 +5955,6 @@
       "dismiss": "Dismiss AI assistant",
       "expandWorkspace": "Expand to Full Workspace",
       "closeChat": "Close chat"
-    }
-  },
-  "resourcesPage": {
-    "meta": {
-      "title": "Legal Resources | MyJudicial",
-      "description": "Guides, articles, and resources to help you navigate the Rwandan legal system."
-    },
-    "hero": {
-      "badge": "Resources",
-      "title": "Legal Resources & Guides",
-      "subtitle": "Knowledge to empower you. Find articles, guides, and practical information about Rwandan law."
-    },
-    "categories": {
-      "title": "Browse Categories",
-      "family": "Family Law",
-      "commercial": "Business & Commercial",
-      "property": "Real Estate & Land",
-      "employment": "Labor & Employment",
-      "immigration": "Immigration",
-      "tax": "Tax Law"
-    },
-    "comingSoon": {
-      "title": "Articles Coming Soon",
-      "desc": "Our network of verified experts is currently authoring comprehensive guides on Rwandan law. Check back soon for in-depth legal articles."
-    },
-    "cta": {
-      "title": "Need legal advice right now?",
-      "button": "Find a Lawyer"
     }
   },
   "search": {
@@ -5679,7 +6172,9 @@
       "configuration": "Configuration",
       "collapseSidebar": "Collapse sidebar",
       "openNavigationMenu": "Open navigation menu",
-      "closeNavigationMenu": "Close navigation menu"
+      "closeNavigationMenu": "Close navigation menu",
+      "pageContent": "Page Content",
+      "careers": "Careers"
     }
   },
   "sidebar": {
@@ -5724,7 +6219,8 @@
     "operations": "Operations",
     "configuration": "Configuration",
     "openNavigationMenu": "Open navigation menu",
-    "closeNavigationMenu": "Close navigation menu"
+    "closeNavigationMenu": "Close navigation menu",
+    "pageContent": "Page Content"
   },
   "expertDashboard_join": {
     "failedToLoad": "Failed to load booking",
@@ -6190,65 +6686,234 @@
   },
   "careersPage": {
     "meta": {
-      "title": "Careers & Talent Pool | MyJudicial",
-      "description": "Join the team modernizing access to justice in Rwanda. Explore culture, engineering, compliance, and spontaneous applications."
+      "title": "Careers | MyJudicial",
+      "description": "Learn about opportunities to build accessible, transparent legal technology in Rwanda with MyJudicial."
     },
     "hero": {
       "badge": "Careers at MyJudicial",
-      "title": "Build the Digital Infrastructure of Justice in Rwanda",
-      "subtitle": "We are a mission-driven team combining software engineering, artificial intelligence, and Rwandan legal ethics to empower millions of citizens."
+      "title": "Build the future of accessible legal services",
+      "subtitle": "Join a high-velocity team transforming access to legal services across Rwanda through world-class engineering, transparent pricing, and rigorous advocate credentialing.",
+      "viewOpenings": "View Open Positions",
+      "sendInterest": "Submit Open Application",
+      "learnAbout": "Learn About MyJudicial",
+      "hiringActive": "Actively Hiring",
+      "hiringTalentPool": "Talent Pool Open",
+      "hiringPaused": "Hiring Paused",
+      "hiringSubActive": "{count, plural, =1 {1 open position} other {# open positions}} across engineering, product, and operations",
+      "hiringSubTalentPool": "We are accepting open applications and reviewing candidate profiles for upcoming roles",
+      "hiringSubPaused": "Role recruitment is currently paused; general inquiries can still be submitted",
+      "rolesAvailable": "{count, plural, =1 {1 Open Role} other {# Open Roles}}"
     },
-    "whyJoin": {
-      "badge": "Life at MyJudicial",
-      "title": "Why Build With Us",
-      "subtitle": "Join an ambitious startup based in Kigali with real societal impact across East Africa.",
+    "whyMyJudicial": {
+      "badge": "Our Mission",
+      "title": "Why Build With MyJudicial",
+      "subtitle": "Work on software that answers an ordinary, everyday problem: finding and paying a verified lawyer when you have no referral and no idea what it should cost.",
+      "access": {
+        "title": "Universal Legal Access",
+        "desc": "Someone outside Kigali, with no referral, can search by practice area and location, see the fixed consultation fee before committing, and read the site in their own language."
+      },
+      "transparency": {
+        "title": "Pricing & Fee Transparency",
+        "desc": "Consultation fees are published up front instead of being negotiated case by case. A paid fee is tied to one specific consultation in an internal escrow ledger, and released or refunded against that booking."
+      },
+      "verification": {
+        "title": "Reviewed Credentials",
+        "desc": "Every advocate undergoes multi-stage credential review cross-referenced with the official Rwanda Bar Association Roll and national biometric validation before being listed."
+      },
       "impact": {
-        "title": "Direct Impact on Justice",
-        "desc": "Every feature you ship directly helps citizens, families, and businesses resolve critical legal challenges with verified counsel."
-      },
-      "tech": {
-        "title": "High-Trust Tech Stack",
-        "desc": "We build with Next.js, TypeScript, PostgreSQL, Prisma, AI model pipelines, and real-time telecom Mobile Money escrow integrations."
-      },
-      "culture": {
-        "title": "Autonomous & Transparent Culture",
-        "desc": "We value ownership, speed, intellectual honesty, and deep respect for the rule of law and user privacy."
+        "title": "Practical Local Impact",
+        "desc": "The work shows up in whether one person can find an advocate, understand the price, and move a legal matter forward without knowing anyone in the profession."
       }
     },
-    "departments": {
-      "badge": "Our Teams",
-      "title": "Disciplines We Hire For",
-      "subtitle": "As we scale our operations in Kigali, we seek exceptional talent across four key pillars.",
-      "engineering": {
-        "title": "Software & AI Engineering",
-        "desc": "Full-stack web engineers, security architects, and AI/NLP research specialists building reliable legal tech."
+    "whatWeWorkOn": {
+      "badge": "Product & Engineering",
+      "title": "What We Work On",
+      "subtitle": "The foundational systems, distributed architecture, and localized interfaces powering justice delivery.",
+      "marketplace": {
+        "title": "Marketplace & Discovery",
+        "desc": "Geospatial and text search with real-time filters for practice area, fixed consultation fees, verified ratings, and calendar availability across ten practice domains."
       },
-      "legalCompliance": {
-        "title": "Legal Research & Bar Compliance",
-        "desc": "Rwandan legal researchers, ethics compliance officers, and institutional relations specialists."
+      "payments": {
+        "title": "Payments & Service Infrastructure",
+        "desc": "Seamless Mobile Money and card checkout through regulated payment gateways, automated escrow protection that locks consultation fees until completion, and instant client refund pipelines."
       },
-      "operations": {
-        "title": "Operations & Marketplace Growth",
-        "desc": "Advocate network coordinators, financial escrow analysts, and client onboarding managers."
+      "ai": {
+        "title": "AI-Assisted Case Triage",
+        "desc": "Natural language intake that parses client inquiries into structured legal taxonomy, estimating urgency, fee ranges, and suitable verified counsel in seconds."
       },
-      "support": {
-        "title": "Customer Success & Trust",
-        "desc": "Trilingual customer advocates delivering compassionate support in Kinyarwanda, English, and French."
+      "video": {
+        "title": "Private Video Consultations",
+        "desc": "Ultra-low latency, browser-based consultation calls powered by WebRTC, restricted to verified participants with zero server recording and end-to-end session isolation."
+      },
+      "verification": {
+        "title": "Credential Review & Compliance",
+        "desc": "Identity documents and bar certificates encrypted at rest, audited review pipelines cross-referenced with statutory rolls, and immutable tamper-evident logs."
+      },
+      "localization": {
+        "title": "Trilingual Platform",
+        "desc": "Native multilingual architecture delivering first-class experiences in Kinyarwanda, English, and French across all legal specialties and booking workflows."
       }
     },
-    "talentPool": {
-      "badge": "Rolling Applications",
-      "title": "Spontaneous Applications & Talent Pool",
-      "subtitle": "Even when specific requisitions are not publicly posted, we continuously review exceptional candidates who believe in our mission.",
-      "instruction": "Send your CV, portfolio or GitHub link, and a short introduction to:",
-      "email": "careers@myjudicial.com",
-      "locationNotice": "Hybrid roles based at our Kigali headquarters, with flexible remote arrangements for select technical functions."
+    "benefits": {
+      "badge": "Perks & Culture",
+      "title": "Built for High Impact and High Performance",
+      "subtitle": "We believe exceptional talent deserves competitive compensation, deep autonomy, and the resources to do their career's best work.",
+      "compensation": {
+        "title": "Competitive Compensation",
+        "desc": "Top-tier regional base salaries pegged to industry benchmarks, with transparent equity and milestone bonuses."
+      },
+      "health": {
+        "title": "Comprehensive Healthcare",
+        "desc": "Premium medical and dental insurance covering you and your immediate dependents with leading healthcare networks in Rwanda."
+      },
+      "hardware": {
+        "title": "Hardware & Workspace Stipend",
+        "desc": "Your choice of latest Apple MacBook Pro or Lenovo ThinkPad, 4K monitors, and ergonomic gear for your workspace."
+      },
+      "office": {
+        "title": "Kigali CBD Headquarters & Flexibility",
+        "desc": "Collaborate in our modern office at Deco Center in downtown Kigali, with flexible hybrid work policies tailored to your productivity."
+      },
+      "growth": {
+        "title": "Learning & Professional Dues",
+        "desc": "Annual education stipend for technical courses, global conferences, and full coverage of professional bar association or engineering dues."
+      },
+      "impact": {
+        "title": "Systemic Legal Impact",
+        "desc": "Directly empower thousands of citizens and businesses to resolve critical legal challenges with confidence, dignity, and fair fees."
+      }
+    },
+    "howWeWork": {
+      "badge": "Working Principles",
+      "title": "How We Work",
+      "subtitle": "A few principles we actually use to make decisions.",
+      "p1": {
+        "title": "User-First",
+        "desc": "A change is worth making if it removes friction, confusion or intimidation for someone trying to get legal help. If it does not, it probably should not ship."
+      },
+      "p2": {
+        "title": "Build Responsibly & Protect Privacy",
+        "desc": "Legal matters are sensitive. We take privacy, security and careful handling of information seriously, and our Privacy Policy sets out in detail what we collect and why."
+      },
+      "p3": {
+        "title": "Trust Through Accuracy",
+        "desc": "We test relentlessly and maintain zero tolerance for false representations. We would rather be accurate about what the platform delivers than overstate capabilities."
+      },
+      "p4": {
+        "title": "Solve Real Problems",
+        "desc": "We favour what works on an ordinary phone and an ordinary network in Rwanda over what only works in a demo."
+      }
+    },
+    "openings": {
+      "badge": "Opportunities",
+      "title": "Open Positions",
+      "subtitle": "Explore current openings across our teams or submit an open application.",
+      "filterAll": "All Roles",
+      "filterDepartment": "Filter by Department",
+      "emptyFiltered": "No open roles in this department. Check other departments or submit an open application.",
+      "applyDirect": "Apply for this Role",
+      "externalPortal": "Open external application portal",
+      "responsibilities": "What the role involves",
+      "requirements": "What we are looking for",
+      "niceToHave": "Useful, but not required",
+      "applicationInstructions": "How to apply",
+      "searchPlaceholder": "Search roles by title, keyword, or tech...",
+      "clearSearch": "Clear search",
+      "resetFilters": "Reset Filters",
+      "noSearchResults": "No positions match your search criteria. Try a different keyword or reset filters.",
+      "viewDetails": "View Details",
+      "hideDetails": "Hide Details",
+      "copyRoleLink": "Copy link to position",
+      "roleLinkCopied": "Link copied to clipboard!",
+      "empty": {
+        "title": "No open positions right now",
+        "subtitle": "Nothing is published at the moment. If you would like to introduce yourself, you can send us an open application for future opportunities.",
+        "cta": "Submit an Open Application"
+      }
+    },
+    "expressionModal": {
+      "title": "Apply for Position",
+      "openTitle": "Open Application",
+      "subtitle": "Submit your profile to our talent operations team",
+      "roleSubtitle": "Application for {roleTitle}",
+      "desc": "Fill out your details below. Our team reviews every application within 48 business hours.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "e.g. Marie Uwase",
+      "email": "Email Address",
+      "emailPlaceholder": "marie@example.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+250 788 123 456",
+      "linkedin": "LinkedIn Profile URL",
+      "linkedinPlaceholder": "https://linkedin.com/in/username",
+      "portfolio": "Portfolio / GitHub URL",
+      "portfolioPlaceholder": "https://github.com/username",
+      "resumeLink": "Resume / CV Link (Google Drive, Dropbox, etc.)",
+      "resumeLinkPlaceholder": "https://drive.google.com/file/...",
+      "resumeLinkHelp": "Ensure link access is set to anyone with link can view",
+      "coverNote": "Cover Note / Why MyJudicial?",
+      "coverNotePlaceholder": "Tell us what excites you about this role and relevant work you have shipped...",
+      "submit": "Submit Application",
+      "submitting": "Submitting Application...",
+      "successTitle": "Application Received!",
+      "successMessage": "Thank you for applying to MyJudicial. Our hiring team has received your application and will follow up with you via email.",
+      "validationError": "Please fill in all required fields marked with an asterisk (*).",
+      "orEmailDirect": "Or email us directly at",
+      "emailRecipientLabel": "Send application to",
+      "openEmailClient": "Open Email Client",
+      "copyEmail": "Copy Email Address",
+      "copied": "Email copied to clipboard!",
+      "copyFailed": "Could not copy automatically. Please copy the address above.",
+      "close": "Close",
+      "guidanceTitle": "Application Guidelines",
+      "optionalBadge": "Optional",
+      "resumeLabel": "Resume / CV",
+      "resumeMethodUpload": "Upload File",
+      "resumeMethodLink": "Cloud Link",
+      "resumeUploadPrompt": "Click to upload or drag & drop",
+      "resumeUploadHint": "PDF or DOCX (max 10MB)",
+      "resumeFileSelected": "Resume attached",
+      "resumeRemoveFile": "Remove file",
+      "trustGuarantee": "Confidential Review • 48-Hour Response Guarantee",
+      "tipsToggleShow": "View application tips",
+      "tipsToggleHide": "Hide application tips",
+      "guide1": "Provide your full legal name and active contact details",
+      "guide2": "Include an accessible link to your CV/Resume in PDF format",
+      "guide3": "Link your portfolio, GitHub, or LinkedIn profile",
+      "guide4": "Tell us why legal access in Rwanda matters to you",
+      "guide5": "Highlight tangible systems or products you have built or operated",
+      "emailSubject": "Application - Open Role at MyJudicial",
+      "emailSubjectRole": "Application - {roleTitle} at MyJudicial",
+      "emailGreeting": "Hello MyJudicial Talent Team,",
+      "emailIntro": "I am writing to express my interest in joining MyJudicial.",
+      "emailIntroRole": "I am writing to apply for the {roleTitle} role at MyJudicial.",
+      "emailSignoff": "Best regards,",
+      "chooseEmailService": "Choose email service",
+      "emailWebGmail": "Gmail",
+      "emailWebOutlook": "Outlook / Hotmail",
+      "emailDefaultApp": "Default Mail App",
+      "emailInBrowser": "Open webmail in browser tab",
+      "emailDesktopApp": "Apple Mail, Outlook Desktop, etc.",
+      "submissionFailed": "Failed to submit application. Please check your connection or email us directly."
+    },
+    "faqs": {
+      "badge": "Common Questions",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about working at MyJudicial.",
+      "q1": "Where is MyJudicial based?",
+      "a1": "MyJudicial is based in Kigali, Rwanda, with headquarters in the central business district.",
+      "q2": "Can I get in touch if there are no open positions?",
+      "a2": "Yes, absolutely. You can submit an open application or email careers@myjudicial.com. Our talent team reviews all incoming candidate profiles.",
+      "q3": "What should I include in my application?",
+      "a3": "Your resume/CV link, LinkedIn or GitHub portfolio, and a short cover note describing the problems you want to solve at MyJudicial.",
+      "q4": "Which languages does MyJudicial support?",
+      "a4": "The public product is natively accessible in Kinyarwanda, English, and French across all legal specialties and booking workflows."
     },
     "cta": {
-      "title": "Ready to shape the future of legal tech?",
-      "subtitle": "Introduce yourself or explore how our platform empowers citizens and advocates today.",
-      "explorePlatform": "Explore How It Works",
-      "sendCv": "Send Your Application"
+      "title": "Ready to build the future of justice?",
+      "subtitle": "Explore open roles, introduce yourself via open application, or learn more about our company mission.",
+      "sendInterest": "Submit Open Application",
+      "viewOpenings": "View Open Positions",
+      "learnAbout": "Learn About MyJudicial"
     }
   },
   "lawyerProfile": {
@@ -6260,6 +6925,217 @@
       "bookTitle": "Book Consultation with {name} | MyJudicial",
       "bookDescription": "Schedule a legal session with {name}, a {specialty} expert on MyJudicial. Fixed fees, secure video or in-person consultation.",
       "bookFallbackTitle": "Book a Legal Consultation | MyJudicial"
+    }
+  },
+  "adminContent": {
+    "title": "Page Content",
+    "subtitle": "Write and publish the public pages. Nothing goes live until you publish it.",
+    "page_about": "About",
+    "page_careers": "Careers",
+    "page_help": "Help",
+    "page_contact": "Contact",
+    "page_privacy": "Privacy",
+    "page_terms": "Terms",
+    "page_cookies": "Cookies",
+    "live": "Live",
+    "draft": "Draft",
+    "neverWritten": "Not written",
+    "neverWrittenTitle": "This page has never been written",
+    "neverWrittenBody": "Visitors currently see a neutral placeholder. It stays that way until you publish real content here.",
+    "unpublishedChanges": "You have unsaved changes. The live page still shows the last saved version.",
+    "detailsTitle": "Page details",
+    "detailsDescription": "The title visitors see at the top of the page.",
+    "pageTitle": "Page title",
+    "pageTitlePlaceholder": "Privacy Policy",
+    "effectiveDate": "Effective date",
+    "effectiveDatePlaceholder": "28 September 2026",
+    "seoTitle": "Search preview",
+    "seoDescription": "Optional per-page titles and descriptions for search engines and social sharing. Leave blank to keep this page's defaults.",
+    "seoMetaTitle": "Meta title",
+    "seoMetaTitlePlaceholder": "About MyJudicial | MyJudicial",
+    "seoMetaDesc": "Meta description",
+    "seoMetaDescPlaceholder": "A short summary shown in search results...",
+    "seoOgImage": "Open Graph image URL",
+    "seoOgImagePlaceholder": "https://myjudicial.com/og-about.png",
+    "blocksTitle": "Content",
+    "blocksDescription": "Sections appear on the public page in the order shown here.",
+    "noBlocks": "No sections yet. Add one below to start writing.",
+    "addBlock": "Add section",
+    "removeBlock": "Remove section",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "headingOptional": "Heading (optional)",
+    "headingPlaceholder": "What we collect",
+    "body": "Text",
+    "tone": "Style",
+    "tone_info": "Information",
+    "tone_warning": "Important",
+    "items": "List items",
+    "addItem": "Add item",
+    "removeItem": "Remove item",
+    "columns": "Columns",
+    "newColumn": "New column",
+    "addColumn": "Add column",
+    "removeColumn": "Remove column",
+    "rows": "Rows",
+    "row": "Row",
+    "addRow": "Add row",
+    "removeRow": "Remove row",
+    "block_prose": "Text",
+    "block_bullets": "Bullet list",
+    "block_steps": "Steps",
+    "block_callout": "Highlighted box",
+    "block_table": "Table",
+    "block_coreValues": "Core values",
+    "block_milestones": "Milestones",
+    "block_contactCard": "Contact card",
+    "block_jobs": "Open positions",
+    "block_faq": "Questions",
+    "block_hero": "Hero",
+    "block_statsBand": "Stats band",
+    "block_ctaBand": "Call to action",
+    "block_image": "Image",
+    "blockProse": "Text",
+    "blockBullets": "Bullet list",
+    "blockSteps": "Steps",
+    "blockCallout": "Highlighted box",
+    "blockTable": "Table",
+    "blockCoreValues": "Core values",
+    "blockMilestones": "Milestones",
+    "blockContactCard": "Contact card",
+    "blockJobs": "Open positions",
+    "blockFaq": "Questions",
+    "blockHero": "Hero",
+    "blockStatsBand": "Stats band",
+    "blockCtaBand": "Call to action",
+    "blockImage": "Image",
+    "heroBadge": "Badge",
+    "heroTitle": "Headline",
+    "heroSubtitle": "Subheadline",
+    "ctaLabel": "Button label",
+    "ctaHref": "Button link",
+    "statValues": "Statistics",
+    "statValue": "Value",
+    "statLabel": "Label",
+    "addStat": "Add statistic",
+    "removeStat": "Remove statistic",
+    "imageSrc": "Image URL",
+    "imageAlt": "Alt text",
+    "imageCaption": "Caption",
+    "values": "Core values",
+    "valueTitle": "Title",
+    "valueIcon": "Icon",
+    "valueDescription": "Description",
+    "addValue": "Add value",
+    "milestoneItems": "Milestones",
+    "milestoneYear": "Year",
+    "milestoneTitle": "Title",
+    "milestoneDesc": "Description",
+    "addMilestone": "Add milestone",
+    "dynamic_contactCard": "Renders the support and office channels from Settings.",
+    "dynamic_jobs": "Renders the open positions from Settings, hiding any that are not published.",
+    "dynamic_faq": "Renders the questions configured in Settings.",
+    "saveDraft": "Save draft",
+    "publish": "Publish",
+    "deletePage": "Delete page",
+    "copyFromEnglish": "Copy from English",
+    "copyOverwriteConfirm": "This language is already published. Copying English over it will replace it and set it back to draft. Continue?",
+    "copyToast": "Copied from English and saved as a draft.",
+    "deleteConfirm": "Delete this page and all of its sections?",
+    "titleRequired": "Give the page a title before saving.",
+    "loadFailed": "Could not load page content.",
+    "saveFailed": "Could not save the page.",
+    "copyFailed": "Could not copy the English content.",
+    "deleteFailed": "Could not delete the page.",
+    "publishedToast": "Published. The change is live.",
+    "draftToast": "Saved as a draft. The public page is unchanged.",
+    "deleteToast": "Page deleted.",
+    "publishConfirmTitle": "Publish this page?",
+    "publishConfirmBody": "The saved content goes live on the public site for all visitors. Your history is kept, so you can roll it back later.",
+    "publishConfirmWarn": "Publishing replaces what is live now with the draft shown above.",
+    "restore": "Restore",
+    "restoreToast": "Page restored to the selected version.",
+    "restoreFailed": "Could not restore the page version.",
+    "restoreConfirmTitle": "Restore this version?",
+    "restoreConfirmBody": "The page will be reverted to this snapshot, and the rollback is recorded in the history.",
+    "revisionsTitle": "Revisions",
+    "revisionsDescription": "Every save, publish, copy, and restore is snapshotted here so you can roll back.",
+    "revisionsEmpty": "No history yet. Saves, publishes, copies, and restores will appear here.",
+    "revisionsFailed": "Could not load the revision history.",
+    "preview": "Preview",
+    "refresh": "Refresh",
+    "cancel": "Cancel",
+    "change_save": "Draft saved",
+    "change_publish": "Published",
+    "change_restore": "Restored",
+    "change_copy": "Copied from English"
+  },
+  "adminCareers": {
+    "title": "Careers & Positions",
+    "subtitle": "Write and manage the open positions shown on the public Careers page and in Page Content.",
+    "pageHint": "Only roles that are kept published appear on the public site. Unpublished roles stay here as drafts until you switch them on.",
+    "serverUnreachable": "Could not reach the server.",
+    "serverUnreachableDesc": "Showing the last loaded positions. Retry to load fresh data.",
+    "retry": "Retry",
+    "loadFailed": "Could not load the open positions.",
+    "saveFailed": "Could not save the positions.",
+    "rolesSaved": "Positions saved.",
+    "saveChanges": "Save changes",
+    "addRole": "Add position",
+    "removeRole": "Remove position",
+    "noRoles": "No positions yet. Add one to start recruiting.",
+    "untitledRole": "Untitled position",
+    "positionLabel": "Position {number} of {total}",
+    "hidden": "Hidden",
+    "someHidden": "Some positions hidden",
+    "roleCount": "{count, plural, one {# position} other {# positions}}",
+    "roleTitle": "Job Title",
+    "roleDepartment": "Department",
+    "roleLocation": "Location",
+    "roleType": "Employment Type",
+    "roleApplyUrl": "Apply Link (URL)",
+    "roleDetails": "Details & requirements",
+    "roleSlug": "Slug",
+    "roleSummary": "Short summary",
+    "roleDescription": "Full description",
+    "responsibilities": "Responsibilities",
+    "requirements": "Requirements",
+    "niceToHave": "Nice to have",
+    "applicationInstructions": "How to apply",
+    "addItem": "Add item",
+    "removeItem": "Remove item",
+    "published": "Published on the public site",
+    "publishedHint": "Turn off to keep a role in editing here without showing it publicly."
+  },
+  "publicContent": {
+    "lastUpdated": "Last updated: {date}",
+    "previewBanner": "Preview of the saved '{slug}' draft. Save again to update it.",
+    "translationNotice": "This page is currently available in English only. The French and Kinyarwanda versions will be published soon.",
+    "unavailableTitle": "This page has not been published yet.",
+    "unavailableBody": "The team is still preparing this content. Please check back soon.",
+    "contactCard": {
+      "title": "Contact us",
+      "email": "Email",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "address": "Office",
+      "poBox": "P.O. Box",
+      "hours": "Working hours",
+      "dpo": "Data Protection Officer"
+    },
+    "jobs": {
+      "heading": "Open positions",
+      "empty": "There are no open positions right now. Send your CV to",
+      "apply": "Apply",
+      "emailContact": "Contact us",
+      "responsibilities": "What you will do",
+      "requirements": "What we are looking for",
+      "niceToHave": "Nice to have",
+      "applyInstructions": "How to apply"
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "empty": "No FAQs have been published yet. Please check back soon."
     }
   }
 }

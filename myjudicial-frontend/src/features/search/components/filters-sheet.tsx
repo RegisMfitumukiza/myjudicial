@@ -52,16 +52,16 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[320px] overflow-y-auto bg-background sm:w-[380px]">
+      <SheetContent side="right" className="w-full max-w-[320px] sm:max-w-[380px] overflow-y-auto bg-background">
         <SheetHeader>
           <SheetTitle className="text-foreground">{t("filtersTitle")}</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-6 px-4 pb-8 pt-2">
+        <div className="space-y-5 px-2 min-[360px]:px-4 pb-8 pt-2">
           {/* Specialty */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("specialtyLabel")}</p>
-            <div className="flex flex-wrap gap-2" role="group" aria-label={t("specialtyLabel")}>
+            <div className="flex flex-wrap gap-1.5 sm:gap-2" role="group" aria-label={t("specialtyLabel")}>
               {specialties.map((s) => {
                 const active = filters.specialties.includes(s.value);
                 return (
@@ -71,7 +71,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
                     aria-pressed={active}
                     onClick={() => toggleSpecialty(s.value)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition",
+                      "inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1.5 text-xs font-medium transition",
                       active
                         ? "bg-brand-dark text-on-brand shadow-xs"
                         : "bg-accent text-foreground hover:bg-accent/80"
@@ -113,7 +113,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Rating */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("minRatingLabel")}</p>
-            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-label={t("minRatingLabel")}>
+            <div className="grid grid-cols-2 min-[340px]:grid-cols-4 gap-1.5 sm:gap-2" role="radiogroup" aria-label={t("minRatingLabel")}>
               {RATING_OPTIONS.map((val) => (
                 <button
                   key={val}
@@ -138,7 +138,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Experience */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("experienceLabel")}</p>
-            <div className="grid grid-cols-4 gap-2" role="radiogroup" aria-label={t("experienceLabel")}>
+            <div className="grid grid-cols-2 min-[340px]:grid-cols-4 gap-1.5 sm:gap-2" role="radiogroup" aria-label={t("experienceLabel")}>
               {EXPERIENCE_OPTIONS.map((val) => (
                 <button
                   key={val}
@@ -163,7 +163,7 @@ export function FiltersSheet({ open, onOpenChange, filters, onChange, specialtie
           {/* Proximity */}
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("proximityLabel")}</p>
-            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t("proximityLabel")}>
+            <div className="grid grid-cols-2 min-[340px]:grid-cols-3 gap-1.5 sm:gap-2" role="radiogroup" aria-label={t("proximityLabel")}>
               {PROXIMITY_OPTIONS.map((p) => (
                 <button
                   key={p.value}

@@ -12,9 +12,41 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'landing.meta' });
   const localeOg = locale === 'fr' ? 'fr_FR' : locale === 'rw' ? 'rw_RW' : 'en_US';
 
+  let ogImage = '/og-image.png';
+  let dynamicTitle = t('title');
+  let dynamicDescription = t('description');
+  let dynamicKeywords: string[] = [];
+
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+    const apiPrefix = process.env.NEXT_PUBLIC_API_PREFIX ?? '/api/v1';
+    const res = await fetch(`${apiUrl}${apiPrefix}/settings`, {
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(1500),
+    });
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.trim()) {
+        const json = JSON.parse(text);
+        if (json?.data?.ogImageUrl) ogImage = json.data.ogImageUrl;
+        if (json?.data?.seoTitle) dynamicTitle = json.data.seoTitle;
+        if (json?.data?.seoDescription) dynamicDescription = json.data.seoDescription;
+        if (json?.data?.seoKeywords) {
+          dynamicKeywords = json.data.seoKeywords
+            .split(',')
+            .map((k: string) => k.trim())
+            .filter(Boolean);
+        }
+      }
+    }
+  } catch {
+    // Non-blocking fallback to default static metadata
+  }
+
   return {
-    title: t('title'),
-    description: t('description'),
+    title: dynamicTitle,
+    description: dynamicDescription,
+    ...(dynamicKeywords.length > 0 ? { keywords: dynamicKeywords } : {}),
     alternates: {
       canonical: `https://myjudicial.com/${locale}`,
       languages: {
@@ -25,19 +57,19 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title: t('title'),
-      description: t('description'),
+      title: dynamicTitle,
+      description: dynamicDescription,
       url: `https://myjudicial.com/${locale}`,
       siteName: 'MyJudicial',
-      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'MyJudicial — Legal Services Marketplace' }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: 'MyJudicial — Legal Services Marketplace' }],
       locale: localeOg,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: t('title'),
-      description: t('description'),
-      images: ['/og-image.png'],
+      title: dynamicTitle,
+      description: dynamicDescription,
+      images: [ogImage],
     },
   };
 }

@@ -10,7 +10,7 @@ export async function requireAuth(locale?: string) {
   const session = await getCurrentSession();
 
   if (!session) {
-    redirect(locale ? `/${locale}/sign-in` : "/sign-in");
+    redirect(`/${locale ?? "en"}/sign-in`);
   }
 
   return session;
@@ -27,7 +27,7 @@ export async function requireRole(roles: UserRole[], locale?: string) {
           ? "/expert/dashboard"
           : "/client/dashboard";
 
-    redirect(locale ? `/${locale}${targetDashboard}` : targetDashboard);
+    redirect(`/${locale ?? "en"}${targetDashboard}`);
   }
 
   return session;

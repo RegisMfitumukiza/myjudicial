@@ -17,7 +17,7 @@ export function PublicNav() {
       <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between px-3 sm:px-4 lg:px-6 sm:h-16">
 
         {/* Logo */}
-        <Logo light={false} fontSize="text-[15px]" className="shrink-0" />
+        <Logo light={false} fontSize="text-[15px]" className="shrink-0" hideTextOnSmall />
 
         {/* Right: LanguageSwitcher, ProfileMenu, Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3">

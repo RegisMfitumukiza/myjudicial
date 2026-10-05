@@ -57,7 +57,7 @@ export default function GettingStartedPage() {
   const progress = data?.data;
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader title={t("title")} description={t("subtitle")} />
 
       <div className="mt-8">
@@ -67,7 +67,7 @@ export default function GettingStartedPage() {
           <ErrorState message={t("failedToLoad")} />
         ) : progress ? (
           <div className="space-y-8">
-            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-sm font-semibold text-foreground">
                   {progress.isComplete

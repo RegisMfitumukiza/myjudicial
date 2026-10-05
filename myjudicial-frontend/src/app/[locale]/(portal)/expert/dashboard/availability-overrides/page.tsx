@@ -133,13 +133,13 @@ export default function AvailabilityOverridesPage() {
   const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Header */}
       <PageHeader
         title={t("pageTitle")}
         description={t("pageDescription")}
         actions={
-          <Button onClick={() => setShowBulkModal(true)}>
+          <Button onClick={() => setShowBulkModal(true)} className="w-full sm:w-auto">
             <CalendarDays className="mr-2 h-4 w-4" />
             {t("vacationModeBtn")}
           </Button>
@@ -168,8 +168,8 @@ export default function AvailabilityOverridesPage() {
 
       {/* Calendar */}
       {!isLoading && !error && (
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm overflow-x-auto">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <CalendarIcon className="h-5 w-5" />

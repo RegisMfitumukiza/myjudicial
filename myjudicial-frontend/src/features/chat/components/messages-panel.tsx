@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
 import {
   Send, Loader2, MessageSquare, ChevronUp, Paperclip, FileText, Download,
-  Search, X, Reply, Pencil, Trash2, CheckCheck,
+  Search, X, Reply, Pencil, Trash2, CheckCheck, ArrowLeft,
 } from "lucide-react";
 import {
   useGetChatConversations,
@@ -638,15 +638,15 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
   }, []);
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
-      <div className="mb-6 shrink-0">
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">{subtitle}</p>
+    <div className="flex h-[calc(100dvh-5rem)] lg:h-[calc(100vh-2rem)] flex-col p-2.5 min-[360px]:p-4 pb-6 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+      <div className="mb-4 sm:mb-6 shrink-0">
+        <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-500 dark:text-gray-400">{subtitle}</p>
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-brand-border/20 bg-white shadow-md dark:border-gray-700 dark:bg-gray-900">
         {/* Sidebar */}
-        <div className="w-72 shrink-0 overflow-y-auto border-r border-brand-border/10 dark:border-gray-800">
+        <div className={`${activeId ? "hidden md:block" : "w-full"} md:w-72 shrink-0 overflow-y-auto border-r border-brand-border/10 dark:border-gray-800`}>
           {convLoading ? (
             <div className="space-y-2 p-3">
               {[1, 2, 3].map((i) => (
@@ -671,26 +671,34 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
         </div>
 
         {/* Chat area */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className={`${!activeId ? "hidden md:flex" : "flex"} min-w-0 flex-1 flex-col`}>
           {!activeId ? (
-            <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <div className="flex flex-1 flex-col items-center justify-center text-center p-4">
               <MessageSquare size={28} className="mb-2 text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-400 dark:text-gray-500">{t("selectConversation")}</p>
             </div>
           ) : (
             <>
               {/* Header */}
-              <div className="border-b border-brand-border/10 px-4 py-3 dark:border-gray-800">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-brand-dark dark:text-gray-100">
+              <div className="border-b border-brand-border/10 px-4 py-3 dark:border-gray-800 flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveId(null)}
+                    className="md:hidden mr-1 p-1 -ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 shrink-0"
+                    aria-label="Back to conversations"
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
+                  <p className="text-sm font-semibold text-brand-dark dark:text-gray-100 truncate">
                     {otherParticipant ? `${otherParticipant.firstName} ${otherParticipant.lastName}` : "User"}
                   </p>
                   {headerIsOnline && (
-                    <span className="h-2 w-2 rounded-full bg-green-500" title={t("online")} />
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" title={t("online")} />
                   )}
                 </div>
                 {otherIsTyping && (
-                  <p className="mt-0.5 text-xs italic text-brand-blue flex items-center gap-1">
+                  <p className="mt-0.5 text-xs italic text-brand-blue flex items-center gap-1 shrink-0">
                     {t("typing")} <TypingDots />
                   </p>
                 )}

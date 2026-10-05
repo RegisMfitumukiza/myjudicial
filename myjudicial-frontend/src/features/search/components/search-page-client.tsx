@@ -88,6 +88,7 @@ export function SearchPageClient() {
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const centerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hasLocation, setHasLocation] = useState(false);
   const [userLocation, setUserLocation] = useState<{
@@ -271,7 +272,7 @@ export function SearchPageClient() {
       <div
         className={`relative flex-1 min-h-0 overflow-hidden ${
           showMap
-            ? "grid grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_440px]"
+            ? "grid grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_460px] xl:grid-cols-[minmax(0,1fr)_500px] 2xl:grid-cols-[minmax(0,1fr)_540px]"
             : "flex flex-col"
         }`}
       >
@@ -280,6 +281,7 @@ export function SearchPageClient() {
             <MapView
               lawyers={filteredLawyers}
               selectedId={selectedId}
+              hoveredId={hoveredId}
               onSelect={handleSelect}
               center={center}
               onCenterChange={handleMapCenterChange}
@@ -345,11 +347,13 @@ export function SearchPageClient() {
             specialties={specialtyOptions}
           />
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {isLoading ? (
               <ResultsList
                 lawyers={[]}
                 selectedId={selectedId}
+                hoveredId={hoveredId}
+                onHover={setHoveredId}
                 onSelect={handleSelect}
                 isLoading={true}
                 viewMode={viewMode}
@@ -359,6 +363,8 @@ export function SearchPageClient() {
               <ResultsList
                 lawyers={filteredLawyers}
                 selectedId={selectedId}
+                hoveredId={hoveredId}
+                onHover={setHoveredId}
                 onSelect={handleSelect}
                 isLoading={false}
                 viewMode={viewMode}

@@ -25,6 +25,7 @@ export const brevo = {
       templateId?: number;
       params?: Record<string, unknown>;
       replyTo?: { email: string; name?: string };
+      attachment?: Array<{ content?: string; url?: string; name: string }>;
     }): Promise<{ messageId?: string }> => {
       const response = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",

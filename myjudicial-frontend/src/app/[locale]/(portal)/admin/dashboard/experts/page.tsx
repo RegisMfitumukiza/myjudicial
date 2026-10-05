@@ -262,7 +262,7 @@ export default function ExpertsPage() {
 
   if (isLoading && !data) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <LoadingSpinner />
       </div>
     );
@@ -270,7 +270,7 @@ export default function ExpertsPage() {
 
   if (error && !data) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title={t("title")} />
         <ErrorState
           title={t("failedToLoad")}
@@ -281,7 +281,7 @@ export default function ExpertsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Header */}
       <PageHeader
         title={t("title")}
@@ -289,7 +289,7 @@ export default function ExpertsPage() {
       />
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label={t("totalExperts")}
           value={stats.total.toLocaleString()}
@@ -313,14 +313,14 @@ export default function ExpertsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg border border-border bg-muted p-0.5">
+      <div className="flex gap-1 rounded-lg border border-border bg-muted p-1 overflow-x-auto scrollbar-none">
         {tabs.map((tab) => (
           <Button
             key={tab.id}
             variant="ghost"
             size="sm"
             onClick={() => handleTabChange(tab.id)}
-            className={`flex-1 ${
+            className={`flex-1 shrink-0 whitespace-nowrap ${
               activeTab === tab.id
                 ? "bg-card text-foreground shadow-sm"
                 : "text-muted-foreground"

@@ -56,7 +56,10 @@ export const loginSchema = z.object({
 });
 
 /** POST /auth/otp/send */
-export const sendOtpSchema = z.object({ email });
+export const sendOtpSchema = z.object({
+  email,
+  language: z.enum(["en", "fr", "rw"]).optional(),
+});
 
 /** POST /auth/otp/verify */
 export const verifyOtpSchema = z.object({

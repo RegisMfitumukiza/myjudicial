@@ -131,29 +131,31 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
         </div>
 
         {/* Action CTAs */}
-        <div className="mt-2.5 flex items-center gap-2">
+        <div className="mt-2.5 flex flex-col min-[360px]:flex-row items-stretch min-[360px]:items-center gap-1.5 min-[360px]:gap-2">
           <Link
             href={`/lawyers/${lawyer.id}/book`}
-            className="flex-1 h-9 rounded-xl bg-brand-dark text-xs font-semibold text-on-brand shadow-sm flex items-center justify-center transition hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-black"
+            className="w-full min-[360px]:flex-1 h-9 rounded-xl bg-brand-dark text-xs font-semibold text-on-brand shadow-sm flex items-center justify-center transition hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-black"
           >
             {t("bookConsultation")}
           </Link>
-          <Link
-            href={`/lawyers/${lawyer.id}`}
-            className="flex-1 h-9 rounded-xl border border-border bg-card text-xs font-semibold text-foreground shadow-2xs flex items-center justify-center transition hover:bg-accent active:scale-[0.98]"
-          >
-            {t("viewProfile")}
-          </Link>
-          <a
-            href={directionsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={t("getDirections")}
-            aria-label={t("getDirections")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent transition active:scale-[0.98]"
-          >
-            <Navigation size={14} />
-          </a>
+          <div className="flex items-center gap-1.5 min-[360px]:flex-1">
+            <Link
+              href={`/lawyers/${lawyer.id}`}
+              className="flex-1 h-9 rounded-xl border border-border bg-card text-xs font-semibold text-foreground shadow-2xs flex items-center justify-center transition hover:bg-accent active:scale-[0.98]"
+            >
+              {t("viewProfile")}
+            </Link>
+            <a
+              href={directionsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("getDirections")}
+              aria-label={t("getDirections")}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent transition active:scale-[0.98]"
+            >
+              <Navigation size={14} />
+            </a>
+          </div>
         </div>
       </div>
     </div>

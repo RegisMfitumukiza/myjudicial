@@ -126,19 +126,28 @@ export function FloatingAiChat() {
 
         const analysis =
           analysisRes.status === "fulfilled" ? analysisRes.value.analysis : undefined;
+        const isGreetingOrUnknown =
+          analysis?.is_greeting ||
+          analysis?.specialty === "UNKNOWN" ||
+          (analysis && analysis.confidence_score === 0);
+
         const recommendations =
-          recRes.status === "fulfilled" && recRes.value.success
+          recRes.status === "fulfilled" && recRes.value.success && !isGreetingOrUnknown
             ? recRes.value.recommendations
             : [];
 
-        let assistantContent = t("welcomeMessage");
+        let assistantContent = t("errorMessage");
 
         if (analysis) {
-          const specialtyFormatted = getLocalizedSpecialty(analysis.specialty, tSpecialties);
-          assistantContent = t("triageResponse", {
-            specialty: specialtyFormatted,
-            urgency: analysis.urgency_level.toLowerCase(),
-          });
+          if (isGreetingOrUnknown) {
+            assistantContent = analysis.greeting_message || t("needMoreDetails");
+          } else {
+            const specialtyFormatted = getLocalizedSpecialty(analysis.specialty, tSpecialties);
+            assistantContent = t("triageResponse", {
+              specialty: specialtyFormatted,
+              urgency: analysis.urgency_level.toLowerCase(),
+            });
+          }
         }
 
         const assistantMsg: ChatMessage = {
@@ -182,7 +191,7 @@ export function FloatingAiChat() {
     ? "hidden md:flex bottom-6 left-6 items-start"
     : isLawyerPage
     ? "hidden lg:flex bottom-6 right-6 items-end"
-    : "bottom-4 right-4 sm:bottom-6 sm:right-6 items-end";
+    : "bottom-3 right-3 sm:bottom-6 sm:right-6 items-end";
 
   return (
     <div className={`fixed z-50 flex flex-col ${positionClasses}`}>
@@ -194,7 +203,7 @@ export function FloatingAiChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="mb-3 flex h-[480px] sm:h-[540px] w-[calc(100vw-2rem)] max-w-[360px] sm:w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e]"
+            className="mb-3 flex h-[min(480px,calc(100vh-6rem))] sm:h-[540px] w-[calc(100vw-1.5rem)] max-w-[360px] sm:w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e]"
           >
             {/* Header */}
             <div
@@ -442,7 +451,7 @@ export function FloatingAiChat() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ duration: 0.18 }}
-                className="relative w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/[0.06] dark:!border-[#2a303a] dark:!bg-[#1a1e26] dark:ring-white/5"
+                className="relative w-[calc(100vw-1.5rem)] max-w-[280px] sm:w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/[0.06] dark:!border-[#2a303a] dark:!bg-[#1a1e26] dark:ring-white/5"
               >
                 {/* Dismiss */}
                 <button
@@ -519,10 +528,11 @@ export function FloatingAiChat() {
             <button
               onClick={() => setIsOpen(true)}
               aria-label={t("title")}
-              className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
+              className="relative flex h-11 w-11 min-[360px]:h-12 min-[360px]:w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full shadow-lg shadow-black/20 ring-1 ring-black/10 transition-shadow hover:shadow-xl hover:shadow-black/25"
               style={{ backgroundColor: INDUSTRIAL_BLUE }}
             >
-              <Bot size={22} className="text-white sm:hidden" />
+              <Bot size={20} className="text-white min-[360px]:hidden" />
+              <Bot size={22} className="text-white hidden min-[360px]:block sm:hidden" />
               <Bot size={24} className="text-white hidden sm:block" />
               <span
                 className={`absolute right-0.5 top-0.5 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-white ${

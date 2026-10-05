@@ -177,6 +177,11 @@ export const EMAIL_CONTENT = {
 
   // OTP email
   OTP: {
+    heading: {
+      en: "Verification Code",
+      fr: "Code de vérification",
+      rw: "Kode yo kwemeza",
+    },
     yourCode: {
       en: "Your one-time login code is:",
       fr: "Votre code de connexion à usage unique est :",

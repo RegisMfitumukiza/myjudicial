@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getContentPageSeo } from "@/features/public-content/page-metadata";
 import FaqsClient from "./faqs-client";
+import { fetchPublicPlatformSettings } from "@/features/public-content/server";
 
 export async function generateMetadata({
   params,
@@ -9,10 +11,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "faqsPage.meta" });
+  const localeOg = locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US";
+  const seo = await getContentPageSeo("HELP", locale);
+  const title = seo?.title ?? t("title");
+  const description = seo?.description ?? t("description");
+  const ogImage = seo?.openGraphImage ?? "/og-image.png";
 
   return {
-    title: t("title"),
-    description: t("description"),
+    title,
+    description,
     alternates: {
       canonical: `https://myjudicial.com/${locale}/faqs`,
       languages: {
@@ -23,19 +30,19 @@ export async function generateMetadata({
       },
     },
     openGraph: {
-      title: t("title"),
-      description: t("description"),
+      title,
+      description,
       url: `https://myjudicial.com/${locale}/faqs`,
       siteName: "MyJudicial",
-      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "MyJudicial FAQs" }],
-      locale: locale === "fr" ? "fr_FR" : locale === "rw" ? "rw_RW" : "en_US",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "MyJudicial FAQs" }],
+      locale: localeOg,
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: t("title"),
-      description: t("description"),
-      images: ["/og-image.png"],
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }
@@ -47,21 +54,32 @@ export default async function FaqsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "faqsPage" });
+  const settings = await fetchPublicPlatformSettings();
+
+  const coreFaqs = Array.from({ length: 16 }, (_, i) => {
+    const itemKey = `item${i + 1}` as const;
+    return {
+      "@type": "Question",
+      name: t(`items.${itemKey}.q` as any),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: t(`items.${itemKey}.a` as any),
+      },
+    };
+  });
+  const supplementalFaqs = (settings?.supplementalFaqs ?? []).map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  }));
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: Array.from({ length: 16 }, (_, i) => {
-      const itemKey = `item${i + 1}` as const;
-      return {
-        "@type": "Question",
-        name: t(`items.${itemKey}.q` as any),
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: t(`items.${itemKey}.a` as any),
-        },
-      };
-    }),
+    mainEntity: [...coreFaqs, ...supplementalFaqs],
   };
 
   return (

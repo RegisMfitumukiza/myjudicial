@@ -56,16 +56,16 @@ export default function ConsultationsPage() {
   }
 
   return (
-    <main className="flex h-full flex-col bg-white dark:bg-black">
-      <div className="mx-auto w-full max-w-[900px] flex-1 px-6 py-8">
+    <div className="flex-1 min-w-0">
+      <div className="mx-auto w-full max-w-[900px] p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <div className="mb-6">
-          <h1 className="text-[24px] font-bold text-brand-dark dark:text-white">{t("title")}</h1>
+          <h1 className="text-xl sm:text-[24px] font-bold text-brand-dark dark:text-white break-words">{t("title")}</h1>
           <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50">
             {t("subtitle")}
           </p>
         </div>
 
-        <div className="mb-6 flex gap-1 border-b border-brand-border/20 pb-1 dark:border-white/10">
+        <div className="mb-6 flex gap-1 border-b border-brand-border/20 pb-1 dark:border-white/10 max-w-full overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.key}
@@ -119,7 +119,7 @@ export default function ConsultationsPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

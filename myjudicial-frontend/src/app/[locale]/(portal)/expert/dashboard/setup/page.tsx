@@ -163,14 +163,14 @@ export default function SetupPage() {
   const nextStep = getNextStep();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={`${t("progress", { done: doneCount, total: totalCount })}${doneCount === totalCount ? t("allSet") : ""}`}
       />
 
       {/* Status Summary Card */}
-      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className={cn(
             "flex h-12 w-12 shrink-0 items-center justify-center rounded-full",

@@ -273,10 +273,10 @@ export default function ExpertDashboardPage() {
   const isLoading = statsLoading || earningsLoading || complianceLoading || bookingsLoading || profileLoading;
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Welcome banner */}
       {/* Welcome banner — fixed navy gradient so text stays legible in both themes */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#16324f] via-[#24558d] to-[#0d2238] p-6 shadow-lg lg:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#16324f] via-[#24558d] to-[#0d2238] p-4 sm:p-6 shadow-lg lg:p-8">
         <div className="absolute right-0 top-0 h-80 w-80 translate-x-20 -translate-y-20 rounded-full bg-white/[0.05] blur-3xl" />
         <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-12 translate-y-12 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10">
@@ -302,7 +302,7 @@ export default function ExpertDashboardPage() {
                   </div>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-white lg:text-4xl">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white lg:text-4xl break-words">
                 {t("welcome", { name: firstName })}
               </h1>
               <p className="mt-2 text-white/70 lg:text-lg">
@@ -407,7 +407,7 @@ export default function ExpertDashboardPage() {
               <RevenueChart data={revenueData} highestTransactionRwf={highestTransactionRwf} />
               
               {/* Quick Stats Row */}
-              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard
                   label={t("performance.consultations")}
                   value={stats?.completedConsultations ?? 0}
@@ -436,7 +436,7 @@ export default function ExpertDashboardPage() {
             </div>
 
             {/* Alerts Sidebar */}
-            <div>
+            <div className="min-w-0">
               <RegulatoryAlerts alerts={alerts} />
             </div>
           </div>
@@ -446,8 +446,8 @@ export default function ExpertDashboardPage() {
             <BookingQueue sessions={queueSessions} />
             
             {/* Recent Activity */}
-            <div className="rounded-xl border border-border bg-card shadow-sm">
-              <div className="flex items-center justify-between p-5 pb-0">
+            <div className="rounded-xl border border-border bg-card shadow-sm min-w-0">
+              <div className="flex items-center justify-between p-4 sm:p-5 pb-0">
                 <h3 className="text-base font-semibold tracking-tight text-foreground">{t("activity.recentActivity")}</h3>
               </div>
               {recentActivities.length === 0 ? (
@@ -458,7 +458,7 @@ export default function ExpertDashboardPage() {
                   className="border-none bg-transparent shadow-none"
                 />
               ) : (
-                <div className="divide-y divide-border p-5 pt-3">
+                <div className="divide-y divide-border p-4 sm:p-5 pt-3">
                   {recentActivities.map((act) => (
                     <Link
                       key={act.id}

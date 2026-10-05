@@ -152,36 +152,39 @@ export default function PracticeAreasClient() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="border-b border-border bg-gradient-to-b from-muted/30 via-background to-background pt-12 pb-10 sm:pt-16 sm:pb-14">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="mb-4 sm:mb-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3.5 py-1 text-xs font-semibold text-foreground shadow-xs">
-            <BadgeCheck size={14} className="text-brand-dark dark:text-white" />
-            <span>{t("hero.badge")}</span>
+      <section className="border-b border-border bg-gradient-to-b from-muted/30 via-background to-background pt-10 pb-8 sm:pt-16 sm:pb-14">
+        <div className="mx-auto max-w-4xl px-3 min-[360px]:px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-3.5 sm:mb-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3 py-1 sm:px-3.5 text-xs font-semibold text-foreground shadow-2xs">
+              <BadgeCheck size={14} className="text-brand-dark dark:text-white shrink-0" />
+              <span className="truncate">{t("hero.badge")}</span>
+            </div>
+            <h1 className="text-2xl min-[360px]:text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.16] sm:leading-[1.12] text-balance break-words">
+              {t("hero.title")}
+            </h1>
+            <p className="mx-auto mt-3.5 sm:mt-4 max-w-2xl text-xs min-[360px]:text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed text-balance break-words">
+              {t("hero.subtitle")}
+            </p>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.18] sm:leading-[1.14] text-balance">
-            {t("hero.title")}
-          </h1>
-          <p className="mx-auto mt-4 sm:mt-5 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            {t("hero.subtitle")}
-          </p>
 
           {/* Interactive Search Input */}
-          <div className="mx-auto mt-8 max-w-xl">
+          <div className="mx-auto mt-6 sm:mt-8 max-w-xl">
             <div className="relative flex items-center rounded-2xl border border-border bg-card shadow-sm transition-all focus-within:border-brand-dark focus-within:ring-2 focus-within:ring-brand-dark/10 dark:focus-within:border-white/40">
-              <div className="pl-4 text-muted-foreground">
-                <Search size={18} />
+              <div className="pl-3.5 min-[360px]:pl-4 text-muted-foreground shrink-0">
+                <Search size={16} className="sm:hidden" />
+                <Search size={18} className="hidden sm:block" />
               </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("search.placeholder")}
-                className="w-full bg-transparent px-3.5 py-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                className="w-full bg-transparent px-3 min-[360px]:px-3.5 py-3 sm:py-3.5 text-xs min-[360px]:text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="mr-3 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition"
+                  className="mr-2 sm:mr-3 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition shrink-0"
                   aria-label={t("clearSearch")}
                 >
                   <X size={15} />
@@ -207,16 +210,16 @@ export default function PracticeAreasClient() {
       </section>
 
       {/* Grid Section */}
-      <section className="py-10 sm:py-14">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+      <section className="py-8 sm:py-14">
+        <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
           {/* Category Tabs & Sort Controls */}
-          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-5">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 border-b border-border pb-4 sm:pb-5">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab("ALL")}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  "rounded-full px-3 min-[360px]:px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "ALL"
                     ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -228,7 +231,7 @@ export default function PracticeAreasClient() {
                 type="button"
                 onClick={() => setActiveTab("BUSINESS")}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  "rounded-full px-3 min-[360px]:px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "BUSINESS"
                     ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -240,7 +243,7 @@ export default function PracticeAreasClient() {
                 type="button"
                 onClick={() => setActiveTab("CIVIL")}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
+                  "rounded-full px-3 min-[360px]:px-4 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "CIVIL"
                     ? "bg-brand-dark text-on-brand shadow-xs dark:bg-white dark:text-black"
                     : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -251,13 +254,13 @@ export default function PracticeAreasClient() {
             </div>
 
             {/* Sort Toggle */}
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <ArrowUpDown size={14} className="text-muted-foreground" />
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <ArrowUpDown size={14} className="text-muted-foreground shrink-0" />
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOption)}
                 aria-label={t("sort.label")}
-                className="rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground outline-none transition focus:border-brand-dark hover:bg-accent cursor-pointer"
+                className="rounded-xl border border-border bg-card px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground outline-none transition focus:border-brand-dark hover:bg-accent cursor-pointer"
               >
                 <option value="MOST_EXPERTS">{t("sort.mostExperts")}</option>
                 <option value="ALPHABETICAL">{t("sort.alphabetical")}</option>
@@ -265,35 +268,36 @@ export default function PracticeAreasClient() {
             </div>
           </div>
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-64 animate-pulse rounded-2xl border border-border bg-card p-6" />
+                <div key={i} className="h-60 sm:h-64 animate-pulse rounded-2xl border border-border bg-card p-4 sm:p-6" />
               ))}
             </div>
           ) : filteredAreas.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-                <Search size={26} />
+            <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center px-4">
+              <div className="mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                <Search size={24} className="sm:hidden" />
+                <Search size={26} className="hidden sm:block" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">{t("search.noResults")}</h3>
-              <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{t("search.noResultsSub")}</p>
-              <div className="mt-6 flex gap-3">
+              <h3 className="text-base sm:text-lg font-bold text-foreground">{t("search.noResults")}</h3>
+              <p className="mt-1.5 max-w-md text-xs sm:text-sm text-muted-foreground">{t("search.noResultsSub")}</p>
+              <div className="mt-6 flex flex-col min-[340px]:flex-row gap-2.5 sm:gap-3 w-full min-[340px]:w-auto">
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground shadow-xs hover:bg-accent transition"
+                  className="rounded-xl border border-border bg-card px-5 py-2.5 text-xs sm:text-sm font-semibold text-foreground shadow-xs hover:bg-accent transition"
                 >
                   {t("search.clear")}
                 </button>
                 <Link
                   href="/ai"
-                  className="rounded-xl bg-brand-dark px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:opacity-90 transition dark:bg-white dark:text-black"
+                  className="rounded-xl bg-brand-dark px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-xs hover:opacity-90 transition dark:bg-white dark:text-black text-center"
                 >
                   {t("cta.useAi")}
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {/* Practice Area Cards */}
               {filteredAreas.map((area) => {
                 const Icon = ICON_MAP[area.specialty] ?? Scale;
@@ -313,15 +317,16 @@ export default function PracticeAreasClient() {
                   <Link
                     key={area.specialty}
                     href={`/search?specialty=${area.specialty}`}
-                    className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30"
+                    className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-4 min-[360px]:p-5 sm:p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand-dark/40 hover:shadow-md dark:hover:border-white/30"
                   >
                     <div>
                       {/* Icon & Count Header */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-foreground shadow-2xs">
-                          <Icon size={24} />
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white shadow-2xs shrink-0">
+                          <Icon size={20} className="sm:hidden" />
+                          <Icon size={24} className="hidden sm:block" />
                         </div>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-semibold text-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted/80 px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-foreground shrink-0">
                           {area.expertCount === 1
                             ? t("grid.expertsCount", { count: area.expertCount })
                             : t("grid.expertsCountPlural", { count: area.expertCount })}
@@ -329,24 +334,24 @@ export default function PracticeAreasClient() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="mt-4 text-lg font-bold text-foreground transition-colors group-hover:text-brand-dark dark:group-hover:text-white">
+                      <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-bold text-foreground transition-colors group-hover:text-brand-dark dark:group-hover:text-white break-words">
                         {localizedLabel}
                       </h3>
 
                       {/* Description */}
                       {description && (
-                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                        <p className="mt-1.5 sm:mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2 break-words">
                           {description}
                         </p>
                       )}
 
                       {/* Common Topics Tags */}
                       {topics.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-1.5">
+                        <div className="mt-3.5 sm:mt-4 flex flex-wrap gap-1.5">
                           {topics.map((topic) => (
                             <span
                               key={topic}
-                              className="inline-flex items-center rounded-lg bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors group-hover:bg-accent group-hover:text-foreground"
+                              className="inline-flex items-center rounded-lg bg-muted/60 px-2 py-0.5 text-[10px] min-[360px]:text-[11px] font-medium text-muted-foreground transition-colors group-hover:bg-accent group-hover:text-foreground break-words"
                             >
                               {topic}
                             </span>
@@ -356,9 +361,9 @@ export default function PracticeAreasClient() {
                     </div>
 
                     {/* Card Footer Link */}
-                    <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4 text-xs font-semibold text-brand-dark dark:text-white">
+                    <div className="mt-5 sm:mt-6 flex items-center justify-between border-t border-border/60 pt-3.5 sm:pt-4 text-xs font-semibold text-brand-dark dark:text-white">
                       <span>{t("grid.findLawyers")}</span>
-                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1 shrink-0" />
                     </div>
                   </Link>
                 );
@@ -369,25 +374,26 @@ export default function PracticeAreasClient() {
       </section>
 
       {/* Refined Bottom CTA */}
-      <section className="border-t border-border bg-muted/20 py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-card via-card to-muted/40 p-8 sm:p-12 text-center shadow-md">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
-              <Bot size={28} />
+      <section className="border-t border-border bg-muted/20 py-12 sm:py-20">
+        <div className="mx-auto max-w-5xl px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-b from-card via-card to-muted/40 p-5 min-[360px]:p-8 sm:p-12 text-center shadow-md">
+            <div className="mx-auto mb-3.5 sm:mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-brand-dark/10 text-brand-dark dark:bg-white/10 dark:text-white">
+              <Bot size={24} className="sm:hidden" />
+              <Bot size={28} className="hidden sm:block" />
             </div>
 
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+            <h2 className="text-xl min-[360px]:text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl break-words">
               {t("cta.title")}
             </h2>
 
-            <p className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+            <p className="mx-auto mt-2 sm:mt-3 max-w-2xl text-xs min-[360px]:text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
               {t("cta.subtitle")}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+            <div className="mt-6 sm:mt-8 flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center justify-center gap-2.5 sm:gap-3.5">
               <Link
                 href="/ai"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-7 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 dark:bg-white dark:text-black"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-dark px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:opacity-90 dark:bg-white dark:text-black"
               >
                 <Sparkles size={15} />
                 <span>{t("cta.useAi")}</span>
@@ -395,25 +401,25 @@ export default function PracticeAreasClient() {
               </Link>
               <Link
                 href="/search"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground shadow-xs transition hover:bg-accent"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-foreground shadow-xs transition hover:bg-accent"
               >
                 <span>{t("cta.browseAll")}</span>
               </Link>
             </div>
 
             {/* Reassuring trust strip */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 border-t border-border/60 pt-6 text-xs text-muted-foreground">
+            <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 border-t border-border/60 pt-5 sm:pt-6 text-[11px] sm:text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
-                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
-                <span>{t("cta.trust1")}</span>
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="break-words">{t("cta.trust1")}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
-                <span>{t("cta.trust2")}</span>
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="break-words">{t("cta.trust2")}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <CheckCircle2 size={13} className="text-brand-dark dark:text-white" />
-                <span>{t("cta.trust3")}</span>
+                <CheckCircle2 size={13} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="break-words">{t("cta.trust3")}</span>
               </div>
             </div>
           </div>

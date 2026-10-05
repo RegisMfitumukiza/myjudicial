@@ -343,14 +343,14 @@ export default function AvailabilityCalendarPage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Header */}
       <PageHeader
         title={t("calendarTitle")}
         description={t("calendarSubtitle")}
         className="mb-6 shrink-0"
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"

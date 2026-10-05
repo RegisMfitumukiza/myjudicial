@@ -12,7 +12,7 @@ import {
   AlertTriangle, Building, Gavel, Landmark, Lightbulb, Calculator,
   BarChart, Handshake, HardHat, Stethoscope, GraduationCap, Film,
   Trophy, Mountain, Zap, Radio, Lock, Ship, Wheat, HelpCircle,
-  Scale, Leaf, Truck, Search,
+  Scale, Leaf, Truck, Search, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -64,18 +64,18 @@ function ProgressBar({
           return (
             <div key={label} className="flex flex-1 items-center">
               <div className="flex flex-col items-center gap-0.5">
-                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all ${done ? "bg-brand-blue text-on-brand"
-                  : act ? "border-2 border-brand-blue bg-background text-brand-blue shadow-sm"
+                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all ${done ? "bg-brand-dark text-on-brand"
+                  : act ? "border-2 border-brand-dark dark:border-white bg-background text-foreground shadow-sm"
                     : "border-2 border-border bg-background text-muted-foreground"
                   }`}>
                   {done ? <Check size={12} /> : n}
                 </div>
-                <span className={`hidden whitespace-nowrap text-[9px] font-semibold sm:block ${act ? "text-brand-blue" : "text-muted-foreground"}`}>
+                <span className={`hidden whitespace-nowrap text-[9px] font-semibold sm:block ${act ? "text-foreground font-bold" : "text-muted-foreground"}`}>
                   {label}
                 </span>
               </div>
               {i < labels.length - 1 && (
-                <div className={`mx-1 mb-3 h-0.5 flex-1 transition-colors ${step > n ? "bg-brand-blue" : "bg-border"}`} />
+                <div className={`mx-1 mb-3 h-0.5 flex-1 transition-colors ${step > n ? "bg-brand-dark dark:bg-white" : "bg-border"}`} />
               )}
             </div>
           );
@@ -101,20 +101,20 @@ function SelectCard({
       type="button"
       onClick={onClick}
       className={`relative flex flex-col items-start gap-2.5 rounded-2xl border-2 p-4 text-left transition-all ${selected
-        ? "border-brand-blue bg-muted shadow-sm shadow-brand-blue/10"
+        ? "border-brand-dark dark:border-white bg-accent/40 shadow-sm"
         : "border-border bg-card hover:border-border hover:shadow-sm"
         }`}
     >
       {selected && (
-        <span className={`absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-blue`}>
-              <Check size={10} className="text-on-brand" />
+        <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-dark text-on-brand">
+          <Check size={10} />
         </span>
       )}
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${selected ? "bg-brand-blue text-on-brand" : "bg-muted text-muted-foreground"}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${selected ? "bg-brand-dark text-on-brand" : "bg-muted text-muted-foreground"}`}>
         <Icon size={18} />
       </div>
       <div>
-        <p className={`text-[13px] font-bold ${selected ? "text-brand-blue" : "text-brand-dark"}`}>{label}</p>
+        <p className="text-[13px] font-bold text-foreground">{label}</p>
         {desc && <p className="mt-0.5 text-[11px] text-muted-foreground leading-4">{desc}</p>}
       </div>
     </button>
@@ -192,6 +192,7 @@ export default function SignUpPage() {
 
   const t = useTranslations("signup");
   const tCommon = useTranslations("common");
+  const tAuthShell = useTranslations("expertDashboard_auth-shell");
 
   useEffect(() => {
     if (!otpExpiresAt) return;
@@ -435,75 +436,75 @@ export default function SignUpPage() {
   /* ── STEP 1 ── Role selection ── */
   const renderStep1 = () => (
     <div>
-      <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: 1, total: TOTAL })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("role.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("role.subtitle")}</p>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("steps.of", { n: 1, total: TOTAL })}</p>
+      <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{t("role.title")}</h1>
+      <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">{t("role.subtitle")}</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mt-4 sm:mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <button
           type="button"
           onClick={() => setRole("CITIZEN")}
-          className={`relative flex flex-col items-center gap-4 rounded-2xl border-2 px-6 py-8 text-center transition-all ${role === "CITIZEN"
-            ? "border-brand-blue bg-muted shadow-md shadow-brand-blue/10"
+          className={`relative flex items-center sm:flex-col sm:items-center gap-3 sm:gap-3 rounded-2xl border-2 p-3.5 min-[360px]:p-4 sm:p-6 text-left sm:text-center transition-all ${role === "CITIZEN"
+            ? "border-brand-dark dark:border-white bg-accent/40 shadow-sm"
             : "border-border bg-card hover:border-border hover:shadow-md"
             }`}
         >
           {role === "CITIZEN" && (
-            <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue">
-              <Check size={12} className="text-on-brand" />
+            <span className="absolute right-3 top-3 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-brand-dark text-on-brand">
+              <Check size={11} />
             </span>
           )}
-          <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${role === "CITIZEN" ? "bg-brand-blue text-on-brand shadow-lg shadow-brand-blue/30" : "bg-muted text-muted-foreground"}`}>
-            <Users size={30} />
+          <div className={`flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl ${role === "CITIZEN" ? "bg-brand-dark text-on-brand shadow-sm" : "bg-muted text-muted-foreground"}`}>
+            <Users className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <div>
-            <p className={`text-lg font-extrabold ${role === "CITIZEN" ? "text-brand-blue" : "text-brand-dark"}`}>{t("role.citizen.title")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("role.citizen.desc")}</p>
+          <div className="flex-1 min-w-0 pr-6 sm:pr-0">
+            <p className={`text-sm min-[360px]:text-base sm:text-lg font-bold ${role === "CITIZEN" ? "text-brand-dark dark:text-white" : "text-foreground"}`}>{t("role.citizen.title")}</p>
+            <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground leading-snug">{t("role.citizen.desc")}</p>
+            <ul className="mt-2 hidden sm:block space-y-1 text-left">
+              {[
+                t("role.citizenBenefits.browse"),
+                t("role.citizenBenefits.fees"),
+                t("role.citizenBenefits.book"),
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <CheckCircle2 size={12} className="shrink-0 text-brand-dark dark:text-white" /> {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="mt-2 space-y-1 text-left">
-            {[
-              t("role.citizenBenefits.browse"),
-              t("role.citizenBenefits.fees"),
-              t("role.citizenBenefits.book"),
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <CheckCircle2 size={12} className="shrink-0 text-brand-blue" /> {item}
-              </li>
-            ))}
-          </ul>
         </button>
 
         <button
           type="button"
           onClick={() => setRole("EXPERT")}
-          className={`relative flex flex-col items-center gap-4 rounded-2xl border-2 px-6 py-8 text-center transition-all ${role === "EXPERT"
-            ? "border-brand-blue bg-muted shadow-md shadow-brand-blue/10"
+          className={`relative flex items-center sm:flex-col sm:items-center gap-3 sm:gap-3 rounded-2xl border-2 p-3.5 min-[360px]:p-4 sm:p-6 text-left sm:text-center transition-all ${role === "EXPERT"
+            ? "border-brand-dark dark:border-white bg-accent/40 shadow-sm"
             : "border-border bg-card hover:border-border hover:shadow-md"
             }`}
         >
           {role === "EXPERT" && (
-            <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-brand-blue">
-              <Check size={12} className="text-on-brand" />
+            <span className="absolute right-3 top-3 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-brand-dark text-on-brand">
+              <Check size={11} />
             </span>
           )}
-          <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${role === "EXPERT" ? "bg-brand-blue text-on-brand shadow-lg shadow-brand-blue/30" : "bg-muted text-muted-foreground"}`}>
-            <Briefcase size={30} />
+          <div className={`flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl ${role === "EXPERT" ? "bg-brand-dark text-on-brand shadow-sm" : "bg-muted text-muted-foreground"}`}>
+            <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <div>
-            <p className={`text-lg font-extrabold ${role === "EXPERT" ? "text-brand-blue" : "text-brand-dark"}`}>{t("role.expert.title")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("role.expert.desc")}</p>
+          <div className="flex-1 min-w-0 pr-6 sm:pr-0">
+            <p className={`text-sm min-[360px]:text-base sm:text-lg font-bold ${role === "EXPERT" ? "text-brand-dark dark:text-white" : "text-foreground"}`}>{t("role.expert.title")}</p>
+            <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground leading-snug">{t("role.expert.desc")}</p>
+            <ul className="mt-2 hidden sm:block space-y-1 text-left">
+              {[
+                t("role.expertBenefits.clients"),
+                t("role.expertBenefits.manage"),
+                t("role.expertBenefits.profile"),
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <CheckCircle2 size={12} className="shrink-0 text-brand-dark dark:text-white" /> {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="mt-2 space-y-1 text-left">
-            {[
-              t("role.expertBenefits.clients"),
-              t("role.expertBenefits.manage"),
-              t("role.expertBenefits.profile"),
-            ].map((item) => (
-              <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <CheckCircle2 size={12} className="shrink-0 text-brand-blue" /> {item}
-              </li>
-            ))}
-          </ul>
         </button>
       </div>
     </div>
@@ -513,7 +514,7 @@ export default function SignUpPage() {
   const renderAreaStep = () => (
     <div>
       <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: AREA_STEP, total: TOTAL })}</p>
-      <h1 className="text-xl font-extrabold text-brand-dark sm:text-2xl">{t("practiceArea.title")}</h1>
+      <h1 className="text-xl font-extrabold text-foreground sm:text-2xl">{t("practiceArea.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("practiceArea.subtitle")}</p>
       {specialtiesLoading ? (
         <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -545,24 +546,24 @@ export default function SignUpPage() {
   const renderNeedsStep = () => (
     <div>
       <p className="mb-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: NEEDS_STEP, total: TOTAL })}</p>
-      <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("citizen.situation.title")}</h1>
+      <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">{t("citizen.situation.title")}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{t("citizen.situation.subtitle")}</p>
 
       <div className="mt-7 space-y-6">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.situation.briefLabel")} <span className="font-normal text-muted-foreground">({t("citizen.situation.briefOptional")})</span></label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.situation.briefLabel")} <span className="font-normal text-muted-foreground">({t("citizen.situation.briefOptional")})</span></label>
           <textarea
             rows={4}
             value={cSituation}
             onChange={(e) => setCSituation(e.target.value.slice(0, 500))}
             placeholder={t("citizen.situation.placeholder")}
-            className="w-full resize-none rounded-xl border border-border bg-background p-4 text-sm text-brand-dark placeholder:text-muted-foreground shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+            className="w-full resize-none rounded-xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground shadow-sm focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20"
           />
           <p className="mt-1 text-right text-[11px] text-muted-foreground">{cSituation.length} / 500</p>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.urgency.label")}</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.urgency.label")}</label>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { v: "not-urgent", l: t("citizen.urgency.notUrgent"), cls: "text-green-700  bg-green-50  border-green-200" },
@@ -585,11 +586,11 @@ export default function SignUpPage() {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.location.district")}</label>
+            <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.location.district")}</label>
             <select
               value={cDistrict}
               onChange={(e) => setCDistrict(e.target.value)}
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-brand-dark shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground shadow-sm focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20"
             >
               <option value="">{t("citizen.location.selectDistrict")}</option>
               <optgroup label={t("citizen.location.kigaliCity")}>
@@ -602,14 +603,14 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.language.label")}</label>
+            <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.language.label")}</label>
             <div className="flex flex-col gap-2">
               {[["kinyarwanda", tCommon("languages.rw")], ["english", tCommon("languages.en")], ["french", tCommon("languages.fr")]].map(([v, l]) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setCLanguage(v)}
-                  className={`flex items-center gap-2 rounded-xl border-2 px-4 py-2 text-sm font-semibold transition-all ${cLanguage === v ? "border-brand-blue bg-muted text-brand-blue" : "border-border bg-background text-muted-foreground hover:border-border"
+                  className={`flex items-center gap-2 rounded-xl border-2 px-4 py-2 text-sm font-semibold transition-all ${cLanguage === v ? "border-brand-dark dark:border-white bg-accent/40 text-foreground font-bold" : "border-border bg-background text-muted-foreground hover:border-border"
                     }`}
                 >
                   {cLanguage === v && <Check size={13} />} {l}
@@ -620,7 +621,7 @@ export default function SignUpPage() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("citizen.consultationType.label")}</label>
+          <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.consultationType.label")}</label>
           <div className="grid grid-cols-3 gap-3">
             {[
               { v: "video", l: t("citizen.consultationType.video"), i: Video },
@@ -631,7 +632,7 @@ export default function SignUpPage() {
                 key={v}
                 type="button"
                 onClick={() => setCConsult(v)}
-                className={`flex flex-col items-center gap-2 rounded-xl border-2 py-4 text-sm font-bold transition-all ${cConsult === v ? "border-brand-blue bg-muted text-brand-blue" : "border-border bg-background text-muted-foreground hover:border-border"
+                className={`flex flex-col items-center gap-2 rounded-xl border-2 py-4 text-sm font-bold transition-all ${cConsult === v ? "border-brand-dark dark:border-white bg-accent/40 text-foreground" : "border-border bg-background text-muted-foreground hover:border-border"
                   }`}
               >
                 <Icon size={18} /> {l}
@@ -647,7 +648,7 @@ export default function SignUpPage() {
   const renderStep4 = () => (
     <div>
       <p className="mb-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("steps.of", { n: ACCOUNT_STEP, total: TOTAL })}</p>
-      <h1 className="text-xl font-extrabold text-brand-dark sm:text-2xl">{t("account.title")}</h1>
+      <h1 className="text-xl font-extrabold text-foreground sm:text-2xl">{t("account.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("account.subtitle")}</p>
 
       {apiError && (
@@ -657,9 +658,9 @@ export default function SignUpPage() {
       )}
 
       <div className="mt-4 space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3">
           <div>
-            <label htmlFor="su-first-name" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.firstName")}</label>
+            <label htmlFor="su-first-name" className="mb-1 block text-xs font-semibold text-foreground">{t("account.firstName")}</label>
             <input
               id="su-first-name"
               type="text"
@@ -670,14 +671,14 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.firstName}
               aria-describedby={showFieldErrors && accountErrors.firstName ? "su-first-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.firstName && (
               <p id="su-first-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.firstName}</p>
             )}
           </div>
           <div>
-            <label htmlFor="su-last-name" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.lastName")}</label>
+            <label htmlFor="su-last-name" className="mb-1 block text-xs font-semibold text-foreground">{t("account.lastName")}</label>
             <input
               id="su-last-name"
               type="text"
@@ -688,7 +689,7 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.lastName}
               aria-describedby={showFieldErrors && accountErrors.lastName ? "su-last-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.lastName && (
               <p id="su-last-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.lastName}</p>
@@ -697,7 +698,7 @@ export default function SignUpPage() {
         </div>
 
         <div>
-          <label htmlFor="su-email" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.email")}</label>
+          <label htmlFor="su-email" className="mb-1 block text-xs font-semibold text-foreground">{t("account.email")}</label>
           <div className="relative">
             <input
               id="su-email"
@@ -708,7 +709,7 @@ export default function SignUpPage() {
               autoComplete="email"
               aria-invalid={showFieldErrors && !!accountErrors.email}
               aria-describedby={showFieldErrors && accountErrors.email ? "su-email-error" : undefined}
-              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.email ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.email ? "border-red-400" : "border-border"}`}
             />
             <Mail className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
@@ -718,7 +719,7 @@ export default function SignUpPage() {
         </div>
 
         <div>
-          <label htmlFor="su-phone" className="mb-1 block text-xs font-semibold text-brand-dark">{t("account.phone")}</label>
+          <label htmlFor="su-phone" className="mb-1 block text-xs font-semibold text-foreground">{t("account.phone")}</label>
           <div className="relative">
             <input
               id="su-phone"
@@ -730,7 +731,7 @@ export default function SignUpPage() {
               autoComplete="tel"
               aria-invalid={showFieldErrors && !!accountErrors.phone}
               aria-describedby={`su-phone-help${showFieldErrors && accountErrors.phone ? " su-phone-error" : ""}`}
-              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-brand-dark placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 focus:ring-brand-blue/20 ${showFieldErrors && accountErrors.phone ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background py-2.5 pl-3 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.phone ? "border-red-400" : "border-border"}`}
             />
             <Phone className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
@@ -760,13 +761,13 @@ export default function SignUpPage() {
             checked={terms}
             onChange={(e) => setTerms(e.target.checked)}
             aria-invalid={showTermsError}
-            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-border accent-brand-blue"
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-border accent-foreground"
           />
           <span className="text-xs leading-5 text-muted-foreground">
             {t("account.terms")}{' '}
-            <Link href="/terms" className="font-semibold text-brand-blue hover:underline">{t("account.termsLink")}</Link>{' '}
+            <Link href="/terms" className="font-semibold text-brand-dark dark:text-white hover:underline">{t("account.termsLink")}</Link>{' '}
             {t("account.and")}{''}
-            <Link href="/privacy-policy" className="font-semibold text-brand-blue hover:underline">{t("account.privacyLink")}</Link>.
+            <Link href="/privacy" className="font-semibold text-brand-dark dark:text-white hover:underline">{t("account.privacyLink")}</Link>.
             {t("account.ageConfirmation")}
           </span>
         </label>
@@ -791,19 +792,19 @@ export default function SignUpPage() {
           <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("otp.verified")}</h1>
+          <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">{t("otp.verified")}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             {t("otp.verifiedRedirect")}
           </p>
         </>
       ) : (
         <>
-          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-blue/10">
-            <Mail className="h-7 w-7 text-brand-blue" />
+          <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-foreground">
+            <Mail className="h-7 w-7 text-foreground" />
           </div>
-          <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{t("otp.title")}</h1>
+          <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">{t("otp.title")}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {t("otp.subtitle")} <span className="font-bold text-brand-dark">{pendingEmail}</span>. {t("otp.subtitle2")}
+            {t("otp.subtitle")} <span className="font-bold text-foreground">{pendingEmail}</span>. {t("otp.subtitle2")}
           </p>
 
           {apiError && (
@@ -814,7 +815,7 @@ export default function SignUpPage() {
 
           <form onSubmit={(e) => { e.preventDefault(); verifyOtp(); }} className="mt-7 space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-brand-dark">{t("otp.codeLabel")}</label>
+              <label className="mb-2 block text-sm font-semibold text-foreground">{t("otp.codeLabel")}</label>
               <OtpInput
                 value={otpCode}
                 onChange={setOtpCode}
@@ -826,14 +827,14 @@ export default function SignUpPage() {
             </div>
 
             <div className="flex items-center justify-between">
-              <button type="button" onClick={() => { setPendingEmail(null); setOtpCode(""); setApiError(null); setOtpExpiresAt(null); setStep(ACCOUNT_STEP); countdown.reset(); }} className="text-xs font-semibold text-muted-foreground hover:text-brand-dark">
+              <button type="button" onClick={() => { setPendingEmail(null); setOtpCode(""); setApiError(null); setOtpExpiresAt(null); setStep(ACCOUNT_STEP); countdown.reset(); }} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
                 {t("nav.back")}
               </button>
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={countdown.isActive || isResending}
-                className="text-xs font-semibold text-brand-blue hover:text-blue-800 disabled:text-slate-300 dark:text-white/20"
+                className="text-xs font-semibold text-brand-dark dark:text-white hover:underline disabled:opacity-40"
               >
                 {isResending ? t("otp.resending") : countdown.isActive ? t("otp.resendIn", { seconds: countdown.remaining }) : t("otp.resend")}
               </button>
@@ -898,23 +899,19 @@ export default function SignUpPage() {
 
       {/* ── Top bar — matches platform Header ── */}
       <header className="sticky top-0 z-50 bg-background border-b border-border">
-        <div className="mx-auto flex max-w-[1400px] h-16 items-center gap-2 px-4 sm:px-6">
-          <div className="flex flex-1 items-center justify-start shrink-0 mr-4">
-            <Logo iconSize={22} fontSize="text-[18px]" className="text-brand-dark dark:text-white" />
+        <div className="mx-auto flex max-w-[1400px] h-14 sm:h-16 items-center justify-between gap-2 px-3 min-[360px]:px-4 sm:px-6">
+          <div className="flex items-center justify-start shrink-0 mr-2 sm:mr-4">
+            <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" hideTextOnSmall />
           </div>
-          <div className="flex flex-1 items-center justify-end gap-1">
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2">
             <LanguageSwitcher variant="compact" />
             <ThemeToggle />
-            <p className="hidden sm:block text-sm text-muted-foreground">
-              {t("header.alreadyHaveAccount")}{" "}
-              <Link href="/sign-in" className="font-bold text-brand-blue hover:underline">{t("header.signIn")}</Link>
-            </p>
           </div>
         </div>
       </header>
 
       {/* ── Wizard body ── */}
-      <div className="flex flex-1 justify-center px-4 py-4 sm:px-6">
+      <div className="flex flex-1 items-center justify-center px-3 min-[360px]:px-4 py-3 sm:py-6">
         <div className="w-full max-w-3xl">
 
           {/* Progress */}
@@ -924,18 +921,18 @@ export default function SignUpPage() {
           <div
             ref={cardRef}
             tabIndex={-1}
-            className="rounded-2xl border border-border bg-card px-5 py-5 shadow-lg outline-none sm:px-8 sm:py-6"
+            className="rounded-2xl border border-border bg-card px-4 min-[360px]:px-6 py-4 min-[360px]:py-5 sm:px-8 sm:py-6 shadow-lg outline-none"
           >
             {renderContent()}
 
             {/* Navigation */}
-            <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+            <div className="mt-4 sm:mt-5 flex items-center justify-between border-t border-border pt-3.5 sm:pt-4">
               {showNextButton() && (
                 <button
                   type="button"
                   onClick={handleBack}
                   disabled={step === 1}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-0"
+                  className="flex items-center gap-1.5 rounded-xl px-3 min-[360px]:px-4 py-2 text-xs min-[360px]:text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-0"
                 >
                   <ArrowLeft size={15} /> {t("nav.back")}
                 </button>
@@ -945,7 +942,7 @@ export default function SignUpPage() {
                   type="button"
                   onClick={handleNext}
                   disabled={!canNext() || isLoading}
-                  className="flex items-center gap-2 rounded-xl bg-brand-blue px-6 py-2.5 text-sm font-bold text-on-brand transition hover:bg-brand-blue/90 disabled:opacity-40"
+                  className="flex items-center gap-2 rounded-xl bg-brand-dark text-on-brand px-4 min-[360px]:px-6 py-2 min-[360px]:py-2.5 text-xs min-[360px]:text-sm font-bold shadow-sm transition hover:opacity-90 disabled:opacity-40"
                 >
                   {isLoading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" /> {nextLabel()}</>
@@ -957,14 +954,32 @@ export default function SignUpPage() {
             </div>
           </div>
 
+          {/* Persistent sign-in link underneath card */}
+          <p className="mt-3.5 sm:mt-4 text-center text-sm text-muted-foreground">
+            {t("header.alreadyHaveAccount")}{" "}
+            <Link href="/sign-in" className="font-semibold text-brand-dark dark:text-white hover:underline transition-colors">
+              {t("header.signIn")}
+            </Link>
+          </p>
+
           {/* Trust row */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-5 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1.5"><ShieldCheck size={11} /> {t("trust.encrypted")}</span>
-            <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.aiPowered")}</span>
-            <span className="flex items-center gap-1.5"><Smartphone size={11} /> {t("trust.escrow")}</span>
-           </div>
+          <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1.5"><ShieldCheck size={12} className="text-foreground" /> {t("trust.encrypted")}</span>
+            <span className="flex items-center gap-1.5"><Sparkles size={12} className="text-foreground" /> {t("trust.aiPowered")}</span>
+            <span className="flex items-center gap-1.5"><Lock size={12} className="text-foreground" /> {t("trust.escrow")}</span>
+          </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="shrink-0 px-6 py-3 sm:py-4 text-center">
+        <p className="text-[11px] text-muted-foreground">
+          {tAuthShell("copyright")}{" "}
+          <Link href="/privacy" className="hover:text-foreground transition-colors">{tAuthShell("privacy")}</Link>
+          {" · "}
+          <Link href="/terms" className="hover:text-foreground transition-colors">{tAuthShell("terms")}</Link>
+        </p>
+      </footer>
     </div>
   );
 }

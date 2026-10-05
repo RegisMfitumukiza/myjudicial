@@ -82,8 +82,8 @@ export function ProfilePhotoReminder({
       : CameraIcon;
 
   return (
-    <Card className={`${styles.bg} border-2 p-4 ${className}`}>
-      <div className="flex items-start gap-4">
+    <Card className={`${styles.bg} border-2 p-4 sm:p-5 min-w-0 ${className}`}>
+      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 min-w-0">
         {/* Photo Preview or Placeholder */}
         <div className="flex-shrink-0">
           {currentPhotoUrl ? (
@@ -107,16 +107,16 @@ export function ProfilePhotoReminder({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <IconComponent className={`h-4 w-4 ${styles.icon}`} />
-                <h3 className={`text-sm font-semibold ${styles.text}`}>
+                <IconComponent className={`h-4 w-4 shrink-0 ${styles.icon}`} />
+                <h3 className={`text-sm font-semibold break-words ${styles.text}`}>
                   {photoStatus.urgency === 'high' ? t('photoReminder.neededHigh') : 
                    photoStatus.urgency === 'medium' ? t('photoReminder.neededMedium') : 
                    t('photoReminder.neededLow')}
                 </h3>
               </div>
-              <p className={`text-sm ${styles.text.replace('800', '700').replace('200', '300')}`}>
+              <p className={`text-sm break-words ${styles.text.replace('800', '700').replace('200', '300')}`}>
                 {photoStatus.message}
               </p>
             </div>
@@ -126,6 +126,7 @@ export function ProfilePhotoReminder({
               <button
                 onClick={handleDismiss}
                 className={`flex-shrink-0 rounded-full p-1 hover:bg-black/5 transition-colors ${styles.icon}`}
+                aria-label="Dismiss"
               >
                 <XMarkIcon className="h-4 w-4" />
               </button>
@@ -133,19 +134,19 @@ export function ProfilePhotoReminder({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex flex-wrap items-center gap-2 mt-3">
             <Button
               onClick={onUploadClick}
               size="sm"
-              className={styles.button}
+              className={`w-full sm:w-auto ${styles.button}`}
             >
-              <ArrowUpTrayIcon className="h-4 w-4 mr-1" />
+              <ArrowUpTrayIcon className="h-4 w-4 mr-1 shrink-0" />
               {currentPhotoUrl ? t('photoReminder.updatePhoto') : t('photoReminder.uploadPhoto')}
             </Button>
             
             {photoStatus.urgency === 'high' && (
-              <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
-                <ExclamationTriangleIcon className="h-3 w-3" />
+              <div className="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400">
+                <ExclamationTriangleIcon className="h-3.5 w-3.5 shrink-0" />
                 <span>{t('photoReminder.urgent')}</span>
               </div>
             )}
@@ -153,7 +154,7 @@ export function ProfilePhotoReminder({
 
           {/* Benefits Hint */}
           {photoStatus.urgency !== 'low' && (
-            <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+            <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 break-words">
               💡 <strong>{t('photoReminder.didYouKnowStrong')}</strong> {t('photoReminder.didYouKnow')}
             </div>
           )}
@@ -187,50 +188,88 @@ export function CompactPhotoReminder({
   const isUrgent = photoStatus.urgency === 'high';
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg p-3 ${
-      isUrgent 
-        ? 'bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-800' 
-        : 'bg-amber-50 border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800'
-    } ${className}`}>
-      <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-        isUrgent ? 'bg-red-100 dark:bg-red-900' : 'bg-amber-100 dark:bg-amber-900'
-      }`}>
-        <CameraIcon className={`h-4 w-4 ${
-          isUrgent ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
-        }`} />
+    <div
+      role="alert"
+      className={`relative rounded-xl border p-3.5 sm:p-4 min-w-0 transition-all ${
+        isUrgent
+          ? "bg-red-50/90 border-red-200 dark:bg-red-950/30 dark:border-red-800/60"
+          : "bg-amber-50/90 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800/60"
+      } ${className}`}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+        {/* Left: Icon + Title & Subtitle */}
+        <div className="flex items-start gap-3 min-w-0 pr-8 sm:pr-0">
+          <div
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:rounded-full ${
+              isUrgent
+                ? "bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400"
+                : "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+            }`}
+            aria-hidden="true"
+          >
+            <CameraIcon className="h-5 w-5" />
+          </div>
+
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <p
+              className={`text-sm font-semibold leading-snug break-words ${
+                isUrgent ? "text-red-900 dark:text-red-200" : "text-amber-900 dark:text-amber-200"
+              }`}
+            >
+              {t("photoReminder.compactTitle")}
+            </p>
+            <p
+              className={`text-xs leading-normal break-words ${
+                isUrgent ? "text-red-700 dark:text-red-300" : "text-amber-700 dark:text-amber-300"
+              }`}
+            >
+              {t("photoReminder.compactSubtitle")}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Upload Action & Desktop Dismiss */}
+        <div className="flex items-center gap-2 sm:shrink-0 w-full sm:w-auto">
+          <Button
+            onClick={onUploadClick}
+            size="sm"
+            variant="outline"
+            className={`w-full sm:w-auto h-8 px-3 text-xs font-semibold shrink-0 shadow-sm ${
+              isUrgent
+                ? "border-red-300 bg-red-100/50 text-red-800 hover:bg-red-100 hover:text-red-900 dark:border-red-700/80 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-900/50"
+                : "border-amber-300 bg-amber-100/50 text-amber-800 hover:bg-amber-100 hover:text-amber-900 dark:border-amber-700/80 dark:bg-amber-950/40 dark:text-amber-200 dark:hover:bg-amber-900/50"
+            }`}
+          >
+            <ArrowUpTrayIcon className="h-3.5 w-3.5 mr-1.5 shrink-0" aria-hidden="true" />
+            {t("photoReminder.compactButton")}
+          </Button>
+
+          {/* Desktop dismiss button */}
+          <button
+            onClick={() => setIsDismissed(true)}
+            className={`hidden sm:inline-flex rounded-lg p-1.5 transition-colors ${
+              isUrgent
+                ? "text-red-500 hover:text-red-700 hover:bg-red-100/60 dark:text-red-400 dark:hover:text-red-200 dark:hover:bg-red-900/40"
+                : "text-amber-500 hover:text-amber-700 hover:bg-amber-100/60 dark:text-amber-400 dark:hover:text-amber-200 dark:hover:bg-amber-900/40"
+            }`}
+            aria-label="Dismiss"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-      
-      <div className="flex-1">
-        <p className={`text-sm font-medium ${
-          isUrgent ? 'text-red-800 dark:text-red-200' : 'text-amber-800 dark:text-amber-200'
-        }`}>
-          {t('photoReminder.compactTitle')}
-        </p>
-        <p className={`text-xs ${
-          isUrgent ? 'text-red-600 dark:text-red-300' : 'text-amber-600 dark:text-amber-300'
-        }`}>
-          {t('photoReminder.compactSubtitle')}
-        </p>
-      </div>
-      
-      <Button
-        onClick={onUploadClick}
-        size="sm"
-        variant="outline"
-        className={`border-current text-xs ${
-          isUrgent ? 'text-red-700 hover:bg-red-100 dark:text-red-300' : 'text-amber-700 hover:bg-amber-100 dark:text-amber-300'
-        }`}
-      >
-        {t('photoReminder.compactButton')}
-      </Button>
-      
+
+      {/* Mobile dismiss button pinned to top-right */}
       <button
         onClick={() => setIsDismissed(true)}
-        className={`rounded-full p-1 hover:bg-black/5 transition-colors ${
-          isUrgent ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+        className={`sm:hidden absolute top-2.5 right-2.5 rounded-lg p-1.5 transition-colors ${
+          isUrgent
+            ? "text-red-500 hover:text-red-700 hover:bg-red-100/60 dark:text-red-400 dark:hover:text-red-200 dark:hover:bg-red-900/40"
+            : "text-amber-500 hover:text-amber-700 hover:bg-amber-100/60 dark:text-amber-400 dark:hover:text-amber-200 dark:hover:bg-amber-900/40"
         }`}
+        aria-label="Dismiss"
       >
-        <XMarkIcon className="h-3 w-3" />
+        <XMarkIcon className="h-4 w-4" />
       </button>
     </div>
   );
@@ -254,26 +293,28 @@ export function PhotoUploadSuccess({
 }: PhotoUploadSuccessProps) {
   const t = useTranslations("experts");
   return (
-    <Card className={`bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800 p-4 ${className}`}>
-      <div className="flex items-center gap-3">
-        <div className="relative flex-shrink-0">
-          <img 
-            src={photoUrl}
-            alt="Profile photo"
-            className="h-12 w-12 rounded-full object-cover ring-2 ring-green-200 shadow-sm"
-          />
-          <div className="absolute -bottom-1 -right-1 rounded-full bg-green-500 p-1">
-            <CheckCircleIcon className="h-3 w-3 text-white" />
+    <Card className={`bg-green-50/90 border-green-200 dark:bg-green-950/30 dark:border-green-800/60 p-3.5 sm:p-4 min-w-0 ${className}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="relative flex-shrink-0">
+            <img 
+              src={photoUrl}
+              alt="Profile photo"
+              className="h-11 w-11 rounded-full object-cover ring-2 ring-green-200 dark:ring-green-800 shadow-sm"
+            />
+            <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-green-500 p-0.5 text-white">
+              <CheckCircleIcon className="h-3.5 w-3.5" />
+            </div>
           </div>
-        </div>
-        
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-green-800 dark:text-green-200">
-            {t('photoReminder.successTitle')}
-          </h3>
-          <p className="text-xs text-green-600 dark:text-green-300">
-            {t('photoReminder.successSubtitle')}
-          </p>
+          
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <h3 className="text-sm font-semibold text-green-900 dark:text-green-200 leading-snug break-words">
+              {t('photoReminder.successTitle')}
+            </h3>
+            <p className="text-xs text-green-700 dark:text-green-300 leading-normal break-words">
+              {t('photoReminder.successSubtitle')}
+            </p>
+          </div>
         </div>
         
         {onChangePhoto && (
@@ -281,7 +322,7 @@ export function PhotoUploadSuccess({
             onClick={onChangePhoto}
             size="sm"
             variant="outline"
-            className="border-green-300 text-green-700 hover:bg-green-100 dark:text-green-300"
+            className="w-full sm:w-auto h-8 px-3 text-xs font-semibold shrink-0 border-green-300 bg-green-100/40 text-green-800 hover:bg-green-100 hover:text-green-900 dark:border-green-700 dark:bg-green-950/40 dark:text-green-200 dark:hover:bg-green-900/50"
           >
             {t('photoReminder.successChange')}
           </Button>

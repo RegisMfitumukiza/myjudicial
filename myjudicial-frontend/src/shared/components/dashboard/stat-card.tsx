@@ -23,26 +23,28 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md",
+        "min-w-0 flex flex-col justify-between rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm transition-shadow hover:shadow-md",
         className
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium tracking-wide text-muted-foreground">
-          {label}
+      <div>
+        <div className="flex items-start justify-between gap-2 min-w-0">
+          <p className="min-w-0 flex-1 text-xs font-medium tracking-wide text-muted-foreground line-clamp-2">
+            {label}
+          </p>
+          {Icon && (
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+            </div>
+          )}
+        </div>
+        <p className="mt-2 text-xl sm:text-2xl font-semibold tracking-tight text-foreground tabular-nums truncate">
+          {value}
         </p>
-        {Icon && (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Icon className="h-4 w-4" aria-hidden="true" />
-          </div>
-        )}
       </div>
-      <p className="mt-2 truncate text-2xl font-semibold tracking-tight text-foreground tabular-nums">
-        {value}
-      </p>
       {(hint || action) && (
-        <div className="mt-1 flex items-center justify-between gap-2">
-          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+        <div className="mt-1.5 flex items-center justify-between gap-1.5 min-w-0">
+          {hint && <p className="min-w-0 text-xs text-muted-foreground line-clamp-2">{hint}</p>}
           {action}
         </div>
       )}

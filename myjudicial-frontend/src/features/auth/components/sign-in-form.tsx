@@ -24,7 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { OtpInput } from "@/components/otp-input";
 import { postAuthOtpSend } from "@/api/generated";
 import { useCountdown } from "@/hooks/use-countdown";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 const ADMIN_PORTAL_HOST = (process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com")
   .replace(/^https?:\/\//, "")
@@ -39,6 +39,7 @@ type SignInValues = z.infer<typeof signInSchema>;
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocale() as 'en' | 'fr' | 'rw';
   const magicLinkHandledRef = useRef(false);
   const callbackUrl = searchParams.get("callbackUrl");
   const postAuthPath = callbackUrl ? `/post-auth?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/post-auth";
@@ -125,7 +126,7 @@ export function SignInForm() {
     setMessage(null);
     const email = values.email.trim().toLowerCase();
     try {
-      const response = await postAuthOtpSend({ email });
+      const response = await postAuthOtpSend({ email, language: locale });
       setPendingEmail(email);
       setOtpCode("");
       setOtpExpiresAt((response as any).data?.expiresAt ?? null);
@@ -178,7 +179,7 @@ export function SignInForm() {
     if (!pendingEmail || countdown.isActive) return;
     setIsResending(true);
     try {
-      const res = await postAuthOtpSend({ email: pendingEmail });
+      const res = await postAuthOtpSend({ email: pendingEmail, language: locale });
       setOtpCode("");
       setError(null);
       setOtpExpiresAt((res as any).data?.expiresAt ?? null);
@@ -270,8 +271,8 @@ export function SignInForm() {
   if (pendingEmail) {
     return (
       <div>
-        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-blue/10">
-          <Mail className="h-7 w-7 text-brand-blue" />
+        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-foreground">
+          <Mail className="h-7 w-7 text-foreground" />
         </div>
           <h1 className="text-2xl font-extrabold text-foreground">{t("checkInbox")}</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -280,7 +281,7 @@ export function SignInForm() {
 
           {message && (
             <div className="mt-5 flex items-start gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-blue" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
               {message}
             </div>
           )}
@@ -325,7 +326,7 @@ export function SignInForm() {
             <Button
               type="submit"
               disabled={isOtpLoading || otpCode.length < 6 || otpExpired}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand hover:bg-brand-dark/90 disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {isLoading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {t("verifying")}</>
@@ -342,7 +343,7 @@ export function SignInForm() {
                 type="button"
                 onClick={handleResend}
                 disabled={countdown.isActive || isResending}
-                className="text-xs font-semibold text-brand-blue hover:text-foreground disabled:text-muted-foreground"
+                className="text-xs font-semibold text-brand-dark dark:text-white hover:underline disabled:opacity-40"
               >
                 {isResending ? t("resending") : countdown.isActive ? t("resendIn", { seconds: countdown.remaining }) : t("resendCode")}
               </button>
@@ -393,7 +394,7 @@ export function SignInForm() {
                     type="email"
                     placeholder="support@myjudicial.com"
                     disabled={isLoading}
-                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-brand-blue/20"
+                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-foreground/20"
                     {...form.register("email")}
                   />
                   <Mail className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -417,7 +418,7 @@ export function SignInForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
-                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-brand-blue/20"
+                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-foreground/20"
                   />
                   <button
                     type="button"
@@ -448,7 +449,7 @@ export function SignInForm() {
             <Button
               type="submit"
               disabled={isLoading || !form.getValues("email") || !password}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand hover:bg-brand-dark/90 disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {isLoading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {t("completingSignIn")}</>
@@ -479,7 +480,7 @@ export function SignInForm() {
 
           {message && (
             <div className="mt-5 flex items-start gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-blue" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
               {message}
             </div>
           )}
@@ -502,7 +503,7 @@ export function SignInForm() {
                     type="email"
                     placeholder="name@example.com"
                     disabled={isLoading}
-                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-brand-blue/20"
+                    className="h-11 rounded-xl border-border pr-10 text-sm text-foreground focus-visible:ring-foreground/20"
                     {...form.register("email")}
                   />
                   <Mail className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -536,7 +537,7 @@ export function SignInForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand hover:bg-brand-dark/90"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 transition-opacity"
             >
               {isLoading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {t("sending")}</>
@@ -547,21 +548,21 @@ export function SignInForm() {
           </form>
 
           {/* Security row */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
-            <span className="flex items-center gap-1"><Lock size={10} /> {tCommon("sslSecure")}</span>
-            <span className="flex items-center gap-1"><Shield size={10} /> {tCommon("noSpam")}</span>
-            <span className="flex items-center gap-1"><CheckCircle2 size={10} /> {tCommon("freeToJoin")}</span>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1.5"><Lock size={12} className="text-foreground" /> {tCommon("sslSecure")}</span>
+            <span className="flex items-center gap-1.5"><Shield size={12} className="text-foreground" /> {tCommon("noSpam")}</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 size={12} className="text-foreground" /> {tCommon("freeToJoin")}</span>
           </div>
 
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <span className="text-sm text-muted-foreground">{t("dontHaveAccount")}</span>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {t("dontHaveAccount")}{" "}
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-border bg-card shadow-sm text-foreground hover:bg-muted"
+              className="font-semibold text-brand-dark dark:text-white hover:underline transition-colors"
             >
               {t("signUp")}
             </Link>
-          </div>
+          </p>
 
           {searchParams.get("admin") === "1" && (
             <div className="mt-4 text-center">

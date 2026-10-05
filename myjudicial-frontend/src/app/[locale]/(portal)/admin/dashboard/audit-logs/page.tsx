@@ -296,7 +296,7 @@ export default function AuditLogsPage() {
 
   if (loadingStats || loadingLogs) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <LoadingSpinner label={t("loading")} />
       </div>
     );
@@ -304,7 +304,7 @@ export default function AuditLogsPage() {
 
   if (error) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader
           title={t("title")}
           description={t("subtitle")}
@@ -321,7 +321,7 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -349,7 +349,7 @@ export default function AuditLogsPage() {
       />
 
       {stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           <StatCard
             label={t("totalEvents")}
             value={stats.totalLogs.toLocaleString()}
@@ -436,10 +436,10 @@ export default function AuditLogsPage() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <Input
                 type="date"
-                className="flex-1"
+                className="min-w-[120px] flex-1"
                 value={dateFromDraft}
                 onChange={(e) => setDateFromDraft(e.target.value)}
                 placeholder={t("startDate")}
@@ -447,13 +447,14 @@ export default function AuditLogsPage() {
               <span className="text-muted-foreground">–</span>
               <Input
                 type="date"
-                className="flex-1"
+                className="min-w-[120px] flex-1"
                 value={dateToDraft}
                 onChange={(e) => setDateToDraft(e.target.value)}
                 placeholder={t("endDate")}
               />
               <Button
                 size="sm"
+                className="shrink-0"
                 onClick={() => {
                   setFromDate(dateFromDraft);
                   setToDate(dateToDraft);
@@ -466,6 +467,7 @@ export default function AuditLogsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="shrink-0"
                   onClick={() => {
                     setFromDate("");
                     setToDate("");

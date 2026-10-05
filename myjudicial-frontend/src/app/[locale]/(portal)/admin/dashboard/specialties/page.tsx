@@ -144,7 +144,7 @@ export default function SpecialtiesPage() {
   const filtered = specialties;
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -157,7 +157,7 @@ export default function SpecialtiesPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 sm:max-w-xs">
+        <div className="relative flex-1 min-w-[160px] sm:max-w-xs">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t("searchPlaceholder")}
@@ -169,7 +169,7 @@ export default function SpecialtiesPage() {
         <select
           value={filterGroup}
           onChange={(e) => setFilterGroup(e.target.value)}
-          className="rounded-xl border border-border bg-background px-3 py-2 text-sm"
+          className="w-full sm:w-auto rounded-xl border border-border bg-background px-3 py-2 text-sm"
         >
           <option value="all">{t("allGroups")}</option>
           {groups.map((g) => (

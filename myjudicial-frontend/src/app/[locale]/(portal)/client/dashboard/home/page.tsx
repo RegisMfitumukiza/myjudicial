@@ -100,10 +100,10 @@ export default function ClientHomePage() {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[960px] mx-auto">
+    <div className="p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 max-w-[960px] mx-auto min-w-0">
       {/* Welcome Header */}
       <div className="mb-6">
-        <h1 className="text-[26px] font-bold text-brand-dark dark:text-white">
+        <h1 className="text-2xl sm:text-[26px] font-bold text-brand-dark dark:text-white break-words">
           {t("welcomeBack", { firstName })}
         </h1>
         <p className="mt-1 text-[14px] text-brand-dark/50 dark:text-white/50">

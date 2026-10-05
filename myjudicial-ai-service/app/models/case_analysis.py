@@ -36,7 +36,7 @@ class BudgetRange(BaseModel):
 
 class CaseAnalysisRequest(BaseModel):
     """Request model for case analysis"""
-    text: str = Field(..., description="User's description of legal issue", min_length=10, max_length=10000)
+    text: str = Field(..., description="User's description of legal issue", min_length=1, max_length=10000)
     language: str = Field(default="en", description="Language of the input text")
     
     class Config:
@@ -65,6 +65,8 @@ class CaseAnalysis(BaseModel):
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Analysis confidence score")
     reasoning: Optional[str] = Field(None, description="Why this specialty was chosen")
     possible_legal_issues: Optional[List[str]] = Field(None, description="Specific legal issues identified")
+    is_greeting: Optional[bool] = Field(default=False, description="Whether input was a conversational greeting")
+    greeting_message: Optional[str] = Field(default=None, description="Conversational greeting message if applicable")
 
 
 class CaseAnalysisResponse(BaseModel):

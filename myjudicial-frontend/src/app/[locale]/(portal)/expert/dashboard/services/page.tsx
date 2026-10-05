@@ -264,7 +264,7 @@ export default function ServicesPage() {
   const groupedServices = useMemo(() => groupServicesByCategory(services), [services]);
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -456,7 +456,7 @@ export default function ServicesPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label>{t("serviceCategory")}</Label>
                 <Select

@@ -74,7 +74,7 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title="Invite & Earn"
         description="Share your referral link to invite clients and colleagues"
@@ -87,16 +87,16 @@ export default function JoinPage() {
           <ErrorState message="Failed to load referral info. Please try again." />
         ) : referral ? (
           <div className="space-y-6">
-            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-2">
                 <Link2 size={16} className="text-primary" aria-hidden="true" />
                 <p className="text-sm font-semibold text-foreground">Your referral link</p>
               </div>
-              <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 px-4 py-2">
-                <code className="flex-1 truncate font-mono text-sm text-foreground">
+              <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center gap-2 min-[380px]:gap-3 rounded-lg border border-border bg-muted/50 p-2.5 min-[380px]:px-4 min-[380px]:py-2">
+                <code className="flex-1 break-all font-mono text-xs min-[380px]:text-sm text-foreground">
                   {referral.link}
                 </code>
-                <Button size="xs" onClick={handleCopy}>
+                <Button size="xs" onClick={handleCopy} className="w-full min-[380px]:w-auto shrink-0">
                   {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
                   {copied ? "Copied" : "Copy"}
                 </Button>

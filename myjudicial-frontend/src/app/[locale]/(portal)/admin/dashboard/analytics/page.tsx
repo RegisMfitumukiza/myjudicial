@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
 
   if (hasError && !isLoading) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader
           title={t("title")}
           description={t("subtitle")}
@@ -292,7 +292,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -307,7 +307,7 @@ export default function AnalyticsPage() {
                 setEndDate("");
               }}
             >
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-full min-[360px]:w-[160px]">
                 <Calendar className="mr-1.5 h-4 w-4 text-muted-foreground" />
                 <SelectValue />
               </SelectTrigger>
@@ -336,7 +336,7 @@ export default function AnalyticsPage() {
           <CardContent>
             <h3 className="mb-3 text-sm font-medium text-foreground">{t("customDateRange")}</h3>
             <div className="flex flex-wrap items-end gap-4">
-              <div className="min-w-[200px] flex-1">
+              <div className="min-w-[130px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   {t("startDate")}
                 </label>
@@ -346,7 +346,7 @@ export default function AnalyticsPage() {
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
-              <div className="min-w-[200px] flex-1">
+              <div className="min-w-[130px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   {t("endDate")}
                 </label>
@@ -372,7 +372,7 @@ export default function AnalyticsPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label={t("totalUsers")}
           value={summary?.platform?.totalUsers?.toLocaleString(locale) || "0"}

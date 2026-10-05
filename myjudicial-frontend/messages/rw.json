@@ -342,7 +342,95 @@
       "aboutCmsDesc": "Bihindura amagambo asanzwe ku rupapuro rwerekeye urubuga. Bisige bweru niba ushaka gukoresha ibisanzwe.",
       "aboutVision": "Icyerekezo cy'ikigo (Vision)",
       "aboutMission": "Intego n'inshingano (Mission)",
-      "aboutStory": "Amateka n'intangiriro y'ikigo"
+      "aboutStory": "Amateka n'intangiriro y'ikigo",
+      "seoTitle": "SEO & Open Graph : Imigabane",
+      "seoDesc": "Imbonerahamwe ngenderwaho ikoreshwa mu bushakashatsi no mu migabane y'urubuga.",
+      "ogImageUrl": "URL y'ifoto Open Graph",
+      "ogImageUrlDesc": "PNG/JPG 1200 × 630 igereranwa mu migabane. Iyo ari ubusa isimburwa na /og_image.png.",
+      "defaultSeoTitle": "Umutwe ngenderwaho wa SEO",
+      "defaultSeoTitleDesc": "Ugaragara mu bushakashatsi no mu tabo ry'urubuga. Umare munsi y'inyuguti 60.",
+      "defaultSeoDesc": "Ibisobanuro ngenderwaho bya SEO",
+      "defaultSeoDescHelper": "Bisobanura urupapuro mu bushakashatsi. Umare munsi y'inyuguti 160.",
+      "seoKeywords": "Amagambo ngenderwaho ya SEO",
+      "seoKeywordsDesc": "Amagambo atandukanijwe na virigule afasha mu kubona urubuga.",
+      "livePreview": "Irebero n'igice cy'agateganyo",
+      "brandIdentityTitle": "Imeneko na tagline y'urubuga",
+      "brandIdentityDesc": "Imeneko rusange n'umwandiko wo hasi w'urupapuro.",
+      "platformTagline": "Tagline y'urubuga",
+      "platformTaglineDesc": "Umurongo mugufi ugaragara mu gice cy'ibanze cy'urupapuro rw'ibanze.",
+      "copyrightNotice": "Icyitonderwa cy'uburenganzira bw'umwenya",
+      "copyrightNoticeDesc": "Umurongo ugaragara hasi w'urupapuro urimo umwaka n'ikigo gikorera.",
+      "supportHours": "Amasaha y'ubufasha",
+      "supportHoursDesc": "Amasaha agaragara ku rupapuro rw'Ihuza no mu meri z'ubufasha.",
+      "coreValues": "Indangagaciro",
+      "coreValuesDesc": "Indangagaciro zigaragara ku rupapuro rw'ibyo urubuga rwihariye. Buri imwe ishobora kugira ikimenyetso.",
+      "valueTitle": "Umutwe w'indangagaciro",
+      "valueIcon": "Ikimenyetso",
+      "valueDescription": "Ibisobanuro",
+      "removeValue": "Gukuraho indangagaciro",
+      "resetValues": "Gusubiza ibidasanzwe",
+      "addValue": "Ongeraho indangagaciro",
+      "milestones": "Intambwe z'uru rubuga",
+      "milestonesDesc": "Intambwe zigaragara ku rupapuro rw'ibyo urubuga rwihariye.",
+      "milestoneYear": "Umwaka / Igihe",
+      "milestoneTitle": "Umutwe w'intambwe",
+      "milestoneDesc": "Ibisobanuro",
+      "removeMilestone": "Gukuraho intambwe",
+      "resetMilestones": "Gusubiza ibidasanzwe",
+      "addMilestone": "Ongeraho intambwe",
+      "careersTitle": "Inshingano & Imicungire y'abasaba akazi",
+      "careersDesc": "Aho bohererezwa n'imiterere y'akazi bigaragara ku rupapuro rw'Inshingano.",
+      "careersRolesManaged": "Imyanya y'akazi iganjiiwe ku rupapuro rwa <link>Inshingano</link>, aho ushobora kongeraho ibisobanuro byuzuye, ibisabwa n'uburyo bwo gusaba akazi.",
+      "careersEmail": "Imeri y'Inshingano",
+      "hiringStatus": "Imiterere y'akazi",
+      "hiringActive": "Turashaka abakazi",
+      "hiringTalentPool": "Twubaka urutonde rw'abategura",
+      "hiringPaused": "Byahagaritswe",
+      "openPositions": "Imyanya myiza",
+      "addPosition": "Ongeraho umwanya",
+      "noPositions": "Nta mwanya uhari. Ongeraho umwe.",
+      "removePosition": "Gukuraho umwanya",
+      "roleTitle": "Umutwe w'akazi",
+      "roleDepartment": "Umurimo",
+      "roleLocation": "Aho uri",
+      "roleType": "Ubwoko bw'akazi",
+      "roleApplyUrl": "Ihuza ryo gusaba akazi (URL)",
+      "platformOpsTitle": "Imicungire y'urubuga & Escrow",
+      "platformOpsDesc": "Imikorere ya Escrow, ubwishyu, uruhare ngenderwaho n'imitunganyirize mu miti yose.",
+      "maintenanceNotice": "Icyitonderwa cy'isuzuma",
+      "maintenanceNoticeDesc": "Ubutumwa bugera ku mukerarugendo igihe urubuga rukorerwa isuzuma.",
+      "consultationRulesTitle": "Imicungire y'andika ry'inama",
+      "consultationRulesDesc": "Amategeko agenga igihe inama zandikwa na guhagarikwa mbere.",
+      "minAdvanceBookingHours": "Igihe cyo kwandika mbere (amasaha)",
+      "minAdvanceBookingHoursDesc": "Igihe umukiriya agomba kwandika inama mbere y'umunsi.",
+      "cancellationGraceHours": "Igihe cyo guhagarika ubuntu (amasaha)",
+      "cancellationGraceHoursDesc": "Igihe mbere y'inama umuntu yayihagarika atabiswe.",
+      "legalDisclaimerTitle": "Amategeko, kubahiriza & ibibazo-bisubizo byongera",
+      "legalDisclaimerDesc": "Ibintu by'amategeko n'ibibazo-bisubizo byongera bigaragara ku mpapuro z'Ubufasha n'amategeko.",
+      "legalEffectiveDate": "Itariki y'amategeko",
+      "legalEffectiveDateDesc": "Itariki igaragara ku mpapuro z'amategeko nk'itariki y'isubiramo.",
+      "dpoEmail": "Imeri ya DPO",
+      "dpoEmailDesc": "Aho bohererezwa ubusabe ku mibare bwite n'amategeko y'ibanga.",
+      "legalDisclaimer": "Icyitonderwa cy'amategeko",
+      "supplementalFaqs": "Ibibazo-bisubizo byongera",
+      "supplementalFaqsDesc": "Ibibazo-bisubizo byongera byongerwa ku rupapuro rw'Ibibazo.",
+      "addFaq": "Ongeraho ikibazo",
+      "noFaqs": "Nta kibazo-bisubizo bihari. Ongeraho kimwe.",
+      "faqQuestion": "Ikibazo",
+      "faqCategory": "Icyiciro",
+      "faqAnswer": "Igisubizo",
+      "removeFaq": "Gukuraho ikibazo",
+      "tabGeneral": "Urubuga & Imikorere",
+      "tabAbout": "Ibyerekeye Urubuga",
+      "tabCareers": "Imirimo & Akazi",
+      "tabLegal": "Amategeko & Amabwiriza",
+      "tabContent": "Ibirimo ku Mapaji (CMS)",
+      "viewLivePage": "Reba Ipaji Nyayo",
+      "previewPage": "Reba mbere",
+      "aboutTabDesc": "Genzura intego, icyerekezo, amateka y'itangiriro, indangagaciro, n'intambwe z'ingenzi zigaragara kuri /about.",
+      "careersTabDesc": "Aho ibyerekeye akazi byose bishingira: uko imyanya ifunguye, imeri yo koherezaho, n'imirimo iboneka kuri /careers.",
+      "legalTabDesc": "Tegura integuza z'amategeko, imeri y'ushinzwe kurinda amakuru (DPO), n'ibibazo bikunze kubazwa.",
+      "contentTabDesc": "Uburyo bwo guhindura ibirimo mu ndimi zitandukanye ku mapaji rusange n'amavugurura."
     },
     "compliance": {
       "title": "Ikibaho cy'Ukwiho",
@@ -1122,6 +1210,29 @@
     "active": "Ikora",
     "inactive": "Ntikora",
     "description": "Ibisobanuro",
+    "emailPopover": {
+      "title": "Twandikire kuri Imeli",
+      "copyEmail": "Koporora aderesi ya imeli",
+      "copied": "Yakoporowe mu bubiko!",
+      "copyFailed": "Gukoporora byanze",
+      "sendVia": "Ohereza imeli unyuze kuri",
+      "gmailWeb": "Gmail (Muri brawuza)",
+      "outlookWeb": "Outlook (Muri brawuza)",
+      "defaultApp": "Porogaramu isanzwe ya imeli",
+      "inBrowser": "Ifungura ahandikirwa mu idirishya rishya",
+      "desktopApp": "Ifungura porogaramu ya mudasobwa isanzwe ikoreshwa"
+    },
+    "phonePopover": {
+      "title": "Twandikire kuri Telefoni",
+      "copyPhone": "Koporora numero",
+      "copied": "Yakoporowe mu bubiko!",
+      "copyFailed": "Gukoporora byanze",
+      "contactVia": "Uburyo bwo guhamagara",
+      "directCall": "Guhamagara ako kanya",
+      "callInApp": "Bifungura porogaramu yo guhamagara",
+      "whatsapp": "WhatsApp",
+      "whatsappDesc": "Kuvugana cyangwa guhamagara kuri WhatsApp"
+    },
     "pagination": {
       "previous": "Imbere",
       "next": "Komeza",
@@ -1784,6 +1895,7 @@
     "listYourPractice": "List Your Practice",
     "joinAsAdvocate": "Kuba Umwavoka",
     "advocateDashboard": "Urubuga rw'Umunyamategeko",
+    "adminDashboard": "Urubuga rw'Ubuyobozi",
     "findLawyer": "Shakisha Umunyamategeko",
     "practiceAreas": "Amashami y'Amategeko",
     "aiAssistant": "Umufasha wa AI",
@@ -2026,7 +2138,6 @@
       "becomeExpert": "Become an Expert",
       "verification": "Verification Process",
       "practiceManagement": "Practice Management",
-      "resources": "Resources",
       "helpCenter": "Help Center",
       "legalResources": "Legal Resources",
       "faqs": "FAQs",
@@ -2215,6 +2326,7 @@
       "analyzing": "Iri gusesengura ikibazo no gushaka abavoka...",
       "openFullWorkspace": "Fungura ahagenewe gusesengura ibibazo byose",
       "welcomeMessage": "Muraho! Ndi Umufasha wanyu w'Ubwenge bwa Mudasobwa (AI) mu by'Amategeko kuri MyJudicial. Sobanura ikibazo icyo ari cyo cyose mu mategeko y'u Rwanda uhabwe ubujyanama bw'ibanze n'abavoka b'inzobere bakibereye.",
+      "needMoreDetails": "Muraho! Sobanura ikibazo cyawe cyangwa ubufasha mu by'amategeko ukeneye (urugero: amakimbirane ku butaka, akazi, amasezerano, cyangwa ikibazo mpanabyaha) kugira ngo ngufashe kugena inzira ikwiye no kuguha abanyamategeko babifitiye ubushobozi.",
       "triageResponse": "Dukurikije ibisobanuro byawe, iki kibazo kigengwa n'**{specialty}** gifite ubwihutirwe bwo ku kigero cya **{urgency}**.",
       "errorMessage": "Habayeho ikibazo mu gusesengura ubusabe bwawe. Urashobora gukoresha ahasanzwe hasesengurirwa ibibazo by'amategeko mu buryo bwisumbuyeho.",
       "inputPlaceholder": "Sobanura ikibazo cyawe mu mategeko...",
@@ -2439,7 +2551,9 @@
       "configuration": "Iboneza",
       "collapseSidebar": "Kugabanya umwanya w'urubuga",
       "openNavigationMenu": "Fungura menu y'urubuga",
-      "closeNavigationMenu": "Funga menu y'urubuga"
+      "closeNavigationMenu": "Funga menu y'urubuga",
+      "pageContent": "Ibikoresho by'ipaji",
+      "careers": "Imirimo"
     }
   },
   "sidebar": {
@@ -2484,7 +2598,8 @@
     "operations": "Ibikorwa",
     "configuration": "Iboneza",
     "openNavigationMenu": "Fungura menu y'urubuga",
-    "closeNavigationMenu": "Funga menu y'urubuga"
+    "closeNavigationMenu": "Funga menu y'urubuga",
+    "pageContent": "Ibikoresho by'ipaji"
   },
   "landing": {
     "footer": {
@@ -2642,24 +2757,6 @@
     "popularSearches": {
       "title": "Uburikirane bw'amategeko bukunzwe",
       "subtitle": "Kwinjira vuba ku bibazo by'amategeko bisabwa cyane"
-    },
-    "resources": {
-      "title": "Legal Resources",
-      "subtitle": "Guides, FAQs, and tools to help you navigate the legal system",
-      "items": {
-        "helpCenter": "Help Center",
-        "helpCenterDesc": "Answers to common questions",
-        "legalGuides": "Legal Guides",
-        "legalGuidesDesc": "Free guides for everyday legal needs",
-        "faqs": "FAQs",
-        "faqsDesc": "Frequently asked questions",
-        "howBooking": "How Booking Works",
-        "howBookingDesc": "Step-by-step booking guide",
-        "paymentSecurity": "Payment Security",
-        "paymentSecurityDesc": "How your payments are protected",
-        "aiGuide": "AI Assistant Guide",
-        "aiGuideDesc": "Let AI match you to the right lawyer"
-      }
     },
     "trustWhy": {
       "title": "Kuki Wizera MyJudicial?",
@@ -3141,6 +3238,8 @@
       "stats": {
         "verifiedExperts": "Abavoka bemewe",
         "completedConsultations": "Inama zatanzwe",
+        "completedConsultationsDesc": "Zemejwe kandi zizewe",
+        "verifiedConsultations": "Inama zizewe",
         "totalClients": "Abaturage bafashijwe",
         "barCertified": "100% Bemewe n'Urugaga",
         "barCertifiedDesc": "Bagenzuwe ku Rutonde rw'Urugaga (RBA)",
@@ -3217,6 +3316,52 @@
     "disclaimer": {
       "title": "Itangazo ry'Amategeko",
       "text": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abavoka bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ntabwo ari ibiro by'avoka kandi ntitutanga ubufasha bw'amategeko mu buryo bweruye."
+    },
+    "verification": {
+      "badge": "Protokole yo kugenzura abavoka",
+      "title": "Uburyo bwo kugenzura abavoka mu byiciro 4",
+      "subtitle": "Umuvoka wese uri kuri MyJudicial anyuzwa mu igenzura ry'inyandiko ryandikwa mbere y'uko umwirondoro we ushira ku rubuga.",
+      "stage1Number": "01",
+      "stage1Badge": "Inyandiko",
+      "stage1Title": "Kugenzura indangamuntu n'iyisemeka",
+      "stage1Desc": "Indangamuntu yashyizweho n'ubutegetsi hamwe n'iyisemeka ikorera mu Rwego rw'Abavoka mu Rwanda (RBA) bigakusanywa no kugenzurwa n'itsinda ryacu mbere yo gushinga umwirondoro.",
+      "stage2Number": "02",
+      "stage2Badge": "Urutonde rw'emewe",
+      "stage2Title": "Kugenzura uko biri kurutonde rw'emewe",
+      "stage2Desc": "Amakuru yo kwiyandikisha ageranishwa n'Urutonde rw'emewe rw'abavoka bo mu Rwego rw'Abavoka mu Rwanda kugira ngo hagaragare ko uwo muvoka yegukana umwuga.",
+      "stage3Number": "03",
+      "stage3Badge": "Imiyoborere",
+      "stage3Title": "Isuzuma ry'imyitwarire n'amafaranga",
+      "stage3Desc": "Abavoka bemeranya ku mafaranga yihariye atangazwa, ku mabwiriza y'ubwishyu burinzwe (escrow) n'uburyoboke bw'urubuga mbere yo gutanga ubujyanama.",
+      "stage4Number": "04",
+      "stage4Badge": "Byagenzuwe",
+      "stage4Title": "Isuzuma rya nyuma ry'umuntu",
+      "stage4Desc": "Umwirondoro ushira ku rubuga urebwa nyuma n'umuntu. Urwego rwose rw'igenzura rwandikwa mu gitabo cy'igenzura (audit log)."
+    },
+    "milestones": {
+      "badge": "Intambwe z'Urubuga",
+      "title": "Ingendo yacu",
+      "subtitle": "Kuva ku gitekerezo cyoroshye kigezwa ku isoko ryagenzuwe, twubatse ku mugaragaro.",
+      "item1Year": "2024",
+      "item1Title": "Igitekerezo",
+      "item1Desc": "MyJudicial itangira n'igitekerezo cyoroshye: gushaka umuvoka mu Rwanda ntibikwiye kuba ibiyombeye, ibinirira cyangwa ibitangaza.",
+      "item2Year": "2025",
+      "item2Title": "Kugenzura no kuzigama amafaranga",
+      "item2Desc": "Protokole yo kugenzura abavoka n'ubwishyu burinzwe (escrow) byubakwa, kugira ngo inyandiko n'amafaranga birindwe ku murongo wa mbere.",
+      "item3Year": "2026",
+      "item3Title": "Isoko rifunguye",
+      "item3Desc": "Urubuga rusange rusohoka mu ndimi eshatu, hamwe n'ubujyanama bwa videwo bwizewe n'igenzura ry'imanza rifashwa n'ikoranabuhanga (AI) ku bakiliya bo mu Rwanda hose."
+    },
+    "governance": {
+      "badge": "Imiyoborere n'ubunyamabanga",
+      "title": "Imiyoborere y'ibigo n'ubunyamabanga",
+      "subtitle": "Amategeko asobanutse abana isoko ry'abakiliya ndetse n'abavoka.",
+      "rule1Title": "Ishyirwa ry'amafaranga ku muvoka nyuma yo kurangiza gusa",
+      "rule1Desc": "Amafaranga y'ubujyanama yakodeshwa abikwa neza kandi ashyirwa ku muvoka gusa iyo ubujyanama burangiye, cyangwa akagarurwa iyo buhagaritswe.",
+      "rule2Title": "Amafaranga yihariye, ubujyanama bumwe",
+      "rule2Desc": "Amafaranga atangazwa ni iyihariye kandi ajya n'ubujyanama bumwe gusa. Nta marangarema ahishe; makimbirane akemurwa hakurikijwe inzira zandikishijwe.",
+      "rule3Title": "Ibanga ku murongo wa mbere",
+      "rule3Desc": "Ubujyanama ni ubwite, bukorerwa abiyandikishije bonyine kandi ntibwandikwe. Amakuru atunganywa hashingiwe ku Itegeko n° 058/2021 ry'u Rwanda."
     }
   },
   "clientDashboard": {
@@ -3651,58 +3796,6 @@
     "submitting": "Submitting...",
     "submitReview": "Submit Review"
   },
-  "comingSoonPage": {
-    "blog": {
-      "hero": {
-        "badge": "Blog y'Amategeko",
-        "title": "Amakuru & Isesengura mu Mategeko",
-        "subtitle": "Inyandiko zisesengura amategeko n'inama z'abavoka mu Rwanda."
-      },
-      "comingSoon": {
-        "title": "Inyandiko ziri gutunganywa zizajya ahagaragara vuba",
-        "desc": "Ikipe yacu y'abavoka iri gutunganya inyandiko zicukumbuye ku mategeko mashya n'ubucuruzi mu Rwanda."
-      },
-      "meta": {
-        "title": "Blog | MyJudicial",
-        "description": "Read the latest news and insights from MyJudicial."
-      }
-    },
-    "careers": {
-      "hero": {
-        "badge": "Kazi muri MyJudicial",
-        "title": "Koranana natwe muri MyJudicial",
-        "subtitle": "Fatanya natwe kwegereza ubutabera no kuvugurura uburyo amategeko agera kuri buri wese."
-      },
-      "comingSoon": {
-        "title": "Imyanya y'akazi izatangazwa vuba",
-        "desc": "Turi gutegura imyanya y'akazi mu by'ikoranabuhanga, kumenyekanisha ibikorwa n'ubufasha mu by'amategeko i Kigali."
-      },
-      "meta": {
-        "title": "Careers | MyJudicial",
-        "description": "Join the team at MyJudicial and help us democratize access to justice in Rwanda."
-      }
-    },
-    "press": {
-      "hero": {
-        "badge": "Ibitangazamakuru",
-        "title": "Amakuru n'Ibitangazamakuru",
-        "subtitle": "Itangazo ry'ibikorwa bya MyJudicial n'amakuru y'ingenzi ku bitangazamakuru."
-      },
-      "comingSoon": {
-        "title": "Akarusho ku bitangazamakuru karacyatunganywa",
-        "desc": "Niba uri umunyamakuru wifuza amakuru cyangwa ikiganiro, watwandikira ubu."
-      },
-      "meta": {
-        "title": "Press & Media | MyJudicial",
-        "description": "Press releases, media kits, and news about MyJudicial."
-      }
-    },
-    "cta": {
-      "title": "Komeza kubana na MyJudicial",
-      "button1": "Shaka umwavoka",
-      "button2": "Twandikire"
-    }
-  },
   "contactPage": {
     "meta": {
       "title": "Twandikire | MyJudicial",
@@ -3725,7 +3818,10 @@
       "title": "Aho Wadusanga",
       "email": "support@myjudicial.com",
       "location": "Kigali, u Rwanda",
-      "hours": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)"
+      "hours": "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)",
+      "inboxTitle": "Ibiro Bikuru bishinzwe Imeli",
+      "inboxDesc": "Ubufasha bw'abakiriya, kwandika abavoka, n'ubufatanye bw'inzego.",
+      "appointmentNotice": "Inama z'imbonankubone no kugenzura ibyangombwa bikorwa mu masaha asanzwe y'akazi."
     },
     "departments": {
       "client": {
@@ -3752,8 +3848,10 @@
       "poBox": "B.P. 2848, Kigali",
       "hotline": "+250 788 312 456",
       "whatsapp": "Kuvugana kuri WhatsApp",
+      "whatsappPrefill": "Muraho Neza Ikipe Ishinzwe Amategeko ya MyJudicial",
       "openGoogleMaps": "Fungura muri Google Maps",
-      "openAppleMaps": "Fungura muri Apple Maps"
+      "openAppleMaps": "Fungura muri Apple Maps",
+      "mapBadge": "Ibiro Bikuru Byemewe • Umujyi wa Kigali"
     },
     "form": {
       "title": "Tyoherereze Ubutumwa",
@@ -3765,9 +3863,11 @@
         "institutional": "Ubufatanye bw'Inzego",
         "general": "Ikibazo Rusange"
       },
+      "directedTo": "Yoherejwe kuri:",
       "name": "Amazina Yose",
       "email": "Aderesi ya Imeli",
       "phone": "Nimero ya Telefone",
+      "phoneCountryCode": "Kode y'Igihugu",
       "reference": "Nimero y'Urubanza / Gahunda (Bishatse)",
       "subject": "Impamvu y'Ubutumwa",
       "message": "Ubutumwa Bwawe",
@@ -3782,7 +3882,35 @@
       "successTitle": "Ubutumwa bwoherejwe Neza",
       "successDesc": "Ubutumwa bwawe bwahaye nimero y'ubugenzuzi",
       "successSla": "Ikipe yacu ishinzwe ibikorwa i Kigali igiye gusuzuma ubutumwa bwawe kandi iguhe igisubizo kuri imeli mu masaha 2 y'akazi.",
-      "sendAnother": "Ohereza Ubundi Butumwa"
+      "sendAnother": "Ohereza Ubundi Butumwa",
+      "submitError": "Kohereza ubutumwa ntibikunze. Ongera ugerageze cyangwa utwandikire kuri support@myjudicial.com."
+    },
+    "validation": {
+      "nameRequired": "Amazina yose arakenewe",
+      "emailRequired": "Aderesi ya imeli irakenewe",
+      "emailInvalid": "Nyamuneka andika aderesi ya imeli yizewe",
+      "subjectRequired": "Impamvu y'ubutumwa irakenewe",
+      "messageRequired": "Ubutumwa ntibushobora kuba burimo ubusa",
+      "messageMinLength": "Ubutumwa bugomba kugira byibuze inyuguti 10"
+    },
+    "actions": {
+      "copy": "Koporora",
+      "copied": "Byakoporowe",
+      "copyTicket": "Koporora Nimero",
+      "ticketCopied": "Nimero y'ubugenzuzi yakoporowe",
+      "copyEmail": "Koporora Imeli",
+      "emailCopied": "Imeli yakoporowe mu bubiko"
+    },
+    "emailMenu": {
+      "trigger": "Fungura muri Imeli",
+      "chooseEmailService": "Hitamo Serivisi ya Imeli",
+      "gmail": "Gmail (Urubuga)",
+      "outlook": "Outlook.com (Urubuga)",
+      "defaultApp": "Porogaramu ya Imeli isanzwe",
+      "emailInBrowser": "Ifungura mu idirishya rishya",
+      "emailOnDevice": "Ifungura porogaramu yawe ya imeli",
+      "copyEmailAddress": "Koporora aderesi ya imeli",
+      "copyEmailAddressDesc": "Koporora mu bubiko"
     },
     "labels": {
       "email": "Imeli",
@@ -3798,6 +3926,7 @@
       "message": "Sobanura ubutumwa bwawe mu buryo burambuye..."
     },
     "selfService": {
+      "badge": "Ibisubizo Byihuse",
       "title": "Ukeneye Umwunganizi Cyangwa Ibisubizo Ako Kanya?",
       "subtitle": "Koresha urubuga rwacu rurimo abavoka bemewe n'ibisubizo byihuse bitagusaba gutegereza.",
       "card1Title": "Shaka Umwunganizi Wemejwe",
@@ -3883,7 +4012,7 @@
       "basedOnReviews": "Biraba kuri {count} ibyiyumviro",
       "noReviewsYet": "Nta vyiyumviro",
       "availability": "Ibihe",
-      "slotsRemainingToday": "Ibihendo {count} biriho unyu mw'umuini",
+      "slotsRemainingToday": "{count, plural, =1 {Icyiciro 1 gisigaye uyu munsi} other {Ibyiciro # bisigaye uyu munsi}}",
       "noMoreSlotsToday": "Nta bihe byongera kubaho unyu mw'umuini",
       "goOnlineToAccept": "Jya kuri internet ukore"
     },
@@ -5046,8 +5175,17 @@
       "clients": "Ku Bakiriya n'Abanyarwanda",
       "advocates": "Ku Bavugizi b'Amategeko",
       "escrow": "Ubwishyu & Escrow",
-      "trust": "Ibanga & Umutekano"
+      "trust": "Ibanga & Umutekano",
+      "general": "Ubuyobozi Rusange"
     },
+    "expandAll": "Kwagura byose",
+    "collapseAll": "Kuzinga byose",
+    "copyQuestionLink": "Koporora ihuza ry'igisubizo",
+    "questionLinkCopied": "Ihuza ryakoporowe mu bubiko!",
+    "directLink": "Ihuza ritaziguye",
+    "hotlineLabel": "Umurongo utaziguye",
+    "hoursLabel": "Amasaha yo gukora",
+    "shortcutHint": "Kanda / kugira ngo ushake",
     "sidebarTitle": "Shakisha ku Cyiciro",
     "sidebarSearchPlaceholder": "Shakisha ikibazo hano...",
     "kigaliTeam": "Ikipe Idushyigikiye i Kigali",
@@ -5144,17 +5282,14 @@
       "title": "Ufite ibindi bibazo cyangwa ukeneye ubufasha butaziguye?",
       "subtitle": "Itsinda ryacu ry'ubufasha i Kigali ryiteguye kugufasha ku bibazo byo gufata umwanya, ubwishyu bwa escrow, cyangwa ubufasha bwa tekiniki.",
       "contact": "Vugana n'Itsinda ry'Ubufasha",
-      "emailSupport": "Imeri y'ubufasha: support@myjudicial.com"
+      "emailSupport": "Imeri y'ubufasha: support@myjudicial.com",
+      "emailSupportLabel": "Ubufasha kuri imeri",
+      "copyEmail": "Koporora imeri",
+      "emailCopied": "Imeri yakoporowe!"
     },
     "search": {
       "resultsCount": "Ibibazo {count} byabonetse",
-      "clear": "Gukuraho ibyo washakishije",
-      "popularTagsLabel": "Ibyo benshi babaza:",
-      "tagEscrow": "Escrow",
-      "tagDiaspora": "Diaspora",
-      "tagMoMo": "Mobile Money",
-      "tagCourt": "Kunganirwa mu Nkiko",
-      "tagCancel": "Guhagarika Inama"
+      "clear": "Gukuraho ibyo washakishije"
     }
   },
   "helpPage": {
@@ -5205,7 +5340,8 @@
   "howItWorksPage": {
     "meta": {
       "title": "Uko Bikora | Urubuga rw'Amategeko rwa MyJudicial",
-      "description": "Menya uko MyJudicial igufasha kubona no kugisha inama abavugizi b'amategeko bemewe n'Urugaga rw'Abavugizi mu Rwanda binyuze mu gutegura dosiye, ubwishyu burinzwe, no kunganirwa mu nkiko."
+      "description": "Menya uko MyJudicial igufasha kubona no kugisha inama abavugizi b'amategeko bemewe n'Urugaga rw'Abavugizi mu Rwanda binyuze mu gutegura dosiye, ubwishyu burinzwe, no kunganirwa mu nkiko.",
+      "ogAlt": "Uko MyJudicial ikora"
     },
     "hero": {
       "badge": "Abavugizi Bemewe n'Urugaga · Ubwishyu Burinzwe · Kunganirwa mu Nkiko",
@@ -5214,7 +5350,10 @@
     },
     "tabs": {
       "clients": "Ku Banyarwanda n'Ubucuruzi",
-      "advocates": "Ku Bavugizi b'Amategeko"
+      "advocates": "Ku Bavugizi b'Amategeko",
+      "aria": "Hitamo icyerekezo",
+      "clientsShort": "Abaturage",
+      "advocatesShort": "Abavoka"
     },
     "clientJourney": {
       "badge": "Uko Umukiriya Abikora Intambwe ku Yindi",
@@ -5309,34 +5448,57 @@
         "advocateFeature3": "Guhita mukora amasezerano yo kunganirwa"
       },
       "clientRoom": {
-        "liveBadge": "KONSILTASIYO IRI KURIBA",
-        "encryptionBadge": "WEBRTC Y'IBANGA RYA 256-BIT",
-        "advocateName": "Me. Jean-Paul Habimana",
-        "advocateRole": "Umuvugizi Mukuru · Urugaga rw'Abavugizi mu Rwanda",
-        "barRoll": "Nomero ku Rutonde: RBA #482",
-        "documentTitle": "Isuzuma ry'Icyemezo cy'Ubutaka",
-        "documentType": "Inyandiko y'Ubutaka y'Umwimerere",
-        "documentUpi": "UPI: 1/02/03/04/5892 - Gasabo, Kigali",
-        "verifiedDoc": "Icyangombwa Cyemejwe · Ikigo cy'Igihugu Gishinzwe Ubutaka",
+        "badge": "INAMA IRIMO KUGENDA",
+        "subBadge": "WEBRTC HD",
+        "tls": "TLS 256-bit",
+        "activeStream": "Ijwi rikora",
+        "audioCodec": "HD 48kHz",
+        "advocateName": "Me Jean-Paul Habimana",
+        "advocateRole": "Umwavoka mukuru · Urugaga rw'Abavoka rw'u Rwanda",
+        "barRoll": "Urutonde #482",
+        "documentTitle": "Gusuzuma Icyemezo cy'Ubutaka",
+        "documentType": "Inyandiko y'Ubuyobozi bw'Ubutaka",
+        "documentUpi": "UPI: 1/02/03/04/5892",
+        "verifiedDoc": "Byemejwe ko ari ukuri · Ubuyobozi bw'Ubutaka",
+        "metaProvince": "Intara / Akarere",
+        "metaProvinceValue": "Umujyi wa Kigali / Gasabo",
+        "metaZoning": "Kode ya Zoning",
+        "metaZoningValue": "R1A - Aho batuye",
+        "metaStatus": "Imiterere y'icyemezo",
+        "metaStatusValue": "Cyiza / Nta nzuza",
+        "metaShared": "Uwasangije",
+        "metaSharedValue": "Ekirani y'Umwavoka",
+        "youStatus": "Wowe (Umukiriya) · Ijwi rikora",
+        "engine": "LiveKit WebRTC",
         "sessionTime": "Hasigaye: 34:12",
-        "screenShareTooltip": "Kumurika Icyemezo cy'Ubutaka",
-        "leaveTooltip": "Gusoza Inama"
+        "callTitle": "Me Jean-Paul & Wowe"
       },
       "advocateRoom": {
-        "liveBadge": "IBIRO BY'UMUVUGIZI MURI WEBRTC",
-        "encryptionBadge": "IBANGA RY'UMWUNZI WA 256-BIT",
+        "badge": "IBIKORWA BY'UMWAVOKA",
+        "subBadge": "IBIKORESHO BY'UMWUGA",
+        "tls": "TLS 256-bit",
+        "activeStream": "Umukiriya yahujwe · Ijwi rikora",
+        "audioCodec": "LiveKit HD",
         "clientName": "Kalisa Eric",
+        "clientMatter": "Dosiye #5892",
         "clientRole": "Umukiriya · Akarere ka Gasabo",
-        "clientMatter": "Ikibazo cy'Imbibi z'Ubutaka n'Izungura",
-        "dossierTitle": "Dosiye y'Ikibazo n'Ibyangombwa byatanzwe",
-        "dossierType": "Inyandiko y'Umukiriya Mbere y'Inama",
-        "dossierUpi": "UPI: 1/02/03/04/5892 (Yometseho)",
-        "verifiedDoc": "Icyemejwe · Ibiro by'Ubutaka mu Rwanda",
-        "clientSummary": "Incamake y'umukiriya: Impaka ku mbibi z'ubutaka nyuma y'izungura. Ibyometseho: Amasezerano yo kugura yo mu 2021 na Karita y'Ubutaka.",
-        "privateNotesTab": "Inyandiko z'Ibanga z'Umuvugizi Gusa",
-        "payoutAction": "Ohereza Imyanzuro & Akira Ubwishyu",
-        "sessionTime": "Igihe Kimaze: 25:48",
-        "screenShareTooltip": "Kumurika Inyandiko z'Ikibazo"
+        "dossierTitle": "Dosiye y'Umukiriya",
+        "dossierType": "Ibyatanzwe mbere y'inama",
+        "dossierUpi": "UPI Yashyizwe",
+        "notesTitle": "Inyandiko z'ibanga z'umurimo",
+        "verifiedBadge": "Byemejwe",
+        "clientSummary": "Ikibazo cy'imbibi z'ubutaka bwazwe n'izungura. Inyandiko yo kugurisha 2021 yakozwe na Noteri n'Ikadiri y'Ubutaka byashyizweho.",
+        "diagnosisLabel": "Isesengura ry'Umwavoka:",
+        "diagnosisText": "Ikibazo cy'imbibi cy'ubutaka gisaba ko umugenzuzi w'ubutaka asuzuma mbere yo gushyikiriza urukiko rwa Gasabo.",
+        "counselStatus": "Aho Umwavoka akorera · Ijwi n'inyandiko bihuze",
+        "engine": "LiveKit Console",
+        "sessionTime": "Byageze: 25:48",
+        "callTitle": "Umwavoka & Kalisa Eric"
+      },
+      "dock": {
+        "liveLabel": "Inama ya Live",
+        "escrow": "Indishyi zirinze",
+        "tls": "TLS 256-bit"
       }
     },
     "continuity": {
@@ -5357,7 +5519,10 @@
         "tag": "Icyiciro cya 03",
         "title": "Kuburana mu Nkiko no Gukurikirana Dosiye",
         "desc": "Umuvugizi akunganira mu Nkiko z'Ibanze, Izisumbuye, Urukiko Rukuru cyangwa Urukiko rw'Ubucuruzi (binyuze muri IECMS) ukomeza kubona amakuru n'imyanzuro byose ahantu hamwe hizewe."
-      }
+      },
+      "check1": "Isesengura ry'ikibazo n'ibyago",
+      "check2": "Ubutware busemye n'Imandate",
+      "check3": "Gushyikiriza IECMS n’Imanza"
     },
     "faqs": {
       "badge": "Ibibazo Bikunze Kubazwa",
@@ -5390,92 +5555,451 @@
       "advocateQ6": "Umutekano n'ibanga ry'akazi by'umuvugizi birindwa bite kuri MyJudicial?",
       "advocateA6": "Itumanaho ryose rya videwo n'amajwi rikoresha ikoranabuhanga rya WebRTC rifite umutekano w'ibanga wa 256-bit nta muntu ubangikanya cyangwa ngo rifatwe amajwi. Amakuru y'amadosiye arindwa hakurikijwe Itegeko No. 058/2021 ryerekeye kurinda amakuru bwite n'amahame y'Urugaga rw'Abavugizi."
     },
-    "cta": {
-      "clientTitle": "Witeguye kubona inama z'umuvugizi w'amategeko wemewe mu Rwanda?",
-      "clientSubtitle": "Hura n'umuvugizi wanditse mu Rugaga rw'Abavugizi mu Rwanda mu minota mike.",
-      "advocateTitle": "Witeguye kuvugurura no kwagura ibiro byawe by'amategeko?",
-      "advocateSubtitle": "Ifatanye na bagenzi bawe bemewe n'Urugaga rw'Abavugizi mu Rwanda kuri MyJudicial kandi uce burundu ibirarane by'amafaranga.",
-      "findLawyer": "Shaka Umuvugizi Ako Kanya",
-      "joinAsAdvocate": "Saba Kwinjira nk'Umuvugizi"
+    "expandAll": "Kwagura byose",
+    "collapseAll": "Kuzinga byose",
+    "micMuted": "Indangajwi irazimye",
+    "camOff": "Kamera irazimye",
+    "screenOff": "Gusangiza ecran birahagaze",
+    "resetCall": "Kugarura inama igeragezwa",
+    "controls": {
+      "micLabel": "Microphone",
+      "micTitle": "Microphone ikora",
+      "camLabel": "Kamela",
+      "camTitle": "Kamela ikora",
+      "screenLabel": "Kugabana ekirani",
+      "screenTitle": "Kugabana ekirani bikora",
+      "endLabel": "Kuva mu kiganiro",
+      "endTitle": "Gusoza ikiganiro"
     }
   },
   "legalPages": {
     "cookies": {
+      "meta": {
+        "title": "Amabwiriza Agenga Kuki | MyJudicial",
+        "description": "Urutonde rurambuye rwa kuki za HTTP, ububiko bwa mudasobwa no kurinda umutekano w'amakuru hakurikijwe Itegeko nº 058/2021 ry'u Rwanda."
+      },
       "hero": {
-        "badge": "Amategeko ya Kuki (Cookies)",
-        "title": "Imikoreshereze ya Kuki",
-        "updated": "Iheruka kuvugururwa: Werurwe 2026"
+        "badge": "Igenzura rya Kuki",
+        "title": "Amabwiriza Agenga Kuki (Cookie Policy)",
+        "updated": "Iheruka kuvugururwa: 1 Ukwakira 2026",
+        "updatedPrefix": "Byahinduwe nyuma:",
+        "toc": {
+          "title": "Kuri uru rupapuro",
+          "print": "Capa"
+        }
+      },
+      "inspector": {
+        "badge": "Igenzura ry'Ako Kanya",
+        "title": "Imiterere Nyayo ya Kuki n'Ububiko bwa Browser Yawe",
+        "description": "Irebere kuki z'ikoranabuhanga n'ububiko bikora muri mudasobwa yawe muri aka kanya.",
+        "sessionLabel": "Kwinjira muri Konti",
+        "sessionAuth": "Konti Yinjiyemo",
+        "sessionGuest": "Umusura Utarinjira (Anonymous)",
+        "langLabel": "Kuki y'Ururimi (NEXT_LOCALE)",
+        "themeLabel": "Uko Urubuga Rugaragara (Theme)",
+        "timezoneLabel": "Isaha y'Aho Uherereye",
+        "trackersLabel": "Kuki zo Kwamamaza n'Ubujura",
+        "trackersValue": "0 (Nta Kukurikirana na Gato)",
+        "resetBtn": "Gusubiza Amahitamo mu Ntango",
+        "resetSuccess": "Amahitamo y'urubuga asubiye mu ntango."
+      },
+      "table": {
+        "scrollHint": "Kanda unyize iburyo kugira ngo urebe inkingi zose",
+        "cardsView": "Amakarita",
+        "tableView": "Imbonerahamwe",
+        "purposeLabel": "Impamvu n'Imikorere"
       },
       "content": {
-        "intro": "Aya mabwiriza asobanura uburyo MyJudicial ikoresha kuki n'ubundi buryo bwo kubika amakuru kugira ngo urubuga rwacu rugukorere neza kandi rwibuke ururimi wahisemo (Icyongereza, Igifaransa cyangwa Ikinyarwanda).",
+        "cardTitle": "Ibiro bishinzwe Kuki no Kurinda Amakuru Bwite",
+        "cardDesc": "Ibibazo by'ikoranabuhanga ry'ububiko bwa mudasobwa na kuki zikoreshwa hakurikijwe amategeko y'u Rwanda.",
+        "intro": "Aya mabwiriza atanga ibisobanuro birambuye n'imbonerahamwe yuzuye ya kuki n'ububiko bwose bwa mudasobwa bukoreshwa n'urubuga rwa MyJudicial hakurikijwe Itegeko nº 058/2021 ry'u Rwanda.",
         "sections": [
           {
-            "title": "1. Kuki ni iki?",
-            "text": "Kuki ni dosiye nto ibikwa kuri terefone cyangwa mudasobwa yawe igihe urangamiye urubuga. Ifasha kumenya ibyo wahisemo no kurinda umutekano wawe igihe uri ku rubuga."
+            "title": "1. Intangiriro n'Ibyo Aya Mabwiriza Agenga",
+            "text": "MyJudicial Ltd (« MyJudicial », « twe », cyangwa « twebwe ») iyoboye ihuriro ry'ikoranabuhanga mu by'amategeko mu Rwanda, rihuza abaturage, abashoramari n'ibigo bitandukanye n'abunganizi mu mategeko bemewe kandi bagenzuwe.\n\nAya mabwiriza yerekeye Kuki (Cookie Policy) asobanura uburyo n'impamvu dukoresha kuki za HTTP, ububiko bwa porogaramu y'imbuga (localStorage), ububiko bw'igihe gito (sessionStorage) n'ubundi buryo bufitanye isano igihe usuye urubuga rwacu (myjudicial.com) cyangwa ukoresha serivisi zacu. Aya mabwiriza yashyizweho hakurikijwe Itegeko nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu mu Rwanda.\n\nImbibi z'aya mabwiriza: Iyi nyandiko igenga by'umwihariko kuki n'ububiko bwa mudasobwa cyangwa terefone yawe. Ku bindi bisobanuro birambuye by'uburyo dufata, dukoresha, kandi turinda amakuru yawe muri rusange, reba Politiki y'Ibanga (Privacy Policy)."
           },
           {
-            "title": "2. Kuki dukoresha",
-            "text": "Dukoresha kuki za ngombwa gusa zituma ushobora kwinjira muri konti yawe, guhitamo ururimi rwawe no kurinda ubutumwa bwawe n'amafaranga yawe."
+            "title": "2. Kuki n'Ubundi Bubiko bwa Browser ni Iki?",
+            "text": "Imbuga za interineti zigezweho zikoresha uburyo butandukanye bwo kubika amakuru muri mudasobwa cyangwa terefone yawe kugira ngo zikore neza kandi mu mutekano:\n\n• Kuki za HTTP (HTTP Cookies): Dosiye nto zirimo inyuguti n'imibare zibikwa muri mudasobwa cyangwa terefone yawe na seriveri y'urubuga. Iyo winjiye ku zindi paji cyangwa ugarutse nyuma, browser yoherereza iyo kuki urubuga kugira ngo rukumenye kandi rugufashe kwinjira mu mutekano.\n• Ububiko bwa HTML5 (localStorage): Uburyo buhoraho bwo kubika amakuru ku gikoresho cyawe. Bukoreshwa mu kwibuka amahitamo yawe (nk'ururimi wifuza cyangwa uko urubuga rugaragara: umweru cyangwa umukara) bitiriwe byoherezwa mu butumwa bwa interineti buri kanya.\n• Ububiko bw'Igihe Gito (sessionStorage): Ububiko bumara igihe gito gusa igihe paji yawe ifunguye. Iyo ufunze paji ya browser, ayo makuru ahita asibama ako kanya."
           },
           {
-            "title": "3. Guhagarika kuki",
-            "text": "Ushobora guhagarika kuki muri porogaramu ukoresha usura interineti, ariko bimwe mu bikorwa by'urubuga (nko kuguma muri konti yawe) bishobora kutazakora neza."
+            "title": "3. Intego Yacu Nkuru: Nta Kukurikirana cyangwa Kuki z'Ubucuruzi",
+            "text": "Mu buryo butandukanye n'izindi mbuga z'ubucuruzi, MyJudicial yubatswe hashingiwe ku ibanga rikomeye ry'akazi k'amategeko:\n\n• NTA Kukurikirana kw'Abandi (Zero Third-Party Tracking): Ntidukoresha Google Analytics, Meta Pixel, cyangwa utundi dukoreshoสอง two kukurikirana amateka yawe kuri interineti. Ibyo ushakisha ntabwo bikurikiranwa.\n• NTA Kuki zo Kwamamaza (No Advertising Cookies): Ntidukorana n'amasosiyete yamamaza cyangwa acuruza amakuru y'abantu ngo ashyire kuki ku bikoresho byanyu. Ntitugurisha cyangwa ngo ducuruze amakuru y'abakoresha urubuga.\n• Umutekano kuva mu Ntango (Privacy by Design): Serivisi zose z'urubuga—harimo n'ikarita yerekana aho abunganizi bakorera hamwe n'ibiganiro bya videwo—zikoresha ikoranabuhanga ryigenga ritarinda gushyiraho kuki zikurikira abantu."
+          },
+          {
+            "title": "4. Ibyiciro by'Ikoranabuhanga Dukoresha",
+            "text": "MyJudicial ikoresha ibyiciro bitatu gusa by'ibanze kandi bikenewe cyane:\n\n• Ikoranabuhanga Rikenewe Byanze Bikunze: Rikenewe kugira ngo urubuga rukore, umukoresha abashe kwinjira mu konti ye mu mutekano, no gukumira ibitero by'ikoranabuhanga. Hatari iri koranabuhanga, kwinjira muri konti cyangwa gufata gahunda yo kugisha inama ntibyakorwa.\n• Ikoranabuhanga ry'Amahitamo n'Ururimi: Rituma urubuga rwibuka ibyo wahisemo—nk'ururimi ukunda (Icyongereza, Igifaransa, cyangwa Ikinyarwanda), uko urubuga rugaragara (Urumuri cyangwa Umwijima), n'isaha y'aho uri igihe ufata gahunda.\n• Ikoranabuhanga ry'Imikorere y'Igihe Gito: Ribika by'agateganyo aho wari ugeze—nko kwibuka niba menu ifunguye cyangwa kubika by'agateganyo amakuru y'umwirondoro w'umwunganizi igihe yiyandikisha kugira ngo adatakara mu gihe urubuga rwaba runyeganyeze."
+          },
+          {
+            "title": "5. Imbonerahamwe ya Kuki zose za HTTP Dukoresha",
+            "text": "Imbonerahamwe ikurikira irerekana kuki zose za HTTP zikoreshwa na MyJudicial n'impamvu zazo:",
+            "table": {
+              "columns": [
+                "Izina rya Kuki",
+                "Icyiciro",
+                "Uruyikora",
+                "Ubwoko",
+                "Igihe Imara",
+                "Impamvu n'Imikorere"
+              ],
+              "rows": [
+                [
+                  "authjs.session-token",
+                  "Ikenewe Byanze Bikunze",
+                  "MyJudicial Ubwayo",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "Iminsi 30 (niba wahisemo kwibukwa) cyangwa Amasaha 8-24",
+                  "Igomba kubika umwirondoro w'uwazindutse muri konti; irimo JWT ibitse nomero y'umukoresha, inshingano ze n'uburenganzira bwo gukoresha serivisi."
+                ],
+                [
+                  "authjs.csrf-token",
+                  "Ikenewe Byanze Bikunze",
+                  "MyJudicial Ubwayo",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "Igihe uri ku rubuga (Session)",
+                  "Umubare w'ibanga urinda ifishi yo kwinjira ibitero by'ubujura bwa interineti (CSRF)."
+                ],
+                [
+                  "authjs.callback-url",
+                  "Ikenewe Byanze Bikunze",
+                  "MyJudicial Ubwayo",
+                  "HTTP Cookie (HttpOnly, Secure)",
+                  "Igihe uri ku rubuga (Session)",
+                  "Yibuka paji washakaga kureba mbere yo kwinjira muri konti kugira ngo uhite uyisubizwaho umaze kwinjira."
+                ],
+                [
+                  "NEXT_LOCALE",
+                  "Amahitamo",
+                  "MyJudicial Ubwayo / next-intl",
+                  "HTTP Cookie",
+                  "Umwaka 1 (Ihoraho)",
+                  "Ibika ururimi wahisemo (Icyongereza, Igifaransa, cyangwa Ikinyarwanda) kugira ngo urubuga ruzakomeze kurukwereka."
+                ],
+                [
+                  "sidebar_state",
+                  "Imikorere",
+                  "MyJudicial Ubwayo",
+                  "HTTP Cookie",
+                  "Iminsi 7 (max-age=604800)",
+                  "Yibuka niba menu y'ubugenzuzi bwa dashboard ifunze cyangwa ifunguye."
+                ]
+              ]
+            }
+          },
+          {
+            "title": "6. Imbonerahamwe y'Ubundi Bubiko (LocalStorage na SessionStorage)",
+            "text": "Imbonerahamwe ikurikira irerekana amakuru abikwa muri mudasobwa cyangwa terefone yawe ku buryo bwa LocalStorage na SessionStorage:",
+            "table": {
+              "columns": [
+                "Izina ry'Ububiko",
+                "Uburyo bubikwamo",
+                "Icyiciro",
+                "Igihe Bimara",
+                "Impamvu n'Imikorere"
+              ],
+              "rows": [
+                [
+                  "theme",
+                  "localStorage",
+                  "Amahitamo",
+                  "Kugeza igihe usibye amakuru",
+                  "Ibika niba ukoresha urubuga rufite amabara y'urumuri, umwijima, cyangwa uko mudasobwa yawe iteye (next-themes)."
+                ],
+                [
+                  "mj_lang",
+                  "localStorage",
+                  "Amahitamo",
+                  "Kugeza igihe usibye amakuru",
+                  "Ibika mu buryo bwihuse kode y'ururimi wahisemo kugira ngo ikoreshwe mu kumenya ibyo ubaza n'ubusemuzi bwa AI."
+                ],
+                [
+                  "mj_timezone",
+                  "localStorage",
+                  "Imikorere / Amahitamo",
+                  "Kugeza igihe usibye amakuru",
+                  "Ibika isaha y'aho uherereye (muri rusange Africa/Kigali) kugira ngo iminsi n'amasaha yo kugisha inama byerekanwe neza."
+                ],
+                [
+                  "expert_onboarding_wizard_data",
+                  "localStorage",
+                  "Imikorere",
+                  "By'agateganyo (bihita bisibama umaze kohereza)",
+                  "Bibika by'agateganyo amakuru y'umwunganizi uri kwiyandikisha kugira ngo adatakara niba paji yakunze guhita yifunga."
+                ],
+                [
+                  "accessToken / refreshToken",
+                  "sessionStorage / localStorage",
+                  "Ikenewe Byanze Bikunze",
+                  "Igihe uri muri konti gusa",
+                  "Bibika by'agateganyo urufunguzo rw'ikoranabuhanga ryo kwaka amakuru kuri seriveri; bihita bisibwa ako kanya iyo usotse muri konti."
+                ]
+              ]
+            }
+          },
+          {
+            "title": "7. Serivisi z'Abandi n'Ikoranabuhanga Ridafite Kuki z'Ubujura",
+            "text": "Tugenzura serivisi zose zifashishwa n'urubuga rwacu kugira ngo twemeze ko nta kuki zikurikira abantu zishyirwa ku bikoresho byanyu:\n\n• Amakarita ya MapLibre GL: Amakarita yerekana aho abunganizi bakorera akoresha MapLibre GL idakoresha kuki za Google Maps cyangwa izo gukurikirana za Mapbox.\n• Videwo zo Kugisha Inama za LiveKit WebRTC: Ibiganiro bya videwo bikorwa binyuze kuri LiveKit Cloud ikoresha uburyo bufunze cyane kandi bwizewe bw'ibanga (encryption). LiveKit ntishyira kuki zikurikira abantu ku bikoresho byanyu.\n• Ubwenge bw'Ikoranabuhanga (AI) mu Gusuzuma Ibibazo: Ibyo mubaza bisuzumirwa muri seriveri zacu zizewe gusa. Nta kuki zo kwamamaza cyangwa gukurikirana zikoreshwa.\n• Supabase mu Gutanga Ubutumwa Ako Kanya: Ikoreshwa gusa mu kohereza ubutumwa ako kanya nta kuki z'abandi zibitswe."
+          },
+          {
+            "title": "8. Ishingiro ry'Amategeko n'Uruhushya Hakurikijwe Itegeko Nº 058/2021",
+            "text": "Ishingiro rishingiye ku Mategeko: Dukurikije ingingo ya 46 y'Itegeko nº 058/2021, gukoresha kuki zikenewe byanze bikunze bishingira ku Masezerano hagati yacu nawe (ingingo ya 46(1)(b)) no ku Nyungu Zifitiye Umumaro Urubuga (ingingo ya 46(1)(f)) hagamijwe kurinda umutekano w'urubuga, kwinjira neza muri konti no gukumira uburiganya.\n\nAmahitamo y'Umukoresha: Kuki z'amahitamo (nk'ururimi cyangwa uko urubuga rugaragara) zibikwa gusa kuko ari wowe ubyihitiyemo ku bushake.\n\nImpamvu Nta Butumwa Bubuza (Banner) Bwerekanwa: Kubera ko MyJudicial IDAKORESHA na gato kuki zo kwamamaza, kukurikirana amateka y'abantu cyangwa gukusanya amakuru y'abandi, amategeko y'u Rwanda n'ay'amahanga ntabwo ategeka ko dushyiraho akadirishya gakumira paji (cookie banner). Nihagira ikoranabuhanga ryo kwamamaza ryongerwamo mu gihe kizaza, tuzabanza kubaha uburenganzira bwo kubyemera cyangwa kubyanga mbere y'uko kuki zishyirwaho."
+          },
+          {
+            "title": "9. Uko Wacunga, Wasuzuma cyangwa Wahagarika Kuki muri Browser Yawe",
+            "text": "Ufite uburenganzira bwose n'ubushobozi bwo kugenzura kuki ziri ku gikoresho cyawe. Porogaramu zose zifashishwa mu gusura interineti zifite uburyo bwo gusuzuma, guhagarika cyangwa gusiba kuki:\n\n• Google Chrome: Settings → Privacy and security → Third-party cookies → See all site data and permissions.\n• Mozilla Firefox: Settings → Privacy & Security → Cookies and Site Data → Manage Data.\n• Apple Safari: Settings → Safari → Advanced → Privacy → Block all cookies.\n• Microsoft Edge: Settings → Cookies and site permissions → Manage and delete cookies and site data.\n\nIbizaba Iyo Uhagaritse Kuki: Nuhagarika kuki zose, ntuzabasha kwinjira muri konti yawe ya MyJudicial, ntuzabasha gufata gahunda yo kugisha inama cyangwa kwishyura. Gusa gusura urubuga no gushakisha abunganizi ku mugaragaro bizakomeza gukora."
+          },
+          {
+            "title": "10. Impinduka kuri Aya Mabwiriza",
+            "text": "Dushobora kuvugurura aya mabwiriza igihe habayeho impinduka mu ikoranabuhanga dukoresha cyangwa mu mategeko y'u Rwanda agenga ubuzima bwite. Igihe bibaye, itariki y'« Iheruka kuvugururwa » iri hejuru kuri iyi paji izahita ivugururwa.\n\nTurabashishikariza kujya musoma aya mabwiriza kenshi kugira ngo mumenye uburyo turinda amakuru yanyu mu buhanga bw'ikoranabuhanga."
+          },
+          {
+            "title": "11. Twandikire cyangwa Ubaze Ushinzwe Kurinda Amakuru",
+            "text": "Niba ufite ikibazo cyangwa inyunganizi kuri aya mabwiriza ya kuki cyangwa ushaka gukoresha uburenganzira uhabwa n'Itegeko nº 058/2021, twandikire ku biro bishinzwe umutekano w'amakuru:\n\n• Urwego Rushinzwe Amakuru: MyJudicial Ltd\n• Email y'Ushinzwe Kurinda Amakuru (DPO): {{dpoEmail}}\n• Email y'Ubufasha muri Rusange: {{supportEmail}}\n• Terefone ya Hotline: {{hotlinePhone}}\n• Ibiro Bikuru: {{officeAddress}}\n• Agasanduku k'Iposita: {{poBox}}\n• Amasaha y'Akazi: {{workingHours}}\n\nKu bindi bisobanuro birambuye by'uburyo dufata amakuru bwite, sura Politiki y'Ibanga (Privacy Policy)."
           }
         ]
-      },
-      "meta": {
-        "title": "Cookie Policy | MyJudicial",
-        "description": "Information about how MyJudicial uses cookies on our platform."
       }
     },
     "privacy": {
+      "meta": {
+        "title": "Politiki y'Ibanga | MyJudicial",
+        "description": "Menya uko MyJudicial irinda amakuru yawe bwite hakurikijwe Itegeko ry'u Rwanda nº 058/2021 ryerekeye kurinda amakuru bwite."
+      },
       "hero": {
-        "badge": "Kurinda Amakuru Bwite",
+        "badge": "Kurinda Amakuru Bwite n'Ubuzima Bwite",
         "title": "Politiki y'Ibanga",
-        "updated": "Iheruka kuvugururwa: Werurwe 2026"
+        "updated": "Iheruka kuvugururwa: Nzeri 2026",
+        "updatedPrefix": "Byahinduwe nyuma:",
+        "toc": {
+          "title": "Kuri uru rupapuro",
+          "print": "Capa"
+        }
+      },
+      "rightsHelper": {
+        "badge": "Urubuga rw'Uburenganzira bw'Umuturage",
+        "title": "Koresha Uburenganzira Bwawe ku Makuru Bwite",
+        "subtitle": "Hakurikijwe Itegeko nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite, ufite uburenganzira busesuye. Hitamo uburenganzira hasi aha urebe ibisabwa cyangwa wohereze ubusabe bwawe ku Mukuru Ushinzwe Kurinda Amakuru (DPO).",
+        "statutorySlaBadge": "Igihe cy'Iminsi 30 yo Gusubizwa n'Amategeko",
+        "statutorySlaDesc": "Ibisabwa n'ingingo ya 16 kugeza ku ya 22: Ibisubizo by'Ushinzwe Kurinda Amakuru bigomba gutangwa mu minsi itarenga 30.",
+        "selectPrompt": "Hitamo uburenganzira bw'amategeko wifuza gusuzuma:",
+        "dpoContactLabel": "Ibibazo byemewe bigenewe Ushinzwe Kurinda Amakuru",
+        "supervisoryNotice": "Igihe utanyuzwe n'igisubizo mu minsi 30, ufite uburenganzira buteganywa n'Ingingo ya 47 y'Itegeko nº 058/2021 bwo kugeza ikirego mu Kigo cy'Igihugu gishinzwe Umutekano w'Ikoranabuhanga / Ibiro bishinzwe Kurinda Amakuru (dpo.gov.rw).",
+        "emailDpoBtn": "Ohereza Imeri ku Ushinzwe Kurinda Amakuru",
+        "copyTemplateBtn": "Kopera Inyandiko y'Ubusabe",
+        "openModalBtn": "Tanga Ubusabe bw'Amategeko",
+        "modal": {
+          "badge": "Urubuga rw'Amategeko • Itegeko nº 058/2021",
+          "title": "Tanga Ubusabe ku Bubiko bw'Amakuru Bwite",
+          "subtitle": "Ohereza ubusabe bwawe ku Mukuru Ushinzwe Kurinda Amakuru. Uragenerwa numero y'ubusabe yubahiriza igihe cy'iminsi 30 y'amategeko.",
+          "labels": {
+            "rightType": "Uburenganzira bw'amategeko usaba",
+            "fullName": "Amazina yose y'amategeko",
+            "fullNamePlaceholder": "Urugero: Jean-Paul Gasana",
+            "email": "Aderesi ya imeri ya konti",
+            "emailPlaceholder": "Urugero: umuturage@urugero.rw",
+            "phone": "Telefoni yo kukubona (Bishobotse)",
+            "phonePlaceholder": "Urugero: +250 788 123 456",
+            "details": "Ibisobanuro birambuye ku busabe bwawe",
+            "detailsPlaceholder": "Tanga ibisobanuro bifasha (urugero: inyandiko z'ubujyanama zihariye, impamvu yo gusiba)...",
+            "certification": "Ndemeza ku mugaragaro ko ndi nyir'iyi konti cyangwa umuhagarariye mu mategeko.",
+            "cancel": "Kureka",
+            "submit": "Ohereza Ubusabe",
+            "submitting": "Kwandika ubusabe..."
+          },
+          "success": {
+            "title": "Ubusabe bw'Amategeko Bwakiriwe Neza",
+            "desc": "Ubusabe bwawe bwashyikirijwe Ushinzwe Kurinda Amakuru hakurikijwe Itegeko ry'u Rwanda nº 058/2021. Numero y'ubusabe bwawe ni:",
+            "copyRef": "Kopera numero",
+            "copied": "Yakopewe!",
+            "slaNotice": "Itegeko ry'iminsi 30: Hakurikijwe Ingingo ya 16 kugeza ku ya 22 y'Itegeko nº 058/2021, Ushinzwe Kurinda Amakuru ategetswe gukemura ubusabe mu minsi itarenga 30.",
+            "emailNotice": "Ubutumwa bwemeza bwoherejwe kuri imeri yawe. Ushobora kwifashisha iyi numero mu gihe uvugana n'inzego z'umutekano kuri",
+            "close": "Bifunze"
+          }
+        },
+        "emailMenu": {
+          "trigger": "Fungura uburyo bwa email",
+          "chooseEmailService": "Hitamo uburyo bwa email",
+          "gmail": "Gmail",
+          "outlook": "Outlook / Hotmail",
+          "defaultApp": "Porogaramu isanzwe ya email",
+          "emailInBrowser": "Fungura muri browser",
+          "emailDesktopApp": "Apple Mail, Outlook Desktop, n'izindi",
+          "copyEmail": "Kopera imeri y'Ushinzwe Kurinda Amakuru",
+          "emailCopied": "Imeri y'Ushinzwe Kurinda Amakuru yakopewe",
+          "noDpoEmailNotice": "Nta meri yihariye y'Ushinzwe Kurinda Amakuru irashyirwaho. Koresha buto ya 'Tanga Ubusabe bw'Amategeko' kugira ngo wohereze ubusabe bwawe mu buryo bw'ikoranabuhanga.",
+          "noEmailAssigned": "Ibiro bishinzwe Kurinda Amakuru (Urubuga rw'Ikoranabuhanga)"
+        },
+        "templateCopied": "Inyandiko y'ubusabe yakopewe mu bubiko bw'agateganyo",
+        "templatePreviewLabel": "Inyandiko y'Ubusabe (Yujujemo amategeko)",
+        "selfServeAction": "Hindura Amakuru muri Porofayire ako kanya",
+        "rights": {
+          "access": {
+            "name": "Uburenganzira bwo Kumenya",
+            "article": "Ingingo ya 16",
+            "description": "Saba kopi yuzuye y'amakuru yawe bwite, inyandiko z'ubujyanama, n'ibyangombwa byawe bibitswe mu rusobe rwacu.",
+            "subject": "Ubusabe bwo Guhabwa Amakuru Bwite - Ingingo ya 16 Itegeko nº 058/2021",
+            "template": "Ku Mukozi Ushinzwe Kurinda Amakuru,\n\nHakurikijwe Ingingo ya 16 y'Itegeko nº 058/2021 ryo mu Rwanda, ndasaba kopi y'amakuru yanjye bwite yose afitwe na MyJudicial Ltd.\n\nImeri ya konti: [Imeri yawe]\nAmazina yose: [Amazina yawe]\nTelefoni: [Telefoni yawe]\n\nMurakoze kunsubiza mu gihe kitarenze iminsi 30 iteganywa n'amategeko."
+          },
+          "rectification": {
+            "name": "Uburenganzira bwo Gukosora",
+            "article": "Ingingo ya 18",
+            "description": "Kosora amakuru atari yo cyangwa ashaje. Ushobora no guhita ubikosora ubwawe mu ifasi yawe bwite (Profile).",
+            "subject": "Ubusabe bwo Gukosora Amakuru - Ingingo ya 18 Itegeko nº 058/2021",
+            "template": "Ku Mukozi Ushinzwe Kurinda Amakuru,\n\nHakurikijwe Ingingo ya 18 y'Itegeko nº 058/2021 ryo mu Rwanda, ndasaba ko hakosorwa amakuru yanjye atari yo akurikira:\n\nImeri ya konti: [Imeri yawe]\nAmakuru atari yo: [Urugero: Telefoni, Amazina]\nAmakuru y'ukuri: [Amakuru mashya]\n\nMurakoze."
+          },
+          "erasure": {
+            "name": "Uburenganzira bwo Gusiba",
+            "article": "Ingingo ya 19",
+            "description": "Saba gusiba burundu konti yawe n'inyandiko zawe zibitse, uretse inyandiko z'imari zitegetswe kubikwa imyaka 10 n'amategeko y'imisoro.",
+            "subject": "Ubusabe bwo Gusiba Amakuru - Ingingo ya 19 Itegeko nº 058/2021",
+            "template": "Ku Mukozi Ushinzwe Kurinda Amakuru,\n\nHakurikijwe Ingingo ya 19 y'Itegeko nº 058/2021 ryo mu Rwanda, ndasaba ko amakuru yanjye bwite asibwa burundu no gufunga konti yanjye ya MyJudicial.\n\nImeri ya konti: [Imeri yawe]\nAmazina yose: [Amazina yawe]\nImpamvu: [Urugero: Nsheshe amasezerano / Nta bikenewe]\n\nNdumva ko inyandiko z'imari zitegetswe n'amategeko y'imisoro zigomba kugumaho."
+          },
+          "portability": {
+            "name": "Uburenganzira bwo Kwimura Amakuru",
+            "article": "Ingingo ya 21",
+            "description": "Habwa dosiye yanditse mu buryo bw'ikoranabuhanga (JSON / dosiye ikora) irimo inyandiko z'ubujyanama bwawe na porofayire yawe.",
+            "subject": "Ubusabe bwo Kwimura Amakuru - Ingingo ya 21 Itegeko nº 058/2021",
+            "template": "Ku Mukozi Ushinzwe Kurinda Amakuru,\n\nHakurikijwe Ingingo ya 21 y'Itegeko nº 058/2021 ryo mu Rwanda, ndasaba koherezwa amakuru yanjye mu buryo bw'ikoranabuhanga bworoshye gusoma (machine-readable).\n\nImeri ya konti: [Imeri yawe]\nAmazina yose: [Amazina yawe]\n\nMurakoze."
+          },
+          "objection": {
+            "name": "Uburenganzira bwo Kwanga",
+            "article": "Ingingo ya 22",
+            "description": "Hagarika gukoresha amakuru yawe mu bucuruzi cyangwa ibindi bitari ngombwa. Ubutumwa bw'umutekano bwo bwo gukoresha urubuga bugumaho.",
+            "subject": "Ubusabe bwo Kwanga Ikoreshwa ry'Amakuru - Ingingo ya 22 Itegeko nº 058/2021",
+            "template": "Ku Mukozi Ushinzwe Kurinda Amakuru,\n\nHakurikijwe Ingingo ya 22 y'Itegeko nº 058/2021 ryo mu Rwanda, mpanze ko amakuru yanjye akoreshwa mu bikorwa bikurikira:\n\nImeri ya konti: [Imeri yawe]\nIbikorwa ndwanyije: [Urugero: Ubutumwa bumenyesha / ibipimo]\n\nMurakoze."
+          }
+        }
       },
       "content": {
-        "intro": "Kuri MyJudicial, kurinda amabanga y'ibibazo byawe by'amategeko nibyo dushyira imbere ya byose. Dukurikiza Itegeko ry'u Rwanda nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu.",
+        "cardTitle": "Umukozi Ushinzwe Kurinda Amakuru n'Ibiro Bikuru",
+        "cardDesc": "Ku busabe bw'amategeko, kureba amakuru yawe, cyangwa kubahiriza Itegeko ry'u Rwanda nº 058/2021.",
+        "intro": "MyJudicial Ltd (\"MyJudicial\", \"twebwe\", cyangwa \"byacu\") yubaha uburenganzira bwawe shingiro bw'ubuzima bwite kandi yiyemeje kubungabunga umutekano w'amakuru yawe bwite. Iyi Politiki y'Ibanga ikumenyesha uburyo dukusanya, dutunganya, tubika kandi turinda amakuru yawe igihe ukoresha urubuga rwacu rwa serivisi z'amategeko (myjudicial.com), ikanasobanura uburenganzira bwite uhabwa n'Itegeko ry'u Rwanda nº 058/2021 ryo ku wa 13/10/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu.",
         "sections": [
           {
-            "title": "1. Amakuru dukusanya",
-            "text": "Dukusanya gusa amakuru akenewe mu gufungura konti yawe, kuguhuza n'umwavoka wemewe no kwishyura mu mutekano binyuze kuri Mobile Money."
+            "title": "1. Abo turi bo n'Ushinzwe Kugenzura Amakuru",
+            "text": "MyJudicial Ltd (\"MyJudicial\", \"twebwe\", cyangwa \"byacu\") ni urubuga rw'ikoranabuhanga rya mbere mu Rwanda ruhuza abaturage, abashoramari n'inzego z'ubucuruzi n'abavoka n'impuguke mu by'amategeko bemewe kandi bagenzuwe. Mu rwego rw'Itegeko nº 058/2021 ryo ku wa 13/10/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu, MyJudicial niyo igenzura amakuru (Data Controller) atunganywa binyuze ku rubuga rwacu (myjudicial.com) na serivisi zijyanye na rwo.\n\nIbiro bikuru byacu biherereye kuri {{officeAddress}} ({{poBox}}). Twashyizeho Umukozi ushinzwe Kurinda Amakuru (DPO) ushobora kubonwa kuri imeri {{dpoEmail}} ku bibazo byose byerekeye uburenganzira bwite n'iyubahirizwa ry'amategeko."
           },
           {
-            "title": "2. Ibanga ry'umwuga w'ubwavoka",
-            "text": "Amakuru yose usangiza umwavoka mu gihe cy'inama arinzwe n'ibanga ry'umwuga w'ubwavoka hakurikijwe amategeko y'Urugaga rw'Abavoka mu Rwanda."
+            "title": "2. Ibyo Iyi Politiki Ireba",
+            "text": "Iyi Politiki y'Ibanga igenga ikusanywa, itunganywa n'irindwa ry'amakuru bwite muri serivisi zose za MyJudicial, zirimo:\n\n• Gushakisha abavoka, gukoresha ikarita y'aho bakorera, no gusura imyirondoro yabo;\n• Kuzuza ifishi y'ikibazo cy'amategeko no gukoresha ubufasha bwa AI mu kumenya ibyiciro by'ikibazo;\n• Guhitamo igihe cyo guhura n'umwunganizi no gukoresha amashusho (LiveKit video);\n• Uburyo bwo kubika amafaranga y'ubujyanama mu buryo bwizewe (escrow) kugeza serivisi irangiye;\n• Ububiko bw'inyandiko z'ibanga zifunze n'imfunguzo z'ikoranabuhanga (OCI Object Storage);\n• Kumenyekanisha imyirondoro no kugenzura ibyangombwa by'abavoka bo mu Rugaga rw'Abavoka.\n\nIkitonderwa: Iyi politiki ireba ibikorwa by'ikoranabuhanga bya MyJudicial. Iyo ushyize umukono ku masezerano yo kwunganirwa n'umwavoka mu nkiko cyangwa mu zindi nzego, uwo mwavoka agengwa n'amahame y'umwuga w'ubuvoka n'ibanga ry'umwuga (professional secrecy) by'Urugaga rw'Abavoka mu Rwanda."
           },
           {
-            "title": "3. Umutekano n'ibanga rikomeye",
-            "text": "Amakuru yawe abikwa mu buryo bugezweho bukingiye ku buryo nta muntu utabifitiye uburenganzira wayabona. Ntitubagurisha cyangwa ngo dusangize amakuru yawe abandi."
+            "title": "3. Amakuru Dukusanya",
+            "text": "Dukusanya gusa amakuru bwite akenewe kugira ngo dusohoze inshingano z'urubuga rwacu. Amakuru akusanywa agabanyije muri ibi byiciro bikurikira:\n\n• Amakuru y'Umwirondoro no Kwinjira: Amazina nyakuri, imeri, nimero ya telefoni, ijambobanga rifunze (Argon2/bcrypt), konti za Google/LinkedIn zikoreshwa mu kwinjira, ururimi uhitamo, n'icyiciro cyawe (Umuturage, Impuguke, Umuyobozi).\n• Amakuru y'Umwuga w'Abavoka: Amazina akoresha mu mwuga, amateka y'akazi, ibiro akoreramo, aderesi, nimero yo mu Rugaga rw'Abavoka (RBA Roll), icyemezo cyo gukora ubuvoka gifite agaciro, kopi y'indangamuntu cyangwa pasiporo, impamyabumenyi, ibyiciro by'amategeko akoreramo, ibiciro by'ubujyanama, na nimero ya Mobile Money yishyurirwaho.\n• Amakuru yo Guhura n'Ubujyanama: Ubwoko bwa serivisi, uburyo bwo guhura (amashusho, telefoni, guhura imbona nkubone), itariki n'isaha, inyandiko ngufi z'ikibazo, nimero y'icyumba cyo guhuriramo (meeting room ID), n'amateka yo gusubika cyangwa guhagarika.\n• Ubutumwa Bwo ku Rubuga: Ubutumwa bwandikiranwa hagati y'umukiriya n'umwunganizi, inyandiko zometseho (PDF, amasezerano, inyandiko z'urukiko), n'igihe ubutumwa bwagereye n'aho bwasomewe.\n• Inyandiko zo mu Bubiko Bw'Ibanga: Inyandiko z'imanza, amasezerano, n'ibimenyetso bishyirwa mu bubiko bw'ikoranabuhanga (Vault) bwo muri OCI, bikaba bifunze n'ingufuri ya AES-256-GCM ku buryo nta wundi ushobora kubibona.\n• Amakuru y'Imari n'Ubwishyu: Nimero z'ubwishyu (txRef), nimero zikoreshwa muri MTN Mobile Money na Airtel Money binyuze muri AzamPay, amafaranga yabitswe muri escrow, n'amafaranga yishyuwe umwavoka. MyJudicial NTIBIKA nimero z'amakarita ya banki cyangwa imibare y'ibanga (PIN) ya Mobile Money.\n• Amakuru y'Ubusesenguzi bwa AI: Ibisobanuro by'ikibazo byanditswe cyangwa byavuzwe mu ijwi, inyandiko yakuwe mu ijwi ikorwa mu kanya gato, ubwoko bw'amategeko ikibazo kibarizwamo, ubwihutirwe, n'ingengo y'imari igenekerejwe.\n• Amakuru y'Aho Uherereye: Imyirondoro y'aho uherereye (GPS) isabwa gusa igihe ushaka abavoka bakwegereye ku ikarita (iyo bidakozwe hafatwa Kigali CBD: -1.9441, 30.0619); n'aho ibiro by'abavoka biherereye.\n• Amakuru y'Ikoranabuhanga na Raporo z'Umutekano: Aderesi ya IP, amakuru ya porogaramu ukoresha (browser), igihe winjiriye, na raporo z'umutekano (AuditLog) zigaragaza ibikorwa bikomeye byakozwe ku rubuga."
+          },
+          {
+            "title": "4. Uko Dukusanya Amakuru Yawe",
+            "text": "Dukusanya amakuru bwite binyuze mu buryo busobanutse kandi bwemewe n'amategeko:\n\n• Utwibwiriye ubwawe: Igihe wiyandikisha ku rubuga, wuzuza imyirondoro, usobanura ikibazo cyawe mu ifishi, ushyira inyandiko mu bubiko, wandikira umwunganizi, cyangwa wishyura ubujyanama.\n• Bikozwe n'ikoranabuhanga mu buryo bwikora: Mu gihe ukoresha urubuga, dukusanya amakuru y'ibanze y'ikoranabuhanga (cookies, aderesi ya IP, amakuru ya mudasobwa cyangwa telefoni) kugira ngo urubuga rukore neza kandi rufite umutekano.\n• Amakuru atangwa n'abavoka: Igihe abavoka basaba gukorera kuri MyJudicial, batanga ibyangombwa by'umwuga, impamyabumenyi, n'amasaha babonekaho.\n• Igenzura ry'inzego zibifitiye ububasha: Itsinda ryacu rishinzwe igenzura risuzuma ibyangombwa byatanzwe ribigereranya n'Urutonde rw'Abavoka bemewe rwatangajwe n'Urugaga rw'Abavoka mu Rwanda."
+          },
+          {
+            "title": "5. Impamvu n'Uburyo Dukoresha Amakuru Yawe",
+            "text": "MyJudicial ikoresha amakuru bwite ku mpamvu zizwi, zemewe n'amategeko kandi zisobanutse neza gusa:\n\n• Gucunga urubuga no gufasha abakoresha kwinjira: Kwandika abakoresha bashya, gucunga imyirondoro, no kugenzura uburenganzira bw'abinjira muri buri cyiciro.\n• Kugenzura abavoka no kurinda uburiganya: Gusuzuma niba umwavoka yanditse mu Rugaga, kurinda ko hari abiyitirira ubuvoka, no kurengera abaturage bashaka ubutabera.\n• Gutegura gahunda z'ubujyanama no guhura mu buryo bw'amashusho: Gushyiraho gahunda yo guhura, guhuza za kalendari, no gufungura ibyumba by'amashusho byizewe (LiveKit).\n• Gucunga amafaranga mu buryo bwizewe (Escrow): Kubika amafaranga y'ubujyanama kugeza serivisi irangiye neza, no kuyashyikiriza umwavoka kuri Mobile Money.\n• Serivisi y'Ububiko bw'Inyandiko z'Ibanga (Vault): Kubika mu buryo bufunze kandi bwizewe inyandiko z'imanza n'amasezerano muri OCI.\n• Gusesengura ikibazo no gushaka abavoka bakwiye hifashishijwe AI: Gutahura mu kanya gato urwego rw'amategeko ikibazo kibarizwamo, ubwihutirwe, no kumenya abavoka babyigiye.\n• Kohereza ubutumwa bw'ingenzi bwa serivisi: Kohereza ubutumwa bubutsa gahunda, imibare y'umutekano (OTP), inyemezabwishyu n'ubutumwa bwa serivisi binyuze kuri SMS na imeri (Brevo).\n• Umutekano w'urubuga, kugenzura ibikorwa no kubahiriza amategeko: Gutahura ibitero by'ikoranabuhanga, gukemura impaka, kubika raporo z'umutekano (AuditLog), no gutanga raporo ziteganywa n'amategeko y'u Rwanda."
+          },
+          {
+            "title": "6. Ishingiro ry'Amategeko ryo Gutunganya Amakuru (Itegeko nº 058/2021)",
+            "text": "Hifashishijwe Ingingo ya 46 y'Itegeko ry'u Rwanda nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu, MyJudicial itunganya amakuru yawe yisunze ibi bishingiro bikurikira:\n\n• Gusohoza amasezerano (Ingingo ya 46(1)(b)): Itunganywa ry'amakuru ni ngombwa kugira ngo dusohoze amasezerano y'imikoranire twagiranye nawe (amabwiriza y'urubuga, gufata gahunda y'ubujyanama, kubika amafaranga muri escrow, no gukoresha ububiko bw'inyandiko).\n• Kubahiriza inshingano z'amategeko (Ingingo ya 46(1)(c)): Amategeko y'ubucuruzi mu Rwanda, kubika inyandiko z'ibaruramari, kurwanya iyezandonke, gutanga umusoro mu Kigo cy'Imisoro n'Amahoro (RRA), no kubahiriza amabwiriza y'inkiko z'u Rwanda.\n• Inyungu zemewe n'amategeko (Ingingo ya 46(1)(f)): Inyungu z'ubucuruzi bwemewe za MyJudicial n'iz'abakoresha urubuga—by'umwihariko kugenzura niba abavoka banditse ku Rutonde rw'Urugaga, gukumira uburiganya, kurinda umutekano w'urubuga, no kubika inyandiko z'ibyakozwe (AuditLog)—igihe cyose bitabangamiye uburenganzira bwawe shingiro.\n• Uburenganzira butanzwe na nyir'ubwite (Ingingo ya 46(1)(a)): Ku bintu bimwe na bimwe bitari itegeko, tugusaba uburenganzira busobanutse, nko gutanga amakuru y'aho uherereye kugira ngo ubone abavoka bakwegereye, cyangwa gukoresha ijwi mu kwandika ikibazo cyawe hifashishijwe AI. Ushobora guhagarika ubu burenganzira igihe icyo ari cyo cyose."
+          },
+          {
+            "title": "7. Abahabwa Amakuru n'Uko Asangizwa",
+            "text": "Ntabwo ducuruza, ntitukodesha, kandi ntitugurisha amakuru yawe bwite na rimwe. Amakuru asangizwa gusa ibi byiciro bikurikira byateganyijwe:\n\n• Abavoka wahisemo kugisha inama: Iyo ufashe gahunda yo kugisha inama umwavoka, amakuru yawe, incamake y'ikibazo, n'inyandiko wageneye uwo mwavoka bimugeraho mu buryo butaziguye.\n• Abafatanyabikorwa mu by'ikoranabuhanga n'ububiko bwo mu bicu:\n  - Ububiko bw'amakuru n'imyirondoro: Supabase / Amazon Web Services (AWS).\n  - Ububiko bufunze bw'inyandiko (Vault): Oracle Cloud Infrastructure (OCI) hamwe n'uburyo bwo gucunga imfunguzo za KMS.\n  - Amashusho yo kugisha inama mu buryo bw'ako kanya: LiveKit Cloud ikoresha uburyo bwa WebRTC bufite umutekano ukomeye.\n  - Kohereza ubutumwa: Brevo ikoreshwa mu kohereza imeri na SMS zibutsa gahunda cyangwa zitanga imibare y'umutekano (OTP).\n  - Kubika amakuru akenerwa vuba: Upstash Redis.\n  - Kumenyekanisha no kwishyura amafaranga: AzamPay ifasha mu kwakira no kwishyura amafaranga ya Mobile Money.\n• Urugaga rw'Abavoka mu Rwanda: Igihe bikenewe mu gusuzuma niba umwavoka yemewe cyangwa mu gukurikirana imyitwarire ye mu mwuga.\n• Inkiko n'Inzego z'Ubutabera: Igihe gusa bitetswe n'icyemezo cy'urukiko cyangwa itegeko ryatanzwe n'inzego z'ubutabera zibifitiye ububasha mu Rwanda."
+          },
+          {
+            "title": "8. Ibanga ry'Umwuga w'Ubuvoka no Kwizerana",
+            "text": "Ibanga ry'umwuga w'ubuvoka (Professional Secrecy): Mu mategeko y'u Rwanda no mu mahame agenga Urugaga rw'Abavoka, amakuru n'inyandiko uhereza umwavoka mu gihe umugisha inama bigengwa n'ibanga rikomeye ry'umwuga (secret professionnel). Umwavoka ugishije inama afite inshingano ikomeye yo kutamena ibanga ku byo wamubwiye byose.\n\nIngamba z'umutekano ku rubuga: MyJudicial yubatse mu buryo bwubahiriza iri banga ry'umwuga. Inyandiko zishyirwa mu bubiko bw'ibanga (Vault) zifungwa n'ingufuri ya AES-256-GCM ku buryo n'abakozi ba MyJudicial ubwabo badashobora kuzisoma cyangwa kureba ubutumwa ugirana n'umwavoka, keretse gusa igihe habayeho ikibazo cy'ikoranabuhanga gikenera gukemurwa kandi bikagenzurwa n'amategeko, cyangwa hateganyijwe n'icyemezo cy'urukiko."
+          },
+          {
+            "title": "9. Imikoreshereze ya AI n'Umutekano wayo",
+            "text": "MyJudicial ikoresha ikoranabuhanga rya AI (myjudicial-ai-service) mu gufasha abaturage gusobanukirwa ibyiciro by'ibibazo byabo:\n\n• Guhindura ijwi mu nyandiko (Whisper): Iyo ufashe amajwi usobanura ikibazo cyawe, porogaramu ya Whisper ihindura iryo jwi mu magambo mu kanya gato. Iryo jwi ntiriguma ku rubuga nyuma yo kwandikwa.\n• Gutahura urwego rw'amategeko: Porogaramu yacu isesengura amagambo (Ollama Qwen2.5 cyangwa cloud yizewe) isuzuma ikibazo cyawe kugira ngo imenye niba kireba amategeko y'ubutaka, umuryango, ubucuruzi, cyangwa ibindi, ndetse ikerekana niba cyihutirwa.\n• Gushakisha umwavoka uhuye n'ikibazo: Amagambo asobanura ikibazo ahindurwamo imibare y'ikoranabuhanga (embeddings) ifasha kubona umwavoka ufite ubunararibonye mu bibazo nk'ibyo.\n• NTA MAKURU AKORESHWA MU KWIGISHA AI: Amakuru y'ibibazo byawe, inyandiko ushyiraho, amajwi wafashe, n'ibiganiro ugirana n'abavoka NTIBYIGISHWA cyangwa ngo bikoreshwe mu kunoza porogaramu za AI z'abandi.\n• Ubufasha bwo kuyobora gusa: Ibyo AI yerekana ni ibitekerezo byo kukuyobora ku mwunganizi ukwiye. AI ntabwo itanga inama z'amategeko zemewe kandi ntishobora gusimbura umwavoka wemewe n'amategeko."
+          },
+          {
+            "title": "10. Imyanzuro Yikora no Guhitamo Abavoka ku Urubuga",
+            "text": "NTA MYANZURO Y'AMATEGEKO IFATWA N'IKORANABUHANGA MU BURYO BWIKORA: MyJudicial ntabwo ifata imyanzuro yikora ifite ingaruka z'amategeko ku mukoresha (nk'urugero gufunga konti mu buryo bwikora cyangwa kumwima serivisi bitanyuze mu muntu).\n\nUburyo bwo gutoranya no gushyira ku murongo abavoka: Iyo ushakishije abavoka, urubuga rukoresha uburyo busobanutse bw'imibare mu kubashyira ku murongo ukurikije:\n\n1. Guhura kw'ikibazo n'ubumenyi bw'umwavoka (40%): Uko ikibazo cyawe gihuye n'ubumenyi umwavoka afite;\n2. Amanota yahawe n'abandi bakiriya (25%): Amanota umwavoka yahawe n'abamugishije inama mbere;\n3. Guhuza n'ingengo y'imari (15%): Uko ibiciro by'umwavoka bihuye n'amafaranga wifuza gukoresha;\n4. Umubare w'abatanze amanota (10%): Umubare w'abakiriya bamaze kumugisha inama bakamuha amanota;\n5. Imyaka y'ubunararibonye (5%): Igihe amaze akora umwuga w'ubuvoka mu Rugaga;\n6. Ishami ry'amategeko akoramo cyane (5%): Niba amategeko y'ikibazo ariyo asanzwe yibandaho cyane.\n\nUburenganzira bwawe bwo guhitamo: Ubu buryo bukoreshwa gusa mu kugufasha kubona abavoka ku murongo. Ufite uburenganzira bwuzuye bwo guhitamo umwavoka uwo ari we wese ushaka kuri uru rubuga."
+          },
+          {
+            "title": "11. Amakuru y'Aho Uherereye n'Ikarita",
+            "text": "Gushaka abavoka bakwegereye: Kugira ngo ubashe kubona abavoka bafite ibiro hafi y'aho uherereye cyangwa hafi y'urukiko rw'akarere kawe, MyJudicial ifite ikarita ikwereka aho bari. Porogaramu ukoresha igusaba uruhushya gusa igihe ukanze ahanditse gushaka abari hafi yawe.\n\nAho urubuga rufata igihe utatanze uruhushya: Iyo wanze gutanga uruhushya cyangwa telefoni yawe itabifite, ikarita ifata i Kigali rwagati (Akarere ka Nyarugenge: -1.9441, 30.0619).\n\nNta gukurikiranwa bihoraho: Amakuru y'aho uherereye akoreshwa mu gihe ushakisha gusa hakoreshejwe uburyo bwa PostGIS ST_DWithin bubara intera iri hagati yawe n'ibiro by'umwavoka. Ntabwo duhora tugukurikirana aho ugiye kandi ayo makuru ntabikwa muri konti yawe."
+          },
+          {
+            "title": "12. Porogaramu Ntoya Zifashishwa ku Urubuga (Cookies)",
+            "text": "Cookies z'ingenzi n'iz'urubuga: Dukoresha cookies z'ingenzi zifasha kwinjira mu buryo bwizewe no kurinda umutekano wa konti yawe (NextAuth, CSRF tokens, na Supabase auth), no gufata mu mutwe ururimi wahisemo (Icyongereza, Igifaransa, cyangwa Ikinyarwanda) hamwe n'uburyo urubuga rugaragaramo (umucyo cyangwa umwijima).\n\nNta cookies zo kwamamaza z'abandi zikoreshwa: Ntabwo dukoresha cookies z'izindi kompanyi zo gukurikirana ibyo ukora ku zindi mbuga cyangwa kwamamaza.\n\nPolitiki yihariye y'Amakuru ya Cookies: Kugira ngo umenye urutonde rwuzuye rwa cookies zikoreshwa, igihe zimaraho, n'uko wazihagarika, wasura Politiki yacu yerekeye Cookies kuri /cookies."
+          },
+          {
+            "title": "13. Igihe Amakuru Abikwa n'Uburyo Agenzurwa",
+            "text": "Igihe cyo kubika amakuru mu mucyo: Tubika amakuru yawe gusa mu gihe gikenewe kugira ngo dusohoze ibyo yafashwe gukora no kubahiriza amategeko y'u Rwanda:\n\n• Konti zigikora: Amakuru yawe y'umwirondoro aguma kuri konti yawe mu gihe cyose igikora kugeza igihe usabye ko ifungwa cyangwa uyisibye ubwawe.\n• Inyandiko z'imari n'ibaruramari: Inyemezabwishyu z'ubujyanama, inyandiko z'amafaranga yanyuze muri escrow, n'ibindi byerekeye amafaranga bibikwa imyaka cumi (10) hakurikijwe amategeko y'ubucuruzi n'imisoro mu Rwanda (RRA) no gukumira iyezandonke.\n• Inyandiko zo mu bubiko bw'ibanga (Vault): Inyandiko z'imanza washize mu bubiko bwite zigumamo kugeza igihe uzisibiye ubwawe cyangwa ugafunga konti yawe.\n• Raporo z'umutekano n'ibikorwa byakozwe: Raporo z'umutekano (AuditLog) zibikwa kugira ngo zifashishwe mu gucunga umutekano no gukumira ibitero by'ikoranabuhanga n'uburiganya.\n• Gahunda y'Igenzura: Dukurikije amabwiriza y'Ibiro bishinzwe Kurinda Amakuru (DPO Rwanda), MyJudicial irimo gushyiraho uburyo bwikora bwo gusiba amakuru y'igihe gito igihe cyateganyijwe n'amategeko kirangiye."
+          },
+          {
+            "title": "14. Ingamba z'Umutekano mu By'Ikoranabuhanga no mu Mikorere",
+            "text": "Twashyizeho ingamba zikomeye z'umutekano w'ikoranabuhanga kugira ngo amakuru yawe bwite atazimira, atakoreshwa cyangwa ngo aboneke ku batabifitiye uburenganzira:\n\n• Gufunga amakuru mu gihe ari mu nzira (TLS 1.3): Ibyohererezwa byose hagati ya telefone cyangwa mudasobwa yawe na seriveri zacu bifunze n'ingufuri ya HTTPS/TLS 1.3.\n• Gufunga inyandiko zo mu bubiko (AES-256-GCM): Inyandiko zose zishyirwa mu bubiko bwa OCI zifungwa n'ingufuri ikomeye ya AES-256-GCM hakoreshejwe imfunguzo zicungwa na OCI Key Management Service (KMS).\n• Kurinda ijambobanga: Amagambobanga afungwa n'imibare y'ikoranabuhanga ya Argon2/bcrypt; nta mukozi n'umwe ushobora kubona ijambobanga ryawe.\n• Kugenzura uburenganzira bw'abinjira (RBAC): Urubuga rwashyizweho mu buryo butandukanya Umuturage, Impuguke, n'Umuyobozi, ku buryo nta wureba amakuru atamureba.\n• Kubika raporo z'ibyabaye byose (AuditLog): Ibikorwa byose by'ingenzi (kwinjira, kwemeza ibyangombwa by'umwavoka, kureba inyandiko, gutanga amafaranga) byandikwa muri raporo z'umutekano zigaragaza igihe byakorewe n'aho byakorewe."
+          },
+          {
+            "title": "15. Kohereza Amakuru Hanze y'u Rwanda (Ingingo ya 40-42)",
+            "text": "Aho seriveri ziri: Kugira ngo urubuga rurusheho kugira umutekano wizewe, ubushobozi bwo kudahagarara, n'ikoranabuhanga rigezweho, MyJudicial ikoresha amasosiyete akomeye ku rwego rw'isi afite seriveri ziherereye hanze y'u Rwanda:\n\n• Ububiko bw'amakuru n'imyirondoro: Supabase / Amazon Web Services (AWS) ziri mu Muryango w'Ubumwe bw'Uburayi (EU) no muri Leta Zunze Ubumwe za Amerika (USA);\n• Ububiko bw'inyandiko zifunze (Vault): Oracle Cloud Infrastructure (OCI) iri muri USA no muri EU;\n• Amashusho yo kugisha inama: LiveKit Cloud ifite seriveri ku isi yose;\n• Kohereza imeri na SMS: Brevo ifite seriveri mu Muryango w'Ubumwe bw'Uburayi (EU);\n• Ububiko bwihuse: Upstash Redis iri muri EU no muri USA.\n\nKubahiriza Itegeko ry'u Rwanda: Dukurikije Ingingo ya 40, 41, n'iya 42 z'Itegeko nº 058/2021, kohereza amakuru hanze y'u Rwanda bikorwa hakurikijwe amasezerano akomeye yo kurinda amakuru (Data Processing Agreements), amakuru akaba afunze mu buryo bw'ikoranabuhanga (encryption), kandi bikaba ari ngombwa kugira ngo dusohoze amasezerano ya serivisi dufitanye nawe (Ingingo ya 42)."
+          },
+          {
+            "title": "16. Uburenganzira Bwawe ku Makuru Bwite (Itegeko nº 058/2021)",
+            "text": "Nk'uko biteganywa n'Itegeko ry'u Rwanda nº 058/2021, ufite uburenganzira bukurikira ku makuru yawe bwite:\n\n• Uburenganzira bwo kumenyeshwa (Ingingo ya 15 na 16): Kumenya mu buryo busobanutse uko amakuru yawe akusanywa n'uko akoreshwa.\n• Uburenganzira bwo kugera ku makuru (Ingingo ya 16): Gusaba kumenya amakuru tugufiteho no guhabwa kopi yayo yanditse neza.\n• Uburenganzira bwo gukosora amakuru (Ingingo ya 18): Gusaba ko amakuru atari yo cyangwa aduzuye akosorwa ako kanya. Ushobora no guhindura amakuru amwe n'amwe mu mwirondoro wawe kuri konti.\n• Uburenganzira bwo gusiba amakuru (Ingingo ya 19): Gusaba ko amakuru yawe asibwa burundu mu gihe amasezerano yarangiye cyangwa waretse gukoresha serivisi, keretse igihe amategeko y'imisoro n'ubucuruzi ategeka ko agomba kubikwa.\n• Uburenganzira bwo guhagarika by'agateganyo ikoreshwa ry'amakuru (Ingingo ya 20): Gusaba ko amakuru yawe aba ahagaritswe gukoreshwa mu gihe hari ibikigenzurwa.\n• Uburenganzira bwo kwimukana amakuru (Ingingo ya 21): Guhabwa amakuru yawe mu buryo bworoshye bwo kuyashyira ku wundi mutanga-serivisi.\n• Uburenganzira bwo kwanga ko amakuru akoreshwa (Ingingo ya 22): Kwanga ko amakuru yawe akoreshwa mu bintu bidakenewe.\n• Uburenganzira bwo kwisubiraho ku burenganzira watanze (Ingingo ya 46): Guhagarika uburenganzira wari waratanze igihe icyo ari cyo cyose.\n\nUko wakoresha uburenganzira bwawe: Ohereza ubusabe bwawe mu nyandiko ku Mukozi ushinzwe Kurinda Amakuru (DPO) kuri imeri {{dpoEmail}}. Kugira ngo turinde umutekano wawe, dushobora kugusaba kwerekana ibikuranga. Tuzakira ubusabe bwawe kandi tuguhe igisubizo mu gihe kitarenze iminsi mirongo itatu (30) iteganywa n'Itegeko nº 058/2021."
+          },
+          {
+            "title": "17. Kurinda Amakuru y'Abana (Abari Munsi y'Imyaka 18)",
+            "text": "Imyaka 18 yo gukoresha urubuga: Urubuga rwa MyJudicial rwateganyirijwe gusa abantu bagejeje ku myaka cumi n'umunani (18) y'amavuko bafite ubushobozi bw'amategeko bwo kugira amasezerano bakurikije amategeko y'u Rwanda.\n\nAbana bakeneye serivisi z'amategeko: Dukurikije Ingingo ya 9 y'Itegeko nº 058/2021, amakuru y'umwana ntashobora gutunganywa hatanzwe uburenganzira n'umubyeyi cyangwa umurezi we wemewe n'amategeko. Iyo hakenewe ubufasha bw'amategeko ku mwana (nk'urugero mu bibazo by'umuryango cyangwa izungura), iyo serivisi igomba gutangizwa kandi igacungwa n'umubyeyi cyangwa umwishingizi we. Iyo dusanze hari umwana wiyandikishije atabiherewe uburenganzira n'umubyeyi, konti ye ihita ifungwa n'amakuru ye agasibwa."
+          },
+          {
+            "title": "18. Ubutumwa bwa Serivisi n'Ubutumwa bwo Kumenyekanisha",
+            "text": "Ubutumwa bwa serivisi bwa ngombwa: Tukwoherereza ubutumwa bwa SMS na imeri bukenewe mu gutanga serivisi, nk'ubutumwa bwibutsa gahunda yo guhura n'umwavoka, imibare y'umutekano (OTP), inyemezabwishyu, n'ubutumwa bw'umutekano wa konti. Ubu butumwa ni ngombwa cyane ku mutekano no ku mikorere ya konti yawe, ku buryo utabuhagarika mu gihe ugikoresha urubuga.\n\nUbutumwa bwo kumenyekanisha ibikorwa bishya: Iyo dushaka kukwoherereza inyandiko zigisha amategeko cyangwa amakuru y'ibikorwa bishya, tubanza kugusaba uburenganzira. Buri butumwa bufite ahanditse gukuramo izina ryawe (unsubscribe) kugira ngo uhagarike kububona igihe cyose ubyifuje."
+          },
+          {
+            "title": "19. Izindi Mbuga n'Amasosiyete Dukorana",
+            "text": "Imbuga z'abandi ziriho links: Urubuga rwa MyJudicial rushobora gushyiraho links zikwerekeza ku zindi mbuga z'abafatanyabikorwa, nk'Urugaga rw'Abavoka mu Rwanda (rwanda-bar.org), imbuga z'inkiko z'u Rwanda, cyangwa imbuga z'ibigo by'ubwishyu.\n\nKwigenga kw'izo mbuga: MyJudicial nta bubasha ifite ku mikorere y'izo mbuga z'abandi cyangwa uburyo zicungamo amakuru yazo. Iyo ukanze kuri izo links uba ugiye ku yindi mbuga, bityo turakugira inama yo gusoma amabwiriza yazo y'ibanga."
+          },
+          {
+            "title": "20. Gukemura Ibibazo by'Umutekano no Kumenyesha Abagize Ikibazo",
+            "text": "Guhangana n'ibitero by'umutekano: MyJudicial ifite amabwiriza asobanutse agenga uburyo bwo gutahura no gukemura vuba ikibazo icyo ari cyo cyose cy'umutekano w'amakuru.\n\nKumenyesha inzego z'ubutabera mu masaha 48: Hakurikijwe Ingingo ya 43 y'Itegeko nº 058/2021, igihe habayeho ikibazo cy'itakara cyangwa ivumburwa ry'amakuru bwite, MyJudicial izabimenyesha Ikigo cy'Igihugu gishinzwe Umutekano w'Ikoranabuhanga / Ibiro bishinzwe Kurinda Amakuru (NCSA DPO) mu masaha adarenga mirongo ine n'umunani (48) bimenyekanye.\n\nKumenyesha abaturage bagize ikibazo: Hakurikijwe Ingingo ya 44 y'iryo tegeko, niba icyo kibazo gishobora guteza inkurikizi mbi ku burenganzira bwawe, tuzahita tukubimenyesha vuba bishoboka tukanakwereka ingamba zafashwe zo kugikemura n'icyo wakora ngo wikingire."
+          },
+          {
+            "title": "21. Kugeza Ikirego mu Nzego Zibifitiye Ububasha (NCSA / DPO Rwanda)",
+            "text": "Kubanza kutumenyesha: Icyo ari cyo cyose utishimiye ku micungire y'amakuru yawe, turakugira inama yo kubanza kutwandikira kuri imeri y'Ushinzwe Kurinda Amakuru (DPO) kuri {{dpoEmail}}.\n\nUburenganzira bwo gutanga ikirego mu buyobozi: Ufite uburenganzira buteganywa n'Itegeko nº 058/2021 bwo kugeza ikirego mu Kigo cy'Igihugu gishinzwe gukurikirana iby'ikoranabuhanga no kurinda amakuru bwite mu Rwanda:\n\nNational Cyber Security Authority (NCSA)\nData Protection Office (DPO)\nUrubuga rwa interineti: https://dpo.gov.rw\nImeri: dpo@ncsa.gov.rw\nAho giherereye: Kigali, Repubulika y'u Rwanda"
+          },
+          {
+            "title": "22. Ivugururwa ry'Iyi Politiki n'Ibyahindutse",
+            "text": "Ivugururwa rihoraho: Dushobora kuvugurura iyi Politiki y'Ibanga igihe hari ibyahindutse mu ikoranabuhanga, mu mikorere y'urubuga, cyangwa mu mabwiriza atangwa n'Ibiro bishinzwe Kurinda Amakuru.\n\nItariki yo kuvugurura: Itariki igaragara hejuru ku rupapuro yerekana igihe aya mabwiriza aherukira kuvugururwa no gutangira gukurikizwa.\n\nKumenyesha impinduka zikomeye: Iyo habayeho impinduka zikomeye zireba uburenganzira bwawe, tuzakubimenyesha binyuze mu butumwa bwo ku rubuga cyangwa kuri imeri yawe mbere y'uko izo mpinduka zitangira gukurikizwa. Inyandiko z'ubushize zibikwa mu buryo bw'ikoranabuhanga kandi ushobora kuzisaba ukazihabwa."
+          },
+          {
+            "title": "23. Tuvugishe n'Umukozi Ushinzwe Kurinda Amakuru (DPO)",
+            "text": "Ku bibazo byose byerekeye iyi Politiki y'Ibanga cyangwa gukoresha uburenganzira bwawe buteganywa n'Itegeko nº 058/2021, watwandikira ukoresheje imyirondoro ikurikira:\n\n• Ushinzwe kugenzura amakuru: MyJudicial Ltd\n• Imeri y'Ushinzwe Kurinda Amakuru (DPO): {{dpoEmail}}\n• Imeri y'Ubufasha bwa tekiniki: support@myjudicial.com\n• Telefoni ngendanwa: {{hotlinePhone}}\n• Ibiro biherereye: {{officeAddress}}\n• Agasanduku k'iposita: {{poBox}}\n• Amasaha yo gukora: {{workingHours}}"
           }
         ]
-      },
-      "meta": {
-        "title": "Privacy Policy | MyJudicial",
-        "description": "Learn how MyJudicial collects, uses, and protects your personal information."
       }
     },
     "terms": {
       "hero": {
         "badge": "Amategeko Ngenderwaho",
         "title": "Amabwiriza Ngenderwaho yo Gukoresha Urubuga",
-        "updated": "Iheruka kuvugururwa: Werurwe 2026"
+        "updated": "Iheruka kuvugururwa: 15 Nyakanga 2026",
+        "updatedPrefix": "Byahinduwe nyuma:",
+        "toc": {
+          "title": "Kuri uru rupapuro",
+          "print": "Capa"
+        }
       },
       "content": {
+        "cardTitle": "Amabwiriza y'Isoko n'Iyobora Impaka",
+        "cardDesc": "Ibibazo birebana n'amasezerano y'ubwavoka, eskaro y'amafaranga cyangwa icamwa cy'urubuga, wandikire.",
         "intro": "Mu gukoresha urubuga rwa MyJudicial, wemera gukurikiza aya mabwiriza ngenderwaho agenga uburyo urubuga n'amahuriro by'amategeko bikoreshwa.",
         "sections": [
           {
-            "title": "1. Imiterere y'urubuga",
-            "text": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakeneye ubutabera n'abavoka bigenga bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ubwayo ntabwo ari ibiro by'abavoka."
+            "title": "1. Kwemera amabwiriza",
+            "text": "Mu gukoresha cyangwa kwinjira muri Serivisi, wemera kuyoborwa n'aya mabwiriza hamwe na Politiki y'Ibanga yacu. Niba utabyemera, ntukoreshe Serivisi."
           },
           {
-            "title": "2. Gufata gahunda no kwishyura",
-            "text": "Inama zose zifashwe zishyurwa binyuze mu buryo bwizewe (Escrow). Amafaranga ntabwo ahabwa umwavoka kugeza igihe inama irangiye neza."
+            "title": "2. Konti z'abakoresha",
+            "text": "Kugira ngo wigere ku bimwe mubikorwa bya Serivisi, ugomba gukora konti. Ushinzwe kurinda amakuru y'urufunguzo rwawe ndetse n'ibikorwa byose bikorerwa kuri konti yawe. Ugomba kuba ufite nibura imyaka 18 kugira ngo ukore konti."
           },
           {
-            "title": "3. Inshingano n'imyitwarire y'umwuga",
-            "text": "Abavoka bakora ku giti cyabo mu bwisanzure no kubahiriza amategeko n'amabwiriza agenga imyitwarire y'umwuga w'ubwavoka ashyirwaho n'Urugaga rw'Abavoka mu Rwanda."
+            "title": "3. Isoko n'Eskaro",
+            "text": "MyJudicial ni urubuga ruhuza abakiriya n'umwuga w'amategeko. Ntabwo dutanga inama z'amategeko twebwe ubwacu. Iyo ufashe gahunda, ubwishyu burindwa mu buryo bwizewe (escrow) kandi buhabwa umwavoka gusa nyuma yo kurangiza ubujyanama."
+          },
+          {
+            "title": "4. Imyitwarire iburira",
+            "text": "Serivisi zatanzwe « NKO ZIRI » kandi « MUKO ZIHARI ». Ntitwemera ikigamiro icyo ari cyo cyose, mu buryo bunaka cyangwa busa, harimo amasezerano asigurwa y'ubucuruzi, gukenera ikintu runaka cyangwa kutabangamira."
           }
         ]
       },
@@ -5903,34 +6427,6 @@
       "joinAsAdvocate": "Iyandikishe nk'Umwavoka"
     }
   },
-  "resourcesPage": {
-    "hero": {
-      "badge": "Ubumenyi mu Mategeko",
-      "title": "Inyandiko & Amakuru ku Mategeko",
-      "subtitle": "Sobanukirwa uburenganzira n'inshingano byawe hakurikijwe amategeko y'u Rwanda."
-    },
-    "comingSoon": {
-      "title": "Inyandiko ziracyatunganywa n'abavoka",
-      "desc": "Abavoka bacu b'umwuga bari gutegura inyandiko zifasha abaturage gusobanukirwa iby'ubutaka, kwandikisha ibigo muri RDB, amategeko y'umurimo n'ay'umuryango. Zizajya ahagaragara vuba !"
-    },
-    "categories": {
-      "title": "Amashami y'amategeko ari gutunganywa",
-      "family": "Amategeko y'Umuryango & Izungura",
-      "commercial": "Amategeko y'Ubucuruzi & Ibigo",
-      "property": "Amategeko y'Ubutaka & Umutungo",
-      "employment": "Amategeko y'Umurimo",
-      "immigration": "Abinjira n'Abasohoka & Viza",
-      "tax": "Imisoro ya RRA & Gasutamo"
-    },
-    "cta": {
-      "title": "Ukeneye inama z'amategeko kuri dosiye yawe ubu?",
-      "button": "Gisha inama umwavoka wemewe"
-    },
-    "meta": {
-      "title": "Legal Resources | MyJudicial",
-      "description": "Guides, articles, and resources to help you navigate the Rwandan legal system."
-    }
-  },
   "expertDashboard_consultation-join": {
     "failedToLoad": "Failed to load booking",
     "bookingNotFound": "Booking not found",
@@ -6188,65 +6684,234 @@
   },
   "careersPage": {
     "meta": {
-      "title": "Imyanya y'Akazi & Kwaka Akazi | MyJudicial",
-      "description": "Fatanya n'itsinda rigezweho ritezimbere ubutabera mu Rwanda. Menya imikorere, amakipe, no kohereza dosiye yawe."
+      "title": "Akazi | MyJudicial",
+      "description": "Menya amahirwe yo kubaka ikoranabuhanga ry'amategeko ryoroshye kandi riboneye mu Rwanda hamwe na MyJudicial."
     },
     "hero": {
       "badge": "Akazi muri MyJudicial",
-      "title": "Kubaka Ikoranabuhanga ry'Ubutabera mu Rwanda",
-      "subtitle": "Turi itsinda ryiyemeje gukoresha ikoranabuhanga, ubwenge bw'ubukorano (AI), n'amahame y'ubuvoka mu gufasha abaturage bose."
+      "title": "Kubaka ejo hazaza ha serivisi z'ubutabera zibereye bose",
+      "subtitle": "Fatanya n'ikipe y'abahanga ikora ku kwinjiza impinduka mu kubona serivisi z'amategeko mu Rwanda, binyuze mu ikoranabuhanga rihanitse, ibiciro bisobanutse, no kugenzura by'ukuri abavoka.",
+      "viewOpenings": "Reba imyanya y'akazi ihari",
+      "sendInterest": "Ohereza ubusabe rusange",
+      "learnAbout": "Menya byinshi kuri MyJudicial",
+      "hiringActive": "Turi gutanga akazi",
+      "hiringTalentPool": "Icyiciro cy'abasaba kigifunguye",
+      "hiringPaused": "Gutanga akazi byahagaze",
+      "hiringSubActive": "{count, plural, =1 {Umwanya 1 w'akazi uhari} other {Imyanya # y'akazi ihari}} mu buhanga, ibikoresho n'amategeko",
+      "hiringSubTalentPool": "Turacyakira ubusabe bw'abifuza kuzakora natwe mu bihe biri imbere",
+      "hiringSubPaused": "Kwakira abakozi bishyizwe ku ruhande; ubusabe rusange buracyakirwa",
+      "rolesAvailable": "{count, plural, =1 {Umwanya 1 Uhari} other {Imyanya # Ihari}}"
     },
-    "whyJoin": {
-      "badge": "Gukora muri MyJudicial",
-      "title": "Impamvu Wagakwiye Gukorana Natwe",
-      "subtitle": "Injira muri sosiyete nshya ifite icyerekezo i Kigali ifite n'uruhare runini mu iterambere ry'ubutabera muri Afurika y'Uburasirazuba.",
+    "whyMyJudicial": {
+      "badge": "Intego yacu",
+      "title": "Impamvu yo kubakana na MyJudicial",
+      "subtitle": "Kora ku ikoranabuhanga rikemura ikibazo gikomeye: kubona no kwishyura umuvoka wemewe nta gutinya cyangwa kuremerwa n'ibiciro bitazwi.",
+      "access": {
+        "title": "Ubutabera bugera kuri bose",
+        "desc": "Umuntu wese, n'iyo yaba ari hanze ya Kigali kandi nta muntu aziranye na we mu mategeko, ashobora gushakisha umuvoka, kureba igiciro cyo kuganira kigengwa neza, no gukoresha ururimi rwe."
+      },
+      "transparency": {
+        "title": "Ibisobanuro by'ibiciro biboneye",
+        "desc": "Igiciro cy'inama n'umuvoka kimenyekana mbere yo kwiyemeza. Amafaranga yishyuwe arindirwa muri sisitemu y'ubwishingizi (escrow) kugeza inama irangiye, cyangwa agasubizwa umukiriya."
+      },
+      "verification": {
+        "title": "Isuzuma ryimbitse ry'abavoka",
+        "desc": "Buri muvoka aca mu isuzuma rikomeye rigizwe n'ibyiciro byinshi, rihuzwa n'Urutonde Rwemewe rw'Urugaga rw'Abavoka mu Rwanda (RBA) hamwe n'indangamuntu y'igihugu."
+      },
       "impact": {
-        "title": "Uruhare Rutaziguye ku Butabera",
-        "desc": "Buri kintu ukora kigira uruhare mu gufasha abaturage, imiryango, n'ubucuruzi gukemura ibibazo by'amategeko n'abavoka bemejwe."
-      },
-      "tech": {
-        "title": "Ikoranabuhanga Ryizewe",
-        "desc": "Dukoresha Next.js, TypeScript, PostgreSQL, Prisma, AI igezweho, ndetse n'ubwishyu bwa Mobile Money burinzwe."
-      },
-      "culture": {
-        "title": "Ubwigenge & Gukorera mu Mucyo",
-        "desc": "Duha agaciro kwigira, kwihuta mu bikorwa, kuvugisha ukuri, no kubahiriza amategeko n'umutekano w'amakuru."
+        "title": "Impinduka ifatika mu baturage",
+        "desc": "Umurimo wacu ugaragarira mu kurengera abaturage n'ubucuruzi binyuze mu guhabwa inama z'amategeko zizewe, mu cyubahiro no ku biciro biboneye."
       }
     },
-    "departments": {
-      "badge": "Amakipe Yacu",
-      "title": "Inzego Z'Impano Dushaka",
-      "subtitle": "Mu gihe turimo kwagura ibikorwa byacu i Kigali, dushaka abahanga mu nzego enye z'ingenzi.",
-      "engineering": {
-        "title": "Abahanga mu Ikoranabuhanga & AI",
-        "desc": "Abubatsi ba porogaramu za mudasobwa na telefoni, umutekano w'ikoranabuhanga, n'ubushakashatsi bwa AI."
+    "whatWeWorkOn": {
+      "badge": "Ibicuruzwa n'Ikoranabuhanga",
+      "title": "Ibyo twibandaho mu kazi",
+      "subtitle": "Inkingi zikomeye z'ikoranabuhanga n'imikorere biha ubutabera imbaraga zo kugera kuri buri wese.",
+      "marketplace": {
+        "title": "Isoko n'Ishakiro ry'Abavoka",
+        "desc": "Gushakisha ku ikarita no mu magambo, ukoresheje amashami y'amategeko, ibiciro byashyizweho, amanota y'abakiriya, n'amasaha yo kuboneka."
       },
-      "legalCompliance": {
-        "title": "Ubushakashatsi bw'Amategeko & Urugaga",
-        "desc": "Abanyamategeko b'u Rwanda, abagenzura iyubahirizwa ry'amategeko n'amahame y'ubuvoka, n'imikoranire n'inzego."
+      "payments": {
+        "title": "Kwishyura no Kurinda Amafaranga",
+        "desc": "Kwishyura byihuse ukoresheje Mobile Money cyangwa amakarita binyuze mu bigo byemewe, ububiko bwa escrow burinda amafaranga, no gusubiza amafaranga mu buryo bwizewe."
       },
-      "operations": {
-        "title": "Imicungire y'Ibikorwa & Iterambere",
-        "desc": "Abahuza b'urusobe rw'abavoka, abasesengura iby'ubwishyu n'ubwirinzi, n'abayobora iyakirwa ry'abakiriya."
+      "ai": {
+        "title": "Gusesengura Ikibazo hifashishijwe AI",
+        "desc": "Umuntu asobanura ikibazo cye mu magambo ye, AI ikacyumva, ikagaragaza ishami ry'amategeko ribereye, uburemere bwacyo, n'abavoka babishoboye."
       },
-      "support": {
-        "title": "Ifashamugisha & Kwita ku Bakiriya",
-        "desc": "Abafasha abakiriya mu ndimi eshatu: Ikinyarwanda, Icyongereza, n'Igifaransa babafasha mu bwitonzi."
+      "video": {
+        "title": "Ibiganiro bya Video bifite Umutekano",
+        "desc": "Ibiganiro bya WebRTC byihuse kandi bidaheza, biboneka gusa hagati y'umukiriya n'umuvoka we nta gufata amajwi cyangwa amashusho kuri seriveri."
+      },
+      "verification": {
+        "title": "Igenzura ry'Ibyangombwa n'Amategeko",
+        "desc": "Ibyangombwa n'impamyabumenyi bibikwa mu buryo bwisumbuye (AES-256), bikagenzurwa byihariye, kandi buri cyemezo kigahamywa mu nyandiko zidakorwaho."
+      },
+      "localization": {
+        "title": "Urubuga mu Ndimi Ebyiri n'Ikinyarwanda",
+        "desc": "Urubuga rukora mu Kinyarwanda, Icyongereza, n'Igifaransa ku buryo bunoze kugira ngo ubutabera bwumvikane kuri bose."
       }
     },
-    "talentPool": {
-      "badge": "Kwakira Ubusabe Buhoraho",
-      "title": "Gusaba Akazi no Kwiyandikisha mu Bategereje",
-      "subtitle": "Niyo nta myanya yihariye yaba itangajwe, duhora dusuzuma ubusabe bw'abantu b'abahanga bifuza gufatanya natwe muri uyu mushinga.",
-      "instruction": "Ohereza umwirondoro wawe (CV), imirimo wakoze (portfolio/GitHub), n'ibaruwa igusobanura kuri:",
-      "email": "careers@myjudicial.com",
-      "locationNotice": "Imyanya ikorera ku biro byacu i Kigali, hamwe n'uburyo bwo gukorera mu rugo ku mirimo imwe n'imwe y'ikoranabuhanga."
+    "benefits": {
+      "badge": "Ibyiza n'Imibereho y'Akazi",
+      "title": "Byateguriwe Abahanga Bashaka Gutanga Umusanzu",
+      "subtitle": "Twemera ko abakozi b'abahanga bakwiye imishahara myiza, uburenganzira bwo gutekereza, n'ibikoresho byiza byo gukora akazi k'indashyikirwa.",
+      "compensation": {
+        "title": "Umushahara Uhagaze Neza",
+        "desc": "Imishahara igereranije n'urwego rwo hejuru mu karere, hamwe n'agahimbazamushyi k'imikorere n'imigabane muri sosiyete."
+      },
+      "health": {
+        "title": "Ubwishingizi bw'Ubuzima Bwuzuye",
+        "desc": "Ubwishingizi bwo ku rwego rwo hejuru bwo kwivuza no kwisuzumisha amenyo, bukurikirana wowe n'umuryango wawe mu mavuriro akomeye mu Rwanda."
+      },
+      "hardware": {
+        "title": "Ibikoresho by'Akazi Byiza",
+        "desc": "Uhitamo hagati ya Apple MacBook Pro nshya cyangwa Lenovo ThinkPad, amashusho ya 4K, n'intebe n'ameza biboneye."
+      },
+      "office": {
+        "title": "Ibiro i Kigali CBD no Gukorera Aho Ushaka",
+        "desc": "Ibiro bigezweho muri Deco Center mu mujyi wa Kigali rwagati, hamwe n'amahitamo yo gukorera mu rugo cyangwa ku biro mu buryo bworoheje."
+      },
+      "growth": {
+        "title": "Amasomo no Kwishyurirwa Ibirango by'Umwuga",
+        "desc": "Amafaranga yagenewe kongera ubumenyi, inama mpuzamahanga, no kwishyurirwa imisanzu y'umwuga w'abavoka n'abubatsi b'ikoranabuhanga."
+      },
+      "impact": {
+        "title": "Impinduka Ikomeye mu Butabera",
+        "desc": "Gufasha ibihumbi by'abaturage n'amasosiyete gukemura ibibazo by'amategeko mu mutekano, icyubahiro n'ubutabera buboneye."
+      }
+    },
+    "howWeWork": {
+      "badge": "Amahame Tugenderaho",
+      "title": "Uburyo dukora akazi",
+      "subtitle": "Amahame y'ukuri tugenderaho mu gufata ibyemezo buri munsi.",
+      "p1": {
+        "title": "Umuturage uza mbere",
+        "desc": "Impinduka ifite akamaro niba ikuraho ikibazo cyangwa urujijo ku muntu ushaka ubufasha mu mategeko. Niba itabikora, ntikwiye gukoreshwa."
+      },
+      "p2": {
+        "title": "Kubaka mu mutekano no kurinda ibanga",
+        "desc": "Ibibazo by'amategeko birakomeye. Twita cyane ku mutekano no kurinda amakuru y'abantu, nk'uko bisobanurwa mu mategeko agenga ububiko bwacu."
+      },
+      "p3": {
+        "title": "Icyizere kishingiye ku kuri",
+        "desc": "Dukora isuzuma rikomeye kandi ntitwizeza ibitari byo. Twahitamo kuba inyangamugayo ku byo urubuga rukora aho kurata ibyo rudashoboye."
+      },
+      "p4": {
+        "title": "Gukemura ibibazo bifatika",
+        "desc": "Dukunda ibikora neza kuri telefone isanzwe no ku murongo w'itumanaho usanzwe mu Rwanda, aho gukora gusa ibyerekana ubwiza bwa demo."
+      }
+    },
+    "openings": {
+      "badge": "Amahirwe y'Akazi",
+      "title": "Imyanya y'akazi ihari",
+      "subtitle": "Reba imyanya y'akazi ikenewe cyangwa wohereze ubusabe rusange.",
+      "filterAll": "Imyanya yose",
+      "filterDepartment": "Gutoranya hakurikijwe ishami",
+      "emptyFiltered": "Nta mwanya w'akazi uhari muri iri shami. Reba andi mashami cyangwa wohereze ubusabe rusange.",
+      "applyDirect": "Saba uyu mwanya",
+      "externalPortal": "Fungura urubuga rw'ubusabe",
+      "responsibilities": "Ibyo uzashinzwe",
+      "requirements": "Ibyo ugomba kuba wujuje",
+      "niceToHave": "Ibyongera amahirwe",
+      "applicationInstructions": "Uko usaba akazi",
+      "empty": {
+        "title": "Nta myanya y'akazi ihari muri iki gihe",
+        "subtitle": "Nta mwanya uratangazwa ubu. Niba wifuza kuzakorana natwe, ushobora kutwoherereza ubusabe rusange kugira ngo tuzagufatireho umwanzuro.",
+        "cta": "Ohereza ubusabe rusange"
+      },
+      "searchPlaceholder": "Shakisha umwanya ukurikije izina cyangwa ubumenyi...",
+      "clearSearch": "Gusiba ibyashakishijwe",
+      "resetFilters": "Gusubiramo akayunguruzo",
+      "noSearchResults": "Nta mwanya uhuye n'ibyo ushakishije. Gerageza irindi jambo cyangwa usubiremo akayunguruzo.",
+      "viewDetails": "Reba ibisobanuro",
+      "hideDetails": "Hisha ibisobanuro",
+      "copyRoleLink": "Koporora ihuza ry'uyu mwanya",
+      "roleLinkCopied": "Ihuza ryakoporowe neza!"
+    },
+    "expressionModal": {
+      "title": "Saba uyu mwanya",
+      "openTitle": "Ubusabe Rusange",
+      "subtitle": "Ohereza imyirondoro yawe ku ikipe yacu ishinzwe abakozi",
+      "roleSubtitle": "Ubusabe ku mwanya wa {roleTitle}",
+      "desc": "Uzuza imyirondoro yawe hano hasi. Ikipe yacu isuzuma buri busabe mu masaha 48 y'akazi.",
+      "fullName": "Amazina yose",
+      "fullNamePlaceholder": "urugero: Marie Uwase",
+      "email": "Aderesi ya Email",
+      "emailPlaceholder": "marie@example.com",
+      "phone": "Nimero ya Telefone",
+      "phonePlaceholder": "+250 788 123 456",
+      "linkedin": "Aderesi ya LinkedIn",
+      "linkedinPlaceholder": "https://linkedin.com/in/izina",
+      "portfolio": "Portfolio / GitHub URL",
+      "portfolioPlaceholder": "https://github.com/izina",
+      "resumeLink": "Aderesi ya CV yawe (Google Drive, Dropbox, n'ibindi)",
+      "resumeLinkPlaceholder": "https://drive.google.com/file/...",
+      "resumeLinkHelp": "Reba niba link ifunguye ku muntu wese uyifite",
+      "coverNote": "Ibaruwa ngufi / Kuki wifuza MyJudicial?",
+      "coverNotePlaceholder": "Tubwire ibigushimisha kuri uyu mwanya n'ibikorwa wakoze byerekana ubuhanga bwawe...",
+      "submit": "Ohereza Ubusabe",
+      "submitting": "Kwohereza...",
+      "successTitle": "Ubusabe Bwakiriwe neza!",
+      "successMessage": "Murakoze gusaba akazi muri MyJudicial. Ikipe yacu yakiriye ubusabe bwawe kandi izakwandikira kuri email.",
+      "validationError": "Nyamuneka uzuza imyanya yose yashyizweho akamenyetso ka (*).",
+      "orEmailDirect": "Cyangwa twandikire kuri email:",
+      "emailRecipientLabel": "Ohereza ubusabe kuri",
+      "openEmailClient": "Fungura Porogaramu ya Email",
+      "copyEmail": "Koporora Email",
+      "copied": "Email yakoporowe neza!",
+      "copyFailed": "Ntabwo byashobotse gukoporora. Andika email iri hejuru.",
+      "close": "Funga",
+      "guidanceTitle": "Amabwiriza yo gusaba akazi",
+      "guide1": "Tanga amazina yawe y'ukuri n'uburyo bwo kukugeraho",
+      "guide2": "Shyiraho link igaragaraho CV yawe ifite imiterere ya PDF",
+      "guide3": "Tanga link ya LinkedIn cyangwa aho ukorera imirimo (GitHub/Portfolio)",
+      "guide4": "Sobanura impamvu ubutabera bworoshye mu Rwanda bufite agaciro kuri wowe",
+      "guide5": "Garagaza ibikorwa cyangwa gahunda z'ikoranabuhanga wubatse cyangwa wayoboye",
+      "emailSubject": "Ubusabe bw'Akazi - MyJudicial",
+      "emailSubjectRole": "Ubusabe bw'Akazi - {roleTitle} muri MyJudicial",
+      "emailGreeting": "Mwaramutse ikipe y'abakozi ba MyJudicial,",
+      "emailIntro": "Nabandikiye mbamenyesha ko nifuza kwinjira mu ikipe ya MyJudicial.",
+      "emailIntroRole": "Nabandikiye nsaba umwanya w'akazi wa {roleTitle} muri MyJudicial.",
+      "emailSignoff": "Mugire amahoro,",
+      "optionalBadge": "Bihitamo",
+      "resumeLabel": "CV / Umwirondoro",
+      "resumeMethodUpload": "Kwinjiza dosiye",
+      "resumeMethodLink": "Ihuza ryo kuri murandasi",
+      "resumeUploadPrompt": "Kanda hano cyangwa ukurure dosiye",
+      "resumeUploadHint": "PDF cyangwa DOCX (ntirenze 10MB)",
+      "resumeFileSelected": "CV yashyizweho",
+      "resumeRemoveFile": "Gukuraho dosiye",
+      "trustGuarantee": "Isuzuma ry'ibanga • Isubizo mu masaha 48",
+      "tipsToggleShow": "Reba inama zo gusaba akazi",
+      "tipsToggleHide": "Hisha inama",
+      "chooseEmailService": "Hitamo uburyo bwa email",
+      "emailWebGmail": "Gmail",
+      "emailWebOutlook": "Outlook / Hotmail",
+      "emailDefaultApp": "Porogaramu isanzwe ya email",
+      "emailInBrowser": "Fungura muri browser",
+      "emailDesktopApp": "Apple Mail, Outlook Desktop, n'izindi",
+      "submissionFailed": "Gusaba akazi ntibikunze. Ongera ugerageze cyangwa utwandikire kuri email."
+    },
+    "faqs": {
+      "badge": "Ibibazo Bikunze Kubazwa",
+      "title": "Ibibazo bikunze kubazwa",
+      "subtitle": "Ibyo wifuza kumenya byose ku bijyanye no gukora muri MyJudicial.",
+      "q1": "Ibiro bya MyJudicial biherereye he?",
+      "a1": "MyJudicial ifite ibiro bikuru mu mujyi wa Kigali, mu Rwanda, mu gace k'ubucuruzi n'imari.",
+      "q2": "Nshobora kwohereza ubusabe n'iyo nta mwanya w'akazi watangajwe?",
+      "a2": "Yego rwose. Ushobora kwohereza ubusabe rusange cyangwa kwandikira careers@myjudicial.com. Ikipe yacu isuzuma buri mwirondoro wakiriwe.",
+      "q3": "Ni iki ngomba gushyira mu busabe bwanjye?",
+      "a3": "Aderesi ya CV yawe, konti ya LinkedIn cyangwa GitHub, n'ibaruwa ngufi isobanura ibyo wifuza gukora muri MyJudicial.",
+      "q4": "Ni izihe ndimi MyJudicial ikoresha?",
+      "a4": "Urubuga rukoreshwa mu buryo bunoze mu Kinyarwanda, Icyongereza n'Igifaransa mu gushakisha no gutumiza inama zose z'abavoka."
     },
     "cta": {
-      "title": "Witeguye gufatanya natwe guhindura ubutabera?",
-      "subtitle": "Igaragaze cyangwa urebe uko urubuga rwacu rufasha abaturage n'abavoka muri iki gihe.",
-      "explorePlatform": "Reba Uburyo Bigenda",
-      "sendCv": "Ohereza Dosiye Yawe"
+      "title": "Witeguye kubaka ejo hazaza h'ubutabera?",
+      "subtitle": "Reba imyanya ihari, ohereza ubusabe rusange, cyangwa umenye byinshi ku ntego za sosiyete yacu.",
+      "sendInterest": "Ohereza Ubusabe Rusange",
+      "viewOpenings": "Reba imyanya ihari",
+      "learnAbout": "Menya byinshi kuri MyJudicial"
     }
   },
   "lawyerProfile": {
@@ -6258,6 +6923,217 @@
       "bookTitle": "Buka Ikiganiro na {name} | MyJudicial",
       "bookDescription": "Teganya ikiganiro cy'amategeko na {name}, inzobere mu {specialty} kuri MyJudicial. Ibiciro bisa, ikiganiro kuri video cyangwa mu muntu.",
       "bookFallbackTitle": "Buka Ikiganiro cy'Amategeko | MyJudicial"
+    }
+  },
+  "adminContent": {
+    "title": "Ibikoresho by'ipaji",
+    "subtitle": "Andika kandi ubike ibikoresho by'ipaji. N ibigikoresho bigahita kugaragaza mbere yo kubikisha.",
+    "page_about": "Turi byerekeye",
+    "page_careers": "Akazi",
+    "page_help": "Ubufasha",
+    "page_contact": "Vugira mu kanya",
+    "page_privacy": "Ibinyamiteko",
+    "page_terms": "Amabwiriza",
+    "page_cookies": "Cookies",
+    "live": "Kugaragazwa",
+    "draft": "Icyitandukanye",
+    "neverWritten": "Ntabwo byanditswe",
+    "neverWrittenTitle": "Iyi ipaji ntabwo yanditswe na imwe",
+    "neverWrittenBody": "Abashakisha bashobora kubona ubutumwa bucyane gusa. Ibizakomeza kubaho kugeza ubikisha ikibigisho nyakuri.",
+    "unpublishedChanges": "Wafite impinduka zatarasunika. Ipaji igaragazwa ikiranya ingenzam version yabitswe.",
+    "detailsTitle": "Amakuru y'ipaji",
+    "detailsDescription": "Umutwe uagaragazwa hejuru y'ipaji.",
+    "pageTitle": "Umutwe w'ipaji",
+    "pageTitlePlaceholder": "Amahame y'ibinyamiteko",
+    "effectiveDate": "Itariki yo gukoresha",
+    "effectiveDatePlaceholder": "28 Nzeri 2026",
+    "seoTitle": "Icyerekanwa mu gushaka",
+    "seoDescription": "Amazina n'incamake by'urupapuro, kugira ngo urubuga ruboneke mu bushakashatsi no mu masangira. Siga aho ibirito kugira ngo ukoreshe iy'urupapuro.",
+    "seoMetaTitle": "Amazina ya Meta",
+    "seoMetaTitlePlaceholder": "Kuri MyJudicial | MyJudicial",
+    "seoMetaDesc": "Incamake ya Meta",
+    "seoMetaDescPlaceholder": "Incamake ngufi igaragara mu bushakashatsi...",
+    "seoOgImage": "Aderesi y'ishusho ya Open Graph",
+    "seoOgImagePlaceholder": "https://myjudicial.com/og-about.png",
+    "blocksTitle": "Ibikoresho",
+    "blocksDescription": "Utice dukurikirana igaragara kuri ipaji y'umutekano mu buryo bugaragara hano.",
+    "noBlocks": "Nta gice bahari. Ongeraho ikigice hasi ari kugirango ubandike.",
+    "addBlock": "Ongeraho igice",
+    "removeBlock": "Kuramo igice",
+    "moveUp": "Kohaguruka hejuru",
+    "moveDown": "Kumanutira hasi",
+    "headingOptional": "Umutwe (ntabwo ari ngombwa)",
+    "headingPlaceholder": "Ibyo dufite",
+    "body": "Umwandiko",
+    "tone": "Imurongo",
+    "tone_info": "Amakuru",
+    "tone_warning": "By'ingenzi",
+    "items": "Ikigize'urugero",
+    "addItem": "Ongeraho ikigize'urugero",
+    "removeItem": "Kuramo ikigize'urugero",
+    "columns": "Imizi",
+    "newColumn": "Imizi nshya",
+    "addColumn": "Ongeraho imizi",
+    "removeColumn": "Kuramo imizi",
+    "rows": "Imirongo",
+    "row": "Umurongo",
+    "addRow": "Ongeraho umurongo",
+    "removeRow": "Kuramo umurongo",
+    "block_prose": "Umwandiko",
+    "block_bullets": "Urutonde rw'ibintu",
+    "block_steps": "Amabintu",
+    "block_callout": "Ikadiri",
+    "block_table": "Imbonerahamwe",
+    "block_coreValues": "Indangagaciro",
+    "block_milestones": "Ibyagezweho",
+    "block_contactCard": "Ikarita y'vugira mu kanya",
+    "block_jobs": "Akazi gafunguye",
+    "block_faq": "Ibibazo",
+    "block_hero": "Intangiriro",
+    "block_statsBand": "Umurongo w'ibarurishamibare",
+    "block_ctaBand": "Ubutumwa butumiriza gukora",
+    "block_image": "Ifoto",
+    "blockProse": "Umwandiko",
+    "blockBullets": "Urutonde rw'ibintu",
+    "blockSteps": "Amabintu",
+    "blockCallout": "Ikadiri",
+    "blockTable": "Imbonerahamwe",
+    "blockCoreValues": "Indangagaciro",
+    "blockMilestones": "Ibyagezweho",
+    "blockContactCard": "Ikarita y'vugira mu kanya",
+    "blockJobs": "Akazi gafunguye",
+    "blockFaq": "Ibibazo",
+    "blockHero": "Intangiriro",
+    "blockStatsBand": "Umurongo w'ibarurishamibare",
+    "blockCtaBand": "Ubutumwa butumiriza gukora",
+    "blockImage": "Ifoto",
+    "heroBadge": "Ikirango",
+    "heroTitle": "Umutwe",
+    "heroSubtitle": "Umutwe muto",
+    "ctaLabel": "Amagambo ya buto",
+    "ctaHref": "Ihuza rya buto",
+    "statValues": "Ibarurishamibare",
+    "statValue": "Igiharuro",
+    "statLabel": "Icyerekanwa",
+    "addStat": "Ongeraho ibiharuro",
+    "removeStat": "Kuraho ibiharuro",
+    "imageSrc": "URL y'ifoto",
+    "imageAlt": "Ibisobanuro by'ifoto",
+    "imageCaption": "Umusobekuro",
+    "values": "Indangagaciro",
+    "valueTitle": "Umutwe",
+    "valueIcon": "Akamenyetso",
+    "valueDescription": "Ibisobanuro",
+    "addValue": "Ongeraho igaciro",
+    "milestoneItems": "Ibyagezweho",
+    "milestoneYear": "Umwaka",
+    "milestoneTitle": "Umutwe",
+    "milestoneDesc": "Ibisobanuro",
+    "addMilestone": "Ongeraho icyagezweho",
+    "dynamic_contactCard": "Yereka uburyo bwo gufasha naho za biro byo mu buryo bwo gukoresha.",
+    "dynamic_jobs": "Yereka akazi gafunguye, akaba ntarakabikitswe akurwihizwa.",
+    "dynamic_faq": "Yereka ibibazo byo gukoresha.",
+    "saveDraft": "Bika nk'icyitandukanye",
+    "publish": "Bika",
+    "deletePage": "Kuramo ipaji",
+    "copyFromEnglish": "Koporora mu Icyongereza",
+    "copyOverwriteConfirm": "Iyi rurimi irasubizweho. Gukoporora mu Cyongereza izagusubiramo kandi izagucyuka icitandukanye. Uheregereza?",
+    "copyToast": "Byakoporowe mu Cyongereza kandi bikabikwa nk'icyitandukanye.",
+    "deleteConfirm": "Ukuramo iyi ipaji n'ibigice byayo byose?",
+    "titleRequired": "Bira umutwe w'ipaji mbere yo kubika.",
+    "loadFailed": "Ntibishoboka kubisomera ibikoresho by'ipaji.",
+    "saveFailed": "Ntibishoboka kubika ipaji.",
+    "copyFailed": "Ntibishoboka gukoporora ibikoresho by'Icyongereza.",
+    "deleteFailed": "Ntibishoboka kuramo ipaji.",
+    "publishedToast": "Byabikitswe. Igisaboza gagaragazwa.",
+    "draftToast": "Byabikitswe nk'icyitandukanye. Ipaji y'umutekano ntabwo ihinduye.",
+    "deleteToast": "Ipaji yakurwamo.",
+    "publishConfirmTitle": "Gushyiraho iyi paji?",
+    "publishConfirmBody": "Ibi birimo bisigara bigaragara ku mbuga za rusange. Amateka aguma ahagizwe, bityo uzashobora kuyasubiza inyuma nyuma.",
+    "publishConfirmWarn": "Gushyiraho bisimbura ibiriho ubungubu n'icyandikwa cyagaragajwe haruguru.",
+    "restore": "Garusura",
+    "restoreToast": "Paji isubijwe kuri verisiyo yatoranyijwe.",
+    "restoreFailed": "Ntibishobotse gusubiza paji ku verisiyo yayo.",
+    "restoreConfirmTitle": "Garusura iyi verisiyo?",
+    "restoreConfirmBody": "Paji izasubizwa kuri iyi foto taswe, kandi igisubizo cyandikwe mu mateka.",
+    "revisionsTitle": "Amateka",
+    "revisionsDescription": "Buri kuzigama, gushyiraho, gukoporora no gusubiza inyuma bishyirwa kuri iyi ngingo kugira ngo ushobore gusubira inyuma.",
+    "revisionsEmpty": "Nta mateka kuri ubu. Kuzigama, gushyiraho, gukoporora no gusubizwa bizagaragara hano.",
+    "revisionsFailed": "Ntibishobotse gupakira amateka y'ivugurura.",
+    "preview": "Irebero",
+    "refresh": "Vuguruza",
+    "cancel": "Kureka",
+    "change_save": "Byazigamiwe mu ndemyandiko",
+    "change_publish": "Byashyizweho",
+    "change_restore": "Byasubijwe",
+    "change_copy": "Byakopowe mu icyongereza"
+  },
+  "adminCareers": {
+    "title": "Inshingano n'Akazi",
+    "subtitle": "Andika kandi uyobore akazi gafunguye kagaragara ku rupapuro rw'Inshingano no mu bikorwa by'ipaji.",
+    "pageHint": "Akazi ko kabikwa gusa kagaragara ku rubuga rwa rusange. Akazi katabikwa kaguma hano nk'icyitandukanye kugeza uki koje.",
+    "serverUnreachable": "Ntibishoboka kwandika ku murimo.",
+    "serverUnreachableDesc": "Werekana akazi ka nyuma ko kupakirwa. Gerageza usubiremo.",
+    "retry": "Gerageza",
+    "loadFailed": "Ntibishoboka gupakira akazi gafunguye.",
+    "saveFailed": "Ntibishoboka kubika akazi.",
+    "rolesSaved": "Akazi kabitswe.",
+    "saveChanges": "Bika ibyahinduwe",
+    "addRole": "Ongeraho akazi",
+    "removeRole": "Kuramo akazi",
+    "noRoles": "Nta kazi gafunguye. Ongeraho kamwe kugira ngo utangire gushakisha.",
+    "untitledRole": "Akazi katafise umutwe",
+    "positionLabel": "Akazi {number} cya {total}",
+    "hidden": "Karahishe",
+    "someHidden": "Akazi kamwe karahishe",
+    "roleCount": "{count, plural, one {# akazi} other {# imyanya}}",
+    "roleTitle": "Umutwe w'akazi",
+    "roleDepartment": "Ishami",
+    "roleLocation": "Aho gakorera",
+    "roleType": "Ubwoko bw'akazi",
+    "roleApplyUrl": "Ihuza ryo gusaba akazi (URL)",
+    "roleDetails": "Ibisobanuro & ibisabwa",
+    "roleSlug": "Umwirondoro",
+    "roleSummary": "Incamake ngufi",
+    "roleDescription": "Ibisobanuro byuzuye",
+    "responsibilities": "Inshingano",
+    "requirements": "Ibisabwa",
+    "niceToHave": "Byiza kugira",
+    "applicationInstructions": "Uko usaba akazi",
+    "addItem": "Ongeraho ikintu",
+    "removeItem": "Kuramo ikintu",
+    "published": "Bisohokana ku rubuga rwa rusange",
+    "publishedHint": "Bihagarike kugira ngo akazi gakomeze ko kwandikwa hano kitagaragara rusange."
+  },
+  "publicContent": {
+    "lastUpdated": "Byahinduwe ku itariki: {date}",
+    "previewBanner": "Irebero ku byandikwa byazigamiwe bya '{slug}'. Zigamana ubundi kugira ngo bihumbe.",
+    "translationNotice": "Iyi paje iri mu Cyongereza gusa kugeza ubu. Imvugo z'Igifaransa n'Igikinyarwanda zizasohoka vuba.",
+    "unavailableTitle": "Iyi paje ntiyarasohokana.",
+    "unavailableBody": "Itsinda ricyarimo gutegura iri content. Nyamuneka munyozele hanyuma.",
+    "contactCard": {
+      "title": "Twandikire",
+      "email": "Imeyili",
+      "phone": "Telefone",
+      "whatsapp": "WhatsApp",
+      "address": "Ibiro",
+      "poBox": "Agasanduku k'iposita",
+      "hours": "Amasaha y'akazi",
+      "dpo": "Umurinzi w'umwirondoro"
+    },
+    "jobs": {
+      "heading": "Imirimo ibonetse",
+      "empty": "Ubu nta mirimo ihari. Ohereza CV yawe ku",
+      "apply": "Saba akazi",
+      "emailContact": "Twandikire",
+      "responsibilities": "Uzaberekerwa ahanini",
+      "requirements": "Ibyo twajije",
+      "niceToHave": "Byiza kugira",
+      "applyInstructions": "Uko usaba akazi"
+    },
+    "faq": {
+      "heading": "Ibibazo bikunze kubazwa",
+      "empty": "Nta FAQ zatangajwe. Nyamuneka munyozele hanyuma."
     }
   }
 }

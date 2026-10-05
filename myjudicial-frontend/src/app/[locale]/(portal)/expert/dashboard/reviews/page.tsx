@@ -128,7 +128,7 @@ export default function ReviewsPage() {
 
   if (profileLoading) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <div className="mb-6 h-8 w-32 animate-pulse rounded bg-muted" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
           <SkeletonCard />
@@ -141,8 +141,8 @@ export default function ReviewsPage() {
 
   if (profileNotFound) {
     return (
-      <div className="p-6 lg:p-8">
-        <PageHeader title={t("title")} description={t("monitorSubtitle")} className="mb-6" />
+      <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+        <PageHeader title={t("title")} description={t("noProfileDesc")} className="mb-6" />
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           <EmptyBlock title={t("noProfileTitle")} description={t("noProfileDesc")} icon={<MessageSquare />} />
         </div>
@@ -152,7 +152,7 @@ export default function ReviewsPage() {
 
   if (!profileLoading && !profileNotFound && !!expertId && (summaryQ.isError || distributionQ.isError || reviewsQ.isError)) {
     return (
-      <div className="p-6 lg:p-8">
+      <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("monitorSubtitle")} className="mb-6" />
         <ErrorState
           onRetry={() => {
@@ -170,7 +170,7 @@ export default function ReviewsPage() {
     : 1;
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("monitorSubtitle")}
@@ -283,8 +283,8 @@ export default function ReviewsPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-card shadow-sm">
-        <div className="border-b border-border px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="border-b border-border px-4 sm:px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="font-semibold text-foreground">{t("clientReviews")}</h3>
               <p className="text-sm text-muted-foreground">
@@ -327,7 +327,7 @@ export default function ReviewsPage() {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {reviewsQ.isLoading ? (
             <SkeletonListInline />
           ) : reviews.length === 0 ? (
@@ -336,8 +336,8 @@ export default function ReviewsPage() {
             <div className="space-y-4">
               {(reviews as any[]).map((review: any) => (
                 <div key={review.id} className="rounded-xl border border-border p-4 transition-colors hover:bg-muted/50 sm:p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4">
+                  <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                         {review.citizen.firstName[0]}{review.citizen.lastName?.[0] || ""}
                       </div>

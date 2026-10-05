@@ -113,7 +113,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
   return (
     <main className="flex min-h-screen flex-col bg-white dark:bg-black">
       <div className="border-b border-brand-border/20 dark:border-white/20">
-        <div className="mx-auto max-w-4xl px-6 py-4">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-4">
           <Link
             href={BACK_HREF}
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
@@ -124,9 +124,9 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-6">
+      <div className="flex flex-1 items-center justify-center p-2.5 min-[360px]:p-4 sm:p-6 min-w-0">
         <div className="w-full max-w-2xl">
-          <div className="mb-6 rounded-2xl border border-brand-border/20 bg-white p-6 shadow-md dark:border-white/20 dark:bg-black">
+          <div className="mb-6 rounded-2xl border border-brand-border/20 bg-white p-4 sm:p-6 shadow-md dark:border-white/20 dark:bg-black">
             <h1 className="text-[22px] font-bold text-brand-dark dark:text-white mb-4">
               {t("readyToJoin")}
             </h1>

@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 type IntlProviderProps = {
   locale: string;
   messages: AbstractIntlMessages;
+  timeZone?: string;
   children: ReactNode;
 };
 
@@ -16,11 +17,17 @@ type IntlProviderProps = {
  * never crosses the RSC serialization boundary, which would otherwise throw:
  * "Functions cannot be passed directly to Client Components".
  */
-export function IntlProvider({ locale, messages, children }: IntlProviderProps) {
+export function IntlProvider({
+  locale,
+  messages,
+  timeZone = "Africa/Kigali",
+  children,
+}: IntlProviderProps) {
   return (
     <NextIntlClientProvider
       locale={locale}
       messages={messages}
+      timeZone={timeZone}
       getMessageFallback={({ key }) =>
         // Graceful fallback: never surface the raw dot-notation path if a
         // translation is missing. Derive a readable title-case label instead.

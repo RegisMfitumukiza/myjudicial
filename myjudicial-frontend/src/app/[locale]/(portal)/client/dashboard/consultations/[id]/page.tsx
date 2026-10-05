@@ -234,8 +234,8 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <main className="flex h-full flex-col bg-white dark:bg-black overflow-y-auto">
-      <div className="mx-auto w-full max-w-[780px] flex-1 px-6 py-8">
+    <div className="flex-1 min-w-0">
+      <div className="mx-auto w-full max-w-[780px] p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         {/* Back link */}
         <Link
           href="/client/dashboard/consultations"
@@ -702,6 +702,6 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           />
         )}
       </div>
-    </main>
+    </div>
   );
 }

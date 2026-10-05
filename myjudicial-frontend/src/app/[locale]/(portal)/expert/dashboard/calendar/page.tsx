@@ -120,13 +120,13 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Header */}
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
         actions={
-          <>
+          <div className="flex flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-0.5 rounded-lg border border-border bg-muted p-0.5">
               <button
                 onClick={() => setViewMode("week")}
@@ -152,7 +152,7 @@ export default function CalendarPage() {
             <Button variant="outline" size="sm" onClick={goToday}>
               {t("today")}
             </Button>
-          </>
+          </div>
         }
       />
 
@@ -174,87 +174,91 @@ export default function CalendarPage() {
 
       {/* Week View */}
       {viewMode === "week" && (
-        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl border border-border bg-border">
-          {weekDays.map((day, i) => {
-            const dayBookings = getBookingsForDay(day);
-            const isToday = isSameDay(day, today);
-            return (
-              <div key={i} className="min-h-[200px] bg-card p-2">
-                <div className={`mb-2 flex items-center justify-between`}>
-                  <span className={`text-[10px] font-semibold uppercase tracking-wider ${
-                    isToday ? "text-primary" : "text-muted-foreground"
-                  }`}>
-                    {day.toLocaleDateString(locale, { weekday: "short" })}
-                  </span>
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
-                    isToday ? "bg-primary text-on-brand" : "text-foreground"
-                  }`}>
-                    {day.getDate()}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  {dayBookings.map((b) => (
-                    <Link
-                      key={b.id}
-                      href={`/expert/dashboard/bookings/${b.id}`}
-                      className={`block rounded-md border-l-2 px-2 py-1 text-[10px] font-medium transition-opacity hover:opacity-80 ${
-                        STATUS_COLORS[b.status] ?? FALLBACK_CHIP
-                      }`}
-                    >
-                      <p className="truncate font-semibold">{formatTime(b.scheduledStart)}</p>
-                      <p className="truncate">{b.citizen?.firstName ?? t("defaultClient")}</p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Month View */}
-      {viewMode === "month" && (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="grid grid-cols-7 gap-px bg-border">
-            {weekDays.map((day) => (
-              <div key={day.toISOString()} className="bg-card px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {day.toLocaleDateString(locale, { weekday: "short" })}
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-px bg-border">
-            {monthDays.map((day, i) => {
-              if (!day) return <div key={`pad-${i}`} className="bg-card" />;
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <div className="min-w-[560px] grid grid-cols-7 gap-px bg-border">
+            {weekDays.map((day, i) => {
               const dayBookings = getBookingsForDay(day);
               const isToday = isSameDay(day, today);
               return (
-                <div key={i} className="min-h-[100px] bg-card p-1.5">
-                  <div className={`mb-1 flex items-center justify-end`}>
-                    <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
+                <div key={i} className="min-h-[200px] bg-card p-2">
+                  <div className={`mb-2 flex items-center justify-between`}>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${
+                      isToday ? "text-primary" : "text-muted-foreground"
+                    }`}>
+                      {day.toLocaleDateString(locale, { weekday: "short" })}
+                    </span>
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
                       isToday ? "bg-primary text-on-brand" : "text-foreground"
                     }`}>
                       {day.getDate()}
                     </span>
                   </div>
-                  <div className="space-y-0.5">
-                    {dayBookings.slice(0, 3).map((b) => (
+                  <div className="space-y-1">
+                    {dayBookings.map((b) => (
                       <Link
                         key={b.id}
                         href={`/expert/dashboard/bookings/${b.id}`}
-                        className={`block truncate rounded border-l-2 px-1 py-0.5 text-[9px] font-medium transition-opacity hover:opacity-80 ${
+                        className={`block rounded-md border-l-2 px-2 py-1 text-[10px] font-medium transition-opacity hover:opacity-80 ${
                           STATUS_COLORS[b.status] ?? FALLBACK_CHIP
                         }`}
                       >
-                        {formatTime(b.scheduledStart)} {b.citizen?.firstName ?? ""}
+                        <p className="truncate font-semibold">{formatTime(b.scheduledStart)}</p>
+                        <p className="truncate">{b.citizen?.firstName ?? t("defaultClient")}</p>
                       </Link>
                     ))}
-                    {dayBookings.length > 3 && (
-                      <p className="text-center text-[9px] text-muted-foreground">{t("moreBookings", { count: dayBookings.length - 3 })}</p>
-                    )}
                   </div>
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Month View */}
+      {viewMode === "month" && (
+        <div className="overflow-x-auto rounded-xl border border-border bg-card">
+          <div className="min-w-[560px]">
+            <div className="grid grid-cols-7 gap-px bg-border">
+              {weekDays.map((day) => (
+                <div key={day.toISOString()} className="bg-card px-2 py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {day.toLocaleDateString(locale, { weekday: "short" })}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-px bg-border">
+              {monthDays.map((day, i) => {
+                if (!day) return <div key={`pad-${i}`} className="bg-card" />;
+                const dayBookings = getBookingsForDay(day);
+                const isToday = isSameDay(day, today);
+                return (
+                  <div key={i} className="min-h-[100px] bg-card p-1.5">
+                    <div className={`mb-1 flex items-center justify-end`}>
+                      <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
+                        isToday ? "bg-primary text-on-brand" : "text-foreground"
+                      }`}>
+                        {day.getDate()}
+                      </span>
+                    </div>
+                    <div className="space-y-0.5">
+                      {dayBookings.slice(0, 3).map((b) => (
+                        <Link
+                          key={b.id}
+                          href={`/expert/dashboard/bookings/${b.id}`}
+                          className={`block truncate rounded border-l-2 px-1 py-0.5 text-[9px] font-medium transition-opacity hover:opacity-80 ${
+                            STATUS_COLORS[b.status] ?? FALLBACK_CHIP
+                          }`}
+                        >
+                          {formatTime(b.scheduledStart)} {b.citizen?.firstName ?? ""}
+                        </Link>
+                      ))}
+                      {dayBookings.length > 3 && (
+                        <p className="text-center text-[9px] text-muted-foreground">{t("moreBookings", { count: dayBookings.length - 3 })}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

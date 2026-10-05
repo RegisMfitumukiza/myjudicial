@@ -46,8 +46,8 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex h-10 items-center gap-2 rounded-full border border-brand-border pl-3 pr-1 hover:shadow-sm"
       >
-        <Menu size={16} className="text-brand-dark" />
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-dark text-xs font-bold text-white">
+        <Menu size={16} className="text-brand-dark dark:text-foreground" />
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#16324f] text-white dark:bg-blue-950/80 dark:text-blue-200 dark:border dark:border-blue-700/50 text-xs font-bold">
           {initials}
         </span>
       </button>

@@ -73,6 +73,23 @@ export function AiWorkspace() {
       const result = await analyzeMutation.mutateAsync({ text });
       setAnalysis(result.analysis);
 
+      const isGreetingOrUnknown =
+        result.analysis.is_greeting ||
+        result.analysis.specialty === "UNKNOWN" ||
+        result.analysis.confidence_score === 0;
+
+      if (isGreetingOrUnknown) {
+        const greetingContent = result.analysis.greeting_message || tAiChat("needMoreDetails");
+        addMessage({
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: greetingContent,
+          timestamp: new Date(),
+          type: "text",
+        });
+        return;
+      }
+
       const analysisMessage: AiMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -131,7 +148,7 @@ export function AiWorkspace() {
           userMessage = t("errors.serviceUnavailable") || "The AI service is temporarily unavailable. Please try again later.";
         } else if (msg.includes("429") || msg.includes("rate limit")) {
           userMessage = t("errors.tooManyRequests") || "Too many requests. Please wait a moment and try again.";
-        } else if (msg.includes("400") || msg.includes("validation")) {
+        } else if (msg.includes("400") || msg.includes("422") || msg.includes("validation") || msg.includes("invalid")) {
           userMessage = t("errors.invalidInput") || "Please provide a more detailed description of your legal issue.";
         }
       }
@@ -202,41 +219,41 @@ export function AiWorkspace() {
   const isProcessing = analyzeMutation.isPending || recommendMutation.isPending || transcribeMutation.isPending;
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col px-4 py-8 sm:px-6">
-      <div className="mb-6 space-y-2 text-center">
-        <h1 className="text-xl font-bold text-foreground sm:text-2xl">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
+      <div className="mb-5 sm:mb-6 space-y-1.5 sm:space-y-2 text-center">
+        <h1 className="text-xl font-bold text-foreground sm:text-2xl break-words">{t("title")}</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground break-words">{t("subtitle")}</p>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-5 sm:mb-6">
         <AiStepIndicator currentStep={step} />
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto">
         {!hasStarted && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10">
-              <Bot className="h-8 w-8 text-brand-dark dark:text-white" />
+          <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center px-2">
+            <div className="mb-4 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10">
+              <Bot className="h-7 w-7 sm:h-8 sm:w-8 text-brand-dark dark:text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">{t("empty.title")}</h2>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">{t("empty.description")}</p>
+            <h2 className="text-base sm:text-lg font-semibold text-foreground break-words">{t("empty.title")}</h2>
+            <p className="mt-1 max-w-sm text-xs sm:text-sm text-muted-foreground break-words">{t("empty.description")}</p>
           </div>
         )}
 
         {messages.map((msg) => (
-          <div key={msg.id} className={cn("flex gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
+          <div key={msg.id} className={cn("flex gap-2 sm:gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
             {msg.role === "assistant" && (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand">
-                <Bot className="h-4 w-4" />
+              <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand">
+                <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             )}
 
             <div
               className={cn(
-                "max-w-[80%] space-y-3",
+                "min-w-0 space-y-3",
                 msg.role === "user"
-                  ? "rounded-2xl rounded-br-md bg-brand-dark px-4 py-2.5 text-on-brand"
-                  : "space-y-3"
+                  ? "max-w-[88%] sm:max-w-[80%] rounded-2xl rounded-br-md bg-brand-dark px-3.5 py-2 min-[360px]:px-4 min-[360px]:py-2.5 text-on-brand"
+                  : "max-w-full sm:max-w-[90%]"
               )}
             >
               {msg.role === "user" ? (
@@ -307,9 +324,9 @@ export function AiWorkspace() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="mt-4 space-y-3 border-t border-border pt-4">
-        <div className="flex items-end gap-2">
-          <div className="relative flex-1">
+      <div className="mt-4 space-y-3 border-t border-border pt-3 sm:pt-4">
+        <div className="flex items-end gap-1.5 sm:gap-2">
+          <div className="relative flex-1 min-w-0">
             <textarea
               ref={inputRef}
               value={input}
@@ -317,8 +334,8 @@ export function AiWorkspace() {
               onKeyDown={handleKeyDown}
               placeholder={recording ? t("voice.recording") || "Listening..." : t("input.placeholder")}
               rows={1}
-              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
-              style={{ minHeight: "44px", maxHeight: "120px" }}
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 min-[360px]:px-4 py-2.5 sm:py-3 text-xs min-[360px]:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
+              style={{ minHeight: "42px", maxHeight: "120px" }}
               disabled={isProcessing || recording}
             />
           </div>
@@ -338,13 +355,13 @@ export function AiWorkspace() {
             onClick={handleSubmit}
             disabled={!input.trim() || isProcessing || recording}
             className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors",
+              "flex h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 shrink-0 items-center justify-center rounded-full transition-colors",
               input.trim() && !isProcessing && !recording
                 ? "bg-brand-dark text-on-brand hover:bg-brand-dark/90"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3.5 w-3.5 min-[360px]:h-4 min-[360px]:w-4" />
           </button>
         </div>
 

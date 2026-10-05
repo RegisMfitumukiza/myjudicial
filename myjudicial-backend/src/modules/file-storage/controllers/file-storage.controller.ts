@@ -328,10 +328,22 @@ export const FileStorageController = {
         return;
       }
 
-      // Try to find original mime type
-      const { FileStorageRepository } = await import("../repositories/file-storage.repository.js");
-      const doc = await FileStorageRepository.findByObjectKey(key);
-      const mimeType = doc?.mimeType || "application/octet-stream";
+      let mimeType = "application/octet-stream";
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext === ".png") mimeType = "image/png";
+      else if (ext === ".jpg" || ext === ".jpeg") mimeType = "image/jpeg";
+      else if (ext === ".webp") mimeType = "image/webp";
+      else if (ext === ".gif") mimeType = "image/gif";
+      else if (ext === ".svg") mimeType = "image/svg+xml";
+      else {
+        try {
+          const { FileStorageRepository } = await import("../repositories/file-storage.repository.js");
+          const doc = await FileStorageRepository.findByObjectKey(key);
+          if (doc?.mimeType) mimeType = doc.mimeType;
+        } catch {
+          // ignore error
+        }
+      }
 
       const data = fs.readFileSync(filePath);
       res.setHeader("Content-Type", mimeType);

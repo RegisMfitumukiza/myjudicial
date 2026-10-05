@@ -113,7 +113,7 @@ export default function ScheduleSettingsPage() {
 
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Header */}
       <PageHeader
         title={t("scheduleSettingsTitle")}
@@ -136,7 +136,7 @@ export default function ScheduleSettingsPage() {
       {!isLoading && !error && settings && (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Timezone Section */}
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Globe className="h-5 w-5" />
@@ -316,7 +316,7 @@ export default function ScheduleSettingsPage() {
           </div>
 
           {/* Behavior Settings */}
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Settings className="h-5 w-5" />
@@ -351,18 +351,20 @@ export default function ScheduleSettingsPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={handleReset}
               disabled={updateMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {t("resetBtn")}
             </Button>
             <Button
               type="submit"
               disabled={updateMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {updateMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

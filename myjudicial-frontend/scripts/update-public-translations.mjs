@@ -602,6 +602,52 @@ fr.about = {
     title: "Prêt à obtenir un conseil juridique de confiance ?",
     findLawyer: "Trouver un avocat",
     joinLawyer: "Rejoindre en tant qu'avocat"
+  },
+  verification: {
+    badge: "Protocole de vérification des avocats",
+    title: "Le protocole de vérification des avocats en 4 étapes",
+    subtitle: "Chaque avocat de la plateforme passe un contrôle documenté et audité avant la publication de son profil.",
+    stage1Number: "01",
+    stage1Badge: "Justificatifs",
+    stage1Title: "Vérification d'identité et de licence",
+    stage1Desc: "Une pièce d'identité officielle et une licence en cours de validité délivrée par le Barreau du Rwanda (RBA) sont recueillies et contrôlées par notre équipe avant la création du profil.",
+    stage2Number: "02",
+    stage2Badge: "Registre officiel",
+    stage2Title: "Recoupement avec le registre officiel",
+    stage2Desc: "Les informations d'inscription sont recoupées avec le Tableau officiel des avocats du Barreau du Rwanda afin de confirmer la qualité d'avocat inscrit.",
+    stage3Number: "03",
+    stage3Badge: "Gouvernance",
+    stage3Title: "Revue de conduite et des honoraires",
+    stage3Desc: "Les avocats s'engagent sur des honoraires fixes publiés, les conditions du séquestre et le code de conduite de la plateforme avant de proposer des consultations.",
+    stage4Number: "04",
+    stage4Badge: "Validé",
+    stage4Title: "Revue humaine finale",
+    stage4Desc: "Une revue humaine finale approuve le profil mis en ligne. Chaque étape du processus est consignée dans un journal d'audit."
+  },
+  milestones: {
+    badge: "Évolution de la plateforme",
+    title: "Notre parcours",
+    subtitle: "D'une simple idée de mise en relation à un marché encadré, construit en toute transparence.",
+    item1Year: "2024",
+    item1Title: "L'idée",
+    item1Desc: "MyJudicial part d'un constat simple : trouver un avocat au Rwanda ne devrait être ni opaque, ni lent, ni intimidant.",
+    item2Year: "2025",
+    item2Title: "Vérification et séquestre",
+    item2Desc: "Le protocole de vérification des avocats et le paiement sous séquestre sont construits, de sorte que justificatifs et paiements soient protégés par défaut.",
+    item3Year: "2026",
+    item3Title: "Un marché ouvert",
+    item3Desc: "Une plateforme publique trilingue voit le jour, avec consultations vidéo sécurisées et triage des dossiers assisté par IA pour les clients de tout le Rwanda."
+  },
+  governance: {
+    badge: "Gouvernance et éthique",
+    title: "Gouvernance institutionnelle et éthique",
+    subtitle: "Des règles claires qui garantissent un marché équitable pour les clients comme pour les avocats.",
+    rule1Title: "Décaissement du séquestre uniquement à la fin",
+    rule1Desc: "Les honoraires versés sont conservés sous séquestre et reversés à l'avocat uniquement lorsque la consultation est terminée, ou remboursés en cas d'annulation.",
+    rule2Title: "Un forfait, une consultation",
+    rule2Desc: "Les honoraires publiés sont fixes et liés à une seule consultation. Aucun frais caché ; les litiges sont traités selon une procédure documentée.",
+    rule3Title: "Confidentialité par conception",
+    rule3Desc: "Les consultations sont privées, réservées aux participants attendus et jamais enregistrées. Les données sont traitées conformément à la loi rwandaise n° 058/2021."
   }
 };
 
@@ -646,6 +692,52 @@ rw.about = {
     title: "Witeguye kubona umwavoka w'umwuga uyu munsi?",
     findLawyer: "Shaka Umwavoka",
     joinLawyer: "Iyandikishe nk'Umwavoka"
+  },
+  verification: {
+    badge: "Protokole yo kugenzura abavoka",
+    title: "Uburyo bwo kugenzura abavoka mu byiciro 4",
+    subtitle: "Umuvoka wese uri kuri MyJudicial anyuzwa mu igenzura ry'inyandiko ryandikwa mbere y'uko umwirondoro we ushira ku rubuga.",
+    stage1Number: "01",
+    stage1Badge: "Inyandiko",
+    stage1Title: "Kugenzura indangamuntu n'iyisemeka",
+    stage1Desc: "Indangamuntu yashyizweho n'ubutegetsi hamwe n'iyisemeka ikorera mu Rwego rw'Abavoka mu Rwanda (RBA) bigakusanywa no kugenzurwa n'itsinda ryacu mbere yo gushinga umwirondoro.",
+    stage2Number: "02",
+    stage2Badge: "Urutonde rw'emewe",
+    stage2Title: "Kugenzura uko biri kurutonde rw'emewe",
+    stage2Desc: "Amakuru yo kwiyandikisha ageranishwa n'Urutonde rw'emewe rw'abavoka bo mu Rwego rw'Abavoka mu Rwanda kugira ngo hagaragare ko uwo muvoka yegukana umwuga.",
+    stage3Number: "03",
+    stage3Badge: "Imiyoborere",
+    stage3Title: "Isuzuma ry'imyitwarire n'amafaranga",
+    stage3Desc: "Abavoka bemeranya ku mafaranga yihariye atangazwa, ku mabwiriza y'ubwishyu burinzwe (escrow) n'uburyoboke bw'urubuga mbere yo gutanga ubujyanama.",
+    stage4Number: "04",
+    stage4Badge: "Byagenzuwe",
+    stage4Title: "Isuzuma rya nyuma ry'umuntu",
+    stage4Desc: "Umwirondoro ushira ku rubuga urebwa nyuma n'umuntu. Urwego rwose rw'igenzura rwandikwa mu gitabo cy'igenzura (audit log)."
+  },
+  milestones: {
+    badge: "Intambwe z'Urubuga",
+    title: "Ingendo yacu",
+    subtitle: "Kuva ku gitekerezo cyoroshye kigezwa ku isoko ryagenzuwe, twubatse ku mugaragaro.",
+    item1Year: "2024",
+    item1Title: "Igitekerezo",
+    item1Desc: "MyJudicial itangira n'igitekerezo cyoroshye: gushaka umuvoka mu Rwanda ntibikwiye kuba ibiyombeye, ibinirira cyangwa ibitangaza.",
+    item2Year: "2025",
+    item2Title: "Kugenzura no kuzigama amafaranga",
+    item2Desc: "Protokole yo kugenzura abavoka n'ubwishyu burinzwe (escrow) byubakwa, kugira ngo inyandiko n'amafaranga birindwe ku murongo wa mbere.",
+    item3Year: "2026",
+    item3Title: "Isoko rifunguye",
+    item3Desc: "Urubuga rusange rusohoka mu ndimi eshatu, hamwe n'ubujyanama bwa videwo bwizewe n'igenzura ry'imanza rifashwa n'ikoranabuhanga (AI) ku bakiliya bo mu Rwanda hose."
+  },
+  governance: {
+    badge: "Imiyoborere n'ubunyamabanga",
+    title: "Imiyoborere y'ibigo n'ubunyamabanga",
+    subtitle: "Amategeko asobanutse abana isoko ry'abakiliya ndetse n'abavoka.",
+    rule1Title: "Ishyirwa ry'amafaranga ku muvoka nyuma yo kurangiza gusa",
+    rule1Desc: "Amafaranga y'ubujyanama yakodeshwa abikwa neza kandi ashyirwa ku muvoka gusa iyo ubujyanama burangiye, cyangwa akagarurwa iyo buhagaritswe.",
+    rule2Title: "Amafaranga yihariye, ubujyanama bumwe",
+    rule2Desc: "Amafaranga atangazwa ni iyihariye kandi ajya n'ubujyanama bumwe gusa. Nta marangarema ahishe; makimbirane akemurwa hakurikijwe inzira zandikishijwe.",
+    rule3Title: "Ibanga ku murongo wa mbere",
+    rule3Desc: "Ubujyanama ni ubwite, bukorerwa abiyandikishije bonyine kandi ntibwandikwe. Amakuru atunganywa hashingiwe ku Itegeko n° 058/2021 ry'u Rwanda."
   }
 };
 
@@ -1109,162 +1201,24 @@ rw.pricingPage = {
   }
 };
 
-// 11.8 resourcesPage
-fr.resourcesPage = {
-  hero: {
-    badge: "Ressources Juridiques",
-    title: "Guides & Informations Juridiques",
-    subtitle: "Comprendre vos droits et obligations selon le cadre légal rwandais."
-  },
-  comingSoon: {
-    title: "Articles & Modèles en cours de rédaction",
-    desc: "Nos avocats partenaires rédigent actuellement des guides pratiques sur l'enregistrement RDB, les mutations foncières, le droit du travail et le droit de la famille au Rwanda. Revenez très bientôt !"
-  },
-  categories: {
-    title: "Domaines couverts",
-    family: "Droit de la famille & Successions",
-    commercial: "Droit commercial & Sociétés",
-    property: "Droit foncier & Immobilier",
-    employment: "Droit du travail & Emploi",
-    immigration: "Immigration & Visas",
-    tax: "Fiscalité & Douanes RRA"
-  },
-  cta: {
-    title: "Besoin d'une assistance immédiate sur votre dossier ?",
-    button: "Consulter un avocat certifié"
-  }
-};
-
-rw.resourcesPage = {
-  hero: {
-    badge: "Ubumenyi mu Mategeko",
-    title: "Inyandiko & Amakuru ku Mategeko",
-    subtitle: "Sobanukirwa uburenganzira n'inshingano byawe hakurikijwe amategeko y'u Rwanda."
-  },
-  comingSoon: {
-    title: "Inyandiko ziracyatunganywa n'abavoka",
-    desc: "Abavoka bacu b'umwuga bari gutegura inyandiko zifasha abaturage gusobanukirwa iby'ubutaka, kwandikisha ibigo muri RDB, amategeko y'umurimo n'ay'umuryango. Zizajya ahagaragara vuba !"
-  },
-  categories: {
-    title: "Amashami y'amategeko ari gutunganywa",
-    family: "Amategeko y'Umuryango & Izungura",
-    commercial: "Amategeko y'Ubucuruzi & Ibigo",
-    property: "Amategeko y'Ubutaka & Umutungo",
-    employment: "Amategeko y'Umurimo",
-    immigration: "Abinjira n'Abasohoka & Viza",
-    tax: "Imisoro ya RRA & Gasutamo"
-  },
-  cta: {
-    title: "Ukeneye inama z'amategeko kuri dosiye yawe ubu?",
-    button: "Gisha inama umwavoka wemewe"
-  }
-};
-
-// 11.9 comingSoonPage (Blog, Careers, Press)
-fr.comingSoonPage = {
-  blog: {
-    hero: {
-      badge: "Blog Juridique",
-      title: "Actualités & Décryptages Juridiques",
-      subtitle: "Analyses de l'actualité légale, jurisprudences et conseils d'avocats au Rwanda."
-    },
-    comingSoon: {
-      title: "Articles à paraître très prochainement",
-      desc: "Notre comité de rédaction juridique prépare des analyses approfondies sur les réformes légales et le droit des affaires au Rwanda."
-    }
-  },
-  careers: {
-    hero: {
-      badge: "Recrutement & Carrières",
-      title: "Rejoignez l'équipe MyJudicial",
-      subtitle: "Contribuez à réinventer l'accès au droit et à la justice numérique au Rwanda et en Afrique."
-    },
-    comingSoon: {
-      title: "Postes ouverts bientôt disponibles",
-      desc: "Nous préparons notre prochaine phase de recrutement en ingénierie logicielle, conformité légale et support client à Kigali."
-    }
-  },
-  press: {
-    hero: {
-      badge: "Espace Presse",
-      title: "Espace Presse & Médias",
-      subtitle: "Communiqués, parutions médiatiques et kits presse de MyJudicial."
-    },
-    comingSoon: {
-      title: "Espace en cours de finalisation",
-      desc: "Pour toute demande d'interview ou renseignement presse, n'hésitez pas à nous contacter directement."
-    }
-  },
-  cta: {
-    title: "Restez connecté avec MyJudicial",
-    button1: "Explorer les avocats",
-    button2: "Nous contacter"
-  }
-};
-
-rw.comingSoonPage = {
-  blog: {
-    hero: {
-      badge: "Blog y'Amategeko",
-      title: "Amakuru & Isesengura mu Mategeko",
-      subtitle: "Inyandiko zisesengura amategeko n'inama z'abavoka mu Rwanda."
-    },
-    comingSoon: {
-      title: "Inyandiko ziri gutunganywa zizajya ahagaragara vuba",
-      desc: "Ikipe yacu y'abavoka iri gutunganya inyandiko zicukumbuye ku mategeko mashya n'ubucuruzi mu Rwanda."
-    }
-  },
-  careers: {
-    hero: {
-      badge: "Kazi muri MyJudicial",
-      title: "Koranana natwe muri MyJudicial",
-      subtitle: "Fatanya natwe kwegereza ubutabera no kuvugurura uburyo amategeko agera kuri buri wese."
-    },
-    comingSoon: {
-      title: "Imyanya y'akazi izatangazwa vuba",
-      desc: "Turi gutegura imyanya y'akazi mu by'ikoranabuhanga, kumenyekanisha ibikorwa n'ubufasha mu by'amategeko i Kigali."
-    }
-  },
-  press: {
-    hero: {
-      badge: "Ibitangazamakuru",
-      title: "Amakuru n'Ibitangazamakuru",
-      subtitle: "Itangazo ry'ibikorwa bya MyJudicial n'amakuru y'ingenzi ku bitangazamakuru."
-    },
-    comingSoon: {
-      title: "Akarusho ku bitangazamakuru karacyatunganywa",
-      desc: "Niba uri umunyamakuru wifuza amakuru cyangwa ikiganiro, watwandikira ubu."
-    }
-  },
-  cta: {
-    title: "Komeza kubana na MyJudicial",
-    button1: "Shaka umwavoka",
-    button2: "Twandikire"
-  }
-};
-
 // 11.10 legalPages (Cookies, Privacy, Terms)
 fr.legalPages = {
   cookies: {
     hero: {
       badge: "Politique des Cookies",
       title: "Gestion et Utilisation des Cookies",
-      updated: "Dernière mise à jour : Mars 2026"
+      updated: "Dernière mise à jour : 15 juillet 2026"
     },
     content: {
       intro: "La présente politique explique comment MyJudicial utilise les cookies et technologies similaires pour vous offrir une expérience fluide, sécurisée et adaptée à vos préférences linguistiques.",
       sections: [
         {
-          title: "1. Qu'est-ce qu'un cookie ?",
-          text: "Un cookie est un petit fichier texte stocké sur votre appareil lors de votre navigation. Il permet de mémoriser vos choix (comme votre langue préférée : Anglais, Français ou Kinyarwanda) et d'assurer la sécurité de votre session."
+          title: "Qu'est-ce qu'un cookie ?",
+          text: "Un cookie est un petit fichier contenant des lettres et des chiffres que nous enregistrons sur votre navigateur ou sur le disque dur de votre ordinateur si vous y consentez. Il contient des informations transférées sur votre disque dur."
         },
         {
-          title: "2. Les cookies que nous utilisons",
-          text: "Nous utilisons des cookies strictement nécessaires au fonctionnement du site, à l'authentification sécurisée, à la mémorisation de votre langue et à la prévention des fraudes."
-        },
-        {
-          title: "3. Vos choix et gestion",
-          text: "Vous pouvez à tout moment configurer votre navigateur pour refuser les cookies, mais certaines fonctionnalités (comme la conservation de votre session ou de votre panier de réservation) pourraient en être affectées."
+          title: "Comment nous utilisons les cookies",
+          text: "Nous utilisons des cookies strictement nécessaires (requis au fonctionnement de notre site), des cookies analytiques ou de performance (qui nous permettent de reconnaître et de compter les visiteurs), des cookies de fonctionnalité (qui vous reconnaissent à votre retour) et des cookies de ciblage (qui enregistrent votre visite, les pages consultées et les liens suivis)."
         }
       ]
     }
@@ -1273,22 +1227,22 @@ fr.legalPages = {
     hero: {
       badge: "Protection des Données",
       title: "Politique de Confidentialité",
-      updated: "Dernière mise à jour : Mars 2026"
+      updated: "Dernière mise à jour : 15 juillet 2026"
     },
     content: {
       intro: "Chez MyJudicial, la confidentialité de vos démarches juridiques est une priorité absolue. Nous traitons vos données personnelles conformément à la loi rwandaise n° 058/2021 sur la protection des données et de la vie privée.",
       sections: [
         {
-          title: "1. Collecte des données personnelles",
-          text: "Nous collectons uniquement les informations nécessaires à la création de votre compte, à la mise en relation avec des avocats certifiés et au traitement sécurisé de vos paiements par Mobile Money."
+          title: "1. Données que nous collectons",
+          text: "Nous pouvons collecter, utiliser, stocker et transférer différentes catégories de données personnelles vous concernant, notamment : données d'identité (nom, prénom, identifiant), données de contact (adresse, e-mail, téléphone), données financières (coordonnées bancaires et de paiement), données de transaction (détails des paiements et des services) et données de profil (identifiants, préférences, commandes, retours)."
         },
         {
-          title: "2. Secret professionnel et confidentialité juridique",
-          text: "Les informations partagées lors de vos consultations sont couvertes par le secret professionnel des avocats conformément aux règles déontologiques du Barreau du Rwanda."
+          title: "2. Utilisation de vos données",
+          text: "Nous n'utilisons vos données personnelles que lorsque la loi nous y autorise. En pratique : pour exécuter le contrat conclu avec vous, lorsque nos intérêts légitimes ne portent pas atteinte à vos droits fondamentaux, ou pour respecter une obligation légale."
         },
         {
-          title: "3. Sécurité et non-divulgation",
-          text: "Vos données sont chiffrées selon les standards de sécurité les plus stricts. Nous ne vendons ni ne partageons vos données avec des tiers non autorisés."
+          title: "3. Sécurité des données",
+          text: "Nous avons mis en place des mesures de sécurité appropriées pour empêcher la perte, l'utilisation ou l'accès non autorisés, la modification ou la divulgation de vos données. L'accès à vos données est limité aux personnes ayant besoin d'en connaître et soumises à une obligation de confidentialité."
         }
       ]
     }
@@ -1297,22 +1251,26 @@ fr.legalPages = {
     hero: {
       badge: "Cadre Juridique",
       title: "Conditions Générales d'Utilisation",
-      updated: "Dernière mise à jour : Mars 2026"
+      updated: "Dernière mise à jour : 15 juillet 2026"
     },
     content: {
       intro: "En accédant à MyJudicial, vous acceptez d'être lié par les présentes conditions générales d'utilisation qui régissent l'accès à notre plateforme et aux services juridiques proposés.",
       sections: [
         {
-          title: "1. Nature de la plateforme",
-          text: "MyJudicial est une plateforme numérique facilitant la mise en relation entre des clients et des avocats indépendants certifiés par le Barreau du Rwanda. MyJudicial ne constitue pas elle-même un cabinet d'avocats."
+          title: "1. Acceptation des conditions",
+          text: "En accédant ou en utilisant les Services, vous acceptez d'être lié par les présentes Conditions et par notre Politique de Confidentialité. Si vous n'acceptez pas ces Conditions, n'utilisez pas les Services."
         },
         {
-          title: "2. Réservations et paiements",
-          text: "Toutes les consultations réservées sont sécurisées par un compte de séquestre. Les fonds ne sont débloqués au professionnel qu'après réalisation effective de la prestation."
+          title: "2. Comptes utilisateurs",
+          text: "Pour accéder à certaines fonctionnalités des Services, vous devez créer un compte. Vous êtes responsable de la protection de vos identifiants et de toutes les activités réalisées depuis votre compte. Vous devez avoir au moins 18 ans pour créer un compte."
         },
         {
-          title: "3. Responsabilités et déontologie",
-          text: "Les avocats exercent sous leur propre responsabilité professionnelle et dans le respect strict des règles de déontologie établies par le Barreau du Rwanda."
+          title: "3. Plateforme et séquestre",
+          text: "MyJudicial est une plateforme mettant en relation des clients avec des professionnels du droit. MyJudicial ne fournit pas elle-même de conseils juridiques. Lorsque vous réservez une consultation, le paiement est conservé dans notre système de séquestre sécurisé et n'est reversé à l'avocat qu'à la suite de la réalisation effective de la consultation."
+        },
+        {
+          title: "4. Avertissements",
+          text: "Les Services sont fournis « TELS QUELS » et « SELON DISPONIBILITÉ ». Nous rejetons toute garantie, expresse ou implicite, y compris les garanties implicites de qualité marchande, d'adéquation à un usage particulier et de non-contrefaçon."
         }
       ]
     }
@@ -1324,22 +1282,18 @@ rw.legalPages = {
     hero: {
       badge: "Amategeko ya Kuki (Cookies)",
       title: "Imikoreshereze ya Kuki",
-      updated: "Iheruka kuvugururwa: Werurwe 2026"
+      updated: "Iheruka kuvugururwa: 15 Nyakanga 2026"
     },
     content: {
       intro: "Aya mabwiriza asobanura uburyo MyJudicial ikoresha kuki n'ubundi buryo bwo kubika amakuru kugira ngo urubuga rwacu rugukorere neza kandi rwibuke ururimi wahisemo (Icyongereza, Igifaransa cyangwa Ikinyarwanda).",
       sections: [
         {
-          title: "1. Kuki ni iki?",
-          text: "Kuki ni dosiye nto ibikwa kuri terefone cyangwa mudasobwa yawe igihe urangamiye urubuga. Ifasha kumenya ibyo wahisemo no kurinda umutekano wawe igihe uri ku rubuga."
+          title: "Kuki ni iki?",
+          text: "Kuki ni dosiye nto irimo indangamuntu (inyuguti n'imibare) dufata ku browser yawe cyangwa ku mudasobwa wawe iyo wemeye. Irimo amakuru yerekanwa ku mudasobwa wawe."
         },
         {
-          title: "2. Kuki dukoresha",
-          text: "Dukoresha kuki za ngombwa gusa zituma ushobora kwinjira muri konti yawe, guhitamo ururimi rwawe no kurinda ubutumwa bwawe n'amafaranga yawe."
-        },
-        {
-          title: "3. Guhagarika kuki",
-          text: "Ushobora guhagarika kuki muri porogaramu ukoresha usura interineti, ariko bimwe mu bikorwa by'urubuga (nko kuguma muri konti yawe) bishobora kutazakora neza."
+          title: "Uko dukoresha kuki",
+          text: "Dukoresha kuki zikenewe cyane (zikenewe mu mikorere y'urubuga), kuki zo gusesengura cyangwa imikorere (zituma tumenya kandi tukabara abasura), kuki z'akazi (zikoreshwa kugira ngo nkwibuke igihe ufashije) hamwe na kuki zo kuza kuri wowe (zikara uruzinduko rwawe, amapaji wabajije n'udukingo ukuyemo)."
         }
       ]
     }
@@ -1348,22 +1302,22 @@ rw.legalPages = {
     hero: {
       badge: "Kurinda Amakuru Bwite",
       title: "Politiki y'Ibanga",
-      updated: "Iheruka kuvugururwa: Werurwe 2026"
+      updated: "Iheruka kuvugururwa: 15 Nyakanga 2026"
     },
     content: {
       intro: "Kuri MyJudicial, kurinda amabanga y'ibibazo byawe by'amategeko nibyo dushyira imbere ya byose. Dukurikiza Itegeko ry'u Rwanda nº 058/2021 ryerekeye kurinda amakuru bwite n'ubuzima bwite bw'umuntu.",
       sections: [
         {
           title: "1. Amakuru dukusanya",
-          text: "Dukusanya gusa amakuru akenewe mu gufungura konti yawe, kuguhuza n'umwavoka wemewe no kwishyura mu mutekano binyuze kuri Mobile Money."
+          text: "Dushobora gukusanya, gukoresha, kubika no kohereza amakuru bwite atandukanye agaruka kuri wowe, arimo: amakuru y'irangamuntu (izina, amagambo atandukanye y'izina), amakuru yo kubonana (aderesi, imeri, telefoni), amakuru y'imari (amakuru y'iposite n'ubwishyu), amakuru y'ubucuruzi (amakuru y'ubwishyu n'ibyo wagize byakozwe) n'umwirondoro wawe (username, password, ibyo ukunda)."
         },
         {
-          title: "2. Ibanga ry'umwuga w'ubwavoka",
-          text: "Amakuru yose usangiza umwavoka mu gihe cy'inama arinzwe n'ibanga ry'umwuga w'ubwavoka hakurikijwe amategeko y'Urugaga rw'Abavoka mu Rwanda."
+          title: "2. Uko dukoresha amakuru yawe",
+          text: "Dukoresha amakuru yawe bwite gusa aho amategeko abituma. Mu byukuri: kugira ngo dusohoze amasezerano twagiranye nawe, igihe inyungu zacu zisoromye zitabangamiye uburenganzira bwawe shingiro, cyangwa kugira ngo twubahirize inshingano z'amategeko."
         },
         {
-          title: "3. Umutekano n'ibanga rikomeye",
-          text: "Amakuru yawe abikwa mu buryo bugezweho bukingiye ku buryo nta muntu utabifitiye uburenganzira wayabona. Ntitubagurisha cyangwa ngo dusangize amakuru yawe abandi."
+          title: "3. Umutekano w'amakuru",
+          text: "Twashyizeho ingamba z'umutekano zikwiye kugira ngo amakuru yawe bwite atazimira, atakoreshwe cyangwa akaboneka n'utemerewe, cyangwa ngo ahindurwe cyangwa ashyirwe ahagaragara. Abafite uburenganzira bwo kubona amakuru yawe ni abo mu itsinda ryacu gusa, kandi bagenga kuyabika ibanga."
         }
       ]
     }
@@ -1372,22 +1326,26 @@ rw.legalPages = {
     hero: {
       badge: "Amategeko Ngenderwaho",
       title: "Amabwiriza Ngenderwaho yo Gukoresha Urubuga",
-      updated: "Iheruka kuvugururwa: Werurwe 2026"
+      updated: "Iheruka kuvugururwa: 15 Nyakanga 2026"
     },
     content: {
       intro: "Mu gukoresha urubuga rwa MyJudicial, wemera gukurikiza aya mabwiriza ngenderwaho agenga uburyo urubuga n'amahuriro by'amategeko bikoreshwa.",
       sections: [
         {
-          title: "1. Imiterere y'urubuga",
-          text: "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakeneye ubutabera n'abavoka bigenga bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ubwayo ntabwo ari ibiro by'abavoka."
+          title: "1. Kwemera amabwiriza",
+          text: "Mu gukoresha cyangwa kwinjira muri Serivisi, wemera kuyoborwa n'aya mabwiriza hamwe na Politiki y'Ibanga yacu. Niba utabyemera, ntukoreshe Serivisi."
         },
         {
-          title: "2. Gufata gahunda no kwishyura",
-          text: "Inama zose zifashwe zishyurwa binyuze mu buryo bwizewe (Escrow). Amafaranga ntabwo ahabwa umwavoka kugeza igihe inama irangiye neza."
+          title: "2. Konti z'abakoresha",
+          text: "Kugira ngo wigere ku bimwe mubikorwa bya Serivisi, ugomba gukora konti. Ushinzwe kurinda amakuru y'urufunguzo rwawe ndetse n'ibikorwa byose bikorerwa kuri konti yawe. Ugomba kuba ufite nibura imyaka 18 kugira ngo ukore konti."
         },
         {
-          title: "3. Inshingano n'imyitwarire y'umwuga",
-          text: "Abavoka bakora ku giti cyabo mu bwisanzure no kubahiriza amategeko n'amabwiriza agenga imyitwarire y'umwuga w'ubwavoka ashyirwaho n'Urugaga rw'Abavoka mu Rwanda."
+          title: "3. Isoko n'Eskaro",
+          text: "MyJudicial ni urubuga ruhuza abakiriya n'umwuga w'amategeko. Ntabwo dutanga inama z'amategeko twebwe ubwacu. Iyo ufashe gahunda, ubwishyu burindwa mu buryo bwizewe (escrow) kandi buhabwa umwavoka gusa nyuma yo kurangiza ubujyanama."
+        },
+        {
+          title: "4. Imyitwarire iburira",
+          text: "Serivisi zatanzwe « NKO ZIRI » kandi « MUKO ZIHARI ». Ntitwemera ikigamiro icyo ari cyo cyose, mu buryo bunaka cyangwa busa, harimo amasezerano asigurwa y'ubucuruzi, gukenera ikintu runaka cyangwa kutabangamira."
         }
       ]
     }

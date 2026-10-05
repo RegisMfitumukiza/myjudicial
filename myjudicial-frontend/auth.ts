@@ -26,14 +26,23 @@ async function fetchBackend<T>(path: string, body: unknown): Promise<T> {
     throw err;
   }
 
+  const text = await response.text();
+  let payload: any = null;
+  if (text && text.trim()) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      payload = null;
+    }
+  }
+
   if (!response.ok) {
-    const payload = await response.json().catch(() => null);
     const message = payload?.message ?? payload?.error?.message ?? "Authentication failed";
     console.error(`[auth] Backend ${path} responded ${response.status}: ${message}`);
     throw new Error(message);
   }
 
-  return response.json();
+  return (payload ?? {}) as T;
 }
 
 type BackendSession = {

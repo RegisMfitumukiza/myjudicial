@@ -42,6 +42,7 @@ const SATELLITE_STYLE: maplibregl.StyleSpecification = {
 type MapViewProps = {
   lawyers: Lawyer[];
   selectedId: string | null;
+  hoveredId?: string | null;
   onSelect: (id: string) => void;
   center?: { lat: number; lng: number };
   onCenterChange?: (lat: number, lng: number) => void;
@@ -69,10 +70,57 @@ function formatDistance(km: number): string {
   return `${Math.round(km)} km`;
 }
 
+/**
+ * Intelligent micro-dispersion algorithm (Airbnb / Google Maps pattern).
+ * Detects pins sharing identical or near-identical coordinates (<180m, e.g. same building or district)
+ * and arranges them in a clean radial constellation so every pin remains distinct, readable, and clickable.
+ */
+function computeNonOverlappingCoords(lawyers: Lawyer[]): Map<string, [number, number]> {
+  const result = new Map<string, [number, number]>();
+  const clusters: { center: [number, number]; members: Lawyer[] }[] = [];
+  const PROXIMITY_THRESHOLD = 0.0018; // ~180 meters
+
+  for (const lawyer of lawyers) {
+    if (lawyer.lat === 0 || lawyer.lng === 0) continue;
+    let foundCluster = false;
+    for (const cluster of clusters) {
+      const dLat = lawyer.lat - cluster.center[0];
+      const dLng = lawyer.lng - cluster.center[1];
+      if (Math.hypot(dLat, dLng) < PROXIMITY_THRESHOLD) {
+        cluster.members.push(lawyer);
+        foundCluster = true;
+        break;
+      }
+    }
+    if (!foundCluster) {
+      clusters.push({ center: [lawyer.lat, lawyer.lng], members: [lawyer] });
+    }
+  }
+
+  for (const cluster of clusters) {
+    if (cluster.members.length === 1) {
+      const single = cluster.members[0];
+      result.set(single.id, [single.lng, single.lat]);
+    } else {
+      const count = cluster.members.length;
+      const radius = 0.0024; // ~220m radial fan-out
+      cluster.members.forEach((member, i) => {
+        const angle = (i * 2 * Math.PI) / count - Math.PI / 2;
+        const offsetLat = cluster.center[0] + radius * Math.cos(angle);
+        const offsetLng = cluster.center[1] + radius * Math.sin(angle) * 1.08;
+        result.set(member.id, [offsetLng, offsetLat]);
+      });
+    }
+  }
+  return result;
+}
+
 interface MarkerData {
   marker: maplibregl.Marker;
   element: HTMLDivElement;
+  inner: HTMLDivElement;
   pin: HTMLDivElement;
+  pointer: HTMLDivElement;
   popup: maplibregl.Popup;
   hoverTimeout: ReturnType<typeof setTimeout> | null;
 }
@@ -82,6 +130,7 @@ function createMarkerElements(props: {
   rate: number;
   verified: boolean;
   selected: boolean;
+  hovered: boolean;
   rating: number;
   reviewCount: number;
   avatarUrl: string;
@@ -93,47 +142,95 @@ function createMarkerElements(props: {
   online: boolean;
   yearsExperience: number;
   t: (key: string, params?: Record<string, string | number>) => string;
-}): { container: HTMLDivElement; pin: HTMLDivElement } {
+}): { container: HTMLDivElement; inner: HTMLDivElement; pin: HTMLDivElement; pointer: HTMLDivElement } {
+  // IMPORTANT: this element is the MapLibre marker root. MapLibre positions it with
+  // `position:absolute` + `transform:translate(...)`, so we must NOT override either here.
   const el = document.createElement("div");
-  el.style.cssText =
-    "cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;";
+  el.style.cssText = "cursor:pointer;user-select:none;";
   el.setAttribute("role", "button");
   el.setAttribute("aria-label", props.t("viewProfileAria", { name: props.name }));
 
-  const size = props.selected ? 44 : 36;
-  const pin = document.createElement("div");
   const BRAND = "rgb(36,85,141)";
-  const bg = props.selected ? BRAND : "white";
-  const border = props.selected
-    ? "3px solid white"
-    : `2.5px solid ${BRAND}`;
-  const shadow = props.selected
-    ? "0 4px 16px rgba(0,0,0,0.35)"
-    : "0 2px 10px rgba(0,0,0,0.2)";
-  const textColor = props.selected ? "white" : BRAND;
+  const isHigh = props.selected || props.hovered;
+  const bg = isHigh ? BRAND : "#ffffff";
+  const textColor = isHigh ? "#ffffff" : "#0f172a";
+  const borderColor = isHigh ? "#ffffff" : "rgba(15,23,42,0.12)";
+  const shadow = isHigh
+    ? "0 8px 24px -2px rgba(36,85,141,0.45), 0 4px 12px rgba(0,0,0,0.15)"
+    : "0 4px 14px -1px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)";
+  const pointerColor = isHigh ? BRAND : "#ffffff";
 
+  const pin = document.createElement("div");
   pin.style.cssText = `
-    width:${size}px;height:${size}px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    background:${bg};border:${border};
+    display:flex;align-items:center;gap:6px;
+    padding:3px 9px 3px 3px;
+    background:${bg};
+    color:${textColor};
+    border:1.5px solid ${borderColor};
+    border-radius:9999px;
     box-shadow:${shadow};
-    transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-    ${props.selected ? "transform:scale(1.18);" : ""}
+    transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.22s ease;
+    white-space:nowrap;
   `;
 
-  const rateLabel =
-    props.rate > 0 ? formatRate(props.rate) : props.name.charAt(0);
-  pin.innerHTML = `<span style="font-size:${size < 40 ? 11 : 12}px;font-weight:700;line-height:1;color:${textColor};pointer-events:none">${rateLabel}</span>`;
-  el.appendChild(pin);
+  // Avatar inside pin
+  const initials = props.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const avatarBg = isHigh ? "rgba(255,255,255,0.2)" : BRAND;
+  const avatarHtml = props.avatarUrl
+    ? `<img src="${props.avatarUrl}" alt="${props.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.outerHTML='<div style=\\'width:22px;height:22px;border-radius:50%;background:${avatarBg};color:white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;\\'>${initials}</div>'" />`
+    : `<div style="width:22px;height:22px;border-radius:50%;background:${avatarBg};color:white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">${initials}</div>`;
+
+  const rateLabel = props.rate > 0 ? `${formatRate(props.rate)} RWF` : props.name.split(" ")[0];
+  const verifiedBadge = props.verified
+    ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="${isHigh ? '#ffffff' : BRAND}" stroke-width="3" style="margin-left:-2px;flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>`
+    : "";
+
+  pin.innerHTML = `
+    ${avatarHtml}
+    <span style="font-size:11.5px;font-weight:800;letter-spacing:-0.01em;line-height:1;pointer-events:none">${rateLabel}</span>
+    ${verifiedBadge}
+  `;
+
+  const pointer = document.createElement("div");
+  pointer.style.cssText = `
+    width:0;height:0;
+    border-left:5px solid transparent;
+    border-right:5px solid transparent;
+    border-top:5px solid ${pointerColor};
+    margin-top:-1px;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+    transition:border-top-color 0.2s ease;
+  `;
+
+  const inner = document.createElement("div");
+  inner.style.cssText =
+    "display:flex;flex-direction:column;align-items:center;justify-content:center;transform-origin:50% 100%;transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1);";
+  inner.appendChild(pin);
+  inner.appendChild(pointer);
+  el.appendChild(inner);
+
+  if (isHigh) {
+    inner.style.transform = "scale(1.15)";
+    el.style.zIndex = props.selected ? "35" : "25";
+  } else {
+    inner.style.transform = "";
+    el.style.zIndex = "1";
+  }
 
   el.addEventListener("mouseenter", () => {
-    if (!props.selected) pin.style.transform = "scale(1.12)";
+    if (!props.selected) {
+      inner.style.transform = "scale(1.15)";
+      el.style.zIndex = "25";
+    }
   });
   el.addEventListener("mouseleave", () => {
-    if (!props.selected) pin.style.transform = "";
+    if (!props.selected && !props.hovered) {
+      inner.style.transform = "";
+      el.style.zIndex = "1";
+    }
   });
 
-  return { container: el, pin };
+  return { container: el, inner, pin, pointer };
 }
 
 function createRichPopupHtml(props: {
@@ -184,7 +281,7 @@ function createRichPopupHtml(props: {
     : "";
 
   const verifiedBadge = props.verified
-    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:${BRAND}">
+    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:${BRAND};flex-shrink:0;white-space:nowrap">
          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${BRAND}" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
          ${props.t("verified")}
        </span>`
@@ -220,7 +317,7 @@ function createRichPopupHtml(props: {
   return `
     <div style="padding:0;min-width:280px;max-width:320px;font-family:system-ui,-apple-system,sans-serif;overflow:hidden">
 
-      <div style="padding:14px 14px 10px;display:flex;gap:12px;align-items:flex-start">
+      <div style="padding:14px 44px 10px 14px;position:relative;display:flex;gap:12px;align-items:flex-start">
         <div style="position:relative;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:${BRAND};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">
           ${props.avatarUrl
             ? `<img src="${props.avatarUrl}" alt="${props.name}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}" onerror="this.parentElement.innerHTML='${props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()}'" />`
@@ -229,7 +326,7 @@ function createRichPopupHtml(props: {
         </div>
         <div style="min-width:0;flex:1">
           <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            <p style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.2">${props.name}</p>
+            <p style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.25;word-break:break-word">${props.name}</p>
             ${verifiedBadge}
           </div>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:3px">
@@ -335,6 +432,7 @@ function createHoverTooltipHtml(props: {
 export function MapView({
   lawyers,
   selectedId,
+  hoveredId,
   onSelect,
   center,
   onCenterChange,
@@ -364,13 +462,18 @@ export function MapView({
     selectedIdRef.current = selectedId;
   }, [selectedId]);
 
+  const displayCoordsMap = useMemo(
+    () => computeNonOverlappingCoords(lawyers),
+    [lawyers]
+  );
+
   const fitBoundsToLawyers = useCallback(
     (animate = true) => {
       const map = mapRef.current;
       if (!map || lawyers.length === 0) return;
       const coords = lawyers
         .filter((l) => l.lat !== 0 && l.lng !== 0)
-        .map((l) => [l.lng, l.lat] as [number, number]);
+        .map((l) => displayCoordsMap.get(l.id) ?? ([l.lng, l.lat] as [number, number]));
       if (coords.length === 0) return;
       if (coords.length === 1) {
         map.flyTo({ center: coords[0], zoom: 14, duration: animate ? 600 : 0 });
@@ -379,12 +482,12 @@ export function MapView({
       const bounds = new maplibregl.LngLatBounds();
       coords.forEach((c) => bounds.extend(c));
       map.fitBounds(bounds, {
-        padding: { top: 60, bottom: 60, left: 60, right: 60 },
+        padding: { top: 70, bottom: 70, left: 70, right: 70 },
         maxZoom: 15,
         duration: animate ? 600 : 0,
       });
     },
-    [lawyers]
+    [lawyers, displayCoordsMap]
   );
 
   useEffect(() => {
@@ -420,13 +523,15 @@ export function MapView({
         onSelect("");
       });
 
-      map.on("movestart", () => {
+      map.on("dragstart", () => {
         isDraggingRef.current = true;
       });
 
       map.on("moveend", () => {
+        if (isDraggingRef.current) {
+          setShowSearchThisArea(true);
+        }
         isDraggingRef.current = false;
-        setShowSearchThisArea(true);
         if (onBoundsChange) {
           const b = map.getBounds();
           onBoundsChange({
@@ -500,32 +605,33 @@ export function MapView({
     for (const lawyer of lawyers) {
       if (lawyer.lat === 0 || lawyer.lng === 0) continue;
       const isSelected = lawyer.id === selectedId;
+      const isHovered = lawyer.id === hoveredId;
       const existing = markersMapRef.current.get(lawyer.id);
 
       if (existing) {
-        const pin = existing.pin;
-        const size = isSelected ? 44 : 36;
-        const BRAND = "rgb(36,85,141)";
-        const bg = isSelected ? BRAND : "white";
-        const border = isSelected
-          ? "3px solid white"
-          : `2.5px solid ${BRAND}`;
-        const shadow = isSelected
-          ? "0 4px 16px rgba(0,0,0,0.35)"
-          : "0 2px 10px rgba(0,0,0,0.2)";
-        const textColor = isSelected ? "white" : BRAND;
+        const coords = displayCoordsMap.get(lawyer.id) ?? [lawyer.lng, lawyer.lat];
+        existing.marker.setLngLat(coords);
 
-        pin.style.width = `${size}px`;
-        pin.style.height = `${size}px`;
-        pin.style.background = bg;
-        pin.style.border = border;
-        pin.style.boxShadow = shadow;
-        pin.style.transform = isSelected ? "scale(1.18)" : "";
-        const rateLabel =
-          lawyer.startingRateRwf > 0
-            ? formatRate(lawyer.startingRateRwf)
-            : lawyer.name.charAt(0);
-        pin.innerHTML = `<span style="font-size:${size < 40 ? 11 : 12}px;font-weight:700;line-height:1;color:${textColor};pointer-events:none">${rateLabel}</span>`;
+        const isHigh = isSelected || isHovered;
+        const BRAND = "rgb(36,85,141)";
+        const bg = isHigh ? BRAND : "#ffffff";
+        const textColor = isHigh ? "#ffffff" : "#0f172a";
+        const borderColor = isHigh ? "#ffffff" : "rgba(15,23,42,0.12)";
+        const shadow = isHigh
+          ? "0 8px 24px -2px rgba(36,85,141,0.45), 0 4px 12px rgba(0,0,0,0.15)"
+          : "0 4px 14px -1px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)";
+        const pointerColor = isHigh ? BRAND : "#ffffff";
+
+        existing.pin.style.background = bg;
+        existing.pin.style.color = textColor;
+        existing.pin.style.borderColor = borderColor;
+        existing.pin.style.boxShadow = shadow;
+        if (existing.pointer) {
+          existing.pointer.style.borderTopColor = pointerColor;
+        }
+
+        existing.inner.style.transform = isHigh ? "scale(1.15)" : "";
+        existing.element.style.zIndex = isSelected ? "35" : isHovered ? "25" : "1";
 
         if (isSelected) {
           if (!isMobile) {
@@ -540,11 +646,12 @@ export function MapView({
         continue;
       }
 
-      const { container, pin: newPin } = createMarkerElements({
+      const { container, inner: newInner, pin: newPin, pointer: newPointer } = createMarkerElements({
         name: lawyer.name,
         rate: lawyer.startingRateRwf,
         verified: lawyer.verified,
         selected: isSelected,
+        hovered: isHovered,
         rating: lawyer.rating,
         reviewCount: lawyer.reviewCount,
         avatarUrl: lawyer.avatarUrl ?? "",
@@ -564,7 +671,7 @@ export function MapView({
       });
 
       const popup = new maplibregl.Popup({
-        offset: [0, -8],
+        offset: [0, -42],
         closeButton: true,
         maxWidth: "320px",
         className: "lawyer-popup",
@@ -591,8 +698,15 @@ export function MapView({
         })
       );
 
+      popup.on("close", () => {
+        if (selectedIdRef.current === lawyer.id) {
+          onSelect("");
+        }
+      });
+
+      const coords = displayCoordsMap.get(lawyer.id) ?? [lawyer.lng, lawyer.lat];
       const marker = new maplibregl.Marker({ element: container, anchor: "bottom" })
-        .setLngLat([lawyer.lng, lawyer.lat]);
+        .setLngLat(coords);
 
       if (!isMobile) {
         marker.setPopup(popup);
@@ -647,7 +761,9 @@ export function MapView({
       markersMapRef.current.set(lawyer.id, {
         marker,
         element: container,
+        inner: newInner,
         pin: newPin,
+        pointer: newPointer,
         popup,
         hoverTimeout: null,
       });
@@ -660,7 +776,7 @@ export function MapView({
         });
       }
     };
-  }, [lawyers, selectedId, ready, onSelect, isMobile, t, locale]);
+  }, [lawyers, selectedId, hoveredId, ready, onSelect, isMobile, t, locale, displayCoordsMap]);
 
   useEffect(() => {
     if (!ready) return;
@@ -668,15 +784,17 @@ export function MapView({
     if (lawyer && lawyer.lat !== 0 && lawyer.lng !== 0) {
       if (flyToTimerRef.current) clearTimeout(flyToTimerRef.current);
       flyToTimerRef.current = setTimeout(() => {
+        const coords = displayCoordsMap.get(lawyer.id) ?? [lawyer.lng, lawyer.lat];
+        setShowSearchThisArea(false);
         mapRef.current?.flyTo({
-          center: [lawyer.lng, lawyer.lat],
+          center: coords,
           zoom: Math.max(mapRef.current?.getZoom() ?? 12, 14),
           duration: 600,
-          offset: isMobile ? [0, -100] : [0, -60],
+          offset: isMobile ? [0, -100] : [0, -75],
         });
       }, 50);
     }
-  }, [selectedId, lawyers, ready, isMobile]);
+  }, [selectedId, lawyers, ready, isMobile, displayCoordsMap]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -753,15 +871,22 @@ export function MapView({
       </div>
 
       {/* ── Top-Center: Search this area pill ── */}
-      {showSearchThisArea && (
-        <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
+      {showSearchThisArea && !selectedId && (
+        <div className="absolute left-1/2 top-4 sm:top-5 z-30 -translate-x-1/2 animate-in fade-in slide-in-from-top-2 duration-200">
           <button
             type="button"
-            onClick={() => setShowSearchThisArea(false)}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md transition hover:shadow-lg hover:bg-accent"
+            onClick={() => {
+              setShowSearchThisArea(false);
+              const map = mapRef.current;
+              if (map && onCenterChange) {
+                const c = map.getCenter();
+                onCenterChange(c.lat, c.lng);
+              }
+            }}
+            className="flex items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 text-xs font-semibold text-foreground shadow-lg backdrop-blur-md transition-all hover:shadow-xl hover:bg-accent active:scale-95"
           >
             <ZoomIn className="h-3.5 w-3.5 text-brand-dark dark:text-white" />
-            {t("searchThisArea")}
+            <span>{t("searchThisArea")}</span>
           </button>
         </div>
       )}

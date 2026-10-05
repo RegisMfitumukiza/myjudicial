@@ -99,9 +99,9 @@ export async function refreshAccessToken(): Promise<string | null> {
         return null;
       }
 
-      const result = await response.json();
-      const newAccessToken = result.data?.accessToken;
-      const newRefreshToken = result.data?.refreshToken;
+      const result = await parseJsonBody<any>(response);
+      const newAccessToken = result?.data?.accessToken;
+      const newRefreshToken = result?.data?.refreshToken;
 
       if (!newAccessToken) {
         console.error("No access token in refresh response");
@@ -232,18 +232,41 @@ async function fetchWithRefresh<T>(
   return fetchWithRefresh(path, { ...options, token: newAccessToken }, true);
 }
 
+/** Safely parses response body as JSON. Returns undefined for 204 or empty/whitespace responses. */
+async function parseJsonBody<T>(response: Response): Promise<T | undefined> {
+  if (response.status === 204) return undefined;
+  try {
+    const text = await response.text();
+    if (!text || !text.trim()) return undefined;
+    return JSON.parse(text) as T;
+  } catch (err) {
+    console.error(`[apiClient] Failed to parse JSON response (${response.status}):`, err);
+    throw new Error(`Invalid JSON response received from server (${response.status})`);
+  }
+}
+
+/** Safely extracts error payload if present without throwing SyntaxError on empty bodies. */
+async function parseErrorPayload(response: Response): Promise<unknown> {
+  try {
+    const text = await response.text();
+    if (!text || !text.trim()) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 /** Returns only the parsed JSON body. Used by direct callers. */
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}) {
   const response = await fetchWithRefresh(path, options);
-  if (!response.ok) throw makeError(await response.json().catch(() => null), response.status);
-  if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+  if (!response.ok) throw makeError(await parseErrorPayload(response), response.status);
+  return (await parseJsonBody<T>(response)) as T;
 }
 
 /** Returns the raw Blob response. Used for downloading files. */
 export async function apiFetchBlob(path: string, options: ApiFetchOptions = {}): Promise<Blob> {
   const response = await fetchWithRefresh(path, options);
-  if (!response.ok) throw makeError(await response.json().catch(() => null), response.status);
+  if (!response.ok) throw makeError(await parseErrorPayload(response), response.status);
   return await response.blob();
 }
 
@@ -255,7 +278,8 @@ export async function apiFetchBlob(path: string, options: ApiFetchOptions = {}):
 export async function apiFetchEnvelope<T>(path: string, options?: RequestInit): Promise<T> {
   const opts = options as ApiFetchOptions | undefined;
   const response = await fetchWithRefresh(path, opts ?? {});
-  if (!response.ok) throw makeError(await response.json().catch(() => null), response.status);
-  const data = response.status === 204 ? undefined : (await response.json());
+  if (!response.ok) throw makeError(await parseErrorPayload(response), response.status);
+  const data = await parseJsonBody(response);
   return { data, status: response.status, headers: response.headers } as unknown as T;
 }
+

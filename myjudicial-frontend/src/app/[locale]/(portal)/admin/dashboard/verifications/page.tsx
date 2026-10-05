@@ -101,14 +101,14 @@ export default function AdminVerificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <LoadingSpinner label={t("pendingReview")} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -116,7 +116,7 @@ export default function AdminVerificationsPage() {
         backLabel={t("backToExperts")}
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label={t("totalRequests")}
           value={counts.total}
@@ -135,9 +135,9 @@ export default function AdminVerificationsPage() {
         />
       </div>
 
-      <div className="w-fit">
+      <div className="w-full sm:w-fit">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder={t("pendingReview")} />
           </SelectTrigger>
           <SelectContent>
@@ -162,7 +162,8 @@ export default function AdminVerificationsPage() {
       ) : (
         <Card>
           <CardContent className="p-0">
-            <table className="w-full">
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/50 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <th className="px-5 py-3">{t("expert")}</th>
@@ -230,6 +231,7 @@ export default function AdminVerificationsPage() {
                 })}
               </tbody>
             </table>
+            </div>
           </CardContent>
         </Card>
       )}

@@ -63,7 +63,7 @@ export function SkeletonList({
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-6 lg:p-8 animate-pulse" aria-hidden="true">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8 animate-pulse" aria-hidden="true">
       {/* Header */}
       <div className="space-y-2">
         <Skeleton className="h-7 w-48 rounded-lg" />
@@ -71,9 +71,9 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Primary KPI grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div key={i} className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-24 rounded" />
               <Skeleton className="h-8 w-8 rounded-lg" />
@@ -85,9 +85,9 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Secondary KPI grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 sm:gap-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div key={i} className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-28 rounded" />
               <Skeleton className="h-8 w-8 rounded-lg" />
@@ -101,7 +101,7 @@ export function DashboardSkeleton() {
       {/* Quick Actions */}
       <div className="space-y-3">
         <Skeleton className="h-4 w-28 rounded" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
               <Skeleton className="h-9 w-9 rounded-lg" />

@@ -87,7 +87,7 @@ export default function AiScopePage() {
   const isProcessing = phase === "analyzing" || phase === "finding";
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <AiAnalysisForm
         title={t("aiScopeTitle")}
         description={t("aiScopeDesc")}

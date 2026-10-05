@@ -92,9 +92,9 @@ export function WeeklySchedule({ availability }: WeeklyScheduleProps) {
       {/* Save Button */}
       {hasChanges && (
         <Alert className="border-brand-blue/20 bg-brand-blue/5">
-          <AlertDescription className="flex items-center justify-between">
+          <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <span className="text-sm">{t("weeklySchedule.unsavedChanges")}</span>
-            <Button size="sm" onClick={handleSave} disabled={updateAvailability.isPending}>
+            <Button size="sm" onClick={handleSave} disabled={updateAvailability.isPending} className="w-full sm:w-auto">
               {updateAvailability.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -111,7 +111,7 @@ export function WeeklySchedule({ availability }: WeeklyScheduleProps) {
         {schedule.map((day) => (
           <div
             key={day.dayOfWeek}
-            className="flex items-center gap-4 rounded-lg border border-brand-border bg-white p-4"
+            className="flex flex-wrap items-center gap-3 sm:gap-4 rounded-lg border border-brand-border bg-white p-3 sm:p-4"
           >
             {/* Day Toggle */}
             <div className="flex items-center gap-3">
@@ -119,15 +119,15 @@ export function WeeklySchedule({ availability }: WeeklyScheduleProps) {
                 type="checkbox"
                 checked={day.isAvailable}
                 onChange={() => handleToggleDay(day.dayOfWeek)}
-                className="h-5 w-5 rounded border-brand-border"
+                className="h-5 w-5 rounded border-brand-border shrink-0"
               />
-              <span className="w-28 font-medium text-brand-dark">
+              <span className="w-24 min-[380px]:w-28 font-medium text-brand-dark shrink-0">
                 {t(`expertDashboard_availability.${day.dayOfWeek.toLowerCase()}` as any)}
               </span>
             </div>
 
             {/* Time Inputs */}
-            <div className="flex flex-1 items-center gap-4">
+            <div className="flex flex-wrap flex-1 items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-slate-400" />
                 <Input

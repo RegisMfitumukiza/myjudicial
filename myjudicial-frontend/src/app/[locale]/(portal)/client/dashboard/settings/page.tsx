@@ -9,9 +9,9 @@ import { useTranslations } from "next-intl";
 export default function SettingsPage() {
   const t = useTranslations("clientDashboard.settings");
   return (
-    <div className="mx-auto max-w-[900px] space-y-6 p-6 lg:p-8">
+    <div className="mx-auto max-w-[900px] space-y-6 p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <div>
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
+        <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-gray-100 break-words">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 

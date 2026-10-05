@@ -27,7 +27,7 @@ export function AiStepIndicator({ currentStep }: { currentStep: AiStep }) {
             {i > 0 && (
               <div
                 className={cn(
-                  "h-px w-8 transition-colors",
+                  "h-px w-4 min-[360px]:w-8 transition-colors",
                   i <= current ? "bg-brand-dark" : "bg-border"
                 )}
               />

@@ -39,7 +39,7 @@ export default function MeetingsPage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -60,17 +60,19 @@ export default function MeetingsPage() {
 
               return (
                 <div key={m.id} className="rounded-xl border border-border bg-card p-4 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Video size={18} aria-hidden="true" />
+                  <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Video size={18} aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">{clientName}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {m.service?.name ?? t("consultation")} &middot; {formatScheduled(m.scheduledStart)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-foreground">{clientName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.service?.name ?? t("consultation")} &middot; {formatScheduled(m.scheduledStart)}
-                      </p>
-                    </div>
-                    <Button size="sm" onClick={() => handleJoin(m.id)} disabled={!canJoin}>
+                    <Button size="sm" onClick={() => handleJoin(m.id)} disabled={!canJoin} className="w-full min-[480px]:w-auto shrink-0">
                       <Video size={14} aria-hidden="true" />
                       {canJoin ? t("joinCall") : t("notYetTime")}
                     </Button>

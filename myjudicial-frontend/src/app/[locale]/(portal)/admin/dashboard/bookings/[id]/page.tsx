@@ -122,7 +122,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
 
   if (error || !booking) {
     return (
-      <div className="space-y-6 p-6 lg:p-8">
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader
           title={t("title")}
           backHref="/admin/dashboard/bookings"
@@ -147,7 +147,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
   return (
-    <div className="space-y-6 p-6 lg:p-8">
+    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={booking.service?.name ?? t("consultation")}
         description={`Booking ${booking.id}`}
@@ -169,7 +169,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
               {statusSteps.map((step, i) => {
                 const isReached = currentOrder >= step.order;
                 return (

@@ -88,7 +88,7 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="flex h-full flex-col p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -118,28 +118,29 @@ export default function AvailabilityPage() {
         <div className="rounded-xl border border-border bg-card shadow-sm">
           <div className="divide-y divide-border">
             {schedule.map((d) => (
-              <div key={d.dayOfWeek} className="flex flex-wrap items-center gap-4 px-4 py-3">
+              <div key={d.dayOfWeek} className="flex flex-wrap items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3">
                 <Switch
                   checked={d.isAvailable}
                   onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
+                  className="shrink-0"
                 />
-                <span className="w-24 shrink-0 text-sm font-semibold text-foreground">
+                <span className="w-20 min-[380px]:w-24 shrink-0 text-sm font-semibold text-foreground">
                   {t(d.dayOfWeek.toLowerCase() as any)}
                 </span>
                 {d.isAvailable ? (
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
                     <Input
                       type="time"
                       value={d.startTime}
                       onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
-                      className="h-8 w-32 px-2"
+                      className="h-8 w-28 min-[380px]:w-32 px-2"
                     />
                     <span className="text-muted-foreground">{t("to")}</span>
                     <Input
                       type="time"
                       value={d.endTime}
                       onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
-                      className="h-8 w-32 px-2"
+                      className="h-8 w-28 min-[380px]:w-32 px-2"
                     />
                   </div>
                 ) : (

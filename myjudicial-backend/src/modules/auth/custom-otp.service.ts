@@ -15,16 +15,16 @@ import { logger } from "../../shared/utils/logger.js";
  * - Can customize OTP length, format, delivery
  */
 
-const OTP_EXPIRY_SECONDS = 900; // 15 minutes
+const OTP_EXPIRY_SECONDS = 600; // 10 minutes
 const OTP_LENGTH = 6;
 const REDIS_KEY_PREFIX = "custom-otp:";
 const MAX_ATTEMPTS_KEY_PREFIX = "otp-attempts:";
 const MAX_ATTEMPTS = 5;
-const ATTEMPT_WINDOW_SECONDS = 900; // 15 minutes
+const ATTEMPT_WINDOW_SECONDS = 600; // 10 minutes
 
 export const CustomOtpService = {
   /**
-   * Generate a 6-digit OTP and store it in Redis with 15-minute expiry
+   * Generate a 6-digit OTP and store it in Redis with 10-minute expiry
    */
   generate: async (email: string): Promise<string> => {
     // Generate random 6-digit OTP

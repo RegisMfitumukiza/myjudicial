@@ -39,16 +39,16 @@ export function RevenueChart({ data, highestTransactionRwf }: RevenueChartProps)
   const total = data.reduce((sum, d) => sum + d.amountRwf, 0);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-base font-semibold tracking-tight text-foreground">{t("recentEarnings")}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            <TrendingUp size={11} className="mr-0.5 inline text-primary" aria-hidden="true" />
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0 overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-2 min-w-0">
+        <div className="min-w-0">
+          <p className="text-base font-semibold tracking-tight text-foreground truncate">{t("recentEarnings")}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground truncate">
+            <TrendingUp size={11} className="mr-0.5 inline text-primary shrink-0" aria-hidden="true" />
             {t("totalAmount", { amount: total.toLocaleString() })}
           </p>
         </div>
-        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary ring-1 ring-primary/20 dark:bg-white/10 dark:text-white">
+        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary ring-1 ring-primary/20 dark:bg-white/10 dark:text-white shrink-0">
           {t("highestAmount", { amount: highestTransactionRwf.toLocaleString() })}
         </span>
       </div>

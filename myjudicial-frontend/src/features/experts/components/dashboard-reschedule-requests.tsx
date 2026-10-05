@@ -15,15 +15,15 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
   if (bookings.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
-      <div className="mb-4 flex items-center justify-between gap-2">
+    <div className="rounded-xl border border-warning/40 bg-warning/10 p-4 sm:p-5 min-w-0">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <CalendarClock size={18} className="text-warning" aria-hidden="true" />
+          <CalendarClock size={18} className="text-warning shrink-0" aria-hidden="true" />
           <h3 className="text-base font-semibold tracking-tight text-warning">
             {t("title", { count: bookings.length })}
           </h3>
         </div>
-        <span className="flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-warning">
+        <span className="flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-warning shrink-0">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" aria-hidden="true" />
           {t("actionNeeded")}
         </span>
@@ -50,7 +50,7 @@ export function RescheduleRequestsCard({ bookings }: RescheduleRequestsCardProps
                 <p className="text-xs text-muted-foreground">
                   {b.service?.name ?? t("defaultServiceName")}
                 </p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span>{currentDate.toLocaleDateString(locale, { weekday: "short", month: "short", day: "numeric" })}</span>
                   <ArrowRight size={10} aria-hidden="true" />
                   <span className="font-semibold text-warning">

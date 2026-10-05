@@ -9,7 +9,8 @@ export type LegalSpecialty =
   | "CORPORATE_LAW"
   | "CONTRACT_LAW"
   | "INTELLECTUAL_PROPERTY"
-  | "OTHER";
+  | "OTHER"
+  | "UNKNOWN";
 
 export type UrgencyLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -32,6 +33,8 @@ export type CaseAnalysis = {
   confidence_score: number;
   reasoning?: string;
   possible_legal_issues?: string[];
+  is_greeting?: boolean;
+  greeting_message?: string;
 };
 
 export type CaseAnalysisResponse = {

@@ -93,8 +93,8 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <main className="flex h-full flex-col bg-white dark:bg-black overflow-y-auto">
-      <div className="mx-auto w-full max-w-[600px] flex-1 px-6 py-8">
+    <div className="flex-1 min-w-0">
+      <div className="mx-auto w-full max-w-[600px] p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <Link
           href={`/client/dashboard/consultations/${id}`}
           className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white mb-6"
@@ -103,7 +103,7 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ id: stri
           {t("backToConsultation")}
         </Link>
 
-        <h1 className="text-[22px] font-bold text-brand-dark dark:text-white">{t("leaveAReview")}</h1>
+        <h1 className="text-xl sm:text-[22px] font-bold text-brand-dark dark:text-white break-words">{t("leaveAReview")}</h1>
         <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50">
           {t("withExpert", {
             serviceName: booking.service?.name ?? t("consultation"),
@@ -155,6 +155,6 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ id: stri
           </Button>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

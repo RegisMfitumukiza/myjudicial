@@ -23,6 +23,8 @@ import adminNotificationRoutes from "../../modules/notifications/admin-notificat
 import notificationRoutes from "../../modules/notifications/notification.routes.js";
 import adminSettingRoutes from "../../modules/settings/admin-setting.routes.js";
 import publicSettingRoutes from "../../modules/settings/public-setting.routes.js";
+import adminContentRoutes from "../../modules/content/admin-content.routes.js";
+import publicContentRoutes from "../../modules/content/public-content.routes.js";
 import aiRoutes from "../../modules/ai/ai.routes.js";
 import savedExpertRoutes from "../../modules/saved-experts/saved-expert.routes.js";
 import specialtyRoutes from "../../modules/specialties/specialty.routes.js";
@@ -62,6 +64,8 @@ router.use("/admin/reviews", adminReviewRoutes);
 router.use("/admin/analytics", analyticsRoutes);
 router.use("/admin/settings", adminSettingRoutes);
 router.use("/settings", publicSettingRoutes);
+router.use("/admin/content", adminContentRoutes);
+router.use("/content", publicContentRoutes);
 router.use("/ai", aiRoutes);
 router.use("/saved-experts", savedExpertRoutes);
 router.use("/specialties", specialtyRoutes);

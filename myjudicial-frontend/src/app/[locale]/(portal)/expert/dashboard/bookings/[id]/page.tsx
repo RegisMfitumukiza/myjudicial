@@ -236,8 +236,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const clientInitials = clientName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <main className="flex h-full flex-col overflow-y-auto bg-background">
-      <div className="mx-auto w-full max-w-[780px] flex-1 px-6 py-8">
+    <div className="flex-1 min-w-0">
+      <div className="mx-auto w-full max-w-[780px] p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         {/* Back */}
         <Button variant="ghost" size="sm" asChild className="-ml-2 mb-6 text-muted-foreground">
           <Link href="/expert/dashboard/bookings">
@@ -282,9 +282,9 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
 
         {/* Status Timeline */}
         {!isCancelledOrRefunded && (
-          <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm overflow-x-auto scrollbar-none">
             <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-5">{t("details.progress")}</h2>
-            <div className="flex items-center gap-0">
+            <div className="flex items-center gap-0 min-w-[480px]">
               {STATUS_STEPS.map((step, i) => {
                 const isReached = currentOrder >= step.order;
                 const isCurrent = currentOrder === step.order;
@@ -756,6 +756,6 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           />
         )}
       </div>
-    </main>
+    </div>
   );
 }

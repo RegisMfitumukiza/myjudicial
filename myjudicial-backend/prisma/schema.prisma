@@ -105,6 +105,7 @@ enum AuditResource {
   DOCUMENT
   CONVERSATION
   MESSAGE
+  CONTENT_PAGE
 }
 
 enum OAuthProvider {
@@ -147,6 +148,7 @@ model User {
   conversationParticipants ConversationParticipant[]
   sentMessages             Message[]                 @relation("SentMessages")
   savedExperts             SavedExpert[]             @relation("SavedExperts")
+  contentPageRevisions     ContentPageRevision[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1205,6 +1207,71 @@ model EmailLog {
 enum EmailLogStatus {
   SENT
   FAILED
+}
+
+// ─── Editable public content pages (admin-authored, per locale) ──────────────
+// Body copy lives here as an ordered array of typed blocks rather than as
+// hardcoded message strings, so an admin can publish real, reviewed text and a
+// page that has never been written stays in `draft` instead of rendering
+// invented legal or policy content.
+
+enum ContentPageSlug {
+  ABOUT
+  CAREERS
+  HELP
+  CONTACT
+  PRIVACY
+  TERMS
+  COOKIES
+}
+
+enum ContentPageStatus {
+  draft
+  published
+}
+
+model ContentPage {
+  id            String            @id @default(uuid()) @db.Uuid
+  slug          ContentPageSlug
+  locale        String
+  title         String
+  blocks        Json
+  status        ContentPageStatus @default(draft)
+  effectiveDate String?           @map("effective_date")
+  metaTitle     String?           @map("meta_title")
+  metaDescription String?         @map("meta_description")
+  openGraphImage String?          @map("og_image")
+  updatedBy     String?           @map("updated_by")
+  revisions     ContentPageRevision[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([slug, locale])
+  @@index([slug, status])
+  @@index([locale])
+  @@map("content_pages")
+}
+
+/** Snapshot of a content page at the moment of a save, publish, copy, or restore. */
+model ContentPageRevision {
+  id              String            @id @default(uuid()) @db.Uuid
+  pageId          String            @map("page_id")
+  page            ContentPage       @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  title           String
+  blocks          Json
+  status          ContentPageStatus
+  effectiveDate   String?           @map("effective_date")
+  metaTitle       String?           @map("meta_title")
+  metaDescription String?           @map("meta_description")
+  openGraphImage  String?           @map("og_image")
+  authorId        String?           @map("author_id")
+  author          User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  changeType      String            @default("SAVE") @map("change_type")
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  @@index([pageId, createdAt(sort: Desc)])
+  @@map("content_page_revisions")
 }
 
 model Specialty {

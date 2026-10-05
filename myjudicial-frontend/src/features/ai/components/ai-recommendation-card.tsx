@@ -53,18 +53,18 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
+          <div className="flex flex-col min-[340px]:flex-row min-[340px]:items-start justify-between gap-1 min-[340px]:gap-2">
+            <div className="min-w-0">
               <h4 className="text-sm font-semibold text-foreground truncate">
                 {recommendation.expert.full_name}
               </h4>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground break-words">
                 {recommendation.expert.specialties
                   ?.map((s) => getLocalizedSpecialty(s, tSpecialties))
                   .join(", ") ?? ""}
               </p>
             </div>
-            <div className="flex items-center gap-1 rounded-full bg-brand-dark px-2 py-0.5 text-[11px] font-bold text-on-brand">
+            <div className="self-start min-[340px]:self-auto flex items-center gap-1 rounded-full bg-brand-dark px-2 py-0.5 text-[10px] min-[360px]:text-[11px] font-bold text-on-brand shrink-0">
               {t("recommendations.matchScore", { score: matchPercent })}
             </div>
           </div>

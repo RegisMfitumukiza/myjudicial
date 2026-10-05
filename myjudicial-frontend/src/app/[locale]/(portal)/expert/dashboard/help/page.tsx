@@ -17,7 +17,7 @@ export default function HelpPage() {
   ];
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader title={t("title")} description={t("subtitle")} />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">

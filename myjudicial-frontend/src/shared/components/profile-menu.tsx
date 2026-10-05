@@ -88,10 +88,10 @@ export function ProfileMenu() {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={tCommon("aria.accountMenu")}
-        className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-full border border-border bg-background pl-1 pr-1 sm:pr-2.5 transition-all hover:bg-accent hover:border-foreground/20 hover:shadow-2xs"
+        className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-full border border-border bg-background dark:bg-muted/40 pl-1 pr-1 sm:pr-2.5 transition-all hover:bg-accent hover:border-foreground/20 hover:shadow-2xs dark:hover:bg-muted/70"
       >
         {showPhoto ? (
-          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-border/60 shrink-0">
+          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-border/60 dark:border-white/15 shrink-0">
             <img
               key={photoUrl}
               src={photoUrl!}
@@ -101,7 +101,7 @@ export function ProfileMenu() {
             />
           </span>
         ) : (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-dark text-[11px] font-bold text-white shrink-0">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#16324f] text-white dark:bg-blue-950/80 dark:text-blue-200 dark:border dark:border-blue-700/50 text-[11px] font-bold tracking-wide shrink-0">
             {initials}
           </span>
         )}

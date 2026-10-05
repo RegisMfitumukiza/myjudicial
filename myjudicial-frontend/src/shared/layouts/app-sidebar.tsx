@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Users,
   BadgeCheck,
-  FileText,
   DollarSign,
   Bell,
   Settings,
@@ -24,17 +23,18 @@ import {
   Clock,
   Menu,
   X,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
   User,
   LogOut,
   Key,
   Palette,
   ShieldCheck,
   FileCheck,
-  ClipboardList,
-  FolderOpen,
-  Scale,
+ClipboardList,
+FolderOpen,
+Scale,
+ChevronsUpDown,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -134,8 +134,6 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       items: [
         { href: "/expert/dashboard/setup", icon: ShieldCheck, labelKey: "setup" },
         { href: "/expert/dashboard/verification", icon: BadgeCheck, labelKey: "verification" },
-        { href: "/expert/dashboard/profile", icon: User, labelKey: "profile" },
-        { href: "/expert/dashboard/settings", icon: Settings, labelKey: "settings" },
         { href: "/expert/dashboard/notifications", icon: Bell, labelKey: "notifications" },
       ],
     },
@@ -143,136 +141,118 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
   [UserRole.CITIZEN]: [],
 };
 
-
-
 interface AppSidebarProps {
   user: PublicUser;
   pathname: string;
 }
 
-function getInitials(name: string) {
-  return name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();
-}
-
-
-
 function getDashboardBase(role: UserRole): string {
   return `/${role.toLowerCase()}/dashboard`;
 }
 
-/* ─── Profile Dropdown ─── */
+/* ─── Profile Dropdown (Desktop) ─── */
 function ProfileDropdown({
   open,
   onClose,
   user,
   avatarUrl,
+  isCollapsed = false,
 }: {
   open: boolean;
   onClose: () => void;
   user: PublicUser;
   avatarUrl: string | null;
+  isCollapsed?: boolean;
 }) {
   const t = useTranslations("shared.sidebar");
-  const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
-      }
-    }
-    document.addEventListener("mousedown", handleClick, true);
-    return () => document.removeEventListener("mousedown", handleClick, true);
-  }, [open, onClose]);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
   };
 
-  const navigateToProfile = useCallback((hash?: string) => {
+  const navigate = useCallback((path: string) => {
     onClose();
-    const base = getDashboardBase(user.role);
-    
-    // Admin uses /account for settings, others use /profile
-    const route = user.role === UserRole.ADMIN ? `${base}/account` : `${base}/profile`;
-    const url = hash ? `${route}#${hash}` : route;
-    
-    // Check if already on the page
-    if (window.location.pathname === route) {
-      // Already on page, just update hash directly
-      window.location.hash = hash || '';
-      // Dispatch hashchange event so the page detects it
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
-    } else {
-      // Navigate to page
-      router.push(url);
-    }
-  }, [onClose, user.role, router]);
+    router.push(path);
+  }, [onClose, router]);
 
   if (!open) return null;
 
   return (
-    <div
-      ref={ref}
-      className="absolute bottom-full left-0 right-0 z-50 mb-2 rounded-xl border border-brand-border/20 bg-white p-2 shadow-lg dark:border-gray-800 dark:bg-gray-900"
-      role="menu"
-    >
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-3">
+    <>
+      {/* ── Fixed backdrop for closing on click-outside on desktop ── */}
+      <div
+        className="fixed inset-0 z-40 bg-transparent"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* ── Desktop Floating Popover ── */}
+      <div
+        className={`
+          z-50 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl backdrop-blur-md
+          ${
+            isCollapsed
+              ? "absolute bottom-1 left-full ml-3 w-60"
+              : "absolute bottom-full left-0 right-0 mb-2 w-full min-w-[230px]"
+          }
+        `}
+        role="menu"
+        aria-label="User account menu"
+      >
+        <div className="px-3 py-2.5 rounded-t-lg bg-muted/40 border-b border-border/40">
+          <div className="flex items-center gap-2.5">
             <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold text-foreground">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+              <p className="truncate text-[11px] text-muted-foreground" title={user.email}>
                 {user.email}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-brand-border/10 dark:border-gray-800" />
-
-        <div className="py-1">
+        <div className="space-y-0.5 py-1">
           <button
-            onClick={() => navigateToProfile()}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            onClick={() => navigate(`${getDashboardBase(user.role)}/profile`)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
             role="menuitem"
           >
-            <User size={16} className="text-gray-400" />
-            {user.role === UserRole.ADMIN ? t("account") : t("profile")}
+            <User size={15} className="text-muted-foreground" />
+            {t("profile")}
           </button>
           <button
-            onClick={() => navigateToProfile('account')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            onClick={() => navigate(`${getDashboardBase(user.role)}/security`)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
             role="menuitem"
           >
-            <Key size={16} className="text-gray-400" />
-            {user.role === UserRole.ADMIN ? t("security") : t("account")}
+            <Key size={15} className="text-muted-foreground" />
+            {t("security")}
           </button>
           <button
-            onClick={() => navigateToProfile('preferences')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            onClick={() => navigate(`${getDashboardBase(user.role)}/profile#preferences`)}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
             role="menuitem"
           >
-            <Palette size={16} className="text-gray-400" />
+            <Palette size={15} className="text-muted-foreground" />
             {t("preferences")}
           </button>
         </div>
 
-        <div className="border-t border-brand-border/10 dark:border-gray-800" />
+        <div className="my-1 border-t border-border/50" />
 
         <button
           onClick={handleSignOut}
-          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
+          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
           role="menuitem"
         >
-          <LogOut size={16} />
+          <LogOut size={15} />
           {t("signOut")}
         </button>
       </div>
+    </>
   );
 }
 
@@ -292,9 +272,9 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
   });
   const notifUnreadCount = unreadNotifData?.status === 200 ? unreadNotifData.data.data.count : 0;
 
-  // For experts, use the signed URL hook; for other roles, no photo URL needed here
-  const { data: expertPhotoUrl } = useExpertPhotoUrl();
-  const avatarUrl = user.role === UserRole.EXPERT ? (expertPhotoUrl ?? null) : null;
+  const isExpert = user.role === UserRole.EXPERT;
+  const { data: expertPhotoUrl } = useExpertPhotoUrl({ enabled: isExpert });
+  const avatarUrl = isExpert ? (expertPhotoUrl ?? null) : (user.avatarUrl ?? null);
 
   const navGroups = ROLE_NAVIGATION[user.role] || [];
   const base = getDashboardBase(user.role);
@@ -314,6 +294,10 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape" && mobileOpen) {
         setMobileOpen(false);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        setCollapsed((c) => !c);
       }
     }
     document.addEventListener("keydown", handleKeyDown);
@@ -339,22 +323,38 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
 
   return (
     <>
-      {/* ─── Mobile top header bar ─── */}
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-brand-border/20 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 lg:hidden">
-        <Logo fontSize="text-base" />
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-          aria-label={t("openNavigationMenu")}
-        >
-          <Menu size={20} />
-        </button>
+      {/* ─── Mobile top header bar: [Menu + Logo] on Left, [Notifications Bell] on Right ─── */}
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-border/40 bg-background/95 backdrop-blur px-3 sm:px-4 lg:hidden min-w-0 gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
+            aria-label={t("openNavigationMenu")}
+          >
+            <Menu size={20} />
+          </button>
+          <Logo fontSize="text-base" href={base} className="min-w-0" hideTextOnSmall />
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Link
+            href={user.role === UserRole.ADMIN ? "/admin/dashboard/notifications" : "/expert/dashboard/notifications"}
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label={t("notifications")}
+            title={t("notifications")}
+          >
+            <Bell size={19} />
+            {notifUnreadCount > 0 && (
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
+            )}
+          </Link>
+        </div>
       </header>
 
       {/* ─── Mobile backdrop ─── */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] lg:hidden transition-opacity duration-200"
           onClick={closeMobile}
           aria-hidden="true"
         />
@@ -363,53 +363,78 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
       {/* ─── Sidebar ─── */}
       <aside
         className={`
-          flex flex-col bg-white dark:bg-gray-950 border-r border-brand-border/20 dark:border-gray-800
-          transition-[width,transform] duration-300 ease-in-out
+          flex flex-col bg-card border-r border-border/50
+          transition-[width,transform] duration-250 ease-out
           fixed inset-y-0 left-0 z-50
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:static lg:translate-x-0 lg:z-auto lg:flex-shrink-0
-          ${collapsed ? "w-16" : "w-64"}
+          w-[min(280px,calc(100vw-36px))] overflow-hidden
+          ${mobileOpen ? "translate-x-0 visible pointer-events-auto shadow-2xl" : "-translate-x-full invisible pointer-events-none"}
+          lg:static lg:translate-x-0 lg:z-auto lg:flex-shrink-0 lg:visible lg:pointer-events-auto lg:shadow-none
+          ${collapsed ? "lg:w-[68px]" : "lg:w-64"}
         `}
         role="navigation"
         aria-label="Sidebar navigation"
       >
-        {/* ─── Header: Logo + collapse toggle ─── */}
-        <div className="flex h-16 shrink-0 items-center border-b border-brand-border/20 dark:border-gray-800">
-          {collapsed ? (
-            <div className="flex w-full items-center justify-center">
-              <Logo iconOnly iconSize={20} href={base} />
+        {/* ─── Header: Logo + Single Collapse Toggle ─── */}
+        <div className="flex h-16 shrink-0 items-center border-b border-border/40 px-3.5">
+          {/* Mobile drawer header (always expanded with close button) */}
+          <div className="flex w-full items-center justify-between lg:hidden min-w-0 gap-2">
+            <div className="flex items-center min-w-0 overflow-hidden">
+              <Logo fontSize="text-base" href={base} className="min-w-0" hideTextOnSmall />
             </div>
-          ) : (
-            <div className="flex w-full items-center justify-between px-4">
-              <Logo fontSize="text-base" href={base} />
-              <button
-                onClick={closeMobile}
-                className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
-                aria-label={t("closeNavigationMenu")}
-              >
-                <X size={20} />
-              </button>
-              <button
-                onClick={() => setCollapsed((c) => !c)}
-                className="hidden rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:flex"
-                title={t("collapseSidebar")}
-              >
-                <ChevronLeft size={18} />
-              </button>
-            </div>
-          )}
+            <button
+              onClick={closeMobile}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
+              aria-label={t("closeNavigationMenu")}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Desktop header: switches between expanded (Logo + Toggle) and collapsed (Centered Logo) */}
+          <div className="hidden lg:flex w-full items-center">
+            {collapsed ? (
+              <div className="flex w-full items-center justify-center">
+                <button
+                  onClick={() => setCollapsed(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  title={`${t("expandSidebar")} (Ctrl+B)`}
+                  aria-label={t("expandSidebar")}
+                >
+                  <Logo iconOnly iconSize={20} href={base} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex w-full items-center justify-between min-w-0 gap-2">
+                <Logo fontSize="text-base" href={base} className="min-w-0" />
+                <button
+                  onClick={() => setCollapsed(true)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"
+                  title={`${t("collapseSidebar")} (Ctrl+B)`}
+                  aria-label={t("collapseSidebar")}
+                >
+                  <PanelLeftClose size={18} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ─── Navigation ─── */}
-        <nav className="flex-1 overflow-y-auto py-4" aria-label="Main navigation">
+        <nav
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-2.5 px-2 sm:px-2.5 scrollbar-none"
+          aria-label="Main navigation"
+        >
           {navGroups.map(({ groupKey, items }, groupIdx) => (
-            <div key={groupKey} className={groupIdx > 0 ? "mt-2" : ""}>
+            <div key={groupKey} className={groupIdx > 0 ? "mt-3 pt-2.5 border-t border-border/30" : ""}>
               {!collapsed && (
-                <p className="mb-1.5 px-6 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400 dark:text-gray-500">
+                <p className="mb-1 px-2 sm:px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 select-none">
                   {t(groupKey as any)}
                 </p>
               )}
-              <div className="space-y-0.5 px-3" role="list">
+              {collapsed && groupIdx > 0 && (
+                <div className="mx-auto my-1.5 w-5 border-t border-border/40" />
+              )}
+              <div className="space-y-0.5" role="list">
                 {items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
@@ -426,52 +451,61 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                       aria-current={active ? "page" : undefined}
                       role="listitem"
                       className={`
-                        group relative flex items-center rounded-lg text-sm transition-all duration-150
-                        ${collapsed ? "justify-center py-2.5" : "gap-3 px-3 py-2.5"}
+                        group relative flex items-center rounded-lg text-xs font-medium transition-all duration-150
+                        ${collapsed ? "h-9 w-9 mx-auto justify-center" : "min-h-9 py-1.5 px-2 sm:px-2.5 gap-2 sm:gap-2.5 w-full"}
                         ${
                           active
-                            ? "bg-primary font-semibold text-primary-foreground shadow-sm"
-                            : "font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                            ? "bg-accent/80 font-semibold text-accent-foreground dark:bg-white/[0.08] dark:text-white"
+                            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:hover:bg-white/[0.04]"
                         }
                       `}
                     >
-                      {/* Active indicator bar */}
+                      {/* Active indicator pip */}
                       {active && (
                         <span
-                          className={`absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-current opacity-60 ${
+                          className={`absolute left-0 top-1 bottom-1 w-1 rounded-r-full bg-primary ${
                             collapsed ? "hidden" : ""
                           }`}
                         />
                       )}
-                      <Icon
-                        size={20}
-                        className={`shrink-0 ${
-                          active ? "" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
-                        }`}
-                      />
-                      {isMessages && chatUnreadCount > 0 && (
-                        <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-blue ring-2 ring-white dark:ring-gray-950" />
-                      )}
-                      {isNotifications && notifUnreadCount > 0 && (
-                        <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-brand-blue ring-2 ring-white dark:ring-gray-950" />
-                      )}
+                      {/* Icon with notification dot indicator */}
+                      <div className="relative shrink-0">
+                        <Icon
+                          size={17}
+                          className={`transition-colors ${
+                            active
+                              ? "text-primary dark:text-white"
+                              : "text-muted-foreground/75 group-hover:text-foreground"
+                          }`}
+                        />
+                        {/* Dot indicator when collapsed */}
+                        {collapsed && (
+                          (isMessages && chatUnreadCount > 0) ||
+                          (isNotifications && notifUnreadCount > 0)
+                        ) && (
+                          <span
+                            className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-500 ring-2 ring-card"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </div>
+
+                      {/* Navigation label — full wrap on narrow screens without unfinished ellipsis truncation */}
                       {!collapsed && (
-                        <span className="flex-1 truncate">{itemLabel}</span>
+                        <span className="flex-1 min-w-0 text-xs font-medium leading-snug break-words">
+                          {itemLabel}
+                        </span>
                       )}
+
+                      {/* Unread count badges when expanded */}
                       {!collapsed && isMessages && chatUnreadCount > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
+                        <span className="ml-auto flex h-4.5 min-w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500 px-1.5 text-[10px] font-bold shadow-xs">
                           {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                         </span>
                       )}
                       {!collapsed && isNotifications && notifUnreadCount > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-blue px-1.5 text-[10px] font-bold text-white">
+                        <span className="ml-auto flex h-4.5 min-w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500 px-1.5 text-[10px] font-bold shadow-xs">
                           {notifUnreadCount > 99 ? "99+" : notifUnreadCount}
-                        </span>
-                      )}
-                      {/* Tooltip for collapsed mode */}
-                      {collapsed && (
-                        <span className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm dark:bg-gray-100 dark:text-gray-900 group-hover:lg:block whitespace-nowrap">
-                          {itemLabel}
                         </span>
                       )}
                     </Link>
@@ -482,74 +516,137 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
           ))}
         </nav>
 
-        {/* ─── Footer: Avatar, Theme, Collapse ─── */}
-        <footer className="shrink-0 border-t border-brand-border/20 dark:border-gray-800">
+        {/* ─── Footer: Profile & Theme Toggle ─── */}
+        <footer className="shrink-0 border-t border-border/40">
           {collapsed ? (
-            /* ── Collapsed footer ── */
-            <div className="flex flex-col items-center gap-2 py-3">
+            /* ── Collapsed desktop footer ── */
+            <div className="flex flex-col items-center gap-2 py-2.5 px-2">
               <div className="relative">
-                  <button
-                    onClick={() => setProfileOpen((p) => !p)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:opacity-80"
-                    aria-label="Open profile menu"
-                    title={user.firstName + " " + user.lastName}
-                  >
-                    <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
+                <button
+                  onClick={() => setProfileOpen((p) => !p)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-85"
+                  aria-label="Open profile menu"
+                  title={`${user.firstName} ${user.lastName}`}
+                >
+                  <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
                 </button>
                 <ProfileDropdown
                   open={profileOpen}
                   onClose={() => setProfileOpen(false)}
                   user={user}
                   avatarUrl={avatarUrl}
+                  isCollapsed
                 />
               </div>
-              <ThemeToggle />
+              <ThemeToggle variant="header" className="h-8 w-8 text-muted-foreground hover:text-foreground" />
               <button
                 onClick={() => setCollapsed(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                title="Expand sidebar"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                title={`${t("expandSidebar")} (Ctrl+B)`}
+                aria-label={t("expandSidebar")}
               >
-                <ChevronRight size={18} />
+                <PanelLeftOpen size={17} />
               </button>
             </div>
           ) : (
-            /* ── Expanded footer ── */
-            <div className="px-3 py-3">
-              <div className="relative">
-                <div className="flex items-center justify-between">
+            /* ── Expanded footer (Desktop vs Mobile Drawer) ── */
+            <div className="p-2">
+              {/* Desktop Profile Button + Dropdown Popover */}
+              <div className="hidden lg:flex items-center gap-1">
+                <div className="relative flex-1 min-w-0">
                   <button
                     onClick={() => setProfileOpen((p) => !p)}
-                    className="flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1.5 pl-2 pr-3 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="group flex w-full items-center justify-between gap-2 rounded-lg p-1.5 transition-colors hover:bg-muted/70 text-left min-w-0"
                     aria-expanded={profileOpen}
                     aria-haspopup="true"
+                    title={`${user.firstName} ${user.lastName} • ${user.email}`}
                   >
-                    <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
-                    <div className="min-w-0 flex-1 text-left">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                        {user.email}
-                      </p>
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-foreground leading-tight">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="truncate text-[10px] font-medium text-muted-foreground/80 capitalize leading-tight">
+                          {user.role.toLowerCase()}
+                        </p>
+                      </div>
                     </div>
+                    <ChevronsUpDown size={14} className="text-muted-foreground/50 transition-colors group-hover:text-foreground shrink-0" />
                   </button>
-                  <div className="flex items-center gap-1">
-                    <ThemeToggle />
-                    <button
-                      onClick={() => setCollapsed(true)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                      title="Collapse sidebar"
-                    >
-                      <ChevronLeft size={18} />
-                    </button>
+                  <ProfileDropdown
+                    open={profileOpen}
+                    onClose={() => setProfileOpen(false)}
+                    user={user}
+                    avatarUrl={avatarUrl}
+                    isCollapsed={false}
+                  />
+                </div>
+                <div className="flex items-center shrink-0">
+                  <ThemeToggle variant="header" className="h-8 w-8 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground" />
+                </div>
+              </div>
+
+              {/* Mobile Drawer Integrated Profile Section (Zero popups!) */}
+              <div className="lg:hidden space-y-1.5">
+                {/* User Identity Card */}
+                <div className="rounded-xl bg-muted/40 p-2 border border-border/40 min-w-0">
+                  <div className="flex items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" className="shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-foreground leading-snug break-words">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground leading-tight break-all select-all" title={user.email}>
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <ThemeToggle variant="header" className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0 rounded-lg hover:bg-muted" />
                   </div>
                 </div>
-                <ProfileDropdown
-                  open={profileOpen}
-                  onClose={() => setProfileOpen(false)}
-                  user={user}
-                  avatarUrl={avatarUrl}
-                />
+
+                {/* Responsive Action Tiles — 2x2 grid matching desktop popover */}
+                <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-border/30">
+                  <Link
+                    href={`${base}/profile`}
+                    onClick={closeMobile}
+                    className="flex items-center justify-start gap-2 rounded-lg py-2 px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    <User size={15} className="shrink-0" />
+                    <span className="truncate leading-tight">{t("profile")}</span>
+                  </Link>
+
+                  <Link
+                    href={`${base}/security`}
+                    onClick={closeMobile}
+                    className="flex items-center justify-start gap-2 rounded-lg py-2 px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    <Key size={15} className="shrink-0" />
+                    <span className="truncate leading-tight">{t("security")}</span>
+                  </Link>
+
+                  <Link
+                    href={`${base}/profile#preferences`}
+                    onClick={closeMobile}
+                    className="flex items-center justify-start gap-2 rounded-lg py-2 px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    <Palette size={15} className="shrink-0" />
+                    <span className="truncate leading-tight">{t("preferences")}</span>
+                  </Link>
+
+                  <button
+                    onClick={async () => {
+                      closeMobile();
+                      await signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex items-center justify-start gap-2 rounded-lg py-2 px-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <LogOut size={15} className="shrink-0" />
+                    <span className="truncate leading-tight">{t("signOut")}</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

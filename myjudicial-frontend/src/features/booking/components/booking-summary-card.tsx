@@ -57,16 +57,16 @@ export function BookingSummaryCard({
     return (
       <div className="space-y-2 text-xs">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between">
-            <span className="text-brand-dark/50 dark:text-white/50">{row.label}</span>
-            <span className="font-semibold text-brand-dark dark:text-white">{row.value}</span>
+          <div key={row.label} className="flex items-center justify-between gap-2">
+            <span className="text-brand-dark/50 dark:text-white/50 shrink-0">{row.label}</span>
+            <span className="font-semibold text-brand-dark dark:text-white text-right truncate min-w-0">{row.value}</span>
           </div>
         ))}
         {showTotal && (
           <div className="border-t border-brand-border/20 pt-2 dark:border-white/20">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-brand-dark dark:text-white">{t("total")}</span>
-              <span className="font-bold text-brand-dark dark:text-white">{fee}</span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-bold text-brand-dark dark:text-white shrink-0">{t("total")}</span>
+              <span className="font-bold text-brand-dark dark:text-white text-right">{fee}</span>
             </div>
           </div>
         )}
@@ -75,20 +75,20 @@ export function BookingSummaryCard({
   }
 
   return (
-    <div className="rounded-xl border border-brand-border/20 bg-white p-5 dark:border-white/20 dark:bg-black">
-      <h3 className="mb-4 text-[14px] font-bold text-brand-dark dark:text-white">{t("bookingSummary")}</h3>
-      <div className="space-y-3 text-[13px]">
+    <div className="rounded-xl border border-brand-border/20 bg-white p-4 min-[360px]:p-5 dark:border-white/20 dark:bg-black">
+      <h3 className="mb-4 text-xs min-[360px]:text-[14px] font-bold text-brand-dark dark:text-white">{t("bookingSummary")}</h3>
+      <div className="space-y-3 text-xs min-[360px]:text-[13px]">
         {rows.map((row) => (
-          <div key={row.label} className="flex justify-between">
-            <span className="text-brand-dark/60 dark:text-white/60">{row.label}</span>
-            <span className="font-semibold text-brand-dark dark:text-white">{row.value}</span>
+          <div key={row.label} className="flex justify-between gap-2">
+            <span className="text-brand-dark/60 dark:text-white/60 shrink-0">{row.label}</span>
+            <span className="font-semibold text-brand-dark dark:text-white text-right truncate min-w-0">{row.value}</span>
           </div>
         ))}
         {showTotal && (
           <div className="border-t border-brand-border/20 pt-3 dark:border-white/20">
-            <div className="flex justify-between text-[15px]">
-              <span className="font-bold text-brand-dark dark:text-white">{t("total")}</span>
-              <span className="font-bold text-brand-dark dark:text-white">{fee}</span>
+            <div className="flex justify-between items-center gap-2 text-sm min-[360px]:text-[15px]">
+              <span className="font-bold text-brand-dark dark:text-white shrink-0">{t("total")}</span>
+              <span className="font-bold text-brand-dark dark:text-white text-right">{fee}</span>
             </div>
           </div>
         )}

@@ -6,5 +6,5 @@ export default async function LegacyCompliancePage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/expert/dashboard/compliance`);
+  redirect(`/${locale}/expert/dashboard/verification`);
 }

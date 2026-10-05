@@ -129,7 +129,7 @@ export function DocumentsPanel() {
   }
 
   return (
-    <div className="mx-auto max-w-[1080px] space-y-6 p-6 lg:p-8">
+    <div className="mx-auto max-w-[1080px] space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <div>
         <h1 className="text-[22px] font-bold text-brand-dark dark:text-gray-100">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("subtitle")}</p>
@@ -177,8 +177,8 @@ export function DocumentsPanel() {
           <p className="text-sm text-gray-400 dark:text-gray-500">{t("noDocuments")}</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-brand-border/20 shadow-md dark:border-gray-700">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto rounded-xl border border-brand-border/20 shadow-md dark:border-gray-700">
+          <table className="w-full min-w-[600px] text-left text-sm">
             <thead className="bg-gray-50 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400 border-b border-brand-border/10 dark:border-gray-700">
               <tr>
                 <th className="px-4 py-3">{t("colName")}</th>

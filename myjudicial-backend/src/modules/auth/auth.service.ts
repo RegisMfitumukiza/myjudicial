@@ -330,11 +330,11 @@ export const AuthService = {
     if (user && user.role !== "ADMIN") {
       // User exists - send actual OTP
       const otp = await CustomOtpService.generate(dto.email);
-      const userLanguage = user.preferredLanguage || 'en';
+      const userLanguage = (dto.language || user.preferredLanguage || 'en') as 'en' | 'fr' | 'rw';
       const sent = await retrySupabase(
         async () => {
           try {
-            await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage as 'en' | 'fr' | 'rw');
+            await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage);
             return { error: null };
           } catch (err) {
             return { error: { message: err instanceof Error ? err.message : String(err) } };
@@ -348,7 +348,7 @@ export const AuthService = {
         email: dto.email,
         language: userLanguage,
         sentAt: sendTime.toISOString(),
-        expiresAt: new Date(sendTime.getTime() + 900000).toISOString(), // 15 minutes
+        expiresAt: new Date(sendTime.getTime() + 600000).toISOString(), // 10 minutes
       });
     } else {
       // User is unregistered or an admin - don't send OTP (but don't reveal this)
@@ -360,10 +360,10 @@ export const AuthService = {
 
     // Always return success - never reveal if email is registered.
     // expiresAt reflects the custom OTP TTL so the UI can show a real
-    // countdown (15 minutes). Returned unconditionally to avoid enumeration.
+    // countdown (10 minutes). Returned unconditionally to avoid enumeration.
     return {
       message: "If this email is registered, a login code has been sent",
-      expiresAt: new Date(Date.now() + 900_000).toISOString(),
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
     };
   },
 

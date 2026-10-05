@@ -61,13 +61,13 @@ export function VerificationPrompt() {
   const Icon = cfg.icon;
 
   return (
-    <div className={`rounded-xl border ${cfg.border} ${cfg.bg} p-5`}>
-      <div className="flex items-start gap-4">
+    <div className={`rounded-xl border ${cfg.border} ${cfg.bg} p-4 sm:p-5 min-w-0`}>
+      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 min-w-0">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${cfg.iconBg}`}>
           <Icon size={18} />
         </div>
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0 w-full">
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">
               {t(`verificationPrompt.${status.toLowerCase()}.title` as any)}
             </p>
@@ -78,8 +78,8 @@ export function VerificationPrompt() {
               <p className="mt-1 text-xs text-muted-foreground/70">{compliance.statusMessage}</p>
             )}
           </div>
-          <Link href={cfg.href}>
-            <button className={`flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${cfg.cta}`}>
+          <Link href={cfg.href} className="w-full sm:w-auto">
+            <button className={`flex w-full sm:w-auto shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${cfg.cta}`}>
               {status === "PENDING_VERIFICATION" ? <CheckCircle2 size={14} /> : <ArrowRight size={14} />}
               {t(`verificationPrompt.${status.toLowerCase()}.action` as any)}
             </button>

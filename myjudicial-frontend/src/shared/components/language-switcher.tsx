@@ -50,7 +50,7 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
   if (variant === "mobile") {
     return (
       <div className="flex items-center gap-2">
-        <Globe size={14} className="text-muted-foreground" />
+        <Globe size={14} className="text-black dark:text-white" />
         <div className="flex gap-1">
           {LOCALES.map(({ code, label }) => (
             <button
@@ -76,7 +76,7 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={t("language")}
-          className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent/20 text-inherit"
+          className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent/20 text-black dark:text-white"
         >
           <Globe size={16} />
         </button>
@@ -107,7 +107,7 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
     <div className={cn("relative", className)} ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-foreground"
+        className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-black dark:text-white"
         aria-label={t("language")}
       >
         <Globe size={17} />

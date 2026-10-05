@@ -7,9 +7,14 @@ import { getTranslations } from "next-intl/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
-  const t = await getTranslations("clientDashboard.profile");
-  const session = await requireAuth();
+export default async function ProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "clientDashboard.profile" });
+  const session = await requireAuth(locale);
   const { user } = session;
 
   const initials = user.fullName
@@ -28,9 +33,9 @@ export default async function ProfilePage() {
     : "bg-brand-dark/10 text-brand-dark";
 
   return (
-    <div className="mx-auto max-w-[1280px] space-y-6 p-6 lg:p-8">
+    <div className="mx-auto max-w-[1280px] space-y-6 p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t("title")}</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 break-words">{t("title")}</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {t("subtitle")}
         </p>
@@ -39,7 +44,7 @@ export default async function ProfilePage() {
       <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
         {/* Profile Card */}
         <div className="rounded-xl border border-brand-border/20 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             <ProfilePhotoCard
               currentImageUrl={(user as any).avatarObjectKey ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${(user as any).avatarObjectKey}` : null}
               initials={initials}

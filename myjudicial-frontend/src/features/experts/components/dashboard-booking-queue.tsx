@@ -14,16 +14,16 @@ interface BookingQueueProps {
 export function BookingQueue({ sessions }: BookingQueueProps) {
   const t = useTranslations("expertDashboard");
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-2">
+    <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <p className="text-base font-semibold tracking-tight text-foreground">{t("priorityQueue")}</p>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-alert px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-alert px-2 py-0.5 text-[10px] font-bold text-white shadow-sm shrink-0">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" aria-hidden="true" />
             {t("live")}
           </span>
         </div>
-        <Button asChild variant="outline" size="xs">
+        <Button asChild variant="outline" size="xs" className="shrink-0">
           <Link href="/expert/dashboard/bookings">
             {t("viewAll")} <ChevronRight size={13} aria-hidden="true" />
           </Link>

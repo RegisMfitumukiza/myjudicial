@@ -71,6 +71,8 @@ export interface RegisterDto {
 export interface SendOtpDto {
   /** Valid email address */
   email: string;
+  /** Language for email template */
+  language?: 'en' | 'fr' | 'rw';
 }
 
 export interface VerifyOtpDto {

@@ -59,9 +59,21 @@ export function Header() {
     };
   }, [visible]);
 
-  const isAdvocate = session?.user?.role === "EXPERT";
-  const advocateHref = isAdvocate ? "/expert/dashboard" : "/sign-up?role=EXPERT";
-  const advocateLabel = isAdvocate ? t("advocateDashboard") : t("joinAsAdvocate");
+  const role = session?.user?.role;
+  const isAdvocate = role === "EXPERT";
+  const isAdmin = role === "ADMIN";
+
+  const portalHref = isAdmin
+    ? "/admin/dashboard"
+    : isAdvocate
+    ? "/expert/dashboard"
+    : "/sign-up?role=EXPERT";
+
+  const portalLabel = isAdmin
+    ? t("adminDashboard")
+    : isAdvocate
+    ? t("advocateDashboard")
+    : t("joinAsAdvocate");
 
   // Close mobile drawer on outside click (ignoring the toggle button itself)
   useEffect(() => {
@@ -114,11 +126,11 @@ export function Header() {
         visible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="mx-auto flex max-w-[1400px] h-16 items-center gap-2 px-4 sm:px-6">
+      <div className="mx-auto flex max-w-[1400px] h-16 items-center justify-between gap-1.5 sm:gap-2 px-2.5 min-[360px]:px-4 sm:px-6 min-w-0">
 
         {/* Logo */}
-        <div className="flex items-center justify-start shrink-0 mr-3 lg:mr-6">
-          <Logo iconSize={22} fontSize="text-[18px]" className="text-brand-dark dark:text-white" />
+        <div className="flex items-center justify-start shrink-0 mr-1 sm:mr-3 lg:mr-6 min-w-0">
+          <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" hideTextOnSmall />
         </div>
 
         {/* Primary Nav Links */}
@@ -140,12 +152,12 @@ export function Header() {
         </nav>
 
         {/* Right side actions */}
-        <div className="flex items-center justify-end gap-1.5 shrink-0 ml-auto">
+        <div className="flex items-center justify-end gap-1 sm:gap-1.5 shrink-0 ml-auto">
           <Link
-            href={advocateHref}
+            href={portalHref}
             className="hidden md:inline-flex items-center h-9 px-3.5 sm:px-4 text-sm font-semibold text-foreground rounded-full border border-border transition-all hover:bg-accent hover:text-brand-dark dark:hover:text-white shadow-2xs whitespace-nowrap shrink-0"
           >
-            {advocateLabel}
+            {portalLabel}
           </Link>
 
           <LanguageSwitcher variant="header" />
@@ -157,11 +169,11 @@ export function Header() {
           <button
             ref={buttonRef}
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex lg:hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-foreground ml-1"
+            className="flex lg:hidden h-8 w-8 min-[360px]:h-9 min-[360px]:w-9 items-center justify-center rounded-full transition-colors hover:bg-accent text-foreground ml-0.5 sm:ml-1"
             aria-label={mobileOpen ? t("close") : t("menu")}
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
@@ -198,11 +210,11 @@ export function Header() {
           </Link>
           <div className="pt-2 mt-2 border-t border-border">
             <Link
-              href={advocateHref}
+              href={portalHref}
               onClick={() => setMobileOpen(false)}
               className="flex items-center justify-between rounded-xl bg-accent/60 px-3.5 py-2.5 text-sm font-semibold text-brand-dark dark:text-white hover:bg-accent"
             >
-              <span>{advocateLabel}</span>
+              <span>{portalLabel}</span>
               <span className="text-xs">&rarr;</span>
             </Link>
           </div>

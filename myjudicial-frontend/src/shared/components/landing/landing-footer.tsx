@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/shared/components/logo";
 import { MapPin, Mail, ShieldAlert } from "lucide-react";
+import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 
 /* ── Inline SVG icons (zero external deps) ─────────────────────────── */
@@ -124,59 +125,67 @@ export default function LandingFooter() {
   return (
     <footer className="border-t border-border bg-card text-foreground" role="contentinfo">
       {/* ── Brand Identity & Platform Summary ─────────────────────────── */}
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-10 pb-8 border-b border-border">
+      <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6 lg:px-8 pt-7 sm:pt-10 pb-5 sm:pb-8 border-b border-border">
         <div className="flex flex-col gap-3 max-w-2xl">
           <Logo iconSize={20} fontSize="text-[17px]" className="text-foreground" />
           
-          <p className="text-sm font-semibold text-foreground leading-snug">
-            {t("tagline")}
+          <p className="text-sm font-semibold text-foreground leading-snug break-words">
+            {settings.platformTagline || t("tagline")}
           </p>
           
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed break-words">
             {t("subtagline")}
           </p>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-0.5">
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-muted-foreground mt-0.5">
             <div className="flex items-center gap-1.5">
               <MapPin size={12} className="shrink-0 text-foreground" />
-              <span>{t("kigaliRwanda")}</span>
+              <span>
+                {[settings.officeBuilding, settings.officeStreet, settings.officeDistrict]
+                  .filter(Boolean)
+                  .join(", ") || t("kigaliRwanda")}
+              </span>
             </div>
             <span className="text-border hidden sm:inline">·</span>
-            <div className="flex items-center gap-1.5">
-              <Mail size={12} className="shrink-0 text-foreground" />
-              <a href={`mailto:${supportEmail}`} className="hover:text-foreground hover:underline">
-                {supportEmail}
-              </a>
-            </div>
+            <ContactEmailPopover
+              email={supportEmail}
+              subject="Support & Inquiries - MyJudicial"
+              align="start"
+              side="top"
+              className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline break-all"
+              iconClassName="shrink-0 text-foreground"
+              iconSize={12}
+            />
           </div>
 
           {/* Legal Ethics / Regulatory Notice */}
-          <div className="mt-2 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/20 p-3 text-[11px] text-muted-foreground leading-relaxed">
+          <div className="mt-2 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/20 p-2.5 min-[360px]:p-3 text-[11px] text-muted-foreground leading-relaxed">
             <ShieldAlert size={14} className="shrink-0 text-muted-foreground mt-0.5" />
-            <span>{t("disclaimer")}</span>
+            <span className="break-words">{settings.legalDisclaimer || t("disclaimer")}</span>
           </div>
         </div>
       </div>
 
       {/* ── 4 Deep-Sitemap Columns ────────────────────────────────────── */}
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-10 border-b border-border">
+      <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6 lg:px-8 py-7 sm:py-10 border-b border-border">
         {/*
-          Mobile:  2 cols  (grid-cols-2)
-          Tablet:  4 cols  (sm:grid-cols-4)
+          Mobile (<320px):  1 col
+          Mobile (≥320px):  2 cols
+          Tablet (≥640px):  4 cols
           Desktop: 4 cols with generous spacing
         */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 sm:gap-x-8">
+        <div className="grid grid-cols-1 min-[320px]:grid-cols-2 gap-x-4 min-[360px]:gap-x-6 gap-y-6 min-[360px]:gap-y-8 sm:grid-cols-4 sm:gap-x-8">
           {FOOTER_COLS.map((col) => (
             <div key={col.heading} className="min-w-0">
-              <h4 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/75">
+              <h4 className="mb-3.5 min-[360px]:mb-4 text-[11px] font-bold uppercase tracking-widest text-foreground/75">
                 {col.heading}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2 min-[360px]:space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.href + link.label}>
                     <Link
                       href={link.href}
-                      className="text-xs sm:text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4 leading-snug block py-0.5"
+                      className="text-xs sm:text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4 leading-snug block py-0.5 break-words"
                     >
                       {link.label}
                     </Link>
@@ -189,12 +198,12 @@ export default function LandingFooter() {
       </div>
 
       {/* ── Bottom Bar: Copyright & Dynamic Social Icons ──────────────── */}
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-5">
+      <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         <div className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
           
           {/* Dynamic Copyright */}
-          <p className="text-xs text-muted-foreground order-2 md:order-1">
-            © {new Date().getFullYear()} {t("copyright")}
+          <p className="text-xs text-muted-foreground order-2 md:order-1 break-words">
+            © {new Date().getFullYear()} {settings.copyrightNotice || t("copyright")}
           </p>
 
           {/* Social Icons Container with clearance for floating bot button */}

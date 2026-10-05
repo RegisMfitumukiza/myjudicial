@@ -775,7 +775,7 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
                   <span className="text-xs font-semibold text-foreground">Cover Note / Why MyJudicial?</span>
                   {draftReqCoverNote && <span className="text-destructive font-bold">*</span>}
                 </div>
-                <p className="text-[11px] text-muted-foreground">Candidate's pitch, motivation, and specific problems they want to solve</p>
+                <p className="text-[11px] text-muted-foreground">Candidate&apos;s pitch, motivation, and specific problems they want to solve</p>
               </div>
               <Switch
                 checked={draftReqCoverNote}

@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   ChevronLeft, ChevronRight, Calendar as CalendarIcon,
   ArrowRight, CheckCircle, MessageSquare,
-  ShieldCheck, Lock, Info, Coins, Smartphone, Loader2,
+  ShieldCheck, Lock, Info, Coins, Smartphone,
   AlertCircle, Search,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -88,7 +88,7 @@ function BookingSkeleton() {
 }
 
 /* ── Error state for unavailable expert ── */
-function BookingError({ t, tCommon }: { t: ReturnType<typeof useTranslations>; tCommon: ReturnType<typeof useTranslations> }) {
+function BookingError({ t }: { t: ReturnType<typeof useTranslations> }) {
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center sm:px-6">
       <div className="rounded-2xl border border-border bg-card p-10 shadow-sm">
@@ -122,29 +122,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const requestedServiceId = searchParams.get("serviceId");
   const { requireAuth, status: authStatus } = useRequireBookingAuth();
   const t = useTranslations("booking");
-  const tCommon = useTranslations("common");
   const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
-
-  /* ── Restore draft booking state if returning after sign-in ── */
-  useEffect(() => {
-    if (typeof window === "undefined" || !id) return;
-    try {
-      const saved = sessionStorage.getItem(`mj_pending_booking_${id}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.selectedService) setSelectedService(parsed.selectedService);
-        if (typeof parsed.month === "number") setMonth(parsed.month);
-        if (typeof parsed.year === "number") setYear(parsed.year);
-        if (typeof parsed.selectedDate === "number") setSelectedDate(parsed.selectedDate);
-        if (parsed.selectedTime) setSelectedTime(parsed.selectedTime);
-        if (parsed.selectedSlot) setSelectedSlot(parsed.selectedSlot);
-        if (parsed.reason) setReason(parsed.reason);
-        sessionStorage.removeItem(`mj_pending_booking_${id}`);
-      }
-    } catch {
-      // ignore
-    }
-  }, [id]);
 
   const { data: expertProfile, isLoading: profileLoading, error: profileError } = useGetExpertsIdProfile(id);
   const { mutate: createBooking, isPending: isCreatingBooking } = useCreateBooking();
@@ -167,6 +145,27 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     }
     return "Africa/Kigali";
   });
+
+  /* ── Restore draft booking state if returning after sign-in ── */
+  useEffect(() => {
+    if (typeof window === "undefined" || !id) return;
+    try {
+      const saved = sessionStorage.getItem(`mj_pending_booking_${id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.selectedService) setSelectedService(parsed.selectedService);
+        if (typeof parsed.month === "number") setMonth(parsed.month);
+        if (typeof parsed.year === "number") setYear(parsed.year);
+        if (typeof parsed.selectedDate === "number") setSelectedDate(parsed.selectedDate);
+        if (parsed.selectedTime) setSelectedTime(parsed.selectedTime);
+        if (parsed.selectedSlot) setSelectedSlot(parsed.selectedSlot);
+        if (parsed.reason) setReason(parsed.reason);
+        sessionStorage.removeItem(`mj_pending_booking_${id}`);
+      }
+    } catch {
+      // ignore
+    }
+  }, [id]);
 
   const servicesResult = useGetExpertsExpertIdServices(id);
   const services: LegalService[] = (servicesResult.data as { data?: { data?: LegalService[] } } | undefined)?.data?.data ?? [];
@@ -260,7 +259,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
   /* ── Error: friendly unavailability state ── */
   if (profileError || !expertProfile) {
-    return <BookingError t={t} tCommon={tCommon} />;
+    return <BookingError t={t} />;
   }
 
   const profile = (expertProfile as unknown as { data: { data: { id: string; displayName: string; bio?: string; primarySpecialty?: string; avgRating?: number; totalBookings?: number; baseConsultationFee?: number; profileImageUrl?: string; officeAddress?: string; yearsExperience?: number; city?: string; languages?: string[]; verified?: boolean } } }).data.data;

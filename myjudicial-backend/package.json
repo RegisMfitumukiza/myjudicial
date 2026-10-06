@@ -12,7 +12,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "cross-env DIRECT_URL=$DATABASE_URL prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed:experts": "tsx prisma/seed-experts.ts",
+    "db:clear:experts": "node scripts/clear-experts.mjs",
     "db:seed:content": "tsx prisma/seed-content-pages.ts",
     "fix:role": "tsx scripts/fix-user-role.ts",
     "test": "node tests/run.mjs",

@@ -35,10 +35,13 @@ function getApiUrl(): string {
 
 async function getExpertIds(): Promise<string[]> {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
     const res = await fetch(
       `${getApiUrl()}/experts?status=ACTIVE&limit=500&fields=id`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 86400 }, signal: controller.signal } // cache 24h
     );
+    clearTimeout(timeout);
     if (!res.ok) return [];
     const text = await res.text();
     if (!text || !text.trim()) return [];
@@ -46,7 +49,7 @@ async function getExpertIds(): Promise<string[]> {
     const experts: Array<{ id: string }> = json?.data?.experts ?? (Array.isArray(json?.data) ? json.data : []);
     return experts.map((e) => e.id).filter(Boolean);
   } catch {
-    return [];
+    return []; // Gracefully degrade — static routes still included
   }
 }
 

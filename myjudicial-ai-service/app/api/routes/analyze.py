@@ -64,6 +64,33 @@ async def analyze_case(request: CaseAnalysisRequest):
         
         # Validate analysis structure
         analysis_data = result["analysis"]
+
+        # Dynamic budget estimation from real database expert stats
+        b_range = analysis_data.get("budget_range") or {}
+        if not b_range.get("min") and not b_range.get("max"):
+            try:
+                from app.db.repositories.expert_repository import expert_repository
+                specialty = analysis_data.get("specialty")
+                fee_stats = await expert_repository.get_specialty_fee_stats(specialty)
+                if fee_stats.get("expert_count", 0) > 0:
+                    analysis_data["budget_range"] = {
+                        "min": fee_stats["min"],
+                        "max": fee_stats["max"],
+                        "avg": fee_stats["avg"],
+                        "currency": "RWF"
+                    }
+                else:
+                    all_stats = await expert_repository.get_specialty_fee_stats()
+                    if all_stats.get("expert_count", 0) > 0:
+                        analysis_data["budget_range"] = {
+                            "min": all_stats["p25"],
+                            "max": all_stats["p75"],
+                            "avg": all_stats["avg"],
+                            "currency": "RWF"
+                        }
+            except Exception as fee_err:
+                logger.warning(f"Failed to fetch dynamic fee stats: {fee_err}")
+
         analysis = CaseAnalysis(**analysis_data)
         
         return CaseAnalysisResponse(

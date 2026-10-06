@@ -2,6 +2,10 @@
   "admin": {
     "dashboard": {
       "welcome": "Bon retour, Administrateur",
+      "greetingMorning": "Bonjour, Admin",
+      "greetingAfternoon": "Bon après-midi, Admin",
+      "greetingEvening": "Bonsoir, Admin",
+      "greetingNight": "Bonne nuit, Admin",
       "subtitle": "Voici ce qui se passe sur MyJudicial aujourd'hui.",
       "totalUsers": "Total des utilisateurs",
       "totalUsersDesc": "Tous les comptes enregistrés",
@@ -3728,6 +3732,10 @@
   "clientDashboard_documents": {},
   "clientDashboard_home": {
     "welcomeBack": "Welcome back, {firstName}",
+    "greetingMorning": "Bonjour, {firstName}",
+    "greetingAfternoon": "Bon après-midi, {firstName}",
+    "greetingEvening": "Bonsoir, {firstName}",
+    "greetingNight": "Bonne nuit, {firstName}",
     "manageConsultationsDesc": "Manage your consultations and stay on top of your legal matters.",
     "completePayment": "Complete payment for {serviceName}",
     "consultation": "consultation",

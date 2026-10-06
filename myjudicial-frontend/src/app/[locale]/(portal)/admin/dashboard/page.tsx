@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
 import {
   Users, BadgeCheck, DollarSign, AlertCircle,
   UserCheck, Briefcase, ShieldAlert, FileCheck,
@@ -34,6 +35,8 @@ function resolveValue(obj: any, path: string[]): number | null {
 export default function AdminDashboardPage() {
   const t = useTranslations("admin.dashboard");
   const locale = useLocale();
+  const timeOfDay = useTimeOfDay();
+  const greetingKey = TIME_GREETING_KEY[timeOfDay];
   const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
   const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
   const { data: verifRes } = useGetAdminVerificationQueue();
@@ -87,7 +90,7 @@ export default function AdminDashboardPage() {
   if (hasError) {
     return (
       <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-        <PageHeader title={t("welcome")} description={t("subtitle")} />
+        <PageHeader title={t(greetingKey)} description={t("subtitle")} />
         <ErrorState
           title={t("failedToLoad")}
           message={t("unableToFetch")}
@@ -124,7 +127,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-      <PageHeader title={t("welcome")} description={t("subtitle")} />
+      <PageHeader title={t(greetingKey)} description={t("subtitle")} />
 
       {/* Action Required - only show if there are items needing attention */}
       {(pendingVerifications > 0 || (platformStats?.suspendedExperts ?? 0) > 0) && (

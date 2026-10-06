@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
 import { Link } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import {
@@ -27,6 +28,8 @@ export default function ClientHomePage() {
   const firstName = (session?.user as any)?.firstName
     || session?.user?.name?.split(" ")[0]
     || "Client";
+  const timeOfDay = useTimeOfDay();
+  const greetingKey = TIME_GREETING_KEY[timeOfDay];
 
   const { data: bookingsData, isLoading: bookingsLoading } = useGetBookings({ page: 1, limit: 20 });
 
@@ -104,7 +107,7 @@ export default function ClientHomePage() {
       {/* Welcome Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-[26px] font-bold text-brand-dark dark:text-white break-words">
-          {t("welcomeBack", { firstName })}
+          {t(greetingKey, { firstName })}
         </h1>
         <p className="mt-1 text-[14px] text-brand-dark/50 dark:text-white/50">
           {t("manageConsultationsDesc")}

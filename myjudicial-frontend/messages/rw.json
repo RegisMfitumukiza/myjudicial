@@ -2,6 +2,10 @@
   "admin": {
     "dashboard": {
       "welcome": "Murakaza neza nanone, Admin",
+      "greetingMorning": "Mwaramutse, Nyir'Imirimo",
+      "greetingAfternoon": "Mwiriwe, Nyir'Imirimo",
+      "greetingEvening": "Mwiriwe, Nyir'Imirimo",
+      "greetingNight": "Muramuke, Nyir'Imirimo",
       "subtitle": "Ibiri kubaho kuri MyJudicial uyu munsi.",
       "totalUsers": "Abakoresha bose",
       "totalUsersDesc": "Konti zose ziyandikishijwe",
@@ -3728,6 +3732,10 @@
   "clientDashboard_documents": {},
   "clientDashboard_home": {
     "welcomeBack": "Welcome back, {firstName}",
+    "greetingMorning": "Mwaramutse, {firstName}",
+    "greetingAfternoon": "Mwiriwe, {firstName}",
+    "greetingEvening": "Mwiriwe, {firstName}",
+    "greetingNight": "Muramuke, {firstName}",
     "manageConsultationsDesc": "Manage your consultations and stay on top of your legal matters.",
     "completePayment": "Complete payment for {serviceName}",
     "consultation": "consultation",

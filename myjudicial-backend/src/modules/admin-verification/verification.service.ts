@@ -9,6 +9,7 @@ import {
 import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { parsePagination, buildPaginationMeta } from "../../shared/utils/pagination.js";
 import { logger } from "../../shared/utils/logger.js";
+import { triggerEmbeddingSync } from "../ai/embedding-sync.service.js";
 
 export const VerificationService = {
   /**
@@ -64,6 +65,10 @@ export const VerificationService = {
     const name = existing.expert.displayName;
     const expertLanguage = (existing.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
     await sendApprovalEmail(email, name, expertLanguage);
+
+    // Tier 3 — sync AI embedding now that the expert is verified (fire-and-forget)
+    // This makes the newly approved lawyer immediately searchable via AI Triage.
+    triggerEmbeddingSync(existing.expert.id, "expert_verified");
 
     return updated;
   },

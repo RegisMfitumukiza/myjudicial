@@ -7,6 +7,7 @@ import { GeocodingService } from "../../../infrastructure/geocoding/geocoding.se
 import { getSignedDownloadUrl } from "../../../infrastructure/storage/oci-object-storage.service.js";
 import { logger } from "../../../shared/utils/logger.js";
 import type { CreateProfileDto, UpdateProfileDto } from "./profile.schemas.js";
+import { triggerEmbeddingSync } from "../../ai/embedding-sync.service.js";
 
 
 export const ProfileService = {
@@ -69,6 +70,9 @@ export const ProfileService = {
       description: "Expert profile created — pending verification",
       ipAddress,
     });
+
+    // Tier 3 — async embedding sync (fire-and-forget, never blocks the response)
+    triggerEmbeddingSync(profile.id, "profile_created");
 
     return profile;
   },
@@ -145,6 +149,18 @@ export const ProfileService = {
       description: "Expert profile updated",
       ipAddress,
     });
+
+    // Tier 3 — re-sync embedding when bio/specialties change (fire-and-forget)
+    const embeddingRelevantFieldsChanged =
+      dto.bio !== undefined ||
+      dto.primarySpecialty !== undefined ||
+      dto.specialties !== undefined ||
+      dto.yearsExperience !== undefined ||
+      dto.displayName !== undefined;
+
+    if (embeddingRelevantFieldsChanged) {
+      triggerEmbeddingSync(profile.id, "profile_updated");
+    }
 
     return updated;
   },

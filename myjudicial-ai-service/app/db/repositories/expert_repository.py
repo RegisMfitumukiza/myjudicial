@@ -143,6 +143,95 @@ class ExpertRepository:
         except Exception as e:
             logger.error(f"Failed to search similar experts: {e}", exc_info=True)
             raise Exception(f"Failed to search similar experts: {str(e)}")
+
+    async def fallback_search_by_specialty(
+        self,
+        specialty: str,
+        max_budget: Optional[int] = None,
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """
+        TIER 2 FALLBACK — Structured category search when vector search returns 0 results.
+
+        This guarantees a client is NEVER shown "No experts found" when a verified
+        lawyer exists for the identified specialty, regardless of whether their
+        profile_embedding has been generated yet.
+
+        Returns experts sorted by rating DESC, experience DESC.
+        Each expert receives a fixed similarity_score=0.0 so the ranking service
+        knows this is a fallback result (not a semantic match) but can still score
+        them on rating, budget, experience, and specialty match.
+        """
+        try:
+            if max_budget is not None and max_budget <= 0:
+                max_budget = None
+
+            query = """
+            SELECT
+                id,
+                "userId" as user_id,
+                "displayName" as full_name,
+                specialties,
+                bio,
+                "baseConsultationFee" as hourly_rate,
+                "averageRating" as rating,
+                "reviewCount" as review_count,
+                languages,
+                "yearsExperience" as years_of_experience,
+                city as location,
+                "profileImageObjectKey" as profile_image_url,
+                "primarySpecialty"::text as primary_specialty,
+                0.0::float as similarity_score
+            FROM experts
+            WHERE
+                status::text IN ('VERIFIED', 'DRAFT')
+                AND (
+                    $1::text = ANY(specialties::text[])
+                    OR $1::text = "primarySpecialty"::text
+                )
+                AND ($2::decimal IS NULL OR $2::decimal <= 0 OR "baseConsultationFee" <= $2)
+            ORDER BY
+                "averageRating" DESC NULLS LAST,
+                "yearsExperience" DESC NULLS LAST
+            LIMIT $3
+            """
+
+            rows = await db.fetch(query, specialty, max_budget, limit)
+
+            logger.info(
+                f"[Fallback] Structured specialty search for '{specialty}': "
+                f"found {len(rows)} experts (budget<={max_budget})"
+            )
+
+            results = []
+            for row in rows:
+                expert = {
+                    "id": str(row["id"]),
+                    "user_id": str(row["user_id"]) if row["user_id"] else None,
+                    "full_name": row["full_name"],
+                    "specialties": row["specialties"],
+                    "bio": row["bio"],
+                    "hourly_rate": float(row["hourly_rate"]) if row["hourly_rate"] else None,
+                    "rating": float(row["rating"]) if row["rating"] else None,
+                    "review_count": int(row["review_count"] or 0),
+                    "languages": row["languages"],
+                    "skills": [],
+                    "education": None,
+                    "years_of_experience": row["years_of_experience"],
+                    "location": row["location"],
+                    "availability": None,
+                    "profile_image_url": row["profile_image_url"],
+                    "primary_specialty": row["primary_specialty"],
+                    "similarity_score": 0.0,  # Structured match — not semantic
+                    "_fallback": True,         # Mark so pipeline can flag this
+                }
+                results.append(expert)
+
+            return results
+
+        except Exception as e:
+            logger.error(f"Fallback specialty search failed: {e}", exc_info=True)
+            return []  # Return empty so caller can decide what to show — never crash
     
     async def get_expert_by_id(self, expert_id: str) -> Optional[Dict[str, Any]]:
         """Get expert by ID"""

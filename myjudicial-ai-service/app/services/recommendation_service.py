@@ -120,11 +120,47 @@ class RecommendationService:
             processing_time = time.time() - start_time
             logger.info(f"[Pipeline-2] Vector search returned: {search_results.get('total', 0)} candidates in {processing_time:.2f}s")
 
+            # ── TIER 2 FALLBACK ───────────────────────────────────────────────────────
+            # If vector search found 0 results (embeddings missing or below threshold)
+            # and a specialty was identified, fall back to structured category search.
+            # This ensures clients are NEVER shown "No experts found" when a verified
+            # lawyer exists for their specialty.
             if not search_results.get("success") or not search_results.get("results"):
-                return self._build_response(
-                    success=True, query=query, analysis=analysis,
-                    recommendations=[], processing_time=processing_time,
-                )
+                if specialty:
+                    logger.warning(
+                        f"[Pipeline-2] Vector search returned 0 for specialty={specialty} — "
+                        f"activating Tier 2 structured fallback"
+                    )
+                    from app.db.repositories.expert_repository import expert_repository as _repo
+                    fallback_candidates = await _repo.fallback_search_by_specialty(
+                        specialty=specialty,
+                        max_budget=analysis.get("budget_range", {}).get("max"),
+                        limit=limit * 3,
+                    )
+                    if fallback_candidates:
+                        logger.info(
+                            f"[Pipeline-2] Tier 2 fallback found {len(fallback_candidates)} experts"
+                        )
+                        search_results = {
+                            "success": True,
+                            "results": fallback_candidates,
+                            "total": len(fallback_candidates),
+                            "fallback_used": True,
+                        }
+                    else:
+                        logger.warning(
+                            f"[Pipeline-2] Tier 2 fallback also returned 0 for specialty={specialty}"
+                        )
+                        return self._build_response(
+                            success=True, query=query, analysis=analysis,
+                            recommendations=[], processing_time=processing_time,
+                        )
+                else:
+                    return self._build_response(
+                        success=True, query=query, analysis=analysis,
+                        recommendations=[], processing_time=processing_time,
+                    )
+            # ─────────────────────────────────────────────────────────────────────────
             
             candidates = search_results["results"]
             
@@ -143,13 +179,22 @@ class RecommendationService:
             # Limit to requested number
             top_experts = ranked_experts[:limit]
             
-            # Filter by minimum score
+            # Filter by minimum score.
+            # IMPORTANT: For Tier 2 fallback results, similarity_score=0 by design,
+            # so the threshold is lowered to 0.15 to allow them through — they still
+            # score meaningfully on rating, budget, experience, and specialty match.
+            is_fallback = search_results.get("fallback_used", False)
+            effective_min_score = 0.15 if is_fallback else settings.MIN_RECOMMENDATION_SCORE
             pre_filter_count = len(top_experts)
             top_experts = [
-                e for e in top_experts 
-                if e.get("final_score", 0) >= settings.MIN_RECOMMENDATION_SCORE
+                e for e in top_experts
+                if e.get("final_score", 0) >= effective_min_score
             ]
-            logger.info(f"[Pipeline-3] Post-ranking: {pre_filter_count} scored, {len(top_experts)} passed MIN_RECOMMENDATION_SCORE={settings.MIN_RECOMMENDATION_SCORE}")
+            logger.info(
+                f"[Pipeline-3] Post-ranking: {pre_filter_count} scored, "
+                f"{len(top_experts)} passed min_score={effective_min_score} "
+                f"({'Tier 2 fallback' if is_fallback else 'Tier 1 vector'})"
+            )
             if ranked_experts:
                 for e in ranked_experts[:5]:
                     logger.info(f"  -> {e.get('full_name')} | final_score={e.get('final_score', 0):.3f}")
@@ -220,11 +265,44 @@ class RecommendationService:
             
             processing_time = time.time() - start_time
 
+            # ── TIER 2 FALLBACK ───────────────────────────────────────────────────────
             if not search_results.get("success") or not search_results.get("results"):
-                return self._build_response(
-                    success=True, query=query, analysis=case_analysis,
-                    recommendations=[], processing_time=processing_time,
-                )
+                specialty = case_analysis.get("specialty")
+                if specialty:
+                    logger.warning(
+                        f"[Analysis-Pipeline] Vector search returned 0 for specialty={specialty} — "
+                        f"activating Tier 2 structured fallback"
+                    )
+                    from app.db.repositories.expert_repository import expert_repository as _repo
+                    fallback_candidates = await _repo.fallback_search_by_specialty(
+                        specialty=specialty,
+                        max_budget=case_analysis.get("budget_range", {}).get("max"),
+                        limit=limit * 3,
+                    )
+                    if fallback_candidates:
+                        logger.info(
+                            f"[Analysis-Pipeline] Tier 2 fallback found {len(fallback_candidates)} experts"
+                        )
+                        search_results = {
+                            "success": True,
+                            "results": fallback_candidates,
+                            "total": len(fallback_candidates),
+                            "fallback_used": True,
+                        }
+                    else:
+                        logger.warning(
+                            f"[Analysis-Pipeline] Tier 2 fallback also returned 0 for specialty={specialty}"
+                        )
+                        return self._build_response(
+                            success=True, query=query, analysis=case_analysis,
+                            recommendations=[], processing_time=processing_time,
+                        )
+                else:
+                    return self._build_response(
+                        success=True, query=query, analysis=case_analysis,
+                        recommendations=[], processing_time=processing_time,
+                    )
+            # ─────────────────────────────────────────────────────────────────────────
             
             candidates = search_results["results"]
             
@@ -241,9 +319,11 @@ class RecommendationService:
             
             # Limit and filter
             top_experts = ranked_experts[:limit]
+            is_fallback = search_results.get("fallback_used", False)
+            effective_min_score = 0.15 if is_fallback else settings.MIN_RECOMMENDATION_SCORE
             top_experts = [
                 e for e in top_experts 
-                if e.get("final_score", 0) >= settings.MIN_RECOMMENDATION_SCORE
+                if e.get("final_score", 0) >= effective_min_score
             ]
             
             # Generate explanations

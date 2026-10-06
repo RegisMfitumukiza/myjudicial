@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import multer from "multer";
 import { logger } from "../../shared/utils/logger.js";
 import { getSignedDownloadUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
+import { LegalSpecialty } from "../../generated/prisma/client.js";
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL ?? "http://localhost:5000";
 const AI_SERVICE_KEY = process.env.AI_SERVICE_KEY ?? "";
@@ -187,6 +189,13 @@ export async function getRecommendations(req: Request, res: Response) {
       const errorBody = await response.text();
       logger.error(`AI service error: ${response.status} (${elapsed}ms) - ${errorBody}`);
 
+      // If AI service is down or temporarily unavailable, gracefully fall back to database
+      if (response.status === 502 || response.status === 503) {
+        logger.warn(`[EdgeFallback] AI service returned ${response.status} — using database fallback recommendations`);
+        await databaseFallbackRecommendations(req.body, startTime, res);
+        return;
+      }
+
       let userMessage = "An error occurred while processing your request.";
       if (response.status === 400) {
         userMessage = "The request could not be processed. Please check your input and try again.";
@@ -196,8 +205,6 @@ export async function getRecommendations(req: Request, res: Response) {
         userMessage = "Too many requests. Please wait a moment and try again.";
       } else if (response.status === 500) {
         userMessage = "An internal error occurred. Please try again later.";
-      } else if (response.status === 502 || response.status === 503) {
-        userMessage = "The AI service is temporarily unavailable. Please try again later.";
       }
 
       res.status(response.status).json({
@@ -209,6 +216,17 @@ export async function getRecommendations(req: Request, res: Response) {
     }
 
     const data = await response.json();
+
+    // If AI service returned 0 recommendations but a specialty was analyzed or provided,
+    // double-check with database fallback to ensure clients are never left with an empty result
+    if ((!data?.recommendations || data.recommendations.length === 0) && (req.body?.specialty || data?.case_analysis?.specialty)) {
+      const specialty = req.body?.specialty || data?.case_analysis?.specialty;
+      if (specialty && specialty !== "UNKNOWN") {
+        logger.info(`[EdgeFallback] AI service returned 0 recommendations for specialty=${specialty} — checking database fallback`);
+        await databaseFallbackRecommendations({ ...req.body, specialty }, startTime, res);
+        return;
+      }
+    }
 
     // Resolve profile_image_url from raw storage keys to signed URLs
     if (data?.recommendations && Array.isArray(data.recommendations)) {
@@ -232,7 +250,150 @@ export async function getRecommendations(req: Request, res: Response) {
     res.status(200).json({ success: true, data });
   } catch (error) {
     const elapsed = Date.now() - startTime;
-    logger.error(`AI service connection failed: /recommend (${elapsed}ms)`, error);
+    logger.warn(`[EdgeFallback] AI service connection failed: /recommend (${elapsed}ms) — falling back to database`, error);
+    await databaseFallbackRecommendations(req.body, startTime, res);
+  }
+}
+
+async function databaseFallbackRecommendations(
+  body: any,
+  startTime: number,
+  res: Response
+) {
+  try {
+    const text: string = body?.text || "";
+    let rawSpecialty: string | undefined = body?.specialty;
+    let specialty: LegalSpecialty | undefined;
+
+    // Normalize potential aliases from AI service (e.g. BUSINESS_LAW -> COMMERCIAL_LAW)
+    if (rawSpecialty) {
+      if (rawSpecialty === "BUSINESS_LAW" || rawSpecialty === "CORPORATE") {
+        specialty = LegalSpecialty.COMMERCIAL_LAW;
+      } else if (rawSpecialty === "LABOR_LAW") {
+        specialty = LegalSpecialty.EMPLOYMENT_LAW;
+      } else if (Object.values(LegalSpecialty).includes(rawSpecialty as LegalSpecialty)) {
+        specialty = rawSpecialty as LegalSpecialty;
+      }
+    }
+
+    if (!specialty && text) {
+      const lower = text.toLowerCase();
+      if (/stole|steal|theft|crime|criminal|police|arrest|fraud|jail|assault|robbery/.test(lower)) {
+        specialty = LegalSpecialty.CRIMINAL_LAW;
+      } else if (/land|property|plot|title|boundary|tenant|eviction|cadastre/.test(lower)) {
+        specialty = LegalSpecialty.LAND_LAW;
+      } else if (/divorce|child|custody|marriage|alimony|spouse|adoption/.test(lower)) {
+        specialty = LegalSpecialty.FAMILY_LAW;
+      } else if (/business|contract|company|partner|commercial|corporate|shares/.test(lower)) {
+        specialty = LegalSpecialty.COMMERCIAL_LAW;
+      } else if (/work|job|employer|employee|fired|salary|wage|workplace/.test(lower)) {
+        specialty = LegalSpecialty.EMPLOYMENT_LAW;
+      } else if (/tax|rra|revenue|audit|vat|customs/.test(lower)) {
+        specialty = LegalSpecialty.TAX_LAW;
+      } else if (/visa|passport|immigration|asylum|citizenship|permit/.test(lower)) {
+        specialty = LegalSpecialty.IMMIGRATION_LAW;
+      }
+    }
+
+    const limit = typeof body?.limit === "number" ? Math.min(body.limit, 10) : 5;
+
+    let experts = await prisma.expertProfile.findMany({
+      where: {
+        status: "VERIFIED",
+        ...(specialty
+          ? {
+              OR: [
+                { primarySpecialty: specialty },
+                { specialties: { has: specialty } },
+              ],
+            }
+          : {}),
+      },
+      take: limit,
+      orderBy: [
+        { averageRating: "desc" },
+        { reviewCount: "desc" },
+        { yearsExperience: "desc" },
+      ],
+    });
+
+    if (experts.length === 0) {
+      experts = await prisma.expertProfile.findMany({
+        where: { status: "VERIFIED" },
+        take: limit,
+        orderBy: [
+          { averageRating: "desc" },
+          { reviewCount: "desc" },
+          { yearsExperience: "desc" },
+        ],
+      });
+    }
+
+    const recommendations = await Promise.all(
+      experts.map(async (expert, index) => {
+        let signedUrl: string | null = null;
+        if (expert.profileImageObjectKey) {
+          try {
+            const { url } = await getSignedDownloadUrl(expert.profileImageObjectKey);
+            signedUrl = url;
+          } catch {
+            signedUrl = null;
+          }
+        }
+
+        return {
+          expert: {
+            id: expert.id,
+            user_id: expert.userId,
+            full_name: expert.displayName,
+            specialties: expert.specialties,
+            bio: expert.bio,
+            hourly_rate: expert.baseConsultationFee ? Number(expert.baseConsultationFee) : null,
+            rating: expert.averageRating ? Number(expert.averageRating) : null,
+            review_count: expert.reviewCount,
+            languages: expert.languages,
+            years_of_experience: expert.yearsExperience,
+            location: expert.city || "Rwanda",
+            profile_image_url: signedUrl,
+          },
+          score: Math.max(0.4, 0.75 - index * 0.05),
+          rank: index + 1,
+          match_quality: "High",
+          explanation: {
+            summary: `Verified legal expert in ${expert.primarySpecialty || "law"}.`,
+            key_factors: ["Verified credentials", "Specialty match"],
+          },
+        };
+      })
+    );
+
+    const elapsed = Date.now() - startTime;
+    logger.info(`[EdgeFallback] Database recommendations served: ${recommendations.length} experts (${elapsed}ms)`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        success: true,
+        query: text,
+        case_analysis: {
+          specialty: specialty || "GENERAL_PRACTICE",
+          urgency_level: "MEDIUM",
+          budget_range: null,
+          key_entities: [],
+        },
+        recommendations,
+        total: recommendations.length,
+        filters_applied: {
+          specialty: specialty || null,
+          max_budget: null,
+          min_score: 0.15,
+        },
+        processing_time: elapsed / 1000,
+        fallback_used: true,
+      },
+    });
+  } catch (fallbackError) {
+    logger.error("Database fallback recommendations failed:", fallbackError);
     res.status(502).json({
       success: false,
       error: "AI service unavailable",

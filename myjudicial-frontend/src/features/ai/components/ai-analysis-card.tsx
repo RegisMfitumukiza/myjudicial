@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Shield, Clock, Wallet, MapPin, FileText, Lightbulb, Scale, Upload, CheckCircle2, Tag } from "lucide-react";
+import { Shield, Wallet, MapPin, FileText, Lightbulb, Scale, Upload, CheckCircle2, Tag } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { CaseAnalysis } from "../types";

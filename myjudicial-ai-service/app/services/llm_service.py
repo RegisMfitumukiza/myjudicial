@@ -538,7 +538,44 @@ JSON Response:"""
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM JSON response: {e}")
-            logger.error(f"Raw response: {result.get('text', '')}")
+            raw = result.get("text", "")
+            logger.error(f"Raw response: {raw}")
+            # Attempt to recover truncated JSON by extracting key scalar fields via regex
+            import re as _re
+
+            def _rx(pattern, text, default=None):
+                m = _re.search(pattern, text, _re.IGNORECASE | _re.DOTALL)
+                return m.group(1).strip().strip('"') if m else default
+
+            specialty = _rx(r'"specialty"\s*:\s*"([^"]+)"', raw, "GENERAL_LAW")
+            urgency = _rx(r'"urgency_level"\s*:\s*"([^"]+)"', raw, "MEDIUM")
+            jurisdiction = _rx(r'"jurisdiction"\s*:\s*"([^"]+)"', raw, "RWANDA")
+            bmin_m = _re.search(r'"budget_range"\s*:\s*\{[^}]*"min"\s*:\s*([0-9.]+)', raw)
+            bmax_m = _re.search(r'"budget_range"\s*:\s*\{[^}]*"max"\s*:\s*([0-9.]+)', raw)
+            budget_min = int(float(bmin_m.group(1))) if bmin_m else 0
+            budget_max = int(float(bmax_m.group(1))) if bmax_m else 0
+            if specialty:
+                logger.warning(f"Recovered partial JSON: specialty={specialty}, urgency={urgency}")
+                analysis = {
+                    "specialty": specialty,
+                    "urgency_level": urgency,
+                    "jurisdiction": jurisdiction,
+                    "budget_range": {"min": budget_min, "max": budget_max, "currency": "RWF"},
+                    "key_entities": [],
+                    "suggested_documents": [],
+                    "summary": "Analysis recovered from truncated LLM response.",
+                }
+                if keyword_specialty:
+                    analysis["specialty"] = self._keyword_override(raw, analysis["specialty"])
+                processing_time = time.time() - start_time
+                return {
+                    "success": True,
+                    "analysis": analysis,
+                    "llm_model": result.get("model"),
+                    "llm_provider": result.get("provider"),
+                    "processing_time": processing_time,
+                    "warning": "LLM response was truncated; analysis recovered from partial JSON.",
+                }
             raise Exception(f"Failed to parse case analysis: Invalid JSON response")
         except Exception as e:
             logger.error(f"Case analysis failed: {e}", exc_info=True)

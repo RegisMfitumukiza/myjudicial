@@ -73,10 +73,13 @@ export type PopularSearch = {
 
 export type SectionSource = "real_metrics" | "curated" | "disabled";
 
+export type TimeContext = "today" | "tonight" | "tomorrow" | "weekend";
+
 export type SectionResponse<T> = {
   data: T[];
   source: SectionSource;
   isEmpty: boolean;
+  timeContext?: TimeContext;
 };
 
 type ApiResponse<T> = {

@@ -53,7 +53,8 @@ export function LawyerCard({ lawyer, selected, onClick, onHover }: LawyerCardPro
         />
         {lawyer.online && (
           <span
-            className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card bg-emerald-500 shadow-2xs ring-1 ring-emerald-500/20"
+            className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card shadow-2xs"
+            style={{ backgroundColor: "#10b981", boxShadow: "0 0 0 3px rgba(16,185,129,0.15)" }}
             title="Available now"
           />
         )}

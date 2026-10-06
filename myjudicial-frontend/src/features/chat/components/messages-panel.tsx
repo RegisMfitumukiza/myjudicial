@@ -128,7 +128,10 @@ function ConversationListItem({
           {name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
         </div>
         {isOnline && (
-          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-900" />
+          <span
+            className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-900"
+            style={{ backgroundColor: "#10b981" }}
+          />
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -694,7 +697,11 @@ export function MessagesPanel({ subtitle }: { subtitle: string }) {
                     {otherParticipant ? `${otherParticipant.firstName} ${otherParticipant.lastName}` : "User"}
                   </p>
                   {headerIsOnline && (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-green-500" title={t("online")} />
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: "#10b981" }}
+                      title={t("online")}
+                    />
                   )}
                 </div>
                 {otherIsTyping && (

@@ -59,7 +59,10 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
           <div className="relative shrink-0">
             <ExpertAvatar src={lawyer.avatarUrl} name={lawyer.name} size="md" />
             {lawyer.online && (
-              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-green-500" />
+              <span
+                className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card"
+                style={{ backgroundColor: "#10b981", boxShadow: "0 0 0 3px rgba(16,185,129,0.15)" }}
+              />
             )}
           </div>
 

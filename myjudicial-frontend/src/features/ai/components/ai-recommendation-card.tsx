@@ -60,7 +60,7 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
                   {recommendation.expert.full_name}
                 </h4>
                 <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#10b981" }} />
                   Available
                 </span>
               </div>

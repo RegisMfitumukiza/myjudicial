@@ -302,7 +302,10 @@ export function PhotoUploadSuccess({
               alt="Profile photo"
               className="h-11 w-11 rounded-full object-cover ring-2 ring-green-200 dark:ring-green-800 shadow-sm"
             />
-            <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-green-500 p-0.5 text-white">
+            <div
+              className="absolute -bottom-0.5 -right-0.5 rounded-full p-0.5 text-white"
+              style={{ backgroundColor: "#10b981" }}
+            >
               <CheckCircleIcon className="h-3.5 w-3.5" />
             </div>
           </div>

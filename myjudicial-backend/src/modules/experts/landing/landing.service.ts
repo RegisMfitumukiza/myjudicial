@@ -27,14 +27,21 @@ const SPECIALTY_LABELS: Record<string, string> = {
 
 export type SectionSource = "real_metrics" | "curated" | "disabled";
 
+export type TimeContext = "today" | "tonight" | "tomorrow" | "weekend";
+
 export type SectionResponse<T> = {
   data: T[];
   source: SectionSource;
   isEmpty: boolean;
+  timeContext?: TimeContext;
 };
 
-function wrapSection<T>(data: T[], source: SectionSource): SectionResponse<T> {
-  return { data, source, isEmpty: data.length === 0 };
+function wrapSection<T>(
+  data: T[],
+  source: SectionSource,
+  timeContext?: TimeContext
+): SectionResponse<T> {
+  return { data, source, isEmpty: data.length === 0, timeContext };
 }
 
 function toExpertSummary(e: any, avatarUrl: string | null) {
@@ -239,34 +246,155 @@ export const LandingService = {
   },
 
   /**
-   * Available Today: experts with an availability slot for today's day-of-week
-   * and who are not marked as BUSY/ON_LEAVE in their latest presence status.
+   * Available Today: Timezone-aware (Africa/Kigali) query.
+   * - During daytime (07:00 - 18:00 Kigali):
+   *   Fetches verified experts with availability for today's day-of-week,
+   *   prioritizing advocates who are currently ONLINE.
+   * - During late evening / night (>= 18:00 or < 07:00 Kigali):
+   *   Prioritizes advocates currently ONLINE for urgent inquiries,
+   *   and seamlessly blends in verified advocates with open slots for TOMORROW
+   *   (or Monday if weekend), providing a realistic "Next Available" experience.
    */
   getAvailableToday: async (limit = 6): Promise<SectionResponse<any>> => {
-    const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-    const dayOfWeek = days[new Date().getDay()] as any;
+    const kigaliParts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Africa/Kigali",
+      weekday: "long",
+      hour: "numeric",
+      hour12: false,
+    }).formatToParts(new Date());
 
-    const experts = await prisma.expertProfile.findMany({
+    const kigaliWeekday = (kigaliParts.find((p) => p.type === "weekday")?.value || "").toUpperCase() as
+      | "MONDAY"
+      | "TUESDAY"
+      | "WEDNESDAY"
+      | "THURSDAY"
+      | "FRIDAY"
+      | "SATURDAY"
+      | "SUNDAY";
+    const kigaliHour = parseInt(kigaliParts.find((p) => p.type === "hour")?.value || "12", 10);
+
+    const isLateEvening = kigaliHour >= 18 || kigaliHour < 7;
+    const isWeekend = kigaliWeekday === "SATURDAY" || kigaliWeekday === "SUNDAY";
+
+    // 1. Late evening/night in Kigali: Prioritize currently ONLINE lawyers, then tomorrow's schedule
+    if (isLateEvening) {
+      const onlineExperts = await prisma.expertProfile.findMany({
+        where: {
+          status: "VERIFIED",
+          availability: {
+            some: {
+              presenceStatus: "ONLINE",
+            },
+          },
+        },
+        take: limit,
+        select: BASE_SELECT,
+      });
+
+      if (onlineExperts.length >= limit) {
+        const results = await Promise.all(
+          onlineExperts.map(async (e) =>
+            toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
+          )
+        );
+        return wrapSection(results, "real_metrics", "tonight");
+      }
+
+      // Compute tomorrow's day in Kigali
+      const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const tomorrowWeekday = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Africa/Kigali",
+        weekday: "long",
+      }).format(tomorrowDate).toUpperCase() as any;
+
+      const onlineIds = onlineExperts.map((e) => e.id);
+      const remainingLimit = limit - onlineExperts.length;
+
+      const tomorrowExperts = await prisma.expertProfile.findMany({
+        where: {
+          status: "VERIFIED",
+          id: { notIn: onlineIds },
+          availability: {
+            some: {
+              dayOfWeek: tomorrowWeekday,
+              isAvailable: true,
+              presenceStatus: { not: "ON_LEAVE" },
+            },
+          },
+        },
+        take: remainingLimit,
+        select: BASE_SELECT,
+      });
+
+      const combined = [...onlineExperts, ...tomorrowExperts];
+      const results = await Promise.all(
+        combined.map(async (e) =>
+          toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
+        )
+      );
+      const timeContext = onlineExperts.length > 0 ? "tonight" : "tomorrow";
+      return wrapSection(results, "real_metrics", timeContext);
+    }
+
+    // 2. Daytime in Kigali (07:00 - 18:00):
+    const todayExperts = await prisma.expertProfile.findMany({
       where: {
         status: "VERIFIED",
         availability: {
           some: {
-            dayOfWeek,
+            dayOfWeek: kigaliWeekday,
             isAvailable: true,
             presenceStatus: { not: "ON_LEAVE" },
           },
         },
       },
-      take: limit,
+      take: limit * 2,
       select: BASE_SELECT,
     });
 
+    // Prioritize advocates who are currently ONLINE
+    todayExperts.sort((a, b) => {
+      const aOnline = a.availability?.[0]?.presenceStatus === "ONLINE" ? 1 : 0;
+      const bOnline = b.availability?.[0]?.presenceStatus === "ONLINE" ? 1 : 0;
+      return bOnline - aOnline;
+    });
+
+    let selected = todayExperts.slice(0, limit);
+    let timeContext: "today" | "tonight" | "tomorrow" | "weekend" = isWeekend ? "weekend" : "today";
+
+    // Fallback: If no slots open for today (e.g. quiet Sunday), show next available
+    if (selected.length === 0) {
+      const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const tomorrowWeekday = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Africa/Kigali",
+        weekday: "long",
+      }).format(tomorrowDate).toUpperCase() as any;
+
+      const fallbackDay = isWeekend ? "MONDAY" : tomorrowWeekday;
+      const nextDayExperts = await prisma.expertProfile.findMany({
+        where: {
+          status: "VERIFIED",
+          availability: {
+            some: {
+              dayOfWeek: fallbackDay,
+              isAvailable: true,
+              presenceStatus: { not: "ON_LEAVE" },
+            },
+          },
+        },
+        take: limit,
+        select: BASE_SELECT,
+      });
+      selected = nextDayExperts;
+      timeContext = "tomorrow";
+    }
+
     const results = await Promise.all(
-      experts.map(async (e) =>
+      selected.map(async (e) =>
         toExpertSummary(e, await resolveAvatarUrl(e.profileImageObjectKey))
       )
     );
-    return wrapSection(results, "real_metrics");
+    return wrapSection(results, "real_metrics", timeContext);
   },
 
   /**

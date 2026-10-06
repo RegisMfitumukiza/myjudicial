@@ -7,7 +7,7 @@ import {
   ArrowRight, Search, ChevronDown, ChevronRight,
   ArrowUpDown, Navigation, Loader2, X,
   Bot, BadgeCheck, FileText,
-  Banknote, ThumbsUp, CalendarCheck,
+  Banknote, ThumbsUp, CalendarCheck, Clock,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
@@ -24,6 +24,7 @@ import {
   type LandingExpert,
   type PracticeArea,
   type FeaturedReview,
+  type TimeContext,
 } from "@/lib/api/landing";
 import { useGeolocation } from "@/features/search/hooks/useGeolocation";
 import { SectionRetryBoundary } from "@/shared/components/section-boundary";
@@ -57,7 +58,15 @@ const TRUST_WHY_KEYS = [
 
 // ─── Expert Card ──────────────────────────────────────────────────────────────
 
-function ExpertCard({ expert }: { expert: LandingExpert }) {
+function ExpertCard({
+  expert,
+  variant = "default",
+  timeContext = "today",
+}: {
+  expert: LandingExpert;
+  variant?: "recommended" | "available" | "default";
+  timeContext?: TimeContext;
+}) {
   const t = useTranslations("landing");
   const tSearch = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
@@ -70,12 +79,16 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
       aria-label={tSearch("viewProfileAria", { name: expert.name })}
       className="group flex h-full flex-col rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-dark/5"
     >
-      {/* Header: Avatar + Name + Specialty */}
+      {/* Header: Avatar + Presence Dot + Name + Specialty */}
       <div className="flex items-start gap-2.5 sm:gap-3 p-3.5 sm:p-4 pb-0">
         <div className="relative shrink-0">
           <ExpertAvatar src={expert.avatarUrl} name={expert.name} size="md" />
           {isOnline && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-green-500" />
+            <span
+              className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card shadow-xs"
+              style={{ backgroundColor: "#10b981" }}
+              title={t("card.onlineNow")}
+            />
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -84,7 +97,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
               {expert.name}
             </p>
             {expert.verified && (
-              <BadgeCheck size={13} className="shrink-0 text-brand-dark dark:text-white" />
+              <BadgeCheck size={14} className="shrink-0 text-brand-dark dark:text-white" />
             )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
@@ -94,8 +107,32 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
         </div>
       </div>
 
-      {/* Body: Tags row */}
+      {/* Visual Distinction: Urgency Badges for Available Today vs Trust Badges for Recommended */}
       <div className="flex flex-wrap items-center gap-1.5 px-3.5 sm:px-4 pt-2.5">
+        {variant === "available" ? (
+          isOnline ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              {t("card.onlineNow")}
+            </span>
+          ) : timeContext === "tomorrow" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-amber-800 dark:text-amber-300 border border-amber-500/25">
+              <CalendarCheck size={11} className="text-amber-700 dark:text-amber-300 shrink-0" />
+              {t("card.nextSlotTomorrow")}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-brand-dark dark:text-blue-300 border border-brand-dark/20 dark:border-blue-400/30">
+              <Clock size={11} className="text-brand-dark dark:text-blue-300 shrink-0" />
+              {t("card.openSlotsToday")}
+            </span>
+          )
+        ) : variant === "recommended" ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/5 dark:bg-white/10 px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-brand-dark dark:text-white border border-brand-dark/15 dark:border-white/15">
+            <BadgeCheck size={11} className="text-brand-dark dark:text-white shrink-0" />
+            {t("card.topRatedBadge")}
+          </span>
+        ) : null}
+
         {expert.city && (
           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] sm:text-[11px] text-muted-foreground">
             <MapPin size={9} />{expert.city}
@@ -108,7 +145,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
         ))}
       </div>
 
-      {/* Footer: Price + Star Rating */}
+      {/* Footer: Price + Star Rating / Reviews */}
       <div className="mt-auto flex items-end justify-between gap-2 border-t border-border/50 px-3.5 sm:px-4 pt-3 pb-3.5 sm:pb-4">
         {typeof expert.flatFee === "number" ? (
           <div>
@@ -122,7 +159,7 @@ function ExpertCard({ expert }: { expert: LandingExpert }) {
           <p className="text-xs text-muted-foreground">{t("card.feeOnRequest")}</p>
         )}
         <div className="shrink-0 pb-0.5">
-          <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={false} />
+          <StarRating rating={expert.rating} reviewCount={expert.reviewCount} size="sm" showCount={variant === "recommended"} />
         </div>
       </div>
     </Link>
@@ -203,9 +240,13 @@ function PracticeAreaSkeleton() {
 function ExpertHorizontalRow({
   experts,
   isLoading,
+  variant = "default",
+  timeContext = "today",
 }: {
   experts: LandingExpert[];
   isLoading: boolean;
+  variant?: "recommended" | "available" | "default";
+  timeContext?: TimeContext;
 }) {
   if (isLoading) {
     return (
@@ -223,7 +264,7 @@ function ExpertHorizontalRow({
     <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 px-3 min-[360px]:-mx-4 min-[360px]:px-4 scrollbar-none snap-x snap-mandatory sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
       {experts.map((e) => (
         <div key={e.id} className="w-[230px] min-[360px]:w-[260px] shrink-0 snap-start sm:w-auto">
-          <ExpertCard expert={e} />
+          <ExpertCard expert={e} variant={variant} timeContext={timeContext} />
         </div>
       ))}
     </div>
@@ -311,6 +352,7 @@ export default function LandingPage() {
   // ── Derived data ─────────────────────────────────────────────────────────
   const recommended = recSection?.data ?? [];
   const availableToday = availSection?.data ?? [];
+  const timeContext = availSection?.timeContext || "today";
   const topRated = ratedSection?.data ?? [];
   const reviews = reviewsSection?.data ?? [];
 
@@ -611,23 +653,49 @@ export default function LandingPage() {
           {/* ② Recommended experts — Bayesian blend of rating + reviews + bookings */}
           {recLoading ? (
             <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
-              <ExpertHorizontalRow experts={[]} isLoading />
+              <ExpertHorizontalRow experts={[]} isLoading variant="recommended" />
             </SectionRow>
           ) : (
             <SectionFadeIn show={showRecommended}>
               <SectionRetryBoundary>
                 <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
-                  <ExpertHorizontalRow experts={recommended} isLoading={false} />
+                  <ExpertHorizontalRow experts={recommended} isLoading={false} variant="recommended" />
                 </SectionRow>
               </SectionRetryBoundary>
             </SectionFadeIn>
           )}
 
-          {/* ③ Available Today — urgency / immediate-need CTA (only renders when lawyers are available) */}
+          {/* ③ Available Today / Next Available — dynamic urgency CTA */}
           <SectionFadeIn show={showAvailableToday}>
             <SectionRetryBoundary>
-              <SectionRow title={t("sections.availableToday")} subtitle={t("sections.availableTodaySub")} viewAllHref="/search?today=1" className="bg-background">
-                <ExpertHorizontalRow experts={availableToday} isLoading={false} />
+              <SectionRow
+                title={
+                  timeContext === "tomorrow"
+                    ? t("sections.availableTomorrow")
+                    : timeContext === "tonight"
+                    ? t("sections.availableTonight")
+                    : timeContext === "weekend"
+                    ? t("sections.availableWeekend")
+                    : t("sections.availableToday")
+                }
+                subtitle={
+                  timeContext === "tomorrow"
+                    ? t("sections.availableTomorrowSub")
+                    : timeContext === "tonight"
+                    ? t("sections.availableTonightSub")
+                    : timeContext === "weekend"
+                    ? t("sections.availableWeekendSub")
+                    : t("sections.availableTodaySub")
+                }
+                viewAllHref={timeContext === "tomorrow" ? "/search?sort=AVAILABLE" : "/search?today=1"}
+                className="bg-background"
+              >
+                <ExpertHorizontalRow
+                  experts={availableToday}
+                  isLoading={false}
+                  variant="available"
+                  timeContext={timeContext}
+                />
               </SectionRow>
             </SectionRetryBoundary>
           </SectionFadeIn>

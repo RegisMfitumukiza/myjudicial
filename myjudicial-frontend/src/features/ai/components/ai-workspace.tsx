@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
-import { Send, ArrowRight, Bot, User, Loader2, Zap, SearchX, RotateCcw, AlertCircle } from "lucide-react";
+import { Send, ArrowRight, Bot, User, Loader2, Zap, SearchX, RotateCcw, AlertCircle, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { useCaseAnalysis } from "../hooks/use-case-analysis";
@@ -638,6 +638,30 @@ export function AiWorkspace() {
               <span>{t("voice.stopHint") || "Click mic to stop"}</span>
             </div>
           )}
+
+          {/* Trust & Regulatory Compliance Micro-Strip */}
+          <div className="pt-0.5 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-center text-[10px] sm:text-[11px] text-muted-foreground/80 leading-tight select-none">
+            <span className="inline-flex items-center gap-1">
+              <Shield className="h-3 w-3 text-brand-dark/70 dark:text-white/70 shrink-0" />
+              <span>{t("disclaimer.text")}</span>
+            </span>
+            <span className="hidden md:inline text-muted-foreground/40">•</span>
+            <span className="hidden md:inline text-muted-foreground/70">{t("disclaimer.law")}</span>
+            <span className="text-muted-foreground/40">•</span>
+            <Link
+              href="/privacy"
+              className="text-muted-foreground hover:text-foreground hover:underline underline-offset-2 transition-colors font-medium"
+            >
+              {t("disclaimer.privacy")}
+            </Link>
+            <span className="text-muted-foreground/40">•</span>
+            <Link
+              href="/terms"
+              className="text-muted-foreground hover:text-foreground hover:underline underline-offset-2 transition-colors font-medium"
+            >
+              {t("disclaimer.terms")}
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -912,6 +912,12 @@
     "confidenceMedium": "Guhuza k'urwego ruringaniye",
     "yearsExpUnit": "umwaka",
     "loadingWorkspace": "Iri gukora umwanya w'umufasha wa AI...",
+    "disclaimer": {
+      "text": "Isuzuma rya AI ni iry'amakuru gusa, ntirisimbura inama y'umunyamategeko.",
+      "law": "Biteganyijwe n'Itegeko Nº 058/2021 ry'u Rwanda",
+      "privacy": "Ibyerekeye amakuru",
+      "terms": "Amategeko ngenderwaho"
+    },
     "newCase": "Ikibazo gishya",
     "retry": "Ongera ugerageze"
   },

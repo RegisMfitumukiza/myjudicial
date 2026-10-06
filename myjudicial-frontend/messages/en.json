@@ -1046,6 +1046,12 @@
     "confidenceMedium": "Medium confidence match",
     "yearsExpUnit": "yr",
     "loadingWorkspace": "Loading AI Legal Assistant workspace...",
+    "disclaimer": {
+      "text": "AI triage is preliminary and informational, not legal advice.",
+      "law": "Rwanda Law Nº 058/2021 Protected",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
     "newCase": "New Case",
     "retry": "Retry"
   },

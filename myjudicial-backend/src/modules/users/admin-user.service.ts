@@ -2,6 +2,8 @@ import { prisma } from "../../infrastructure/database/prisma.js";
 import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { Role, UserStatus } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import { SupabaseSyncService } from "../../infrastructure/supabase/sync.service.js";
+import { logger } from "../../shared/utils/logger.js";
 
 interface ListFilters {
   role?: Role;
@@ -279,11 +281,30 @@ export const AdminUserService = {
   },
 
   /**
-   * Delete user account
+   * Delete user account — Industrial deletion pipeline
+   *
+   * 1. Validates user existence and prevents self-deletion.
+   * 2. Synchronizes deletion with Supabase Auth (frees email, revokes sessions).
+   * 3. Handles relational cleanup and market de-listing (services, availability, map markers).
+   * 4. If no completed bookings: Clean hard-delete of user and relations.
+   *    If has completed bookings: GDPR anonymization to preserve statutory financial history.
+   * 5. Logs administrative audit trail.
    */
   async deleteUser(userId: string, adminId: string, reason: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        expertProfile: {
+          include: {
+            _count: {
+              select: { bookings: true },
+            },
+          },
+        },
+        _count: {
+          select: { citizenBookings: true },
+        },
+      },
     });
 
     if (!user) {
@@ -295,13 +316,78 @@ export const AdminUserService = {
       throw new ValidationError("Cannot delete your own account");
     }
 
-    // Soft delete by setting status to DELETED
-    await prisma.user.update({
-      where: { id: userId },
-      data: { status: UserStatus.DELETED },
-    });
+    const expertProfileId = user.expertProfile?.id;
+    const totalBookings = (user.expertProfile?._count?.bookings ?? 0) + (user._count?.citizenBookings ?? 0);
 
-    // Log action
+    // 1. Synchronize deletion with Supabase Auth to completely release the email address
+    try {
+      await SupabaseSyncService.syncDeleteToSupabaseAuth(userId);
+      logger.info(`[AdminUserService] Supabase Auth identity deleted for user: ${user.email} (${userId})`);
+    } catch (authError) {
+      logger.warn(`[AdminUserService] Supabase Auth deletion warning for user ${user.email}:`, {
+        error: authError instanceof Error ? authError.message : String(authError),
+      });
+    }
+
+    // 2. Database lifecycle cleanup
+    if (totalBookings === 0) {
+      // CLEAN HARD DELETE (No financial/legal records exist — clean slate for test accounts and unbooked users)
+      if (expertProfileId) {
+        await prisma.mapMarker.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.expertAvailability.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.legalService.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.expertReply.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.adminAction.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.expertVerification.deleteMany({ where: { expertId: expertProfileId } });
+        await prisma.expertProfile.delete({ where: { id: expertProfileId } });
+      }
+
+      await prisma.reviewReport.deleteMany({ where: { reportedBy: userId } });
+      await prisma.reviewReaction.deleteMany({ where: { userId } });
+      await prisma.document.deleteMany({ where: { ownerId: userId } });
+      await prisma.message.deleteMany({ where: { senderId: userId } });
+      await prisma.conversationParticipant.deleteMany({ where: { userId } });
+      await prisma.adminAction.deleteMany({ where: { adminUserId: userId } });
+      await prisma.expertVerification.deleteMany({ where: { reviewedById: userId } });
+      await prisma.savedExpert.deleteMany({ where: { userId } });
+      await prisma.triageSession.deleteMany({ where: { clientId: userId } });
+      await prisma.refreshToken.deleteMany({ where: { userId } });
+      await prisma.passwordResetToken.deleteMany({ where: { userId } });
+      await prisma.auditLog.updateMany({ where: { actorId: userId }, data: { actorId: null } });
+
+      await prisma.user.delete({
+        where: { id: userId },
+      });
+    } else {
+      // GDPR ANONYMIZATION (Historical bookings exist — preserve statutory financial compliance while scrubbing PII)
+      if (expertProfileId) {
+        await prisma.mapMarker.updateMany({
+          where: { expertId: expertProfileId },
+          data: { isVisible: false },
+        });
+        await prisma.expertAvailability.updateMany({
+          where: { expertId: expertProfileId },
+          data: { isAvailable: false },
+        });
+        await prisma.expertProfile.update({
+          where: { id: expertProfileId },
+          data: { status: "SUSPENDED", bio: null },
+        });
+      }
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          status: UserStatus.DELETED,
+          email: `deleted-${userId}@anonymized.local`,
+          firstName: "Deleted",
+          lastName: "User",
+          phone: null,
+        },
+      });
+    }
+
+    // 3. Log audit action
     await prisma.auditLog.create({
       data: {
         actorId: adminId,
@@ -312,10 +398,11 @@ export const AdminUserService = {
           reason,
           userEmail: user.email,
           userRole: user.role,
+          cleanHardDelete: totalBookings === 0,
         } as any,
       },
     });
 
-    return { deleted: true };
+    return { deleted: true, emailFreed: true };
   },
 };

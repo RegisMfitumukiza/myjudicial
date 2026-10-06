@@ -912,6 +912,12 @@
     "confidenceMedium": "Correspondance moyenne",
     "yearsExpUnit": "an",
     "loadingWorkspace": "Chargement de l'espace de l'assistant juridique IA...",
+    "disclaimer": {
+      "text": "Le triage IA est préliminaire et informatif, sans valeur de conseil juridique.",
+      "law": "Protégé par la Loi Rwandaise Nº 058/2021",
+      "privacy": "Confidentialité",
+      "terms": "Conditions"
+    },
     "newCase": "Nouveau dossier",
     "retry": "Réessayer"
   },

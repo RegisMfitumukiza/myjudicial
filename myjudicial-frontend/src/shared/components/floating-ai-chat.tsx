@@ -62,6 +62,7 @@ export function FloatingAiChat() {
 
   const pathname = usePathname();
   const t = useTranslations("public.aiChat");
+  const tAi = useTranslations("ai");
   const tSpecialties = useTranslations("specialties");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -431,6 +432,9 @@ export function FloatingAiChat() {
                   )}
                 </button>
               </form>
+              <p className="mt-1.5 text-center text-[10px] text-muted-foreground/75 leading-tight select-none">
+                ⚖️ {tAi("disclaimer.text")}
+              </p>
             </div>
           </motion.div>
         )}

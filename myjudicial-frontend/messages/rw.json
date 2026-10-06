@@ -908,7 +908,9 @@
     "confidenceHigh": "Guhuza k'urwego rwo hejuru",
     "confidenceMedium": "Guhuza k'urwego ruringaniye",
     "yearsExpUnit": "umwaka",
-    "loadingWorkspace": "Iri gukora umwanya w'umufasha wa AI..."
+    "loadingWorkspace": "Iri gukora umwanya w'umufasha wa AI...",
+    "newCase": "Ikibazo gishya",
+    "retry": "Ongera ugerageze"
   },
   "auth": {
     "login": "Kwinjira",

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
-import { Send, ArrowRight, Bot, User, Loader2, Zap, SearchX } from "lucide-react";
+import { Send, ArrowRight, Bot, User, Loader2, Zap, SearchX, RotateCcw, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { useCaseAnalysis } from "../hooks/use-case-analysis";
@@ -14,6 +14,9 @@ import { AiVoiceRecorder } from "./ai-voice-recorder";
 import { AiAnalysisCard } from "./ai-analysis-card";
 import { AiRecommendationCard } from "./ai-recommendation-card";
 import type { AiMessage, AiStep, CaseAnalysis, ExpertRecommendation } from "../types";
+
+const DRAFT_STORAGE_KEY = "mj_ai_case_draft";
+const SESSION_STORAGE_KEY = "mj_ai_triage_session";
 
 export function AiWorkspace() {
   const t = useTranslations("ai");
@@ -27,10 +30,12 @@ export function AiWorkspace() {
   const [analysis, setAnalysis] = useState<CaseAnalysis | null>(null);
   const [recommendations, setRecommendations] = useState<ExpertRecommendation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [lastSubmittedText, setLastSubmittedText] = useState<string | null>(null);
 
   const analyzeMutation = useCaseAnalysis();
   const recommendMutation = useRecommendation();
   const transcribeMutation = useTranscription();
+  const isProcessing = analyzeMutation.isPending || recommendMutation.isPending || transcribeMutation.isPending;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -44,139 +49,249 @@ export function AiWorkspace() {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
+      // 1. Restore unsubmitted draft if available
+      try {
+        const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (savedDraft) {
+          setInput(savedDraft);
+        }
+      } catch {
+        // Storage access denied/unavailable
+      }
+
+      // 2. Restore active triage session if available
+      try {
+        const savedSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+            setMessages(
+              parsed.messages.map((m: any) => ({
+                ...m,
+                timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+              }))
+            );
+            if (parsed.step) setStep(parsed.step);
+            if (parsed.analysis) setAnalysis(parsed.analysis);
+            if (parsed.recommendations) setRecommendations(parsed.recommendations);
+            if (parsed.lastSubmittedText) setLastSubmittedText(parsed.lastSubmittedText);
+          }
+        }
+      } catch {
+        // Session parse error
+      }
       return;
     }
+
     if (messages.length > 0) {
       scrollToBottom();
     }
   }, [messages, scrollToBottom]);
 
+  // Persist active triage session to sessionStorage whenever state changes
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        sessionStorage.setItem(
+          SESSION_STORAGE_KEY,
+          JSON.stringify({
+            step,
+            messages,
+            analysis,
+            recommendations,
+            lastSubmittedText,
+          })
+        );
+      } catch {
+        // Storage quota / privacy error
+      }
+    }
+  }, [messages, step, analysis, recommendations, lastSubmittedText]);
+
   const addMessage = useCallback((msg: AiMessage) => {
     setMessages((prev) => [...prev, msg]);
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    const text = input.trim();
-    if (!text || analyzeMutation.isPending) return;
-
-    const userMessage: AiMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: text,
-      timestamp: new Date(),
-    };
-    addMessage(userMessage);
-    setInput("");
-    setError(null);
-
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value.slice(0, 2000);
+    setInput(val);
     try {
-      const result = await analyzeMutation.mutateAsync({ text });
-      setAnalysis(result.analysis);
-
-      const isGreetingOrUnknown =
-        result.analysis.is_greeting ||
-        result.analysis.specialty === "UNKNOWN" ||
-        result.analysis.confidence_score === 0;
-
-      if (isGreetingOrUnknown) {
-        const greetingContent = result.analysis.greeting_message || tAiChat("needMoreDetails");
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: greetingContent,
-          timestamp: new Date(),
-          type: "text",
-        });
-        return;
+      if (val.trim()) {
+        localStorage.setItem(DRAFT_STORAGE_KEY, val);
+      } else {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
       }
-
-      const analysisMessage: AiMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: tAiChat("triageResponse", {
-          specialty: getLocalizedSpecialty(result.analysis.specialty, tSpecialties),
-          urgency: result.analysis.urgency_level.toLowerCase(),
-        }),
-        timestamp: new Date(),
-        type: "analysis",
-        analysis: result.analysis,
-      };
-      addMessage(analysisMessage);
-      setStep("refine");
-
-      const recResult = await recommendMutation.mutateAsync({
-        text,
-        limit: 5,
-      });
-
-      if (!recResult.success || !recResult.recommendations || recResult.recommendations.length === 0) {
-        const noExpertsMsg = t("recommendations.noExperts");
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: noExpertsMsg,
-          timestamp: new Date(),
-        });
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: t("recommendations.tryBroader"),
-          timestamp: new Date(),
-        });
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "",
-          timestamp: new Date(),
-          type: "no-experts",
-          analysis: result.analysis,
-        });
-        setStep("match");
-        return;
-      }
-
-      setRecommendations(recResult.recommendations);
-
-      const recMessage: AiMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: t("recommendations.expertsFound", { count: recResult.recommendations.length }),
-        timestamp: new Date(),
-        type: "recommendation",
-        recommendations: recResult.recommendations,
-      };
-      addMessage(recMessage);
-      setStep("match");
-    } catch (err) {
-      console.error("AI analysis error:", err);
-      let userMessage = t("errors.analysisFailed");
-      if (err instanceof Error) {
-        const msg = err.message;
-        if (msg.includes("502") || msg.includes("unavailable") || msg.includes("Failed to fetch")) {
-          userMessage = t("errors.serviceUnavailable") || "The AI service is temporarily unavailable. Please try again later.";
-        } else if (msg.includes("429") || msg.includes("rate limit")) {
-          userMessage = t("errors.tooManyRequests") || "Too many requests. Please wait a moment and try again.";
-        } else if (msg.includes("400") || msg.includes("422") || msg.includes("validation") || msg.includes("invalid")) {
-          userMessage = t("errors.invalidInput") || "Please provide a more detailed description of your legal issue.";
-        }
-      }
-      setError(userMessage);
-      addMessage({
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: userMessage,
-        timestamp: new Date(),
-      });
+    } catch {
+      // Storage unavailable
     }
-  }, [
-    input,
-    analyzeMutation,
-    recommendMutation,
-    addMessage,
-    t,
-    tAiChat,
-    tSpecialties,
-  ]);
+  }, []);
+
+  const executeSubmission = useCallback(
+    async (textToSubmit: string) => {
+      const text = textToSubmit.trim();
+      if (!text || analyzeMutation.isPending) return;
+
+      setLastSubmittedText(text);
+      setError(null);
+
+      // Add user message if not already the last message in history
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last && last.role === "user" && last.content === text) {
+          return prev;
+        }
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: text,
+            timestamp: new Date(),
+          },
+        ];
+      });
+
+      setInput("");
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+
+      try {
+        const result = await analyzeMutation.mutateAsync({ text });
+        setAnalysis(result.analysis);
+
+        const isGreetingOrUnknown =
+          result.analysis.is_greeting ||
+          result.analysis.specialty === "UNKNOWN" ||
+          result.analysis.confidence_score === 0;
+
+        if (isGreetingOrUnknown) {
+          const greetingContent = result.analysis.greeting_message || tAiChat("needMoreDetails");
+          addMessage({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: greetingContent,
+            timestamp: new Date(),
+            type: "text",
+          });
+          return;
+        }
+
+        const analysisMessage: AiMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: tAiChat("triageResponse", {
+            specialty: getLocalizedSpecialty(result.analysis.specialty, tSpecialties),
+            urgency: result.analysis.urgency_level.toLowerCase(),
+          }),
+          timestamp: new Date(),
+          type: "analysis",
+          analysis: result.analysis,
+        };
+        addMessage(analysisMessage);
+        setStep("refine");
+
+        const recResult = await recommendMutation.mutateAsync({
+          text,
+          limit: 5,
+        });
+
+        if (!recResult.success || !recResult.recommendations || recResult.recommendations.length === 0) {
+          const noExpertsMsg = t("recommendations.noExperts");
+          addMessage({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: noExpertsMsg,
+            timestamp: new Date(),
+          });
+          addMessage({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: t("recommendations.tryBroader"),
+            timestamp: new Date(),
+          });
+          addMessage({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "",
+            timestamp: new Date(),
+            type: "no-experts",
+            analysis: result.analysis,
+          });
+          setStep("match");
+          return;
+        }
+
+        setRecommendations(recResult.recommendations);
+
+        const recMessage: AiMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: t("recommendations.expertsFound", { count: recResult.recommendations.length }),
+          timestamp: new Date(),
+          type: "recommendation",
+          recommendations: recResult.recommendations,
+        };
+        addMessage(recMessage);
+        setStep("match");
+      } catch (err) {
+        console.error("AI analysis error:", err);
+        let userMessage = t("errors.analysisFailed");
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          userMessage = t("errors.networkError") || "Connection lost. Please check your internet connection.";
+        } else if (err instanceof Error) {
+          const msg = err.message;
+          if (msg.includes("502") || msg.includes("unavailable") || msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+            userMessage = t("errors.serviceUnavailable") || "The AI service is temporarily unavailable. Please try again later.";
+          } else if (msg.includes("429") || msg.includes("rate limit")) {
+            userMessage = t("errors.tooManyRequests") || "Too many requests. Please wait a moment and try again.";
+          } else if (msg.includes("400") || msg.includes("422") || msg.includes("validation") || msg.includes("invalid")) {
+            userMessage = t("errors.invalidInput") || "Please provide a more detailed description of your legal issue.";
+          }
+        }
+        setError(userMessage);
+      }
+    },
+    [
+      analyzeMutation,
+      recommendMutation,
+      addMessage,
+      t,
+      tAiChat,
+      tSpecialties,
+    ]
+  );
+
+  const handleSubmit = useCallback(async () => {
+    if (!input.trim() || isProcessing) return;
+    await executeSubmission(input.trim());
+  }, [input, isProcessing, executeSubmission]);
+
+  const handleRetry = useCallback(() => {
+    if (lastSubmittedText) {
+      executeSubmission(lastSubmittedText);
+    }
+  }, [lastSubmittedText, executeSubmission]);
+
+  const handleStartNewCase = useCallback(() => {
+    setStep("describe");
+    setMessages([]);
+    setAnalysis(null);
+    setRecommendations([]);
+    setError(null);
+    setLastSubmittedText(null);
+    setInput("");
+    try {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    inputRef.current?.focus();
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -201,7 +316,15 @@ export function AiWorkspace() {
         const data = result as unknown as Record<string, unknown>;
         const transcribedText = (data?.text as string) ?? (data as { transcription?: { text?: string } })?.transcription?.text ?? (data as { translated_text?: string })?.translated_text ?? "";
         if (transcribedText) {
-          setInput((prev) => (prev ? `${prev} ${transcribedText}` : transcribedText));
+          setInput((prev) => {
+            const next = prev ? `${prev} ${transcribedText}` : transcribedText;
+            try {
+              localStorage.setItem(DRAFT_STORAGE_KEY, next);
+            } catch {
+              // ignore
+            }
+            return next;
+          });
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "";
@@ -224,7 +347,6 @@ export function AiWorkspace() {
   }, [analysis, router]);
 
   const hasStarted = messages.length > 0;
-  const isProcessing = analyzeMutation.isPending || recommendMutation.isPending || transcribeMutation.isPending;
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
@@ -233,8 +355,21 @@ export function AiWorkspace() {
         <p className="text-xs sm:text-sm text-muted-foreground break-words">{t("subtitle")}</p>
       </div>
 
-      <div className="mb-5 sm:mb-6">
+      <div className="relative mb-5 sm:mb-6 flex items-center justify-center">
         <AiStepIndicator currentStep={step} />
+        {hasStarted && (
+          <div className="absolute right-0">
+            <button
+              type="button"
+              onClick={handleStartNewCase}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-dark/40 hover:bg-muted hover:text-foreground shrink-0 shadow-2xs"
+              title={t("newCase")}
+            >
+              <RotateCcw className="h-3 w-3 text-brand-dark dark:text-white" />
+              <span className="hidden min-[400px]:inline">{t("newCase")}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto">
@@ -258,6 +393,11 @@ export function AiWorkspace() {
                   type="button"
                   onClick={() => {
                     setInput(prompt);
+                    try {
+                      localStorage.setItem(DRAFT_STORAGE_KEY, prompt);
+                    } catch {
+                      // ignore
+                    }
                     inputRef.current?.focus();
                   }}
                   className="group flex items-start gap-2.5 rounded-xl border border-border bg-card/60 p-3 text-left text-xs text-muted-foreground transition-all hover:border-brand-dark/40 hover:bg-card hover:text-foreground hover:shadow-xs"
@@ -358,8 +498,22 @@ export function AiWorkspace() {
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
-            {error}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+            <div className="flex items-start sm:items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5 sm:mt-0" />
+              <span>{error}</span>
+            </div>
+            {lastSubmittedText && (
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={isProcessing}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 font-semibold text-white shadow-xs transition hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 shrink-0 self-end sm:self-auto disabled:opacity-50"
+              >
+                <RotateCcw className="h-3 w-3" />
+                {t("retry")}
+              </button>
+            )}
           </div>
         )}
 
@@ -383,7 +537,7 @@ export function AiWorkspace() {
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value.slice(0, 2000))}
+              onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               placeholder={recording ? t("voice.recording") || "Listening..." : t("input.placeholder")}
               rows={1}

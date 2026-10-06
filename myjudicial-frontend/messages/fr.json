@@ -908,7 +908,9 @@
     "confidenceHigh": "Correspondance très précise",
     "confidenceMedium": "Correspondance moyenne",
     "yearsExpUnit": "an",
-    "loadingWorkspace": "Chargement de l'espace de l'assistant juridique IA..."
+    "loadingWorkspace": "Chargement de l'espace de l'assistant juridique IA...",
+    "newCase": "Nouveau dossier",
+    "retry": "Réessayer"
   },
   "auth": {
     "login": "Connexion",

@@ -384,11 +384,11 @@ export function AiWorkspace() {
       </div>
 
       {/* Scrollable Chat & Assessment Workspace */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 py-4">
-        <div className="mx-auto max-w-3xl space-y-5">
-          {/* Empty State */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6">
+        <div className="mx-auto max-w-3xl min-h-full flex flex-col">
+          {/* Empty State — fills full height and centers content */}
           {!hasStarted && (
-            <div className="flex flex-col items-center justify-center py-4 sm:py-8 text-center px-2">
+            <div className="flex flex-1 flex-col items-center justify-center py-6 text-center px-2">
               <div className="mb-3 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 ring-1 ring-brand-dark/20 shadow-xs">
                 <Bot className="h-6 w-6 sm:h-7 sm:w-7 text-brand-dark dark:text-white" />
               </div>
@@ -425,6 +425,8 @@ export function AiWorkspace() {
           )}
 
           {/* Message Stream */}
+          {hasStarted && (
+            <div className="space-y-5 py-4">
           {messages.map((msg) => (
             <div key={msg.id} className={cn("flex gap-2.5 sm:gap-3.5", msg.role === "user" ? "justify-end" : "justify-start")}>
               {msg.role === "assistant" && (
@@ -546,6 +548,8 @@ export function AiWorkspace() {
                   )}
                 </span>
               </div>
+            </div>
+          )}
             </div>
           )}
 

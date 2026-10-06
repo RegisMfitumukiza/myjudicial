@@ -92,14 +92,35 @@ function ExpertCard({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
-            <p className="text-sm font-bold leading-tight text-foreground line-clamp-1" title={expert.name}>
-              {expert.name}
-            </p>
-            {expert.verified && (
-              <BadgeCheck size={14} className="shrink-0 text-brand-dark dark:text-white" />
-            )}
-          </div>
+          <p
+            className="text-sm font-bold leading-tight text-foreground line-clamp-2 min-h-[2.25rem]"
+            title={expert.name}
+          >
+            {(() => {
+              const parts = expert.name.trim().split(/\s+/);
+              if (parts.length > 1) {
+                return (
+                  <>
+                    {parts.slice(0, -1).join(" ")}{" "}
+                    <span className="inline-flex items-center gap-1">
+                      <span>{parts[parts.length - 1]}</span>
+                      {expert.verified && (
+                        <BadgeCheck size={14} className="shrink-0 text-brand-dark dark:text-white" />
+                      )}
+                    </span>
+                  </>
+                );
+              }
+              return (
+                <span className="inline-flex items-center gap-1">
+                  <span>{expert.name}</span>
+                  {expert.verified && (
+                    <BadgeCheck size={14} className="shrink-0 text-brand-dark dark:text-white" />
+                  )}
+                </span>
+              );
+            })()}
+          </p>
           <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
             {specialtyLabel}
             {expert.yearsExperience ? ` · ${t("card.experience", { count: expert.yearsExperience })}` : ""}

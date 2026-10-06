@@ -65,7 +65,7 @@ export function LawyerCard({ lawyer, selected, onClick, onHover }: LawyerCardPro
         {/* Row 1: Name + Verified + Rating */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex min-w-0 items-center gap-1.5 flex-wrap">
-            <h3 className="font-bold text-sm sm:text-[15px] text-foreground leading-snug truncate">
+            <h3 className="font-bold text-sm sm:text-[15px] text-foreground leading-snug line-clamp-2">
               <Link
                 href={`/lawyers/${lawyer.id}`}
                 onClick={(e) => e.stopPropagation()}

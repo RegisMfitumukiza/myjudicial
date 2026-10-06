@@ -68,7 +68,7 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <h4 className="font-bold text-[15px] text-foreground truncate leading-snug">
+              <h4 className="font-bold text-[15px] text-foreground line-clamp-2 leading-snug">
                 {lawyer.name}
               </h4>
               {lawyer.verified && (

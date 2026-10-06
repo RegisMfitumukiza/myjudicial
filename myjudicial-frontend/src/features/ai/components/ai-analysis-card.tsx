@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Shield, Wallet, MapPin, FileText, Lightbulb, Scale, Upload, CheckCircle2, Tag } from "lucide-react";
-import { Link } from "@/i18n/routing";
+import { Shield, Wallet, MapPin, FileText, Lightbulb, Scale, CheckCircle2, Tag, Info } from "lucide-react";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import type { CaseAnalysis } from "../types";
 
@@ -111,21 +110,21 @@ export function AiAnalysisCard({ analysis }: { analysis: CaseAnalysis }) {
         {/* Recommended Documents Checklist */}
         {analysis.suggested_documents.length > 0 && (
           <div className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5 text-brand-dark dark:text-white" />
-                <p className="text-[11px] font-bold uppercase tracking-wider text-foreground">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <FileText className="h-3.5 w-3.5 shrink-0 text-brand-dark dark:text-white" />
+                <p className="text-[11px] font-bold uppercase tracking-wider text-foreground truncate">
                   {t("analysis.suggestedDocs")}
                 </p>
               </div>
-              <Link
-                href="/client/dashboard/documents"
-                className="flex items-center gap-1 text-[11px] font-semibold text-brand-dark hover:underline dark:text-white transition-colors"
-              >
-                <Upload size={11} />
-                <span>{t("upload")}</span>
-              </Link>
+              <span className="inline-flex items-center rounded-md bg-brand-dark/10 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-brand-dark dark:text-white shrink-0">
+                {t("analysis.suggestedDocsBadge")}
+              </span>
             </div>
+
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              {t("analysis.suggestedDocsHint")}
+            </p>
 
             <div className="space-y-2">
               {analysis.suggested_documents.map((doc, i) => {
@@ -143,6 +142,11 @@ export function AiAnalysisCard({ analysis }: { analysis: CaseAnalysis }) {
                   </div>
                 );
               })}
+            </div>
+
+            <div className="pt-1.5 flex items-start gap-1.5 border-t border-border/40 text-[11px] text-muted-foreground">
+              <Info className="h-3 w-3 mt-0.5 shrink-0 text-brand-dark/70 dark:text-white/70" />
+              <p className="leading-tight">{t("analysis.suggestedDocsNote")}</p>
             </div>
           </div>
         )}

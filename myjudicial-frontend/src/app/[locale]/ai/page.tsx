@@ -42,7 +42,7 @@ export default function AiPage() {
 function AiPageFallback() {
   const t = useTranslations('common');
   return (
-    <div className="flex h-[60vh] w-full items-center justify-center text-sm text-muted-foreground">
+    <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
       {t('loading')}
     </div>
   );

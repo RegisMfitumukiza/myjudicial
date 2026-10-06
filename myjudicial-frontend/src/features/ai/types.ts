@@ -75,6 +75,7 @@ export type ExpertSummary = {
   specialties?: string[];
   bio?: string;
   hourly_rate?: number;
+  base_consultation_fee?: number;
   rating?: number;
   review_count: number;
   languages?: string[];
@@ -142,7 +143,7 @@ export type AiMessage = {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-  type?: "text" | "analysis" | "recommendation";
+  type?: "text" | "analysis" | "recommendation" | "no-experts";
   analysis?: CaseAnalysis;
   recommendations?: ExpertRecommendation[];
 };

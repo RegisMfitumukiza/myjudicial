@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
-import { Send, ArrowRight, Bot, User, Loader2 } from "lucide-react";
+import { Send, ArrowRight, Bot, User, Loader2, Zap, SearchX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { useCaseAnalysis } from "../hooks/use-case-analysis";
@@ -123,6 +123,14 @@ export function AiWorkspace() {
           content: t("recommendations.tryBroader"),
           timestamp: new Date(),
         });
+        addMessage({
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+          type: "no-experts",
+          analysis: result.analysis,
+        });
         setStep("match");
         return;
       }
@@ -231,12 +239,33 @@ export function AiWorkspace() {
 
       <div className="flex-1 space-y-4 overflow-y-auto">
         {!hasStarted && (
-          <div className="flex flex-col items-center justify-center py-20 sm:py-24 text-center px-2">
+          <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center px-2">
             <div className="mb-4 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10">
               <Bot className="h-7 w-7 sm:h-8 sm:w-8 text-brand-dark dark:text-white" />
             </div>
             <h2 className="text-base sm:text-lg font-semibold text-foreground break-words">{t("empty.title")}</h2>
             <p className="mt-1 max-w-sm text-xs sm:text-sm text-muted-foreground break-words">{t("empty.description")}</p>
+            
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+              {[
+                t("quickPrompt1"),
+                t("quickPrompt2"),
+                t("quickPrompt3"),
+                t("quickPrompt4")
+              ].map((prompt, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setInput(prompt);
+                    inputRef.current?.focus();
+                  }}
+                  className="flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Zap className="h-3.5 w-3.5 shrink-0 text-brand-dark" />
+                  <span className="truncate">{prompt}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -260,8 +289,8 @@ export function AiWorkspace() {
                 <p className="text-sm">{msg.content}</p>
               ) : (
                 <>
-                  <p className="text-sm text-foreground whitespace-pre-wrap">{msg.content}</p>
-                  {msg.analysis && <AiAnalysisCard analysis={msg.analysis} />}
+                  {msg.content && <p className="text-sm text-foreground whitespace-pre-wrap">{msg.content}</p>}
+                  {msg.analysis && msg.type !== "no-experts" && <AiAnalysisCard analysis={msg.analysis} />}
                   {msg.recommendations && (
                     <div className="space-y-3">
                       {msg.recommendations.map((rec, i) => (
@@ -272,6 +301,27 @@ export function AiWorkspace() {
                           isTop={i === 0}
                         />
                       ))}
+                    </div>
+                  )}
+                  {msg.type === "no-experts" && msg.analysis && (
+                    <div className="mt-3 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card p-5 text-center">
+                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                        <SearchX className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <p className="mb-4 text-sm font-medium text-foreground">
+                        No exactly matched experts found
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const params = new URLSearchParams();
+                          params.set("specialty", msg.analysis!.specialty);
+                          router.push(`/search?${params.toString()}`);
+                        }}
+                        className="rounded-lg bg-brand-dark px-4 py-2 text-xs font-semibold text-on-brand transition-colors hover:bg-brand-dark/90"
+                      >
+                        Browse all lawyers
+                      </button>
                     </div>
                   )}
                 </>
@@ -293,12 +343,14 @@ export function AiWorkspace() {
             </div>
             <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-3">
               <Loader2 className="h-4 w-4 animate-spin text-brand-dark dark:text-white" />
-              <span className="text-sm text-muted-foreground">
-                {analyzeMutation.isPending
-                  ? t("input.placeholder")
-                  : recommendMutation.isPending
-                    ? t("recommendations.subtitle")
-                    : t("voice.processing")}
+              <span className="text-sm text-muted-foreground flex items-center">
+                {analyzeMutation.isPending ? (
+                  <>🔍 Analyzing your case<span className="animate-pulse tracking-widest ml-1">...</span></>
+                ) : recommendMutation.isPending ? (
+                  <>🤝 Finding best matched experts<span className="animate-pulse tracking-widest ml-1">...</span></>
+                ) : (
+                  t("voice.processing")
+                )}
               </span>
             </div>
           </div>
@@ -330,14 +382,22 @@ export function AiWorkspace() {
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => setInput(e.target.value.slice(0, 2000))}
               onKeyDown={handleKeyDown}
               placeholder={recording ? t("voice.recording") || "Listening..." : t("input.placeholder")}
               rows={1}
-              className="w-full resize-none rounded-xl border border-border bg-background px-3 min-[360px]:px-4 py-2.5 sm:py-3 text-xs min-[360px]:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
+              className="w-full resize-none rounded-xl border border-border bg-background px-3 min-[360px]:px-4 py-2.5 sm:py-3 pb-7 sm:pb-7 text-xs min-[360px]:text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark"
               style={{ minHeight: "42px", maxHeight: "120px" }}
               disabled={isProcessing || recording}
             />
+            {input.length > 0 && (
+              <div className={cn(
+                "absolute bottom-1.5 right-3 text-[10px]",
+                input.length > 1900 ? "text-red-500" : "text-muted-foreground"
+              )}>
+                {input.length}/2000
+              </div>
+            )}
           </div>
 
           <AiVoiceRecorder

@@ -21,11 +21,11 @@ const QUALITY_COLORS: Record<string, string> = {
   fair: "bg-muted text-muted-foreground",
 };
 
-const QUALITY_LABELS: Record<string, string> = {
-  excellent: "recommendations.excellent",
-  very_good: "recommendations.veryGood",
-  good: "recommendations.good",
-  fair: "recommendations.fair",
+const QUALITY_EMOJIS: Record<string, string> = {
+  excellent: "⭐ ",
+  very_good: "✅ ",
+  good: "👍 ",
+  fair: "",
 };
 
 export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommendationCardProps) {
@@ -55,9 +55,15 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
         <div className="flex-1 min-w-0">
           <div className="flex flex-col min-[340px]:flex-row min-[340px]:items-start justify-between gap-1 min-[340px]:gap-2">
             <div className="min-w-0">
-              <h4 className="text-sm font-semibold text-foreground truncate">
-                {recommendation.expert.full_name}
-              </h4>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-semibold text-foreground truncate">
+                  {recommendation.expert.full_name}
+                </h4>
+                <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Available
+                </span>
+              </div>
               <p className="text-xs text-muted-foreground break-words">
                 {recommendation.expert.specialties
                   ?.map((s) => getLocalizedSpecialty(s, tSpecialties))
@@ -69,7 +75,17 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
             </div>
           </div>
 
-          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="mt-2 mb-1 flex items-center">
+            <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium ${QUALITY_COLORS[recommendation.match_quality] || QUALITY_COLORS.fair}`}>
+              {QUALITY_EMOJIS[recommendation.match_quality] ?? ""}
+              {recommendation.match_quality === "excellent" && t("recommendations.excellent")}
+              {recommendation.match_quality === "very_good" && t("recommendations.veryGood")}
+              {recommendation.match_quality === "good" && t("recommendations.good")}
+              {recommendation.match_quality === "fair" && t("recommendations.fair")}
+            </span>
+          </div>
+
+          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
             <StarRating rating={recommendation.expert.rating ?? 0} reviewCount={recommendation.expert.review_count} size="sm" />
             <span className="flex items-center gap-1">
               <Briefcase className="h-3 w-3" />
@@ -78,7 +94,7 @@ export function AiRecommendationCard({ recommendation, rank, isTop }: AiRecommen
           </div>
 
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {t("recommendations.startingAt", { rate: (recommendation.expert.hourly_rate ?? 0).toLocaleString() })}
+            {t("recommendations.startingAt", { rate: (recommendation.expert.base_consultation_fee ?? recommendation.expert.hourly_rate ?? 0).toLocaleString() })}
           </p>
 
           {recommendation.explanation.summary && (

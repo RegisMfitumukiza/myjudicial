@@ -892,7 +892,7 @@
     },
     "empty": {
       "title": "Comment pouvons-nous vous aider?",
-      "description": "Decrivez votre probleme juridique. Vous pouvez ecrire, parler ou joindre des documents."
+      "description": "Décrivez votre problème juridique en écrivant ou en enregistrant un message vocal."
     },
     "analysisResponse": "J'ai analysé votre dossier. Il relève du domaine **{specialty}** avec une urgence {urgency}.",
     "matchesFound": "J'ai trouvé **{count} experts correspondants** pour votre dossier.",

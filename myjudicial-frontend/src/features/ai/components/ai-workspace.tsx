@@ -246,7 +246,7 @@ export function AiWorkspace() {
             <h2 className="text-base sm:text-lg font-semibold text-foreground break-words">{t("empty.title")}</h2>
             <p className="mt-1 max-w-sm text-xs sm:text-sm text-muted-foreground break-words">{t("empty.description")}</p>
             
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-xl">
               {[
                 t("quickPrompt1"),
                 t("quickPrompt2"),
@@ -255,14 +255,15 @@ export function AiWorkspace() {
               ].map((prompt, i) => (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => {
                     setInput(prompt);
                     inputRef.current?.focus();
                   }}
-                  className="flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  className="group flex items-start gap-2.5 rounded-xl border border-border bg-card/60 p-3 text-left text-xs text-muted-foreground transition-all hover:border-brand-dark/40 hover:bg-card hover:text-foreground hover:shadow-xs"
                 >
-                  <Zap className="h-3.5 w-3.5 shrink-0 text-brand-dark" />
-                  <span className="truncate">{prompt}</span>
+                  <Zap className="h-3.5 w-3.5 mt-0.5 shrink-0 text-brand-dark transition-transform group-hover:scale-110" />
+                  <span className="leading-snug font-medium text-foreground/85 group-hover:text-foreground">{prompt}</span>
                 </button>
               ))}
             </div>

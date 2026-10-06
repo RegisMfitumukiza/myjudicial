@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
 import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
@@ -48,6 +49,8 @@ export default function ExpertDashboardPage() {
   const tCommon = useTranslations("common");
   const locale = useLocale();
   const firstName = session?.user?.name?.split(" ")[0] || "Practitioner";
+  const timeOfDay = useTimeOfDay();
+  const greetingKey = TIME_GREETING_KEY[timeOfDay];
   const queryClient = useQueryClient();
 
   const { isIncomplete, isLoading: profileLoading } = useProfileCompletionStatus();
@@ -303,7 +306,7 @@ export default function ExpertDashboardPage() {
                 )}
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white lg:text-4xl break-words">
-                {t("welcome", { name: firstName })}
+                {t(greetingKey, { name: firstName })}
               </h1>
               <p className="mt-2 text-white/70 lg:text-lg">
                 {isOnline 

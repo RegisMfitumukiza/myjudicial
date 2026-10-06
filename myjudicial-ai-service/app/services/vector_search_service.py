@@ -101,6 +101,8 @@ class VectorSearchService:
             specialties = case_analysis.get("specialty")  # Note: case analysis returns singular "specialty"
             budget_range = case_analysis.get("budget_range", {})
             max_budget = budget_range.get("max")
+            if max_budget is not None and max_budget <= 0:
+                max_budget = None
             
             # Create search query from key entities
             key_entities = case_analysis.get("key_entities", [])

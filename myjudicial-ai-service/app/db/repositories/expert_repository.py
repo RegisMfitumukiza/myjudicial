@@ -36,6 +36,8 @@ class ExpertRepository:
             List of expert dictionaries with similarity scores
         """
         try:
+            if max_budget is not None and max_budget <= 0:
+                max_budget = None
             # Convert embedding to PostgreSQL vector format
             embedding_str = "[" + ",".join(map(str, query_embedding)) + "]"
             
@@ -64,8 +66,8 @@ class ExpertRepository:
                 AND status::text IN ('VERIFIED', 'DRAFT')
                 -- Specialty filter (match against array OR primarySpecialty)
                 AND ($2::text IS NULL OR $2::text = ANY(specialties::text[]) OR $2::text = "primarySpecialty"::text)
-                -- Budget filter
-                AND ($3::decimal IS NULL OR "baseConsultationFee" <= $3)
+                -- Budget filter (treat <= 0 or NULL as unconstrained)
+                AND ($3::decimal IS NULL OR $3::decimal <= 0 OR "baseConsultationFee" <= $3)
                 -- Rating filter
                 AND ($4::decimal IS NULL OR "averageRating" >= $4)
                 -- Similarity threshold filter

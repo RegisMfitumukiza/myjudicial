@@ -14,8 +14,8 @@ class UrgencyLevel(str, Enum):
 
 class RecommendationRequest(BaseModel):
     """Request model for expert recommendations"""
-    query: Optional[str] = Field(None, description="Case description text", min_length=1, max_length=2000)
-    text: Optional[str] = Field(None, description="Case description text (alias for query)", min_length=1, max_length=2000)
+    query: Optional[str] = Field(None, description="Case description text", min_length=10, max_length=2000)
+    text: Optional[str] = Field(None, description="Case description text (alias for query)", min_length=10, max_length=2000)
     max_budget: Optional[int] = Field(None, description="Maximum budget in RWF", ge=0)
     urgency: Optional[UrgencyLevel] = Field(None, description="Case urgency level")
     limit: int = Field(default=10, description="Number of recommendations", ge=1, le=50)

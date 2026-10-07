@@ -148,8 +148,25 @@ export function FreeLocationInput({ value, onChange, required = false }: FreeLoc
         
         setSelectedLocation(location);
         onChange(location);
-        setAddressQuery(suggestion.description);
+        setAddressQuery(location.address);
         setSuggestions([]);
+      } else if (suggestion.placeId.startsWith("osm_")) {
+        const parts = suggestion.placeId.split("_");
+        const lat = parseFloat(parts[2]);
+        const lng = parseFloat(parts[3]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const location: LocationData = {
+            latitude: lat,
+            longitude: lng,
+            address: suggestion.description,
+            placeId: suggestion.placeId,
+            method: 'autocomplete'
+          };
+          setSelectedLocation(location);
+          onChange(location);
+          setAddressQuery(location.address);
+          setSuggestions([]);
+        }
       }
     } catch (error) {
       console.error('Failed to get place details:', error);

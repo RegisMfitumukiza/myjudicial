@@ -5,6 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import type { PublicUser } from "@/features/auth/types";
 import { getAuthMe, postAuthLogout } from "@/api/generated";
+import { setCachedAuthToken } from "@/lib/api/client";
 
 function getLocale(): string {
   if (typeof window === "undefined") return "en";
@@ -36,9 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!accessToken) return null;
 
     try {
-      const response = await getAuthMe({
-        headers: { Authorization: `Bearer ${accessToken}` },
-      } as RequestInit);
+      const response = await getAuthMe();
       const body = response as any;
       const userData = body?.data?.data ?? body?.data ?? null;
       
@@ -75,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return userData;
     } catch (error) {
       console.error("Failed to fetch user data", error);
-      return null;
+      throw error;
     }
   }, [accessToken, session, queryClient]);
 
@@ -101,9 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Clear backend session first
       try {
-        await postAuthLogout({
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
-        } as RequestInit);
+        await postAuthLogout();
       } catch (logoutError) {
         console.warn("Backend logout failed, clearing local session anyway", logoutError);
         // Continue with local cleanup regardless of backend error
@@ -111,21 +108,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // CRITICAL: Clear ALL stored tokens and session data to prevent cross-user contamination
       if (typeof window !== "undefined") {
+        setCachedAuthToken(null);
         // Clear all possible token storage locations
         sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("refreshToken");
         sessionStorage.removeItem("access_token");
         sessionStorage.removeItem("refresh_token");
+        sessionStorage.removeItem("tokenExpiresAt");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("tokenExpiresAt");
         
         // Clear all session storage (nuclear option to prevent leaks)
         sessionStorage.clear();
-        
-        // Optionally clear localStorage (commented out to preserve user preferences)
-        // localStorage.clear();
       }
 
       // Clear local auth provider cache immediately

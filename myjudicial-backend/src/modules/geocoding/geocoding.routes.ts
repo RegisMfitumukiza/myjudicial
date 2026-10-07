@@ -9,15 +9,15 @@ const router = Router();
 
 // Validation schemas
 const addressSuggestionsSchema = z.object({
-  query: z.string().min(3).max(200)
+  query: z.string().min(2).max(200)
 });
 
 const validateAddressSchema = z.object({
-  address: z.string().min(5).max(300)
+  address: z.string().min(3).max(300)
 });
 
 const placeDetailsSchema = z.object({
-  placeId: z.string().min(10).max(200)
+  placeId: z.string().min(3).max(300)
 });
 
 const reverseGeocodeSchema = z.object({

@@ -242,6 +242,34 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         if (upd.phone !== undefined) token.phone = upd.phone as string | null;
         if (upd.expertProfile !== undefined) token.expertProfile = upd.expertProfile;
       }
+
+      // Automatic proactive token rotation:
+      // If access token is expired, within 5 minutes of expiring, or forceRefresh requested
+      const tokenExpiresAt = typeof token.tokenExpiresAt === "number" ? token.tokenExpiresAt : 0;
+      const refreshToken = token.refreshToken as string | undefined;
+      const forceRefresh = Boolean(trigger === "update" && (updateData as Record<string, unknown> | undefined)?.forceRefresh);
+      const isExpiringSoon = Boolean(
+        refreshToken &&
+        (tokenExpiresAt === 0 || Date.now() >= (tokenExpiresAt - 5 * 60 * 1000) || forceRefresh)
+      );
+
+      if (isExpiringSoon && refreshToken) {
+        try {
+          const refreshRes = await fetchBackend<{
+            data: { accessToken: string; refreshToken: string; expiresIn: number };
+          }>("/auth/refresh", { refreshToken });
+
+          if (refreshRes?.data?.accessToken) {
+            token.accessToken = refreshRes.data.accessToken;
+            token.refreshToken = refreshRes.data.refreshToken || refreshToken;
+            token.tokenExpiresAt = Date.now() + (refreshRes.data.expiresIn ?? 3600) * 1000;
+            delete token.error;
+          }
+        } catch (error) {
+          console.error("[auth] Background token refresh failed:", error);
+          token.error = "RefreshAccessTokenError";
+        }
+      }
       
       return token;
     },
@@ -266,6 +294,9 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         sessionAny.tokenExpiresAt = tokenAny.tokenExpiresAt;
         sessionAny.status = tokenAny.status ?? "ACTIVE";
         sessionAny.rememberMe = tokenAny.rememberMe ?? false;
+        if (tokenAny.error) {
+          sessionAny.error = tokenAny.error;
+        }
         (session.user as unknown as Record<string, unknown>).expertProfile = tokenAny.expertProfile || null;
       }
       

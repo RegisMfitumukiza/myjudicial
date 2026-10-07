@@ -10,7 +10,7 @@ import { SessionWatcher } from "@/providers/session-watcher";
 
 export function RootProviders({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
+    <SessionProvider refetchInterval={4 * 60} refetchOnWindowFocus={true}>
       <QueryProvider>
         <ThemeProvider>
           <AuthProvider>

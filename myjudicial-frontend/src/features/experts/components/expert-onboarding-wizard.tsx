@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
@@ -242,6 +242,20 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
     }
   }, [onboardingData?.completionPercentage]);
 
+  const topRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll smoothly to top whenever step advances or changes
+  useEffect(() => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   const totalSteps = 7;
 
   const steps = [
@@ -421,7 +435,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   };
 
   return (
-    <div className="min-h-full bg-slate-50/60 dark:bg-background">
+    <div ref={topRef} className="min-h-full bg-slate-50/60 dark:bg-background">
       {/* Professional Onboarding Header */}
       <ExpertOnboardingHeader
         currentStep={currentStep}
@@ -633,7 +647,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               <div>
                 <FreeLocationInput
                   value={formData.location}
-                  onChange={(location) => updateField("location", location)}
+                  onChange={(location) => {
+                    updateField("location", location);
+                    if (location?.address) {
+                      updateField("officeAddress", location.address);
+                    }
+                  }}
                   required={false}
                 />
               </div>

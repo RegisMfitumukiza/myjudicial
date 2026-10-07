@@ -128,130 +128,206 @@ export class GeocodingService {
   }
 
   /**
-   * FREE: Get address suggestions using Rwanda location database
-   * No external API calls - uses local data
+   * Industrial Geocoding: Get address suggestions using verified Rwanda locations,
+   * prominent landmark registry, and real live OpenStreetMap Nominatim search.
    */
   static async getAddressSuggestions(query: string): Promise<AddressSuggestion[]> {
     if (query.length < 2) return [];
-    
+
     const suggestions: AddressSuggestion[] = [];
     const lowerQuery = query.toLowerCase();
-    
-    // Search through Rwanda districts and sectors
+
+    // 1. Search through verified Rwanda provinces, districts, and sectors
     Object.entries(RWANDA_LOCATIONS.provinces).forEach(([provinceName, province]) => {
       Object.entries(province.districts).forEach(([districtName, district]) => {
         // Match district names
         if (districtName.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             placeId: `district_${districtName}`,
-            description: `${districtName} District, ${provinceName}`,
-            mainText: districtName,
-            secondaryText: `District, ${provinceName}`
+            description: `${districtName} District, ${provinceName}, Rwanda`,
+            mainText: `${districtName} District`,
+            secondaryText: `${provinceName}, Rwanda`,
           });
         }
-        
+
         // Match sector names
-        district.sectors.forEach(sector => {
+        district.sectors.forEach((sector) => {
           if (sector.toLowerCase().includes(lowerQuery)) {
             suggestions.push({
               placeId: `sector_${sector}_${districtName}`,
-              description: `${sector}, ${districtName} District`,
+              description: `${sector}, ${districtName} District, Rwanda`,
               mainText: sector,
-              secondaryText: `${districtName} District`
+              secondaryText: `${districtName} District, ${provinceName}`,
             });
           }
         });
       });
     });
-    
-    // Add common business areas in Kigali
-    const businessAreas = [
-      { name: "Kigali Heights", district: "Nyarugenge" },
-      { name: "UTC Building", district: "Nyarugenge" },
-      { name: "Centenary House", district: "Nyarugenge" },
-      { name: "Kigali City Tower", district: "Nyarugenge" },
-      { name: "Serena Hotel", district: "Nyarugenge" },
-      { name: "Kigali Convention Centre", district: "Gasabo" },
-      { name: "BK Arena", district: "Gasabo" },
-      { name: "Camp Kigali", district: "Nyarugenge" }
-    ];
-    
-    businessAreas.forEach(area => {
+
+    // 2. Match verified landmarks and commercial towers across Kigali & provinces
+    const landmarks = GeocodingService.getLandmarks();
+    landmarks.forEach((area) => {
       if (area.name.toLowerCase().includes(lowerQuery)) {
         suggestions.push({
-          placeId: `business_${area.name.replace(/\s+/g, '_')}`,
-          description: `${area.name}, ${area.district} District, Kigali`,
+          placeId: `landmark_${area.name.replace(/\s+/g, "_")}`,
+          description: `${area.name}, ${area.district} District, Rwanda`,
           mainText: area.name,
-          secondaryText: `${area.district} District, Kigali`
+          secondaryText: `${area.district} District (${area.category})`,
         });
       }
     });
-    
-    return suggestions.slice(0, 8); // Limit to 8 suggestions
+
+    // 3. Live OpenStreetMap Nominatim query for real streets, roads, and venues across Rwanda
+    if (query.length >= 3) {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?` +
+            `q=${encodeURIComponent(query + ", Rwanda")}&` +
+            `format=json&countrycodes=rw&limit=5&addressdetails=1`,
+          {
+            headers: {
+              "User-Agent": "MyJudicial/1.0 (legal-platform@myjudicial.com)",
+            },
+            signal: AbortSignal.timeout(3500),
+          }
+        );
+
+        if (response.ok) {
+          const osmData = await response.json();
+          if (Array.isArray(osmData)) {
+            for (const item of osmData) {
+              const parts = (item.display_name || "").split(", ");
+              const mainText = parts[0] || query;
+              const secondaryText = parts.slice(1, 4).join(", ");
+              suggestions.push({
+                placeId: `osm_${item.place_id}_${item.lat}_${item.lon}`,
+                description: item.display_name,
+                mainText,
+                secondaryText: secondaryText || "Rwanda",
+              });
+            }
+          }
+        }
+      } catch (osmError) {
+        // Non-blocking: smooth fallback to local index if network times out
+        logger.warn("Live Nominatim geocoding query fallback", { error: (osmError as Error).message, query });
+      }
+    }
+
+    // Deduplicate suggestions by mainText
+    const seen = new Set<string>();
+    const deduplicated: AddressSuggestion[] = [];
+    for (const s of suggestions) {
+      const key = `${s.mainText.toLowerCase()}__${s.secondaryText.toLowerCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduplicated.push(s);
+      }
+    }
+
+    return deduplicated.slice(0, 8);
   }
 
   /**
-   * FREE: Get coordinates from Rwanda location database
+   * Resolve placeId into exact coordinates and standardized address.
    */
   static async getPlaceDetails(placeId: string): Promise<LocationResult> {
     try {
-      // Parse placeId to extract location type and name
-      const [type, ...nameParts] = placeId.split('_');
-      const name = nameParts.join('_').replace(/_/g, ' ');
-      
-      if (type === 'district') {
-        // Find district coordinates
+      // 1. OpenStreetMap Nominatim result (exact coordinates embedded in ID)
+      if (placeId.startsWith("osm_")) {
+        const parts = placeId.split("_");
+        const lat = parseFloat(parts[2]);
+        const lng = parseFloat(parts[3]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          // Reverse geocode to get clean, canonical address
+          const reverse = await GeocodingService.reverseGeocode(lat, lng);
+          return {
+            isValid: true,
+            coordinates: { lat, lng },
+            formattedAddress: reverse?.address,
+            placeId,
+          };
+        }
+      }
+
+      // 2. Verified District
+      if (placeId.startsWith("district_")) {
+        const districtName = placeId.replace("district_", "");
         for (const [provinceName, province] of Object.entries(RWANDA_LOCATIONS.provinces)) {
-          const district = (province.districts as Record<string, any>)[name];
+          const district = (province.districts as Record<string, any>)[districtName];
           if (district) {
             return {
               isValid: true,
               coordinates: {
                 lat: district.center[0],
-                lng: district.center[1]
+                lng: district.center[1],
               },
-              formattedAddress: `${name} District, ${provinceName}, Rwanda`,
-              placeId: placeId
+              formattedAddress: `${districtName} District, ${provinceName}, Rwanda`,
+              placeId,
             };
           }
         }
       }
-      
-      if (type === 'sector') {
-        const [sectorName, districtName] = name.split(' ').slice(0, -1).join(' ').split(', ');
-        // For sectors, use district coordinates with slight offset
-        for (const province of Object.values(RWANDA_LOCATIONS.provinces)) {
+
+      // 3. Verified Sector
+      if (placeId.startsWith("sector_")) {
+        const parts = placeId.split("_");
+        const sectorName = parts[1];
+        const districtName = parts[2];
+        for (const [provinceName, province] of Object.entries(RWANDA_LOCATIONS.provinces)) {
           const district = (province.districts as Record<string, any>)[districtName];
-          if (district && district.sectors.includes(sectorName)) {
+          if (district) {
             return {
               isValid: true,
               coordinates: {
-                lat: district.center[0] + (Math.random() - 0.5) * 0.01, // Small random offset
-                lng: district.center[1] + (Math.random() - 0.5) * 0.01
+                lat: district.center[0],
+                lng: district.center[1],
               },
-              formattedAddress: `${sectorName}, ${districtName} District, Rwanda`,
-              placeId: placeId
+              formattedAddress: `${sectorName}, ${districtName} District, ${provinceName}, Rwanda`,
+              placeId,
             };
           }
         }
       }
-      
-      if (type === 'business') {
-        // Business areas in Kigali center
+
+      // 4. Verified Landmarks / Towers
+      if (placeId.startsWith("landmark_") || placeId.startsWith("business_")) {
+        const rawName = placeId
+          .replace(/^(landmark_|business_)/, "")
+          .replace(/_/g, " ")
+          .toLowerCase();
+
+        const landmark = GeocodingService.getLandmarks().find(
+          (l) => l.name.toLowerCase() === rawName || rawName.includes(l.name.toLowerCase())
+        );
+
+        if (landmark) {
+          return {
+            isValid: true,
+            coordinates: {
+              lat: landmark.coords[0],
+              lng: landmark.coords[1],
+            },
+            formattedAddress: `${landmark.name}, ${landmark.district} District, Kigali, Rwanda`,
+            placeId,
+          };
+        }
+
+        // Fallback to Kigali center
         return {
           isValid: true,
           coordinates: {
-            lat: -1.9441 + (Math.random() - 0.5) * 0.005, // Near Kigali center
-            lng: 30.0619 + (Math.random() - 0.5) * 0.005
+            lat: -1.9441,
+            lng: 30.0619,
           },
-          formattedAddress: `${name}, Kigali City, Rwanda`,
-          placeId: placeId
+          formattedAddress: `${rawName}, Kigali, Rwanda`,
+          placeId,
         };
       }
-      
+
       return { isValid: false };
     } catch (error) {
-      logger.error('Place details failed', { error, placeId });
+      logger.error("Place details failed", { error, placeId });
       return { isValid: false };
     }
   }

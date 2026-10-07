@@ -10,6 +10,38 @@ export type ApiFetchOptions = Omit<RequestInit, "body"> & {
 // Token refresh state management
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
+let cachedAccessToken: string | null = null;
+let cachedTokenExpiresAt = 0;
+
+export function setCachedAuthToken(token: string | null, expiresAt?: number) {
+  cachedAccessToken = token;
+  cachedTokenExpiresAt = expiresAt ?? (token ? Date.now() + 55 * 60 * 1000 : 0);
+  if (typeof window !== "undefined") {
+    if (token) {
+      localStorage.setItem("accessToken", token);
+      if (expiresAt) localStorage.setItem("tokenExpiresAt", String(expiresAt));
+    } else {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("tokenExpiresAt");
+    }
+  }
+}
+
+export function getCachedAuthToken(): string | null {
+  if (cachedAccessToken && (cachedTokenExpiresAt === 0 || Date.now() < cachedTokenExpiresAt - 60_000)) {
+    return cachedAccessToken;
+  }
+  if (typeof window !== "undefined") {
+    const stored = localStorage.getItem("accessToken");
+    const storedExp = Number(localStorage.getItem("tokenExpiresAt") || 0);
+    if (stored && (storedExp === 0 || Date.now() < storedExp - 60_000)) {
+      cachedAccessToken = stored;
+      cachedTokenExpiresAt = storedExp;
+      return stored;
+    }
+  }
+  return null;
+}
 
 function resolveApiPath(path: string) {
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -42,13 +74,24 @@ async function attachAuthHeaders(headers: Headers, token?: string): Promise<void
   // Respect an Authorization header that was explicitly passed by the caller
   if (!headers.has("Authorization")) {
     if (typeof window !== "undefined") {
-      // NextAuth session is the single source of truth — it always reflects the current user.
-      // localStorage/sessionStorage may contain stale tokens from a previous session.
-      const session = await getSession();
-      const accessToken = (session as { accessToken?: string } | null)?.accessToken;
-      if (accessToken) { headers.set("Authorization", `Bearer ${accessToken}`); return; }
+      // 1. Check in-memory/localStorage fast cache first to avoid redundant session fetches
+      const fastToken = getCachedAuthToken();
+      if (fastToken) {
+        headers.set("Authorization", `Bearer ${fastToken}`);
+        return;
+      }
 
-      // Fallback only when NextAuth session is unavailable (e.g. token refresh in progress)
+      // 2. NextAuth session is the single source of truth — fetch and cache it
+      const session = await getSession();
+      const accessToken = (session as { accessToken?: string; tokenExpiresAt?: number } | null)?.accessToken;
+      const expiresAt = (session as { tokenExpiresAt?: number } | null)?.tokenExpiresAt;
+      if (accessToken) {
+        setCachedAuthToken(accessToken, expiresAt);
+        headers.set("Authorization", `Bearer ${accessToken}`);
+        return;
+      }
+
+      // 3. Fallback only when NextAuth session is unavailable (e.g. initial render)
       const stored = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken");
       if (stored) headers.set("Authorization", `Bearer ${stored}`);
     }
@@ -56,7 +99,7 @@ async function attachAuthHeaders(headers: Headers, token?: string): Promise<void
 }
 
 /**
- * Attempts to refresh the access token using the refresh token.
+ * Attempts to refresh the access token using NextAuth or the refresh token.
  * Returns the new access token or null if refresh failed.
  * Uses a singleton promise to prevent concurrent refresh attempts.
  */
@@ -69,24 +112,44 @@ export async function refreshAccessToken(): Promise<string | null> {
   isRefreshing = true;
   refreshPromise = (async () => {
     try {
-      // Get refresh token from storage or session
+      // Invalidate current cached token
+      setCachedAuthToken(null);
+
+      // Attempt 1: Trigger NextAuth session refresh.
+      // NextAuth's server jwt callback automatically calls backend /auth/refresh
+      // when the token is expiring or expired, rotating the tokens safely in the HTTP cookie.
+      if (typeof window !== "undefined") {
+        const session = await getSession();
+        const nextAuthSession = session as { accessToken?: string; tokenExpiresAt?: number; error?: string } | null;
+
+        if (nextAuthSession?.error === "RefreshAccessTokenError") {
+          console.warn("[apiClient] NextAuth session refresh failed permanently");
+          return null;
+        }
+
+        if (nextAuthSession?.accessToken) {
+          setCachedAuthToken(nextAuthSession.accessToken, nextAuthSession.tokenExpiresAt);
+          return nextAuthSession.accessToken;
+        }
+      }
+
+      // Attempt 2: Direct call to /auth/refresh if refresh token is available
       let refreshToken: string | null = null;
-      
+
       if (typeof window !== "undefined") {
         refreshToken = sessionStorage.getItem("refreshToken") || localStorage.getItem("refreshToken");
-      }
-      
-      if (!refreshToken && typeof window !== "undefined") {
-        const session = await getSession();
-        refreshToken = (session as { refreshToken?: string } | null)?.refreshToken ?? null;
+        if (!refreshToken) {
+          const session = await getSession();
+          refreshToken = (session as { refreshToken?: string } | null)?.refreshToken ?? null;
+        }
       }
 
       if (!refreshToken) {
-        console.warn("No refresh token available");
+        console.warn("[apiClient] No refresh token available");
         return null;
       }
 
-      // Call the refresh endpoint
+      // Call the refresh endpoint directly
       const response = await fetch(resolveApiPath("/auth/refresh"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -95,32 +158,30 @@ export async function refreshAccessToken(): Promise<string | null> {
       });
 
       if (!response.ok) {
-        console.error("Token refresh failed:", response.status);
+        console.error("[apiClient] Direct token refresh failed:", response.status);
         return null;
       }
 
       const result = await parseJsonBody<any>(response);
       const newAccessToken = result?.data?.accessToken;
       const newRefreshToken = result?.data?.refreshToken;
+      const expiresIn = result?.data?.expiresIn ?? 3600;
 
       if (!newAccessToken) {
-        console.error("No access token in refresh response");
+        console.error("[apiClient] No access token in refresh response");
         return null;
       }
 
-      // Store new tokens
-      if (typeof window !== "undefined") {
-        const storageType = sessionStorage.getItem("accessToken") ? sessionStorage : localStorage;
-        storageType.setItem("accessToken", newAccessToken);
-        if (newRefreshToken) {
-          storageType.setItem("refreshToken", newRefreshToken);
-        }
+      const expiresAt = Date.now() + expiresIn * 1000;
+      setCachedAuthToken(newAccessToken, expiresAt);
+      if (typeof window !== "undefined" && newRefreshToken) {
+        localStorage.setItem("refreshToken", newRefreshToken);
       }
 
-      console.log("Token refreshed successfully");
+      console.log("[apiClient] Token refreshed successfully via direct endpoint");
       return newAccessToken;
     } catch (error) {
-      console.error("Token refresh error:", error);
+      console.error("[apiClient] Token refresh error:", error);
       return null;
     } finally {
       isRefreshing = false;
@@ -135,20 +196,22 @@ export async function refreshAccessToken(): Promise<string | null> {
  * Logs out the user by clearing tokens and redirecting to login.
  */
 async function handleLogout() {
+  setCachedAuthToken(null);
   if (typeof window !== "undefined") {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("tokenExpiresAt");
   }
-  
+
   // Use next-auth signOut if available
   try {
     await signOut({ redirect: false });
   } catch (error) {
     // Ignore signOut errors
   }
-  
+
   // Redirect to sign-in with locale prefix
   if (typeof window !== "undefined") {
     const stored = localStorage.getItem("mj_lang");
@@ -220,10 +283,19 @@ async function fetchWithRefresh<T>(
   const newAccessToken = await refreshAccessToken();
 
   if (!newAccessToken) {
-    console.warn("Token refresh failed");
+    console.warn("[apiClient] Token refresh did not produce a new access token");
     if (options.skipLogoutOn401) return response;
-    console.warn("Logging out...");
-    await handleLogout();
+
+    // Do NOT log out if the device is currently offline or connection was interrupted
+    const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+    if (isOnline && typeof window !== "undefined") {
+      const session = await getSession();
+      const isTerminal = (session as any)?.error === "RefreshAccessTokenError" || !session;
+      if (isTerminal) {
+        console.warn("[apiClient] Session permanently expired, logging out...");
+        await handleLogout();
+      }
+    }
     return response;
   }
 

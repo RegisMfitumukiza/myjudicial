@@ -24,6 +24,7 @@ import { useCountdown } from "@/hooks/use-countdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { apiFetch } from "@/lib/api/client";
+import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 
 /* ══════════════════════════ DATA ══════════════════════════ */
 
@@ -127,6 +128,7 @@ const SIGNUP_DRAFT_KEY = "mj_signup_draft";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { settings } = usePlatformSettings();
 
   /* ─── global step ─── */
   const [step, setStep] = useState(1);
@@ -1075,7 +1077,7 @@ export default function SignUpPage() {
       {/* Footer */}
       <footer className="shrink-0 px-6 py-3 sm:py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
-          {tAuthShell("copyright")}{" "}
+          {settings?.copyrightNotice || tAuthShell("copyright")}{" · "}
           <Link
             href="/privacy"
             target="_blank"

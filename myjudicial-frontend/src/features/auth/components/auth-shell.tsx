@@ -5,6 +5,7 @@ import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { useTranslations } from "next-intl";
+import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 
 interface AuthShellProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface AuthShellProps {
 
 export function AuthShell({ children, headerAction }: AuthShellProps) {
   const t = useTranslations("expertDashboard_auth-shell");
+  const { settings } = usePlatformSettings();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -43,7 +45,7 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
       {/* Footer */}
       <div className="shrink-0 px-6 py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
-          {t("copyright")}{" "}
+          {settings?.copyrightNotice || t("copyright")}{" · "}
           <Link
             href="/privacy"
             target="_blank"

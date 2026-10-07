@@ -30,7 +30,6 @@ import type { CreateProfileDto } from "@/api/generated";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
 import { ExpertOnboardingHeader, StepProgress } from "./ExpertOnboardingHeader";
-import { ProfilePhotoReminder } from "./ProfilePhotoReminder";
 import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 import { FreeLocationInput } from "@/shared/components/location/FreeLocationInput";
 import {
@@ -422,7 +421,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background">
+    <div className="min-h-full bg-slate-50/60 dark:bg-background">
       {/* Professional Onboarding Header */}
       <ExpertOnboardingHeader
         currentStep={currentStep}
@@ -430,17 +429,6 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
         completionPercentage={onboardingData?.completionPercentage || Math.round((currentStep / totalSteps) * 100)}
         expertName={fullName}
       />
-
-      {/* Photo Upload Reminder - Show if profile incomplete and no photo */}
-      {onboardingData?.photoStatus && !onboardingData.photoStatus.hasPhoto && (
-        <div className="max-w-4xl mx-auto px-6 -mt-4 mb-6">
-          <ProfilePhotoReminder
-            photoStatus={onboardingData.photoStatus}
-            onUploadClick={() => setCurrentStep(6)}
-            className="shadow-sm"
-          />
-        </div>
-      )}
 
       {/* Step Progress Indicator */}
       <StepProgress 
@@ -450,11 +438,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           completed: currentStep > step.number,
           active: currentStep === step.number
         }))}
+        onStepClick={(stepNumber) => setCurrentStep(stepNumber)}
       />
 
       {/* Content */}
-      <div className="mx-auto max-w-2xl px-6 py-12">
-        <div className="rounded-xl border border-slate-200 dark:border-border bg-white dark:bg-card p-8 shadow-sm">
+      <div className="mx-auto max-w-2xl px-3 py-4 sm:px-6 sm:py-8 lg:py-10">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 lg:p-8 shadow-xs">
           {/* Step 1: Professional Details */}
           {currentStep === 1 && (
             <div className="space-y-6">
@@ -584,7 +573,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     <p className="mt-1 text-xs text-slate-500 dark:text-muted-foreground mb-3">
                       {tWizard("step2.additionalSpecialtiesHint")}
                     </p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                       {specialtyOptions.map((opt) => {
                         const selected = formData.specialties.includes(opt.value);
                         const isPrimary = formData.primarySpecialty === opt.value;
@@ -941,18 +930,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           )}
 
           {/* Navigation */}
-          <div className="mt-8 flex items-center justify-between border-t border-slate-200 dark:border-border pt-6">
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-t border-border pt-4 sm:pt-6">
             <Button
               type="button"
               variant="outline"
               onClick={previousStep}
               disabled={currentStep === 1}
+              className="h-10 px-3 sm:px-4 text-xs sm:text-sm font-semibold rounded-xl"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
+              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
               {tWizard("nav.back")}
             </Button>
 
-            <div className="text-sm text-slate-500 dark:text-muted-foreground">
+            <div className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">
               {tWizard("nav.stepOf", { current: currentStep, total: totalSteps })}
             </div>
 
@@ -961,25 +951,27 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 type="button"
                 onClick={nextStep}
                 disabled={!canProceed()}
+                className="h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold bg-brand-dark text-on-brand rounded-xl shadow-xs hover:opacity-90 transition-opacity"
               >
-                {tWizard("nav.continue")}
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <span>{tWizard("nav.continue")}</span>
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
               </Button>
             ) : (
               <Button
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canProceed() || isSubmitting}
-                className="bg-green-600 hover:bg-green-700"
+                className="h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold text-white rounded-xl shadow-xs hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: "#10b981" }}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     {tWizard("nav.submitting")}
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
                     {tWizard("nav.completeSetup")}
                   </>
                 )}

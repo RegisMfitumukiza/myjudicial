@@ -44,9 +44,23 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
       <div className="shrink-0 px-6 py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
           {t("copyright")}{" "}
-          <Link href="/privacy" className="hover:text-foreground transition-colors">{t("privacy")}</Link>
+          <Link
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            {t("privacy")}
+          </Link>
           {" \u00b7 "}
-          <Link href="/terms" className="hover:text-foreground transition-colors">{t("terms")}</Link>
+          <Link
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            {t("terms")}
+          </Link>
         </p>
       </div>
     </div>

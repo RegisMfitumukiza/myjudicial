@@ -765,9 +765,23 @@ export default function SignUpPage() {
           />
           <span className="text-xs leading-5 text-muted-foreground">
             {t("account.terms")}{' '}
-            <Link href="/terms" className="font-semibold text-brand-dark dark:text-white hover:underline">{t("account.termsLink")}</Link>{' '}
-            {t("account.and")}{''}
-            <Link href="/privacy" className="font-semibold text-brand-dark dark:text-white hover:underline">{t("account.privacyLink")}</Link>.
+            <Link
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-dark dark:text-white hover:underline"
+            >
+              {t("account.termsLink")}
+            </Link>{' '}
+            {t("account.and")}{' '}
+            <Link
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-dark dark:text-white hover:underline"
+            >
+              {t("account.privacyLink")}
+            </Link>.
             {t("account.ageConfirmation")}
           </span>
         </label>
@@ -975,9 +989,23 @@ export default function SignUpPage() {
       <footer className="shrink-0 px-6 py-3 sm:py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
           {tAuthShell("copyright")}{" "}
-          <Link href="/privacy" className="hover:text-foreground transition-colors">{tAuthShell("privacy")}</Link>
+          <Link
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            {tAuthShell("privacy")}
+          </Link>
           {" · "}
-          <Link href="/terms" className="hover:text-foreground transition-colors">{tAuthShell("terms")}</Link>
+          <Link
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            {tAuthShell("terms")}
+          </Link>
         </p>
       </footer>
     </div>

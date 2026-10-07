@@ -5166,17 +5166,18 @@
       "failed": "Failed"
     },
     "onboardingHeader": {
-      "title": "Configuration de l'Expert MyJudicial",
-      "subtitle": "Plateforme Juridique Professionnelle",
+      "title": "Configuration du Cabinet d'Expert",
+      "subtitle": "Complétez votre profil pour activer votre fiche dans l'annuaire juridique",
       "stepOf": "Étape {current} sur {total}",
       "complete": "{pct} % complété",
-      "welcome": "Bienvenue sur MyJudicial, {name}",
-      "legalProfessional": "Professionnel du droit",
-      "body": "Rejoignez la première plateforme juridique du Rwanda approuvée par des milliers de clients. Complétez votre profil professionnel pour entrer en contact avec des clients ayant besoin de votre expertise.",
-      "benefit1": "Plateforme vérifiée",
-      "benefit2": "Paiements sécurisés",
-      "benefit3": "Protection des clients",
-      "setupProgress": "Progression de la configuration"
+      "welcome": "Bienvenue, {name}",
+      "legalProfessional": "Maître",
+      "body": "Complétez votre profil de cabinet pour activer votre fiche, entrer en relation avec des clients recherchant votre expertise juridique et commencer à recevoir des consultations.",
+      "benefit1": "Accrédité au Barreau du Rwanda",
+      "benefit2": "Rendez-vous clients directs",
+      "benefit3": "Brouillon sauvegardé",
+      "setupProgress": "Progression de la configuration",
+      "estimatedTime": "~3 min"
     },
     "photoReminder": {
       "neededHigh": "Photo de profil requise",

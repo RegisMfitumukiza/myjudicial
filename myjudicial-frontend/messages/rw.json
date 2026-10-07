@@ -5166,17 +5166,18 @@
       "failed": "Failed"
     },
     "onboardingHeader": {
-      "title": "Gutunganya Umwirondoro w'Inzobere",
-      "subtitle": "Urubuga rw'Inzobere mu by'Amategeko",
+      "title": "Gutunganya Umwirondoro w'Umwuga",
+      "subtitle": "Uzuza umwirondoro wawe kugira ngo ukorere ku rubuga rw'amategeko",
       "stepOf": "Intambwe {current} kuri {total}",
       "complete": "{pct}% Byuzuye",
-      "welcome": "Ikaze kuri MyJudicial, {name}",
+      "welcome": "Ikaze, {name}",
       "legalProfessional": "Inzobere mu Mategeko",
-      "body": "Injira ku rubuga rwa mbere mu by'amategeko mu Rwanda rwizerwa n'abakiriya ibihumbi. Uzuza umwirondoro wawe w'umwuga utangire guhuzwa n'abakeneye ubumenyi bwawe.",
-      "benefit1": "Urubuga Rwizewe",
-      "benefit2": "Kwishura Birinzwe",
-      "benefit3": "Kurengera Abakiriya",
-      "setupProgress": "Iterambere ryo Kwiyandikisha"
+      "body": "Uzuza umwirondoro wawe w'umwuga kugira ngo ukore neza ku rubuga, uhuzwe n'abakiriya bakeneye ubumenyi bwawe mu by'amategeko, kandi utangire kwakira abakugana.",
+      "benefit1": "Urugaga rw'Abavoka mu Rwanda",
+      "benefit2": "Guhuzwa n'Abakiriya Ako Kanya",
+      "benefit3": "Bikwa Ako Kanya",
+      "setupProgress": "Iterambere ryo Kwiyandikisha",
+      "estimatedTime": "~Iminota 3"
     },
     "photoReminder": {
       "neededHigh": "Hakenewe ifoto y'umwirondoro",

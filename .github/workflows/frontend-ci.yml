@@ -124,6 +124,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || '22' }}
+          command_timeout: 30m
           script: |
             set -e
             cd ${{ secrets.APP_DIR }}
@@ -132,7 +133,7 @@ jobs:
             flock -x -w 1200 9 || { echo "ERROR: deploy lock busy > 20min"; exit 1; }
 
             # Free disk space: old tagged images accumulate across deployments.
-            docker system prune -af || true
+            docker image prune -f || true
             docker builder prune -af || true
 
             git pull --ff-only origin main
@@ -154,7 +155,7 @@ jobs:
               echo "WARN: pull failed after retries - falling back to building on VPS"
               docker compose build frontend
             fi
-            docker compose up -d frontend
+            docker compose up -d --no-deps frontend
 
             ok=0
             for i in $(seq 1 24); do

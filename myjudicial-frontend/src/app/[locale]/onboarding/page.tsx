@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
@@ -851,6 +851,14 @@ function ExpertStep5() {
 
 /* ─────────────────────────────────────── MAIN PAGE ── */
 
+const ONBOARDING_DRAFT_KEY = "mj_onboarding_draft";
+
+interface OnboardingDraft {
+  step: number;
+  citizenData: CitizenData;
+  expertData: ExpertData;
+}
+
 function OnboardingWizard() {
   const params = useSearchParams();
   const role = (params.get("role") ?? "CITIZEN") as Role;
@@ -859,6 +867,49 @@ function OnboardingWizard() {
   const [step, setStep] = useState(1);
   const [citizenData, setCitizenData] = useState<CitizenData>(CITIZEN_DEFAULTS);
   const [expertData, setExpertData]   = useState<ExpertData>(EXPERT_DEFAULTS);
+  const isHydratedRef = useRef(false);
+
+  // 1. Restore draft on initial mount
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(ONBOARDING_DRAFT_KEY);
+      if (raw) {
+        const draft: OnboardingDraft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          if (typeof draft.step === "number" && draft.step < 5) {
+            setStep(draft.step);
+          }
+          if (draft.citizenData) setCitizenData((prev) => ({ ...prev, ...draft.citizenData }));
+          if (draft.expertData) setExpertData((prev) => ({ ...prev, ...draft.expertData }));
+        }
+      }
+    } catch {
+      // Storage access blocked or invalid JSON
+    } finally {
+      isHydratedRef.current = true;
+    }
+  }, []);
+
+  // 2. Persist draft on step or field changes
+  useEffect(() => {
+    if (!isHydratedRef.current) return;
+    try {
+      if (step >= 5) {
+        sessionStorage.removeItem(ONBOARDING_DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        ONBOARDING_DRAFT_KEY,
+        JSON.stringify({
+          step,
+          citizenData,
+          expertData,
+        })
+      );
+    } catch {
+      // Ignore
+    }
+  }, [step, citizenData, expertData]);
 
   const totalSteps = 5;
   const labels     = role === "CITIZEN"
@@ -914,7 +965,13 @@ function OnboardingWizard() {
           <div className="flex items-center gap-4">
             <LanguageSwitcher variant="compact" />
             {step < totalSteps && (
-              <Link href="/client/dashboard" className="text-xs font-semibold text-muted-foreground hover:text-foreground">
+              <Link
+                href="/client/dashboard"
+                onClick={() => {
+                  try { sessionStorage.removeItem(ONBOARDING_DRAFT_KEY); } catch {}
+                }}
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
                 {t("nav.skipForNow")}
               </Link>
             )}

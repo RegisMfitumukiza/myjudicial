@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "@/i18n/routing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,12 +26,21 @@ const baseForgotPasswordSchema = z.object({
 
 type ForgotPasswordValues = z.infer<typeof baseForgotPasswordSchema>;
 
+const FORGOT_PASSWORD_DRAFT_KEY = "mj_forgot_password_draft";
+
+interface ForgotPasswordDraft {
+  email?: string;
+  success?: boolean;
+  devToken?: string | null;
+}
+
 export function ForgotPasswordForm() {
   const t = useTranslations("expertDashboard_forgot-password-form");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [devToken, setDevToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isHydratedRef = useRef(false);
 
   const schema = useMemo(() => z.object({
     email: z.string().email(t("emailInvalid") || "Please enter a valid email address."),
@@ -41,6 +50,53 @@ export function ForgotPasswordForm() {
     resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
+
+  const watchedEmail = form.watch("email");
+
+  // 1. Restore draft on initial mount
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(FORGOT_PASSWORD_DRAFT_KEY);
+      if (raw) {
+        const draft: ForgotPasswordDraft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          if (typeof draft.email === "string" && draft.email) {
+            form.setValue("email", draft.email);
+          }
+          if (draft.success) {
+            setSuccess(true);
+            if (draft.devToken) setDevToken(draft.devToken);
+          }
+        }
+      }
+    } catch {
+      // Storage access blocked or invalid JSON
+    } finally {
+      isHydratedRef.current = true;
+    }
+  }, [form]);
+
+  // 2. Persist draft on change
+  useEffect(() => {
+    if (!isHydratedRef.current) return;
+    try {
+      const currentEmail = form.getValues("email");
+      if (!currentEmail && !success) {
+        sessionStorage.removeItem(FORGOT_PASSWORD_DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        FORGOT_PASSWORD_DRAFT_KEY,
+        JSON.stringify({
+          email: currentEmail,
+          success,
+          devToken,
+        })
+      );
+    } catch {
+      // Ignore
+    }
+  }, [watchedEmail, success, devToken, form]);
 
   async function onSubmit(values: ForgotPasswordValues) {
     setIsLoading(true);
@@ -99,7 +155,16 @@ export function ForgotPasswordForm() {
           asChild
           className="h-12 w-full rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 transition-opacity"
         >
-          <Link href="/sign-in">{t("backToSignIn")}</Link>
+          <Link
+            href="/sign-in"
+            onClick={() => {
+              try {
+                sessionStorage.removeItem(FORGOT_PASSWORD_DRAFT_KEY);
+              } catch {}
+            }}
+          >
+            {t("backToSignIn")}
+          </Link>
         </Button>
       </div>
     );

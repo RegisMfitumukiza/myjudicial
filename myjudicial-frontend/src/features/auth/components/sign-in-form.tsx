@@ -36,6 +36,15 @@ const signInSchema = z.object({
 
 type SignInValues = z.infer<typeof signInSchema>;
 
+const SIGNIN_DRAFT_KEY = "mj_signin_draft";
+
+interface SigninDraft {
+  email?: string;
+  pendingEmail?: string | null;
+  otpExpiresAt?: string | null;
+  adminMode?: boolean;
+}
+
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -67,6 +76,7 @@ export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [adminRememberMe, setAdminRememberMe] = useState(false);
+  const isHydratedRef = useRef(false);
 
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
@@ -104,6 +114,7 @@ export function SignInForm() {
       .then((result) => {
         if (result?.error) throw new Error(t("magicLinkInvalid"));
         toast.success(t("signedInSuccessfully"));
+        try { sessionStorage.removeItem(SIGNIN_DRAFT_KEY); } catch {}
         router.push(`${postAuthPath}${postAuthPath.includes("?") ? "&" : "?"}email_verified=1`);
       })
       .catch((err) => {
@@ -119,6 +130,60 @@ export function SignInForm() {
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "" },
   });
+
+  const watchedEmail = form.watch("email");
+
+  // 1. Restore draft on initial mount
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(SIGNIN_DRAFT_KEY);
+      if (raw) {
+        const draft: SigninDraft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          if (typeof draft.email === "string" && draft.email) {
+            form.setValue("email", draft.email);
+          }
+          if (typeof draft.adminMode === "boolean" && searchParams.get("admin") !== "1") {
+            setAdminMode(draft.adminMode);
+          }
+          if (draft.pendingEmail) {
+            const expiresMs = draft.otpExpiresAt ? new Date(draft.otpExpiresAt).getTime() : 0;
+            if (!draft.otpExpiresAt || expiresMs > Date.now()) {
+              setPendingEmail(draft.pendingEmail);
+              if (draft.otpExpiresAt) setOtpExpiresAt(draft.otpExpiresAt);
+            }
+          }
+        }
+      }
+    } catch {
+      // Storage access blocked or invalid JSON
+    } finally {
+      isHydratedRef.current = true;
+    }
+  }, [form, searchParams]);
+
+  // 2. Persist draft on field or stage changes
+  useEffect(() => {
+    if (!isHydratedRef.current) return;
+    try {
+      const currentEmail = form.getValues("email");
+      if (!currentEmail && !pendingEmail) {
+        sessionStorage.removeItem(SIGNIN_DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        SIGNIN_DRAFT_KEY,
+        JSON.stringify({
+          email: currentEmail,
+          pendingEmail,
+          otpExpiresAt,
+          adminMode,
+        })
+      );
+    } catch {
+      // Storage quota or restriction
+    }
+  }, [watchedEmail, pendingEmail, otpExpiresAt, adminMode, form]);
 
   async function requestOtp(values: SignInValues) {
     setIsLoading(true);
@@ -164,6 +229,7 @@ export function SignInForm() {
       }
       setOtpCode("");
       toast.success(t("signedInSuccessfully"));
+      try { sessionStorage.removeItem(SIGNIN_DRAFT_KEY); } catch {}
       router.push(postAuthPath);
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : t("emailVerificationFailed");
@@ -224,6 +290,7 @@ export function SignInForm() {
         throw new Error(code === "CredentialsSignin" ? t("invalidCredentials") : t("adminSignInFailed"));
       }
       toast.success(t("signedInAsAdmin"));
+      try { sessionStorage.removeItem(SIGNIN_DRAFT_KEY); } catch {}
       router.push(postAuthPath);
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : t("adminSignInFailed");

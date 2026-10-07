@@ -123,6 +123,8 @@ function SelectCard({
 
 /* ══════════════════════════ MAIN WIZARD ══════════════════════════ */
 
+const SIGNUP_DRAFT_KEY = "mj_signup_draft";
+
 export default function SignUpPage() {
   const router = useRouter();
 
@@ -131,18 +133,7 @@ export default function SignUpPage() {
   const [role, setRole] = useState<Role | "">("");
   const [apiError, setApiError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const roleParam = params.get("role");
-      if (roleParam === "EXPERT") {
-        setRole("EXPERT");
-      } else if (roleParam === "CITIZEN") {
-        setRole("CITIZEN");
-      }
-    }
-  }, []);
+  const isHydratedRef = useRef(false);
 
   /* ─── citizen intake ─── */
   const [cArea, setCArea] = useState("");
@@ -199,6 +190,97 @@ export default function SignUpPage() {
     const interval = setInterval(() => setTick((prev) => prev + 1), 1000);
     return () => clearInterval(interval);
   }, [otpExpiresAt]);
+
+  /* ── 1. Restore draft on initial mount ── */
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(SIGNUP_DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          const params = new URLSearchParams(window.location.search);
+          const roleParam = params.get("role");
+          const finalRole: Role | "" = (roleParam === "EXPERT" || roleParam === "CITIZEN")
+            ? roleParam
+            : (draft.role === "EXPERT" || draft.role === "CITIZEN" ? draft.role : "");
+
+          if (finalRole) setRole(finalRole);
+          if (typeof draft.cArea === "string") setCArea(draft.cArea);
+          if (typeof draft.cSituation === "string") setCSituation(draft.cSituation);
+          if (typeof draft.cUrgency === "string") setCUrgency(draft.cUrgency);
+          if (typeof draft.cDistrict === "string") setCDistrict(draft.cDistrict);
+          if (typeof draft.cLanguage === "string") setCLanguage(draft.cLanguage);
+          if (typeof draft.cConsult === "string") setCConsult(draft.cConsult);
+
+          if (typeof draft.firstName === "string") setFirstName(draft.firstName);
+          if (typeof draft.lastName === "string") setLastName(draft.lastName);
+          if (typeof draft.email === "string") setEmail(draft.email);
+          if (typeof draft.phone === "string") setPhone(draft.phone);
+          if (typeof draft.terms === "boolean") setTerms(draft.terms);
+
+          if (draft.pendingEmail) {
+            const expiresMs = draft.otpExpiresAt ? new Date(draft.otpExpiresAt).getTime() : 0;
+            if (!draft.otpExpiresAt || expiresMs > Date.now()) {
+              setPendingEmail(draft.pendingEmail);
+              if (draft.otpExpiresAt) setOtpExpiresAt(draft.otpExpiresAt);
+              if (typeof draft.step === "number") setStep(draft.step);
+            } else {
+              const isCit = finalRole === "CITIZEN";
+              setStep(isCit ? 4 : 2);
+            }
+          } else if (typeof draft.step === "number" && draft.step > 1) {
+            setStep(draft.step);
+          }
+        }
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const roleParam = params.get("role");
+        if (roleParam === "EXPERT") setRole("EXPERT");
+        else if (roleParam === "CITIZEN") setRole("CITIZEN");
+      }
+    } catch {
+      // Storage access blocked or invalid JSON
+    } finally {
+      isHydratedRef.current = true;
+    }
+  }, []);
+
+  /* ── 2. Persist draft whenever fields change ── */
+  useEffect(() => {
+    if (!isHydratedRef.current) return;
+    try {
+      const hasContent = Boolean(
+        role || firstName || lastName || email || phone || cArea || cSituation || pendingEmail
+      );
+      if (!hasContent) {
+        sessionStorage.removeItem(SIGNUP_DRAFT_KEY);
+        return;
+      }
+      sessionStorage.setItem(
+        SIGNUP_DRAFT_KEY,
+        JSON.stringify({
+          step,
+          role,
+          cArea,
+          cSituation,
+          cUrgency,
+          cDistrict,
+          cLanguage,
+          cConsult,
+          firstName,
+          lastName,
+          email,
+          phone,
+          terms,
+          pendingEmail,
+          otpExpiresAt,
+          savedAt: Date.now(),
+        })
+      );
+    } catch {
+      // Storage quota or restriction
+    }
+  }, [step, role, cArea, cSituation, cUrgency, cDistrict, cLanguage, cConsult, firstName, lastName, email, phone, terms, pendingEmail, otpExpiresAt]);
 
   // Alerts configuration for toast messages
   const ALERTS = [
@@ -370,6 +452,11 @@ export default function SignUpPage() {
       }
       setIsVerified(true);
       toast.success(t("toast.emailVerified"));
+      try {
+        sessionStorage.removeItem(SIGNUP_DRAFT_KEY);
+      } catch {
+        // ignore
+      }
       await submitOnboarding();
       setTimeout(() => router.push("/post-auth"), 1500);
     } catch (err) {

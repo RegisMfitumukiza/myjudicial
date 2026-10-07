@@ -120,10 +120,10 @@ export type ExpertRecommendationFlat = {
 export type RecommendationResponse = {
   success: boolean;
   query: string;
-  case_analysis: {
-    specialty?: string;
-    urgency_level?: string;
-    budget_range?: Record<string, unknown>;
+  case_analysis: Partial<CaseAnalysis> & {
+    specialty?: LegalSpecialty | string;
+    urgency_level?: UrgencyLevel | string;
+    budget_range?: Record<string, unknown> | null;
     key_entities?: string[];
   };
   recommendations: ExpertRecommendation[];

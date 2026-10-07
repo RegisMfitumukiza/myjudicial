@@ -14,13 +14,15 @@ import {
   MapPin,
   Star,
   ChevronRight,
+  Mic,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { useRecommendation } from "@/features/ai/hooks/use-recommendation";
+import { useTranscription } from "@/features/ai/hooks/use-transcription";
+import { AiVoiceRecorder } from "@/features/ai/components/ai-voice-recorder";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
-import type { CaseAnalysis, ExpertRecommendation } from "@/features/ai/types";
+import type { CaseAnalysis, ExpertRecommendation, LegalSpecialty, UrgencyLevel } from "@/features/ai/types";
 
 type AiStatus = "online" | "offline";
 
@@ -28,12 +30,14 @@ interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  timestamp?: Date | string;
   analysis?: CaseAnalysis;
   recommendations?: ExpertRecommendation[];
 }
 
 const HEALTH_POLL_INTERVAL_MS = 30_000;
 const INDUSTRIAL_BLUE = "#24558d";
+const SESSION_STORAGE_KEY = "mj_ai_triage_session";
 
 async function checkAiHealth(): Promise<AiStatus> {
   try {
@@ -59,6 +63,8 @@ export function FloatingAiChat() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [recordDuration, setRecordDuration] = useState(0);
 
   const pathname = usePathname();
   const t = useTranslations("public.aiChat");
@@ -67,8 +73,62 @@ export function FloatingAiChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const analyzeMutation = useCaseAnalysis();
   const recommendMutation = useRecommendation();
+  const transcribeMutation = useTranscription();
+
+  // 1. Session Storage: Restore triage session on mount
+  useEffect(() => {
+    try {
+      const savedSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (savedSession) {
+        const parsed = JSON.parse(savedSession);
+        if (parsed && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+          setMessages(
+            parsed.messages.map((m: any) => ({
+              id: m.id || crypto.randomUUID(),
+              role: m.role,
+              content: m.content,
+              timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+              analysis: m.analysis,
+              recommendations: m.recommendations,
+            }))
+          );
+        }
+      }
+    } catch {
+      // Storage access disabled or corrupt
+    }
+  }, []);
+
+  // 2. Session Storage: Synchronize conversation across floating and full /ai workspace
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        const lastWithAnalysis = [...messages].reverse().find((m) => m.analysis);
+        const lastUser = [...messages].reverse().find((m) => m.role === "user");
+        sessionStorage.setItem(
+          SESSION_STORAGE_KEY,
+          JSON.stringify({
+            step: "match",
+            messages: messages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content,
+              timestamp: m.timestamp || new Date(),
+              type: m.analysis ? "analysis" : "text",
+              analysis: m.analysis,
+              recommendations: m.recommendations,
+            })),
+            analysis: lastWithAnalysis?.analysis || null,
+            recommendations: lastWithAnalysis?.recommendations || [],
+            lastSubmittedText: lastUser?.content || null,
+          })
+        );
+      } catch {
+        // Storage quota or private mode restriction
+      }
+    }
+  }, [messages]);
 
   const poll = useCallback(async () => {
     const status = await checkAiHealth();
@@ -104,6 +164,30 @@ export function FloatingAiChat() {
     }
   }, [isOpen]);
 
+  // Voice recording complete callback
+  const handleVoiceRecording = useCallback(
+    async (blob: Blob) => {
+      setRecording(false);
+      setRecordDuration(0);
+      try {
+        const result = await transcribeMutation.mutateAsync({ audioBlob: blob });
+        const data = result as unknown as Record<string, unknown>;
+        const transcribedText =
+          (data?.text as string) ??
+          (data as { transcription?: { text?: string } })?.transcription?.text ??
+          (data as { translated_text?: string })?.translated_text ??
+          "";
+        if (transcribedText) {
+          setInput((prev) => (prev ? `${prev} ${transcribedText}` : transcribedText));
+        }
+      } catch {
+        // Transcription error handled gracefully
+      }
+    },
+    [transcribeMutation]
+  );
+
+  // Streamlined single API call: recommendMutation already returns full case_analysis and expert recommendations
   const handleSend = useCallback(
     async (textToSend?: string) => {
       const query = (textToSend ?? input).trim();
@@ -113,6 +197,7 @@ export function FloatingAiChat() {
         id: crypto.randomUUID(),
         role: "user",
         content: query,
+        timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, userMsg]);
@@ -120,22 +205,32 @@ export function FloatingAiChat() {
       setIsProcessing(true);
 
       try {
-        const [analysisRes, recRes] = await Promise.allSettled([
-          analyzeMutation.mutateAsync({ text: query }),
-          recommendMutation.mutateAsync({ text: query, limit: 2 }),
-        ]);
+        const recRes = await recommendMutation.mutateAsync({ text: query, limit: 2 });
+        const rawAnalysis = recRes?.case_analysis;
 
-        const analysis =
-          analysisRes.status === "fulfilled" ? analysisRes.value.analysis : undefined;
         const isGreetingOrUnknown =
-          analysis?.is_greeting ||
-          analysis?.specialty === "UNKNOWN" ||
-          (analysis && analysis.confidence_score === 0);
+          Boolean(rawAnalysis?.is_greeting) ||
+          rawAnalysis?.specialty === "UNKNOWN" ||
+          (typeof rawAnalysis?.confidence_score === "number" && rawAnalysis.confidence_score === 0);
+
+        const analysis: CaseAnalysis | undefined = rawAnalysis
+          ? {
+              specialty: (rawAnalysis.specialty as LegalSpecialty) || "UNKNOWN",
+              urgency_level: (rawAnalysis.urgency_level as UrgencyLevel) || "MEDIUM",
+              jurisdiction: rawAnalysis.jurisdiction || "Rwanda",
+              budget_range: (rawAnalysis.budget_range as any) || { min: 0, max: 0, currency: "RWF" },
+              key_entities: rawAnalysis.key_entities || [],
+              suggested_documents: rawAnalysis.suggested_documents || [],
+              confidence_score: rawAnalysis.confidence_score ?? 0.8,
+              reasoning: rawAnalysis.reasoning,
+              possible_legal_issues: rawAnalysis.possible_legal_issues || [],
+              is_greeting: rawAnalysis.is_greeting,
+              greeting_message: rawAnalysis.greeting_message,
+            }
+          : undefined;
 
         const recommendations =
-          recRes.status === "fulfilled" && recRes.value.success && !isGreetingOrUnknown
-            ? recRes.value.recommendations
-            : [];
+          recRes?.success && !isGreetingOrUnknown ? recRes.recommendations || [] : [];
 
         let assistantContent = t("errorMessage");
 
@@ -146,7 +241,7 @@ export function FloatingAiChat() {
             const specialtyFormatted = getLocalizedSpecialty(analysis.specialty, tSpecialties);
             assistantContent = t("triageResponse", {
               specialty: specialtyFormatted,
-              urgency: analysis.urgency_level.toLowerCase(),
+              urgency: (analysis.urgency_level || "MEDIUM").toLowerCase(),
             });
           }
         }
@@ -155,6 +250,7 @@ export function FloatingAiChat() {
           id: crypto.randomUUID(),
           role: "assistant",
           content: assistantContent,
+          timestamp: new Date(),
           analysis,
           recommendations,
         };
@@ -167,13 +263,14 @@ export function FloatingAiChat() {
             id: crypto.randomUUID(),
             role: "assistant",
             content: t("errorMessage"),
+            timestamp: new Date(),
           },
         ]);
       } finally {
         setIsProcessing(false);
       }
     },
-    [input, isProcessing, analyzeMutation, recommendMutation, t, tSpecialties]
+    [input, isProcessing, recommendMutation, t, tSpecialties]
   );
 
   // Never show on the full /ai page
@@ -204,7 +301,7 @@ export function FloatingAiChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="mb-3 flex h-[min(480px,calc(100vh-6rem))] sm:h-[540px] w-[calc(100vw-1.5rem)] max-w-[360px] sm:w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e]"
+            className="mb-3 flex h-[min(540px,calc(100dvh-5rem))] w-[calc(100vw-1.5rem)] max-w-[380px] sm:w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/10 dark:border-[#2a303a] dark:bg-[#13171e]"
           >
             {/* Header */}
             <div
@@ -414,14 +511,27 @@ export function FloatingAiChat() {
                   ref={inputRef}
                   type="text"
                   value={input}
-                  disabled={isProcessing}
+                  disabled={isProcessing || recording}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={t("inputPlaceholder")}
+                  placeholder={recording ? tAi("voice.recording") || "Listening..." : t("inputPlaceholder")}
                   className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none transition focus:border-brand-dark focus:bg-card dark:focus:border-white/40"
                 />
+
+                <div className="shrink-0 flex items-center justify-center">
+                  <AiVoiceRecorder
+                    onRecordingComplete={handleVoiceRecording}
+                    disabled={isProcessing}
+                    isTranscribing={transcribeMutation.isPending}
+                    isRecording={recording}
+                    onRecordingStateChange={setRecording}
+                    duration={recordDuration}
+                    onDurationChange={setRecordDuration}
+                  />
+                </div>
+
                 <button
                   type="submit"
-                  disabled={!input.trim() || isProcessing}
+                  disabled={!input.trim() || isProcessing || recording}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-on-brand shadow-xs transition hover:opacity-90 disabled:opacity-40"
                   aria-label={t("sendMessage")}
                 >
@@ -432,6 +542,18 @@ export function FloatingAiChat() {
                   )}
                 </button>
               </form>
+
+              {recording && (
+                <div className="mt-1 flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+                  <span>
+                    {Math.floor(recordDuration / 60)}:{(recordDuration % 60).toString().padStart(2, "0")}
+                  </span>
+                  <span className="text-muted-foreground/60">|</span>
+                  <span>{tAi("voice.stopHint") || "Click mic to stop"}</span>
+                </div>
+              )}
+
               <p className="mt-1.5 text-center text-[10px] text-muted-foreground/75 leading-tight select-none">
                 ⚖️ {tAi("disclaimer.text")}
               </p>

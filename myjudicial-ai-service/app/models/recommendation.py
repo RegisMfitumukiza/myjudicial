@@ -243,8 +243,15 @@ class CaseAnalysisSummary(BaseModel):
     """Summary of case analysis"""
     specialty: Optional[str] = Field(None, description="Identified legal specialty")
     urgency_level: Optional[str] = Field(None, description="Case urgency")
+    jurisdiction: Optional[str] = Field(None, description="Jurisdiction")
     budget_range: Optional[Dict[str, Any]] = Field(None, description="Budget range")
     key_entities: Optional[List[str]] = Field(None, description="Key entities extracted")
+    suggested_documents: Optional[List[Any]] = Field(default_factory=list, description="Suggested documents")
+    confidence_score: Optional[float] = Field(None, description="Confidence score")
+    reasoning: Optional[str] = Field(None, description="Reasoning summary")
+    possible_legal_issues: Optional[List[str]] = Field(default_factory=list, description="Possible legal issues")
+    is_greeting: Optional[bool] = Field(False, description="Is greeting")
+    greeting_message: Optional[str] = Field(None, description="Greeting message")
 
 
 class FiltersApplied(BaseModel):

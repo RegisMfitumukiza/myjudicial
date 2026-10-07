@@ -4,8 +4,11 @@ import { fileURLToPath } from "url";
 import { Pool } from "pg";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-try { config({ path: path.resolve(__dirname, "../../.env") }); } catch {}
-try { config({ path: path.resolve(__dirname, "../.env") }); } catch {}
+const isProd = process.argv.includes("--prod") || process.env.NODE_ENV === "production" || process.env.TARGET_ENV === "production";
+const envFileName = isProd ? ".env.production" : (process.env.ENV_FILE || ".env");
+
+try { config({ path: path.resolve(__dirname, `../../${envFileName}`), override: true }); } catch {}
+try { config({ path: path.resolve(__dirname, `../${envFileName}`), override: true }); } catch {}
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -22,7 +25,8 @@ const pool = new Pool({
 });
 
 async function clearAllExperts() {
-  console.log("🗑️  Starting expert accounts purge (PostgreSQL + Supabase Auth)...\n");
+  console.log(`🗑️  Starting expert accounts purge on [${isProd ? "PRODUCTION (.env.production)" : "DEV (.env)"}]...`);
+  console.log(`🔗 Target Supabase URL: ${SUPABASE_URL}\n`);
 
   const { rows: expertUsers } = await pool.query(`SELECT id, email FROM users WHERE role = 'EXPERT'`);
 

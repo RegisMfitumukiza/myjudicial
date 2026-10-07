@@ -13,6 +13,7 @@
     "db:push": "cross-env DIRECT_URL=$DATABASE_URL prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:clear:experts": "node scripts/clear-experts.mjs",
+    "db:clear:experts:prod": "node scripts/clear-experts.mjs --prod",
     "db:seed:content": "tsx prisma/seed-content-pages.ts",
     "fix:role": "tsx scripts/fix-user-role.ts",
     "test": "node tests/run.mjs",

@@ -23,24 +23,24 @@ const DEFAULT_TAGLINES: Record<EmailLanguage, string> = {
   rw: "Urubuga rwa serivisi z'amategeko mu Rwanda",
 };
 
-const FOOTER_STRINGS: Record<EmailLanguage, { home: string; findExperts: string; support: string; allRightsReserved: string; location: string }> = {
+const FOOTER_STRINGS: Record<EmailLanguage, { terms: string; privacy: string; support: string; allRightsReserved: string; location: string }> = {
   en: {
-    home: "Home",
-    findExperts: "Find Experts",
+    terms: "Terms of Service",
+    privacy: "Privacy Policy",
     support: "Support",
     allRightsReserved: "All rights reserved.",
     location: "Kigali, Rwanda",
   },
   fr: {
-    home: "Accueil",
-    findExperts: "Trouver des experts",
+    terms: "Conditions d'utilisation",
+    privacy: "Politique de confidentialité",
     support: "Support",
     allRightsReserved: "Tous droits réservés.",
     location: "Kigali, Rwanda",
   },
   rw: {
-    home: "Ahabanza",
-    findExperts: "Shaka Inzobere",
+    terms: "Amategeko n'amabwiriza",
+    privacy: "Politiki y'ibanga",
     support: "Ubufasha",
     allRightsReserved: "Uburenganzira bwose burabitswe.",
     location: "Kigali, u Rwanda",
@@ -129,7 +129,7 @@ const emailHeader = (tagline?: string, language: EmailLanguage = 'en'): string =
 const emailFooter = (
   language: EmailLanguage = 'en',
   copyrightNotice?: string,
-  hidePromotionalLinks = false
+  _hidePromotionalLinks = false
 ): string => {
   const t = FOOTER_STRINGS[language] || FOOTER_STRINGS.en;
   const currentYear = new Date().getFullYear();
@@ -139,13 +139,9 @@ const emailFooter = (
     copyrightText = copyrightNotice.trim().replace(/^(?:&copy;|©|\(c\))\s*/i, `&copy; `);
   }
 
-  const linksHtml = hidePromotionalLinks
-    ? `<a href="${FRONTEND_URL}/${language}" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.home}</a>
+  const linksHtml = `<a href="${FRONTEND_URL}/${language}/terms" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.terms}</a>
        <span style="color:#475569;">|</span>
-       <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.support}</a>`
-    : `<a href="${FRONTEND_URL}/${language}" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.home}</a>
-       <span style="color:#475569;">|</span>
-       <a href="${FRONTEND_URL}/${language}/experts" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.findExperts}</a>
+       <a href="${FRONTEND_URL}/${language}/privacy" target="_blank" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.privacy}</a>
        <span style="color:#475569;">|</span>
        <a href="mailto:support@myjudicial.com" style="color:#94a3b8;font-size:13px;text-decoration:none;margin:0 8px;">${t.support}</a>`;
 

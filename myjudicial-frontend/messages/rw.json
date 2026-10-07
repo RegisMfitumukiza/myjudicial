@@ -5166,17 +5166,17 @@
       "failed": "Failed"
     },
     "onboardingHeader": {
-      "title": "MyJudicial Expert Setup",
-      "subtitle": "Professional Legal Platform",
-      "stepOf": "Step {current} of {total}",
-      "complete": "{pct}% Complete",
-      "welcome": "Welcome to MyJudicial, {name}",
-      "legalProfessional": "Legal Professional",
-      "body": "Join Rwanda's premier legal platform trusted by thousands of clients. Complete your professional profile to start connecting with clients who need your expertise.",
-      "benefit1": "Verified Platform",
-      "benefit2": "Secure Payments",
-      "benefit3": "Client Protection",
-      "setupProgress": "Setup Progress"
+      "title": "Gutunganya Umwirondoro w'Inzobere",
+      "subtitle": "Urubuga rw'Inzobere mu by'Amategeko",
+      "stepOf": "Intambwe {current} kuri {total}",
+      "complete": "{pct}% Byuzuye",
+      "welcome": "Ikaze kuri MyJudicial, {name}",
+      "legalProfessional": "Inzobere mu Mategeko",
+      "body": "Injira ku rubuga rwa mbere mu by'amategeko mu Rwanda rwizerwa n'abakiriya ibihumbi. Uzuza umwirondoro wawe w'umwuga utangire guhuzwa n'abakeneye ubumenyi bwawe.",
+      "benefit1": "Urubuga Rwizewe",
+      "benefit2": "Kwishura Birinzwe",
+      "benefit3": "Kurengera Abakiriya",
+      "setupProgress": "Iterambere ryo Kwiyandikisha"
     },
     "photoReminder": {
       "neededHigh": "Hakenewe ifoto y'umwirondoro",

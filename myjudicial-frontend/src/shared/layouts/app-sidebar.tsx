@@ -157,15 +157,18 @@ function ProfileDropdown({
   user,
   avatarUrl,
   isCollapsed = false,
+  triggerRef,
 }: {
   open: boolean;
   onClose: () => void;
   user: PublicUser;
   avatarUrl: string | null;
   isCollapsed?: boolean;
+  triggerRef?: React.RefObject<HTMLButtonElement | null>;
 }) {
   const t = useTranslations("shared.sidebar");
   const router = useRouter();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/" });
@@ -176,83 +179,113 @@ function ProfileDropdown({
     router.push(path);
   }, [onClose, router]);
 
+  // Click-outside listener (works across the entire window, main page, and sidebar)
+  useEffect(() => {
+    if (!open) return;
+
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      const target = event.target as Node | null;
+      if (!target) return;
+
+      // Clicked inside the dropdown menu itself
+      if (dropdownRef.current && dropdownRef.current.contains(target)) {
+        return;
+      }
+
+      // Clicked on the trigger button (let button onClick handle toggle)
+      if (triggerRef?.current && triggerRef.current.contains(target)) {
+        return;
+      }
+
+      // Clicked anywhere else ("aside") -> close dropdown
+      onClose();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside, true);
+    document.addEventListener("touchstart", handleClickOutside, true);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside, true);
+      document.removeEventListener("touchstart", handleClickOutside, true);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose, triggerRef]);
+
   if (!open) return null;
 
   return (
-    <>
-      {/* ── Fixed backdrop for closing on click-outside on desktop ── */}
-      <div
-        className="fixed inset-0 z-40 bg-transparent"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* ── Desktop Floating Popover ── */}
-      <div
-        className={`
-          z-50 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl backdrop-blur-md
-          ${
-            isCollapsed
-              ? "absolute bottom-1 left-full ml-3 w-60"
-              : "absolute bottom-full left-0 right-0 mb-2 w-full min-w-[230px]"
-          }
-        `}
-        role="menu"
-        aria-label="User account menu"
-      >
-        <div className="px-3 py-2.5 rounded-t-lg bg-muted/40 border-b border-border/40">
-          <div className="flex items-center gap-2.5">
-            <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-foreground">
-                {user.firstName} {user.lastName}
-              </p>
-              <p className="truncate text-[11px] text-muted-foreground" title={user.email}>
-                {user.email}
-              </p>
-            </div>
+    <div
+      ref={dropdownRef}
+      className={`
+        z-50 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl backdrop-blur-md
+        ${
+          isCollapsed
+            ? "absolute bottom-1 left-full ml-3 w-60"
+            : "absolute bottom-full left-0 right-0 mb-2 w-full min-w-[230px]"
+        }
+      `}
+      role="menu"
+      aria-label="User account menu"
+    >
+      <div className="px-3 py-2.5 rounded-t-lg bg-muted/40 border-b border-border/40">
+        <div className="flex items-center gap-2.5">
+          <ExpertAvatar src={avatarUrl} name={user.firstName + " " + user.lastName} size="sm" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-foreground">
+              {user.firstName} {user.lastName}
+            </p>
+            <p className="truncate text-[11px] text-muted-foreground" title={user.email}>
+              {user.email}
+            </p>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-0.5 py-1">
-          <button
-            onClick={() => navigate(`${getDashboardBase(user.role)}/profile`)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-            role="menuitem"
-          >
-            <User size={15} className="text-muted-foreground" />
-            {t("profile")}
-          </button>
-          <button
-            onClick={() => navigate(`${getDashboardBase(user.role)}/security`)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-            role="menuitem"
-          >
-            <Key size={15} className="text-muted-foreground" />
-            {t("security")}
-          </button>
-          <button
-            onClick={() => navigate(`${getDashboardBase(user.role)}/profile#preferences`)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
-            role="menuitem"
-          >
-            <Palette size={15} className="text-muted-foreground" />
-            {t("preferences")}
-          </button>
-        </div>
-
-        <div className="my-1 border-t border-border/50" />
-
+      <div className="space-y-0.5 py-1">
         <button
-          onClick={handleSignOut}
-          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+          onClick={() => navigate(`${getDashboardBase(user.role)}/profile`)}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
           role="menuitem"
         >
-          <LogOut size={15} />
-          {t("signOut")}
+          <User size={15} className="text-muted-foreground" />
+          {t("profile")}
+        </button>
+        <button
+          onClick={() => navigate(`${getDashboardBase(user.role)}/security`)}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          role="menuitem"
+        >
+          <Key size={15} className="text-muted-foreground" />
+          {t("security")}
+        </button>
+        <button
+          onClick={() => navigate(`${getDashboardBase(user.role)}/profile#preferences`)}
+          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          role="menuitem"
+        >
+          <Palette size={15} className="text-muted-foreground" />
+          {t("preferences")}
         </button>
       </div>
-    </>
+
+      <div className="my-1 border-t border-border/50" />
+
+      <button
+        onClick={handleSignOut}
+        className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+        role="menuitem"
+      >
+        <LogOut size={15} />
+        {t("signOut")}
+      </button>
+    </div>
   );
 }
 
@@ -261,6 +294,12 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const collapsedTriggerRef = useRef<HTMLButtonElement>(null);
+  const expandedTriggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setProfileOpen(false);
+  }, [pathname]);
 
   const { data: unreadChatData } = useGetChatConversationsUnreadCount({
     query: { refetchInterval: 30_000 },
@@ -523,6 +562,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
             <div className="flex flex-col items-center gap-2 py-2.5 px-2">
               <div className="relative">
                 <button
+                  ref={collapsedTriggerRef}
                   onClick={() => setProfileOpen((p) => !p)}
                   className="flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-85"
                   aria-label="Open profile menu"
@@ -536,6 +576,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                   user={user}
                   avatarUrl={avatarUrl}
                   isCollapsed
+                  triggerRef={collapsedTriggerRef}
                 />
               </div>
               <ThemeToggle variant="header" className="h-8 w-8 text-muted-foreground hover:text-foreground" />
@@ -555,6 +596,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
               <div className="hidden lg:flex items-center gap-1">
                 <div className="relative flex-1 min-w-0">
                   <button
+                    ref={expandedTriggerRef}
                     onClick={() => setProfileOpen((p) => !p)}
                     className="group flex w-full items-center justify-between gap-2 rounded-lg p-1.5 transition-colors hover:bg-muted/70 text-left min-w-0"
                     aria-expanded={profileOpen}
@@ -580,6 +622,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                     user={user}
                     avatarUrl={avatarUrl}
                     isCollapsed={false}
+                    triggerRef={expandedTriggerRef}
                   />
                 </div>
                 <div className="flex items-center shrink-0">

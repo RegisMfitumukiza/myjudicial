@@ -62,64 +62,95 @@ export function useNotificationsRealtime(userId?: string | null) {
     const status = getRealtimeStatus();
     if (!status.configured) return;
 
-    const channel = supabaseClient.channel(`notifications:user-${userId}`);
+    const topic = `notifications:user-${userId}`;
+    const realtimeTopic = `realtime:${topic}`;
 
-    channel
-      .on(
-        "broadcast",
-        { event: "new_notification" },
-        ({ payload }: { payload?: RealtimeNotificationPayload }) => {
-          // Immediately invalidate unread count cache
-          queryClient.invalidateQueries({
-            queryKey: getGetNotificationsUnreadCountQueryKey(),
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["notifications-unread"],
-          });
-          // Invalidate personal notification lists
-          queryClient.invalidateQueries({
-            queryKey: ["my-notifications"],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["notifications"],
-          });
+    // If an existing channel is already subscribed and active, reuse it to avoid
+    // "cannot add postgres_changes callbacks after subscribe()"
+    const channels = ((supabaseClient as any).getChannels?.() ?? []) as Array<{ topic: string; state: string }>;
+    const existing = channels.find(
+      (c) => c.topic === topic || c.topic === realtimeTopic
+    );
 
-          // Show immediate feedback
-          if (payload?.subject) {
-            toast.info(payload.subject, {
-              description: payload.body,
+    if (existing) {
+      if (existing.state === "joined" || existing.state === "joining") {
+        return;
+      }
+      try {
+        supabaseClient.removeChannel(existing as any);
+      } catch {}
+    }
+
+    try {
+      const channel = supabaseClient.channel(topic);
+
+      channel
+        .on(
+          "broadcast",
+          { event: "new_notification" },
+          ({ payload }: { payload?: RealtimeNotificationPayload }) => {
+            // Immediately invalidate unread count cache
+            queryClient.invalidateQueries({
+              queryKey: getGetNotificationsUnreadCountQueryKey(),
             });
-          }
-        }
-      )
-      .on(
-        "postgres_changes" as any,
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notification_logs",
-          filter: `user_id=eq.${userId}`,
-        } as any,
-        (payload: any) => {
-          queryClient.invalidateQueries({
-            queryKey: getGetNotificationsUnreadCountQueryKey(),
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["my-notifications"],
-          });
-
-          const record = payload?.new;
-          if (record?.subject) {
-            toast.info(record.subject, {
-              description: record.body,
+            queryClient.invalidateQueries({
+              queryKey: ["notifications-unread"],
             });
-          }
-        }
-      )
-      .subscribe();
+            // Invalidate personal notification lists
+            queryClient.invalidateQueries({
+              queryKey: ["my-notifications"],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["notifications"],
+            });
 
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
+            // Show immediate feedback
+            if (payload?.subject) {
+              toast.info(payload.subject, {
+                description: payload.body,
+              });
+            }
+          }
+        )
+        .on(
+          "postgres_changes" as any,
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notification_logs",
+            filter: `user_id=eq.${userId}`,
+          } as any,
+          (payload: any) => {
+            queryClient.invalidateQueries({
+              queryKey: getGetNotificationsUnreadCountQueryKey(),
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["notifications-unread"],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["my-notifications"],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["notifications"],
+            });
+
+            const record = payload?.new;
+            if (record?.subject) {
+              toast.info(record.subject, {
+                description: record.body,
+              });
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        try {
+          supabaseClient.removeChannel(channel);
+        } catch {}
+      };
+    } catch (err) {
+      console.warn("[realtime:notifications] Failed to subscribe to channel:", err);
+    }
   }, [userId, queryClient]);
 }

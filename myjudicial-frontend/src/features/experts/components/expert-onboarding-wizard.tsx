@@ -38,6 +38,12 @@ import {
   EXPERT_PHOTO_URL_QUERY_KEY,
   useExpertPhotoUrl,
 } from "@/features/experts/hooks/useExpertProfile";
+import {
+  saveDraftFile,
+  removeDraftFile,
+  getAllDraftFiles,
+  clearAllDraftFiles,
+} from "@/features/experts/utils/verification-draft-store";
 
 const STORAGE_KEY = "mj_expert_onboarding";
 const STORAGE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -318,6 +324,63 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
     }
   }, [initialProgress, onboardingData?.draft, totalSteps]);
 
+  // Restore binary draft files (identity, barCertificate, photo, additionalDocs) from IndexedDB
+  useEffect(() => {
+    let isMounted = true;
+    async function restoreDraftFiles() {
+      try {
+        const drafts = await getAllDraftFiles();
+        if (!isMounted) return;
+
+        setFormData(prev => {
+          const updated = { ...prev };
+          let changed = false;
+
+          if (!prev.identityFile && drafts["identity"]) {
+            updated.identityFile = drafts["identity"].file;
+            changed = true;
+          }
+
+          if (!prev.barCertificateFile && drafts["bar_certificate"]) {
+            updated.barCertificateFile = drafts["bar_certificate"].file;
+            changed = true;
+          }
+
+          if (!prev.photoFile && drafts["onboarding_photo"]) {
+            const photo = drafts["onboarding_photo"].file;
+            updated.photoFile = photo;
+            if (!prev.previewPhotoUrl) {
+              try {
+                updated.previewPhotoUrl = URL.createObjectURL(photo);
+              } catch {}
+            }
+            changed = true;
+          }
+
+          if (!prev.additionalFiles || prev.additionalFiles.length === 0) {
+            const additionals = Object.entries(drafts)
+              .filter(([id]) => id.startsWith("additional_"))
+              .map(([_, item]) => ({ file: item.file, label: item.label || item.file.name.split(".")[0] }));
+            if (additionals.length > 0) {
+              updated.additionalFiles = additionals;
+              changed = true;
+            }
+          }
+
+          return changed ? updated : prev;
+        });
+      } catch (err) {
+        console.warn("[Onboarding] Failed to restore draft files:", err);
+      }
+    }
+
+    restoreDraftFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Auto-save to localStorage (fast) and cloud draft (debounced, without triggering refetch loops)
   useEffect(() => {
     // 1. Fast local save
@@ -546,6 +609,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
       toast.success(t("profileCreated"));
       clearProgress();
+      clearAllDraftFiles().catch(() => {});
       apiFetch("/experts/onboarding/draft", { method: "DELETE" }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
       queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
@@ -562,6 +626,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   const handlePhotoUpload = async (file: File) => {
     const preview = URL.createObjectURL(file);
     setFormData(prev => ({ ...prev, photoFile: file, previewPhotoUrl: preview }));
+    saveDraftFile("onboarding_photo", file);
     toast.success(t("photoSelected"));
 
     if (existingProfile) {
@@ -586,6 +651,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       }
     }
     return Promise.resolve();
+  };
+
+  const handlePhotoRemove = async () => {
+    if (formData.previewPhotoUrl && formData.previewPhotoUrl.startsWith("blob:")) {
+      try { URL.revokeObjectURL(formData.previewPhotoUrl); } catch {}
+    }
+    setFormData(prev => ({ ...prev, photoFile: undefined, previewPhotoUrl: undefined }));
+    await removeDraftFile("onboarding_photo");
   };
 
   return (
@@ -964,6 +1037,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               <ProfilePhotoUpload
                 currentPhotoUrl={formData.previewPhotoUrl ?? existingPhotoUrl ?? undefined}
                 onPhotoUpload={handlePhotoUpload}
+                onPhotoRemove={handlePhotoRemove}
                 isUploading={isPhotoUploading}
               />
 
@@ -1002,7 +1076,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                           <p className="text-xs text-slate-500 dark:text-muted-foreground">{formatFileSize(formData.identityFile)}</p>
                         ) : null}
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, identityFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, identityFile: undefined }));
+                          removeDraftFile("identity");
+                        }}
+                        className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer"
+                      >
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
@@ -1011,8 +1092,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
                       <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
                       <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
-                      <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, identityFile: f })); e.target.value = ""; }} />
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,application/pdf"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            setFormData(prev => ({ ...prev, identityFile: f }));
+                            saveDraftFile("identity", f);
+                          }
+                          e.target.value = "";
+                        }}
+                      />
                     </label>
                   )}
                 </div>
@@ -1033,7 +1125,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                           <p className="text-xs text-slate-500 dark:text-muted-foreground">{formatFileSize(formData.barCertificateFile)}</p>
                         ) : null}
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, barCertificateFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, barCertificateFile: undefined }));
+                          removeDraftFile("bar_certificate");
+                        }}
+                        className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer"
+                      >
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
@@ -1042,8 +1141,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
                       <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
                       <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
-                      <input type="file" accept="image/*,.pdf" className="sr-only"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) setFormData(prev => ({ ...prev, barCertificateFile: f })); e.target.value = ""; }} />
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            setFormData(prev => ({ ...prev, barCertificateFile: f }));
+                            saveDraftFile("bar_certificate", f);
+                          }
+                          e.target.value = "";
+                        }}
+                      />
                     </label>
                   )}
                 </div>
@@ -1076,15 +1186,25 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                             onChange={(e) => {
                               const newFiles = [...(formData.additionalFiles || [])];
                               newFiles[idx] = { ...newFiles[idx], label: e.target.value };
+                              saveDraftFile(`additional_${idx}`, newFiles[idx].file, e.target.value);
                               setFormData(prev => ({ ...prev, additionalFiles: newFiles }));
                             }} 
                           />
                         </div>
-                        <button type="button" onClick={() => {
-                          const newFiles = [...(formData.additionalFiles || [])];
-                          newFiles.splice(idx, 1);
-                          setFormData(prev => ({ ...prev, additionalFiles: newFiles }));
-                        }} className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-950/50 mt-4 cursor-pointer">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newFiles = [...(formData.additionalFiles || [])];
+                            newFiles.splice(idx, 1);
+                            removeDraftFile(`additional_${idx}`);
+                            newFiles.forEach((item, i) => {
+                              saveDraftFile(`additional_${i}`, item.file, item.label);
+                            });
+                            removeDraftFile(`additional_${newFiles.length}`);
+                            setFormData(prev => ({ ...prev, additionalFiles: newFiles }));
+                          }}
+                          className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-950/50 mt-4 cursor-pointer"
+                        >
                           <X className="h-4 w-4 text-red-500" />
                         </button>
                       </div>
@@ -1096,7 +1216,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all">
                     <Upload className="h-5 w-5 text-slate-400 dark:text-muted-foreground" />
                     <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.addDocument")}</span> {tWizard("step7.fileFormats")}</span>
-                    <input type="file" accept="image/*,.pdf" className="sr-only" multiple
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      className="sr-only"
+                      multiple
                       onChange={(e) => { 
                         const files = Array.from(e.target.files || []);
                         if (!files.length) return;
@@ -1104,11 +1228,15 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                         setFormData(prev => {
                           const current = prev.additionalFiles || [];
                           const spaceLeft = 5 - current.length;
-                          const toAdd = files.slice(0, spaceLeft).map(f => ({ file: f, label: f.name.split('.')[0] }));
+                          const toAdd = files.slice(0, spaceLeft).map((f, i) => {
+                            saveDraftFile(`additional_${current.length + i}`, f, f.name.split('.')[0]);
+                            return { file: f, label: f.name.split('.')[0] };
+                          });
                           return { ...prev, additionalFiles: [...current, ...toAdd] };
                         });
                         e.target.value = ""; 
-                      }} />
+                      }}
+                    />
                   </label>
                 )}
               </div>

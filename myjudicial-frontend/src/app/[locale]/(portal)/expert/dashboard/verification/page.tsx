@@ -32,6 +32,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
 import { getErrorMessage, cn } from "@/lib/utils";
+import {
+  saveDraftFile,
+  getDraftFile,
+  removeDraftFile,
+  clearAllDraftFiles,
+} from "@/features/experts/utils/verification-draft-store";
 import { PageHeader, StatusBadge, SkeletonCard, type StatusTone } from "@/shared/components/dashboard";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -352,6 +358,69 @@ export default function VerificationPage() {
     }
   }, [profile?.barNumber, barNumber]);
 
+  // ── Restore drafts on mount (IndexedDB for binary files + localStorage for metadata) ──
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Restore metadata from localStorage
+    try {
+      const savedMeta = localStorage.getItem("mj_verification_draft_meta");
+      if (savedMeta) {
+        const meta = JSON.parse(savedMeta);
+        if (meta.barNumber) setBarNumber((prev) => prev || meta.barNumber);
+        if (meta.certificateName) setCertificateName((prev) => prev || meta.certificateName);
+        if (meta.issuer) setIssuer((prev) => prev || meta.issuer);
+        if (meta.issueDate) setIssueDate((prev) => prev || meta.issueDate);
+      }
+    } catch {
+      // Ignore
+    }
+
+    // 2. Restore binary File objects from IndexedDB
+    async function restoreDraftFiles() {
+      try {
+        const [savedIdentity, savedCert] = await Promise.all([
+          getDraftFile("identity"),
+          getDraftFile("bar_certificate"),
+        ]);
+
+        if (!isMounted) return;
+
+        if (savedIdentity) {
+          setIdentityFile(createAttachedFile(savedIdentity, "identity"));
+        }
+        if (savedCert) {
+          setCertificateFile(createAttachedFile(savedCert, "certificate"));
+        }
+      } catch (err) {
+        console.warn("Failed to restore verification draft files:", err);
+      }
+    }
+
+    restoreDraftFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // ── Auto-save metadata whenever fields change ──
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "mj_verification_draft_meta",
+        JSON.stringify({
+          barNumber,
+          certificateName,
+          issuer,
+          issueDate,
+        })
+      );
+    } catch {
+      // Ignore
+    }
+  }, [barNumber, certificateName, issuer, issueDate]);
+
   // The generated hook returns AxiosResponse<{ success: boolean; data: ComplianceStatus }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const compliance = (data as any)?.data?.data as import("@/api/generated").ComplianceStatus | null;
@@ -361,14 +430,32 @@ export default function VerificationPage() {
   const canSubmit =
     status !== "VERIFIED" && status !== "PENDING_VERIFICATION";
 
+  // Clear drafts if status is already pending or verified
+  useEffect(() => {
+    if (status === "VERIFIED" || status === "PENDING_VERIFICATION") {
+      clearAllDraftFiles().catch(() => {});
+      try {
+        localStorage.removeItem("mj_verification_draft_meta");
+      } catch {}
+    }
+  }, [status]);
+
   function createAttachedFile(
     file: File,
     label: AttachedFile["label"]
   ): AttachedFile {
-    const isImg = file.type.startsWith("image/");
+    const isImg = file.type?.startsWith("image/");
+    let preview: string | null = null;
+    try {
+      if (isImg && typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+        preview = URL.createObjectURL(file);
+      }
+    } catch {
+      preview = null;
+    }
     return {
       file,
-      preview: isImg ? URL.createObjectURL(file) : null,
+      preview,
       label,
     };
   }
@@ -407,6 +494,20 @@ export default function VerificationPage() {
       });
 
       toast.success(t("toastSubmitted"));
+
+      // Clear draft stores on successful submission
+      await clearAllDraftFiles();
+      try {
+        localStorage.removeItem("mj_verification_draft_meta");
+      } catch {}
+
+      if (identityFile?.preview) {
+        try { URL.revokeObjectURL(identityFile.preview); } catch {}
+      }
+      if (certificateFile?.preview) {
+        try { URL.revokeObjectURL(certificateFile.preview); } catch {}
+      }
+
       setIdentityFile(null);
       setCertificateFile(null);
       setBarNumber("");
@@ -510,19 +611,39 @@ export default function VerificationPage() {
                   label={t("labelId")}
                   accept="image/jpeg,image/png,image/webp"
                   attached={identityFile}
-                  onAttach={(f) =>
-                    setIdentityFile(createAttachedFile(f, "identity"))
-                  }
-                  onRemove={() => setIdentityFile(null)}
+                  onAttach={(f) => {
+                    if (identityFile?.preview) {
+                      try { URL.revokeObjectURL(identityFile.preview); } catch {}
+                    }
+                    setIdentityFile(createAttachedFile(f, "identity"));
+                    saveDraftFile("identity", f);
+                  }}
+                  onRemove={() => {
+                    if (identityFile?.preview) {
+                      try { URL.revokeObjectURL(identityFile.preview); } catch {}
+                    }
+                    setIdentityFile(null);
+                    removeDraftFile("identity");
+                  }}
                 />
                 <FileDropZone
                   label={t("labelBarCert")}
                   accept="image/*,.pdf"
                   attached={certificateFile}
-                  onAttach={(f) =>
-                    setCertificateFile(createAttachedFile(f, "certificate"))
-                  }
-                  onRemove={() => setCertificateFile(null)}
+                  onAttach={(f) => {
+                    if (certificateFile?.preview) {
+                      try { URL.revokeObjectURL(certificateFile.preview); } catch {}
+                    }
+                    setCertificateFile(createAttachedFile(f, "certificate"));
+                    saveDraftFile("bar_certificate", f);
+                  }}
+                  onRemove={() => {
+                    if (certificateFile?.preview) {
+                      try { URL.revokeObjectURL(certificateFile.preview); } catch {}
+                    }
+                    setCertificateFile(null);
+                    removeDraftFile("bar_certificate");
+                  }}
                 />
               </div>
 

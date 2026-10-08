@@ -73,35 +73,58 @@ export function useChatRealtime(
   useEffect(() => {
     if (!conversationId) return;
 
-    const channel = supabaseClient.channel(`conversation:${conversationId}`, {
-      config: { private: true },
-    });
+    const topic = `conversation:${conversationId}`;
+    const realtimeTopic = `realtime:${topic}`;
 
-    channel
-      .on("broadcast", { event: "new_message" }, () => {
-        queryClient.invalidateQueries({
-          queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
-        });
-        queryClient.invalidateQueries({ queryKey: getGetChatConversationsQueryKey({ limit: 50 }) });
-        queryClient.invalidateQueries({ queryKey: getGetChatConversationsUnreadCountQueryKey() });
-      })
-      .on("broadcast", { event: "message_edited" }, () => {
-        queryClient.invalidateQueries({
-          queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
-        });
-      })
-      .on("broadcast", { event: "message_deleted" }, () => {
-        queryClient.invalidateQueries({
-          queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
-        });
-      })
-      .on<ChatTypingPayload>("broadcast", { event: "typing" }, ({ payload }) => {
-        onTypingRef.current(payload);
-      })
-      .subscribe();
+    const channels = ((supabaseClient as any).getChannels?.() ?? []) as Array<{ topic: string; state: string }>;
+    const existing = channels.find(
+      (c) => c.topic === topic || c.topic === realtimeTopic
+    );
 
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
+    if (existing) {
+      if (existing.state === "joined" || existing.state === "joining") {
+        return;
+      }
+      try {
+        supabaseClient.removeChannel(existing as any);
+      } catch {}
+    }
+
+    try {
+      const channel = supabaseClient.channel(topic, {
+        config: { private: true },
+      });
+
+      channel
+        .on("broadcast", { event: "new_message" }, () => {
+          queryClient.invalidateQueries({
+            queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
+          });
+          queryClient.invalidateQueries({ queryKey: getGetChatConversationsQueryKey({ limit: 50 }) });
+          queryClient.invalidateQueries({ queryKey: getGetChatConversationsUnreadCountQueryKey() });
+        })
+        .on("broadcast", { event: "message_edited" }, () => {
+          queryClient.invalidateQueries({
+            queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
+          });
+        })
+        .on("broadcast", { event: "message_deleted" }, () => {
+          queryClient.invalidateQueries({
+            queryKey: getGetChatConversationsConversationIdMessagesQueryKey(conversationId, { limit: PAGE_SIZE }),
+          });
+        })
+        .on<ChatTypingPayload>("broadcast", { event: "typing" }, ({ payload }) => {
+          onTypingRef.current(payload);
+        })
+        .subscribe();
+
+      return () => {
+        try {
+          supabaseClient.removeChannel(channel);
+        } catch {}
+      };
+    } catch (err) {
+      console.warn("[realtime:chat] Failed to subscribe to channel:", err);
+    }
   }, [conversationId, queryClient]);
 }

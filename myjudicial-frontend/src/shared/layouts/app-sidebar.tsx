@@ -132,7 +132,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
     {
       groupKey: "account",
       items: [
-        { href: "/expert/dashboard/setup", icon: ShieldCheck, labelKey: "setup" },
+        { href: "/expert/dashboard/profile", icon: User, labelKey: "profile" },
         { href: "/expert/dashboard/verification", icon: BadgeCheck, labelKey: "verification" },
         { href: "/expert/dashboard/notifications", icon: Bell, labelKey: "notifications" },
       ],

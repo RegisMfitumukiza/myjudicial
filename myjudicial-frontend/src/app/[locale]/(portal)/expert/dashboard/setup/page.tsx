@@ -106,7 +106,7 @@ export default function SetupPage() {
       icon: Camera,
       label: t("photoLabel"),
       description: t("photoDesc"),
-      href: "/expert/profile/edit#photo",
+      href: "/expert/dashboard/profile",
       status: photoItemStatus,
       actionLabel: hasPhoto ? t("viewPhoto") : t("uploadPhoto"),
     },
@@ -152,7 +152,7 @@ export default function SetupPage() {
       return { label: t("nextStepProfile"), href: "/expert/onboarding" };
     }
     if (!hasPhoto) {
-      return { label: t("nextStepPhoto"), href: "/expert/profile/edit#photo" };
+      return { label: t("nextStepPhoto"), href: "/expert/dashboard/profile" };
     }
     if (!isVerified && verificationStatus !== ExpertStatus.PENDING_VERIFICATION) {
       return { label: t("nextStepVerification"), href: "/expert/dashboard/verification" };

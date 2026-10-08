@@ -36,6 +36,7 @@ import {
   useExpertProfile,
   EXPERT_PROFILE_QUERY_KEY,
   EXPERT_PHOTO_URL_QUERY_KEY,
+  useExpertPhotoUrl,
 } from "@/features/experts/hooks/useExpertProfile";
 
 const STORAGE_KEY = "mj_expert_onboarding";
@@ -187,6 +188,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   
   // Existing profile query to handle resuming onboarding
   const { data: existingProfile } = useExpertProfile();
+  const { data: existingPhotoUrl } = useExpertPhotoUrl();
 
   // Fetch onboarding progress from backend
   const { data: onboardingRes } = useQuery({
@@ -558,8 +560,31 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   };
 
   const handlePhotoUpload = async (file: File) => {
-    setFormData(prev => ({ ...prev, photoFile: file, previewPhotoUrl: URL.createObjectURL(file) }));
+    const preview = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, photoFile: file, previewPhotoUrl: preview }));
     toast.success(t("photoSelected"));
+
+    if (existingProfile) {
+      setIsPhotoUploading(true);
+      try {
+        const photoData = new FormData();
+        photoData.append('photo', file);
+        const res = await apiFetch<{ data: { photoUrl: string } }>('/experts/photo/profile', {
+          method: 'POST',
+          body: photoData,
+        });
+        if (res?.data?.photoUrl) {
+          setFormData(prev => ({ ...prev, previewPhotoUrl: res.data.photoUrl }));
+        }
+        await queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
+        await queryClient.invalidateQueries({ queryKey: EXPERT_PHOTO_URL_QUERY_KEY });
+        await updateSession();
+      } catch (err) {
+        // Local preview remains active; will retry on final submission
+      } finally {
+        setIsPhotoUploading(false);
+      }
+    }
     return Promise.resolve();
   };
 
@@ -937,7 +962,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               </div>
 
               <ProfilePhotoUpload
-                currentPhotoUrl={formData.previewPhotoUrl ?? undefined}
+                currentPhotoUrl={formData.previewPhotoUrl ?? existingPhotoUrl ?? undefined}
                 onPhotoUpload={handlePhotoUpload}
                 isUploading={isPhotoUploading}
               />

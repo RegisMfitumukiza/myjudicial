@@ -29,7 +29,7 @@ import { apiFetch } from "@/lib/api/client";
 import { getErrorMessage } from "@/lib/utils";
 import { ExpertPhotoUploader } from "@/shared/components/photo-upload";
 import { useAuth } from "@/providers/auth-provider";
-import { EXPERT_PHOTO_URL_QUERY_KEY, useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
+import { EXPERT_PROFILE_QUERY_KEY, EXPERT_PHOTO_URL_QUERY_KEY, useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
 import {
   PageHeader,
   StatusBadge,
@@ -167,7 +167,7 @@ export default function ExpertProfilePage() {
   const handlePhotoSuccess = useCallback(async (newUrl: string) => {
     setConfirmedPhotoUrl(newUrl);
     await refreshUser();
-    queryClient.invalidateQueries({ queryKey: ["expert-profile"] });
+    queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
     // Invalidate signed URL cache so sidebar re-fetches the new photo
     queryClient.invalidateQueries({ queryKey: EXPERT_PHOTO_URL_QUERY_KEY });
@@ -175,7 +175,7 @@ export default function ExpertProfilePage() {
 
   /* Expert profile */
   const { data: profile, isLoading, error } = useQuery({
-    queryKey: ["expert-profile"],
+    queryKey: EXPERT_PROFILE_QUERY_KEY,
     queryFn: async () => {
       const response = await getExpertsProfileMe();
       if (response.status === 200) return response.data.data as unknown as ExpertProfile;
@@ -206,7 +206,7 @@ export default function ExpertProfilePage() {
       throw new Error("Failed to update profile");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expert-profile"] });
+      queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
       setEditing(false);
       setIsNewProfile(false);
       toast.success(t("profileUpdatedSuccess"));
@@ -238,7 +238,7 @@ export default function ExpertProfilePage() {
       throw new Error("Failed to create profile");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expert-profile"] });
+      queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
       setEditing(false);
       setIsNewProfile(false);
       toast.success(t("profileCreatedSuccess"));
@@ -406,7 +406,7 @@ export default function ExpertProfilePage() {
             <p className="text-xs min-[360px]:text-sm text-muted-foreground break-all select-all">{session?.user?.email}</p>
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
               <Check size={11} className="stroke-[2.5]" />
-              Verified
+              Email Verified
             </span>
           </div>
           <span className="mt-1 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
@@ -454,7 +454,7 @@ export default function ExpertProfilePage() {
             ) : (
               <ErrorState
                 message={t("failedLoadProfile")}
-                onRetry={() => queryClient.invalidateQueries({ queryKey: ["expert-profile"] })}
+                onRetry={() => queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY })}
                 retryLabel={t("retryBtn")}
               />
             )
@@ -462,12 +462,23 @@ export default function ExpertProfilePage() {
             <>
               {statusConfig && (
                 <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <Badge variant={statusConfig.variant}>
-                      {statusConfig.label}
-                    </Badge>
-                    {profile?.statusMessage && (
-                      <p className="text-sm text-muted-foreground">{profile.statusMessage}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={statusConfig.variant}>
+                        {statusConfig.label}
+                      </Badge>
+                      {profile?.statusMessage && (
+                        <p className="text-sm text-muted-foreground">{profile.statusMessage}</p>
+                      )}
+                    </div>
+                    {profile?.status === "DRAFT" && (
+                      <Link
+                        href="/expert/dashboard/verification"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline shrink-0"
+                      >
+                        <span>Verify Credentials</span>
+                        <ArrowUpRight size={14} />
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -498,7 +509,7 @@ export default function ExpertProfilePage() {
                       <p className="text-sm text-muted-foreground">{session?.user?.email || ""}</p>
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                         <Check size={10} className="stroke-[2.5]" />
-                        Verified
+                        Email Verified
                       </span>
                     </div>
                     {!editing && profile?.user?.phone && (

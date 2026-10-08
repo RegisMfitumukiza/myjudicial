@@ -189,7 +189,7 @@ export const ProfileService = {
       case "REJECTED":
         return "Your profile was rejected. Please review the feedback and resubmit.";
       case "DRAFT":
-        return "Your profile is incomplete. Please complete all required fields.";
+        return "Profile created in Draft. Submit your verification documents to get accredited and start accepting client bookings.";
       default:
         return "Unknown status.";
     }

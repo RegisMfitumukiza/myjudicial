@@ -1425,15 +1425,18 @@
       "fileFormats": "(PDF, PNG, JPG)",
       "uploadPrompt": "Cliquez pour téléverser",
       "uploadPromptDrag": "ou glissez-déposez",
-      "uploadLimit": "PNG, JPG, PDF jusqu'à 10 Mo",
-      "docsOptionalStrong": "Optionnel :",
-      "docsOptional": "Vous pouvez ignorer cette étape et soumettre vos documents ultérieurement dans la section Vérification de votre tableau de bord. Le téléversement immédiat accélère néanmoins l'examen de votre dossier."
+      "docsOptionalStrong": "Condition de validation :",
+      "docsOptional": "Une pièce d'identité officielle et le certificat du Barreau sont requis pour être validé et recevoir des réservations de clients. Vous pouvez les joindre maintenant pour lancer la revue immédiatement, ou finaliser votre profil et les soumettre plus tard depuis votre tableau de bord.",
+      "requiredForVerification": "Requis pour la validation",
+      "uploadNowOrLater": "Téléversez maintenant ou plus tard"
     },
     "nav": {
       "back": "Retour",
       "continue": "Continuer",
       "submitting": "Envoi en cours...",
       "completeSetup": "Finaliser la configuration",
+      "completeAndVerify": "Finaliser et soumettre pour vérification",
+      "completeSetupVerifyLater": "Finaliser (Vérifier plus tard)",
       "stepOf": "Étape {current} sur {total}"
     }
   },
@@ -6027,6 +6030,38 @@
           "title": "Sur cette page",
           "print": "Imprimer"
         }
+      },
+      "finalization": {
+        "badge": "Statut Réglementaire et Juridique",
+        "title": "Conditions Générales en Cours de Finalisation Juridique",
+        "intro": "Les Conditions Générales d'Utilisation contractuelles régissant la plateforme MyJudicial font actuellement l'objet d'une rédaction statutaire, d'un examen réglementaire et d'une finalisation auprès de conseils juridiques agréés, en conformité avec les cadres légaux de la République du Rwanda.",
+        "interimHeading": "Cadre de Gouvernance Opérationnelle Intérimaire",
+        "interimSubtitle": "Durant cette période formelle de finalisation, l'ensemble des interactions, réservations et prestations d'experts sur la plateforme repose sur les principes cardinaux suivants :",
+        "pillars": {
+          "scopeTitle": "Infrastructure Technologique de Mise en Relation (Non-Cabinet d'Avocats)",
+          "scopeDesc": "MyJudicial est une plateforme d'infrastructure technologique indépendante reliant les justiciables à des avocats agréés. MyJudicial n'est pas un cabinet d'avocats, n'emploie pas d'avocats et ne fournit aucune représentation en justice. Les prestations juridiques sont exécutées exclusivement par des avocats indépendants inscrits au Barreau du Rwanda.",
+          "privilegeTitle": "Secret Professionnel et Confidentialité Client-Avocat",
+          "privilegeDesc": "Toutes les communications directes et pièces de dossier partagées bénéficient de la protection absolue du secret professionnel conformément à la législation rwandaise et aux règles de déontologie du Barreau du Rwanda. Les salons vidéo (LiveKit WebRTC) et le coffre-fort documentaire intègrent un chiffrement côté client.",
+          "aiTitle": "Triage Juridique par IA à Titre Informatif (Non Consultatif)",
+          "aiDesc": "Les outils d'orientation par IA—notamment la transcription vocale Whisper et le ciblage sémantique par domaine de pratique—servent strictement d'aide à la découverte. Les résultats d'orientation automatisée ne constituent pas un conseil juridique et ne remplacent jamais une consultation avec un avocat.",
+          "escrowTitle": "Séquestre Neutre et Sécurité des Honoraires",
+          "escrowDesc": "Les dépôts d'honoraires de consultation effectués par Mobile Money (AzamPay / MTN MoMo / Airtel Money) sont conservés sur un compte séquestre neutre. Les fonds ne sont libérés au professionnel du droit qu'après confirmation de la tenue de la consultation.",
+          "privacyTitle": "Protection Intégrale des Données Personnelles",
+          "privacyDesc": "Tout traitement, transfert et conservation de données personnelles sur la plateforme est régi par notre Politique de Confidentialité publiée et active, en stricte conformité avec la Loi Nº 058/2021 sur la protection des données au Rwanda."
+        },
+        "relatedHeading": "Politiques Statutaires Publiées et Canaux de Conformité",
+        "relatedSubtitle": "Consultez nos politiques actives publiées et nos contacts de conformité directe :",
+        "policies": {
+          "privacyTitle": "Politique de Confidentialité",
+          "privacyDesc": "Traitements et droits statutaires selon la Loi Nº 058/2021",
+          "cookiesTitle": "Politique des Cookies",
+          "cookiesDesc": "Zéro traceur tiers, inspection transparente du stockage local",
+          "helpTitle": "Centre d'Aide & FAQ",
+          "helpDesc": "Guides sur la réservation, la vérification et le séquestre",
+          "contactTitle": "Bureau Juridique & Réglementaire",
+          "contactDesc": "Demandes directes adressées au pôle juridique et conformité"
+        },
+        "corporateHeading": "Entité Corporative & Bureau Juridique"
       },
       "content": {
         "cardTitle": "Conditions du Marché et Gestion des Litiges",

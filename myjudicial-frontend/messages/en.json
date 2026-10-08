@@ -3218,14 +3218,18 @@
       "uploadPrompt": "Click to upload",
       "uploadPromptDrag": "or drag & drop",
       "uploadLimit": "PNG, JPG, PDF up to 10MB",
-      "docsOptionalStrong": "Optional:",
-      "docsOptional": "You can skip this and submit documents later from your dashboard under Verification. However, uploading now speeds up the review process."
+      "docsOptionalStrong": "Verification Requirement:",
+      "docsOptional": "A Government ID and Bar Association Certificate are required to get verified and accept client bookings. You can upload them now to start review immediately, or complete profile setup now and upload them later from your Dashboard.",
+      "requiredForVerification": "Required for Verification",
+      "uploadNowOrLater": "Upload now or later"
     },
     "nav": {
       "back": "Back",
       "continue": "Continue",
       "submitting": "Submitting...",
       "completeSetup": "Complete Setup",
+      "completeAndVerify": "Complete & Submit for Verification",
+      "completeSetupVerifyLater": "Complete Setup (Verify Later)",
       "stepOf": "Step {current} of {total}"
     }
   },
@@ -4959,6 +4963,38 @@
           "title": "On this page",
           "print": "Print"
         }
+      },
+      "finalization": {
+        "badge": "Statutory & Regulatory Status",
+        "title": "Terms of Service Under Formal Legal Finalization",
+        "intro": "The official contractual Terms of Service governing the MyJudicial marketplace are currently undergoing formal statutory drafting, regulatory review, and governance finalization in collaboration with licensed legal counsel and in accordance with the commercial and legal frameworks of the Republic of Rwanda.",
+        "interimHeading": "Interim Operational Governance Framework",
+        "interimSubtitle": "During this formal finalization period, all platform interactions, client bookings, and expert services operate strictly under the following foundational principles:",
+        "pillars": {
+          "scopeTitle": "Technology Marketplace Infrastructure (Non-Law Firm)",
+          "scopeDesc": "MyJudicial is an independent technology infrastructure platform connecting clients with licensed advocates. MyJudicial is not a law firm, does not employ practicing lawyers, and does not provide legal representation. Legal services are delivered exclusively by independent practitioners admitted to the Rwanda Bar Association.",
+          "privilegeTitle": "Client-Advocate Confidentiality & Professional Secrecy",
+          "privilegeDesc": "All direct communications and shared case materials remain strictly protected under statutory legal professional secrecy (secret professionnel) pursuant to Rwandan law and Rwanda Bar Association regulations. Video rooms (LiveKit WebRTC) and document vaults feature client-side encryption.",
+          "aiTitle": "Informational AI Legal Triage (Non-Advisory)",
+          "aiDesc": "AI-assisted case intake tools—including Whisper speech-to-text and semantic practice area matching—operate strictly as discovery aids. Automated triage outputs do not constitute legal advice and never substitute for formal consultation with a licensed advocate.",
+          "escrowTitle": "Neutral Escrow Custody & Fee Security",
+          "escrowDesc": "Consultation fee deposits initiated via Mobile Money (AzamPay / MTN MoMo / Airtel Money) are held in neutral escrow custody. Funds are disbursed to the legal practitioner solely upon verified consultation completion, safeguarding both client and advocate.",
+          "privacyTitle": "Comprehensive Statutory Data Protection",
+          "privacyDesc": "All personal data processing, transmission, and retention across the platform are governed by our published, active Privacy Policy, strictly compliant with Rwanda Law Nº 058/2021 on Personal Data Protection."
+        },
+        "relatedHeading": "Published Statutory Policies & Governance Channels",
+        "relatedSubtitle": "Review our active published policies and direct compliance contacts:",
+        "policies": {
+          "privacyTitle": "Privacy Policy",
+          "privacyDesc": "Statutory data processing and rights under Law Nº 058/2021",
+          "cookiesTitle": "Cookie Policy",
+          "cookiesDesc": "Zero third-party trackers, transparent local storage inspection",
+          "helpTitle": "Help & FAQ Center",
+          "helpDesc": "Guides on consultation booking, verification, and escrow",
+          "contactTitle": "Legal & Regulatory Desk",
+          "contactDesc": "Direct inquiries to the compliance and legal desk"
+        },
+        "corporateHeading": "Corporate Entity & Legal Desk"
       },
       "content": {
         "cardTitle": "Marketplace Terms & Dispute Administration",

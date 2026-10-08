@@ -962,7 +962,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>{tWizard("step7.identityLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
+                  <Label className="flex items-center justify-between">
+                    <span>{tWizard("step7.identityLabel")}</span>
+                    <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-900/50">
+                      {tWizard("step7.requiredForVerification")}
+                    </span>
+                  </Label>
                   {isRealFile(formData.identityFile) ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-blue-500" />
@@ -988,7 +993,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{tWizard("step7.barCertificateLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
+                  <Label className="flex items-center justify-between">
+                    <span>{tWizard("step7.barCertificateLabel")}</span>
+                    <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-900/50">
+                      {tWizard("step7.requiredForVerification")}
+                    </span>
+                  </Label>
                   {isRealFile(formData.barCertificateFile) ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-red-500" />
@@ -1128,7 +1138,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 ) : (
                   <>
                     <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                    {tWizard("nav.completeSetup")}
+                    {isRealFile(formData.identityFile) || isRealFile(formData.barCertificateFile)
+                      ? tWizard("nav.completeAndVerify")
+                      : tWizard("nav.completeSetupVerifyLater")}
                   </>
                 )}
               </Button>

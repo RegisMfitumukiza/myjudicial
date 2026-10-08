@@ -1425,15 +1425,18 @@
       "fileFormats": "(PDF, PNG, JPG)",
       "uploadPrompt": "Kanda hano ushyireho dosiye",
       "uploadPromptDrag": "cyangwa uyikurure hano",
-      "uploadLimit": "PNG, JPG, PDF zitarengeje 10MB",
-      "docsOptionalStrong": "Ubishatse:",
-      "docsOptional": "Ushobora kurenga iyi ntambwe ukabyohereza nyuma mu gice cy'Igenzura. Nyamara kubishyiraho ubu byihutisha isuzumwa ry'ibyangombwa byawe."
+      "docsOptionalStrong": "Ibisabwa mu Kwemezwa:",
+      "docsOptional": "Indangamuntu n'icyangombwa cy'Urugaga rw'Abavoka birakenewe kugira ngo wemezwe kandi wakire abakiriya. Ushobora kubishyiraho ubu kugira ngo isuzuma ritangire hejuru, cyangwa ukarangiza umwirondoro ukabishyiraho nyuma muri Dashboard.",
+      "requiredForVerification": "Birasabwa mu kwemezwa",
+      "uploadNowOrLater": "Bishyireho ubu cyangwa nyuma"
     },
     "nav": {
       "back": "Gusubira Inyuma",
       "continue": "Komeza",
       "submitting": "Birimo koherezwa...",
       "completeSetup": "Kuzuza Umwirondoro",
+      "completeAndVerify": "Rangiza unyohereze kwemezwa",
+      "completeSetupVerifyLater": "Rangiza ibanze (Kwemezwa nyuma)",
       "stepOf": "Intambwe ya {current} kuri {total}"
     }
   },
@@ -6027,6 +6030,38 @@
           "title": "Kuri uru rupapuro",
           "print": "Capa"
         }
+      },
+      "finalization": {
+        "badge": "Imiterere y'Amategeko n'Amabwiriza",
+        "title": "Amabwiriza Ngenderwaho Ari mu Mushinga wo Gusoza Amategeko",
+        "intro": "Amabwiriza ngenderwaho y'amasezerano agenga isoko rya MyJudicial arimo gukorwa mu buryo bw'amategeko, asuzumwa n'inzego zibishinzwe kandi arimo kunozwa ku bufatanye n'abanyamategeko bemewe hakurikijwe amategeko n'amabwiriza by'Ubucuruzi bya Repubulika y'u Rwanda.",
+        "interimHeading": "Imiterere y'Agateganyo y'Imicungire y'Ibikorwa",
+        "interimSubtitle": "Muri iki gihe cyo gusoza amabwiriza ku mugaragaro, imikoranire yose ku rubuga, gufata gahunda z'abakiriya, na serivisi z'inzobere bikurikiza amahame akurikira:",
+        "pillars": {
+          "scopeTitle": "Ikoranabuhanga Rihuza Abantu (Ntabwo ari Ibiro by'Abavoka)",
+          "scopeDesc": "MyJudicial ni urubuga rw'ikoranabuhanga rwigenga ruhuza abakiriya n'abavoka babyemerewe. MyJudicial ntabwo ari ibiro by'abavoka, ntabwo ikoresha abavoka, kandi ntabwo itanga ubuhagarikizi mu mategeko. Serivisi z'amategeko zitangwa gusa n'abavoka bigenga banditswe mu Rugaga rw'Abavoka mu Rwanda.",
+          "privilegeTitle": "Ibanga ry'Umwuga hagati y'Umukiriya n'Umwavoka",
+          "privilegeDesc": "Itumanaho ryose rya toka n'amadosiye asangizwa birinzwe mu buryo bw'ibanga ry'umwuga (secret professionnel) hakurikijwe amategeko y'u Rwanda n'amabwiriza y'Urugaga rw'Abavoka. Ibyumba by'amashusho (LiveKit WebRTC) n'ububiko bw'inyandiko bikoresha uburyo bwo gufunga amakuru (client-side encryption).",
+          "aiTitle": "Ubufasha bwa AI mu Kumenya Ibibazo (Ntabwo ari Inama z'Amategeko)",
+          "aiDesc": "Ibikoresho bya AI byo kwakira ibibazo—birimo Whisper ihindura ijwi inyandiko no gushakisha mu nzego z'amategeko—bikora gusa nko gufasha kuvumbura inzobere. Ibisohoka muri AI ntabwo ari inama z'amategeko kandi ntibisimbura kubonana n'umwavoka wemewe.",
+          "escrowTitle": "Uburyo Bwishingiwe bwo Kurinda Amafaranga (Escrow)",
+          "escrowDesc": "Amafaranga yishyurwa hakoreshejwe Mobile Money (AzamPay / MTN MoMo / Airtel Money) abitwa mu buryo bwizewe bw'agateganyo. Amafaranga ahabwa umunyamategeko gusa iyo ubujyanama bwarangiye neza, bikarinda umukiriya n'umwavoka.",
+          "privacyTitle": "Uburinzi Bwuzuye bw'Amakuru Bwubahiriza Amategeko",
+          "privacyDesc": "Gukusanya, guhererekanya no kubika amakuru bwite ku rubuga biyoborwa na Politiki y'Ibanga yatangajwe, yubahiriza Itegeko Nº 058/2021 rigenga uburinzi bw'amakuru bwite mu Rwanda."
+        },
+        "relatedHeading": "Amabwiriza n'Imicungire Byemejwe kandi Byatangajwe",
+        "relatedSubtitle": "Sura amabwiriza yacu yemejwe n'inzira zo gutumanaho ku bijyanye n'amategeko:",
+        "policies": {
+          "privacyTitle": "Politiki y'Ibanga",
+          "privacyDesc": "Gutunganya amakuru n'uburenganzira bwite hakurikijwe Itegeko Nº 058/2021",
+          "cookiesTitle": "Politiki ya Kuki (Cookies)",
+          "cookiesDesc": "Nta migenzere y'abandi bakora ibyo kwamamaza, kureba ibibitswe ku mashini",
+          "helpTitle": "Ubufasha n'Ibibazo Bikunze Kubazwa (FAQ)",
+          "helpDesc": "Amabwiriza ku gufata gahunda, kwemeza umwirondoro n'uburyo bwo kwishyura",
+          "contactTitle": "Ibiro by'Amategeko n'Ibyemezo",
+          "contactDesc": "Ibibazo byihariye byoherezwa ku biro by'amategeko n'amategeko ngenderwaho"
+        },
+        "corporateHeading": "Ikigo cy'Ubucuruzi n'Ibiro by'Amategeko"
       },
       "content": {
         "cardTitle": "Amabwiriza y'Isoko n'Iyobora Impaka",

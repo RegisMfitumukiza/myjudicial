@@ -1831,7 +1831,8 @@
     "languages": {
       "en": "English",
       "fr": "Français",
-      "rw": "Kinyarwanda"
+      "rw": "Kinyarwanda",
+      "sw": "Swahili"
     },
     "badges": {
       "new": "New"
@@ -4009,7 +4010,8 @@
     "languages": {
       "en": "English",
       "fr": "Français",
-      "rw": "Kinyarwanda"
+      "rw": "Kinyarwanda",
+      "sw": "Swahili"
     }
   },
   "helpPage": {

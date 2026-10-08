@@ -110,7 +110,7 @@ const createRedisStore = (prefix: string): Store => {
 /** Global IP-based limiter applied to all /api/v1 routes (coarse DoS backstop) */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: envMax("API_RATE_LIMIT_MAX", isProd ? 100 : 1000),
+  max: envMax("API_RATE_LIMIT_MAX", isProd ? 1000 : 2000),
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: "Too many requests. Please try again later." },
@@ -219,7 +219,7 @@ export const aiLimiter = rateLimit({
 /** Per-authenticated-user limiter — falls back to IP for unauthenticated requests */
 export const perUserLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: envMax("PER_USER_RATE_LIMIT_MAX", isProd ? 60 : 600),
+  max: envMax("PER_USER_RATE_LIMIT_MAX", isProd ? 300 : 600),
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req: Request): string => {

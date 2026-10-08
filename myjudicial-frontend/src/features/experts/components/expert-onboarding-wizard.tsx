@@ -47,6 +47,15 @@ function slugToEnum(slug: string): string {
 }
 
 // Map LegalSpecialty enum value back to slug for API matching
+function formatFileSize(fileOrSize: File | { size?: number } | number | undefined | null): string {
+  if (!fileOrSize) return "";
+  const size = typeof fileOrSize === "number" ? fileOrSize : (fileOrSize as any)?.size;
+  if (typeof size !== "number" || isNaN(size) || size <= 0) return "";
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function enumToSlug(enumVal: string): string {
   return enumVal.toLowerCase().replace(/_/g, "-");
 }
@@ -506,8 +515,8 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       />
 
       {/* Content */}
-      <div className="mx-auto max-w-2xl px-3 py-4 sm:px-6 sm:py-8 lg:py-10">
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 lg:p-8 shadow-xs">
+      <div className="mx-auto max-w-2xl px-2.5 py-3 sm:px-6 sm:py-8 lg:py-10">
+        <div className="rounded-xl sm:rounded-2xl border border-border bg-card p-3.5 sm:p-6 lg:p-8 shadow-xs">
           {/* Step 1: Professional Details */}
           {currentStep === 1 && (
             <div className="space-y-6">
@@ -889,9 +898,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       <FileText className="h-8 w-8 shrink-0 text-blue-500" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{formData.identityFile.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground">{(formData.identityFile.size / 1024).toFixed(1)} KB</p>
+                        {formatFileSize(formData.identityFile) ? (
+                          <p className="text-xs text-slate-500 dark:text-muted-foreground">{formatFileSize(formData.identityFile)}</p>
+                        ) : null}
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, identityFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50">
+                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, identityFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer">
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
@@ -913,9 +924,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       <FileText className="h-8 w-8 shrink-0 text-red-500" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{formData.barCertificateFile.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-muted-foreground">{(formData.barCertificateFile.size / 1024).toFixed(1)} KB</p>
+                        {formatFileSize(formData.barCertificateFile) ? (
+                          <p className="text-xs text-slate-500 dark:text-muted-foreground">{formatFileSize(formData.barCertificateFile)}</p>
+                        ) : null}
                       </div>
-                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, barCertificateFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50">
+                      <button type="button" onClick={() => setFormData(prev => ({ ...prev, barCertificateFile: undefined }))} className="rounded-full p-1 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer">
                         <X className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
@@ -944,7 +957,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       <div key={idx} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-border bg-white dark:bg-card p-3 shadow-sm">
                         <FileText className="h-6 w-6 shrink-0 text-slate-400 dark:text-muted-foreground" />
                         <div className="min-w-0 flex-1 space-y-1">
-                          <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">{fileObj.file.name} <span className="font-normal text-slate-500 dark:text-muted-foreground">({(fileObj.file.size / 1024).toFixed(1)} KB)</span></p>
+                          <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">
+                            {fileObj.file.name}
+                            {formatFileSize(fileObj.file) ? (
+                              <span className="font-normal text-slate-500 dark:text-muted-foreground ml-1">({formatFileSize(fileObj.file)})</span>
+                            ) : null}
+                          </p>
                           <Input 
                             size={1}
                             className="h-7 text-xs" 
@@ -999,19 +1017,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           )}
 
           {/* Navigation */}
-          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-t border-border pt-4 sm:pt-6">
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-t border-border pt-4 sm:pt-6">
             <Button
               type="button"
               variant="outline"
               onClick={previousStep}
               disabled={currentStep === 1}
-              className="h-10 px-3 sm:px-4 text-xs sm:text-sm font-semibold rounded-xl"
+              className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm font-semibold rounded-xl min-w-[70px] cursor-pointer"
             >
               <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
               {tWizard("nav.back")}
             </Button>
 
-            <div className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">
+            <div className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap order-last xs:order-none w-full xs:w-auto text-center py-0.5 xs:py-0">
               {tWizard("nav.stepOf", { current: currentStep, total: totalSteps })}
             </div>
 
@@ -1020,7 +1038,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 type="button"
                 onClick={nextStep}
                 disabled={!canProceed()}
-                className="h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold bg-brand-dark text-on-brand rounded-xl shadow-xs hover:opacity-90 transition-opacity"
+                className="h-9 sm:h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold bg-brand-dark text-on-brand rounded-xl shadow-xs hover:opacity-90 transition-opacity min-w-[95px] cursor-pointer"
               >
                 <span>{tWizard("nav.continue")}</span>
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -1030,8 +1048,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canProceed() || isSubmitting}
-                className="h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold text-white rounded-xl shadow-xs hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: "#10b981" }}
+                className="h-9 sm:h-10 px-4 sm:px-6 text-xs sm:text-sm font-bold text-white rounded-xl shadow-xs hover:opacity-90 transition-opacity bg-emerald-600 hover:bg-emerald-700 min-w-[120px] cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

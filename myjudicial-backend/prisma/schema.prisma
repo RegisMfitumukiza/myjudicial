@@ -149,6 +149,7 @@ model User {
   sentMessages             Message[]                 @relation("SentMessages")
   savedExperts             SavedExpert[]             @relation("SavedExperts")
   contentPageRevisions     ContentPageRevision[]
+  legalConsents            UserLegalConsent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1237,6 +1238,7 @@ model ContentPage {
   title         String
   blocks        Json
   status        ContentPageStatus @default(draft)
+  version       String            @default("1.0") @map("version")
   effectiveDate String?           @map("effective_date")
   metaTitle     String?           @map("meta_title")
   metaDescription String?         @map("meta_description")
@@ -1256,11 +1258,12 @@ model ContentPage {
 /** Snapshot of a content page at the moment of a save, publish, copy, or restore. */
 model ContentPageRevision {
   id              String            @id @default(uuid()) @db.Uuid
-  pageId          String            @map("page_id")
+  pageId          String            @map("page_id") @db.Uuid
   page            ContentPage       @relation(fields: [pageId], references: [id], onDelete: Cascade)
   title           String
   blocks          Json
   status          ContentPageStatus
+  version         String            @default("1.0") @map("version")
   effectiveDate   String?           @map("effective_date")
   metaTitle       String?           @map("meta_title")
   metaDescription String?           @map("meta_description")
@@ -1272,6 +1275,39 @@ model ContentPageRevision {
 
   @@index([pageId, createdAt(sort: Desc)])
   @@map("content_page_revisions")
+}
+
+enum LegalDocumentType {
+  TERMS
+  PRIVACY
+  COOKIES
+  ADVOCATE_AGREEMENT
+}
+
+enum ConsentContext {
+  REGISTRATION
+  BOOKING_CHECKOUT
+  PORTAL_REACCEPTANCE
+  VOLUNTARY_UPDATE
+}
+
+model UserLegalConsent {
+  id           String            @id @default(uuid()) @db.Uuid
+  userId       String            @map("user_id")
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentType LegalDocumentType @map("document_type")
+  version      String
+  acceptedAt   DateTime          @default(now()) @map("accepted_at")
+  locale       String            @default("en")
+  ipAddress    String?           @map("ip_address")
+  userAgent    String?           @map("user_agent")
+  context      ConsentContext    @default(REGISTRATION)
+
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  @@index([userId, documentType])
+  @@index([documentType, version])
+  @@map("user_legal_consents")
 }
 
 model Specialty {

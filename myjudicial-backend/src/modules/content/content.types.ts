@@ -125,6 +125,7 @@ export interface ContentPageRecord {
   title: string;
   blocks: ContentBlock[];
   status: "draft" | "published";
+  version: string;
   effectiveDate: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -143,6 +144,7 @@ export interface ContentPageRevisionRecord {
   title: string;
   blocks: ContentBlock[];
   status: "draft" | "published";
+  version: string;
   effectiveDate: string | null;
   metaTitle: string | null;
   metaDescription: string | null;

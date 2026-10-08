@@ -42,6 +42,7 @@ function toRecord(row: {
     title: row.title,
     blocks: (row.blocks ?? []) as ContentPageRecord["blocks"],
     status: row.status as ContentPageRecord["status"],
+    version: (row as any).version ?? "1.0",
     effectiveDate: row.effectiveDate,
     metaTitle: row.metaTitle,
     metaDescription: row.metaDescription,
@@ -91,6 +92,7 @@ function toRevisionRecord(row: {
     title: row.title,
     blocks: (row.blocks ?? []) as ContentPageRevisionRecord["blocks"],
     status: row.status as ContentPageRevisionRecord["status"],
+    version: (row as any).version ?? "1.0",
     effectiveDate: row.effectiveDate,
     metaTitle: row.metaTitle,
     metaDescription: row.metaDescription,
@@ -115,6 +117,7 @@ async function snapRevision(
     title: string;
     blocks: unknown;
     status: "draft" | "published";
+    version?: string;
     effectiveDate: string | null;
     metaTitle: string | null;
     metaDescription: string | null;
@@ -129,6 +132,7 @@ async function snapRevision(
       title: snapshot.title,
       blocks: snapshot.blocks as never,
       status: snapshot.status,
+      version: snapshot.version ?? "1.0",
       effectiveDate: snapshot.effectiveDate,
       metaTitle: snapshot.metaTitle,
       metaDescription: snapshot.metaDescription,
@@ -204,6 +208,7 @@ export const ContentService = {
         title: input.title,
         blocks: input.blocks as never,
         status: input.status,
+        version: input.version ?? "1.0",
         effectiveDate: input.effectiveDate ?? null,
         metaTitle: input.metaTitle ?? null,
         metaDescription: input.metaDescription ?? null,
@@ -214,6 +219,7 @@ export const ContentService = {
         title: input.title,
         blocks: input.blocks as never,
         status: input.status,
+        version: input.version ?? "1.0",
         effectiveDate: input.effectiveDate ?? null,
         metaTitle: input.metaTitle ?? null,
         metaDescription: input.metaDescription ?? null,
@@ -230,6 +236,7 @@ export const ContentService = {
         title: row.title,
         blocks: row.blocks,
         status: row.status,
+        version: row.version,
         effectiveDate: row.effectiveDate,
         metaTitle: row.metaTitle,
         metaDescription: row.metaDescription,

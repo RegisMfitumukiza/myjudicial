@@ -47,6 +47,8 @@ export const registerSchema = z.object({
   phone: requiredPhone,
   role: registerRole.optional(),
   preferredLanguage: z.enum(["en", "fr", "rw"]).default("en"),
+  termsAccepted: z.boolean().optional(),
+  termsVersion: z.string().trim().max(20).optional(),
 });
 
 /** POST /auth/login — admin email + password login */

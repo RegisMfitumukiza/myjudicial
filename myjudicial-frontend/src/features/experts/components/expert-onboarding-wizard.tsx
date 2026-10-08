@@ -104,9 +104,32 @@ interface SavedProgress {
   savedAt: number;
 }
 
+export function isRealFile(f: unknown): f is File {
+  return typeof File !== "undefined" && f instanceof File && f.size > 0;
+}
+
 function saveProgress(currentStep: number, formData: OnboardingData) {
   try {
-    const data: SavedProgress = { currentStep, formData, savedAt: Date.now() };
+    const {
+      photoFile,
+      identityFile,
+      barCertificateFile,
+      additionalFiles,
+      previewPhotoUrl,
+      ...cleanFormData
+    } = formData;
+
+    // Transient blob URLs must not be persisted into localStorage
+    const safePhotoUrl = previewPhotoUrl?.startsWith("blob:") ? undefined : previewPhotoUrl;
+
+    const data: SavedProgress = {
+      currentStep,
+      formData: {
+        ...cleanFormData,
+        previewPhotoUrl: safePhotoUrl,
+      },
+      savedAt: Date.now(),
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
     // localStorage full or unavailable — silently ignore
@@ -121,6 +144,16 @@ function loadProgress(): SavedProgress | null {
     if (Date.now() - parsed.savedAt > STORAGE_MAX_AGE_MS) {
       localStorage.removeItem(STORAGE_KEY);
       return null;
+    }
+    // Clean out non-serializable properties or dead blob URLs that might exist from older sessions
+    if (parsed.formData) {
+      delete (parsed.formData as any).photoFile;
+      delete (parsed.formData as any).identityFile;
+      delete (parsed.formData as any).barCertificateFile;
+      delete (parsed.formData as any).additionalFiles;
+      if (parsed.formData.previewPhotoUrl?.startsWith("blob:")) {
+        delete (parsed.formData as any).previewPhotoUrl;
+      }
     }
     return parsed;
   } catch {
@@ -243,29 +276,55 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
   }, [existingProfile, initialProgress]);
 
   const totalSteps = 7;
+  const hasHydratedFromServer = useRef(false);
+  const lastSavedPayload = useRef<string>("");
 
-  // Restore from server draft if no local progress was found
+  // Ensure default primarySpecialty is populated when specialtyOptions load
   useEffect(() => {
-    if (!initialProgress && onboardingData?.draft) {
+    if (specialtyOptions.length > 0) {
+      setFormData(prev => {
+        if (!prev.primarySpecialty) {
+          return { ...prev, primarySpecialty: specialtyOptions[0].value };
+        }
+        return prev;
+      });
+    }
+  }, [specialtyOptions]);
+
+  // Restore from server draft if no local progress was found (runs once on mount)
+  useEffect(() => {
+    if (!initialProgress && onboardingData?.draft && !hasHydratedFromServer.current) {
+      hasHydratedFromServer.current = true;
       const serverDraft = onboardingData.draft;
       if (typeof serverDraft.currentStep === "number") {
         setCurrentStep(Math.max(1, Math.min(totalSteps, serverDraft.currentStep)));
       }
       if (serverDraft.formData && typeof serverDraft.formData === "object") {
+        const cleanServerData = { ...serverDraft.formData } as any;
+        delete cleanServerData.photoFile;
+        delete cleanServerData.identityFile;
+        delete cleanServerData.barCertificateFile;
+        delete cleanServerData.additionalFiles;
+        if (typeof cleanServerData.previewPhotoUrl === "string" && cleanServerData.previewPhotoUrl.startsWith("blob:")) {
+          delete cleanServerData.previewPhotoUrl;
+        }
         setFormData(prev => ({
           ...prev,
-          ...serverDraft.formData,
+          ...cleanServerData,
         }));
       }
     }
-  }, [initialProgress, onboardingData?.draft]);
+  }, [initialProgress, onboardingData?.draft, totalSteps]);
 
-  // Auto-save to localStorage and cloud draft on every change (debounced)
+  // Auto-save to localStorage (fast) and cloud draft (debounced, without triggering refetch loops)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // 1. Fast local save
+    const localTimer = setTimeout(() => {
       saveProgress(currentStep, formData);
+    }, 300);
 
-      // Cloud draft sync (strip non-serializable File objects)
+    // 2. Debounced cloud draft sync (2 seconds) - only fires when payload actually changes
+    const cloudTimer = setTimeout(() => {
       const {
         photoFile,
         identityFile,
@@ -275,23 +334,31 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
         ...serializableFormData
       } = formData;
 
+      const payload = {
+        currentStep,
+        formData: serializableFormData,
+        completionPercentage: Math.round((currentStep / totalSteps) * 100),
+      };
+
+      const payloadStr = JSON.stringify(payload);
+      if (payloadStr === lastSavedPayload.current) {
+        return;
+      }
+      lastSavedPayload.current = payloadStr;
+
       apiFetch("/experts/onboarding/draft", {
         method: "POST",
-        body: JSON.stringify({
-          currentStep,
-          formData: serializableFormData,
-          completionPercentage: Math.round((currentStep / totalSteps) * 100),
-        }),
-      })
-        .then(() => {
-          queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
-        })
-        .catch(() => {
-          // Silently ignore background cloud sync errors
-        });
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [currentStep, formData, queryClient]);
+        body: payloadStr,
+      }).catch(() => {
+        // Silently ignore background cloud sync errors
+      });
+    }, 2000);
+
+    return () => {
+      clearTimeout(localTimer);
+      clearTimeout(cloudTimer);
+    };
+  }, [currentStep, formData, totalSteps]);
 
   // Clear saved progress on successful backend confirmation
   useEffect(() => {
@@ -374,13 +441,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
     setIsSubmitting(true);
     try {
+      const fallbackSpecialty = formData.primarySpecialty || (specialtyOptions[0]?.value ?? "OTHER");
       const payload: CreateProfileDto = {
         displayName: formData.displayName.trim(),
         barNumber: formData.barNumber.trim(),
         yearsExperience: formData.yearsExperience !== "" ? Number(formData.yearsExperience) : undefined,
         firmName: formData.firmName.trim() || undefined,
-        primarySpecialty: formData.primarySpecialty as CreateProfileDto["primarySpecialty"],
-        specialties: formData.specialties as CreateProfileDto["specialties"],
+        primarySpecialty: fallbackSpecialty as CreateProfileDto["primarySpecialty"],
+        specialties: (formData.specialties && formData.specialties.length > 0) ? formData.specialties as CreateProfileDto["specialties"] : [fallbackSpecialty as any],
         bio: formData.bio.trim() || undefined,
         languages: formData.languages,
         officeAddress: formData.location?.address || formData.officeAddress.trim() || undefined,
@@ -419,11 +487,11 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       }
 
       // If they selected a photo, upload it NOW after profile creation
-      if (formData.photoFile) {
+      if (isRealFile(formData.photoFile)) {
         try {
           const photoData = new FormData();
-          photoData.append('photo', formData.photoFile as Blob);
-          const photoResult = await apiFetch<{ data: { photoUrl: string } }>('/experts/photo/profile', {
+          photoData.append('photo', formData.photoFile);
+          await apiFetch<{ data: { photoUrl: string } }>('/experts/photo/profile', {
             method: 'POST',
             body: photoData,
           });
@@ -436,29 +504,30 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       }
 
       // If they attached verification documents, submit them now
-      if (formData.identityFile || formData.barCertificateFile || (formData.additionalFiles && formData.additionalFiles.length > 0)) {
+      const validAdditionalFiles = (formData.additionalFiles || []).filter(f => isRealFile(f?.file));
+      const hasVerificationDocs = isRealFile(formData.identityFile) || isRealFile(formData.barCertificateFile) || validAdditionalFiles.length > 0;
+
+      if (hasVerificationDocs) {
         try {
           const verificationData = new FormData();
           const docTypes: string[] = [];
           const docLabels: string[] = [];
 
-          if (formData.identityFile) {
-            verificationData.append('files', formData.identityFile as Blob);
+          if (isRealFile(formData.identityFile)) {
+            verificationData.append('files', formData.identityFile);
             docTypes.push('identity_document');
             docLabels.push('National ID / Passport');
           }
-          if (formData.barCertificateFile) {
-            verificationData.append('files', formData.barCertificateFile as Blob);
+          if (isRealFile(formData.barCertificateFile)) {
+            verificationData.append('files', formData.barCertificateFile);
             docTypes.push('bar_certificate');
             docLabels.push('Bar Association Certificate');
           }
-          if (formData.additionalFiles) {
-            formData.additionalFiles.forEach(fileObj => {
-              verificationData.append('files', fileObj.file as Blob);
-              docTypes.push('additional');
-              docLabels.push(fileObj.label);
-            });
-          }
+          validAdditionalFiles.forEach(fileObj => {
+            verificationData.append('files', fileObj.file);
+            docTypes.push('additional');
+            docLabels.push(fileObj.label || 'Additional Document');
+          });
           
           docTypes.forEach(t => verificationData.append('documentTypes[]', t));
           docLabels.forEach(l => verificationData.append('documentLabels[]', l));
@@ -479,9 +548,10 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
       queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
       router.push("/expert/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Profile submission error:", error);
-      toast.error(t("profileCreateFailed"));
+      const errorMessage = error?.message || (error?.error && typeof error.error === 'string' ? error.error : null);
+      toast.error(errorMessage || t("profileCreateFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -893,7 +963,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>{tWizard("step7.identityLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
-                  {formData.identityFile ? (
+                  {isRealFile(formData.identityFile) ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-blue-500" />
                       <div className="min-w-0 flex-1">
@@ -919,7 +989,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
                 <div className="space-y-2">
                   <Label>{tWizard("step7.barCertificateLabel")} <span className="text-slate-400 dark:text-muted-foreground">{tWizard("step1.optional")}</span></Label>
-                  {formData.barCertificateFile ? (
+                  {isRealFile(formData.barCertificateFile) ? (
                     <div className="flex items-center gap-3 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-3">
                       <FileText className="h-8 w-8 shrink-0 text-red-500" />
                       <div className="min-w-0 flex-1">
@@ -951,9 +1021,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   <p className="text-sm text-slate-600 dark:text-muted-foreground">{tWizard("step7.additionalDocsSubtitle")}</p>
                 </div>
 
-                {formData.additionalFiles && formData.additionalFiles.length > 0 && (
+                {formData.additionalFiles && formData.additionalFiles.filter(fileObj => isRealFile(fileObj?.file)).length > 0 && (
                   <div className="space-y-3">
-                    {formData.additionalFiles.map((fileObj, idx) => (
+                    {formData.additionalFiles.filter(fileObj => isRealFile(fileObj?.file)).map((fileObj, idx) => (
                       <div key={idx} className="flex items-center gap-3 rounded-lg border border-slate-200 dark:border-border bg-white dark:bg-card p-3 shadow-sm">
                         <FileText className="h-6 w-6 shrink-0 text-slate-400 dark:text-muted-foreground" />
                         <div className="min-w-0 flex-1 space-y-1">
@@ -979,7 +1049,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                           const newFiles = [...(formData.additionalFiles || [])];
                           newFiles.splice(idx, 1);
                           setFormData(prev => ({ ...prev, additionalFiles: newFiles }));
-                        }} className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-950/50 mt-4">
+                        }} className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-950/50 mt-4 cursor-pointer">
                           <X className="h-4 w-4 text-red-500" />
                         </button>
                       </div>
@@ -987,7 +1057,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                   </div>
                 )}
 
-                {(!formData.additionalFiles || formData.additionalFiles.length < 5) && (
+                {(!formData.additionalFiles || formData.additionalFiles.filter(f => isRealFile(f?.file)).length < 5) && (
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all">
                     <Upload className="h-5 w-5 text-slate-400 dark:text-muted-foreground" />
                     <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.addDocument")}</span> {tWizard("step7.fileFormats")}</span>

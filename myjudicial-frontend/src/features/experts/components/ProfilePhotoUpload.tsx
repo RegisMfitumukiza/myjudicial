@@ -111,7 +111,8 @@ export function ProfilePhotoUpload({
     fileInputRef.current?.click();
   };
 
-  const displayUrl = previewUrl || currentPhotoUrl;
+  const validCurrentPhotoUrl = currentPhotoUrl && !currentPhotoUrl.startsWith("blob:") ? currentPhotoUrl : null;
+  const displayUrl = previewUrl || validCurrentPhotoUrl;
 
   return (
     <Card className={`p-6 ${className}`}>
@@ -144,6 +145,11 @@ export function ProfilePhotoUpload({
                   src={displayUrl}
                   alt="Profile photo"
                   className="h-20 w-20 rounded-full object-cover ring-4 ring-white shadow-lg"
+                  onError={() => {
+                    if (previewUrl) {
+                      setPreviewUrl(null);
+                    }
+                  }}
                 />
                 {previewUrl && (
                   <div className="absolute -bottom-1 -right-1 rounded-full bg-blue-500 p-1">

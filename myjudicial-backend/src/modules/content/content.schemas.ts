@@ -156,6 +156,7 @@ export const upsertContentPageSchema = z
     title: z.string().trim().min(1).max(200),
     blocks: z.array(contentBlockSchema).max(200),
     status: z.enum(["draft", "published"]),
+    version: z.string().trim().max(20).optional().default("1.0"),
     effectiveDate: z.string().trim().max(60).optional().nullable(),
     metaTitle: z.string().trim().max(200).optional().nullable(),
     metaDescription: z.string().trim().max(320).optional().nullable(),

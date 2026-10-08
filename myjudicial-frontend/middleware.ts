@@ -62,8 +62,9 @@ export function middleware(request: NextRequest) {
   if (isMainHost || isAdminPortal) {
     const httpsBase = `https://${host}`;
 
-    // Main site: /admin/* belongs on the admin portal.
-    if (isMainHost && RE_ADMIN_PATH.test(pathname)) {
+    // Main site: /admin/* and /sign-in?admin=1 belong on the admin portal.
+    const isAdminSignIn = pathname.includes("/sign-in") && request.nextUrl.searchParams.get("admin") === "1";
+    if (isMainHost && (RE_ADMIN_PATH.test(pathname) || isAdminSignIn)) {
       return withSecurityHeaders(
         NextResponse.redirect(`https://${ADMIN_HOST}${pathname}${search}`),
         requestId

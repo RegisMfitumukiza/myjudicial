@@ -22,7 +22,8 @@ export default function PortalLayout({
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      router.replace("/sign-in");
+      const isAdminRoute = pathname.includes("/admin");
+      router.replace(isAdminRoute ? "/sign-in?admin=1" : "/sign-in");
       return;
     }
 

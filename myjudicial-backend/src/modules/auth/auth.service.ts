@@ -279,6 +279,25 @@ export const AuthService = {
       ipAddress,
     });
 
+    // Record immutable legal consent ledger entry
+    if (dto.termsAccepted) {
+      try {
+        await prisma.userLegalConsent.create({
+          data: {
+            userId: supabaseUser.id,
+            documentType: "TERMS",
+            version: dto.termsVersion || "1.0",
+            context: "REGISTRATION",
+            locale: dto.preferredLanguage || "en",
+            ipAddress: ipAddress ?? null,
+          },
+        });
+        logger.info(`[LegalConsent] User ${supabaseUser.id} consented to TERMS v${dto.termsVersion || "1.0"} at registration`);
+      } catch (consentErr) {
+        logger.warn("[Auth] Failed to record registration terms consent", { error: consentErr, userId: supabaseUser.id });
+      }
+    }
+
     // Notify all admins when a new expert registers
     if (dto.role === "EXPERT") {
       try {

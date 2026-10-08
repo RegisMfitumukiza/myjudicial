@@ -9,6 +9,7 @@ import { slugifyLegalHeading } from "./legal-utils";
 import { organizationJsonLd, legalWebPageJsonLd } from "./json-ld";
 import { LiveStorageInspector } from "./live-storage-inspector";
 import { PrivacyRightsHelper } from "./privacy-rights-helper";
+import { TermsFinalizationNotice } from "./terms-finalization-notice";
 import { fetchPublicContentPage, fetchPublicPlatformSettings } from "./server";
 
 const LEGAL_PAGES: Partial<Record<ContentPageSlug, { namespace: string; icon: LegalPageIconName }>> = {
@@ -110,6 +111,7 @@ export async function PublicContentPageView({
   if (LEGAL_PAGES[slug]) {
     const legal = LEGAL_PAGES[slug];
     const legalT = await getTranslations({ locale, namespace: `legalPages.${legal.namespace}` });
+    const isTermsNotice = slug === "TERMS" && page.blocks.length <= 4;
     const seenSlugs = new Map<string, number>();
     const headingBlocks = page.blocks
       .map((block) => ({ block, heading: getBlockHeading(block) }))
@@ -125,7 +127,14 @@ export async function PublicContentPageView({
           id,
         };
       });
-    const tocItems = headingBlocks.map((item) => ({ id: item.id, label: item.heading }));
+    const tocItems = isTermsNotice
+      ? [
+          { id: "terms-status-heading", label: legalT("finalization.badge") },
+          { id: "interim-framework-heading", label: legalT("finalization.interimHeading") },
+          { id: "related-policies-heading", label: legalT("finalization.relatedHeading") },
+          { id: "corporate-entity-heading", label: legalT("finalization.corporateHeading") },
+        ]
+      : headingBlocks.map((item) => ({ id: item.id, label: item.heading }));
     const contactEmail =
       settings?.dpoContactEmail ||
       settings?.supportEmail ||
@@ -184,12 +193,16 @@ export async function PublicContentPageView({
               <PrivacyRightsHelper />
             </div>
           ) : null}
-          <ContentBlocks
-            blocks={page.blocks}
-            settings={settings}
-            locale={locale}
-            anchorIdsByBlockId={Object.fromEntries(headingBlocks.map((item) => [item.block.id, item.id]))}
-          />
+          {isTermsNotice ? (
+            <TermsFinalizationNotice />
+          ) : (
+            <ContentBlocks
+              blocks={page.blocks}
+              settings={settings}
+              locale={locale}
+              anchorIdsByBlockId={Object.fromEntries(headingBlocks.map((item) => [item.block.id, item.id]))}
+            />
+          )}
         </LegalDocumentLayout>
       </>
     );

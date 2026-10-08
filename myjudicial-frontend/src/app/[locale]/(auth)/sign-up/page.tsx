@@ -382,6 +382,8 @@ export default function SignUpPage() {
         email: normalEmail,
         phone: phone.trim(),
         role: role as "CITIZEN" | "EXPERT",
+        termsAccepted: terms,
+        termsVersion: "1.0",
       });
 
       // The backend is idempotent: this succeeds whether or not the account

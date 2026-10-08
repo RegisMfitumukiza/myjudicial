@@ -71,12 +71,33 @@ export function SignInForm() {
   const [otpExpiresAt, setOtpExpiresAt] = useState<string | null>(null);
   const [otpRemaining, setOtpRemaining] = useState<number | null>(null);
   const [otpExpired, setOtpExpired] = useState(false);
-  const [adminMode, setAdminMode] = useState(() => searchParams.get("admin") === "1");
+  const [adminMode, setAdminMode] = useState(() => {
+    if (typeof window !== "undefined" && window.location.hostname.toLowerCase() === ADMIN_PORTAL_HOST) {
+      return true;
+    }
+    return searchParams.get("admin") === "1";
+  });
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [adminRememberMe, setAdminRememberMe] = useState(false);
   const isHydratedRef = useRef(false);
+
+  // If user requests admin mode while on main host, immediately forward to admin portal
+  // BEFORE they fill credentials so they never suffer double submission or theme reset.
+  useEffect(() => {
+    if (typeof window === "undefined" || process.env.NODE_ENV !== "production") return;
+    const currentHost = window.location.hostname.toLowerCase();
+    if (currentHost === ADMIN_PORTAL_HOST) {
+      setAdminMode(true);
+    } else if (searchParams.get("admin") === "1") {
+      const currentLocale = locale || "en";
+      const theme = localStorage.getItem("theme") || "";
+      const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
+      const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
+      window.location.href = `https://${ADMIN_PORTAL_HOST}/${currentLocale}/sign-in?admin=1${cb}${themeParam}`;
+    }
+  }, [searchParams, locale, callbackUrl]);
 
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
@@ -266,8 +287,10 @@ export function SignInForm() {
       const currentHost = window.location.hostname.toLowerCase();
       if (currentHost !== ADMIN_PORTAL_HOST) {
         const locale = window.location.pathname.split("/")[1] || "en";
+        const theme = localStorage.getItem("theme") || "";
+        const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
         const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
-        window.location.href = `https://${ADMIN_PORTAL_HOST}/${locale}/sign-in?admin=1${cb}`;
+        window.location.href = `https://${ADMIN_PORTAL_HOST}/${locale}/sign-in?admin=1${cb}${themeParam}`;
         return;
       }
     }
@@ -302,6 +325,24 @@ export function SignInForm() {
   }
 
   function toggleAdminMode() {
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
+      const currentHost = window.location.hostname.toLowerCase();
+      if (!adminMode && currentHost !== ADMIN_PORTAL_HOST) {
+        const currentLocale = locale || "en";
+        const theme = localStorage.getItem("theme") || "";
+        const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
+        const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
+        window.location.href = `https://${ADMIN_PORTAL_HOST}/${currentLocale}/sign-in?admin=1${cb}${themeParam}`;
+        return;
+      }
+      if (adminMode && currentHost === ADMIN_PORTAL_HOST) {
+        const currentLocale = locale || "en";
+        const theme = localStorage.getItem("theme") || "";
+        const themeParam = theme ? `?theme=${encodeURIComponent(theme)}` : "";
+        window.location.href = `https://www.myjudicial.com/${currentLocale}/sign-in${themeParam}`;
+        return;
+      }
+    }
     setAdminMode(!adminMode);
     setError(null);
     setMessage(null);
@@ -526,17 +567,15 @@ export function SignInForm() {
             </Button>
           </form>
 
-          {searchParams.get("admin") === "1" && (
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={toggleAdminMode}
-                className="text-xs font-semibold text-muted-foreground hover:text-foreground"
-              >
-                &larr; {t("backToRegular")}
-              </button>
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={toggleAdminMode}
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              &larr; {t("backToRegular")}
+            </button>
+          </div>
         </>
       ) : (
         <>

@@ -66,6 +66,10 @@ export interface RegisterDto {
   role: RegisterDtoRole;
   /** Preferred interface language */
   preferredLanguage?: RegisterDtoPreferredLanguage;
+  /** Whether user consented to Terms of Service */
+  termsAccepted?: boolean;
+  /** Version of Terms accepted */
+  termsVersion?: string;
 }
 
 export interface SendOtpDto {

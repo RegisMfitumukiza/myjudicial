@@ -24,12 +24,20 @@ router.get("/legal/status", authenticateOptional, async (req: Request, res: Resp
     const locale = toContentLocale(req.query.locale);
     const userId = req.user?.id;
 
-    // Fetch published status & version for core legal documents
-    const [termsPage, privacyPage, cookiesPage] = await Promise.all([
-      ContentService.getPublished("TERMS", locale),
-      ContentService.getPublished("PRIVACY", locale),
-      ContentService.getPublished("COOKIES", locale),
-    ]);
+    // Fetch published status & version for core legal documents with zero-crash resilience
+    let termsPage: any = null;
+    let privacyPage: any = null;
+    let cookiesPage: any = null;
+
+    try {
+      [termsPage, privacyPage, cookiesPage] = await Promise.all([
+        ContentService.getPublished("TERMS", locale).catch(() => null),
+        ContentService.getPublished("PRIVACY", locale).catch(() => null),
+        ContentService.getPublished("COOKIES", locale).catch(() => null),
+      ]);
+    } catch (e) {
+      logger.warn("[LegalStatus] Content service query failed, returning baseline status", { error: e });
+    }
 
     // Check if TERMS is published and has substantive sections (more than 4 placeholder blocks)
     const isTermsApproved = Boolean(
@@ -74,35 +82,37 @@ router.get("/legal/status", authenticateOptional, async (req: Request, res: Resp
     } | null = null;
 
     if (userId) {
-      const userConsents = await prisma.userLegalConsent.findMany({
-        where: { userId },
-        orderBy: { acceptedAt: "desc" },
-      });
+      try {
+        const userConsents = await prisma.userLegalConsent.findMany({
+          where: { userId },
+          orderBy: { acceptedAt: "desc" },
+        });
 
-      // Group by document type to find latest version accepted
-      const latestByType = new Map<string, string>();
-      for (const consent of userConsents) {
-        if (!latestByType.has(consent.documentType)) {
-          latestByType.set(consent.documentType, consent.version);
+        const latestByType = new Map<string, string>();
+        for (const consent of userConsents) {
+          if (!latestByType.has(consent.documentType)) {
+            latestByType.set(consent.documentType, consent.version);
+          }
         }
+
+        const currentTermsVersion = documents.TERMS.version;
+        const acceptedTermsVersion = latestByType.get("TERMS");
+        const isCompliant = isTermsApproved
+          ? acceptedTermsVersion === currentTermsVersion
+          : true;
+
+        userConsent = {
+          isCompliant,
+          consents: userConsents.map((c) => ({
+            documentType: c.documentType,
+            version: c.version,
+            acceptedAt: c.acceptedAt.toISOString(),
+            context: c.context,
+          })),
+        };
+      } catch (err) {
+        logger.warn("[LegalStatus] User consent query failed", { error: err, userId });
       }
-
-      // Check if user has accepted current terms version (if terms are published)
-      const currentTermsVersion = documents.TERMS.version;
-      const acceptedTermsVersion = latestByType.get("TERMS");
-      const isCompliant = isTermsApproved
-        ? acceptedTermsVersion === currentTermsVersion
-        : true; // If terms not yet finalized, compliant by default
-
-      userConsent = {
-        isCompliant,
-        consents: userConsents.map((c) => ({
-          documentType: c.documentType,
-          version: c.version,
-          acceptedAt: c.acceptedAt.toISOString(),
-          context: c.context,
-        })),
-      };
     }
 
     res.json({

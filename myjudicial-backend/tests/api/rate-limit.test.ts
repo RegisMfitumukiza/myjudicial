@@ -8,8 +8,8 @@ import { ipKeyGenerator } from "express-rate-limit";
 
 describe("Global API rate limiting", () => {
   const target = "/api/v1";
-  // apiLimiter max is 1000 when NODE_ENV !== "production".
-  const LIMIT = 1000;
+  // apiLimiter max is 2000 when NODE_ENV !== "production" (unless overridden by env).
+  const LIMIT = Number(process.env.API_RATE_LIMIT_MAX) || (process.env.NODE_ENV === "production" ? 1000 : 2000);
 
   it("allows requests under the limit and blocks once it is exceeded (429)", async () => {
     let got429 = false;

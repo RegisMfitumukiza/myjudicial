@@ -170,6 +170,27 @@ export const authenticate = async (
 };
 
 /**
+ * Optional authentication middleware.
+ * If a valid Bearer token is provided, attaches req.user.
+ * If missing or invalid, proceeds without error (req.user remains undefined).
+ */
+export const authenticateOptional = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  if (!req.headers.authorization?.startsWith("Bearer ")) {
+    return next();
+  }
+  return authenticate(req, res, (err) => {
+    if (err) {
+      req.user = undefined;
+    }
+    next();
+  });
+};
+
+/**
  * Middleware factory — requires the authenticated user to have one of the given roles.
  * Must be used after `authenticate`.
  *

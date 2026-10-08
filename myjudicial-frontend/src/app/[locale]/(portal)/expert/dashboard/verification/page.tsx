@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
+import { Link } from "@/i18n/routing";
 import {
   CheckCircle,
   Clock,
@@ -13,6 +14,14 @@ import {
   X,
   ArrowRight,
   BadgeCheck,
+  ShieldCheck,
+  Lock,
+  FileCheck,
+  Calendar,
+  Briefcase,
+  HelpCircle,
+  ExternalLink,
+  Sparkles,
 } from "lucide-react";
 import {
   useGetExpertsCompliance,
@@ -422,9 +431,9 @@ export default function VerificationPage() {
         className="mb-6"
       />
 
-      <div className="grid max-w-4xl gap-6 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-6 lg:grid-cols-12 xl:gap-8 min-w-0">
         {/* ── Main Column ── */}
-        <div className="space-y-5">
+        <div className="space-y-6 lg:col-span-7 xl:col-span-8 min-w-0">
           {/* Status Banner */}
           {isLoading ? (
             <SkeletonCard className="h-28" />
@@ -486,9 +495,9 @@ export default function VerificationPage() {
 
           {/* Document Upload Form */}
           {!isLoading && canSubmit && (
-            <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-5 sm:p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2">
-                <Upload size={16} className="text-primary" />
+                <Upload size={18} className="text-primary" />
                 <h3 className="text-sm font-bold text-foreground">
                   {status === "REJECTED"
                     ? t("resubmitDocsTitle")
@@ -520,7 +529,7 @@ export default function VerificationPage() {
               {/* Optional metadata */}
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="barNumber" className="text-xs">
+                  <Label htmlFor="barNumber" className="text-xs font-medium">
                     {t("labelBarNumber")}
                   </Label>
                   <Input
@@ -531,7 +540,7 @@ export default function VerificationPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="certificateName" className="text-xs">
+                  <Label htmlFor="certificateName" className="text-xs font-medium">
                     {t("labelCertName")}
                   </Label>
                   <Input
@@ -542,7 +551,7 @@ export default function VerificationPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="issuer" className="text-xs">
+                  <Label htmlFor="issuer" className="text-xs font-medium">
                     {t("labelIssuer")}
                   </Label>
                   <Input
@@ -553,7 +562,7 @@ export default function VerificationPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="issueDate" className="text-xs">
+                  <Label htmlFor="issueDate" className="text-xs font-medium">
                     {t("labelIssueDate")}
                   </Label>
                   <Input
@@ -565,10 +574,11 @@ export default function VerificationPage() {
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-4">
-                <p className="text-xs text-muted-foreground">
-                  {t("fileEncryptionNotice")}
-                </p>
+              <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Lock size={13} className="text-primary shrink-0" />
+                  <span>{t("fileEncryptionNotice")}</span>
+                </div>
                 <Button
                   size="lg"
                   onClick={handleSubmit}
@@ -588,31 +598,142 @@ export default function VerificationPage() {
             </div>
           )}
 
-          {/* Verified — what is unlocked */}
-          {status === "VERIFIED" && (
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
-                <BadgeCheck size={16} className="text-primary" /> {t("unlockedTitle")}
-              </h3>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                {[
-                  t("unlockedItem1"),
-                  t("unlockedItem2"),
-                  t("unlockedItem3"),
-                  t("unlockedItem4"),
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <CheckCircle size={12} className="shrink-0 text-primary" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          {/* Under Review Notice Card */}
+          {!isLoading && status === "PENDING_VERIFICATION" && (
+            <div className="rounded-xl border border-warning/30 bg-card p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warning/10 text-warning">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    {t("pendingReviewTitle")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("pendingReviewText")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <p className="text-xs font-semibold text-foreground mb-3">
+                  {t("whileWaiting")}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/expert/dashboard/services" className="gap-2">
+                      <Briefcase size={14} />
+                      {t("btnConfigureServices")}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/expert/dashboard/availability" className="gap-2">
+                      <Calendar size={14} />
+                      {t("btnSetAvailability")}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Verified Celebration Card */}
+          {!isLoading && status === "VERIFIED" && (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+                  <BadgeCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    {t("verifiedBannerTitle")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("verifiedBannerText")}
+                  </p>
+                </div>
+              </div>
+              <div className="border-t border-primary/20 pt-4 flex flex-wrap gap-3">
+                <Button size="sm" asChild>
+                  <Link href="/expert/dashboard/calendar" className="gap-2">
+                    <Calendar size={14} />
+                    {t("btnGoCalendar")}
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/expert/dashboard/profile" className="gap-2">
+                    <ExternalLink size={14} />
+                    {t("btnViewProfile")}
+                  </Link>
+                </Button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* ── Sidebar: Timeline ── */}
-        {!isLoading && <VerificationTimeline status={status} />}
+        {/* ── Sidebar Column (Progress, Guidance & Trust) ── */}
+        <div className="space-y-6 lg:col-span-5 xl:col-span-4 min-w-0">
+          {/* Verification Timeline Stepper */}
+          {!isLoading && <VerificationTimeline status={status} />}
+
+          {/* What Verification Unlocks Card */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h3 className="mb-3.5 flex items-center gap-2 text-sm font-bold text-foreground">
+              <Sparkles size={16} className="text-primary" />
+              {t("unlockedTitle")}
+            </h3>
+            <ul className="space-y-2.5 text-xs text-muted-foreground">
+              {[
+                t("unlockedItem1"),
+                t("unlockedItem2"),
+                t("unlockedItem3"),
+                t("unlockedItem4"),
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <CheckCircle size={14} className="shrink-0 text-primary mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Accreditation Guidelines Card */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3.5">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <FileCheck size={16} className="text-primary" />
+              {t("guidelinesTitle")}
+            </h3>
+            <div className="space-y-3 text-xs">
+              <div className="rounded-lg bg-muted/50 p-2.5">
+                <p className="font-semibold text-foreground">{t("guidelineIdTitle")}</p>
+                <p className="text-muted-foreground mt-0.5">{t("guidelineIdDesc")}</p>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-2.5">
+                <p className="font-semibold text-foreground">{t("guidelineBarTitle")}</p>
+                <p className="text-muted-foreground mt-0.5">{t("guidelineBarDesc")}</p>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-2.5">
+                <p className="font-semibold text-foreground">{t("guidelineMatchingTitle")}</p>
+                <p className="text-muted-foreground mt-0.5">{t("guidelineMatchingDesc")}</p>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-2.5">
+                <p className="font-semibold text-foreground">{t("guidelineSlaTitle")}</p>
+                <p className="text-muted-foreground mt-0.5">{t("guidelineSlaDesc")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Security & Confidentiality Card */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-2">
+            <h3 className="flex items-center gap-2 text-xs font-bold text-foreground">
+              <ShieldCheck size={15} className="text-primary" />
+              {t("securityTitle")}
+            </h3>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {t("securityDesc")}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

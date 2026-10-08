@@ -1425,7 +1425,8 @@
       "fileFormats": "(PDF, PNG, JPG)",
       "uploadPrompt": "Kanda hano ushyireho dosiye",
       "uploadPromptDrag": "cyangwa uyikurure hano",
-      "docsOptionalStrong": "Ibisabwa mu Kwemezwa:",
+      "uploadLimit": "PNG, JPG, PDF kugeza kuri 10MB",
+      "docsOptionalStrong": "Ibisabwa mu Kwemezwa :",
       "docsOptional": "Indangamuntu n'icyangombwa cy'Urugaga rw'Abavoka birakenewe kugira ngo wemezwe kandi wakire abakiriya. Ushobora kubishyiraho ubu kugira ngo isuzuma ritangire hejuru, cyangwa ukarangiza umwirondoro ukabishyiraho nyuma muri Dashboard.",
       "requiredForVerification": "Birasabwa mu kwemezwa",
       "uploadNowOrLater": "Bishyireho ubu cyangwa nyuma"
@@ -5053,7 +5054,27 @@
     "unlockedItem1": "Ugaragara ku ikarita no mu ishakiro ry'abakiriya",
     "unlockedItem2": "Abakiriya bashobora gusaba ubufasha bwawe mu by'amategeko",
     "unlockedItem3": "Umwirondoro wawe w'umwuga ugaragara ku mugaragaro",
-    "unlockedItem4": "Uhabwa ubutumwa bw'abakiriya bagannye n'ubwishyu"
+    "unlockedItem4": "Uhabwa ubutumwa bw'abakiriya bagannye n'ubwishyu",
+    "guidelinesTitle": "Amabwiriza yo kwemeza",
+    "guidelineIdTitle": "Indangamuntu cyangwa Pasiporo",
+    "guidelineIdDesc": "Igaragara neza, ifite agaciro, ifite ifoto n'imibare byose bisomeka.",
+    "guidelineBarTitle": "Icyemezo cy'Urugaga rw'Abavoka",
+    "guidelineBarDesc": "Icyemezo cyo gukora umwuga cy'umwaka uriho cyangwa ikarita y'urugaga.",
+    "guidelineMatchingTitle": "Guhuza Amazina n'Imibare",
+    "guidelineMatchingDesc": "Birasabwa ko bihura neza n'ibiri mu gitabo cy'Urugaga rw'Abavoka.",
+    "guidelineSlaTitle": "Igihe bisaba",
+    "guidelineSlaDesc": "Dosiyemo zisuzumwa mu masaha 24 kugeza kuri 48 y'akazi.",
+    "securityTitle": "Umutekano & Ibanga",
+    "securityDesc": "Inyandiko zawe zifungiwe mu buryo bugezweho bwa AES-256 mu bubiko bwite. Mu rwego rwo kubahiriza ibanga ry'umwuga, abagenzuzi b'urubuga gusa nibo babibona.",
+    "pendingReviewTitle": "Dosiyemo irasuzumwa",
+    "pendingReviewText": "Itsinda ryacu ririmo gusuzuma icyemezo cy'urugaga rw'abavoka n'indangamuntu byawe.",
+    "whileWaiting": "Ibyo wakora mu gihe utegereje:",
+    "btnConfigureServices": "Tegura serivisi n'ibiciro",
+    "btnSetAvailability": "Shyiraho amasaha y'akazi",
+    "verifiedBannerTitle": "Inzobere yemejwe mu mategeko",
+    "verifiedBannerText": "Inyandiko zawe zemejwe. Umwirondoro wawe ugaragarira abakiriya bose.",
+    "btnViewProfile": "Reba umwirondoro wose",
+    "btnGoCalendar": "Fungura ingengabihe"
   },
   "experts": {
     "presence": {

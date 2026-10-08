@@ -3118,7 +3118,27 @@
       "rejected": "Rejected",
       "draft": "Draft",
       "suspended": "Suspended"
-    }
+    },
+    "guidelinesTitle": "Accreditation Guidelines",
+    "guidelineIdTitle": "Government ID or Passport",
+    "guidelineIdDesc": "Clear, unexpired, with visible photo and document numbers.",
+    "guidelineBarTitle": "Bar Association Certificate",
+    "guidelineBarDesc": "Annual practicing certificate or current Bar membership card.",
+    "guidelineMatchingTitle": "Name & Bar Number Consistency",
+    "guidelineMatchingDesc": "Details must match your official Bar Association registry.",
+    "guidelineSlaTitle": "Review Timeframe",
+    "guidelineSlaDesc": "Submissions are reviewed within 24–48 business hours.",
+    "securityTitle": "Security & Confidentiality",
+    "securityDesc": "Your documents are encrypted with AES-256 and stored in private vaults. Pursuant to statutory professional secrecy, they are accessible only by authorized compliance auditors.",
+    "pendingReviewTitle": "Application Under Compliance Review",
+    "pendingReviewText": "Our team is currently verifying your Bar Association credentials and Identity document against official regulatory records.",
+    "whileWaiting": "Recommended while waiting:",
+    "btnConfigureServices": "Set Consultation Services",
+    "btnSetAvailability": "Configure Working Hours",
+    "verifiedBannerTitle": "Accredited Legal Practitioner",
+    "verifiedBannerText": "Your credentials have been validated. Your profile is publicly discoverable and active for client bookings.",
+    "btnViewProfile": "View Public Profile",
+    "btnGoCalendar": "Open Calendar"
   },
   "expertOnboarding": {
     "title": "MyJudicial Expert Setup",

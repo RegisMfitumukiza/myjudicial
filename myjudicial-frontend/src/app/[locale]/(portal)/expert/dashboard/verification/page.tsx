@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import {
   CheckCircle,
@@ -18,6 +18,7 @@ import {
   useGetExpertsCompliance,
   getGetExpertsComplianceQueryKey,
 } from "@/api/generated";
+import { useExpertProfile } from "@/features/experts/hooks/useExpertProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
@@ -252,7 +253,9 @@ function FileDropZone({
               {attached.file.name}
             </p>
             <p className="text-xs text-muted-foreground">
-              {(attached.file.size / 1024).toFixed(1)} KB &bull;{" "}
+              {typeof attached.file?.size === "number" && !isNaN(attached.file.size)
+                ? `${(attached.file.size / 1024).toFixed(1)} KB`
+                : ""} &bull;{" "}
               {attached.file.type.split("/")[1]?.toUpperCase() ?? t("fileLabel")}
             </p>
             <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -321,6 +324,7 @@ export default function VerificationPage() {
   const t = useTranslations("expertDashboard_verification");
   const queryClient = useQueryClient();
   const { data, isLoading } = useGetExpertsCompliance();
+  const { data: profile } = useExpertProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [identityFile, setIdentityFile] = useState<AttachedFile | null>(null);
@@ -331,6 +335,13 @@ export default function VerificationPage() {
   const [certificateName, setCertificateName] = useState("");
   const [issuer, setIssuer] = useState("");
   const [issueDate, setIssueDate] = useState("");
+
+  // Pre-fill barNumber from expert profile if not already set
+  useEffect(() => {
+    if (profile?.barNumber && !barNumber) {
+      setBarNumber(profile.barNumber);
+    }
+  }, [profile?.barNumber, barNumber]);
 
   // The generated hook returns AxiosResponse<{ success: boolean; data: ComplianceStatus }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

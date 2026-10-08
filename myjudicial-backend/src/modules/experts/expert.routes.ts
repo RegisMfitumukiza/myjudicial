@@ -49,7 +49,7 @@ import { EarningsController } from "./earnings/earnings.controller.js";
 
 // Onboarding
 import { OnboardingController } from "./onboarding/onboarding.controller.js";
-import { completeStepSchema, skipStepSchema, updateProgressSchema } from "./onboarding/onboarding.schemas.js";
+import { completeStepSchema, skipStepSchema, updateProgressSchema, saveDraftSchema } from "./onboarding/onboarding.schemas.js";
 
 // Photo
 import { PhotoController } from "./photo/photo.controller.js";
@@ -446,6 +446,14 @@ router.get("/earnings", authenticate, requireExpert, asyncHandler(EarningsContro
 
 // ── Onboarding ────────────────────────────
 router.get("/onboarding", authenticate, requireExpert, asyncHandler(OnboardingController.getProgress));
+router.get("/onboarding/draft", authenticate, requireExpert, asyncHandler(OnboardingController.getDraft));
+router.post(
+  "/onboarding/draft",
+  authenticate, requireExpert,
+  validate(saveDraftSchema),
+  asyncHandler(OnboardingController.saveDraft)
+);
+router.delete("/onboarding/draft", authenticate, requireExpert, asyncHandler(OnboardingController.clearDraft));
 router.post(
   "/onboarding/complete-step",
   authenticate, requireExpert,

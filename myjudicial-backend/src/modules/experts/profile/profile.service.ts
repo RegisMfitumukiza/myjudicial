@@ -8,6 +8,8 @@ import { getSignedDownloadUrl } from "../../../infrastructure/storage/oci-object
 import { logger } from "../../../shared/utils/logger.js";
 import type { CreateProfileDto, UpdateProfileDto } from "./profile.schemas.js";
 import { triggerEmbeddingSync } from "../../ai/embedding-sync.service.js";
+import { prisma } from "../../../infrastructure/database/prisma.js";
+import { Prisma } from "../../../generated/prisma/client.js";
 
 
 export const ProfileService = {
@@ -69,6 +71,14 @@ export const ProfileService = {
       resourceId: profile.id,
       description: "Expert profile created — pending verification",
       ipAddress,
+    });
+
+    // Clear saved onboarding draft since profile is now created
+    await prisma.user.update({
+      where: { id: userId },
+      data: { onboarding: Prisma.DbNull },
+    }).catch(err => {
+      logger.warn("Failed to clear onboarding draft after profile creation", { userId, error: err });
     });
 
     // Tier 3 — async embedding sync (fire-and-forget, never blocks the response)

@@ -34,6 +34,13 @@ export const updateProgressSchema = z.object({
   completed: z.boolean().default(false).describe("Whether onboarding is complete")
 });
 
+export const saveDraftSchema = z.object({
+  currentStep: z.number().int().min(1).max(7).describe("Current step number (1-7)"),
+  formData: z.record(z.string(), z.any()).optional().default({}).describe("Form field draft values"),
+  completionPercentage: z.number().min(0).max(100).optional().describe("Calculated completion percentage"),
+});
+
 export type CompleteStepDto = z.infer<typeof completeStepSchema>;
 export type SkipStepDto = z.infer<typeof skipStepSchema>;
 export type UpdateProgressDto = z.infer<typeof updateProgressSchema>;
+export type SaveDraftDto = z.infer<typeof saveDraftSchema>;

@@ -46,5 +46,32 @@ export const OnboardingController = {
     } catch (error) {
       next(error);
     }
+  },
+
+  async saveDraft(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await OnboardingService.saveDraft(req.user!.id, req.body);
+      sendSuccess(res, data, "Onboarding draft saved");
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getDraft(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await OnboardingService.getDraft(req.user!.id);
+      sendSuccess(res, data, "Onboarding draft retrieved");
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async clearDraft(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await OnboardingService.clearDraft(req.user!.id);
+      sendSuccess(res, data, "Onboarding draft cleared");
+    } catch (error) {
+      next(error);
+    }
   }
 };

@@ -162,6 +162,12 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
             urgency: 'low' | 'medium' | 'high';
             message: string;
           };
+          draft?: {
+            currentStep: number;
+            formData: Partial<OnboardingData>;
+            savedAt: number;
+            completionPercentage: number;
+          } | null;
         };
       }>("/experts/onboarding", { method: "GET" });
     },
@@ -227,13 +233,56 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
     }
   }, [existingProfile, initialProgress]);
 
-  // Auto-save to localStorage on every change (debounced)
+  const totalSteps = 7;
+
+  // Restore from server draft if no local progress was found
+  useEffect(() => {
+    if (!initialProgress && onboardingData?.draft) {
+      const serverDraft = onboardingData.draft;
+      if (typeof serverDraft.currentStep === "number") {
+        setCurrentStep(Math.max(1, Math.min(totalSteps, serverDraft.currentStep)));
+      }
+      if (serverDraft.formData && typeof serverDraft.formData === "object") {
+        setFormData(prev => ({
+          ...prev,
+          ...serverDraft.formData,
+        }));
+      }
+    }
+  }, [initialProgress, onboardingData?.draft]);
+
+  // Auto-save to localStorage and cloud draft on every change (debounced)
   useEffect(() => {
     const timer = setTimeout(() => {
       saveProgress(currentStep, formData);
-    }, 500);
+
+      // Cloud draft sync (strip non-serializable File objects)
+      const {
+        photoFile,
+        identityFile,
+        barCertificateFile,
+        additionalFiles,
+        previewPhotoUrl,
+        ...serializableFormData
+      } = formData;
+
+      apiFetch("/experts/onboarding/draft", {
+        method: "POST",
+        body: JSON.stringify({
+          currentStep,
+          formData: serializableFormData,
+          completionPercentage: Math.round((currentStep / totalSteps) * 100),
+        }),
+      })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
+        })
+        .catch(() => {
+          // Silently ignore background cloud sync errors
+        });
+    }, 600);
     return () => clearTimeout(timer);
-  }, [currentStep, formData]);
+  }, [currentStep, formData, queryClient]);
 
   // Clear saved progress on successful backend confirmation
   useEffect(() => {
@@ -255,8 +304,6 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
-
-  const totalSteps = 7;
 
   const steps = [
     { number: 1, title: tWizard("steps.profile"), icon: Scale, id: "profile" },
@@ -419,6 +466,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
 
       toast.success(t("profileCreated"));
       clearProgress();
+      apiFetch("/experts/onboarding/draft", { method: "DELETE" }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ["experts", "onboarding"] });
+      queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
       router.push("/expert/dashboard");
     } catch (error) {
       console.error("Profile submission error:", error);
@@ -440,7 +490,7 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
       <ExpertOnboardingHeader
         currentStep={currentStep}
         totalSteps={totalSteps}
-        completionPercentage={onboardingData?.completionPercentage || Math.round((currentStep / totalSteps) * 100)}
+        completionPercentage={Math.round((currentStep / totalSteps) * 100)}
         expertName={fullName}
       />
 

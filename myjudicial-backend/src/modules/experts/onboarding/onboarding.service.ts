@@ -1,8 +1,9 @@
 import { getErrorMessage } from "../../../shared/utils/i18n-messages.js";
 import { prisma } from "../../../infrastructure/database/prisma.js";
+import { Prisma } from "../../../generated/prisma/client.js";
 import { NotFoundError, ValidationError } from "../../../shared/errors/index.js";
 import { writeAuditLog } from "../../../shared/utils/audit.js";
-import type { CompleteStepDto, SkipStepDto, UpdateProgressDto } from "./onboarding.schemas.js";
+import type { CompleteStepDto, SkipStepDto, UpdateProgressDto, SaveDraftDto } from "./onboarding.schemas.js";
 
 
 interface OnboardingStep {
@@ -34,6 +35,12 @@ interface OnboardingProgress {
   nextRecommendedStep?: string;
   estimatedTimeRemaining: number;
   photoStatus: PhotoStatus;
+  draft?: {
+    currentStep: number;
+    formData: any;
+    savedAt: number;
+    completionPercentage: number;
+  } | null;
 }
 
 export const OnboardingService = {
@@ -46,7 +53,8 @@ export const OnboardingService = {
             phone: true, 
             firstName: true, 
             lastName: true,
-            email: true 
+            email: true,
+            onboarding: true,
           } 
         },
         services: { where: { isActive: true } },
@@ -59,25 +67,57 @@ export const OnboardingService = {
       },
     });
 
-    // If no profile exists, return initial state
+    // If no profile exists, inspect user onboarding draft state
     if (!profile) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { onboarding: true }
+      });
+
+      const rawDraft = user?.onboarding as Record<string, any> | null;
+      const hasDraft = !!rawDraft && typeof rawDraft === 'object' && typeof rawDraft.currentStep === 'number';
+      const draftStep = hasDraft ? Math.max(1, Math.min(7, rawDraft.currentStep)) : 1;
+      const draftPercentage = hasDraft 
+        ? (typeof rawDraft.completionPercentage === 'number' ? rawDraft.completionPercentage : Math.round((draftStep / 7) * 100))
+        : 0;
+
+      const draftCompletions = {
+        profile: hasDraft && draftStep >= 2,
+        services: hasDraft && draftStep >= 4,
+        availability: hasDraft && draftStep >= 5,
+        verification: hasDraft && draftStep >= 6,
+        compliance: false,
+      };
+
+      const completedSteps = Object.entries(draftCompletions)
+        .filter(([_, completed]) => completed)
+        .map(([step]) => step);
+
+      const draftObj = hasDraft ? {
+        currentStep: draftStep,
+        formData: rawDraft.formData ?? {},
+        savedAt: typeof rawDraft.savedAt === 'number' ? rawDraft.savedAt : Date.now(),
+        completionPercentage: draftPercentage,
+      } : null;
+
       return {
-        currentStep: "profile",
-        completedSteps: [],
+        currentStep: hasDraft ? `step_${draftStep}` : "profile",
+        completedSteps,
         skippedSteps: [],
-        totalSteps: 5,
-        completionPercentage: 0,
-        canProceedToNext: false,
+        totalSteps: 7,
+        completionPercentage: draftPercentage,
+        canProceedToNext: true,
         isComplete: false,
-        nextRecommendedStep: "profile",
-        estimatedTimeRemaining: 25,
-        steps: await this.getStepsDefinition(null),
+        nextRecommendedStep: hasDraft ? `step_${draftStep}` : "profile",
+        estimatedTimeRemaining: Math.max(2, 25 - Math.round((draftPercentage / 100) * 20)),
+        steps: await this.getStepsDefinition(draftCompletions),
         photoStatus: {
-          hasPhoto: false,
-          needsPhoto: false,
+          hasPhoto: !!rawDraft?.formData?.photoFile || !!rawDraft?.formData?.previewPhotoUrl,
+          needsPhoto: !rawDraft?.formData?.previewPhotoUrl,
           urgency: 'low' as const,
           message: this.getPhotoReminderMessage('low', false),
         },
+        draft: draftObj,
       };
     }
 
@@ -132,6 +172,7 @@ export const OnboardingService = {
       estimatedTimeRemaining,
       steps: await this.getStepsDefinition(stepCompletions),
       photoStatus,
+      draft: null,
     };
   },
 
@@ -365,5 +406,50 @@ export const OnboardingService = {
       currentStep: "profile",
       completedAt: null
     };
+  },
+
+  /**
+   * Save in-progress onboarding wizard draft to User.onboarding Json field
+   */
+  async saveDraft(userId: string, dto: SaveDraftDto) {
+    const draftStep = Math.max(1, Math.min(7, dto.currentStep));
+    const completionPercentage = dto.completionPercentage ?? Math.round((draftStep / 7) * 100);
+    const draftData = {
+      currentStep: draftStep,
+      formData: dto.formData ?? {},
+      completionPercentage,
+      savedAt: Date.now(),
+    };
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        onboarding: draftData,
+      },
+    });
+
+    return draftData;
+  },
+
+  /**
+   * Retrieve saved onboarding draft
+   */
+  async getDraft(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { onboarding: true },
+    });
+    return (user?.onboarding as Record<string, any>) || null;
+  },
+
+  /**
+   * Clear saved onboarding draft
+   */
+  async clearDraft(userId: string) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { onboarding: Prisma.DbNull },
+    });
+    return { success: true };
   }
 };

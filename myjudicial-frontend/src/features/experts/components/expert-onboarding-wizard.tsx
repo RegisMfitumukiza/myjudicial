@@ -594,8 +594,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
             docLabels.push(fileObj.label || 'Additional Document');
           });
           
-          docTypes.forEach(t => verificationData.append('documentTypes[]', t));
-          docLabels.forEach(l => verificationData.append('documentLabels[]', l));
+          docTypes.forEach(t => {
+            verificationData.append('documentTypes', t);
+            verificationData.append('documentTypes[]', t);
+          });
+          docLabels.forEach(l => {
+            verificationData.append('documentLabels', l);
+            verificationData.append('documentLabels[]', l);
+          });
           await apiFetch('/experts/verification/submit', {
             method: 'POST',
             body: verificationData,

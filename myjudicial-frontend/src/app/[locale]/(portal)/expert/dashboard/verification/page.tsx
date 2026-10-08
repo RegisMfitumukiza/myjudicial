@@ -238,18 +238,18 @@ function FileDropZone({
     [onAttach]
   );
 
-  const isImage = attached?.file.type.startsWith("image/");
+  const isImage = attached?.file.type?.startsWith("image/");
   const isPDF = attached?.file.type === "application/pdf";
 
   return (
-    <div className="space-y-2">
-      <Label className="text-xs">
+    <div className="space-y-2 min-w-0">
+      <Label className="text-xs font-medium">
         {label} <span className="text-destructive">*</span>
       </Label>
 
       {attached ? (
-        <div className="relative flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3">
-          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="relative flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3 sm:p-3.5 min-w-0 overflow-hidden">
+          <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-card">
             {isImage && attached.preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -259,21 +259,21 @@ function FileDropZone({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                <FileText size={24} className="text-muted-foreground" />
+                <FileText size={22} className="text-muted-foreground" />
               </div>
             )}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-foreground">
+          <div className="min-w-0 flex-1 overflow-hidden pr-1">
+            <p className="truncate text-xs sm:text-sm font-semibold text-foreground">
               {attached.file.name}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
               {typeof attached.file?.size === "number" && !isNaN(attached.file.size)
                 ? `${(attached.file.size / 1024).toFixed(1)} KB`
                 : ""} &bull;{" "}
               {attached.file.type.split("/")[1]?.toUpperCase() ?? t("fileLabel")}
             </p>
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary whitespace-nowrap shrink-0">
               <CheckCircle size={9} /> {t("readyToSubmit")}
             </span>
           </div>
@@ -282,9 +282,9 @@ function FileDropZone({
             variant="ghost"
             size="icon-sm"
             onClick={onRemove}
-            className="shrink-0 text-destructive hover:text-destructive"
+            className="shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg h-8 w-8"
           >
-            <X size={12} />
+            <X size={14} />
           </Button>
         </div>
       ) : (
@@ -297,13 +297,13 @@ function FileDropZone({
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
           className={cn(
-            "flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 transition-colors hover:border-primary/50 hover:bg-primary/5",
+            "flex cursor-pointer flex-col items-center justify-center text-center gap-2 rounded-xl border-2 border-dashed p-5 sm:p-6 transition-colors hover:border-primary/50 hover:bg-primary/5 min-h-[120px] sm:min-h-[135px]",
             dragging
               ? "border-primary bg-primary/5"
               : "border-border bg-muted/40"
           )}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Upload size={18} />
           </div>
           <p className="text-xs text-muted-foreground">
@@ -312,7 +312,7 @@ function FileDropZone({
             </span>{" "}
             {t("orDragDrop")}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">
             {t("fileSizeLimit")}
           </p>
         </div>
@@ -481,12 +481,36 @@ export default function VerificationPage() {
         formData.append("files", certificateFile.file);
         docTypes.push("bar_certificate");
       }
-      docTypes.forEach((dt) => formData.append("documentTypes[]", dt));
+      docTypes.forEach((dt) => {
+        formData.append("documentTypes", dt);
+        formData.append("documentTypes[]", dt);
+      });
 
-      if (barNumber) formData.append("barNumber", barNumber);
-      if (certificateName) formData.append("certificateName", certificateName);
-      if (issuer) formData.append("issuer", issuer);
-      if (issueDate) formData.append("issueDate", issueDate);
+      if (barNumber?.trim()) formData.append("barNumber", barNumber.trim());
+      if (certificateName?.trim()) formData.append("certificateName", certificateName.trim());
+      if (issuer?.trim()) formData.append("issuer", issuer.trim());
+
+      if (issueDate && issueDate.trim()) {
+        const trimmed = issueDate.trim();
+        let normalizedDate = trimmed;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+          if (mdy) {
+            const [, p1, p2, year] = mdy;
+            if (Number(p1) > 12) {
+              normalizedDate = `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
+            } else {
+              normalizedDate = `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
+            }
+          } else {
+            const d = new Date(trimmed);
+            if (!isNaN(d.getTime())) {
+              normalizedDate = d.toISOString().split("T")[0];
+            }
+          }
+        }
+        formData.append("issueDate", normalizedDate);
+      }
 
       await apiFetch("/experts/verification/submit", {
         method: "POST",
@@ -532,9 +556,9 @@ export default function VerificationPage() {
         className="mb-6"
       />
 
-      <div className="grid gap-6 lg:grid-cols-12 xl:gap-8 min-w-0">
+      <div className="grid gap-6 xl:grid-cols-12 xl:gap-8 min-w-0">
         {/* ── Main Column ── */}
-        <div className="space-y-6 lg:col-span-7 xl:col-span-8 min-w-0">
+        <div className="space-y-6 xl:col-span-8 min-w-0">
           {/* Status Banner */}
           {isLoading ? (
             <SkeletonCard className="h-28" />
@@ -793,7 +817,7 @@ export default function VerificationPage() {
         </div>
 
         {/* ── Sidebar Column (Progress, Guidance & Trust) ── */}
-        <div className="space-y-6 lg:col-span-5 xl:col-span-4 min-w-0">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1 xl:col-span-4 min-w-0 content-start">
           {/* Verification Timeline Stepper */}
           {!isLoading && <VerificationTimeline status={status} />}
 

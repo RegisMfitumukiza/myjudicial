@@ -22,6 +22,16 @@ export function getErrorMessage(error: unknown, fallback?: string): string {
     return serverMessage
   }
 
+  // Fetch / apiFetch Error instance
+  if (error instanceof Error && error.message && error.message.trim().length > 0 && error.message !== "Request failed.") {
+    return error.message
+  }
+
+  const anyError = error as any
+  if (typeof anyError?.message === "string" && anyError.message.trim().length > 0 && anyError.message !== "Request failed.") {
+    return anyError.message
+  }
+
   // Never surface raw exception text (stack traces, JSON, network jargon).
   return generic
 }

@@ -41,7 +41,8 @@ export const VerificationService = {
     // Guard: profile must be complete enough for meaningful verification
     const missingFields: string[] = [];
     if (!profile.displayName?.trim()) missingFields.push("display name");
-    if (!profile.barNumber?.trim()) missingFields.push("bar number");
+    const effectiveBarNumber = dto.barNumber?.trim() || profile.barNumber?.trim();
+    if (!effectiveBarNumber) missingFields.push("bar number");
     if (!profile.primarySpecialty) missingFields.push("primary specialty");
     if (!profile.languages?.length) missingFields.push("languages");
     if (!profile.bio?.trim()) missingFields.push("bio");
@@ -144,7 +145,7 @@ export const VerificationService = {
     await prisma.expertProfile.update({
       where: { id: profile.id },
       data: {
-        ...(dto.barNumber && { barNumber: dto.barNumber }),
+        ...(effectiveBarNumber && { barNumber: effectiveBarNumber }),
         status: "PENDING_VERIFICATION",
       },
     });

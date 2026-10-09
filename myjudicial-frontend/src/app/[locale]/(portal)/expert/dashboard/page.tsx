@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star } from "lucide-react";
+import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star, Lock } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
   EmptyState,
@@ -122,6 +122,7 @@ export default function ExpertDashboardPage() {
   const onboarding = onboardingRes?.data ?? null;
 
   const isOnline = availability[0]?.presenceStatus === "ONLINE";
+  const isUnverified = compliance?.status !== "VERIFIED";
 
   // Photo status from onboarding data
   const photoStatus = onboarding?.photoStatus || {
@@ -317,17 +318,28 @@ export default function ExpertDashboardPage() {
             
             {/* Quick Actions */}
             <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mt-4 lg:mt-0 shrink-0">
-              <Button
-                onClick={() => handleToggleAvailable(!isOnline)}
-                disabled={isTogglingAvailable}
-                className={
-                  isOnline
-                    ? "bg-white/10 text-white shadow-none hover:bg-white/20"
-                    : "bg-white text-brand-dark hover:bg-white/90"
-                }
-              >
-                {isTogglingAvailable ? "..." : isOnline ? t("goOffline") : t("goOnline")}
-              </Button>
+              {isUnverified ? (
+                <Button
+                  disabled
+                  title={t("verificationRequiredToGoOnline")}
+                  className="bg-white/15 text-white/80 border border-white/20 cursor-not-allowed shadow-none text-xs gap-1.5 hover:bg-white/15"
+                >
+                  <Lock size={13} className="shrink-0 text-white/70" />
+                  {t("verificationRequired")}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleToggleAvailable(!isOnline)}
+                  disabled={isTogglingAvailable}
+                  className={
+                    isOnline
+                      ? "bg-white/10 text-white shadow-none hover:bg-white/20"
+                      : "bg-white text-brand-dark hover:bg-white/90"
+                  }
+                >
+                  {isTogglingAvailable ? "..." : isOnline ? t("goOffline") : t("goOnline")}
+                </Button>
+              )}
             </div>
           </div>
         </div>

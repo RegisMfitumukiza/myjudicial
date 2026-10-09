@@ -38,7 +38,11 @@ ChevronsUpDown,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
-import { useGetChatConversationsUnreadCount, useGetNotificationsUnreadCount } from "@/api/generated";
+import {
+  useGetChatConversationsUnreadCount,
+  useGetNotificationsUnreadCount,
+  useGetExpertsCompliance,
+} from "@/api/generated";
 import type { PublicUser } from "@/features/auth/types";
 import { UserRole } from "@/features/auth/types";
 import { useTranslations } from "next-intl";
@@ -315,6 +319,11 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
   const { data: expertPhotoUrl } = useExpertPhotoUrl({ enabled: isExpert });
   const avatarUrl = isExpert ? (expertPhotoUrl ?? null) : (user.avatarUrl ?? null);
 
+  const { data: complianceRes } = useGetExpertsCompliance({
+    query: { enabled: isExpert },
+  });
+  const compliance = complianceRes?.status === 200 ? complianceRes.data.data : null;
+
   const navGroups = ROLE_NAVIGATION[user.role] || [];
   const base = getDashboardBase(user.role);
 
@@ -480,6 +489,8 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                   const itemLabel = t(item.labelKey as any);
                   const isMessages = item.href.includes("/messages");
                   const isNotifications = item.href.includes("/notifications");
+                  const isVerification = item.href.includes("/verification");
+                  const needsVerificationAttention = isVerification && isExpert && compliance?.status === "REJECTED";
 
                   return (
                     <Link
@@ -520,10 +531,15 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                         {/* Dot indicator when collapsed */}
                         {collapsed && (
                           (isMessages && chatUnreadCount > 0) ||
-                          (isNotifications && notifUnreadCount > 0)
+                          (isNotifications && notifUnreadCount > 0) ||
+                          needsVerificationAttention
                         ) && (
                           <span
-                            className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-500 ring-2 ring-card"
+                            className={`absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-card ${
+                              needsVerificationAttention
+                                ? "bg-amber-500 dark:bg-amber-400"
+                                : "bg-blue-600 dark:bg-blue-500"
+                            }`}
                             aria-hidden="true"
                           />
                         )}
@@ -545,6 +561,11 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                       {!collapsed && isNotifications && notifUnreadCount > 0 && (
                         <span className="ml-auto flex h-4.5 min-w-4.5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-blue-500 px-1.5 text-[10px] font-bold shadow-xs">
                           {notifUnreadCount > 99 ? "99+" : notifUnreadCount}
+                        </span>
+                      )}
+                      {!collapsed && needsVerificationAttention && (
+                        <span className="ml-auto flex h-4.5 px-1.5 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-700 dark:bg-amber-500/25 dark:text-amber-300 text-[10px] font-semibold tracking-wide">
+                          Action
                         </span>
                       )}
                     </Link>

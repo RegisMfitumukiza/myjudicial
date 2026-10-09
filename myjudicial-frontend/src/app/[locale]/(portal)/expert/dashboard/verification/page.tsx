@@ -22,6 +22,7 @@ import {
   HelpCircle,
   ExternalLink,
   Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 import {
   useGetExpertsCompliance,
@@ -430,6 +431,12 @@ export default function VerificationPage() {
   const canSubmit =
     status !== "VERIFIED" && status !== "PENDING_VERIFICATION";
 
+  const rawReason = compliance?.lastVerification?.rejectionReason;
+  const isCorrectionsRequired = status === "REJECTED" && Boolean(rawReason?.startsWith("[CORRECTIONS_REQUIRED]"));
+  const cleanReason = isCorrectionsRequired
+    ? rawReason!.replace(/^\[CORRECTIONS_REQUIRED\]\s*/, "")
+    : rawReason;
+
   // Clear drafts if status is already pending or verified
   useEffect(() => {
     if (status === "VERIFIED" || status === "PENDING_VERIFICATION") {
@@ -570,45 +577,59 @@ export default function VerificationPage() {
             <div
               className={cn(
                 "flex items-start gap-4 rounded-xl border p-5 shadow-sm",
-                BANNER_CLASS[style.tone]
+                BANNER_CLASS[isCorrectionsRequired ? "warning" : style.tone]
               )}
             >
               <div
                 className={cn(
                   "flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-                  CHIP_CLASS[style.tone]
+                  CHIP_CLASS[isCorrectionsRequired ? "warning" : style.tone]
                 )}
               >
-                <StatusIcon size={20} />
+                {isCorrectionsRequired ? <AlertTriangle size={20} /> : <StatusIcon size={20} />}
               </div>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-bold text-foreground">
-                    {t(style.titleKey)}
+                    {isCorrectionsRequired ? t("statusCorrectionsTitle") : t(style.titleKey)}
                   </p>
-                  <StatusBadge tone={BADGE_TONE[style.tone]}>
-                    {t(`statusBadge.${status.toLowerCase()}` as any)}
+                  <StatusBadge tone={isCorrectionsRequired ? "warning" : BADGE_TONE[style.tone]}>
+                    {isCorrectionsRequired ? t("statusCorrectionsTitle") : t(`statusBadge.${status.toLowerCase()}` as any)}
                   </StatusBadge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {t(style.descriptionKey)}
+                  {isCorrectionsRequired ? t("statusCorrectionsDesc") : t(style.descriptionKey)}
                 </p>
 
-                {/* Rejection reason */}
-                {status === "REJECTED" &&
-                  compliance?.lastVerification?.rejectionReason && (
-                  <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs">
+                {/* Rejection / Corrections reason */}
+                {status === "REJECTED" && cleanReason && (
+                  isCorrectionsRequired ? (
+                    <div className="mt-3 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/20 p-3 text-xs">
+                      <p className="flex items-center gap-1.5 font-semibold text-amber-800 dark:text-amber-200">
+                        <AlertTriangle size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                        {t("correctionsReasonLabel")}
+                      </p>
+                      <p className="mt-1 italic text-amber-900/80 dark:text-amber-100/80">
+                        &ldquo;{cleanReason}&rdquo;
+                      </p>
+                      <p className="mt-2 font-medium text-foreground">
+                        {t("correctionsReasonInstruction")}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs">
                       <p className="flex items-center gap-1 font-semibold text-destructive">
                         {t("rejectionReasonLabel")}
                       </p>
                       <p className="mt-1 italic text-muted-foreground">
-                        &ldquo;{compliance.lastVerification.rejectionReason}&rdquo;
+                        &ldquo;{cleanReason}&rdquo;
                       </p>
                       <p className="mt-2 font-medium text-foreground">
                         {t("rejectionReasonInstruction")}
                       </p>
                     </div>
-                  )}
+                  )
+                )}
 
                 {/* Expiry warning */}
                 {compliance?.daysUntilExpiry != null && (
@@ -628,7 +649,9 @@ export default function VerificationPage() {
               <div className="mb-5 flex items-center gap-2">
                 <Upload size={18} className="text-primary" />
                 <h3 className="text-sm font-bold text-foreground">
-                  {status === "REJECTED"
+                  {isCorrectionsRequired
+                    ? t("correctionsDocsTitle")
+                    : status === "REJECTED"
                     ? t("resubmitDocsTitle")
                     : t("submitDocsTitle")}
                 </h3>

@@ -2087,6 +2087,8 @@
     "offline": "Offline",
     "goOnline": "Go Online",
     "goOffline": "Go Offline",
+    "verificationRequired": "Verification Required",
+    "verificationRequiredToGoOnline": "You must be a verified advocate to go online for client consultations.",
     "activeSessions": "{count} Active Session{plural}",
     "whyCompleteProfile": "Why complete your profile?",
     "appearInSearch": "Appear in lawyer search results",
@@ -3120,10 +3122,15 @@
     "subtitleVerification": "Verify your professional credentials to start accepting client bookings",
     "rejectionReasonLabel": "Rejection Reason",
     "rejectionReasonInstruction": "Please correct the issue and resubmit your documents below.",
+    "statusCorrectionsTitle": "Corrections Required",
+    "statusCorrectionsDesc": "The reviewer requested adjustments to your submitted documents. Please see details below and upload the requested files.",
+    "correctionsReasonLabel": "Reviewer Feedback — Requested Corrections",
+    "correctionsReasonInstruction": "Please update the requested document(s) below and resubmit for immediate review.",
     "credentialsExpireInOne": "Credentials expire in {days} day.",
     "credentialsExpireInOther": "Credentials expire in {days} days.",
     "submitDocsTitle": "Submit Verification Documents",
     "resubmitDocsTitle": "Resubmit Verification Documents",
+    "correctionsDocsTitle": "Upload Corrected Verification Documents",
     "labelId": "National ID / Passport",
     "labelBarCert": "Bar Association Certificate",
     "labelBarNumber": "Bar Number",
@@ -3347,6 +3354,11 @@
         "title": "Verification Rejected",
         "body": "Your submitted documents were not approved. Please review the feedback and resubmit.",
         "action": "Resubmit Documents"
+      },
+      "corrections": {
+        "title": "Corrections Required",
+        "body": "Our reviewer requested adjustments to your verification documents. Please update and resubmit.",
+        "action": "Upload Corrections"
       },
       "suspended": {
         "title": "Account Suspended",

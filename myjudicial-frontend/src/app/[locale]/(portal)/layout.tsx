@@ -23,7 +23,8 @@ export default function PortalLayout({
 
     if (status === "unauthenticated") {
       const isAdminRoute = pathname.includes("/admin");
-      router.replace(isAdminRoute ? "/sign-in?admin=1" : "/sign-in");
+      const returnUrl = encodeURIComponent(pathname);
+      router.replace(isAdminRoute ? `/sign-in?admin=1&callbackUrl=${returnUrl}` : `/sign-in?callbackUrl=${returnUrl}`);
       return;
     }
 

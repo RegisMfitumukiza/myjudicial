@@ -4023,6 +4023,8 @@
     "offline": "Hors ligne",
     "goOnline": "Passer en ligne",
     "goOffline": "Passer hors ligne",
+    "verificationRequired": "Vérification requise",
+    "verificationRequiredToGoOnline": "Vous devez être un avocat vérifié pour être en ligne pour les consultations.",
     "activeSessions": "{count} Session active{plural}",
     "whyCompleteProfile": "Pourquoi compléter votre profil ?",
     "appearInSearch": "Apparaître dans les résultats de recherche d'avocats",
@@ -5063,10 +5065,15 @@
     "subtitleVerification": "Vérifiez vos qualifications professionnelles pour commencer à recevoir des réservations",
     "rejectionReasonLabel": "Motif du rejet",
     "rejectionReasonInstruction": "Veuillez corriger le problème indiqué et soumettre à nouveau vos documents ci-dessous.",
+    "statusCorrectionsTitle": "Corrections requises",
+    "statusCorrectionsDesc": "L'examinateur a demandé des ajustements à vos documents soumis. Veuillez consulter les détails ci-dessous et télécharger les fichiers requis.",
+    "correctionsReasonLabel": "Remarques de l'examinateur — Corrections demandées",
+    "correctionsReasonInstruction": "Veuillez mettre à jour le(s) document(s) demandé(s) ci-dessous et soumettre à nouveau pour examen immédiat.",
     "credentialsExpireInOne": "Les justificatifs expirent dans {days} jour.",
     "credentialsExpireInOther": "Les justificatifs expirent dans {days} jours.",
     "submitDocsTitle": "Soumettre les pièces de vérification",
     "resubmitDocsTitle": "Soumettre à nouveau les pièces",
+    "correctionsDocsTitle": "Télécharger les pièces corrigées",
     "labelId": "Carte Nationale d'Identité / Passeport",
     "labelBarCert": "Certificat d'inscription au Barreau",
     "labelBarNumber": "Numéro d'inscription au Barreau",
@@ -5167,9 +5174,14 @@
         "action": "View Status"
       },
       "rejected": {
-        "title": "Verification Rejected",
-        "body": "Your submitted documents were not approved. Please review the feedback and resubmit.",
-        "action": "Resubmit Documents"
+        "title": "Vérification rejetée",
+        "body": "Vos documents soumis n'ont pas été approuvés. Veuillez consulter les commentaires et soumettre à nouveau.",
+        "action": "Resoumettre les documents"
+      },
+      "corrections": {
+        "title": "Corrections requises",
+        "body": "Notre examinateur a demandé des ajustements à vos documents de vérification. Veuillez mettre à jour et soumettre à nouveau.",
+        "action": "Mettre à jour les documents"
       },
       "suspended": {
         "title": "Account Suspended",

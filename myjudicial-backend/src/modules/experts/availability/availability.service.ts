@@ -1,7 +1,7 @@
 import { getErrorMessage } from "../../../shared/utils/i18n-messages.js";
 import { AvailabilityRepository } from "./availability.repository.js";
 import { ProfileRepository } from "../profile/profile.repository.js";
-import { NotFoundError } from "../../../shared/errors/index.js";
+import { NotFoundError, ValidationError } from "../../../shared/errors/index.js";
 import type { 
   UpsertAvailabilityDto, 
   UpsertAvailabilityWithBlocksDto, 
@@ -42,6 +42,9 @@ export const AvailabilityService = {
     }
 
     if (dto.presenceStatus) {
+      if (dto.presenceStatus === "ONLINE" && profile.status !== "VERIFIED") {
+        throw new ValidationError("Verification required: only verified experts can go online.");
+      }
       await AvailabilityRepository.updatePresence(
         profile.id,
         dto.presenceStatus as PresenceStatus
@@ -74,6 +77,9 @@ export const AvailabilityService = {
     }
 
     if (dto.presenceStatus) {
+      if (dto.presenceStatus === "ONLINE" && profile.status !== "VERIFIED") {
+        throw new ValidationError("Verification required: only verified experts can go online.");
+      }
       await AvailabilityRepository.updatePresence(
         profile.id,
         dto.presenceStatus as PresenceStatus
@@ -86,6 +92,9 @@ export const AvailabilityService = {
   updatePresence: async (userId: string, dto: UpdatePresenceDto) => {
     const profile = await ProfileRepository.findByUserId(userId);
     if (!profile) throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+    if (dto.presenceStatus === "ONLINE" && profile.status !== "VERIFIED") {
+      throw new ValidationError("Verification required: only verified experts can go online.");
+    }
     await AvailabilityRepository.updatePresence(profile.id, dto.presenceStatus as PresenceStatus);
     return { presenceStatus: dto.presenceStatus };
   },

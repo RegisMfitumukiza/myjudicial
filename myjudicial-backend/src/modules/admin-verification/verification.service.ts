@@ -239,6 +239,9 @@ export const VerificationService = {
       throw new ValidationError(`Cannot request corrections for a verification with status: ${existing.status}`);
     }
 
+    const formattedReason = `[CORRECTIONS_REQUIRED] ${notes}`;
+    await VerificationRepository.reject(verificationId, adminId, formattedReason);
+
     const email = existing.expert.user.email;
     const name  = existing.expert.displayName;
     const expertLanguage = (existing.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';

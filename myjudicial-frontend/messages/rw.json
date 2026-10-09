@@ -4023,6 +4023,8 @@
     "offline": "Oflaine",
     "goOnline": "Kaja Onyina",
     "goOffline": "Kaja Oflaine",
+    "verificationRequired": "Kugenzurwa birakenewe",
+    "verificationRequiredToGoOnline": "Ugomba kuba umwunganizi wemejwe kugira ngo ujye ku murongo wo gutanga inama.",
     "activeSessions": "Ibiganiro {count} byihariye",
     "whyCompleteProfile": "Kuki ukwiye gukura umwirondoro wanje?",
     "appearInSearch": "Erekana mu bishusho byo kwesha abavugishi b'ubutabera",
@@ -5063,10 +5065,15 @@
     "subtitleVerification": "Emeza ibyangombwa byawe by'umwuga kugira ngo utangire kwakira abakiriya",
     "rejectionReasonLabel": "Impamvu yatumye byangwa",
     "rejectionReasonInstruction": "Nyamuneka kosora ikibazo cyagaragajwe maze wongere wohereze ibyangombwa bishya hepfo.",
+    "statusCorrectionsTitle": "Gukosora birakenewe",
+    "statusCorrectionsDesc": "Uwasuzumye yasabye amavugurura ku byangombwa witanze. Nyamuneka reba ibisobanuro hepfo maze ushyiremo ibyangombwa bisabwa.",
+    "correctionsReasonLabel": "Ubutumwa bw'Uwasuzumye — Amavugurura akenewe",
+    "correctionsReasonInstruction": "Nyamuneka vugurura icyangombwa/ibyangombwa bisabwa hepfo maze wongere wohereze kugira ngo bisuzumwe byihuse.",
     "credentialsExpireInOne": "Ibyangombwa bizarangira mu munsi {days}.",
     "credentialsExpireInOther": "Ibyangombwa bizarangira mu minsi {days}.",
     "submitDocsTitle": "Ohereza Ibyangombwa by'Igenzura",
     "resubmitDocsTitle": "Ongera Wohereze Ibyangombwa",
+    "correctionsDocsTitle": "Shyiramo Ibyangombwa Byakosowe",
     "labelId": "Indangamuntu / Pasiporo",
     "labelBarCert": "Icyangombwa cy'Urugaga rw'Abavoka",
     "labelBarNumber": "Nimero mu Rugaga",
@@ -5167,9 +5174,14 @@
         "action": "View Status"
       },
       "rejected": {
-        "title": "Verification Rejected",
-        "body": "Your submitted documents were not approved. Please review the feedback and resubmit.",
-        "action": "Resubmit Documents"
+        "title": "Igenzura ryanzwe",
+        "body": "Ibyangombwa byawe witanze ntibyemejwe. Nyamuneka reba ubutumwa maze wongere wohereze.",
+        "action": "Ongera wohereze ibyangombwa"
+      },
+      "corrections": {
+        "title": "Gukosora birakenewe",
+        "body": "Uwasuzumye yasabye ko hari ibikosorwa ku byangombwa byawe. Nyamuneka bikosore maze wongere wohereze.",
+        "action": "Kosora ibyangombwa"
       },
       "suspended": {
         "title": "Account Suspended",

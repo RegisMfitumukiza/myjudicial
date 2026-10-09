@@ -21,6 +21,9 @@ crit() { printf 'CRIT %s\n' "$*"; ncrit=1; }
 
 probe_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "== myjudicial VPS probe @ $probe_ts (cwd: $(pwd)) =="
+echo "== BACKEND_LOGS_START =="
+docker compose logs --tail 40 backend 2>&1 || true
+echo "== BACKEND_LOGS_END =="
 
 # --- Docker daemon ---------------------------------------------------------
 if docker info >/dev/null 2>&1; then
@@ -65,13 +68,13 @@ done
 
 # --- In-container health (internal, bypasses tunnel) -----------------------
 # backend /health does a real `SELECT 1` so this also exercises the DB path.
-if docker compose exec -T backend node -e "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" >/dev/null 2>&1; then
+if docker compose exec -T backend node -e "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" < /dev/null >/dev/null 2>&1; then
   ok "backend internal /health (incl. DB SELECT 1)"
 else
   crit "backend internal /health failed (DB path?)"
 fi
 
-if docker compose exec -T ai curl -fsS --max-time 15 http://localhost:5000/health >/dev/null 2>&1; then
+if docker compose exec -T ai curl -fsS --max-time 15 http://localhost:5000/health < /dev/null >/dev/null 2>&1; then
   ok "ai internal /health"
 else
   crit "ai internal /health failed"

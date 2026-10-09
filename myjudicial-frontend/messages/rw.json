@@ -6753,6 +6753,7 @@
     "active": "Bikora",
     "inactive": "Ntibikora",
     "defaultService": "Serivisi y'ibanze",
+    "defaultServiceTooltip": "Serivisi y'ibanze ihoraho — iguma ikora kandi ntishobora gusibwa",
     "serviceName": "Izina rya Serivisi",
     "serviceDescription": "Ibisobanuro bya Serivisi",
     "serviceCategory": "Icyiciro cya Serivisi",
@@ -6782,7 +6783,7 @@
       "phone": "Ihamagara rya Telefoni",
       "inPerson": "Imbonankubone",
       "in_person": "Imbonankubone",
-      "email": "Inama kuri Imeyili"
+      "email": "Inama mu nyandiko / Isuzuma ry'inyandiko"
     }
   },
   "location": {

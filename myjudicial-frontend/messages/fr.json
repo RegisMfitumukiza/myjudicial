@@ -6753,6 +6753,7 @@
     "active": "Actif",
     "inactive": "Inactif",
     "defaultService": "Service par défaut",
+    "defaultServiceTooltip": "Service de base garanti — toujours actif et ne peut pas être supprimé",
     "serviceName": "Nom du service",
     "serviceDescription": "Description du service",
     "serviceCategory": "Catégorie de service",
@@ -6782,7 +6783,7 @@
       "phone": "Appel téléphonique",
       "inPerson": "En personne",
       "in_person": "En personne",
-      "email": "Consultation par e-mail"
+      "email": "Conseil écrit / Examen de documents"
     }
   },
   "location": {

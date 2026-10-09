@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, X, Check, Clock, AlertTriangle, Lock, Video, Phone, MapPin, Mail, GripVertical, Briefcase } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Check, Clock, AlertTriangle, Video, Phone, MapPin, Mail, Briefcase } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   useGetExpertsServices,
@@ -276,7 +276,7 @@ export default function ServicesPage() {
         title={t("title")}
         description={t("subtitle")}
         actions={
-          <Button size="sm" onClick={openCreate} disabled={isUnverified}>
+          <Button size="sm" onClick={openCreate}>
             <Plus />
             {t("addService")}
           </Button>
@@ -323,19 +323,21 @@ export default function ServicesPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <GripVertical size={14} className="text-muted-foreground/50 cursor-grab" />
+                            <Briefcase size={14} className="text-primary/70 shrink-0" />
                             <h3 className="text-sm font-semibold text-foreground">{s.name}</h3>
                             <StatusBadge tone={s.isActive ? "active" : "neutral"}>
                               {s.isActive ? t("active") : t("inactive")}
                             </StatusBadge>
                             {s.isDefault && (
-                              <StatusBadge tone="info">{t("defaultService")}</StatusBadge>
+                              <StatusBadge tone="info" title={t("defaultServiceTooltip")}>
+                                {t("defaultService")}
+                              </StatusBadge>
                             )}
                           </div>
                           {s.description && (
-                            <p className="ml-6 mt-1 line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
+                            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
                           )}
-                          <div className="ml-6 mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                          <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock size={12} />
                               {s.durationMin} min
@@ -350,14 +352,7 @@ export default function ServicesPage() {
                           </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
-                          {s.isDefault ? (
-                            <span
-                              title="The default service always stays active"
-                              className="rounded-lg p-2 text-muted-foreground/50"
-                            >
-                              <Lock size={14} />
-                            </span>
-                          ) : (
+                          {!s.isDefault && (
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -377,14 +372,7 @@ export default function ServicesPage() {
                           >
                             <Pencil />
                           </Button>
-                          {s.isDefault ? (
-                            <span
-                              title="The default service can't be deleted"
-                              className="rounded-lg p-2 text-muted-foreground/50"
-                            >
-                              <Lock size={14} />
-                            </span>
-                          ) : (
+                          {!s.isDefault && (
                             <Button
                               variant="ghost"
                               size="icon-sm"

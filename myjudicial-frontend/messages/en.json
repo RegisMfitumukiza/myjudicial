@@ -6755,6 +6755,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "defaultService": "Default Service",
+    "defaultServiceTooltip": "Guaranteed baseline service — always active and cannot be deleted",
     "serviceName": "Service Name",
     "serviceDescription": "Service Description",
     "serviceCategory": "Service Category",
@@ -6784,7 +6785,7 @@
       "phone": "Phone Call",
       "inPerson": "In-Person",
       "in_person": "In-Person",
-      "email": "Email Consultation"
+      "email": "Written Advice / Document Review"
     }
   },
   "location": {

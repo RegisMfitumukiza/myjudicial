@@ -4888,7 +4888,15 @@
     "noticeHelp": "Délai minimum en heures avant une séance pour réserver.",
     "bufferHelp": "Temps de préparation entre deux consultations consécutives.",
     "totalWeeklyHours": "{hours} h/semaine disponibles",
-    "daysActive": "{count} jours actifs"
+    "daysActive": "{count} jours actifs",
+    "templateStandard": "Standard (Lun–Ven)",
+    "templateMonSat": "Lun–Ven + Samedi matin",
+    "templateFullWeek": "Toute la semaine (7j)",
+    "templateWeekendOnly": "Pratique week-end (Sam–Dim)",
+    "appliedTemplate": "Modèle {template} appliqué",
+    "weekendBadge": "Consultations le week-end disponibles",
+    "weekendBadgeShort": "Dispo. Week-end",
+    "weekendAdvice": "Vous travaillez le week-end ? Activez le samedi ou le dimanche pour attirer les clients actifs en semaine."
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

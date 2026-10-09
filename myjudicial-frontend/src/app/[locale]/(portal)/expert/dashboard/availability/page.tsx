@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, Copy, Clock, CalendarCheck } from "lucide-react";
+import { Loader2, Save, Copy, Clock, CalendarCheck, Sparkles, SunMedium, ShieldAlert, CheckCircle2 } from "lucide-react";
 import {
   useGetExpertsAvailability,
   usePatchExpertsAvailability,
@@ -18,7 +18,7 @@ import {
   ErrorState,
 } from "@/shared/components/dashboard";
 import { ScheduleNavigationTabs } from "@/features/experts/components/schedule-navigation-tabs";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
@@ -79,6 +79,12 @@ export default function AvailabilityPage() {
     };
   }, [schedule]);
 
+  const hasWeekendActive = useMemo(() => {
+    return schedule.some(
+      (d) => (d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY") && d.isAvailable
+    );
+  }, [schedule]);
+
   function updateDay(day: (typeof DAYS)[number], patch: Partial<DaySchedule>) {
     setSchedule((prev) => prev.map((d) => (d.dayOfWeek === day ? { ...d, ...patch } : d)));
   }
@@ -95,6 +101,44 @@ export default function AvailabilityPage() {
       )
     );
     toast.success(tHub("appliedMonToWeekdays"));
+  }
+
+  function handleApplyTemplate(type: "standard" | "monSat" | "fullWeek" | "weekendOnly") {
+    let newSchedule: DaySchedule[] = [];
+    if (type === "standard") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: "17:00",
+        isAvailable: day !== "SATURDAY" && day !== "SUNDAY",
+      }));
+      toast.success(tHub("appliedTemplate", { template: tHub("templateStandard") }));
+    } else if (type === "monSat") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: day === "SATURDAY" ? "13:00" : "17:00",
+        isAvailable: day !== "SUNDAY",
+      }));
+      toast.success(tHub("appliedTemplate", { template: tHub("templateMonSat") }));
+    } else if (type === "fullWeek") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: "17:00",
+        isAvailable: true,
+      }));
+      toast.success(tHub("appliedTemplate", { template: tHub("templateFullWeek") }));
+    } else if (type === "weekendOnly") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "10:00",
+        endTime: "16:00",
+        isAvailable: day === "SATURDAY" || day === "SUNDAY",
+      }));
+      toast.success(tHub("appliedTemplate", { template: tHub("templateWeekendOnly") }));
+    }
+    setSchedule(newSchedule);
   }
 
   function handleSave() {
@@ -145,7 +189,72 @@ export default function AvailabilityPage() {
         />
       ) : (
         <div className="space-y-4">
-          {/* Summary & Fast Actions Banner */}
+          {/* Quick Schedule Templates Bar */}
+          <div className="p-3 sm:p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-xs sm:text-sm font-semibold text-foreground">
+                  Schedule Templates
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyTemplate("standard")}
+                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                >
+                  {tHub("templateStandard")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyTemplate("monSat")}
+                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium bg-amber-500/5 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+                >
+                  {tHub("templateMonSat")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyTemplate("fullWeek")}
+                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                >
+                  {tHub("templateFullWeek")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApplyTemplate("weekendOnly")}
+                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                >
+                  {tHub("templateWeekendOnly")}
+                </Button>
+              </div>
+            </div>
+
+            {/* Weekend Highlight or Tip Banner */}
+            {hasWeekendActive ? (
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 text-xs">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>
+                  <strong>{tHub("weekendBadge")}:</strong> Your public profile is open to receive client bookings on Saturdays or Sundays.
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-muted/60 text-muted-foreground border border-border/60 text-xs">
+                <SunMedium className="h-4 w-4 text-amber-500 shrink-0" />
+                <span>{tHub("weekendAdvice")}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Summary & Fast Weekday Copy Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-4 rounded-xl border border-border/80 bg-muted/40 text-foreground">
             <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5 font-medium text-foreground">
@@ -174,50 +283,64 @@ export default function AvailabilityPage() {
           {/* Schedule List Card */}
           <div className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
             <div className="divide-y divide-border/70">
-              {schedule.map((d) => (
-                <div
-                  key={d.dayOfWeek}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
-                >
-                  <div className="flex items-center gap-3.5 min-w-[140px]">
-                    <Switch
-                      checked={d.isAvailable}
-                      onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
-                      className="shrink-0"
-                    />
-                    <span className="text-sm font-semibold text-foreground">
-                      {t(d.dayOfWeek.toLowerCase() as any)}
-                    </span>
-                  </div>
+              {schedule.map((d) => {
+                const isWeekend = d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY";
 
-                  {d.isAvailable ? (
-                    <div className="flex flex-wrap items-center gap-2 text-sm pl-12 sm:pl-0">
-                      <Input
-                        type="time"
-                        value={d.startTime}
-                        onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
-                        className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
+                return (
+                  <div
+                    key={d.dayOfWeek}
+                    className={cn(
+                      "flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 transition-colors",
+                      isWeekend ? "bg-amber-500/[0.02] dark:bg-amber-400/[0.02]" : "hover:bg-muted/20"
+                    )}
+                  >
+                    <div className="flex items-center gap-3.5 min-w-[170px]">
+                      <Switch
+                        checked={d.isAvailable}
+                        onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
+                        className="shrink-0"
                       />
-                      <span className="text-xs text-muted-foreground font-medium px-1">{t("to")}</span>
-                      <Input
-                        type="time"
-                        value={d.endTime}
-                        onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
-                        className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
-                      />
-                      <span className="hidden md:inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        Available
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          {t(d.dayOfWeek.toLowerCase() as any)}
+                        </span>
+                        {isWeekend && (
+                          <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                            Weekend
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  ) : (
-                    <div className="pl-12 sm:pl-0">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                        {t("unavailable")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ))}
+
+                    {d.isAvailable ? (
+                      <div className="flex flex-wrap items-center gap-2 text-sm pl-12 sm:pl-0">
+                        <Input
+                          type="time"
+                          value={d.startTime}
+                          onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
+                          className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
+                        />
+                        <span className="text-xs text-muted-foreground font-medium px-1">{t("to")}</span>
+                        <Input
+                          type="time"
+                          value={d.endTime}
+                          onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
+                          className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
+                        />
+                        <span className="hidden md:inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                          Available
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="pl-12 sm:pl-0">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                          {t("unavailable")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

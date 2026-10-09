@@ -4888,7 +4888,15 @@
     "noticeHelp": "Amasaha asabwa mbere y'uko gahunda itangira kugira ngo yemezwe.",
     "bufferHelp": "Umwanya wo kwitegura hagati ya gahunda ebyiri zikurikirana.",
     "totalWeeklyHours": "Amasaha {hours}/icyumweru aboneka",
-    "daysActive": "Iminsi {count} ikora"
+    "daysActive": "Iminsi {count} ikora",
+    "templateStandard": "Bisanzwe (Mbere–Gatanu)",
+    "templateMonSat": "Mbere–Gatanu + Gatandatu",
+    "templateFullWeek": "Icyumweru cyose (Iminsi 7)",
+    "templateWeekendOnly": "Kuri weekend gusa (Gatandatu–Cyumweru)",
+    "appliedTemplate": "Ingero ya gahunda ya {template} yashyizweho",
+    "weekendBadge": "Ubujyanama bwo muri weekend buraboneka",
+    "weekendBadgeShort": "Arahari muri Weekend",
+    "weekendAdvice": "Ukora muri weekend? Emeza kuwa Gatandatu cyangwa ku Cyumweru kugira ngo ukurure abakiriya bakora mu minsi y'akazi."
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

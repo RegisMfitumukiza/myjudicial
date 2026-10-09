@@ -67,6 +67,11 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
     );
   }
 
+  const tHub = useTranslations("expertDashboard_scheduleHub");
+  const isWeekendSlot = nextSlot
+    ? new Date(nextSlot.start).getDay() === 0 || new Date(nextSlot.start).getDay() === 6
+    : false;
+
   return (
     <div className="flex items-center justify-between rounded-xl border border-brand-border/20 bg-brand-dark/5 p-4 dark:border-white/20 dark:bg-white/5">
       <div className="flex items-center gap-3">
@@ -74,7 +79,14 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
           <Calendar size={18} className="text-brand-dark dark:text-white" />
         </div>
         <div>
-          <p className="text-[12px] text-brand-dark/60 dark:text-white/60">{t("nextAvailable")}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[12px] text-brand-dark/60 dark:text-white/60">{t("nextAvailable")}</p>
+            {isWeekendSlot && (
+              <span className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:text-amber-300">
+                {tHub("weekendBadgeShort")}
+              </span>
+            )}
+          </div>
           <p className="text-[14px] font-bold text-brand-dark dark:text-white">
             {tBooking("dateAtTime", { date: nextSlotDate ?? "", time: nextSlotTime ?? "" })}
           </p>

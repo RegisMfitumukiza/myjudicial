@@ -790,9 +790,15 @@ export const BookingService = {
       }
     }
     
-    const daySchedule = schedules.find((s) => s.dayOfWeek === targetDay && s.isAvailable);
+    // Check if there is an active custom hours override for this specific date
+    const hasCustomHoursOverride = Boolean(
+      override && override.overrideType === "CUSTOM_HOURS" && override.startTime && override.endTime
+    );
 
-    if (!daySchedule) {
+    const daySchedule = schedules.find((s) => s.dayOfWeek === targetDay);
+
+    // If day is not available in regular weekly schedule AND no custom hours override exists, return no slots
+    if (!hasCustomHoursOverride && (!daySchedule || !daySchedule.isAvailable)) {
       return []; // No availability set for this day
     }
 
@@ -816,24 +822,18 @@ export const BookingService = {
     const expertTimezone = settings.timezone || "Africa/Kigali";
     const offsetMin = getTimezoneOffsetMinutes(expertTimezone, date);
 
-    // **Phase 4: Support time blocks**
+    // **Phase 4: Support time blocks and overrides**
     let timeBlocks: TimeBlock[] = [];
     
-    // Check if using time blocks format (Phase 4)
-    if (daySchedule.usesTimeBlocks && daySchedule.timeBlocks) {
+    if (hasCustomHoursOverride) {
+      // Date override takes precedence over regular schedule
+      timeBlocks = [{ start: override!.startTime!, end: override!.endTime! }];
+    } else if (daySchedule?.usesTimeBlocks && daySchedule.timeBlocks) {
+      // Time blocks format
       timeBlocks = daySchedule.timeBlocks as unknown as TimeBlock[];
-    } else {
-      // Legacy single time block (Phase 1-3)
-      let startTime = daySchedule.startTime;
-      let endTime = daySchedule.endTime;
-      
-      // **Phase 3: Apply override times if CUSTOM_HOURS**
-      if (override && override.overrideType === "CUSTOM_HOURS" && override.startTime && override.endTime) {
-        startTime = override.startTime;
-        endTime = override.endTime;
-      }
-      
-      timeBlocks = [{ start: startTime, end: endTime }];
+    } else if (daySchedule) {
+      // Legacy single time block
+      timeBlocks = [{ start: daySchedule.startTime, end: daySchedule.endTime }];
     }
 
     // Generate slots for each time block

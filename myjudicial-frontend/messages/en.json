@@ -2952,7 +2952,15 @@
     "noticeHelp": "How many hours before a session a client must book.",
     "bufferHelp": "Cool-down and preparation buffer between consecutive consultations.",
     "totalWeeklyHours": "{hours} hrs/week available",
-    "daysActive": "{count} active days"
+    "daysActive": "{count} active days",
+    "templateStandard": "Standard (Mon–Fri)",
+    "templateMonSat": "Mon–Fri + Sat Half-Day",
+    "templateFullWeek": "Full Week (7 Days)",
+    "templateWeekendOnly": "Weekend Practice (Sat–Sun)",
+    "appliedTemplate": "Applied {template} schedule template",
+    "weekendBadge": "Weekend Consultations Available",
+    "weekendBadgeShort": "Weekend Available",
+    "weekendAdvice": "Work on weekends? Enable Saturday or Sunday to attract clients who work during the week."
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

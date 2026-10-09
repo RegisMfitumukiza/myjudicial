@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Copy, Clock, CalendarCheck } from "lucide-react";
 import {
   useGetExpertsAvailability,
   usePatchExpertsAvailability,
@@ -17,19 +17,11 @@ import {
   SkeletonList,
   ErrorState,
 } from "@/shared/components/dashboard";
+import { ScheduleNavigationTabs } from "@/features/experts/components/schedule-navigation-tabs";
 import { getErrorMessage } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
-const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
-};
 
 type DaySchedule = { dayOfWeek: (typeof DAYS)[number]; startTime: string; endTime: string; isAvailable: boolean };
 
@@ -44,6 +36,7 @@ function defaultSchedule(): DaySchedule[] {
 
 export default function AvailabilityPage() {
   const t = useTranslations("expertDashboard_availability");
+  const tHub = useTranslations("expertDashboard_scheduleHub");
   const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch } = useGetExpertsAvailability();
   const { mutate: saveAvailability, isPending: isSaving } = usePatchExpertsAvailability();
@@ -68,8 +61,40 @@ export default function AvailabilityPage() {
     setHydrated(true);
   }, [data, hydrated]);
 
+  const scheduleMetrics = useMemo(() => {
+    let totalMinutes = 0;
+    let activeDays = 0;
+    schedule.forEach((d) => {
+      if (d.isAvailable && d.startTime && d.endTime) {
+        activeDays++;
+        const [sh, sm] = d.startTime.split(":").map(Number);
+        const [eh, em] = d.endTime.split(":").map(Number);
+        const diff = (eh * 60 + em) - (sh * 60 + sm);
+        if (diff > 0) totalMinutes += diff;
+      }
+    });
+    return {
+      hours: Math.round((totalMinutes / 60) * 10) / 10,
+      activeDays,
+    };
+  }, [schedule]);
+
   function updateDay(day: (typeof DAYS)[number], patch: Partial<DaySchedule>) {
     setSchedule((prev) => prev.map((d) => (d.dayOfWeek === day ? { ...d, ...patch } : d)));
+  }
+
+  function handleApplyMonToWeekdays() {
+    const monday = schedule.find((s) => s.dayOfWeek === "MONDAY");
+    if (!monday) return;
+    const weekdays = new Set(["TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]);
+    setSchedule((prev) =>
+      prev.map((d) =>
+        weekdays.has(d.dayOfWeek)
+          ? { ...d, startTime: monday.startTime, endTime: monday.endTime, isAvailable: monday.isAvailable }
+          : d
+      )
+    );
+    toast.success(tHub("appliedMonToWeekdays"));
   }
 
   function handleSave() {
@@ -88,22 +113,26 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+    <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0 max-w-6xl mx-auto">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
-        className="mb-6 shrink-0"
+        className="mb-4 shrink-0"
         actions={
           <Button
             size="sm"
             onClick={handleSave}
             disabled={isSaving || isLoading || isError}
+            className="rounded-xl shadow-xs"
           >
-            {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
-            {t("saveSchedule")}
+            {isSaving ? <Loader2 className="animate-spin h-4 w-4" /> : <Save className="h-4 w-4" />}
+            <span>{t("saveSchedule")}</span>
           </Button>
         }
       />
+
+      {/* Shared Schedule Hub Tabs */}
+      <ScheduleNavigationTabs />
 
       {isLoading ? (
         <SkeletonList count={7} itemClassName="h-14" />
@@ -115,39 +144,81 @@ export default function AvailabilityPage() {
           onRetry={() => refetch()}
         />
       ) : (
-        <div className="rounded-xl border border-border bg-card shadow-sm">
-          <div className="divide-y divide-border">
-            {schedule.map((d) => (
-              <div key={d.dayOfWeek} className="flex flex-wrap items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3">
-                <Switch
-                  checked={d.isAvailable}
-                  onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
-                  className="shrink-0"
-                />
-                <span className="w-20 min-[380px]:w-24 shrink-0 text-sm font-semibold text-foreground">
-                  {t(d.dayOfWeek.toLowerCase() as any)}
-                </span>
-                {d.isAvailable ? (
-                  <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <Input
-                      type="time"
-                      value={d.startTime}
-                      onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
-                      className="h-8 w-28 min-[380px]:w-32 px-2"
-                    />
-                    <span className="text-muted-foreground">{t("to")}</span>
-                    <Input
-                      type="time"
-                      value={d.endTime}
-                      onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
-                      className="h-8 w-28 min-[380px]:w-32 px-2"
-                    />
-                  </div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">{t("unavailable")}</span>
-                )}
+        <div className="space-y-4">
+          {/* Summary & Fast Actions Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-4 rounded-xl border border-border/80 bg-muted/40 text-foreground">
+            <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Clock className="h-4 w-4 text-primary" />
+                <span>{tHub("totalWeeklyHours", { hours: scheduleMetrics.hours })}</span>
               </div>
-            ))}
+              <span className="hidden sm:inline text-border">•</span>
+              <div className="flex items-center gap-1.5">
+                <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+                <span>{tHub("daysActive", { count: scheduleMetrics.activeDays })}</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleApplyMonToWeekdays}
+              className="text-xs font-medium rounded-lg border-border/80 h-8 self-start sm:self-auto gap-1.5"
+            >
+              <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>{tHub("applyMonToWeekdays")}</span>
+            </Button>
+          </div>
+
+          {/* Schedule List Card */}
+          <div className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+            <div className="divide-y divide-border/70">
+              {schedule.map((d) => (
+                <div
+                  key={d.dayOfWeek}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 hover:bg-muted/20 transition-colors"
+                >
+                  <div className="flex items-center gap-3.5 min-w-[140px]">
+                    <Switch
+                      checked={d.isAvailable}
+                      onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
+                      className="shrink-0"
+                    />
+                    <span className="text-sm font-semibold text-foreground">
+                      {t(d.dayOfWeek.toLowerCase() as any)}
+                    </span>
+                  </div>
+
+                  {d.isAvailable ? (
+                    <div className="flex flex-wrap items-center gap-2 text-sm pl-12 sm:pl-0">
+                      <Input
+                        type="time"
+                        value={d.startTime}
+                        onChange={(e) => updateDay(d.dayOfWeek, { startTime: e.target.value })}
+                        className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
+                      />
+                      <span className="text-xs text-muted-foreground font-medium px-1">{t("to")}</span>
+                      <Input
+                        type="time"
+                        value={d.endTime}
+                        onChange={(e) => updateDay(d.dayOfWeek, { endTime: e.target.value })}
+                        className="h-8.5 w-28 min-[380px]:w-32 px-2.5 rounded-lg text-xs sm:text-sm bg-background border-border/80"
+                      />
+                      <span className="hidden md:inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                        Available
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="pl-12 sm:pl-0">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                        {t("unavailable")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

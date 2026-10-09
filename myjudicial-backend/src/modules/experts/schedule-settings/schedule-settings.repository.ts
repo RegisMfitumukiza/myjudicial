@@ -31,7 +31,7 @@ export const ScheduleSettingsRepository = {
         advanceNoticeHours: 24,
         maxDaysInAdvance: 60,
         maxBookingsPerDay: null,
-        respectPresenceStatus: true,
+        respectPresenceStatus: false,
       },
     });
   },
@@ -59,7 +59,7 @@ export const ScheduleSettingsRepository = {
         advanceNoticeHours: data.advanceNoticeHours ?? 24,
         maxDaysInAdvance: data.maxDaysInAdvance ?? 60,
         maxBookingsPerDay: data.maxBookingsPerDay,
-        respectPresenceStatus: data.respectPresenceStatus ?? true,
+        respectPresenceStatus: data.respectPresenceStatus ?? false,
       },
       update: data,
     });

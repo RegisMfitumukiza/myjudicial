@@ -690,7 +690,7 @@ model ExpertScheduleSettings {
   maxBookingsPerDay Int?
 
   // Whether presence status (ONLINE/OFFLINE) blocks bookings
-  respectPresenceStatus Boolean @default(true)
+  respectPresenceStatus Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -28,6 +28,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { ScheduleNavigationTabs } from "@/features/experts/components/schedule-navigation-tabs";
 import { getErrorMessage } from "@/lib/utils";
 import {
   getOverrides,
@@ -145,6 +146,9 @@ export default function AvailabilityOverridesPage() {
           </Button>
         }
       />
+
+      {/* Shared Schedule Hub Tabs */}
+      <ScheduleNavigationTabs />
 
       {/* Info Alert */}
       <Alert variant="info">

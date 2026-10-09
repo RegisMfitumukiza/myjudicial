@@ -316,7 +316,7 @@ export default function ExpertDashboardPage() {
             </div>
             
             {/* Quick Actions */}
-            <div className="hidden lg:flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mt-4 lg:mt-0 shrink-0">
               <Button
                 onClick={() => handleToggleAvailable(!isOnline)}
                 disabled={isTogglingAvailable}

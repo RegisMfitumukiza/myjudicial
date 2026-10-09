@@ -151,6 +151,9 @@ fi
 # --- Summary ---------------------------------------------------------------
 echo ""
 echo "== $probe_ts result: $ncrit CRIT, $nwarn WARN =="
+echo "== BACKEND_LOGS_BEGIN =="
+docker compose logs --tail 60 backend 2>/dev/null || true
+echo "== BACKEND_LOGS_END =="
 if [ "$ncrit" -gt 0 ]; then
   exit 1
 fi

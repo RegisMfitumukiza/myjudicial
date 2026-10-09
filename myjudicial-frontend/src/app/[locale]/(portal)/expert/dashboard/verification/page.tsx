@@ -492,8 +492,10 @@ export default function VerificationPage() {
 
       if (issueDate && issueDate.trim()) {
         const trimmed = issueDate.trim();
-        let normalizedDate = trimmed;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        let normalizedDate: string | null = null;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          normalizedDate = trimmed;
+        } else {
           const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
           if (mdy) {
             const [, p1, p2, year] = mdy;
@@ -509,7 +511,9 @@ export default function VerificationPage() {
             }
           }
         }
-        formData.append("issueDate", normalizedDate);
+        if (normalizedDate && /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+          formData.append("issueDate", normalizedDate);
+        }
       }
 
       await apiFetch("/experts/verification/submit", {

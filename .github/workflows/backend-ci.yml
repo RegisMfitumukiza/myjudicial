@@ -13,6 +13,7 @@ on:
       - 'myjudicial-backend/**'
       - 'docker-compose.yml'
       - '.github/workflows/backend-ci.yml'
+  workflow_dispatch:
 
 concurrency:
   group: backend-${{ github.ref }}
@@ -65,7 +66,7 @@ jobs:
     # jobs in favor of newer ones ("higher priority waiting request"), which
     # would silently drop a service's deploy. flock keeps every deploy running
     # until the lock is free, and `-w` turns any starvation into a loud error.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     needs: checks
     runs-on: ubuntu-latest
     steps:
@@ -118,9 +119,15 @@ jobs:
             exec 9> /tmp/myjudicial-deploy.lock
             flock -x -w 1200 9 || { echo "ERROR: deploy lock busy > 20min"; exit 1; }
 
-            # Free disk space: old tagged images accumulate across deployments.
-            docker image prune -f || true
+            # Free disk space: prune stopped containers, unused tagged images and build cache
+            echo "=== VPS disk before pre-deploy cleanup ==="
+            df -h /
+            docker container prune -f || true
+            docker image prune -af || true
             docker builder prune -af || true
+            docker system prune -f || true
+            echo "=== VPS disk after pre-deploy cleanup ==="
+            df -h /
 
             # --ff-only: single deploy at a time, so any divergence is a real
             # conflict (e.g. local edits on the VPS) and must fail loudly.
@@ -161,5 +168,7 @@ jobs:
             fi
             echo "Backend deployed and healthy."
 
-
-
+            # Post-deploy prune to drop superseded container image
+            docker image prune -af || true
+            echo "=== VPS disk after post-deploy cleanup ==="
+            df -h /

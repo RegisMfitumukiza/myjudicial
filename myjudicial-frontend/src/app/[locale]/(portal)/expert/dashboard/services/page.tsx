@@ -325,8 +325,17 @@ export default function ServicesPage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Briefcase size={14} className="text-primary/70 shrink-0" />
                             <h3 className="text-sm font-semibold text-foreground">{s.name}</h3>
-                            <StatusBadge tone={s.isActive ? "active" : "neutral"}>
-                              {s.isActive ? t("active") : t("inactive")}
+                            <StatusBadge
+                              tone={s.isActive ? (isUnverified ? "pending" : "active") : "neutral"}
+                              title={
+                                s.isActive
+                                  ? isUnverified
+                                    ? t("activePendingTooltip")
+                                    : t("activeLiveTooltip")
+                                  : t("inactiveTooltip")
+                              }
+                            >
+                              {s.isActive ? (isUnverified ? t("activePending") : t("active")) : t("inactive")}
                             </StatusBadge>
                             {s.isDefault && (
                               <StatusBadge tone="info" title={t("defaultServiceTooltip")}>

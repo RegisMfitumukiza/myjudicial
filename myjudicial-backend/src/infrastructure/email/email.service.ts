@@ -1049,7 +1049,7 @@ export const sendApprovalEmail = async (
       alertBox(message, "success"),
       button(goToDashboard, dashboardUrl),
     )}
-  `, { previewText: `${subject}` });
+  `, { previewText: `${subject}`, language });
 
   await sendEmail({
     to: [{ email: to, name }],
@@ -1086,7 +1086,7 @@ export const sendRejectionEmail = async (
       paragraph(updateMessage),
       button(resubmitButton, documentsUrl),
     )}
-  `, { previewText: `${subject}` });
+  `, { previewText: `${subject}`, language });
 
   await sendEmail({
     to: [{ email: to, name }],
@@ -1120,7 +1120,7 @@ export const sendVerificationReminderEmail = async (
       paragraph(uploadMessage),
       button(uploadButton, documentsUrl),
     )}
-  `, { previewText: `${subject}` });
+  `, { previewText: `${subject}`, language });
 
   await sendEmail({
     to: [{ email: to, name }],
@@ -1156,7 +1156,7 @@ export const sendCorrectionsEmail = async (
       paragraph(updateMessage),
       button(updateButton, documentsUrl),
     )}
-  `, { previewText: `${subject}` });
+  `, { previewText: `${subject}`, language });
 
   await sendEmail({
     to: [{ email: to, name }],

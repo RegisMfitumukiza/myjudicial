@@ -10,6 +10,8 @@ import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { parsePagination, buildPaginationMeta } from "../../shared/utils/pagination.js";
 import { logger } from "../../shared/utils/logger.js";
 import { triggerEmbeddingSync } from "../ai/embedding-sync.service.js";
+import { NotificationRepository } from "../notifications/notification.repository.js";
+import type { NotificationEvent } from "../../generated/prisma/client.js";
 
 export const VerificationService = {
   /**
@@ -66,6 +68,17 @@ export const VerificationService = {
     const expertLanguage = (existing.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
     await sendApprovalEmail(email, name, expertLanguage);
 
+    // In-app notification for the expert
+    if (existing.expert.user.id) {
+      await NotificationRepository.create({
+        userId: existing.expert.user.id,
+        event: "WELCOME" as NotificationEvent,
+        recipient: email,
+        subject: "Verification Approved",
+        body: "Congratulations! Your legal credentials have been verified. Your profile and services are now publicly visible.",
+      }).catch((err) => logger.error("Failed to write in-app approval notification", { error: err }));
+    }
+
     // Tier 3 — sync AI embedding now that the expert is verified (fire-and-forget)
     // This makes the newly approved lawyer immediately searchable via AI Triage.
     triggerEmbeddingSync(existing.expert.id, "expert_verified");
@@ -104,6 +117,17 @@ export const VerificationService = {
     const name = existing.expert.displayName;
     const expertLanguage = (existing.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
     await sendRejectionEmail(email, name, reason, expertLanguage);
+
+    // In-app notification for the expert
+    if (existing.expert.user.id) {
+      await NotificationRepository.create({
+        userId: existing.expert.user.id,
+        event: "WELCOME" as NotificationEvent,
+        recipient: email,
+        subject: "Verification Update: Action Required",
+        body: `Your verification submission was not approved. Feedback: "${reason}". Please review and resubmit your documents.`,
+      }).catch((err) => logger.error("Failed to write in-app rejection notification", { error: err }));
+    }
 
     return updated;
   },
@@ -219,6 +243,17 @@ export const VerificationService = {
     const name  = existing.expert.displayName;
     const expertLanguage = (existing.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
     await sendCorrectionsEmail(email, name, notes, expertLanguage);
+
+    // In-app notification for the expert
+    if (existing.expert.user.id) {
+      await NotificationRepository.create({
+        userId: existing.expert.user.id,
+        event: "WELCOME" as NotificationEvent,
+        recipient: email,
+        subject: "Verification Corrections Required",
+        body: `Our review team requested corrections: "${notes}". Please update and resubmit your documents.`,
+      }).catch((err) => logger.error("Failed to write in-app corrections notification", { error: err }));
+    }
 
     await writeAuditLog({
       actorId:     adminId,

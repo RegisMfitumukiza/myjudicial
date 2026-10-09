@@ -207,6 +207,13 @@ export default function ServicesPage() {
     { value: "EMAIL", label: t("deliveryMode.email"), icon: Mail },
   ];
 
+  const DELIVERY_MODE_LABELS: Record<string, string> = {
+    VIDEO: t("deliveryMode.video"),
+    PHONE: t("deliveryMode.phone"),
+    IN_PERSON: t("deliveryMode.inPerson"),
+    EMAIL: t("deliveryMode.email"),
+  };
+
   function openCreate() {
     setEditingId(null);
     setForm(EMPTY_FORM);
@@ -335,7 +342,7 @@ export default function ServicesPage() {
                             </span>
                             <span className="flex items-center gap-1">
                               <DeliveryIcon mode={s.deliveryMode ?? "VIDEO"} />
-                              {t(`deliveryMode.${s.deliveryMode?.toLowerCase() ?? "video"}` as any) || "Video Call"}
+                              {DELIVERY_MODE_LABELS[s.deliveryMode ?? "VIDEO"] || t("deliveryMode.video")}
                             </span>
                             <span className="font-semibold text-foreground">
                               {s.flatFee.toLocaleString()} {s.currency}
@@ -468,7 +475,7 @@ export default function ServicesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>{t(`category.${c.value}` as any) || c.label}</SelectItem>
+                      <SelectItem key={c.value} value={c.value}>{CATEGORY_LABELS[c.value] || c.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -541,11 +548,11 @@ export default function ServicesPage() {
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                 className="h-4 w-4 rounded border-input accent-primary"
               />
-              <label htmlFor="isActive" className="text-xs text-muted-foreground">{t("active")} - {tCommon("description")}</label>
+              <label htmlFor="isActive" className="text-xs text-muted-foreground">{t("active")} — {t("activeHelp")}</label>
             </div>
             {isEditingDefault && (
               <p className="text-xs text-muted-foreground/80">
-                {t("defaultService")} - {tCommon("description")}
+                {t("defaultService")} — {t("defaultServiceHelp")}
               </p>
             )}
           </div>

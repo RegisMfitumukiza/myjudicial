@@ -6762,12 +6762,18 @@
     "validationName": "Izina rigomba kugira byibuze inyuguti 2.",
     "validationDuration": "Igihe kigomba kuba hagati y'iminota 15 na 480.",
     "validationFee": "Igiciro kigomba kuba umubare muzima.",
+    "activeHelp": "Iboneka ku bakiriya kugira ngo basabe igihe ikora",
+    "defaultServiceHelp": "Serivisi y'ibanze iguma ikora kandi ntishobora guhagarikwa",
     "category": {
       "consultation": "Inama z'amategeko",
       "documentReview": "Isuzuma ry'inyandiko",
+      "document_review": "Isuzuma ry'inyandiko",
       "contractDrafting": "Kwandika amasezerano",
+      "contract_drafting": "Kwandika amasezerano",
       "courtRepresentation": "Guhagararira mu rukiko",
+      "court_representation": "Guhagararira mu rukiko",
       "legalAdvice": "Ubufasha mu by'amategeko",
+      "legal_advice": "Ubufasha mu by'amategeko",
       "mediation": "Ubwumvikane",
       "other": "Ikindi"
     },
@@ -6775,6 +6781,7 @@
       "video": "Ihamagara rya Videwo",
       "phone": "Ihamagara rya Telefoni",
       "inPerson": "Imbonankubone",
+      "in_person": "Imbonankubone",
       "email": "Inama kuri Imeyili"
     }
   },

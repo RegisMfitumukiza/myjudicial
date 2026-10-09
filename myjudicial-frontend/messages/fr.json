@@ -6762,12 +6762,18 @@
     "validationName": "Le nom doit comporter au moins 2 caractères.",
     "validationDuration": "La durée doit être comprise entre 15 et 480 minutes.",
     "validationFee": "Le tarif doit être un montant positif.",
+    "activeHelp": "Visible aux clients pour la réservation lorsqu'il est actif",
+    "defaultServiceHelp": "Le service par défaut reste toujours actif et ne peut pas être désactivé",
     "category": {
       "consultation": "Consultation",
       "documentReview": "Examen de documents",
+      "document_review": "Examen de documents",
       "contractDrafting": "Rédaction de contrats",
+      "contract_drafting": "Rédaction de contrats",
       "courtRepresentation": "Représentation au tribunal",
+      "court_representation": "Représentation au tribunal",
       "legalAdvice": "Conseil juridique",
+      "legal_advice": "Conseil juridique",
       "mediation": "Médiation",
       "other": "Autre"
     },
@@ -6775,6 +6781,7 @@
       "video": "Appel vidéo",
       "phone": "Appel téléphonique",
       "inPerson": "En personne",
+      "in_person": "En personne",
       "email": "Consultation par e-mail"
     }
   },

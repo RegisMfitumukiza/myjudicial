@@ -97,7 +97,7 @@ export const VerificationService = {
       // Register the document in the Document table so we can retrieve the
       // AES key, IV, and original mimeType later (for admin decryption)
       await FileStorageRepository.create({
-        ownerId:             profile.id,
+        ownerId:             userId,
         ownerType:           "EXPERT",
         bucketName,
         objectKey,

@@ -21,9 +21,6 @@ crit() { printf 'CRIT %s\n' "$*"; ncrit=1; }
 
 probe_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "== myjudicial VPS probe @ $probe_ts (cwd: $(pwd)) =="
-echo "== BACKEND_LOGS_START =="
-docker compose logs --tail 40 backend 2>&1 || true
-echo "== BACKEND_LOGS_END =="
 
 # --- Docker daemon ---------------------------------------------------------
 if docker info >/dev/null 2>&1; then

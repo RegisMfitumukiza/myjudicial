@@ -80,79 +80,95 @@ const CATEGORIES = [
 
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120, 180];
 
-type ServicePreset = {
+type CategoryTemplate = {
   id: string;
-  labelKey: string;
+  chipLabelKey: string;
   nameKey: string;
   descKey: string;
-  category: string;
   deliveryMode: string;
   durationMin: number;
-  icon: React.ComponentType<{ size: number; className?: string }>;
 };
 
-const SERVICE_PRESETS: ServicePreset[] = [
-  {
-    id: "case_assessment",
-    labelKey: "presetCaseAssessment",
-    nameKey: "presetCaseAssessmentName",
-    descKey: "presetCaseAssessmentDesc",
-    category: "consultation",
-    deliveryMode: "VIDEO",
-    durationMin: 30,
-    icon: Clock,
-  },
-  {
-    id: "contract_review",
-    labelKey: "presetContractReview",
-    nameKey: "presetContractReviewName",
-    descKey: "presetContractReviewDesc",
-    category: "document_review",
-    deliveryMode: "EMAIL",
-    durationMin: 60,
-    icon: FileText,
-  },
-  {
-    id: "demand_letter",
-    labelKey: "presetDemandLetter",
-    nameKey: "presetDemandLetterName",
-    descKey: "presetDemandLetterDesc",
-    category: "contract_drafting",
-    deliveryMode: "EMAIL",
-    durationMin: 60,
-    icon: AlertTriangle,
-  },
-  {
-    id: "contract_drafting",
-    labelKey: "presetContractDrafting",
-    nameKey: "presetContractDraftingName",
-    descKey: "presetContractDraftingDesc",
-    category: "contract_drafting",
-    deliveryMode: "EMAIL",
-    durationMin: 120,
-    icon: Pencil,
-  },
-  {
-    id: "court_hearing",
-    labelKey: "presetCourtHearing",
-    nameKey: "presetCourtHearingName",
-    descKey: "presetCourtHearingDesc",
-    category: "court_representation",
-    deliveryMode: "IN_PERSON",
-    durationMin: 180,
-    icon: Scale,
-  },
-  {
-    id: "mediation",
-    labelKey: "presetMediation",
-    nameKey: "presetMediationName",
-    descKey: "presetMediationDesc",
-    category: "mediation",
-    deliveryMode: "IN_PERSON",
-    durationMin: 90,
-    icon: Briefcase,
-  },
-];
+const CATEGORY_TEMPLATES: Record<string, CategoryTemplate[]> = {
+  consultation: [
+    {
+      id: "case_assessment",
+      chipLabelKey: "templateCaseAssessment",
+      nameKey: "presetCaseAssessmentName",
+      descKey: "presetCaseAssessmentDesc",
+      deliveryMode: "VIDEO",
+      durationMin: 30,
+    },
+  ],
+  document_review: [
+    {
+      id: "contract_review",
+      chipLabelKey: "templateContractReview",
+      nameKey: "presetContractReviewName",
+      descKey: "presetContractReviewDesc",
+      deliveryMode: "EMAIL",
+      durationMin: 60,
+    },
+  ],
+  contract_drafting: [
+    {
+      id: "demand_letter",
+      chipLabelKey: "templateDemandLetter",
+      nameKey: "presetDemandLetterName",
+      descKey: "presetDemandLetterDesc",
+      deliveryMode: "EMAIL",
+      durationMin: 60,
+    },
+    {
+      id: "contract_drafting",
+      chipLabelKey: "templateContractDrafting",
+      nameKey: "presetContractDraftingName",
+      descKey: "presetContractDraftingDesc",
+      deliveryMode: "EMAIL",
+      durationMin: 120,
+    },
+  ],
+  court_representation: [
+    {
+      id: "court_hearing",
+      chipLabelKey: "templateCourtHearing",
+      nameKey: "presetCourtHearingName",
+      descKey: "presetCourtHearingDesc",
+      deliveryMode: "IN_PERSON",
+      durationMin: 180,
+    },
+  ],
+  legal_advice: [
+    {
+      id: "legal_advice",
+      chipLabelKey: "templateLegalAdvice",
+      nameKey: "presetLegalAdviceName",
+      descKey: "presetLegalAdviceDesc",
+      deliveryMode: "EMAIL",
+      durationMin: 60,
+    },
+  ],
+  mediation: [
+    {
+      id: "mediation",
+      chipLabelKey: "templateMediation",
+      nameKey: "presetMediationName",
+      descKey: "presetMediationDesc",
+      deliveryMode: "IN_PERSON",
+      durationMin: 90,
+    },
+  ],
+};
+
+const CATEGORY_DEFAULTS: Record<string, { deliveryMode: string; durationMin: number }> = {
+  consultation: { deliveryMode: "VIDEO", durationMin: 60 },
+  document_review: { deliveryMode: "EMAIL", durationMin: 60 },
+  contract_drafting: { deliveryMode: "EMAIL", durationMin: 120 },
+  court_representation: { deliveryMode: "IN_PERSON", durationMin: 180 },
+  legal_advice: { deliveryMode: "EMAIL", durationMin: 60 },
+  mediation: { deliveryMode: "IN_PERSON", durationMin: 90 },
+  other: { deliveryMode: "VIDEO", durationMin: 60 },
+};
 
 const CURRENCIES = ["RWF", "USD", "EUR"];
 
@@ -336,15 +352,23 @@ export default function ServicesPage() {
     EMAIL: t("deliveryMode.email"),
   };
 
-  function applyPreset(preset: ServicePreset) {
+  function handleCategoryChange(category: string) {
+    const defaults = CATEGORY_DEFAULTS[category];
     setForm((prev) => ({
       ...prev,
-      name: t(preset.nameKey),
-      description: t(preset.descKey),
-      category: preset.category,
-      customCategory: "",
-      deliveryMode: preset.deliveryMode,
-      durationMin: preset.durationMin,
+      category,
+      deliveryMode: !editingId && defaults ? defaults.deliveryMode : prev.deliveryMode,
+      durationMin: !editingId && defaults ? defaults.durationMin : prev.durationMin,
+    }));
+  }
+
+  function applyCategoryTemplate(tmpl: CategoryTemplate) {
+    setForm((prev) => ({
+      ...prev,
+      name: t(tmpl.nameKey),
+      description: t(tmpl.descKey),
+      deliveryMode: tmpl.deliveryMode,
+      durationMin: tmpl.durationMin,
     }));
   }
 
@@ -579,35 +603,44 @@ export default function ServicesPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {!editingId && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                <Sparkles size={14} className="shrink-0" />
-                <span>{t("quickPresetsTitle")}</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                {t("quickPresetsSubtitle")}
-              </p>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {SERVICE_PRESETS.map((preset) => {
-                  const Icon = preset.icon;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => applyPreset(preset)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground shadow-xs transition hover:border-primary/50 hover:bg-primary/10 hover:text-primary focus:outline-hidden"
-                    >
-                      <Icon size={12} className="text-primary/70 shrink-0" />
-                      <span>{t(preset.labelKey)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           <div className="space-y-4">
+            {/* 1. Category First */}
+            <div className="space-y-1.5">
+              <Label>{t("serviceCategory")}</Label>
+              <Select
+                value={form.category}
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{CATEGORY_LABELS[c.value] || c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Custom Category Input if "other" is selected */}
+            {form.category === "other" && (
+              <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                <Label htmlFor="custom-category" className="text-xs font-semibold text-primary">
+                  {t("customCategoryLabel")}
+                </Label>
+                <Input
+                  id="custom-category"
+                  value={form.customCategory}
+                  onChange={(e) => setForm({ ...form, customCategory: e.target.value })}
+                  placeholder={t("customCategoryPlaceholder")}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  {t("customCategoryHelp")}
+                </p>
+              </div>
+            )}
+
+            {/* 2. Service Name with Contextual Smart Templates */}
             <div className="space-y-1.5">
               <Label htmlFor="service-name">{t("serviceName")}</Label>
               <Input
@@ -616,8 +649,31 @@ export default function ServicesPage() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder={t("serviceName")}
               />
+
+              {/* Contextual Smart Template Chips for this category */}
+              {(CATEGORY_TEMPLATES[form.category] ?? []).length > 0 && !editingId && (
+                <div className="pt-1 space-y-1">
+                  <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
+                    <Sparkles size={11} className="text-primary shrink-0" />
+                    <span>{t("smartTemplatesLabel")}</span>
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(CATEGORY_TEMPLATES[form.category] ?? []).map((tmpl) => (
+                      <button
+                        key={tmpl.id}
+                        type="button"
+                        onClick={() => applyCategoryTemplate(tmpl)}
+                        className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/50 hover:bg-primary/10 hover:border-primary/40 hover:text-primary px-2.5 py-1 text-xs text-muted-foreground font-medium transition cursor-pointer"
+                      >
+                        <span>+ {t(tmpl.chipLabelKey)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* 3. Service Description */}
             <div className="space-y-1.5">
               <Label htmlFor="service-description">{t("serviceDescription")}</Label>
               <Textarea
@@ -629,24 +685,8 @@ export default function ServicesPage() {
               />
             </div>
 
+            {/* 4. Delivery Method & Duration */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>{t("serviceCategory")}</Label>
-                <Select
-                  value={form.category}
-                  onValueChange={(value) => setForm({ ...form, category: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>{CATEGORY_LABELS[c.value] || c.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="space-y-1.5">
                 <Label>{t("deliveryMethod")}</Label>
                 <Select
@@ -668,38 +708,9 @@ export default function ServicesPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {form.category === "other" && (
-              <div className="space-y-1.5 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <Label htmlFor="custom-category" className="text-xs font-semibold text-primary">
-                  {t("customCategoryLabel")}
-                </Label>
-                <Input
-                  id="custom-category"
-                  value={form.customCategory}
-                  onChange={(e) => setForm({ ...form, customCategory: e.target.value })}
-                  placeholder={t("customCategoryPlaceholder")}
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  {t("customCategoryHelp")}
-                </p>
-              </div>
-            )}
-
-            <div className="rounded-md bg-muted/50 p-2.5 text-xs text-muted-foreground">
-              {form.deliveryMode === "VIDEO" && t("deliveryModeHelpVideo")}
-              {form.deliveryMode === "PHONE" && t("deliveryModeHelpPhone")}
-              {form.deliveryMode === "IN_PERSON" && t("deliveryModeHelpInPerson")}
-              {form.deliveryMode === "EMAIL" && t("deliveryModeHelpEmail")}
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
+              <div className="space-y-1.5">
                 <Label htmlFor="service-duration">{t("durationMinutes")}</Label>
-                <span className="text-[11px] text-muted-foreground">{t("durationHelp")}</span>
-              </div>
-              <div className="flex items-center gap-2">
                 <Input
                   id="service-duration"
                   type="number"
@@ -707,25 +718,35 @@ export default function ServicesPage() {
                   max={480}
                   value={form.durationMin}
                   onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
-                  className="w-28"
                 />
-                <div className="flex flex-wrap gap-1">
-                  {DURATION_PRESETS.map((mins) => (
-                    <button
-                      key={mins}
-                      type="button"
-                      onClick={() => setForm({ ...form, durationMin: mins })}
-                      className={`rounded px-2 py-1 text-xs font-medium transition ${
-                        form.durationMin === mins
-                          ? "bg-primary text-primary-foreground"
-                          : "border border-border bg-card text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {mins}m
-                    </button>
-                  ))}
-                </div>
               </div>
+            </div>
+
+            {/* Delivery mode helper hint */}
+            <div className="rounded-md bg-muted/50 p-2.5 text-xs text-muted-foreground">
+              {form.deliveryMode === "VIDEO" && t("deliveryModeHelpVideo")}
+              {form.deliveryMode === "PHONE" && t("deliveryModeHelpPhone")}
+              {form.deliveryMode === "IN_PERSON" && t("deliveryModeHelpInPerson")}
+              {form.deliveryMode === "EMAIL" && t("deliveryModeHelpEmail")}
+            </div>
+
+            {/* Duration quick-presets */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] text-muted-foreground mr-1">{t("durationMinutes")}:</span>
+              {DURATION_PRESETS.map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => setForm({ ...form, durationMin: mins })}
+                  className={`rounded px-2 py-0.5 text-xs font-medium transition cursor-pointer ${
+                    form.durationMin === mins
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {mins}m
+                </button>
+              ))}
             </div>
 
             <div className="space-y-1.5">

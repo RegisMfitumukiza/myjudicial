@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Loader2, X, Check, Clock, AlertTriangle, Video, Phone, MapPin, Mail, Briefcase, Sparkles, Scale, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, X, Check, Clock, AlertTriangle, Video, Phone, MapPin, Mail, Briefcase, Sparkles, Scale, FileText, Lock, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   useGetExpertsServices,
@@ -488,6 +488,7 @@ export default function ServicesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteInModal, setConfirmDeleteInModal] = useState(false);
   const [form, setForm] = useState<ServiceForm>(EMPTY_FORM);
 
   const isSaving = isCreating || isUpdating;
@@ -561,6 +562,7 @@ export default function ServicesPage() {
   function closeForm() {
     setShowForm(false);
     setEditingId(null);
+    setConfirmDeleteInModal(false);
   }
 
   function handleSubmit() {
@@ -720,7 +722,7 @@ export default function ServicesPage() {
                           >
                             <Pencil />
                           </Button>
-                          {!s.isDefault && (
+                          {!s.isDefault ? (
                             <Button
                               variant="ghost"
                               size="icon-sm"
@@ -731,6 +733,13 @@ export default function ServicesPage() {
                             >
                               <Trash2 />
                             </Button>
+                          ) : (
+                            <span
+                              className="inline-flex h-8 w-8 items-center justify-center text-muted-foreground/40 cursor-not-allowed"
+                              title={t("defaultServiceTooltip")}
+                            >
+                              <Lock className="h-3.5 w-3.5" />
+                            </span>
                           )}
                         </div>
                       </div>
@@ -981,20 +990,71 @@ export default function ServicesPage() {
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={closeForm}>
-              {tCommon("cancel")}
-            </Button>
-            <Button onClick={handleSubmit} disabled={isSaving}>
-              {isSaving ? (
-                <Loader2 className="animate-spin" />
-              ) : editingId ? (
-                <Pencil />
-              ) : (
-                <Plus />
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-3">
+            <div className="flex items-center">
+              {editingId && !isEditingDefault && (
+                confirmDeleteInModal ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-1.5 px-2.5">
+                    <span className="text-xs font-medium text-destructive">{t("confirmDelete")}</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setConfirmDeleteInModal(false)}
+                      disabled={isDeleting}
+                    >
+                      {tCommon("cancel")}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="xs"
+                      onClick={() => {
+                        handleDelete(editingId, deleteService, queryClient, setDeletingId, t);
+                        closeForm();
+                      }}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                      {t("deleteService")}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs"
+                    onClick={() => setConfirmDeleteInModal(true)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    {t("deleteService")}
+                  </Button>
+                )
               )}
-              {editingId ? t("saveService") : t("addService")}
-            </Button>
+              {isEditingDefault && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 py-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                  {t("defaultServiceTooltip")}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
+              <Button variant="outline" onClick={closeForm}>
+                {tCommon("cancel")}
+              </Button>
+              <Button onClick={handleSubmit} disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="animate-spin" />
+                ) : editingId ? (
+                  <Pencil />
+                ) : (
+                  <Plus />
+                )}
+                {editingId ? t("saveService") : t("addService")}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

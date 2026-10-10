@@ -213,6 +213,12 @@ const SERVICE_CATEGORIES = [
   "court_representation",
   "legal_advice",
   "mediation",
+  "intellectual_property",
+  "business_registration",
+  "tax_advisory",
+  "property_land",
+  "labor_employment",
+  "due_diligence",
   "other",
 ] as const;
 

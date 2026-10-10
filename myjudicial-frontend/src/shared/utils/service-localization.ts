@@ -10,6 +10,12 @@ export const CATEGORY_TRANSLATION_KEYS: Record<string, string> = {
   court_representation: "categoryCourtRepresentation",
   legal_advice: "categoryLegalAdvice",
   mediation: "categoryMediation",
+  intellectual_property: "categoryIntellectualProperty",
+  business_registration: "categoryBusinessRegistration",
+  tax_advisory: "categoryTaxAdvisory",
+  property_land: "categoryPropertyLand",
+  labor_employment: "categoryLaborEmployment",
+  due_diligence: "categoryDueDiligence",
   other: "categoryOther",
 };
 

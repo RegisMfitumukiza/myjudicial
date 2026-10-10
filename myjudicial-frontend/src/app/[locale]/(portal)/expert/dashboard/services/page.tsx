@@ -596,7 +596,11 @@ export default function ServicesPage() {
           if (!open) closeForm();
         }}
       >
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogContent
+          className="max-h-[90vh] max-w-lg overflow-y-auto"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>
               {editingId ? t("editService") : t("addService")}

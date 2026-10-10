@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   Calendar as CalendarIcon,
   Plus,
@@ -85,10 +85,12 @@ export default function AvailabilityOverridesPage() {
   const {
     data: overridesResponse,
     isLoading,
+    isFetching,
     error,
   } = useQuery({
     queryKey: ["availabilityOverrides", monthParam],
     queryFn: () => getOverrides({ month: monthParam }),
+    placeholderData: keepPreviousData,
   });
 
   const overrides = overridesResponse?.data?.data || [];
@@ -178,25 +180,25 @@ export default function AvailabilityOverridesPage() {
         description={t("pageDescription")}
         className="mb-4 shrink-0"
         actions={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Button
+              type="button"
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSelectedDate(new Date());
                 setShowCreateModal(true);
               }}
-              className="rounded-xl border-border/80 text-xs font-semibold gap-1.5 h-8.5"
+              className="rounded-xl border-border/80 text-xs sm:text-sm font-semibold gap-2 h-10 px-4 hover:bg-muted"
             >
-              <Plus className="h-3.5 w-3.5 text-primary" />
+              <Plus className="h-4 w-4 text-primary" />
               <span>{t("addOverrideTitle")}</span>
             </Button>
             <Button
-              size="sm"
+              type="button"
               onClick={() => setShowBulkModal(true)}
-              className="rounded-xl text-xs font-semibold gap-1.5 h-8.5 shadow-xs"
+              className="rounded-xl text-xs sm:text-sm font-semibold gap-2 h-10 px-4 shadow-sm"
             >
-              <CalendarDays className="h-3.5 w-3.5" />
+              <CalendarDays className="h-4 w-4" />
               <span>{t("vacationModeBtn")}</span>
             </Button>
           </div>
@@ -221,11 +223,11 @@ export default function AvailabilityOverridesPage() {
         </Alert>
       )}
 
-      {/* Loading State */}
-      {isLoading && <LoadingSpinner />}
+      {/* Initial Loading State */}
+      {isLoading && !overridesResponse && <LoadingSpinner />}
 
       {/* Full-Width Expansive Calendar Card */}
-      {!isLoading && !error && (
+      {(!isLoading || overridesResponse) && !error && (
         <div className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
           {/* Calendar Header Controls */}
           <div className="p-4 sm:p-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -238,8 +240,11 @@ export default function AvailabilityOverridesPage() {
                   <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
                     {format(currentMonth, "MMMM yyyy")}
                   </h2>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                    {t("overridesCount", { count: overrides.length })}
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground inline-flex items-center gap-1.5">
+                    {isFetching && (
+                      <Loader2 className="h-3 w-3 animate-spin text-primary shrink-0" />
+                    )}
+                    <span>{t("overridesCount", { count: overrides.length })}</span>
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -250,27 +255,39 @@ export default function AvailabilityOverridesPage() {
 
             <div className="flex items-center gap-1.5 self-end sm:self-center">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
-                onClick={goToPreviousMonth}
-                className="h-8.5 w-8.5 p-0 rounded-xl border-border/80"
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToPreviousMonth();
+                }}
+                className="h-9 w-9 p-0 rounded-xl border-border/80 hover:bg-muted"
                 aria-label={t("previousBtn")}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
-                onClick={goToToday}
-                className="h-8.5 px-3 rounded-xl border-border/80 text-xs font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToToday();
+                }}
+                className="h-9 px-3.5 rounded-xl border-border/80 text-xs font-semibold hover:bg-muted"
               >
                 {t("todayBtn")}
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
-                onClick={goToNextMonth}
-                className="h-8.5 w-8.5 p-0 rounded-xl border-border/80"
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToNextMonth();
+                }}
+                className="h-9 w-9 p-0 rounded-xl border-border/80 hover:bg-muted"
                 aria-label={t("nextBtn")}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -280,18 +297,21 @@ export default function AvailabilityOverridesPage() {
 
           {/* Legend Bar */}
           <div className="px-4 py-2.5 bg-muted/30 border-b border-border/70 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 font-medium">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 font-medium" title="Expert is unavailable for the entire day">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-500 shrink-0" />
                 <span>{t("legendClosed")}</span>
+                <span className="text-[11px] text-muted-foreground font-normal hidden sm:inline">(Day off)</span>
               </div>
-              <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400 font-medium">
+              <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400 font-medium" title="Special working hours replace regular schedule">
                 <span className="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0" />
                 <span>{t("legendCustom")}</span>
+                <span className="text-[11px] text-muted-foreground font-normal hidden sm:inline">(Special times)</span>
               </div>
-              <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium">
+              <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium" title="Limit max client consultations for this date">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0" />
                 <span>{t("legendReduced")}</span>
+                <span className="text-[11px] text-muted-foreground font-normal hidden sm:inline">(Max bookings cap)</span>
               </div>
             </div>
           </div>
@@ -400,7 +420,7 @@ export default function AvailabilityOverridesPage() {
       )}
 
       {/* Active Overrides Breakdown List */}
-      {!isLoading && !error && (
+      {(!isLoading || overridesResponse) && !error && (
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">

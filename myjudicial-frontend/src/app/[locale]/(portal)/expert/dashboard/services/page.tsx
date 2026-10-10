@@ -171,8 +171,36 @@ function serviceToForm(s: LegalService): ServiceForm {
   };
 }
 
+const PHONE_OR_URL_REGEX = /(\+?\d[\d\s-]{6,}\d|https?:\/\/|www\.|\S+@\S+\.\S+)/i;
+
+function normalizeCategoryName(raw: string): string {
+  const ACRONYMS = new Set(["RRA", "IP", "NGO", "VAT", "ICT", "LLC", "EAC", "AI", "ADR"]);
+  return raw
+    .trim()
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((word) => {
+      const upper = word.toUpperCase();
+      if (ACRONYMS.has(upper)) return upper;
+      if (word.includes("-")) {
+        return word
+          .split("-")
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+          .join("-");
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 function validate(form: ServiceForm, t: any): string | null {
   if (!form.name.trim() || form.name.trim().length < 2) return t("validationName");
+  if (form.category === "other" && form.customCategory.trim()) {
+    const custom = form.customCategory.trim();
+    if (custom.length < 3) return t("validationCustomCategoryTooShort");
+    if (custom.length > 50) return t("validationCustomCategoryTooLong");
+    if (PHONE_OR_URL_REGEX.test(custom)) return t("validationCustomCategoryNoContact");
+  }
   if (form.durationMin < 15 || form.durationMin > 480) return t("validationDuration");
   if (form.flatFee <= 0) return t("validationFee");
   return null;
@@ -181,7 +209,7 @@ function validate(form: ServiceForm, t: any): string | null {
 function toPayload(form: ServiceForm): CreateServiceDto {
   const finalCategory =
     form.category === "other" && form.customCategory.trim()
-      ? form.customCategory.trim()
+      ? normalizeCategoryName(form.customCategory)
       : form.category;
 
   return {

@@ -588,8 +588,8 @@ export default function LandingPage() {
       <div className="border-b border-border bg-card/40 py-3 sm:py-4">
         <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 sm:gap-x-6">
-            {/* Live Metric Badges */}
-            {showStats && (
+            {/* Live Metric Badges or Launching State */}
+            {showStats ? (
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 {publicStats!.totalLawyers > 0 && (
                   <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
@@ -633,6 +633,22 @@ export default function LandingPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <p className="text-xs min-[360px]:text-sm font-semibold text-foreground truncate">
+                  {t("stats.onboardingPill")}
+                </p>
+                <Link
+                  href="/auth/expert-register"
+                  className="shrink-0 text-[11px] min-[360px]:text-xs font-bold text-brand-dark dark:text-white hover:underline flex items-center gap-0.5 ml-1"
+                >
+                  {t("stats.onboardingCta")} <ChevronRight size={12} />
+                </Link>
               </div>
             )}
 
@@ -740,6 +756,44 @@ export default function LandingPage() {
               </SectionRow>
             </SectionRetryBoundary>
           </SectionFadeIn>
+
+          {/* Launch / Advocate Onboarding Banner — shown when no verified experts are live yet */}
+          {!areasLoading && !recLoading && !showPracticeAreas && !showRecommended && !showAvailableToday && (
+            <section className="py-8 sm:py-12 bg-background border-b border-border">
+              <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
+                <div className="rounded-2xl border border-border bg-gradient-to-r from-card via-card to-brand-dark/5 dark:to-white/5 p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="max-w-2xl space-y-2">
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-accent/60 px-3 py-1 text-xs font-semibold text-foreground">
+                      <Scale size={14} className="text-brand-dark dark:text-white shrink-0" />
+                      <span>{t("launch.badge")}</span>
+                    </div>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+                      {t("launch.title")}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {t("launch.description")}
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                    <Link
+                      href="/auth/expert-register"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-dark text-on-brand px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition text-center shadow-xs"
+                    >
+                      <span>{t("launch.advocateCta")}</span>
+                      <ArrowRight size={14} />
+                    </Link>
+                    <Link
+                      href="/ai"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs sm:text-sm font-semibold text-foreground hover:bg-accent transition text-center"
+                    >
+                      <Bot size={14} />
+                      <span>{t("launch.aiCta")}</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* ⑥ How It Works — always visible, 3 steps, links to full page */}
           <section className="bg-muted/40 py-10">

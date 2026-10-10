@@ -108,7 +108,7 @@ export const LandingService = {
       completedConsultations,
       totalClients,
       totalPracticeAreas,
-      totalLawyers: totalExperts,
+      totalLawyers: verifiedExperts,
     };
   },
 

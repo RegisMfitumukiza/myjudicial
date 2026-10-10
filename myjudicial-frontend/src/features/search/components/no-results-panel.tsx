@@ -1,6 +1,7 @@
 "use client";
 
-import { SearchX, MapPin, Filter, Globe, Locate, ChevronRight } from "lucide-react";
+import { SearchX, MapPin, Filter, Globe, Locate, ChevronRight, Bot, Scale } from "lucide-react";
+import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import type { ProximityFilter } from "../types";
 import { PROXIMITY_OPTIONS } from "../types";
@@ -92,6 +93,32 @@ export function NoResultsPanel({
             <li>{t("tip2")}</li>
             <li>{t("tip3")}</li>
           </ul>
+        </div>
+
+        <div className="rounded-xl border border-dashed border-border bg-card/60 p-3.5 text-left space-y-2">
+          <p className="text-[11px] font-semibold text-foreground">{t("launchAssistanceTitle")}</p>
+          <div className="flex flex-col gap-1.5 text-xs">
+            <Link
+              href="/ai"
+              className="inline-flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2 font-medium text-foreground hover:bg-accent transition"
+            >
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Bot size={14} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="truncate">{t("launchAssistanceAi")}</span>
+              </span>
+              <ChevronRight size={13} className="text-muted-foreground shrink-0" />
+            </Link>
+            <Link
+              href="/auth/expert-register"
+              className="inline-flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2 font-medium text-foreground hover:bg-accent transition"
+            >
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Scale size={14} className="text-brand-dark dark:text-white shrink-0" />
+                <span className="truncate">{t("launchAssistanceAdvocate")}</span>
+              </span>
+              <ChevronRight size={13} className="text-muted-foreground shrink-0" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

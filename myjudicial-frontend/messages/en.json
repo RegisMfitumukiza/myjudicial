@@ -4603,7 +4603,16 @@
     "stats": {
       "lawyers": "Verified lawyers",
       "consultations": "Consultations completed",
-      "areas": "Practice areas"
+      "areas": "Practice areas",
+      "onboardingPill": "Advocate Onboarding Active",
+      "onboardingCta": "Join Network"
+    },
+    "launch": {
+      "badge": "Rwanda Bar Association Network",
+      "title": "Onboarding Licensed Advocates Across Rwanda",
+      "description": "We are currently vetting and onboarding accredited Rwanda Bar Association advocates. You can use our AI Assistant for preliminary legal orientation or apply to join our verified advocate roster.",
+      "advocateCta": "Join as an Advocate",
+      "aiCta": "Try AI Legal Assistant"
     },
     "howItWorks": {
       "title": "Legal Support in 3 Simple Steps",
@@ -6185,6 +6194,9 @@
     "tip4": "Try a more general specialty (e.g. \"Family\" instead of \"Divorce Mediation\").",
     "searchTipsTitle": "Search Tips",
     "searchTips": "Search Tips",
+    "launchAssistanceTitle": "Need guidance or wish to represent clients?",
+    "launchAssistanceAi": "Get instant guidance with AI Legal Assistant",
+    "launchAssistanceAdvocate": "Are you a licensed advocate? Join MyJudicial",
     "officeLocation": "Office Location",
     "viewProfile": "View Profile",
     "aiTriage": "AI Assistant",

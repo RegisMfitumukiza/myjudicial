@@ -2429,6 +2429,9 @@
     "tip4": "Essayez une spécialité plus générale (ex. \"Famille\" au lieu de \"Médiation de divorce\").",
     "searchTipsTitle": "Conseils de recherche",
     "searchTips": "Conseils de recherche",
+    "launchAssistanceTitle": "Besoin d'aide ou avocat au Barreau ?",
+    "launchAssistanceAi": "Obtenir une orientation avec l'assistant juridique IA",
+    "launchAssistanceAdvocate": "Avocat agréé ? Rejoindre le réseau MyJudicial",
     "officeLocation": "Emplacement du bureau",
     "viewProfile": "Voir le profil",
     "aiTriage": "Assistant IA",
@@ -2847,7 +2850,16 @@
     "stats": {
       "lawyers": "Avocats vérifiés",
       "consultations": "Consultations terminées",
-      "areas": "Domaines de pratique"
+      "areas": "Domaines de pratique",
+      "onboardingPill": "Intégration des avocats en cours",
+      "onboardingCta": "Rejoindre le réseau"
+    },
+    "launch": {
+      "badge": "Réseau du Barreau du Rwanda",
+      "title": "Intégration des avocats agréés au Rwanda",
+      "description": "Nous procédons actuellement à la vérification et à l'intégration des avocats agréés par le Barreau du Rwanda. Vous pouvez utiliser notre assistant IA pour une orientation juridique préliminaire ou postuler pour rejoindre notre réseau vérifié.",
+      "advocateCta": "Rejoindre comme avocat",
+      "aiCta": "Essayer l'assistant juridique IA"
     },
     "howItWorks": {
       "title": "Vos Démarches Juridiques en 3 Étapes",

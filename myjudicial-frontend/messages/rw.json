@@ -2429,6 +2429,9 @@
     "tip4": "Gerageza ubumenyi buke (urugero: \"Imuryango\" badahuje \"Gufatanya guhindura\").",
     "searchTipsTitle": "Amabwiriza y'gushakisha",
     "searchTips": "Amabwiriza y'gushakisha",
+    "launchAssistanceTitle": "Ukeneye amakuru cyangwa uri umunyamategeko?",
+    "launchAssistanceAi": "Baza AI y'amategeko ubu ngubu kubusa",
+    "launchAssistanceAdvocate": "Uri umunyamategeko mu rugaga? Iyandikishe kuri MyJudicial",
     "officeLocation": "Igisagara cy'akazi",
     "viewProfile": "Raba urupapuro",
     "aiTriage": "Ubufasha bwa AI",
@@ -2847,7 +2850,16 @@
     "stats": {
       "lawyers": "Avoka bemejwe",
       "consultations": "Inama zarangiye",
-      "areas": "Inzego z'amategeko"
+      "areas": "Inzego z'amategeko",
+      "onboardingPill": "Kwandika abavoka birakomeje",
+      "onboardingCta": "Injira mu rugaga"
+    },
+    "launch": {
+      "badge": "Urugaga rw'Abavoka mu Rwanda",
+      "title": "Kwandika no kwemeza abanyamategeko mu Rwanda",
+      "description": "Ubu turimo kwemeza no kwandika abavoka bari mu Rugaga rw'Abavoka mu Rwanda (RBA). Ushobora gukoresha ubufasha bwa AI ku bisobanuro by'ibanze cyangwa ugasaba kwinjira mu rugaga rwemejwe.",
+      "advocateCta": "Injira nk'umunyamategeko",
+      "aiCta": "Gerageza AI y'amategeko"
     },
     "howItWorks": {
       "title": "Uko Ubona Ubufasha mu Ntambwe 3 Zizewe",

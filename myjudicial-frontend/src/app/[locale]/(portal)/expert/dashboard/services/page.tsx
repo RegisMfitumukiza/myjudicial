@@ -685,32 +685,42 @@ export default function ServicesPage() {
               />
             </div>
 
-            {/* 4. Delivery Method & Duration */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>{t("deliveryMethod")}</Label>
-                <Select
-                  value={form.deliveryMode}
-                  onValueChange={(value) => setForm({ ...form, deliveryMode: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DELIVERY_MODES.map((m) => (
-                      <SelectItem key={m.value} value={m.value}>
-                        <span className="flex items-center gap-1.5">
-                          <m.icon size={13} className="text-muted-foreground" />
-                          <span>{m.label}</span>
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* 4. Delivery Method */}
+            <div className="space-y-1.5">
+              <Label>{t("deliveryMethod")}</Label>
+              <Select
+                value={form.deliveryMode}
+                onValueChange={(value) => setForm({ ...form, deliveryMode: value })}
+              >
+                <SelectTrigger className="w-full min-w-0">
+                  <SelectValue className="truncate" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DELIVERY_MODES.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>
+                      <span className="flex items-center gap-2 min-w-0">
+                        <m.icon size={14} className="text-muted-foreground shrink-0" />
+                        <span className="truncate">{m.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground bg-muted/40 rounded-md p-2">
+                {form.deliveryMode === "VIDEO" && t("deliveryModeHelpVideo")}
+                {form.deliveryMode === "PHONE" && t("deliveryModeHelpPhone")}
+                {form.deliveryMode === "IN_PERSON" && t("deliveryModeHelpInPerson")}
+                {form.deliveryMode === "EMAIL" && t("deliveryModeHelpEmail")}
+              </p>
+            </div>
 
-              <div className="space-y-1.5">
+            {/* 5. Duration */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
                 <Label htmlFor="service-duration">{t("durationMinutes")}</Label>
+                <span className="text-[11px] text-muted-foreground">{t("durationHelp")}</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <Input
                   id="service-duration"
                   type="number"
@@ -718,35 +728,25 @@ export default function ServicesPage() {
                   max={480}
                   value={form.durationMin}
                   onChange={(e) => setForm({ ...form, durationMin: Number(e.target.value) })}
+                  className="w-24 shrink-0"
                 />
+                <div className="flex flex-wrap gap-1">
+                  {DURATION_PRESETS.map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setForm({ ...form, durationMin: mins })}
+                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition cursor-pointer ${
+                        form.durationMin === mins
+                          ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                          : "border border-border bg-card text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-
-            {/* Delivery mode helper hint */}
-            <div className="rounded-md bg-muted/50 p-2.5 text-xs text-muted-foreground">
-              {form.deliveryMode === "VIDEO" && t("deliveryModeHelpVideo")}
-              {form.deliveryMode === "PHONE" && t("deliveryModeHelpPhone")}
-              {form.deliveryMode === "IN_PERSON" && t("deliveryModeHelpInPerson")}
-              {form.deliveryMode === "EMAIL" && t("deliveryModeHelpEmail")}
-            </div>
-
-            {/* Duration quick-presets */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] text-muted-foreground mr-1">{t("durationMinutes")}:</span>
-              {DURATION_PRESETS.map((mins) => (
-                <button
-                  key={mins}
-                  type="button"
-                  onClick={() => setForm({ ...form, durationMin: mins })}
-                  className={`rounded px-2 py-0.5 text-xs font-medium transition cursor-pointer ${
-                    form.durationMin === mins
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border bg-card text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {mins}m
-                </button>
-              ))}
             </div>
 
             <div className="space-y-1.5">

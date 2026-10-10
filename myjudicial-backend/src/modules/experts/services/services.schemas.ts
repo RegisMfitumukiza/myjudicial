@@ -15,7 +15,7 @@ export const DELIVERY_MODES = ["VIDEO", "PHONE", "IN_PERSON", "EMAIL"] as const;
 export const createServiceSchema = z.object({
   name: z.string().min(2).max(200).trim(),
   description: z.string().max(1000).optional(),
-  category: z.enum(SERVICE_CATEGORIES).optional(),
+  category: z.string().min(2).max(100).trim().optional(),
   deliveryMode: z.enum(DELIVERY_MODES).default("VIDEO"),
   durationMin: z.number().int().min(15).max(480),
   flatFee: z.number().positive(),

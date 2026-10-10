@@ -223,7 +223,7 @@ const LegalServiceSchema = z.object({
   expertId: uuidField,
   name: z.string(),
   description: z.string().nullable(),
-  category: z.enum(SERVICE_CATEGORIES).nullable(),
+  category: z.string().nullable(),
   deliveryMode: z.enum(DELIVERY_MODES),
   durationMin: z.number(),
   flatFee: z.number(),
@@ -237,7 +237,7 @@ const LegalServiceSchema = z.object({
 const CreateServiceBody = z.object({
   name: z.string().min(2).max(200),
   description: z.string().max(1000).optional(),
-  category: z.enum(SERVICE_CATEGORIES).optional(),
+  category: z.string().optional(),
   deliveryMode: z.enum(DELIVERY_MODES).optional(),
   durationMin: z.number().int().min(15).max(480),
   flatFee: z.number().positive(),

@@ -29,6 +29,7 @@ import legalConsentRoutes from "../../modules/content/legal-consent.routes.js";
 import aiRoutes from "../../modules/ai/ai.routes.js";
 import savedExpertRoutes from "../../modules/saved-experts/saved-expert.routes.js";
 import specialtyRoutes from "../../modules/specialties/specialty.routes.js";
+import adminServiceCategoryRoutes from "../../modules/admin/service-categories/admin-service-category.routes.js";
 
 const router = Router();
 
@@ -71,5 +72,6 @@ router.use("/content", legalConsentRoutes);
 router.use("/ai", aiRoutes);
 router.use("/saved-experts", savedExpertRoutes);
 router.use("/specialties", specialtyRoutes);
+router.use("/admin/service-categories", adminServiceCategoryRoutes);
 
 export default router;

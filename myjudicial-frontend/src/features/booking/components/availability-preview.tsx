@@ -15,6 +15,7 @@ interface AvailabilityPreviewProps {
 export function AvailabilityPreview({ expertId, timezone, onBookClick }: AvailabilityPreviewProps) {
   const t = useTranslations("expertDashboard_availability-preview");
   const tBooking = useTranslations("booking");
+  const tHub = useTranslations("expertDashboard_scheduleHub");
   const locale = useLocale();
   const [searchDate, setSearchDate] = useState(0);
   const dateStr = format(addDays(new Date(), searchDate), "yyyy-MM-dd");
@@ -67,7 +68,6 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
     );
   }
 
-  const tHub = useTranslations("expertDashboard_scheduleHub");
   const isWeekendSlot = nextSlot
     ? new Date(nextSlot.start).getDay() === 0 || new Date(nextSlot.start).getDay() === 6
     : false;

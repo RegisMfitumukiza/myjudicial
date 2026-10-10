@@ -4637,7 +4637,13 @@
     "dateRangeLabel": "Date Range",
     "bulkReasonPlaceholder": "e.g., Summer vacation, Holiday break, etc.",
     "blocksCount": "This will block {count} dates",
-    "blockDatesBtn": "Block Dates"
+    "blockDatesBtn": "Bloquer les dates",
+    "todayBtn": "Aujourd'hui",
+    "activeOverridesTitle": "Exceptions actives ce mois-ci",
+    "noOverridesInMonth": "Aucune exception d'horaire ce mois-ci. Vos horaires habituels s'appliquent.",
+    "legendClosed": "Fermé",
+    "legendCustom": "Horaires personnalisés",
+    "legendReduced": "Capacité réduite"
   },
   "expertDashboard_profile": {
     "profileUpdatedSuccess": "Profile updated successfully",

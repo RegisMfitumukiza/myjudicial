@@ -4637,7 +4637,13 @@
     "dateRangeLabel": "Date Range",
     "bulkReasonPlaceholder": "e.g., Summer vacation, Holiday break, etc.",
     "blocksCount": "This will block {count} dates",
-    "blockDatesBtn": "Block Dates"
+    "blockDatesBtn": "Funga Amatariki",
+    "todayBtn": "Uyu munsi",
+    "activeOverridesTitle": "Ibidasanzwe biteganyijwe muri uku kwezi",
+    "noOverridesInMonth": "Nta tariki yihariye yashyizweho muri uku kwezi. Amasaha asanzwe y'icyumweru azakurikizwa.",
+    "legendClosed": "Hafunze",
+    "legendCustom": "Amasaha yihitiyemo",
+    "legendReduced": "Gahunda nkeya"
   },
   "expertDashboard_profile": {
     "profileUpdatedSuccess": "Profile updated successfully",

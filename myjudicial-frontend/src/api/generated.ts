@@ -72,11 +72,23 @@ export interface RegisterDto {
   termsVersion?: string;
 }
 
+/**
+ * Language for email template
+ */
+export type SendOtpDtoLanguage = typeof SendOtpDtoLanguage[keyof typeof SendOtpDtoLanguage];
+
+
+export const SendOtpDtoLanguage = {
+  en: 'en',
+  fr: 'fr',
+  rw: 'rw',
+} as const;
+
 export interface SendOtpDto {
   /** Valid email address */
   email: string;
   /** Language for email template */
-  language?: 'en' | 'fr' | 'rw';
+  language?: SendOtpDtoLanguage;
 }
 
 export interface VerifyOtpDto {
@@ -400,22 +412,6 @@ export interface CreateProfileDto {
   currency?: string;
 }
 
-/**
- * @nullable
- */
-export type LegalServiceCategory = typeof LegalServiceCategory[keyof typeof LegalServiceCategory] | null;
-
-
-export const LegalServiceCategory = {
-  consultation: 'consultation',
-  document_review: 'document_review',
-  contract_drafting: 'contract_drafting',
-  court_representation: 'court_representation',
-  legal_advice: 'legal_advice',
-  mediation: 'mediation',
-  other: 'other',
-} as const;
-
 export type LegalServiceDeliveryMode = typeof LegalServiceDeliveryMode[keyof typeof LegalServiceDeliveryMode];
 
 
@@ -435,7 +431,7 @@ export interface LegalService {
   /** @nullable */
   description: string | null;
   /** @nullable */
-  category: LegalServiceCategory;
+  category: string | null;
   deliveryMode: LegalServiceDeliveryMode;
   durationMin: number;
   flatFee: number;
@@ -447,19 +443,6 @@ export interface LegalService {
   sortOrder: number;
   createdAt: string;
 }
-
-export type CreateServiceDtoCategory = typeof CreateServiceDtoCategory[keyof typeof CreateServiceDtoCategory];
-
-
-export const CreateServiceDtoCategory = {
-  consultation: 'consultation',
-  document_review: 'document_review',
-  contract_drafting: 'contract_drafting',
-  court_representation: 'court_representation',
-  legal_advice: 'legal_advice',
-  mediation: 'mediation',
-  other: 'other',
-} as const;
 
 export type CreateServiceDtoDeliveryMode = typeof CreateServiceDtoDeliveryMode[keyof typeof CreateServiceDtoDeliveryMode];
 
@@ -479,7 +462,7 @@ export interface CreateServiceDto {
   name: string;
   /** @maxLength 1000 */
   description?: string;
-  category?: CreateServiceDtoCategory;
+  category?: string;
   deliveryMode?: CreateServiceDtoDeliveryMode;
   /**
      * @minimum 15
@@ -2374,19 +2357,6 @@ export type PostExpertsServices201 = {
   data: LegalService;
 };
 
-export type PatchExpertsServicesIdBodyCategory = typeof PatchExpertsServicesIdBodyCategory[keyof typeof PatchExpertsServicesIdBodyCategory];
-
-
-export const PatchExpertsServicesIdBodyCategory = {
-  consultation: 'consultation',
-  document_review: 'document_review',
-  contract_drafting: 'contract_drafting',
-  court_representation: 'court_representation',
-  legal_advice: 'legal_advice',
-  mediation: 'mediation',
-  other: 'other',
-} as const;
-
 export type PatchExpertsServicesIdBodyDeliveryMode = typeof PatchExpertsServicesIdBodyDeliveryMode[keyof typeof PatchExpertsServicesIdBodyDeliveryMode];
 
 
@@ -2405,7 +2375,7 @@ export type PatchExpertsServicesIdBody = {
   name?: string;
   /** @maxLength 1000 */
   description?: string;
-  category?: PatchExpertsServicesIdBodyCategory;
+  category?: string;
   deliveryMode?: PatchExpertsServicesIdBodyDeliveryMode;
   /**
      * @minimum 15

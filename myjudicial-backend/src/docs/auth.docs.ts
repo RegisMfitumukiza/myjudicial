@@ -25,12 +25,17 @@ const RegisterDtoSchema = z
       .enum(["en", "fr", "rw"])
       .default("en")
       .describe("Preferred interface language"),
+    termsAccepted: z.boolean().optional().describe("Whether user consented to Terms of Service"),
+    termsVersion: z.string().optional().describe("Version of Terms accepted"),
   })
   .openapi("RegisterDto");
 
 
 const SendOtpDtoSchema = z
-  .object({ email: emailField })
+  .object({
+    email: emailField,
+    language: z.enum(["en", "fr", "rw"]).optional().describe("Language for email template"),
+  })
   .openapi("SendOtpDto");
 
 const VerifyOtpDtoSchema = z

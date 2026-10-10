@@ -64,6 +64,14 @@
             ],
             "default": "en",
             "description": "Preferred interface language"
+          },
+          "termsAccepted": {
+            "type": "boolean",
+            "description": "Whether user consented to Terms of Service"
+          },
+          "termsVersion": {
+            "type": "string",
+            "description": "Version of Terms accepted"
           }
         },
         "required": [
@@ -79,6 +87,15 @@
             "type": "string",
             "format": "email",
             "description": "Valid email address"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "rw"
+            ],
+            "description": "Language for email template"
           }
         },
         "required": [
@@ -726,17 +743,7 @@
           },
           "category": {
             "type": "string",
-            "nullable": true,
-            "enum": [
-              "consultation",
-              "document_review",
-              "contract_drafting",
-              "court_representation",
-              "legal_advice",
-              "mediation",
-              "other",
-              null
-            ]
+            "nullable": true
           },
           "deliveryMode": {
             "type": "string",
@@ -800,16 +807,7 @@
             "maxLength": 1000
           },
           "category": {
-            "type": "string",
-            "enum": [
-              "consultation",
-              "document_review",
-              "contract_drafting",
-              "court_representation",
-              "legal_advice",
-              "mediation",
-              "other"
-            ]
+            "type": "string"
           },
           "deliveryMode": {
             "type": "string",
@@ -6412,16 +6410,7 @@
                     "maxLength": 1000
                   },
                   "category": {
-                    "type": "string",
-                    "enum": [
-                      "consultation",
-                      "document_review",
-                      "contract_drafting",
-                      "court_representation",
-                      "legal_advice",
-                      "mediation",
-                      "other"
-                    ]
+                    "type": "string"
                   },
                   "deliveryMode": {
                     "type": "string",

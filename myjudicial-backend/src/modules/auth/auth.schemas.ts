@@ -55,6 +55,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email,
   password: z.string().min(8, "Password must be at least 8 characters"),
+  rememberMe: z.boolean().optional(),
 });
 
 /** POST /auth/otp/send */
@@ -71,6 +72,7 @@ export const verifyOtpSchema = z.object({
     .min(1, "OTP token is required")
     .length(6, "OTP must be exactly 6 digits")
     .regex(/^\d{6}$/, "OTP must contain only digits"),
+  rememberMe: z.boolean().optional(),
 });
 
 /** POST /auth/magic-link */

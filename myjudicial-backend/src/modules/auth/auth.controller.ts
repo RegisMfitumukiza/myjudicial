@@ -55,7 +55,11 @@ export const AuthController = {
   verifyOtp: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const dto = req.body as VerifyOtpDto;
-      const session = await AuthService.verifyOtp(dto, req.ip ?? undefined);
+      const session = await AuthService.verifyOtp(
+        dto,
+        req.ip ?? undefined,
+        req.headers["user-agent"] ?? undefined
+      );
       sendSuccess(res, session, "Login successful");
     } catch (error) {
       next(error);
@@ -94,7 +98,11 @@ export const AuthController = {
   refresh: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { refreshToken } = req.body as RefreshDto;
-      const tokens = await AuthService.refreshTokens(refreshToken);
+      const tokens = await AuthService.refreshTokens(
+        refreshToken,
+        req.ip ?? undefined,
+        req.headers["user-agent"] ?? undefined
+      );
       sendSuccess(res, tokens, "Tokens refreshed");
     } catch (error) {
       next(error);
@@ -162,7 +170,11 @@ export const AuthController = {
   adminLogin: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const dto = req.body as LoginDto;
-      const session = await AuthService.adminLogin(dto, req.ip ?? undefined);
+      const session = await AuthService.adminLogin(
+        dto,
+        req.ip ?? undefined,
+        req.headers["user-agent"] ?? undefined
+      );
       sendSuccess(res, session, "Admin login successful");
     } catch (error) {
       next(error);
@@ -183,7 +195,7 @@ export const AuthController = {
   /** DELETE /auth/sessions/:id */
   revokeSession: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await AuthService.revokeSession(req.params.id as string);
+      await AuthService.revokeSession(req.params.id as string, req.user!.id);
       sendNoContent(res);
     } catch (error) {
       next(error);

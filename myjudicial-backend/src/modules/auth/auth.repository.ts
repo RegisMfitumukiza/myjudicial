@@ -178,4 +178,102 @@ export const AuthRepository = {
       select: { email: true, push: true, inApp: true },
     });
   },
+
+  /**
+   * Record a new refresh token / device session.
+   */
+  recordRefreshToken: async (params: {
+    userId: string;
+    tokenHash: string;
+    expiresAt: Date;
+    rememberMe: boolean;
+    ipAddress?: string;
+    userAgent?: string;
+  }) => {
+    return prisma.refreshToken.create({
+      data: {
+        userId: params.userId,
+        tokenHash: params.tokenHash,
+        expiresAt: params.expiresAt,
+        rememberMe: params.rememberMe,
+        ipAddress: params.ipAddress,
+        userAgent: params.userAgent,
+      },
+    });
+  },
+
+  /**
+   * Update an existing refresh token session during token rotation.
+   */
+  rotateRefreshToken: async (oldTokenHash: string, newTokenHash: string, newExpiresAt: Date) => {
+    return prisma.refreshToken.updateMany({
+      where: { tokenHash: oldTokenHash, revokedAt: null },
+      data: {
+        tokenHash: newTokenHash,
+        expiresAt: newExpiresAt,
+      },
+    });
+  },
+
+  /**
+   * List all unrevoked, unexpired sessions for a user.
+   */
+  listUserSessions: async (userId: string) => {
+    return prisma.refreshToken.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        tokenHash: true,
+        ipAddress: true,
+        userAgent: true,
+        rememberMe: true,
+        createdAt: true,
+        updatedAt: true,
+        expiresAt: true,
+      },
+      take: 20,
+    });
+  },
+
+  /**
+   * Revoke a specific session.
+   */
+  revokeSession: async (sessionId: string, userId?: string) => {
+    return prisma.refreshToken.updateMany({
+      where: {
+        id: sessionId,
+        ...(userId ? { userId } : {}),
+      },
+      data: { revokedAt: new Date() },
+    });
+  },
+
+  /**
+   * Revoke a session by token hash.
+   */
+  revokeSessionByTokenHash: async (tokenHash: string) => {
+    return prisma.refreshToken.updateMany({
+      where: { tokenHash },
+      data: { revokedAt: new Date() },
+    });
+  },
+
+  /**
+   * Revoke all other active sessions for a user.
+   */
+  revokeAllOtherSessions: async (userId: string, currentSessionId?: string) => {
+    return prisma.refreshToken.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+        ...(currentSessionId ? { id: { not: currentSessionId } } : {}),
+      },
+      data: { revokedAt: new Date() },
+    });
+  },
 };

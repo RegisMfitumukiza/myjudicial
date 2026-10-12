@@ -56,6 +56,27 @@ function generateStrongPassword(): string {
   return `${getRandom(lower)}${getRandom(upper)}${getRandom(digits)}${getRandom(specials)}${crypto.randomUUID().replace(/-/g, "")}`;
 }
 
+export function parseUserAgent(ua?: string | null): { device: string; browser: string } {
+  if (!ua) return { device: "Unknown Device", browser: "Web Browser" };
+  let device = "Desktop Device";
+  if (/iphone/i.test(ua)) device = "iPhone";
+  else if (/ipad/i.test(ua)) device = "iPad";
+  else if (/android/i.test(ua)) device = "Android Device";
+  else if (/macintosh|mac os x/i.test(ua)) device = "Macintosh";
+  else if (/windows nt 10/i.test(ua)) device = "Windows PC";
+  else if (/windows/i.test(ua)) device = "Windows PC";
+  else if (/linux/i.test(ua)) device = "Linux PC";
+
+  let browser = "Web Browser";
+  if (/edg/i.test(ua)) browser = "Microsoft Edge";
+  else if (/chrome|crios/i.test(ua)) browser = "Google Chrome";
+  else if (/firefox|fxios/i.test(ua)) browser = "Mozilla Firefox";
+  else if (/safari/i.test(ua)) browser = "Apple Safari";
+  else if (/opera|opr/i.test(ua)) browser = "Opera";
+
+  return { device, browser };
+}
+
 /**
  * Retry a transient-failure-prone async call. Supabase-js does NOT throw on
  * network errors — it returns them via `{ error }` — so the classifier
@@ -457,7 +478,7 @@ export const AuthService = {
    * Uses custom OTP verification, then creates a Supabase session.
    * Returns the Supabase session (access_token + refresh_token).
    */
-  verifyOtp: async (dto: VerifyOtpDto, ipAddress?: string) => {
+  verifyOtp: async (dto: VerifyOtpDto, ipAddress?: string, userAgent?: string) => {
     const verifyTime = new Date();
     
     logger.info("OTP verification attempt (custom)", {
@@ -544,6 +565,24 @@ export const AuthService = {
     });
     
     const session = sessionData.session;
+    const rememberMe = Boolean(dto.rememberMe);
+
+    // Record the active refresh token / device session in the database
+    try {
+      const tokenHash = crypto.createHash("sha256").update(session.refresh_token).digest("hex");
+      const durationSec = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60;
+      const expiresAt = new Date(Date.now() + durationSec * 1000);
+      await AuthRepository.recordRefreshToken({
+        userId: dbUser.id,
+        tokenHash,
+        expiresAt,
+        rememberMe,
+        ipAddress,
+        userAgent,
+      });
+    } catch (err) {
+      logger.error("Failed to record device refresh token session", { error: err });
+    }
 
     // Run slow side effects in the background so they don't block the login response
     Promise.resolve().then(async () => {
@@ -595,11 +634,21 @@ export const AuthService = {
   /**
    * Refresh the access token using Supabase refresh token.
    */
-  refreshTokens: async (refreshToken: string) => {
+  refreshTokens: async (refreshToken: string, ipAddress?: string, userAgent?: string) => {
     const { data, error } = await supabaseAnon.auth.refreshSession({ refresh_token: refreshToken });
 
     if (error || !data.session) {
       throw new AuthenticationError(getErrorMessage('TOKEN_EXPIRED'));
+    }
+
+    // Rotate refresh token session in database
+    try {
+      const oldHash = crypto.createHash("sha256").update(refreshToken).digest("hex");
+      const newHash = crypto.createHash("sha256").update(data.session.refresh_token).digest("hex");
+      const newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      await AuthRepository.rotateRefreshToken(oldHash, newHash, newExpiresAt);
+    } catch (err) {
+      logger.error("Failed to rotate device refresh token session", { error: err });
     }
 
     return {
@@ -620,6 +669,13 @@ export const AuthService = {
       
       // Also clear any other cached entries for this user to ensure clean state
       await clearUserCache(userId);
+
+      // Invalidate all active sessions in the database for this user
+      try {
+        await AuthRepository.revokeAllOtherSessions(userId);
+      } catch (err) {
+        logger.error("Failed to revoke database sessions on logout", { userId, error: err });
+      }
       
       // Invalidate all Supabase sessions for this user
       await supabaseAdmin.auth.admin.signOut(userId);
@@ -659,7 +715,7 @@ export const AuthService = {
    * Only accessible to users with ADMIN role.
    * Admins are created via seed — they set their password in Supabase dashboard.
    */
-  adminLogin: async (dto: LoginDto, ipAddress?: string) => {
+  adminLogin: async (dto: LoginDto, ipAddress?: string, userAgent?: string) => {
     const { data, error } = await supabaseAnon.auth.signInWithPassword({
       email: dto.email,
       password: dto.password,
@@ -676,6 +732,25 @@ export const AuthService = {
     }
     if (dbUser.role !== "ADMIN") {
       throw new AuthenticationError(getErrorMessage('INVALID_CREDENTIALS'));
+    }
+
+    const rememberMe = Boolean(dto.rememberMe);
+
+    // Record the active refresh token / device session in the database
+    try {
+      const tokenHash = crypto.createHash("sha256").update(data.session.refresh_token).digest("hex");
+      const durationSec = rememberMe ? 30 * 24 * 60 * 60 : 8 * 60 * 60;
+      const expiresAt = new Date(Date.now() + durationSec * 1000);
+      await AuthRepository.recordRefreshToken({
+        userId: dbUser.id,
+        tokenHash,
+        expiresAt,
+        rememberMe,
+        ipAddress,
+        userAgent,
+      });
+    } catch (err) {
+      logger.error("Failed to record admin device refresh token session", { error: err });
     }
 
     await AuthRepository.recordLogin(data.user.id);
@@ -784,10 +859,35 @@ export const AuthService = {
   },
 
   /**
-   * List all active Supabase sessions for the current user.
-   * Calls GoTrue Admin API directly since supabase-js doesn't expose listSessions.
+   * List all active sessions for the current user.
+   * Prioritizes the local PostgreSQL refresh token registry, falling back to Supabase.
    */
   listSessions: async (userId: string, accessToken?: string) => {
+    try {
+      // 1. Fetch active recorded sessions from the database
+      const dbSessions = await AuthRepository.listUserSessions(userId);
+
+      if (dbSessions.length > 0) {
+        return dbSessions.map((s, index) => {
+          const { device, browser } = parseUserAgent(s.userAgent);
+          return {
+            id: s.id,
+            device,
+            browser,
+            ip: s.ipAddress || "",
+            rememberMe: s.rememberMe,
+            lastActive: s.updatedAt || s.createdAt,
+            isCurrent: index === 0,
+            createdAt: s.createdAt,
+            expiresAt: s.expiresAt,
+          };
+        });
+      }
+    } catch (dbError) {
+      logger.warn("Database listUserSessions failed, falling back to Supabase", { error: dbError });
+    }
+
+    // 2. Fallback to Supabase GoTrue if DB has no sessions recorded yet
     const supabaseUrl = process.env.SUPABASE_URL!;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const url = `${supabaseUrl}/auth/v1/admin/sessions?user_id=${userId}`;
@@ -809,15 +909,19 @@ export const AuthService = {
 
       const sessions: any[] = await res.json();
 
-      return sessions.map((s: any) => ({
-        id: s.id,
-        device: s.user_agent || "Unknown device",
-        browser: s.user_agent?.split("/")[0] || "",
-        ip: s.ip || "",
-        lastActive: s.updated_at || s.created_at,
-        isCurrent: s.access_token === accessToken,
-        createdAt: s.created_at,
-      }));
+      return sessions.map((s: any) => {
+        const { device, browser } = parseUserAgent(s.user_agent);
+        return {
+          id: s.id,
+          device,
+          browser,
+          ip: s.ip || "",
+          rememberMe: true,
+          lastActive: s.updated_at || s.created_at,
+          isCurrent: s.access_token === accessToken,
+          createdAt: s.created_at,
+        };
+      });
     } catch (error) {
       logger.warn("Failed to fetch sessions from Supabase", { error });
       return [];
@@ -825,9 +929,17 @@ export const AuthService = {
   },
 
   /**
-   * Revoke (delete) a specific Supabase session.
+   * Revoke (delete) a specific session in both DB and Supabase.
    */
-  revokeSession: async (sessionId: string) => {
+  revokeSession: async (sessionId: string, userId?: string) => {
+    // 1. Revoke in PostgreSQL database
+    try {
+      await AuthRepository.revokeSession(sessionId, userId);
+    } catch (err) {
+      logger.error("Failed to revoke database session", { sessionId, error: err });
+    }
+
+    // 2. Revoke in Supabase GoTrue
     const supabaseUrl = process.env.SUPABASE_URL!;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const url = `${supabaseUrl}/auth/v1/admin/sessions/${sessionId}`;

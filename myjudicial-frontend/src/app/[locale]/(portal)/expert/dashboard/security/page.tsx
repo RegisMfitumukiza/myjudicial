@@ -19,6 +19,7 @@ interface SessionInfo {
   lastActive: string;
   isCurrent: boolean;
   createdAt: string;
+  rememberMe?: boolean;
 }
 
 export default function ExpertSecurityPage() {
@@ -232,6 +233,15 @@ export default function ExpertSecurityPage() {
                       {s.isCurrent && (
                         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-primary shrink-0">
                           {t("currentBadge")}
+                        </span>
+                      )}
+                      {s.rememberMe ? (
+                        <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 shrink-0">
+                          Remembered (30d)
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-muted border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground shrink-0">
+                          Session Only
                         </span>
                       )}
                     </p>

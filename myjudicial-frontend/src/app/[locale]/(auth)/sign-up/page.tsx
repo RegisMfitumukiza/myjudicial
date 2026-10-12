@@ -450,7 +450,12 @@ export default function SignUpPage() {
     setApiError(null);
     try {
       await signOut({ redirect: false });
-      const result = await authSignIn("email-otp", { email: pendingEmail, code: otpCode, redirect: false });
+      const result = await authSignIn("email-otp", {
+        email: pendingEmail,
+        code: otpCode,
+        rememberMe: "true",
+        redirect: false,
+      });
       if (result?.error) {
         throw new Error(t("otp.invalidCode"));
       }

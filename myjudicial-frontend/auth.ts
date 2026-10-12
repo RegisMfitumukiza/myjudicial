@@ -115,6 +115,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           const result = await fetchBackend<BackendSession>("/auth/otp/verify", {
             email,
             token: code,
+            rememberMe,
           });
 
           return {
@@ -171,6 +172,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           const result = await fetchBackend<BackendSession>("/auth/admin/login", {
             email,
             password,
+            rememberMe,
           });
 
           return {
@@ -229,7 +231,21 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           : userAny.role === "ADMIN"
             ? 8 * 60 * 60
             : 24 * 60 * 60;
-        token.exp = nowSec + durationSec;
+        const sessionExpiresAt = nowSec + durationSec;
+        token.authTime = nowSec;
+        token.sessionExpiresAt = sessionExpiresAt;
+        token.exp = sessionExpiresAt;
+      } else {
+        // Enforce hard session expiration boundary (no drift on idle session refreshes)
+        const nowSec = Math.floor(Date.now() / 1000);
+        const sessionExpiresAt = typeof token.sessionExpiresAt === "number" ? token.sessionExpiresAt : 0;
+        if (sessionExpiresAt > 0) {
+          if (nowSec >= sessionExpiresAt) {
+            // Hard session lifetime reached — invalidate session immediately
+            return {};
+          }
+          token.exp = sessionExpiresAt;
+        }
       }
       
       if (trigger === "update" && updateData) {

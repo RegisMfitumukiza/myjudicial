@@ -51,7 +51,10 @@ export const AdminExpertService = {
     }
 
     if (filters.specialty) {
-      expertProfileFilter.specialties = { has: filters.specialty };
+      expertProfileFilter.OR = [
+        { primarySpecialty: filters.specialty },
+        { specialties: { has: filters.specialty } },
+      ];
     }
 
     if (filters.verificationStatus) {
@@ -71,6 +74,9 @@ export const AdminExpertService = {
           { firstName: { contains: filters.search, mode: "insensitive" as const } },
           { lastName: { contains: filters.search, mode: "insensitive" as const } },
           { email: { contains: filters.search, mode: "insensitive" as const } },
+          { expertProfile: { barNumber: { contains: filters.search, mode: "insensitive" as const } } },
+          { expertProfile: { displayName: { contains: filters.search, mode: "insensitive" as const } } },
+          { expertProfile: { firmName: { contains: filters.search, mode: "insensitive" as const } } },
         ],
       }),
       ...(Object.keys(expertProfileFilter).length > 0 && {
@@ -163,6 +169,10 @@ export const AdminExpertService = {
           }
         }
 
+        const allSpecialties = expert?.primarySpecialty
+          ? Array.from(new Set([expert.primarySpecialty, ...(expert.specialties ?? [])]))
+          : (expert?.specialties ?? []);
+
         return {
           id: user.id,
           fullName,
@@ -172,7 +182,8 @@ export const AdminExpertService = {
           verified: expert?.status === 'VERIFIED',
           expertStatus: expert?.status ?? null,
           barNumber: expert?.barNumber,
-          specialties: expert?.specialties ?? [],
+          primarySpecialty: expert?.primarySpecialty ?? null,
+          specialties: allSpecialties,
           avgRating: expert?.averageRating ? Number(expert.averageRating) : null,
           totalBookings: expert?._count?.bookings ?? 0,
           credentialsExpiry: expert?.credentialsExpiry,
@@ -308,6 +319,10 @@ export const AdminExpertService = {
       }
     }
 
+    const allSpecialties = expert.primarySpecialty
+      ? Array.from(new Set([expert.primarySpecialty, ...(expert.specialties ?? [])]))
+      : (expert.specialties ?? []);
+
     return {
       id: user.id,
       fullName,
@@ -323,7 +338,7 @@ export const AdminExpertService = {
       firmName: expert.firmName,
       primarySpecialty: expert.primarySpecialty,
       barNumber: expert.barNumber,
-      specialties: expert.specialties,
+      specialties: allSpecialties,
       languages: expert.languages,
       bio: expert.bio,
       city: expert.city,

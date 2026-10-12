@@ -622,18 +622,39 @@ export default function ExpertDetailPage() {
               </div>
 
               {/* Specialties */}
-              {expert.specialties.length > 0 && (
-                <div className="mt-5 space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("specialties")}</h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {expert.specialties.map((s) => (
-                      <span key={s} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                        {formatSpecialty(s)}
-                      </span>
-                    ))}
+              {(() => {
+                const allSpecialties = Array.from(
+                  new Set(
+                    [
+                      expert.primarySpecialty,
+                      ...(Array.isArray(expert.specialties) ? expert.specialties : []),
+                    ].filter((s): s is string => Boolean(s))
+                  )
+                );
+                if (allSpecialties.length === 0) return null;
+                return (
+                  <div className="mt-5 space-y-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("specialties")}</h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {allSpecialties.map((s) => (
+                        <span
+                          key={s}
+                          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            s === expert.primarySpecialty
+                              ? "bg-primary/10 border border-primary/20 text-primary"
+                              : "bg-muted border border-border text-muted-foreground"
+                          }`}
+                        >
+                          {formatSpecialty(s)}
+                          {s === expert.primarySpecialty && (
+                            <span className="ml-1 text-[10px] opacity-75 font-normal">(Primary)</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Languages */}
               {expert.languages.length > 0 && (

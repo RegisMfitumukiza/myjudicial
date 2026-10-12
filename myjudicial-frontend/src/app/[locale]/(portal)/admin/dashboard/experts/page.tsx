@@ -54,6 +54,7 @@ interface Expert {
   verified: boolean;
   expertStatus: "DRAFT" | "PENDING_VERIFICATION" | "VERIFIED" | "REJECTED" | "SUSPENDED" | null;
   barNumber: string | null;
+  primarySpecialty?: LegalSpecialty | string | null;
   specialties: LegalSpecialty[];
   avgRating: number | null;
   totalBookings: number;
@@ -144,7 +145,8 @@ function expertStatusTone(
   }
 }
 
-function formatSpecialty(s: LegalSpecialty) {
+function formatSpecialty(s: string) {
+  if (!s) return "";
   return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
@@ -402,16 +404,40 @@ export default function ExpertsPage() {
 
                   {/* Specialties */}
                   <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {expert.specialties.slice(0, 2).map((s) => (
-                        <span key={s} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                          {formatSpecialty(s)}
-                        </span>
-                      ))}
-                      {expert.specialties.length > 2 && (
-                        <span className="text-[11px] text-muted-foreground">+{expert.specialties.length - 2}</span>
-                      )}
-                    </div>
+                    {(() => {
+                      const allSpecialties = Array.from(
+                        new Set(
+                          [
+                            expert.primarySpecialty,
+                            ...(Array.isArray(expert.specialties) ? expert.specialties : []),
+                          ].filter((s): s is LegalSpecialty => Boolean(s))
+                        )
+                      );
+                      if (allSpecialties.length === 0) {
+                        return <span className="text-xs text-muted-foreground">&mdash;</span>;
+                      }
+                      return (
+                        <div className="flex flex-wrap gap-1 items-center">
+                          {allSpecialties.slice(0, 2).map((s) => (
+                            <span
+                              key={s}
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                                s === expert.primarySpecialty
+                                  ? "bg-primary/10 border border-primary/20 text-primary"
+                                  : "bg-muted border border-border text-muted-foreground"
+                              }`}
+                            >
+                              {formatSpecialty(s)}
+                            </span>
+                          ))}
+                          {allSpecialties.length > 2 && (
+                            <span className="text-[11px] font-medium text-muted-foreground">
+                              +{allSpecialties.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
 
                   {/* Rating */}

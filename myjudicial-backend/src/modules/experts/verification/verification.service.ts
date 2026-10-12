@@ -145,6 +145,17 @@ export const VerificationService = {
       }
     }
 
+    // Safety guard: if multiple files were uploaded and barCertificateKey is missing,
+    // ensure the remaining uploaded file is assigned to barCertificateKey rather than leaving it null
+    if (!barCertificateKey && uploadedKeys.length >= 2) {
+      for (let i = 0; i < uploadedKeys.length; i++) {
+        if (uploadedKeys[i] !== identityDocumentKey && !additionalKeys.includes(uploadedKeys[i])) {
+          barCertificateKey = uploadedKeys[i];
+          break;
+        }
+      }
+    }
+
     // Update expert profile with bar number and set status to PENDING_VERIFICATION
     await prisma.expertProfile.update({
       where: { id: profile.id },

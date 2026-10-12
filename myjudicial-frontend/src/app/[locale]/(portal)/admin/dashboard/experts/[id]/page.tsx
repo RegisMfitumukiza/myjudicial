@@ -178,6 +178,16 @@ function expertStatusTone(status: ExpertStatus): "neutral" | "pending" | "succes
   }
 }
 
+function verificationStatusTone(status: VerificationStatus): "neutral" | "pending" | "success" | "destructive" {
+  switch (status) {
+    case "APPROVED": return "success";
+    case "PENDING":  return "pending";
+    case "REJECTED":
+    case "EXPIRED":  return "destructive";
+    default:         return "neutral";
+  }
+}
+
 function bookingStatusTone(status: string): "success" | "destructive" | "warning" | "neutral" {
   switch (status) {
     case "COMPLETED":  return "success";
@@ -762,11 +772,16 @@ export default function ExpertDetailPage() {
                 </div>
                 <div>
                   <h2 className="font-semibold text-foreground">{t("credentials")}</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {expert.verificationStatus
-                      ? `${t("status")}: ${expert.verificationStatus}`
-                      : "No verification submitted"}
-                  </p>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground">{t("status")}:</span>
+                    {expert.verificationStatus ? (
+                      <StatusBadge tone={verificationStatusTone(expert.verificationStatus)}>
+                        {expert.verificationStatus}
+                      </StatusBadge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">No verification submitted</span>
+                    )}
+                  </div>
                 </div>
               </div>
               {isVerified && (

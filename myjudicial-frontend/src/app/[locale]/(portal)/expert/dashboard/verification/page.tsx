@@ -497,7 +497,6 @@ export default function VerificationPage() {
       }
       docTypes.forEach((dt) => {
         formData.append("documentTypes", dt);
-        formData.append("documentTypes[]", dt);
       });
 
       if (barNumber?.trim()) formData.append("barNumber", barNumber.trim());

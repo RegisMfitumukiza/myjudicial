@@ -596,11 +596,9 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
           
           docTypes.forEach(t => {
             verificationData.append('documentTypes', t);
-            verificationData.append('documentTypes[]', t);
           });
           docLabels.forEach(l => {
             verificationData.append('documentLabels', l);
-            verificationData.append('documentLabels[]', l);
           });
           await apiFetch('/experts/verification/submit', {
             method: 'POST',
@@ -1094,7 +1092,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
+                    <label
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const f = e.dataTransfer.files?.[0];
+                        if (f) {
+                          setFormData(prev => ({ ...prev, identityFile: f }));
+                          saveDraftFile("identity", f);
+                        }
+                      }}
+                      className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center"
+                    >
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
                       <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
                       <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
@@ -1143,7 +1153,19 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center">
+                    <label
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const f = e.dataTransfer.files?.[0];
+                        if (f) {
+                          setFormData(prev => ({ ...prev, barCertificateFile: f }));
+                          saveDraftFile("bar_certificate", f);
+                        }
+                      }}
+                      className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 dark:border-border p-6 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all h-full justify-center"
+                    >
                       <Upload className="h-8 w-8 text-slate-400 dark:text-muted-foreground" />
                       <span className="text-xs text-slate-500 dark:text-muted-foreground text-center"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.uploadPrompt")}</span> {tWizard("step7.uploadPromptDrag")}</span>
                       <span className="text-[11px] text-slate-400 dark:text-muted-foreground">{tWizard("step7.uploadLimit")}</span>
@@ -1219,7 +1241,25 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                 )}
 
                 {(!formData.additionalFiles || formData.additionalFiles.filter(f => isRealFile(f?.file)).length < 5) && (
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all">
+                  <label
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const files = Array.from(e.dataTransfer.files || []);
+                      if (!files.length) return;
+                      setFormData(prev => {
+                        const current = prev.additionalFiles || [];
+                        const spaceLeft = 5 - current.length;
+                        const toAdd = files.slice(0, spaceLeft).map((f, i) => {
+                          saveDraftFile(`additional_${current.length + i}`, f, f.name.split('.')[0]);
+                          return { file: f, label: f.name.split('.')[0] };
+                        });
+                        return { ...prev, additionalFiles: [...current, ...toAdd] };
+                      });
+                    }}
+                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-border py-4 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
+                  >
                     <Upload className="h-5 w-5 text-slate-400 dark:text-muted-foreground" />
                     <span className="text-sm text-slate-600 dark:text-muted-foreground"><span className="font-semibold text-blue-600 dark:text-blue-400">{tWizard("step7.addDocument")}</span> {tWizard("step7.fileFormats")}</span>
                     <input

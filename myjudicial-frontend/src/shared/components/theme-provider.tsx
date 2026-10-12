@@ -6,6 +6,7 @@ import { ThemeProvider as NextThemesProvider, type ThemeProviderProps, useTheme 
 function ThemeCookieSynchronizer() {
   const { theme, setTheme } = useTheme();
   const initializedRef = React.useRef(false);
+  const lastSavedThemeRef = React.useRef<string | null>(null);
 
   // 1. Initial synchronization on mount ONLY (never on subsequent theme toggles)
   React.useEffect(() => {
@@ -16,6 +17,7 @@ function ThemeCookieSynchronizer() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlTheme = urlParams.get("theme");
     if (urlTheme && ["light", "dark", "system"].includes(urlTheme)) {
+      lastSavedThemeRef.current = urlTheme;
       setTheme(urlTheme);
       try {
         localStorage.setItem("theme", urlTheme);
@@ -32,23 +34,33 @@ function ThemeCookieSynchronizer() {
     // B. Check shared cookie across subdomains (.myjudicial.com) on cold initial mount
     const match = document.cookie.match(/(?:^|;\s*)mj_theme=([^;]+)/);
     const cookieTheme = match ? decodeURIComponent(match[1]) : null;
-    const localTheme = localStorage.getItem("theme");
 
-    // Only adopt cross-subdomain cookie if valid and local preference was unset
-    if (cookieTheme && ["light", "dark", "system"].includes(cookieTheme) && !localTheme) {
+    // The shared cookie is the authoritative source of truth across subdomains
+    if (cookieTheme && ["light", "dark", "system"].includes(cookieTheme)) {
+      lastSavedThemeRef.current = cookieTheme;
       setTheme(cookieTheme);
       try {
         localStorage.setItem("theme", cookieTheme);
       } catch {}
+    } else {
+      const localTheme = localStorage.getItem("theme");
+      if (localTheme && ["light", "dark", "system"].includes(localTheme)) {
+        lastSavedThemeRef.current = localTheme;
+      }
     }
   }, [setTheme]);
 
   // 2. Whenever theme changes, broadcast to shared cookie across .myjudicial.com
   React.useEffect(() => {
     if (typeof window === "undefined" || !theme || !initializedRef.current) return;
+    // Prevent re-broadcasting if this matches what was already loaded or saved
+    if (lastSavedThemeRef.current === theme) return;
+    lastSavedThemeRef.current = theme;
+
     const hostname = window.location.hostname.toLowerCase();
     const domainSuffix = hostname.includes("myjudicial.com") ? "; domain=.myjudicial.com" : "";
-    document.cookie = `mj_theme=${encodeURIComponent(theme)}${domainSuffix}; path=/; max-age=31536000; SameSite=Lax`;
+    const secureSuffix = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `mj_theme=${encodeURIComponent(theme)}${domainSuffix}; path=/; max-age=31536000; SameSite=Lax${secureSuffix}`;
   }, [theme]);
 
   return null;

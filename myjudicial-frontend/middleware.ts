@@ -61,12 +61,17 @@ export function middleware(request: NextRequest) {
 
   if (isMainHost || isAdminPortal) {
     const httpsBase = `https://${host}`;
+    const themeCookie = request.cookies.get("mj_theme")?.value;
 
     // Main site: /admin/* and /sign-in?admin=1 belong on the admin portal.
     const isAdminSignIn = pathname.includes("/sign-in") && request.nextUrl.searchParams.get("admin") === "1";
     if (isMainHost && (RE_ADMIN_PATH.test(pathname) || isAdminSignIn)) {
+      const redirectUrl = new URL(`https://${ADMIN_HOST}${pathname}${search}`);
+      if (themeCookie && ["light", "dark", "system"].includes(themeCookie) && !redirectUrl.searchParams.has("theme")) {
+        redirectUrl.searchParams.set("theme", themeCookie);
+      }
       return withSecurityHeaders(
-        NextResponse.redirect(`https://${ADMIN_HOST}${pathname}${search}`),
+        NextResponse.redirect(redirectUrl.toString()),
         requestId
       );
     }
@@ -81,8 +86,12 @@ export function middleware(request: NextRequest) {
         );
       }
       if (!RE_ADMIN_PATH.test(pathname) && !RE_AUTH_PAGE.test(pathname)) {
+        const redirectUrl = new URL(`https://www.myjudicial.com${pathname}${search}`);
+        if (themeCookie && ["light", "dark", "system"].includes(themeCookie) && !redirectUrl.searchParams.has("theme")) {
+          redirectUrl.searchParams.set("theme", themeCookie);
+        }
         return withSecurityHeaders(
-          NextResponse.redirect(`https://www.myjudicial.com${pathname}${search}`),
+          NextResponse.redirect(redirectUrl.toString()),
           requestId
         );
       }

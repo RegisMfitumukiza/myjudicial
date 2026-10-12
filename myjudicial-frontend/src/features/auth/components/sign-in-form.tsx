@@ -83,6 +83,20 @@ export function SignInForm() {
   const [adminRememberMe, setAdminRememberMe] = useState(false);
   const isHydratedRef = useRef(false);
 
+function getStoredTheme(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const local = localStorage.getItem("theme");
+    if (local && ["light", "dark", "system"].includes(local)) return local;
+    const match = document.cookie.match(/(?:^|;\s*)mj_theme=([^;]+)/);
+    if (match && match[1]) {
+      const val = decodeURIComponent(match[1]);
+      if (["light", "dark", "system"].includes(val)) return val;
+    }
+  } catch {}
+  return "";
+}
+
   // If user requests admin mode while on main host, immediately forward to admin portal
   // BEFORE they fill credentials so they never suffer double submission or theme reset.
   useEffect(() => {
@@ -92,7 +106,7 @@ export function SignInForm() {
       setAdminMode(true);
     } else if (searchParams.get("admin") === "1") {
       const currentLocale = locale || "en";
-      const theme = localStorage.getItem("theme") || "";
+      const theme = getStoredTheme();
       const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
       const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
       window.location.href = `https://${ADMIN_PORTAL_HOST}/${currentLocale}/sign-in?admin=1${cb}${themeParam}`;
@@ -287,7 +301,7 @@ export function SignInForm() {
       const currentHost = window.location.hostname.toLowerCase();
       if (currentHost !== ADMIN_PORTAL_HOST) {
         const locale = window.location.pathname.split("/")[1] || "en";
-        const theme = localStorage.getItem("theme") || "";
+        const theme = getStoredTheme();
         const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
         const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
         window.location.href = `https://${ADMIN_PORTAL_HOST}/${locale}/sign-in?admin=1${cb}${themeParam}`;
@@ -329,7 +343,7 @@ export function SignInForm() {
       const currentHost = window.location.hostname.toLowerCase();
       if (!adminMode && currentHost !== ADMIN_PORTAL_HOST) {
         const currentLocale = locale || "en";
-        const theme = localStorage.getItem("theme") || "";
+        const theme = getStoredTheme();
         const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";
         const cb = callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : "";
         window.location.href = `https://${ADMIN_PORTAL_HOST}/${currentLocale}/sign-in?admin=1${cb}${themeParam}`;
@@ -337,7 +351,7 @@ export function SignInForm() {
       }
       if (adminMode && currentHost === ADMIN_PORTAL_HOST) {
         const currentLocale = locale || "en";
-        const theme = localStorage.getItem("theme") || "";
+        const theme = getStoredTheme();
         const themeParam = theme ? `?theme=${encodeURIComponent(theme)}` : "";
         window.location.href = `https://www.myjudicial.com/${currentLocale}/sign-in${themeParam}`;
         return;

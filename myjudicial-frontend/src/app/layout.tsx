@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { cookies } from "next/headers";
 import { RootProviders } from "@/providers/app-providers";
 import { getLocale } from "next-intl/server";
 
@@ -69,9 +70,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  const cookieStore = await cookies();
+  const cookieTheme = cookieStore.get("mj_theme")?.value;
+  const initialThemeClass = cookieTheme === "dark" ? "dark" : cookieTheme === "light" ? "light" : "";
 
   return (
-    <html lang={locale} suppressHydrationWarning className="h-full antialiased">
+    <html
+      lang={locale}
+      className={initialThemeClass ? `${initialThemeClass} h-full antialiased` : "h-full antialiased"}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          id="mj-theme-sync"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=document.cookie.match(/(?:^|;\\s*)mj_theme=([^;]+)/);var u=new URLSearchParams(window.location.search).get("theme");var t=u||(m&&m[1]?decodeURIComponent(m[1]):null);if(t&&["light","dark","system"].indexOf(t)!==-1){localStorage.setItem("theme",t);if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.classList.remove("light");}else if(t==="light"){document.documentElement.classList.remove("dark");document.documentElement.classList.add("light");}}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <RootProviders>{children}</RootProviders>
       </body>

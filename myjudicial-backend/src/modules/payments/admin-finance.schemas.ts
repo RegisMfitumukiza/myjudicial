@@ -25,7 +25,7 @@ export const listEscrowQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   status: z.nativeEnum(EscrowStatus).optional(),
   search: z.string().optional(),
-  sortBy: z.enum(["createdAt", "totalFeeRwf", "settledAt"]).default("createdAt"),
+  sortBy: z.enum(["createdAt", "totalFee", "settledAt"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 

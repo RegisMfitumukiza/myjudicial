@@ -9,6 +9,7 @@ import { startBookingReminderCron } from "../../infrastructure/cron/booking-remi
 import { startBookingExpiryCron } from "../../infrastructure/cron/booking-expiry.cron.js";
 import { startEscrowTimeoutCron } from "../../infrastructure/cron/escrow-timeout.cron.js";
 import { startAuditLogCleanupCron } from "../../infrastructure/cron/audit-log-cleanup.cron.js";
+import { startPayoutRetryCron } from "../../infrastructure/cron/payout-retry.cron.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -33,6 +34,7 @@ async function startServer() {
     startBookingExpiryCron();
     startEscrowTimeoutCron();
     startAuditLogCleanupCron();
+    startPayoutRetryCron();
     logger.info("Background jobs started");
   } catch (error) {
     logger.error("Failed to start server", { error });

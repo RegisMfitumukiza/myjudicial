@@ -401,9 +401,15 @@ export const EscrowService = {
       throw new NotFoundError(`Booking ${bookingId} not found`);
     }
 
+    const isCompletedAwaitingPayout =
+      booking.status === "COMPLETED" &&
+      Boolean(booking.payment) &&
+      !booking.payment?.payoutSentAt;
+
     if (
       booking.status !== "CONFIRMED" &&
-      booking.status !== "ACTIVE"
+      booking.status !== "ACTIVE" &&
+      !isCompletedAwaitingPayout
     ) {
       throw new ValidationError(
         `Cannot release escrow. Booking status is ${booking.status}`
@@ -453,7 +459,7 @@ export const EscrowService = {
       // 3. Update Booking
       await BookingRepository.update(bookingId, {
         status: "COMPLETED",
-        completedAt: new Date(),
+        completedAt: booking.completedAt || new Date(),
         escrowReleasedAt: new Date(),
       }, tx);
 

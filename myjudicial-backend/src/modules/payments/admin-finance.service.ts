@@ -127,18 +127,22 @@ export const AdminFinanceService = {
 
     const where: Prisma.PaymentWhereInput = {
       ...(filters.status && { status: filters.status }),
-      ...(filters.fromDate &&
-        filters.toDate && {
-          createdAt: {
-            gte: filters.fromDate,
-            lte: filters.toDate,
-          },
-        }),
+      ...((filters.fromDate || filters.toDate) && {
+        createdAt: {
+          ...(filters.fromDate && { gte: filters.fromDate }),
+          ...(filters.toDate && { lte: filters.toDate }),
+        },
+      }),
       ...(filters.search && {
         OR: [
           { txRef: { contains: filters.search, mode: "insensitive" as const } },
           { providerTransactionId: { contains: filters.search, mode: "insensitive" as const } },
           { booking: { citizen: { firstName: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { citizen: { lastName: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { citizen: { email: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { expert: { displayName: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { expert: { momoNumber: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { expert: { user: { email: { contains: filters.search, mode: "insensitive" as const } } } } },
         ],
       }),
     };
@@ -218,6 +222,9 @@ export const AdminFinanceService = {
         OR: [
           { roomId: { contains: filters.search, mode: "insensitive" as const } },
           { lawyerWalletPhone: { contains: filters.search, mode: "insensitive" as const } },
+          { booking: { citizen: { firstName: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { citizen: { lastName: { contains: filters.search, mode: "insensitive" as const } } } },
+          { booking: { expert: { displayName: { contains: filters.search, mode: "insensitive" as const } } } },
         ],
       }),
     };

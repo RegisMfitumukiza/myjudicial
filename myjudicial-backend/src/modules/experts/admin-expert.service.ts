@@ -205,48 +205,77 @@ export const AdminExpertService = {
   },
 
   /**
+   * Helper to find an expert user by either User.id OR ExpertProfile.id
+   */
+  async resolveExpertUser(idOrProfileId: string) {
+    let user = await prisma.user.findFirst({
+      where: { id: idOrProfileId, role: Role.EXPERT },
+      include: { expertProfile: true },
+    });
+
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { expertProfile: { id: idOrProfileId } },
+        include: { expertProfile: true },
+      });
+    }
+
+    return user;
+  },
+
+  /**
    * Get detailed expert information
    */
   async getById(expertId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: expertId, role: Role.EXPERT },
-      include: {
-        expertProfile: {
-          include: {
-            education: true,
-            certifications: true,
-            services: true,
-            bookings: {
-              take: 10,
-              orderBy: { createdAt: "desc" },
-              select: {
-                id: true,
-                status: true,
-                scheduledStart: true,
-                createdAt: true,
-                citizen: {
-                  select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    email: true,
-                  },
+    const detailInclude = {
+      expertProfile: {
+        include: {
+          education: true,
+          certifications: true,
+          services: true,
+          bookings: {
+            take: 10,
+            orderBy: { createdAt: "desc" as const },
+            select: {
+              id: true,
+              status: true,
+              scheduledStart: true,
+              createdAt: true,
+              citizen: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
                 },
               },
             },
-            _count: {
-              select: {
-                bookings: true,
-                reviews: true,
-              },
+          },
+          _count: {
+            select: {
+              bookings: true,
+              reviews: true,
             },
           },
         },
       },
+    };
+
+    let user = await prisma.user.findFirst({
+      where: { id: expertId, role: Role.EXPERT },
+      include: detailInclude,
     });
 
+    // Fallback: Check if expertId is the ExpertProfile.id (e.g. linked from verifications or compliance queues)
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { expertProfile: { id: expertId } },
+        include: detailInclude,
+      });
+    }
+
     if (!user || !user.expertProfile) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      throw new NotFoundError("Expert");
     }
 
     const expert = user.expertProfile;
@@ -340,31 +369,30 @@ export const AdminExpertService = {
   async suspend(expertId: string, options: SuspendOptions) {
     const { reason, suspendUntil, notifyExpert, adminId } = options;
 
-    // Verify expert exists
-    const user = await prisma.user.findUnique({
-      where: { id: expertId, role: Role.EXPERT },
-      include: { expertProfile: true },
-    });
+    // Verify expert exists by User.id or ExpertProfile.id
+    const user = await this.resolveExpertUser(expertId);
 
     if (!user || !user.expertProfile) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      throw new NotFoundError("Expert");
     }
 
     if (user.status === UserStatus.SUSPENDED) {
       throw new ValidationError(getErrorMessage('VALIDATION_ERROR'));
     }
 
+    const userId = user.id;
+
     // Update expert status
     const [updatedUser] = await prisma.$transaction([
       prisma.user.update({
-        where: { id: expertId },
+        where: { id: userId },
         data: {
           status: UserStatus.SUSPENDED,
         },
       }),
       // Hide map marker
       prisma.mapMarker.updateMany({
-        where: { expertId },
+        where: { expertId: userId },
         data: { isVisible: false },
       }),
       // Log action
@@ -373,7 +401,7 @@ export const AdminExpertService = {
           actorId: adminId,
           action: "UPDATE",
           resource: "EXPERT",
-          resourceId: expertId,
+          resourceId: userId,
           metadata: {
             reason,
             suspendUntil,
@@ -396,13 +424,10 @@ export const AdminExpertService = {
    * Activate suspended expert
    */
   async activate(expertId: string, adminId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: expertId, role: Role.EXPERT },
-      include: { expertProfile: true },
-    });
+    const user = await this.resolveExpertUser(expertId);
 
     if (!user || !user.expertProfile) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      throw new NotFoundError("Expert");
     }
 
     if (user.status !== UserStatus.SUSPENDED) {
@@ -415,17 +440,19 @@ export const AdminExpertService = {
       throw new ValidationError("Cannot activate expert with expired credentials");
     }
 
+    const userId = user.id;
+
     // Update expert status
     const [updatedUser] = await prisma.$transaction([
       prisma.user.update({
-        where: { id: expertId },
+        where: { id: userId },
         data: {
           status: UserStatus.ACTIVE,
         },
       }),
       // Show map marker
       prisma.mapMarker.updateMany({
-        where: { expertId },
+        where: { expertId: userId },
         data: { isVisible: true },
       }),
       // Log action
@@ -434,7 +461,7 @@ export const AdminExpertService = {
           actorId: adminId,
           action: "UPDATE",
           resource: "EXPERT",
-          resourceId: expertId,
+          resourceId: userId,
           metadata: {} as any,
         },
       }),
@@ -453,16 +480,16 @@ export const AdminExpertService = {
   async updateStatus(expertId: string, options: UpdateStatusOptions) {
     const { status, reason, adminId } = options;
 
-    const user = await prisma.user.findUnique({
-      where: { id: expertId, role: Role.EXPERT },
-    });
+    const user = await this.resolveExpertUser(expertId);
 
     if (!user) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      throw new NotFoundError("Expert");
     }
 
+    const userId = user.id;
+
     const updatedUser = await prisma.user.update({
-      where: { id: expertId },
+      where: { id: userId },
       data: { status: status },
     });
 
@@ -472,7 +499,7 @@ export const AdminExpertService = {
         actorId: adminId,
         action: "UPDATE",
         resource: "EXPERT",
-        resourceId: expertId,
+        resourceId: userId,
         metadata: {
           oldStatus: user.status,
           newStatus: status,
@@ -493,13 +520,10 @@ export const AdminExpertService = {
    * Also marks their latest verification record as EXPIRED to remove it from the queue.
    */
   async resetToResubmit(expertId: string, adminId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: expertId, role: Role.EXPERT },
-      include: { expertProfile: true },
-    });
+    const user = await this.resolveExpertUser(expertId);
 
     if (!user || !user.expertProfile) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      throw new NotFoundError("Expert");
     }
 
     if (user.expertProfile.status !== "REJECTED") {
@@ -508,16 +532,19 @@ export const AdminExpertService = {
       );
     }
 
+    const profileId = user.expertProfile.id;
+    const userId = user.id;
+
     await prisma.$transaction(async (tx) => {
       // Reset profile status to DRAFT
       await tx.expertProfile.update({
-        where: { id: user.expertProfile!.id },
+        where: { id: profileId },
         data: { status: "DRAFT" },
       });
 
       // Mark the most recent REJECTED verification as EXPIRED so it's removed from queue
       const latestVerification = await tx.expertVerification.findFirst({
-        where: { expertId: user.expertProfile!.id, status: "REJECTED" },
+        where: { expertId: profileId, status: "REJECTED" },
         orderBy: { createdAt: "desc" },
       });
       if (latestVerification) {
@@ -533,14 +560,14 @@ export const AdminExpertService = {
           actorId: adminId,
           action: "UPDATE",
           resource: "EXPERT",
-          resourceId: expertId,
+          resourceId: userId,
           metadata: { action: "reset_to_resubmit", previousStatus: "REJECTED" } as any,
         },
       });
     });
 
     return {
-      id: user.id,
+      id: userId,
       expertStatus: "DRAFT",
       message: "Expert profile reset to DRAFT. Expert can now resubmit verification documents.",
     };
@@ -550,12 +577,18 @@ export const AdminExpertService = {
    * Get expert's bookings
    */
   async getExpertBookings(expertId: string, options: { page: number; limit: number }) {
+    const user = await this.resolveExpertUser(expertId);
+    if (!user || !user.expertProfile) {
+      throw new NotFoundError("Expert");
+    }
+    const profileId = user.expertProfile.id;
+
     const { page, limit } = options;
     const skip = (page - 1) * limit;
 
     const [bookings, total] = await Promise.all([
       prisma.booking.findMany({
-        where: { expertId },
+        where: { expertId: profileId },
         include: {
           citizen: {
             select: {
@@ -576,7 +609,7 @@ export const AdminExpertService = {
         take: limit,
         orderBy: { createdAt: "desc" },
       }),
-      prisma.booking.count({ where: { expertId } }),
+      prisma.booking.count({ where: { expertId: profileId } }),
     ]);
 
     const transformedBookings = bookings.map((booking) => ({

@@ -270,7 +270,18 @@
       "previewNotAvailable": "Preview not available for this file type.",
       "downloadFile": "Download File",
       "download": "Download",
-      "actionFailed": "Action failed. Please try again."
+      "actionFailed": "Action failed. Please try again.",
+      "loading": "Loading expert details…",
+      "bookings": "Bookings",
+      "confirmCorrections": "Send Corrections Request",
+      "credentials": "Credentials & Licenses",
+      "documents": "Verification Documents",
+      "earnings": "Total Earnings",
+      "rejectVerification": "Reject Verification",
+      "resetSuccess": "Expert reset to DRAFT successfully",
+      "resetToDraft": "Reset to Draft",
+      "verifiedCredentials": "Credentials Verified",
+      "yearsOfExperience": "Years of Experience"
     },
     "users": {
       "title": "User Management",
@@ -307,7 +318,11 @@
       "deleting": "Deleting...",
       "loading": "Loading users...",
       "failedToLoad": "Failed to load users",
-      "unknownError": "Unknown error occurred"
+      "unknownError": "Unknown error occurred",
+      "joined": "Joined",
+      "suspended": "Suspended",
+      "currentUserBadge": "You (Current Admin)",
+      "currentAdminTooltip": "You cannot deactivate or delete your own account"
     },
     "bookings": {
       "title": "Bookings Management",

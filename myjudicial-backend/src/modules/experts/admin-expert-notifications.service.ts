@@ -1,4 +1,3 @@
-import { getErrorMessage } from "../../shared/utils/i18n-messages.js";
 /**
  * Admin Expert Notifications Service
  * Handles sending notifications to experts from admin actions
@@ -19,7 +18,7 @@ export const AdminExpertNotificationsService = {
    */
   sendVerificationReminder: async (expertUserId: string, adminId: string) => {
     // Get expert details with their profile
-    const expert = await prisma.user.findUnique({
+    let expert = await prisma.user.findUnique({
       where: { id: expertUserId },
       include: {
         expertProfile: true,
@@ -27,11 +26,18 @@ export const AdminExpertNotificationsService = {
     });
 
     if (!expert) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      // Fallback: Check if expertUserId is actually an ExpertProfile.id
+      const profile = await prisma.expertProfile.findUnique({
+        where: { id: expertUserId },
+        include: { user: { include: { expertProfile: true } } },
+      });
+      if (profile?.user) {
+        expert = profile.user;
+      }
     }
 
-    if (!expert.expertProfile) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+    if (!expert || !expert.expertProfile) {
+      throw new NotFoundError("Expert");
     }
 
     // Check if already verified
@@ -75,14 +81,14 @@ export const AdminExpertNotificationsService = {
           type: "VERIFICATION_REMINDER",
           expertEmail: expert.email,
           expertName: `${expert.firstName} ${expert.lastName}`,
-          expertUserId: expertUserId,
+          expertUserId: expert.id,
           missingDocuments: missingDocs,
         },
       },
     });
 
     logger.info("Verification reminder sent to expert", {
-      expertId: expertUserId,
+      expertId: expert.id,
       expertEmail: expert.email,
       adminId,
       missingDocuments: missingDocs,
@@ -103,9 +109,10 @@ export const AdminExpertNotificationsService = {
    * Send notification about rejected verification with reason
    */
   notifyVerificationRejection: async (expertUserId: string, reason: string, adminId: string) => {
-    const expert = await prisma.user.findUnique({
+    let expert = await prisma.user.findUnique({
       where: { id: expertUserId },
       select: {
+        id: true,
         email: true,
         firstName: true,
         lastName: true,
@@ -114,7 +121,27 @@ export const AdminExpertNotificationsService = {
     });
 
     if (!expert) {
-      throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
+      const profile = await prisma.expertProfile.findUnique({
+        where: { id: expertUserId },
+        select: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              preferredLanguage: true,
+            },
+          },
+        },
+      });
+      if (profile?.user) {
+        expert = profile.user;
+      }
+    }
+
+    if (!expert) {
+      throw new NotFoundError("Expert");
     }
 
     const expertName = expert.firstName || "Expert";
@@ -124,7 +151,7 @@ export const AdminExpertNotificationsService = {
     await sendVerificationRejectionEmail(expert.email, expertName, reason, expertLanguage);
 
     logger.info("Rejection notification sent to expert", {
-      expertId: expertUserId,
+      expertId: expert.id,
       expertEmail: expert.email,
       adminId,
     });

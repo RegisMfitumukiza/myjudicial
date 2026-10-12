@@ -3,7 +3,9 @@ import { UserStatus } from "../../generated/prisma/client.js";
 
 export const updateStatusSchema = z.object({
   body: z.object({
-    status: z.nativeEnum(UserStatus),
+    status: z
+      .enum(["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING", "DELETED"])
+      .transform((val) => (val === "INACTIVE" ? UserStatus.SUSPENDED : (val as UserStatus))),
     reason: z.string().optional(),
   }),
 });

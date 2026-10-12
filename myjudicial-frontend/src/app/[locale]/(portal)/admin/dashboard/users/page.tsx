@@ -15,6 +15,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
+import { useAuth } from "@/providers/auth-provider";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -138,6 +139,7 @@ const getStatusTone = (status: AccountStatus): StatusTone => {
 export default function UsersPage() {
   const t = useTranslations("admin.users");
   const locale = useLocale();
+  const { user: currentAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,7 +164,7 @@ export default function UsersPage() {
     const labels: Record<AccountStatus, string> = {
       ACTIVE: t("active"),
       INACTIVE: t("inactive"),
-      SUSPENDED: t("allStatus"),
+      SUSPENDED: t("suspended"),
       DELETED: t("deleted"),
     };
     return labels[status] ?? status;
@@ -230,7 +232,7 @@ export default function UsersPage() {
 
   const handleChangeStatus = (user: User) => {
     setSelectedUser(user);
-    setNewStatus(user.accountStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE");
+    setNewStatus(user.accountStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE");
     setShowStatusModal(true);
   };
 
@@ -362,7 +364,7 @@ export default function UsersPage() {
                   <SelectItem value="ALL">{t("allStatus")}</SelectItem>
                   <SelectItem value="ACTIVE">{t("active")}</SelectItem>
                   <SelectItem value="INACTIVE">{t("inactive")}</SelectItem>
-                  <SelectItem value="SUSPENDED">{t("allStatus")}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t("suspended")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -379,7 +381,7 @@ export default function UsersPage() {
                 <th className="px-6 py-4">{t("user")}</th>
                 <th className="px-6 py-4">{t("role")}</th>
                 <th className="px-6 py-4">{t("status")}</th>
-                <th className="px-6 py-4">{t("user")}</th>
+                <th className="px-6 py-4">{t("joined")}</th>
                 <th className="px-6 py-4">{t("lastLogin")}</th>
                 <th className="px-6 py-4 text-right"></th>
               </tr>
@@ -435,11 +437,19 @@ export default function UsersPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {user.accountStatus !== "DELETED" && (
+                        {currentAdmin?.id === user.id ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                            title={t("currentAdminTooltip")}
+                          >
+                            <Shield className="h-3 w-3" />
+                            {t("currentUserBadge")}
+                          </span>
+                        ) : user.accountStatus !== "DELETED" ? (
                           <>
                             <Button
                               size="xs"
-                              variant="default"
+                              variant={user.accountStatus === "ACTIVE" ? "outline" : "default"}
                               onClick={() => handleChangeStatus(user)}
                               disabled={updateStatusMutation.isPending}
                             >
@@ -455,7 +465,7 @@ export default function UsersPage() {
                               {t("delete")}
                             </Button>
                           </>
-                        )}
+                        ) : null}
                       </div>
                     </td>
                   </tr>

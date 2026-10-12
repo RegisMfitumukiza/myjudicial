@@ -37,7 +37,7 @@ export const AdminUserService = {
         prisma.user.count({ where: { role: Role.EXPERT } }),
         prisma.user.count({ where: { role: Role.ADMIN } }),
         prisma.user.count({ where: { status: UserStatus.ACTIVE } }),
-        prisma.user.count({ where: { status: UserStatus.PENDING } }),
+        prisma.user.count({ where: { status: { not: UserStatus.ACTIVE } } }),
       ]);
 
     return {
@@ -61,10 +61,15 @@ export const AdminUserService = {
     const { page, limit, filters, sortBy, sortOrder } = options;
     const skip = (page - 1) * limit;
 
+    const statusFilter =
+      filters.status === ("INACTIVE" as any)
+        ? { in: [UserStatus.PENDING, UserStatus.SUSPENDED] }
+        : filters.status;
+
     // Build where clause
     const where: Prisma.UserWhereInput = {
       ...(filters.role && { role: filters.role }),
-      ...(filters.status && { status: filters.status }),
+      ...(statusFilter && { status: statusFilter }),
       ...(filters.search && {
         OR: [
           { firstName: { contains: filters.search, mode: "insensitive" as const } },
@@ -253,6 +258,16 @@ export const AdminUserService = {
       throw new ValidationError("Cannot change your own account status");
     }
 
+    // Protect last active administrator
+    if (user.role === Role.ADMIN && status !== UserStatus.ACTIVE) {
+      const activeAdminCount = await prisma.user.count({
+        where: { role: Role.ADMIN, status: UserStatus.ACTIVE },
+      });
+      if (activeAdminCount <= 1) {
+        throw new ValidationError("Cannot deactivate the last active administrator on the platform.");
+      }
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { status: status },
@@ -314,6 +329,16 @@ export const AdminUserService = {
     // Prevent self-deletion
     if (userId === adminId) {
       throw new ValidationError("Cannot delete your own account");
+    }
+
+    // Protect last active administrator
+    if (user.role === Role.ADMIN) {
+      const activeAdminCount = await prisma.user.count({
+        where: { role: Role.ADMIN, status: UserStatus.ACTIVE },
+      });
+      if (activeAdminCount <= 1) {
+        throw new ValidationError("Cannot delete the last active administrator on the platform.");
+      }
     }
 
     const expertProfileId = user.expertProfile?.id;

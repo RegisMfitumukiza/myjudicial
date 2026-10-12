@@ -136,7 +136,18 @@
       "previewNotAvailable": "Kuburikiranya ntago ari ryaraboneka kuri ubu bwoko bw'idosiye.",
       "downloadFile": "Kurura idosiye",
       "download": "Kurura",
-      "actionFailed": "Igikorwa cyanze. Nyamuneka gerageza ukundi."
+      "actionFailed": "Igikorwa cyanze. Nyamuneka gerageza ukundi.",
+      "loading": "Biracyashakisha amakuru y'umunyamategeko…",
+      "bookings": "Gahunda zo kubonana",
+      "confirmCorrections": "Ohereza ubusabe bwo gukosora",
+      "credentials": "Impamyabushobozi n'Uruhushya",
+      "documents": "Inyandiko zo kugenzura",
+      "earnings": "Amafaranga yose hamwe",
+      "rejectVerification": "Kwangira kugenzura",
+      "resetSuccess": "Umunyamategeko yasubijwe ku miterere y'ibanze neza",
+      "resetToDraft": "Gusubiza ku miterere y'ibanze",
+      "verifiedCredentials": "Impamyabushobozi zagenzuwe",
+      "yearsOfExperience": "Imyaka y'uburambe"
     },
     "users": {
       "title": "Kuyoboza abakoresha",
@@ -173,7 +184,11 @@
       "deleting": "Birimo gusiba...",
       "loading": "Birimo gukora abakoresha...",
       "failedToLoad": "Kubura gukora abakoresha",
-      "unknownError": "Hariho ikibazo kitazwi"
+      "unknownError": "Hariho ikibazo kitazwi",
+      "joined": "Yiyandikishije",
+      "suspended": "Yarahagaritswe",
+      "currentUserBadge": "Wowe (Umuyobozi uriho)",
+      "currentAdminTooltip": "Ntushobora guhagarika cyangwa gusiba konti yawe bwite"
     },
     "bookings": {
       "title": "Kuyoboza gahunda",

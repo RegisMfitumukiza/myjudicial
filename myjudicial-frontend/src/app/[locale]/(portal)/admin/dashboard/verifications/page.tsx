@@ -47,6 +47,7 @@ interface VerificationRecord {
     status: string;
     profileImageObjectKey: string | null;
     user: {
+      id?: string;
       email: string;
       firstName: string;
       lastName: string;
@@ -221,7 +222,7 @@ export default function AdminVerificationsPage() {
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <Button variant="outline" size="sm" asChild>
-                          <Link href={`/admin/dashboard/experts/${record.expert.id}`}>
+                          <Link href={`/admin/dashboard/experts/${record.expert.user?.id || record.expert.id}`}>
                             <Eye size={13} /> {t("review")}
                           </Link>
                         </Button>

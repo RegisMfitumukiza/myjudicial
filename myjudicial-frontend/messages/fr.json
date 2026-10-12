@@ -136,7 +136,18 @@
       "previewNotAvailable": "Aperçu non disponible pour ce type de fichier.",
       "downloadFile": "Télécharger le fichier",
       "download": "Télécharger",
-      "actionFailed": "L'action a échoué. Veuillez réessayer."
+      "actionFailed": "L'action a échoué. Veuillez réessayer.",
+      "loading": "Chargement des détails de l'expert…",
+      "bookings": "Réservations",
+      "confirmCorrections": "Envoyer la demande de corrections",
+      "credentials": "Titres et licences",
+      "documents": "Documents de vérification",
+      "earnings": "Revenus totaux",
+      "rejectVerification": "Rejeter la vérification",
+      "resetSuccess": "Expert réinitialisé au statut BROUILLON avec succès",
+      "resetToDraft": "Réinitialiser en brouillon",
+      "verifiedCredentials": "Titres vérifiés",
+      "yearsOfExperience": "Années d'expérience"
     },
     "users": {
       "title": "Gestion des utilisateurs",
@@ -173,7 +184,11 @@
       "deleting": "Suppression...",
       "loading": "Chargement des utilisateurs...",
       "failedToLoad": "Échec du chargement des utilisateurs",
-      "unknownError": "Une erreur inconnue s'est produite"
+      "unknownError": "Une erreur inconnue s'est produite",
+      "joined": "Inscrit le",
+      "suspended": "Suspendu",
+      "currentUserBadge": "Vous (Admin actuel)",
+      "currentAdminTooltip": "Vous ne pouvez pas désactiver ou supprimer votre propre compte"
     },
     "bookings": {
       "title": "Gestion des réservations",

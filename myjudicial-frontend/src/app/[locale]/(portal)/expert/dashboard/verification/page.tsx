@@ -428,24 +428,31 @@ export default function VerificationPage() {
   const status: string = compliance?.status ?? "DRAFT";
   const style = STATUS_STYLE[status] ?? STATUS_STYLE.DRAFT;
   const StatusIcon = style.icon;
-  const canSubmit =
-    status !== "VERIFIED" && status !== "PENDING_VERIFICATION";
-
   const rawReason = compliance?.lastVerification?.rejectionReason;
   const isCorrectionsRequired = status === "REJECTED" && Boolean(rawReason?.startsWith("[CORRECTIONS_REQUIRED]"));
   const cleanReason = isCorrectionsRequired
     ? rawReason!.replace(/^\[CORRECTIONS_REQUIRED\]\s*/, "")
     : rawReason;
 
-  // Clear drafts if status is already pending or verified
+  const lastVerif = compliance?.lastVerification as any;
+  const isMissingDocsInPending =
+    status === "PENDING_VERIFICATION" &&
+    Boolean(lastVerif) &&
+    (!lastVerif.identityDocumentObjectKey || !lastVerif.barCertificateObjectKey);
+
+  const canSubmit =
+    status !== "VERIFIED" &&
+    (status !== "PENDING_VERIFICATION" || isMissingDocsInPending);
+
+  // Clear drafts if status is verified or fully pending review (without missing documents)
   useEffect(() => {
-    if (status === "VERIFIED" || status === "PENDING_VERIFICATION") {
+    if (status === "VERIFIED" || (status === "PENDING_VERIFICATION" && !isMissingDocsInPending)) {
       clearAllDraftFiles().catch(() => {});
       try {
         localStorage.removeItem("mj_verification_draft_meta");
       } catch {}
     }
-  }, [status]);
+  }, [status, isMissingDocsInPending]);
 
   function createAttachedFile(
     file: File,
@@ -577,28 +584,40 @@ export default function VerificationPage() {
             <div
               className={cn(
                 "flex items-start gap-4 rounded-xl border p-5 shadow-sm",
-                BANNER_CLASS[isCorrectionsRequired ? "warning" : style.tone]
+                BANNER_CLASS[isCorrectionsRequired || isMissingDocsInPending ? "warning" : style.tone]
               )}
             >
               <div
                 className={cn(
                   "flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-                  CHIP_CLASS[isCorrectionsRequired ? "warning" : style.tone]
+                  CHIP_CLASS[isCorrectionsRequired || isMissingDocsInPending ? "warning" : style.tone]
                 )}
               >
-                {isCorrectionsRequired ? <AlertTriangle size={20} /> : <StatusIcon size={20} />}
+                {isCorrectionsRequired || isMissingDocsInPending ? <AlertTriangle size={20} /> : <StatusIcon size={20} />}
               </div>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-bold text-foreground">
-                    {isCorrectionsRequired ? t("statusCorrectionsTitle") : t(style.titleKey)}
+                    {isCorrectionsRequired
+                      ? t("statusCorrectionsTitle")
+                      : isMissingDocsInPending
+                      ? t("statusMissingDocsTitle")
+                      : t(style.titleKey)}
                   </p>
-                  <StatusBadge tone={isCorrectionsRequired ? "warning" : BADGE_TONE[style.tone]}>
-                    {isCorrectionsRequired ? t("statusCorrectionsTitle") : t(`statusBadge.${status.toLowerCase()}` as any)}
+                  <StatusBadge tone={isCorrectionsRequired || isMissingDocsInPending ? "warning" : BADGE_TONE[style.tone]}>
+                    {isCorrectionsRequired
+                      ? t("statusCorrectionsTitle")
+                      : isMissingDocsInPending
+                      ? t("statusMissingDocsTitle")
+                      : t(`statusBadge.${status.toLowerCase()}` as any)}
                   </StatusBadge>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {isCorrectionsRequired ? t("statusCorrectionsDesc") : t(style.descriptionKey)}
+                  {isCorrectionsRequired
+                    ? t("statusCorrectionsDesc")
+                    : isMissingDocsInPending
+                    ? t("statusMissingDocsDesc")
+                    : t(style.descriptionKey)}
                 </p>
 
                 {/* Rejection / Corrections reason */}
@@ -651,6 +670,8 @@ export default function VerificationPage() {
                 <h3 className="text-sm font-bold text-foreground">
                   {isCorrectionsRequired
                     ? t("correctionsDocsTitle")
+                    : isMissingDocsInPending
+                    ? t("missingDocsTitle")
                     : status === "REJECTED"
                     ? t("resubmitDocsTitle")
                     : t("submitDocsTitle")}
@@ -771,7 +792,7 @@ export default function VerificationPage() {
           )}
 
           {/* Under Review Notice Card */}
-          {!isLoading && status === "PENDING_VERIFICATION" && (
+          {!isLoading && status === "PENDING_VERIFICATION" && !isMissingDocsInPending && (
             <div className="rounded-xl border border-warning/30 bg-card p-6 shadow-sm space-y-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-warning/10 text-warning">

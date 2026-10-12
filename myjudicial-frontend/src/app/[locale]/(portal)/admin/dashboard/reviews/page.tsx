@@ -35,7 +35,7 @@ type ReviewStatus = "ALL" | "APPROVED" | "PENDING" | "HIDDEN";
 
 interface ReviewStats {
   totalReviews: number;
-  averageRating: number;
+  averageRating: number | null;
   pendingReports: number;
 }
 
@@ -82,10 +82,12 @@ export default function ReviewsPage() {
     }
   };
 
-  const { data: stats, isLoading: statsLoading } = useQuery<ReviewStats>({
+  const { data: statsData, isLoading: statsLoading } = useQuery<{ data?: ReviewStats } & ReviewStats>({
     queryKey: ["admin-reviews-stats"],
     queryFn: () => apiFetch("/admin/reviews/stats"),
   });
+
+  const stats: ReviewStats | undefined = (statsData as any)?.data ?? statsData;
 
   const { data: reviewsResponse, isLoading: reviewsLoading, error: reviewsError } = useQuery({
     queryKey: ["admin-reviews", statusFilter, page],
@@ -108,7 +110,11 @@ export default function ReviewsPage() {
     },
   });
 
-  const reviews: Review[] = reviewsResponse?.data ?? [];
+  const reviews: Review[] = Array.isArray(reviewsResponse?.data)
+    ? reviewsResponse.data
+    : Array.isArray(reviewsResponse)
+      ? (reviewsResponse as Review[])
+      : [];
   const rawPagination = (reviewsResponse as any)?.pagination ?? (reviewsResponse as any)?.meta;
   const pagination = rawPagination
     ? {
@@ -156,17 +162,17 @@ export default function ReviewsPage() {
         <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           <StatCard
             label={t("totalReviews")}
-            value={stats.totalReviews.toLocaleString()}
+            value={(stats.totalReviews ?? 0).toLocaleString(locale)}
             icon={MessageSquare}
           />
           <StatCard
             label={t("averageRating")}
-            value={stats.averageRating.toFixed(1)}
+            value={stats.averageRating != null && !isNaN(Number(stats.averageRating)) ? Number(stats.averageRating).toFixed(1) : "—"}
             icon={Star}
           />
           <StatCard
             label={t("pendingReports")}
-            value={stats.pendingReports.toLocaleString()}
+            value={(stats.pendingReports ?? 0).toLocaleString(locale)}
             icon={AlertTriangle}
           />
         </div>
@@ -249,11 +255,16 @@ export default function ReviewsPage() {
                             <Star
                               key={s}
                               size={14}
-                              className={s <= review.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}
+                              className={s <= Number(review.rating || 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}
                             />
                           ))}
                           <span className="ml-1 text-xs text-muted-foreground">{review.rating}</span>
                         </div>
+                        {review.comment && (
+                          <p className="mt-1 max-w-xs truncate text-xs text-muted-foreground" title={review.comment}>
+                            {review.comment}
+                          </p>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-foreground">{formatDate(review.createdAt)}</span>
@@ -299,7 +310,7 @@ export default function ReviewsPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 sm:px-6 py-4">
             <p className="text-sm text-muted-foreground">
-              {pagination.page} / {pagination.totalPages} ({pagination.total})
+              {pagination.page} / {pagination.totalPages} ({(pagination.total ?? 0).toLocaleString(locale)})
             </p>
             <div className="flex items-center gap-2">
               <Button

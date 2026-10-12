@@ -1311,6 +1311,37 @@ export const sendVerificationRejectionEmail = async (
 };
 
 /**
+ * Send notification when expert profile is reset to draft by admin.
+ */
+export const sendVerificationResetToDraftEmail = async (
+  to: string,
+  name: string,
+  language: Language = 'en'
+): Promise<void> => {
+  const profileUrl = buildUrl(FRONTEND.expertProfile);
+  const t = (key: string) => getEmailContent('VERIFICATION_RESET', key, language, name);
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(t('greeting')),
+      paragraph(t('message')),
+      divider(),
+      button(t('actionButton'), profileUrl),
+      divider(),
+      paragraph(t('timelineNote'), { size: "13px", color: "#94a3b8" }),
+    )}
+  `, { previewText: "Your expert profile has been reset to draft" });
+
+  await sendEmail({
+    to: [{ email: to, name }],
+    subject: getEmailSubject('VERIFICATION_RESET', language),
+    template: "VERIFICATION_RESET",
+    htmlContent: html,
+  });
+};
+
+/**
  * Send a broadcast email from admin to a user.
  */
 export const sendBroadcastEmail = async (

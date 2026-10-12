@@ -123,6 +123,11 @@ export const EMAIL_SUBJECTS = {
     fr: "Nouvelle demande de vérification d'expert",
     rw: "Icyifuzo gishya cyo kwemeza inzobere",
   },
+  VERIFICATION_RESET: {
+    en: "Action Required: Your verification profile has been reset to draft",
+    fr: "Action requise : Votre profil de vérification a été réinitialisé en brouillon",
+    rw: "Igikorwa gikenewe: Umwirondoro wawe wasubijwe mu mushinga",
+  },
   NEW_EXPERT_REGISTRATION: {
     en: "New expert registered on MyJudicial",
     fr: "Nouvel expert inscrit sur MyJudicial",
@@ -674,6 +679,35 @@ export const EMAIL_CONTENT = {
       en: "Verification typically takes 1–2 business days after all required documents are received.",
       fr: "La vérification prend généralement 1 à 2 jours ouvrables après réception de tous les documents requis.",
       rw: "Kwemeza bitwara iminsi 1-2 y'akazi nyuma yo kwakira ibyangombwa byose bisabwa.",
+    },
+  },
+
+  // Verification reset to draft (sent by admin)
+  VERIFICATION_RESET: {
+    title: {
+      en: "Verification Profile Reset to Draft",
+      fr: "Profil de vérification réinitialisé en brouillon",
+      rw: "Umwirondoro wawe wasubijwe mu mushinga",
+    },
+    greeting: {
+      en: (name: string) => `Hello ${name},`,
+      fr: (name: string) => `Bonjour ${name},`,
+      rw: (name: string) => `Muraho ${name},`,
+    },
+    message: {
+      en: "An administrator has reset your expert profile to draft status. This allows you to review your credentials and re-upload all required verification documents (National ID/Passport and Bar Association Certificate).",
+      fr: "Un administrateur a réinitialisé votre profil d'expert en brouillon. Cela vous permet de vérifier vos informations et de téléverser à nouveau tous les documents de vérification requis (pièce d'identité et certificat du Barreau).",
+      rw: "Umuyobozi yasubije umwirondoro wawe w'inzobere mu mushinga. Ibi biguha umwanya wo gusubiramo amakuru yawe no kongera gushyiraho ibyangombwa byose bisabwa (Indangamuntu/Pasiporo n'Icyemezo cy'Urugaga rw'Abavoka).",
+    },
+    actionButton: {
+      en: "Review & Upload Documents",
+      fr: "Vérifier et téléverser les documents",
+      rw: "Gusubiramo no gushyiraho ibyangombwa",
+    },
+    timelineNote: {
+      en: "Once submitted, our compliance team will review your verification packet promptly.",
+      fr: "Une fois soumis, notre équipe de conformité examinera vos documents dans les plus brefs délais.",
+      rw: "Numara kubyohereza, itsinda ryacu ry'ubugenzuzi rizahita ribisuzuma vuba bishoboka.",
     },
   },
 

@@ -680,7 +680,7 @@ export default function VerificationPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <FileDropZone
                   label={t("labelId")}
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
                   attached={identityFile}
                   onAttach={(f) => {
                     if (identityFile?.preview) {

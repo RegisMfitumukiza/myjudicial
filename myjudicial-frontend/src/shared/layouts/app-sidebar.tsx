@@ -8,6 +8,7 @@ import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import {
   LayoutDashboard,
   Users,
+  UserCheck,
   BadgeCheck,
   DollarSign,
   Bell,
@@ -71,7 +72,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       groupKey: "marketplace",
       items: [
         { href: "/admin/dashboard/experts", icon: BadgeCheck, labelKey: "experts" },
-        { href: "/admin/dashboard/users", icon: Users, labelKey: "users" },
+        { href: "/admin/dashboard/clients", icon: Users, labelKey: "clients" },
         { href: "/admin/dashboard/bookings", icon: Calendar, labelKey: "bookings" },
       ],
     },
@@ -92,6 +93,7 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
     {
       groupKey: "operations",
       items: [
+        { href: "/admin/dashboard/users", icon: UserCheck, labelKey: "users" },
         { href: "/admin/dashboard/notifications?tab=inbox", icon: Bell, labelKey: "notifications" },
         { href: "/admin/dashboard/documents", icon: FolderOpen, labelKey: "documents" },
         { href: "/admin/dashboard/audit-logs", icon: ClipboardList, labelKey: "auditLogs" },

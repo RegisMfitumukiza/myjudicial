@@ -419,7 +419,7 @@ describe("ContentEditor — copy from English and delete", () => {
     fireEvent.click(screen.getByRole("button", { name: cp.copyFromEnglish }));
 
     await waitFor(() => expect(api.copyContentPage).toHaveBeenCalledWith("PRIVACY", "en", "fr"));
-    expect(screen.getByDisplayValue("Privacy Policy (copied)")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("Privacy Policy (copied)")).toBeInTheDocument();
   });
 
   it("deletes the page after confirmation", async () => {

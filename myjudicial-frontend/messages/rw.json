@@ -318,7 +318,20 @@
       "previous": "Imbere",
       "next": "Inyuma",
       "pageOf": "Urutonde {page} kuri {total}",
-      "totalCount": "{count} yangombwa"
+      "totalCount": "{count} yangombwa",
+      "clearFilters": "Gukuraho akayunguruzo",
+      "totalDocuments": "Inyandiko zose",
+      "storageUsed": "Ububiko ku rupapuro",
+      "confidentialFiles": "Iby'ibanga",
+      "delete": "Gusiba",
+      "deleteConfirmTitle": "Gusiba inyandiko?",
+      "deleteConfirmDesc": "Uremeza neza ko ushaka gusiba iyi nyandiko? Izakurwa burundu mu bubiko bw'urubuga. Iki gikorwa ntigishobora gusubizwa inyuma.",
+      "deleteSuccess": "Inyandiko yasibwe neza",
+      "deleteFailed": "Gusiba inyandiko byanze",
+      "preview": "Irebamiterere ry'inyandiko",
+      "openInNewTab": "Fungura mu idirishya rishya",
+      "cannotPreview": "Ntibishoboka kureba iyi dosiye ako kanya. Nyamuneka yimanure kugira ngo uyisome.",
+      "cancel": "Kureka"
     },
     "settings": {
       "title": "Igenamiterere ry'Adayobusi",

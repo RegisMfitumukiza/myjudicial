@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
   Download,
@@ -12,16 +12,36 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  RefreshCw,
+  Trash2,
+  X,
+  Lock,
+  Shield,
+  Globe,
+  Image as ImageIcon,
+  ExternalLink,
+  Filter,
+  HardDrive,
+  Users,
 } from "lucide-react";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/shared/components/ui/dialog";
 
 type SortKey = "fileName" | "fileSize" | "createdAt";
 type SortOrder = "asc" | "desc";
@@ -61,6 +81,7 @@ interface DocumentsResponse {
 const PAGE_SIZE = 20;
 
 function formatBytes(bytes: number): string {
+  if (!bytes || isNaN(bytes)) return "0 B";
   if (bytes >= 1_048_576) return `${(bytes / 1_048_576).toFixed(1)} MB`;
   if (bytes >= 1_024) return `${(bytes / 1_024).toFixed(0)} KB`;
   return `${bytes} B`;
@@ -68,19 +89,28 @@ function formatBytes(bytes: number): string {
 
 function uploaderName(uploadedBy: AdminDocument["uploadedBy"]): string {
   if (!uploadedBy) return "—";
-  const fullName = `${uploadedBy.firstName} ${uploadedBy.lastName}`.trim();
+  const fullName = `${uploadedBy.firstName || ""} ${uploadedBy.lastName || ""}`.trim();
   return fullName || uploadedBy.email;
 }
 
-const SENSITIVITY_BADGE: Record<string, string> = {
-  PUBLIC: "bg-muted text-muted-foreground",
-  PRIVATE: "bg-primary/10 text-primary",
-  CONFIDENTIAL: "bg-destructive/10 text-destructive",
-};
+function getFileIcon(mimeType: string, fileName: string) {
+  const lowerName = fileName.toLowerCase();
+  if (mimeType?.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(lowerName)) {
+    return <ImageIcon size={15} className="shrink-0 text-blue-500" />;
+  }
+  if (mimeType === "application/pdf" || lowerName.endsWith(".pdf")) {
+    return <FileText size={15} className="shrink-0 text-red-500" />;
+  }
+  if (lowerName.endsWith(".doc") || lowerName.endsWith(".docx")) {
+    return <FileText size={15} className="shrink-0 text-indigo-500" />;
+  }
+  return <FileText size={15} className="shrink-0 text-muted-foreground" />;
+}
 
 export default function DocumentsPage() {
   const t = useTranslations("admin.documents");
   const locale = useLocale();
+  const queryClient = useQueryClient();
 
   const [role, setRole] = useState<"ALL" | "CLIENT" | "EXPERT">("ALL");
   const [sensitivity, setSensitivity] = useState<"ALL" | "PUBLIC" | "PRIVATE" | "CONFIDENTIAL">("ALL");
@@ -91,11 +121,19 @@ export default function DocumentsPage() {
   const [order, setOrder] = useState<SortOrder>("desc");
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
+  // Preview Modal state
+  const [previewDoc, setPreviewDoc] = useState<AdminDocument | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+  // Delete Modal state
+  const [deleteDoc, setDeleteDoc] = useState<AdminDocument | null>(null);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
-    }, 400);
+    }, 350);
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -124,10 +162,36 @@ export default function DocumentsPage() {
     retry: false,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (fileId: string) => {
+      return apiFetch(`/files/${fileId}`, { method: "DELETE" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-documents"] });
+      setDeleteDoc(null);
+      toast.success(t("deleteSuccess"));
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || t("deleteFailed"));
+    },
+  });
+
   const documents = Array.isArray(response?.data) ? response.data : [];
   const meta = response?.meta;
   const total = meta?.total ?? 0;
   const totalPages = Math.max(meta?.totalPages ?? 1, 1);
+
+  const hasActiveFilters = Boolean(
+    role !== "ALL" || sensitivity !== "ALL" || debouncedSearch.trim()
+  );
+
+  function handleClearFilters() {
+    setRole("ALL");
+    setSensitivity("ALL");
+    setSearch("");
+    setDebouncedSearch("");
+    setPage(1);
+  }
 
   function toggleSort(key: SortKey) {
     if (sortBy === key) {
@@ -141,7 +205,11 @@ export default function DocumentsPage() {
 
   function sortIcon(key: SortKey) {
     if (sortBy !== key) return null;
-    return order === "asc" ? <ArrowUp size={12} className="ml-1" /> : <ArrowDown size={12} className="ml-1" />;
+    return order === "asc" ? (
+      <ArrowUp size={12} className="ml-1" />
+    ) : (
+      <ArrowDown size={12} className="ml-1" />
+    );
   }
 
   function sortableHeader(key: SortKey, label: string) {
@@ -149,7 +217,7 @@ export default function DocumentsPage() {
       <button
         type="button"
         onClick={() => toggleSort(key)}
-        className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
       >
         {label}
         {sortIcon(key)}
@@ -157,22 +225,47 @@ export default function DocumentsPage() {
     );
   }
 
-  async function handleDownload(fileId: string, viewing = false) {
+  async function openPreview(doc: AdminDocument) {
+    setPreviewDoc(doc);
+    setPreviewLoading(true);
+    setPreviewUrl(null);
     try {
-      setActiveFileId(fileId);
-      const blob = await apiFetchBlob(`/files/${fileId}/stream`);
+      const blob = await apiFetchBlob(`/files/${doc.id}/stream`);
       const url = URL.createObjectURL(blob);
-      if (viewing || blob.type.startsWith("image/") || blob.type === "application/pdf") {
-        window.open(url, "_blank", "noopener,noreferrer");
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `document-${fileId.substring(0, 6)}`;
-        a.click();
-      }
+      setPreviewUrl(url);
+    } catch (err) {
+      console.error("Preview fetch failed:", err);
+      toast.error(t("loadFailedDesc"));
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  function closePreview() {
+    if (previewUrl) {
+      try {
+        URL.revokeObjectURL(previewUrl);
+      } catch {}
+    }
+    setPreviewDoc(null);
+    setPreviewUrl(null);
+  }
+
+  async function handleDownload(doc: AdminDocument) {
+    try {
+      setActiveFileId(doc.id);
+      const blob = await apiFetchBlob(`/files/${doc.id}/stream`);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.fileName || `document-${doc.id.substring(0, 6)}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
       console.error("Document download failed:", error);
+      toast.error(t("loadFailedDesc"));
     } finally {
       setActiveFileId(null);
     }
@@ -186,199 +279,530 @@ export default function DocumentsPage() {
 
   const sensitivityFilter = [
     { value: "ALL", label: t("allSensitivities") },
-    { value: "PRIVATE", label: t("private") },
     { value: "CONFIDENTIAL", label: t("confidential") },
+    { value: "PRIVATE", label: t("private") },
     { value: "PUBLIC", label: t("public") },
   ] as const;
 
+  // Overview stats calculated from current dataset
+  const storageOnPage = documents.reduce((sum, d) => sum + (d.fileSize || 0), 0);
+  const confidentialCount = documents.filter((d) => d.sensitivity === "CONFIDENTIAL").length;
+  const expertCount = documents.filter((d) => d.uploadedBy?.role === "EXPERT").length;
+  const clientCount = documents.filter((d) => d.uploadedBy?.role === "CITIZEN").length;
+
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+      {/* Page Header */}
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
         actions={
-          !isLoading ? (
-            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
-              <FileText size={13} className={isFetching ? "animate-spin" : ""} /> {t("retry")}
-            </Button>
-          ) : undefined
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="cursor-pointer"
+          >
+            <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} /> {t("retry")}
+          </Button>
         }
       />
 
-      {isLoading && <LoadingSpinner label={t("loading")} />}
-
-      {isError && !isLoading && (
-        <ErrorState title={t("loadFailedTitle")} message={t("loadFailedDesc")} onRetry={() => refetch()} retryLabel={t("retry")} />
-      )}
-
-      {!isLoading && !isError && documents.length === 0 && (
-        <EmptyState icon={FileText} title={t("noDocuments")} description={t("noDocumentsDesc")} />
-      )}
-
-      {!isLoading && !isError && documents.length > 0 && (
-        <>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative w-full sm:max-w-xs flex-1 min-w-[160px]">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("searchFiles")}
-                className="pl-9"
-              />
+      {/* KPI Overview Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <Card className="p-4 shadow-sm border-border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FileText size={18} />
             </div>
-
-            <div className="flex flex-wrap items-center gap-1.5">
-              {roleFilter.map((f) => (
-                <Button
-                  key={f.value}
-                  variant={role === f.value ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => {
-                    setRole(f.value);
-                    setPage(1);
-                  }}
-                >
-                  {f.label}
-                </Button>
-              ))}
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">{t("totalDocuments")}</p>
+              <p className="text-xl font-bold text-foreground">{total.toLocaleString()}</p>
             </div>
           </div>
+        </Card>
 
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="px-4 py-3">{sortableHeader("fileName", t("fileName"))}</th>
-                    <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground">
-                      {t("uploadedBy")}
-                    </th>
-                    <th className="px-4 py-3">{sortableHeader("fileSize", t("size"))}</th>
-                    <th className="px-4 py-3">{sortableHeader("createdAt", t("date"))}</th>
-                    <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground">
-                      {t("sensitivity")}
-                    </th>
-                    <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground">
-                      {t("actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc) => {
-                    const busy = activeFileId === doc.id;
-                    return (
-                      <tr key={doc.id} className="border-b border-border last:border-0">
-                        <td className="px-4 py-3 font-medium text-foreground">
-                          <div className="flex items-center gap-2">
-                            <FileText size={14} className="shrink-0 text-muted-foreground" />
-                            <span className="max-w-[240px] truncate">{doc.fileName}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="text-muted-foreground">{uploaderName(doc.uploadedBy)}</p>
-                          <p className="text-[11px] uppercase tracking-wide text-muted-foreground/60">
-                            {doc.uploadedBy ? doc.uploadedBy.role : "system"}
-                          </p>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">{formatBytes(doc.fileSize)}</td>
-                        <td className="px-4 py-3 text-muted-foreground">
-                          {new Date(doc.createdAt).toLocaleDateString(locale, {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                              SENSITIVITY_BADGE[doc.sensitivity] ?? "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {doc.sensitivity}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              title={t("view")}
-                              disabled={busy}
-                              onClick={() => handleDownload(doc.id, true)}
-                            >
-                              {busy ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              title={t("download")}
-                              disabled={busy}
-                              onClick={() => handleDownload(doc.id, false)}
-                            >
-                              <Download size={14} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {documents.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                        {t("noSearchResults")}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+        <Card className="p-4 shadow-sm border-border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+              <HardDrive size={18} />
             </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">{t("storageUsed")}</p>
+              <p className="text-xl font-bold text-foreground">{formatBytes(storageOnPage)}</p>
+            </div>
+          </div>
+        </Card>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-3">
-              <p className="text-xs text-muted-foreground">
-                {t("totalCount", { count: total.toLocaleString() })}
+        <Card className="p-4 shadow-sm border-border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
+              <Lock size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">{t("confidentialFiles")}</p>
+              <p className="text-xl font-bold text-foreground">{confidentialCount}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 shadow-sm border-border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <Users size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">Uploaders</p>
+              <p className="text-sm font-semibold text-foreground truncate">
+                {expertCount} Experts &bull; {clientCount} Clients
               </p>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!meta?.hasPrev || isFetching}
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                >
-                  <ChevronLeft size={13} /> {t("previous")}
-                </Button>
-                <span className="text-xs text-muted-foreground">
-                  {t("pageOf", { page: meta?.page ?? 1, total: totalPages })}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!meta?.hasNext || isFetching}
-                  onClick={() => setPage((p) => p + 1)}
-                >
-                  {t("next")} <ChevronRight size={13} />
-                </Button>
-              </div>
             </div>
-          </Card>
+          </div>
+        </Card>
+      </div>
 
-          <div className="flex items-center gap-1.5">
-            {sensitivityFilter.map((f) => (
+      {/* Unified Filter Toolbar (ALWAYS Visible) */}
+      <Card className="p-4 shadow-sm border-border bg-card space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Search bar */}
+          <div className="relative w-full sm:max-w-xs flex-1 min-w-[200px]">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("searchFiles")}
+              className="pl-9 pr-8"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Role Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">Role:</span>
+            {roleFilter.map((f) => (
               <Button
                 key={f.value}
-                variant={sensitivity === f.value ? "default" : "ghost"}
+                variant={role === f.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => {
-                  setSensitivity(f.value);
+                  setRole(f.value);
                   setPage(1);
                 }}
+                className="cursor-pointer text-xs h-8"
               >
                 {f.label}
               </Button>
             ))}
           </div>
-        </>
+
+          {/* Sensitivity Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">Sensitivity:</span>
+            {sensitivityFilter.map((f) => (
+              <Button
+                key={f.value}
+                variant={sensitivity === f.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setSensitivity(f.value);
+                  setPage(1);
+                }}
+                className="cursor-pointer text-xs h-8"
+              >
+                {f.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Active Filters Pill Bar & Clear Button */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Filter size={12} className="text-primary" />
+              <span>Active filters:</span>
+              {debouncedSearch.trim() && (
+                <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
+                  Search: &ldquo;{debouncedSearch.trim()}&rdquo;
+                </span>
+              )}
+              {role !== "ALL" && (
+                <span className="rounded-md bg-primary/10 text-primary px-2 py-0.5 text-[11px] font-medium">
+                  Role: {role}
+                </span>
+              )}
+              {sensitivity !== "ALL" && (
+                <span className="rounded-md bg-destructive/10 text-destructive px-2 py-0.5 text-[11px] font-medium">
+                  Sensitivity: {sensitivity}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-xs font-medium text-primary hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <X size={12} /> {t("clearFilters")}
+            </button>
+          </div>
+        )}
+      </Card>
+
+      {/* Main Content Area */}
+      {isLoading && <LoadingSpinner label={t("loading")} />}
+
+      {isError && !isLoading && (
+        <ErrorState
+          title={t("loadFailedTitle")}
+          message={t("loadFailedDesc")}
+          onRetry={() => refetch()}
+          retryLabel={t("retry")}
+        />
       )}
+
+      {!isLoading && !isError && documents.length === 0 && (
+        hasActiveFilters ? (
+          /* When filters are applied and return 0 results: show clear action, user is NEVER trapped */
+          <Card className="p-8 text-center border-border shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
+              <Filter size={22} />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">{t("noSearchResults")}</h3>
+            <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">
+              There are no documents matching your currently selected filters. Clear your filters or select a different role to view files.
+            </p>
+            <div className="mt-5 flex justify-center gap-2">
+              <Button onClick={handleClearFilters} variant="default" size="sm" className="cursor-pointer">
+                <X size={14} className="mr-1.5" /> {t("clearFilters")}
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          /* Pure platform empty state (0 documents exist) */
+          <EmptyState icon={FileText} title={t("noDocuments")} description={t("noDocumentsDesc")} />
+        )
+      )}
+
+      {/* Data Table */}
+      {!isLoading && !isError && documents.length > 0 && (
+        <Card className="overflow-hidden shadow-sm border-border">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="px-4 py-3">{sortableHeader("fileName", t("fileName"))}</th>
+                  <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t("uploadedBy")}
+                  </th>
+                  <th className="px-4 py-3">{sortableHeader("fileSize", t("size"))}</th>
+                  <th className="px-4 py-3">{sortableHeader("createdAt", t("date"))}</th>
+                  <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t("sensitivity")}
+                  </th>
+                  <th className="px-4 py-3 font-semibold uppercase tracking-wide text-muted-foreground text-right">
+                    {t("actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => {
+                  const isBusy = activeFileId === doc.id;
+                  const isImage = doc.mimeType?.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif)$/i.test(doc.fileName);
+                  const isPdf = doc.mimeType === "application/pdf" || doc.fileName.toLowerCase().endsWith(".pdf");
+
+                  return (
+                    <tr
+                      key={doc.id}
+                      className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium text-foreground">
+                        <div className="flex items-center gap-2.5">
+                          {getFileIcon(doc.mimeType, doc.fileName)}
+                          <span
+                            className="max-w-[280px] sm:max-w-[340px] truncate font-medium hover:text-primary transition-colors cursor-pointer"
+                            title={doc.fileName}
+                            onClick={() => openPreview(doc)}
+                          >
+                            {doc.fileName}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <p className="text-foreground font-medium text-xs leading-none">
+                          {uploaderName(doc.uploadedBy)}
+                        </p>
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground mt-1">
+                          {doc.uploadedBy ? doc.uploadedBy.role : doc.ownerType}
+                        </p>
+                      </td>
+
+                      <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
+                        {formatBytes(doc.fileSize)}
+                      </td>
+
+                      <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
+                        {new Date(doc.createdAt).toLocaleDateString(locale, {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {doc.sensitivity === "CONFIDENTIAL" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 px-2.5 py-0.5 text-[11px] font-semibold">
+                            <Lock size={10} /> {t("confidential")}
+                          </span>
+                        ) : doc.sensitivity === "PRIVATE" ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 px-2.5 py-0.5 text-[11px] font-semibold">
+                            <Shield size={10} /> {t("private")}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted text-muted-foreground border border-border px-2.5 py-0.5 text-[11px] font-medium">
+                            <Globe size={10} /> {t("public")}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* View */}
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title={t("view")}
+                            disabled={isBusy}
+                            onClick={() => openPreview(doc)}
+                            className="text-primary hover:bg-primary/10 cursor-pointer h-8 w-8"
+                          >
+                            <Eye size={15} />
+                          </Button>
+
+                          {/* Download */}
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title={t("download")}
+                            disabled={isBusy}
+                            onClick={() => handleDownload(doc)}
+                            className="text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer h-8 w-8"
+                          >
+                            {isBusy ? (
+                              <Loader2 size={14} className="animate-spin text-primary" />
+                            ) : (
+                              <Download size={15} />
+                            )}
+                          </Button>
+
+                          {/* Delete */}
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title={t("delete")}
+                            disabled={isBusy}
+                            onClick={() => setDeleteDoc(doc)}
+                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer h-8 w-8"
+                          >
+                            <Trash2 size={15} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Table Footer Pagination */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-muted/30 px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {t("totalCount", { count: total.toLocaleString() })}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!meta?.hasPrev || isFetching}
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                className="cursor-pointer text-xs"
+              >
+                <ChevronLeft size={13} /> {t("previous")}
+              </Button>
+              <span className="text-xs text-muted-foreground px-1">
+                {t("pageOf", { page: meta?.page ?? 1, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!meta?.hasNext || isFetching}
+                onClick={() => setPage((p) => p + 1)}
+                className="cursor-pointer text-xs"
+              >
+                {t("next")} <ChevronRight size={13} />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* In-App Document Preview Modal */}
+      <Dialog open={Boolean(previewDoc)} onOpenChange={(open) => { if (!open) closePreview(); }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-6">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                {previewDoc && getFileIcon(previewDoc.mimeType, previewDoc.fileName)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="truncate text-base font-semibold">
+                  {previewDoc?.fileName}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                  Uploaded by {previewDoc ? uploaderName(previewDoc.uploadedBy) : ""} &bull;{" "}
+                  {previewDoc ? formatBytes(previewDoc.fileSize) : ""} &bull;{" "}
+                  {previewDoc?.createdAt
+                    ? new Date(previewDoc.createdAt).toLocaleDateString(locale, {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : ""}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {/* Modal Preview Body */}
+          <div className="flex-1 overflow-auto rounded-lg border border-border bg-muted/20 min-h-[300px] max-h-[550px] flex items-center justify-center p-3">
+            {previewLoading ? (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 size={28} className="animate-spin text-primary" />
+                <span className="text-xs text-muted-foreground">{t("loading")}</span>
+              </div>
+            ) : previewUrl ? (
+              previewDoc?.mimeType?.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif)$/i.test(previewDoc?.fileName || "") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewUrl}
+                  alt={previewDoc?.fileName || "Preview"}
+                  className="max-h-full max-w-full rounded-md object-contain shadow-sm"
+                />
+              ) : previewDoc?.mimeType === "application/pdf" || previewDoc?.fileName.toLowerCase().endsWith(".pdf") ? (
+                <iframe
+                  src={previewUrl}
+                  className="h-full w-full min-h-[480px] rounded-md border-0"
+                  title={previewDoc?.fileName || "PDF Viewer"}
+                />
+              ) : (
+                <div className="text-center p-6 space-y-3">
+                  <FileText size={48} className="mx-auto text-muted-foreground" />
+                  <p className="text-sm font-medium text-foreground">{previewDoc?.fileName}</p>
+                  <p className="text-xs text-muted-foreground">{t("cannotPreview")}</p>
+                  <Button
+                    size="sm"
+                    onClick={() => previewDoc && handleDownload(previewDoc)}
+                    className="mt-2 cursor-pointer"
+                  >
+                    <Download size={14} className="mr-1.5" /> {t("download")}
+                  </Button>
+                </div>
+              )
+            ) : (
+              <div className="text-center text-xs text-muted-foreground">
+                {t("loadFailedDesc")}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex items-center justify-between sm:justify-between w-full pt-2">
+            <div>
+              {previewUrl && (
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-medium"
+                >
+                  <ExternalLink size={13} /> {t("openInNewTab")}
+                </a>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={closePreview} className="cursor-pointer">
+                {t("cancel")}
+              </Button>
+              {previewDoc && (
+                <Button
+                  size="sm"
+                  onClick={() => handleDownload(previewDoc)}
+                  className="cursor-pointer"
+                >
+                  <Download size={14} className="mr-1.5" /> {t("download")}
+                </Button>
+              )}
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={Boolean(deleteDoc)} onOpenChange={(open) => { if (!open) setDeleteDoc(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive flex items-center gap-2">
+              <Trash2 size={18} /> {t("deleteConfirmTitle")}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground pt-2">
+              {t("deleteConfirmDesc")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteDoc && (
+            <div className="rounded-lg border border-border bg-muted/30 p-3 flex items-center gap-2.5">
+              {getFileIcon(deleteDoc.mimeType, deleteDoc.fileName)}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-foreground truncate">{deleteDoc.fileName}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {formatBytes(deleteDoc.fileSize)} &bull; Uploaded by {uploaderName(deleteDoc.uploadedBy)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDeleteDoc(null)}
+              disabled={deleteMutation.isPending}
+              className="cursor-pointer"
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => deleteDoc && deleteMutation.mutate(deleteDoc.id)}
+              disabled={deleteMutation.isPending}
+              className="cursor-pointer"
+            >
+              {deleteMutation.isPending && <Loader2 size={14} className="mr-1.5 animate-spin" />}
+              {t("delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

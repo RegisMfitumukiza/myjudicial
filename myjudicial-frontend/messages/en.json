@@ -452,7 +452,20 @@
       "previous": "Previous",
       "next": "Next",
       "pageOf": "Page {page} of {total}",
-      "totalCount": "{count} documents"
+      "totalCount": "{count} documents",
+      "clearFilters": "Clear filters",
+      "totalDocuments": "Total Documents",
+      "storageUsed": "Storage on Page",
+      "confidentialFiles": "Confidential",
+      "delete": "Delete",
+      "deleteConfirmTitle": "Delete Document?",
+      "deleteConfirmDesc": "Are you sure you want to delete this document? It will be permanently removed from platform storage. This action cannot be undone.",
+      "deleteSuccess": "Document deleted successfully",
+      "deleteFailed": "Failed to delete document",
+      "preview": "Document Preview",
+      "openInNewTab": "Open in new tab",
+      "cannotPreview": "Preview is not available for this file type. Please download to view.",
+      "cancel": "Cancel"
     },
     "settings": {
       "title": "Admin Settings",

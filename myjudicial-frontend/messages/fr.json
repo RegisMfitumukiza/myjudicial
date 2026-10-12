@@ -318,7 +318,20 @@
       "previous": "Précédent",
       "next": "Suivant",
       "pageOf": "Page {page} sur {total}",
-      "totalCount": "{count} documents"
+      "totalCount": "{count} documents",
+      "clearFilters": "Effacer les filtres",
+      "totalDocuments": "Total des documents",
+      "storageUsed": "Stockage sur la page",
+      "confidentialFiles": "Confidentiel",
+      "delete": "Supprimer",
+      "deleteConfirmTitle": "Supprimer le document ?",
+      "deleteConfirmDesc": "Êtes-vous sûr de vouloir supprimer ce document ? Il sera définitivement retiré du stockage de la plateforme. Cette action est irréversible.",
+      "deleteSuccess": "Document supprimé avec succès",
+      "deleteFailed": "Échec de la suppression du document",
+      "preview": "Aperçu du document",
+      "openInNewTab": "Ouvrir dans un nouvel onglet",
+      "cannotPreview": "L'aperçu n'est pas disponible pour ce type de fichier. Veuillez le télécharger pour le consulter.",
+      "cancel": "Annuler"
     },
     "settings": {
       "title": "Paramètres administrateur",

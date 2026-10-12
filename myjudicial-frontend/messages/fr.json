@@ -214,6 +214,7 @@
       "expert": "Expert",
       "service": "Service",
       "scheduled": "Planifié",
+      "status": "Statut",
       "amount": "Montant",
       "noBookingsSearch": "Aucune réservation ne correspond à votre recherche.",
       "noBookings": "Aucune réservation trouvée.",

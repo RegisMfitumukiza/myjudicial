@@ -348,6 +348,7 @@
       "expert": "Expert",
       "service": "Service",
       "scheduled": "Scheduled",
+      "status": "Status",
       "amount": "Amount",
       "noBookingsSearch": "No bookings match your search.",
       "noBookings": "No bookings found.",

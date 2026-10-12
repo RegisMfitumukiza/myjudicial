@@ -150,7 +150,7 @@ export function TableSkeleton({
   rows?: number;
 }) {
   return (
-    <div className="space-y-6 p-6 lg:p-8 animate-pulse" aria-hidden="true">
+    <div className="space-y-6 p-2 min-[360px]:p-4 sm:p-6 lg:p-8 animate-pulse" aria-hidden="true">
       {/* Header */}
       <div className="space-y-2">
         <Skeleton className="h-7 w-48 rounded-lg" />
@@ -159,10 +159,10 @@ export function TableSkeleton({
 
       {/* Stats Cards Row */}
       {statsCount > 0 && (
-        <div className={cn("grid gap-4", {
+        <div className={cn("grid gap-3 sm:gap-4", {
           "grid-cols-2 sm:grid-cols-4": statsCount === 4,
           "grid-cols-2 md:grid-cols-5": statsCount === 5,
-          "grid-cols-2 md:grid-cols-4 lg:grid-cols-6": statsCount >= 6,
+          "grid-cols-1 min-[340px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-6": statsCount >= 6,
         })}>
           {Array.from({ length: statsCount }).map((_, i) => (
             <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-2">

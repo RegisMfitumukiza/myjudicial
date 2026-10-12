@@ -147,7 +147,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
   return (
-    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+    <div className="space-y-6 p-2 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={booking.service?.name ?? t("consultation")}
         description={`Booking ${booking.id}`}
@@ -326,13 +326,13 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t("allStatus")}</span>
+              <span className="text-muted-foreground">{t("status")}</span>
               <span className="font-semibold text-foreground">{booking.paymentStatus}</span>
             </div>
             {booking.paymentReferenceId && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t("reference")}</span>
-                <span className="font-medium text-foreground text-xs">{booking.paymentReferenceId}</span>
+                <span className="font-medium text-foreground text-xs break-all">{booking.paymentReferenceId}</span>
               </div>
             )}
             {booking.platformFee != null && (

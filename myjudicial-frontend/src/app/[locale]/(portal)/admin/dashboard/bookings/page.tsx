@@ -264,7 +264,7 @@ export default function BookingsPage() {
 
   if (bookingsError) {
     return (
-      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+      <div className="space-y-6 p-2 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
         <ErrorState
           title={t("failedToLoad")}
@@ -275,7 +275,7 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+    <div className="space-y-6 p-2 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
@@ -283,120 +283,135 @@ export default function BookingsPage() {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 min-[340px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
           <StatCard
             label={t("total")}
-            value={stats.totalBookings.toLocaleString()}
+            value={(stats.totalBookings ?? 0).toLocaleString()}
             icon={Calendar}
           />
           <StatCard
             label={t("pending")}
-            value={stats.counts.PENDING.toLocaleString()}
+            value={(stats.counts?.PENDING ?? 0).toLocaleString()}
             icon={Clock}
           />
           <StatCard
             label={t("confirmed")}
-            value={stats.counts.CONFIRMED.toLocaleString()}
+            value={(stats.counts?.CONFIRMED ?? 0).toLocaleString()}
             icon={CheckCheck}
           />
           <StatCard
             label={t("completed")}
-            value={stats.counts.COMPLETED.toLocaleString()}
+            value={(stats.counts?.COMPLETED ?? 0).toLocaleString()}
             icon={CheckCheck}
           />
           <StatCard
             label={t("revenue")}
-            value={formatCurrency(stats.totalRevenue)}
+            value={formatCurrency(stats.totalRevenue ?? 0)}
             icon={DollarSign}
           />
           <StatCard
             label={t("refunded")}
-            value={stats.counts.REFUNDED.toLocaleString()}
+            value={(stats.counts?.REFUNDED ?? 0).toLocaleString()}
             icon={DollarSign}
           />
         </div>
       )}
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-3.5 sm:p-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <Filter size={16} className="shrink-0 text-muted-foreground" />
-              <Select
-                value={statusFilter}
-                onValueChange={(value) => {
-                  setStatusFilter(value as StatusFilter);
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="w-full min-[360px]:w-[140px] flex-1 min-w-[120px]">
-                  <SelectValue placeholder={t("allStatus")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">{t("allStatus")}</SelectItem>
-                  <SelectItem value="PENDING">{t("pending")}</SelectItem>
-                  <SelectItem value="CONFIRMED">{t("confirmed")}</SelectItem>
-                  <SelectItem value="ACTIVE">{t("active")}</SelectItem>
-                  <SelectItem value="COMPLETED">{t("completed")}</SelectItem>
-                  <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
-                  <SelectItem value="REFUNDED">{t("refunded")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                placeholder={t("from")}
-                className="w-full min-[360px]:w-auto flex-1 min-w-[120px]"
-              />
-              <Input
-                type="date"
-                value={dateTo}
-                onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                placeholder={t("to")}
-                className="w-full min-[360px]:w-auto flex-1 min-w-[120px]"
-              />
+      <Card className="min-w-0">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between min-w-0">
+            <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center flex-wrap gap-2 sm:gap-3 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 w-full min-[480px]:w-auto">
+                <Filter size={16} className="shrink-0 text-muted-foreground" />
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value) => {
+                    setStatusFilter(value as StatusFilter);
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-full min-[480px]:w-[145px] min-w-0 text-xs sm:text-sm">
+                    <SelectValue placeholder={t("allStatus")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                    <SelectItem value="PENDING">{t("pending")}</SelectItem>
+                    <SelectItem value="CONFIRMED">{t("confirmed")}</SelectItem>
+                    <SelectItem value="ACTIVE">{t("active")}</SelectItem>
+                    <SelectItem value="COMPLETED">{t("completed")}</SelectItem>
+                    <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
+                    <SelectItem value="REFUNDED">{t("refunded")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-1 min-[280px]:grid-cols-2 min-[480px]:flex min-[480px]:items-center gap-2 w-full min-[480px]:w-auto min-w-0">
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                  placeholder={t("from")}
+                  aria-label={t("from")}
+                  className="w-full min-[480px]:w-[135px] min-w-0 text-xs sm:text-sm"
+                />
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                  placeholder={t("to")}
+                  aria-label={t("to")}
+                  className="w-full min-[480px]:w-[135px] min-w-0 text-xs sm:text-sm"
+                />
+              </div>
             </div>
-            <Input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("searchPlaceholder")}
-              className="lg:w-64"
-            />
+            <div className="w-full lg:w-64 min-w-0">
+              <div className="relative w-full min-w-0">
+                <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("searchPlaceholder")}
+                  className="w-full pl-8 min-w-0 text-xs sm:text-sm"
+                />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Bookings Table */}
-      <Card>
+      <Card className="min-w-0">
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-6 py-3">
-            <span className="text-sm font-medium text-foreground">{t("selected", { n: selectedIds.size, count: selectedIds.size })}</span>
-            {bulkCompletable.length > 0 && (
-              <Button
-                size="xs"
-                variant="default"
-                onClick={handleBulkComplete}
-                disabled={completeMutation.isPending}
-              >
-                <CheckCheck size={14} />
-                {t("completeN", { n: bulkCompletable.length, count: bulkCompletable.length })}
-              </Button>
-            )}
-            {!isBookingFirst && bulkRefundable.length > 0 && (
-              <Button
-                size="xs"
-                variant="destructive"
-                onClick={handleBulkRefund}
-                disabled={refundMutation.isPending}
-              >
-                <DollarSign size={14} />
-                {t("refundN", { n: bulkRefundable.length, count: bulkRefundable.length })}
-              </Button>
-            )}
+          <div className="flex flex-wrap items-center gap-2 border-b border-border bg-primary/5 px-3 sm:px-6 py-2.5 sm:py-3 min-w-0">
+            <span className="text-xs sm:text-sm font-medium text-foreground shrink-0">
+              {t("selected", { n: selectedIds.size, count: selectedIds.size })}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {bulkCompletable.length > 0 && (
+                <Button
+                  size="xs"
+                  variant="default"
+                  onClick={handleBulkComplete}
+                  disabled={completeMutation.isPending}
+                >
+                  <CheckCheck size={14} />
+                  {t("completeN", { n: bulkCompletable.length, count: bulkCompletable.length })}
+                </Button>
+              )}
+              {!isBookingFirst && bulkRefundable.length > 0 && (
+                <Button
+                  size="xs"
+                  variant="destructive"
+                  onClick={handleBulkRefund}
+                  disabled={refundMutation.isPending}
+                >
+                  <DollarSign size={14} />
+                  {t("refundN", { n: bulkRefundable.length, count: bulkRefundable.length })}
+                </Button>
+              )}
+            </div>
             <Button
               size="xs"
               variant="ghost"
@@ -407,11 +422,11 @@ export default function BookingsPage() {
             </Button>
           </div>
         )}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto min-w-0 w-full">
+          <table className="w-full text-left text-sm min-w-[720px]">
             <thead>
               <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="w-10 px-4 py-4">
+                <th className="w-10 px-3 sm:px-4 py-3 sm:py-4">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -419,13 +434,13 @@ export default function BookingsPage() {
                     className="h-4 w-4 rounded border-input"
                   />
                 </th>
-                <th className="px-6 py-4">{t("client")}</th>
-                <th className="px-6 py-4">{t("expert")}</th>
-                <th className="px-6 py-4">{t("service")}</th>
-                <th className="px-6 py-4">{t("scheduled")}</th>
-                <th className="px-6 py-4">{t("status")}</th>
-                <th className="px-6 py-4">{t("amount")}</th>
-                <th className="px-6 py-4 text-right"></th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("client")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("expert")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("service")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("scheduled")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("status")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4">{t("amount")}</th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -446,7 +461,7 @@ export default function BookingsPage() {
 
                   return (
                     <tr key={booking.id} className="transition-colors hover:bg-muted/50">
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-3 sm:py-4">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(booking.id)}
@@ -455,7 +470,7 @@ export default function BookingsPage() {
                           className="h-4 w-4 rounded border-input disabled:opacity-30"
                         />
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <Link href={`/admin/dashboard/bookings/${booking.id}`} className="flex items-center gap-2">
                           <UserAvatar
                             src={(booking.citizen as any)?.avatarUrl}
@@ -463,13 +478,13 @@ export default function BookingsPage() {
                             size="xs"
                             className="h-8 w-8 text-xs shrink-0"
                           />
-                          <div>
-                            <p className="font-medium text-foreground hover:underline">{name}</p>
-                            <p className="text-xs text-muted-foreground">{booking.citizen?.email ?? "—"}</p>
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground hover:underline truncate">{name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{booking.citizen?.email ?? "—"}</p>
                           </div>
                         </Link>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center gap-2">
                           <ExpertAvatar
                             src={(booking.expert as any)?.profileImageUrl}
@@ -477,34 +492,34 @@ export default function BookingsPage() {
                             size="xs"
                             className="h-8 w-8 text-xs shrink-0"
                           />
-                          <div>
-                            <p className="font-medium text-foreground">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground truncate">
                               {booking.expert?.displayName ?? "Expert"}
                             </p>
-                            <p className="text-xs text-muted-foreground">{booking.expert?.user?.email ?? "—"}</p>
+                            <p className="text-xs text-muted-foreground truncate">{booking.expert?.user?.email ?? "—"}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <p className="font-medium text-foreground">
                           {booking.service?.name ?? t("consultation")}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <div>
                           <p className="text-foreground">{formatDateTime(booking.scheduledStart)}</p>
                           <p className="text-xs text-muted-foreground">{t("to")} {formatDateTime(booking.scheduledEnd)}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <StatusBadge tone={getStatusTone(booking.status)}>
                           {getStatusLabel(booking.status)}
                         </StatusBadge>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <span className="font-medium text-foreground">{formatCurrency(amount, currency)}</span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           {booking.status === "ACTIVE" && (
                             <Button
@@ -540,8 +555,8 @@ export default function BookingsPage() {
 
         {/* Pagination */}
         {pagination && pagination.pages > 1 && (
-          <div className="flex items-center justify-between border-t border-border px-6 py-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 sm:px-6 py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {pagination.page} / {pagination.pages} ({pagination.total})
             </p>
             <div className="flex items-center gap-2">
@@ -581,7 +596,7 @@ export default function BookingsPage() {
               <label className="text-sm font-medium text-foreground">
                 {t("refundAmount")} *
               </label>
-              <div className="mt-2 flex gap-3">
+              <div className="mt-2 flex flex-col min-[400px]:flex-row gap-2 sm:gap-3">
                 {(() => {
                   if (!selectedBooking) return null;
                   const { amount, currency } = bookingAmount(selectedBooking);
@@ -589,14 +604,14 @@ export default function BookingsPage() {
                     <>
                       <Button
                         variant={refundPercentage === 50 ? "default" : "outline"}
-                        className="flex-1"
+                        className="flex-1 text-xs sm:text-sm"
                         onClick={() => setRefundPercentage(50)}
                       >
                         50% ({formatCurrency(amount * 0.5, currency)})
                       </Button>
                       <Button
                         variant={refundPercentage === 100 ? "default" : "outline"}
-                        className="flex-1"
+                        className="flex-1 text-xs sm:text-sm"
                         onClick={() => setRefundPercentage(100)}
                       >
                         100% ({formatCurrency(amount, currency)})
@@ -657,17 +672,17 @@ export default function BookingsPage() {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-foreground">{t("refundAmount")} *</label>
-              <div className="mt-2 flex gap-3">
+              <div className="mt-2 flex flex-col min-[400px]:flex-row gap-2 sm:gap-3">
                 <Button
                   variant={bulkRefundPercentage === 50 ? "default" : "outline"}
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   onClick={() => setBulkRefundPercentage(50)}
                 >
                   50%
                 </Button>
                 <Button
                   variant={bulkRefundPercentage === 100 ? "default" : "outline"}
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   onClick={() => setBulkRefundPercentage(100)}
                 >
                   100%

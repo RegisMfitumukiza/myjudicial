@@ -4,6 +4,8 @@ import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { UserStatus, Role, LegalSpecialty } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { getSignedDownloadUrl, resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { logger } from "../../shared/utils/logger.js";
+import { sendVerificationResetToDraftEmail } from "../../infrastructure/email/email.service.js";
 
 
 interface ListFilters {
@@ -539,8 +541,8 @@ export const AdminExpertService = {
   },
 
   /**
-   * Reset a REJECTED expert back to DRAFT so they can resubmit verification.
-   * Also marks their latest verification record as EXPIRED to remove it from the queue.
+   * Reset an expert (REJECTED, PENDING_VERIFICATION, or SUSPENDED) back to DRAFT so they can resubmit verification.
+   * Also marks their active/pending verification records as EXPIRED, audits the action, and notifies & emails the expert.
    */
   async resetToResubmit(expertId: string, adminId: string) {
     const user = await this.resolveExpertUser(expertId);
@@ -549,9 +551,11 @@ export const AdminExpertService = {
       throw new NotFoundError("Expert");
     }
 
-    if (user.expertProfile.status !== "REJECTED") {
+    const currentStatus = user.expertProfile.status;
+    const allowedStatuses = ["REJECTED", "PENDING_VERIFICATION", "SUSPENDED"];
+    if (!allowedStatuses.includes(currentStatus)) {
       throw new ValidationError(
-        `Cannot reset expert with status: ${user.expertProfile.status}. Only REJECTED experts can be reset.`
+        `Cannot reset expert with status: ${currentStatus}. Only REJECTED, PENDING_VERIFICATION, or SUSPENDED experts can be reset.`
       );
     }
 
@@ -565,17 +569,25 @@ export const AdminExpertService = {
         data: { status: "DRAFT" },
       });
 
-      // Mark the most recent REJECTED verification as EXPIRED so it's removed from queue
-      const latestVerification = await tx.expertVerification.findFirst({
-        where: { expertId: profileId, status: "REJECTED" },
-        orderBy: { createdAt: "desc" },
+      // Mark all pending or rejected verifications as EXPIRED so they are archived out of active review queues
+      await tx.expertVerification.updateMany({
+        where: {
+          expertId: profileId,
+          status: { in: ["PENDING", "REJECTED"] },
+        },
+        data: { status: "EXPIRED" },
       });
-      if (latestVerification) {
-        await tx.expertVerification.update({
-          where: { id: latestVerification.id },
-          data: { status: "EXPIRED" },
-        });
-      }
+
+      // Admin Action log
+      await tx.adminAction.create({
+        data: {
+          adminUserId: adminId,
+          expertId: profileId,
+          action: "RESET_TO_DRAFT",
+          reason: "Admin reset expert profile to DRAFT for document resubmission",
+          metadata: { expertUserId: userId, previousStatus: currentStatus },
+        },
+      });
 
       // Audit log
       await tx.auditLog.create({
@@ -584,15 +596,31 @@ export const AdminExpertService = {
           action: "UPDATE",
           resource: "EXPERT",
           resourceId: userId,
-          metadata: { action: "reset_to_resubmit", previousStatus: "REJECTED" } as any,
+          description: `Reset expert profile from ${currentStatus} to DRAFT`,
+          metadata: { action: "reset_to_resubmit", previousStatus: currentStatus } as any,
         },
       });
+    });
+
+    // Send email to the expert requesting document resubmission
+    try {
+      const expertLanguage = (user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+      await sendVerificationResetToDraftEmail(user.email, user.firstName || "Expert", expertLanguage);
+    } catch (emailError) {
+      logger.error("Failed to send reset-to-draft email to expert", { userId, error: emailError });
+    }
+
+    logger.info("Expert reset to DRAFT and notified", {
+      expertId: profileId,
+      userId,
+      adminId,
+      previousStatus: currentStatus,
     });
 
     return {
       id: userId,
       expertStatus: "DRAFT",
-      message: "Expert profile reset to DRAFT. Expert can now resubmit verification documents.",
+      message: "Expert profile has been reset to DRAFT. An email was sent to the expert to re-upload documents.",
     };
   },
 

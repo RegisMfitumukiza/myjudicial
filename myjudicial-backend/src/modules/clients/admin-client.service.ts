@@ -310,9 +310,9 @@ export const AdminClientService = {
             service: {
               select: {
                 id: true,
-                title: true,
-                durationMinutes: true,
-                price: true,
+                name: true,
+                durationMin: true,
+                flatFee: true,
                 currency: true,
               },
             },
@@ -387,12 +387,15 @@ export const AdminClientService = {
     // Transform bookings with resolved expert avatar URLs
     const recentBookings = await Promise.all(
       user.citizenBookings.map(async (b) => {
-        const expertAvatarUrl = await resolveStorageUrl(
-          b.expert.profileImageObjectKey || b.expert.user.avatarObjectKey
-        );
-        const expertName =
-          [b.expert.user.firstName, b.expert.user.lastName].filter(Boolean).join(" ") ||
-          b.expert.user.email;
+        const expertAvatarUrl = b.expert
+          ? await resolveStorageUrl(
+              b.expert.profileImageObjectKey || b.expert.user?.avatarObjectKey
+            )
+          : null;
+        const expertName = b.expert?.user
+          ? [b.expert.user.firstName, b.expert.user.lastName].filter(Boolean).join(" ") ||
+            b.expert.user.email
+          : "Expert";
 
         return {
           id: b.id,
@@ -404,17 +407,17 @@ export const AdminClientService = {
           cancellationReason: b.cancellationReason,
           meetingRoomId: b.meetingRoomId,
           expert: {
-            id: b.expert.id,
+            id: b.expert?.id ?? b.expertId,
             fullName: expertName,
             avatarUrl: expertAvatarUrl,
-            specialties: b.expert.specialties,
+            specialties: b.expert?.specialties ?? [],
           },
           service: b.service
             ? {
                 id: b.service.id,
-                title: b.service.title,
-                durationMinutes: b.service.durationMinutes,
-                price: Number(b.service.price),
+                title: b.service.name,
+                durationMinutes: b.service.durationMin,
+                price: Number(b.service.flatFee),
                 currency: b.service.currency,
               }
             : null,
@@ -433,9 +436,10 @@ export const AdminClientService = {
     );
 
     const recentReviews = user.reviews.map((r) => {
-      const expertName =
-        [r.expert.user.firstName, r.expert.user.lastName].filter(Boolean).join(" ") ||
-        "Expert";
+      const expertName = r.expert?.user
+        ? [r.expert.user.firstName, r.expert.user.lastName].filter(Boolean).join(" ") ||
+          "Expert"
+        : "Expert";
 
       return {
         id: r.id,

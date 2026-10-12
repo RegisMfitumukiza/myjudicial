@@ -218,12 +218,16 @@ function FileDropZone({
   attached,
   onAttach,
   onRemove,
+  isOnFile = false,
+  isRequired = true,
 }: {
   label: string;
   accept: string;
   attached: AttachedFile | null;
   onAttach: (file: File) => void;
   onRemove: () => void;
+  isOnFile?: boolean;
+  isRequired?: boolean;
 }) {
   const t = useTranslations("expertDashboard_verification");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -244,9 +248,21 @@ function FileDropZone({
 
   return (
     <div className="space-y-2 min-w-0">
-      <Label className="text-xs font-medium">
-        {label} <span className="text-destructive">*</span>
-      </Label>
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
+        <Label className="text-xs font-medium">
+          {label} {isRequired && <span className="text-destructive">*</span>}
+        </Label>
+        {isOnFile && !attached && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 px-2 py-0.5 text-[10px] font-medium border border-green-200 dark:border-green-800">
+            <CheckCircle size={10} /> {t("docAlreadyOnFile")}
+          </span>
+        )}
+        {!isOnFile && isRequired && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-[10px] font-medium border border-amber-200 dark:border-amber-800">
+            <AlertTriangle size={10} /> {t("docMissingActionRequired")}
+          </span>
+        )}
+      </div>
 
       {attached ? (
         <div className="relative flex items-center gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3 sm:p-3.5 min-w-0 overflow-hidden">
@@ -301,15 +317,20 @@ function FileDropZone({
             "flex cursor-pointer flex-col items-center justify-center text-center gap-2 rounded-xl border-2 border-dashed p-5 sm:p-6 transition-colors hover:border-primary/50 hover:bg-primary/5 min-h-[120px] sm:min-h-[135px]",
             dragging
               ? "border-primary bg-primary/5"
+              : isOnFile
+              ? "border-green-300 dark:border-green-800/60 bg-green-50/20 dark:bg-green-950/10"
               : "border-border bg-muted/40"
           )}
         >
-          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className={cn(
+            "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full text-primary",
+            isOnFile ? "bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400" : "bg-primary/10"
+          )}>
             <Upload size={18} />
           </div>
           <p className="text-xs text-muted-foreground">
             <span className="font-semibold text-primary">
-              {t("clickToUpload")}
+              {isOnFile ? t("docReplacePrompt") : t("clickToUpload")}
             </span>{" "}
             {t("orDragDrop")}
           </p>
@@ -435,10 +456,27 @@ export default function VerificationPage() {
     : rawReason;
 
   const lastVerif = compliance?.lastVerification as any;
+  const hasIdentityOnFile = Boolean(lastVerif?.identityDocumentObjectKey);
+  const hasBarCertOnFile = Boolean(lastVerif?.barCertificateObjectKey);
+
   const isMissingDocsInPending =
     status === "PENDING_VERIFICATION" &&
     Boolean(lastVerif) &&
-    (!lastVerif.identityDocumentObjectKey || !lastVerif.barCertificateObjectKey);
+    (!hasIdentityOnFile || !hasBarCertOnFile);
+
+  const isIdentityMissing = isMissingDocsInPending && !hasIdentityOnFile;
+  const isBarCertMissing = isMissingDocsInPending && !hasBarCertOnFile;
+
+  const dynamicMissingDocsDesc = (() => {
+    if (!isMissingDocsInPending) return "";
+    if (isIdentityMissing && isBarCertMissing) {
+      return t("statusMissingDocsDescBoth");
+    }
+    if (isIdentityMissing) {
+      return t("statusMissingDocsDescId");
+    }
+    return t("statusMissingDocsDescBar");
+  })();
 
   const canSubmit =
     status !== "VERIFIED" &&
@@ -615,7 +653,7 @@ export default function VerificationPage() {
                   {isCorrectionsRequired
                     ? t("statusCorrectionsDesc")
                     : isMissingDocsInPending
-                    ? t("statusMissingDocsDesc")
+                    ? dynamicMissingDocsDesc
                     : t(style.descriptionKey)}
                 </p>
 
@@ -682,6 +720,8 @@ export default function VerificationPage() {
                   label={t("labelId")}
                   accept="image/jpeg,image/png,image/webp,application/pdf"
                   attached={identityFile}
+                  isOnFile={hasIdentityOnFile}
+                  isRequired={!hasIdentityOnFile}
                   onAttach={(f) => {
                     if (identityFile?.preview) {
                       try { URL.revokeObjectURL(identityFile.preview); } catch {}
@@ -701,6 +741,8 @@ export default function VerificationPage() {
                   label={t("labelBarCert")}
                   accept="image/*,.pdf"
                   attached={certificateFile}
+                  isOnFile={hasBarCertOnFile}
+                  isRequired={!hasBarCertOnFile}
                   onAttach={(f) => {
                     if (certificateFile?.preview) {
                       try { URL.revokeObjectURL(certificateFile.preview); } catch {}

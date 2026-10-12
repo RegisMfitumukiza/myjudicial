@@ -389,6 +389,7 @@ export default function ExpertDetailPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [showCorrectionsForm, setShowCorrectionsForm] = useState(false);
   const [correctionNotes, setCorrectionNotes] = useState("");
+  const [showResetModal, setShowResetModal] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
 
   const handleCopyId = (id: string) => {
@@ -460,7 +461,11 @@ export default function ExpertDetailPage() {
 
   const resetMutation = useMutation({
     mutationFn: () => resetToDraft(expertId),
-    onSuccess: () => { invalidate(); toast.success(t("resetSuccess")); },
+    onSuccess: () => {
+      invalidate();
+      setShowResetModal(false);
+      toast.success(t("resetSuccess"));
+    },
     onError: () => toast.error(t("actionFailed")),
   });
 
@@ -903,14 +908,14 @@ export default function ExpertDetailPage() {
                     )}
 
                     {/* Reset to Draft */}
-                    {isRejected && !showRejectForm && !showCorrectionsForm && (
+                    {!isVerified && !showRejectForm && !showCorrectionsForm && (
                       <Button
                         variant="outline"
-                        onClick={() => resetMutation.mutate()}
+                        onClick={() => setShowResetModal(true)}
                         disabled={resetMutation.isPending}
                         id="btn-reset-to-draft"
                       >
-                        <RefreshCw size={14} /> {t("resetToDraft")}
+                        <RefreshCw size={14} className={resetMutation.isPending ? "animate-spin" : ""} /> {t("resetToDraft")}
                       </Button>
                     )}
                   </div>
@@ -1039,6 +1044,38 @@ export default function ExpertDetailPage() {
               disabled={suspendReason.trim().length < 10 || suspendMutation.isPending}
             >
               {t("confirmSuspension")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* RESET TO DRAFT MODAL */}
+      <Dialog open={showResetModal} onOpenChange={setShowResetModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("resetConfirmTitle")}</DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-muted-foreground">
+              {t("resetConfirmDesc")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowResetModal(false)}
+              disabled={resetMutation.isPending}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => resetMutation.mutate()}
+              disabled={resetMutation.isPending}
+              id="btn-confirm-reset-to-draft"
+            >
+              {resetMutation.isPending && (
+                <RefreshCw size={14} className="mr-1.5 animate-spin" />
+              )}
+              {t("resetConfirmBtn")}
             </Button>
           </DialogFooter>
         </DialogContent>

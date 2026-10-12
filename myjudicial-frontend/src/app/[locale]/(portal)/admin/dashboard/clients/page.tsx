@@ -22,6 +22,12 @@ import {
   ChevronRight,
   TrendingUp,
   Sparkles,
+  Copy,
+  Check,
+  Shield,
+  RefreshCw,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
@@ -34,7 +40,7 @@ import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/stat
 import { TableSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
-import { UserAvatar } from "@/shared/components/expert-avatar";
+import { UserAvatar, ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -240,6 +246,21 @@ const getBookingTone = (status: string): StatusTone => {
   }
 };
 
+const getPaymentTone = (status: string): StatusTone => {
+  switch (status) {
+    case "PAID":
+      return "active";
+    case "PENDING":
+      return "pending";
+    case "REFUNDED":
+      return "info";
+    case "FAILED":
+      return "destructive";
+    default:
+      return "neutral";
+  }
+};
+
 export default function AdminClientsPage() {
   const t = useTranslations("admin.clients");
   const locale = useLocale();
@@ -257,6 +278,16 @@ export default function AdminClientsPage() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState<AccountStatus>("ACTIVE");
   const [actionReason, setActionReason] = useState("");
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopy = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    toast.success(t("copied"));
+    setTimeout(() => {
+      setCopiedKey(null);
+    }, 2000);
+  };
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "—";
@@ -312,7 +343,13 @@ export default function AdminClientsPage() {
       }),
   });
 
-  const { data: detailData, isLoading: loadingDetail } = useQuery({
+  const {
+    data: detailData,
+    isLoading: loadingDetail,
+    isError: isDetailError,
+    error: detailError,
+    refetch: refetchDetail,
+  } = useQuery({
     queryKey: ["admin-client-detail", detailClientId],
     queryFn: () => fetchClientDetail(detailClientId!),
     enabled: Boolean(detailClientId),
@@ -350,8 +387,8 @@ export default function AdminClientsPage() {
   const stats = statsData?.data;
   const activeClientDetail = detailData?.data;
 
-  const handleOpenStatusModal = (client: ClientListItem) => {
-    setSelectedClientForStatus(client);
+  const handleOpenStatusModal = (client: ClientListItem | { id: string; fullName: string; accountStatus: AccountStatus }) => {
+    setSelectedClientForStatus(client as ClientListItem);
     setNewStatus(client.accountStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE");
     setShowStatusModal(true);
   };
@@ -584,10 +621,10 @@ export default function AdminClientsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 gap-1.5 text-xs"
+                            className="h-8 gap-1.5 text-xs shadow-none"
                             onClick={() => setDetailClientId(client.id)}
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                             {t("viewDetails")}
                           </Button>
                           <Button
@@ -624,7 +661,7 @@ export default function AdminClientsPage() {
         {/* Pagination Footer */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4 text-sm">
-            <span className="text-muted-foreground">
+            <span className="text-muted-foreground text-xs sm:text-sm">
               {pagination.total} {t("totalClients").toLowerCase()} · Page {page} of{" "}
               {pagination.totalPages}
             </span>
@@ -657,200 +694,428 @@ export default function AdminClientsPage() {
         open={Boolean(detailClientId)}
         onOpenChange={(open) => !open && setDetailClientId(null)}
       >
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-          {loadingDetail || !activeClientDetail ? (
-            <div className="py-12 flex justify-center">
-              <span className="text-sm text-muted-foreground">{t("loading")}</span>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto p-0 sm:p-0 gap-0">
+          {loadingDetail ? (
+            /* Industrial Skeleton Loading */
+            <div className="p-6 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-full bg-muted animate-pulse shrink-0" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-5 w-48 bg-muted animate-pulse rounded" />
+                  <div className="h-4 w-64 bg-muted animate-pulse rounded" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-20 bg-muted/50 rounded-xl animate-pulse" />
+                ))}
+              </div>
+              <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-24 bg-muted/40 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            </div>
+          ) : isDetailError || !activeClientDetail ? (
+            /* Error State with Retry */
+            <div className="p-8 text-center space-y-4">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <AlertCircle className="h-6 w-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("failedToLoad")}
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                  {detailError instanceof Error ? detailError.message : t("unknownError")}
+                </p>
+              </div>
+              <div className="flex justify-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDetailClientId(null)}
+                >
+                  {t("close")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => refetchDetail()}
+                  className="gap-1.5"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  {t("retry")}
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <DialogHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              {/* Header Banner */}
+              <div className="p-6 pb-5 border-b border-border bg-card">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="flex items-start gap-4">
                     <UserAvatar
                       src={activeClientDetail.avatarUrl}
                       name={activeClientDetail.fullName}
                       size="lg"
                     />
-                    <div>
-                      <DialogTitle className="text-xl font-bold">
-                        {activeClientDetail.fullName}
-                      </DialogTitle>
-                      <DialogDescription className="flex items-center gap-2 text-xs">
-                        <span>{activeClientDetail.email}</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
+                          {activeClientDetail.fullName}
+                        </DialogTitle>
+                        <StatusBadge tone={getStatusTone(activeClientDetail.accountStatus)}>
+                          {t(activeClientDetail.accountStatus.toLowerCase() as any)}
+                        </StatusBadge>
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground uppercase">
+                          {activeClientDetail.preferredLanguage || "EN"}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(activeClientDetail.email, "email")}
+                          className="flex items-center gap-1.5 hover:text-foreground transition-colors group"
+                        >
+                          <Mail size={13} className="text-muted-foreground" />
+                          <span>{activeClientDetail.email}</span>
+                          {copiedKey === "email" ? (
+                            <Check size={11} className="text-emerald-500" />
+                          ) : (
+                            <Copy size={11} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                          )}
+                        </button>
+
                         {activeClientDetail.phone && (
-                          <>
-                            <span>•</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(activeClientDetail.phone!, "phone")}
+                            className="flex items-center gap-1.5 hover:text-foreground transition-colors group"
+                          >
+                            <Phone size={13} className="text-muted-foreground" />
                             <span>{activeClientDetail.phone}</span>
-                          </>
+                            {copiedKey === "phone" ? (
+                              <Check size={11} className="text-emerald-500" />
+                            ) : (
+                              <Copy size={11} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                          </button>
                         )}
-                      </DialogDescription>
+                      </div>
+
+                      <p className="text-[11px] text-muted-foreground/80 pt-1">
+                        {t("joinedOn")} {formatDate(activeClientDetail.createdAt)} · {t("lastLogin")}:{" "}
+                        {activeClientDetail.lastLoginAt ? formatDate(activeClientDetail.lastLoginAt) : t("never")}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <StatusBadge tone={getStatusTone(activeClientDetail.accountStatus)}>
-                      {t(activeClientDetail.accountStatus.toLowerCase() as any)}
-                    </StatusBadge>
+
+                  {/* Header Action: Quick Moderation Toggle */}
+                  <div className="flex items-center gap-2 self-start">
+                    <Button
+                      variant={activeClientDetail.accountStatus === "ACTIVE" ? "outline" : "default"}
+                      size="sm"
+                      className={`text-xs h-8 gap-1.5 ${
+                        activeClientDetail.accountStatus === "ACTIVE"
+                          ? "hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                          : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      }`}
+                      onClick={() => handleOpenStatusModal(activeClientDetail)}
+                    >
+                      {activeClientDetail.accountStatus === "ACTIVE" ? (
+                        <>
+                          <Ban className="h-3.5 w-3.5" />
+                          {t("suspendAccount")}
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          {t("activateAccount")}
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
-              </DialogHeader>
 
-              {/* Client Metrics Strip */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/40 p-4 rounded-xl border border-border">
-                <div>
-                  <span className="text-xs text-muted-foreground block">{t("totalBookings")}</span>
-                  <span className="text-lg font-bold text-foreground">
-                    {activeClientDetail.metrics.totalBookings}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted-foreground block">{t("completedBookings")}</span>
-                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                    {activeClientDetail.metrics.completedBookings}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted-foreground block">{t("totalSpent")}</span>
-                  <span className="text-lg font-bold text-foreground">
-                    {formatCurrency(
-                      activeClientDetail.metrics.totalSpent,
-                      activeClientDetail.metrics.currency
-                    )}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted-foreground block">{t("avgOrderValue")}</span>
-                  <span className="text-lg font-bold text-foreground">
-                    {formatCurrency(
-                      activeClientDetail.metrics.averageOrderValue,
-                      activeClientDetail.metrics.currency
-                    )}
-                  </span>
+                {/* Lifetime Metrics Strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                    <span className="text-[11px] font-medium text-muted-foreground block uppercase tracking-wider">
+                      {t("totalBookings")}
+                    </span>
+                    <span className="text-xl font-bold text-foreground mt-0.5 block">
+                      {activeClientDetail.metrics.totalBookings}
+                    </span>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      {activeClientDetail.metrics.completedBookings} {t("completedBookings").toLowerCase()}
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                    <span className="text-[11px] font-medium text-muted-foreground block uppercase tracking-wider">
+                      {t("totalSpent")}
+                    </span>
+                    <span className="text-xl font-bold text-foreground mt-0.5 block">
+                      {formatCurrency(activeClientDetail.metrics.totalSpent, activeClientDetail.metrics.currency)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {activeClientDetail.metrics.totalSpent > 0 ? t("buyers") : "0 bookings paid"}
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                    <span className="text-[11px] font-medium text-muted-foreground block uppercase tracking-wider">
+                      {t("avgOrderValue")}
+                    </span>
+                    <span className="text-xl font-bold text-foreground mt-0.5 block">
+                      {formatCurrency(activeClientDetail.metrics.averageOrderValue, activeClientDetail.metrics.currency)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Per consultation
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                    <span className="text-[11px] font-medium text-muted-foreground block uppercase tracking-wider">
+                      {t("reviews")}
+                    </span>
+                    <span className="text-xl font-bold text-foreground mt-0.5 block">
+                      {activeClientDetail.metrics.reviewsSubmitted}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Submitted feedback
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Detail Tabs */}
-              <Tabs defaultValue="bookings" className="w-full">
-                <TabsList className="w-full justify-start border-b border-border bg-transparent p-0 rounded-none">
-                  <TabsTrigger
-                    value="bookings"
-                    className="gap-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none"
-                  >
-                    <Calendar className="h-4 w-4" />
-                    {t("bookingHistory")} ({activeClientDetail.recentBookings.length})
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="reviews"
-                    className="gap-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none"
-                  >
-                    <Star className="h-4 w-4" />
-                    {t("reviews")} ({activeClientDetail.recentReviews.length})
-                  </TabsTrigger>
-                </TabsList>
+              {/* Detail Content Tabs */}
+              <div className="p-6">
+                <Tabs defaultValue="bookings" className="w-full">
+                  <TabsList className="w-full justify-start border-b border-border bg-transparent p-0 rounded-none gap-2">
+                    <TabsTrigger
+                      value="bookings"
+                      className="gap-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-3 pb-2 text-xs font-medium"
+                    >
+                      <Calendar className="h-3.5 w-3.5" />
+                      {t("bookingHistory")} ({activeClientDetail.recentBookings.length})
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="reviews"
+                      className="gap-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-3 pb-2 text-xs font-medium"
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                      {t("reviews")} ({activeClientDetail.recentReviews.length})
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="account"
+                      className="gap-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-3 pb-2 text-xs font-medium"
+                    >
+                      <Shield className="h-3.5 w-3.5" />
+                      {t("accountInfo")}
+                    </TabsTrigger>
+                  </TabsList>
 
-                {/* Bookings List */}
-                <TabsContent value="bookings" className="mt-4 space-y-3">
-                  {activeClientDetail.recentBookings.length === 0 ? (
-                    <div className="py-8 text-center text-sm text-muted-foreground">
-                      {t("noBookingsDesc")}
-                    </div>
-                  ) : (
-                    activeClientDetail.recentBookings.map((b) => (
-                      <div
-                        key={b.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-lg border border-border bg-card gap-3"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">
-                              {b.service?.title || "Legal Consultation"}
-                            </span>
-                            <StatusBadge tone={getBookingTone(b.status)}>
-                              {b.status}
-                            </StatusBadge>
+                  {/* Bookings Tab */}
+                  <TabsContent value="bookings" className="mt-4 space-y-3">
+                    {activeClientDetail.recentBookings.length === 0 ? (
+                      <div className="py-10 text-center space-y-2 rounded-xl border border-dashed border-border p-6 bg-muted/10">
+                        <Calendar className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                        <p className="text-sm font-medium text-foreground">{t("noBookings")}</p>
+                        <p className="text-xs text-muted-foreground max-w-sm mx-auto">{t("noBookingsDesc")}</p>
+                      </div>
+                    ) : (
+                      activeClientDetail.recentBookings.map((b) => (
+                        <div
+                          key={b.id}
+                          className="p-4 rounded-xl border border-border bg-card space-y-3 shadow-xs hover:border-border/80 transition-colors"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-semibold text-sm text-foreground">
+                                {b.service?.title || "Legal Consultation"}
+                              </span>
+                              <StatusBadge tone={getBookingTone(b.status)}>
+                                {b.status}
+                              </StatusBadge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-foreground">
+                                {b.payment
+                                  ? formatCurrency(b.payment.amount, b.payment.currency)
+                                  : b.service
+                                  ? formatCurrency(b.service.price, b.service.currency)
+                                  : "—"}
+                              </span>
+                              <StatusBadge tone={getPaymentTone(b.paymentStatus)}>
+                                {b.paymentStatus}
+                              </StatusBadge>
+                            </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                            <span>
-                              {t("expert")}: {b.expert.fullName}
-                            </span>
-                            <span>•</span>
-                            <span>{formatDateTime(b.scheduledStart)}</span>
+
+                          <div className="flex flex-wrap items-center justify-between gap-y-2 pt-1 border-t border-border/60 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <ExpertAvatar
+                                src={b.expert.avatarUrl}
+                                name={b.expert.fullName}
+                                size="xs"
+                              />
+                              <span className="font-medium text-foreground">{b.expert.fullName}</span>
+                              {b.expert.specialties && b.expert.specialties.length > 0 && (
+                                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                                  {b.expert.specialties[0]}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <span className="flex items-center gap-1">
+                                <Clock size={12} />
+                                {formatDateTime(b.scheduledStart)}
+                              </span>
+                              {b.payment?.txRef && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(b.payment!.txRef, b.id)}
+                                  className="text-[11px] font-mono text-muted-foreground hover:text-foreground flex items-center gap-1"
+                                  title="Copy Transaction Ref"
+                                >
+                                  <span>{b.payment.txRef.slice(0, 10)}...</span>
+                                  {copiedKey === b.id ? (
+                                    <Check size={10} className="text-emerald-500" />
+                                  ) : (
+                                    <Copy size={10} />
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           </div>
+
+                          {b.cancellationReason && (
+                            <div className="rounded-lg bg-destructive/5 border border-destructive/20 p-2.5 text-xs text-destructive">
+                              <span className="font-semibold">{t("cancellationReason")}:</span>{" "}
+                              {b.cancellationReason}
+                            </div>
+                          )}
                         </div>
-                        <div className="text-left sm:text-right">
-                          <span className="font-semibold text-foreground block">
-                            {b.payment
-                              ? formatCurrency(b.payment.amount, b.payment.currency)
-                              : b.service
-                              ? formatCurrency(b.service.price, b.service.currency)
-                              : "—"}
+                      ))
+                    )}
+                  </TabsContent>
+
+                  {/* Reviews Tab */}
+                  <TabsContent value="reviews" className="mt-4 space-y-3">
+                    {activeClientDetail.recentReviews.length === 0 ? (
+                      <div className="py-10 text-center space-y-2 rounded-xl border border-dashed border-border p-6 bg-muted/10">
+                        <Star className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                        <p className="text-sm font-medium text-foreground">No Reviews</p>
+                        <p className="text-xs text-muted-foreground max-w-sm mx-auto">{t("noReviewsDesc")}</p>
+                      </div>
+                    ) : (
+                      activeClientDetail.recentReviews.map((rev) => (
+                        <div
+                          key={rev.id}
+                          className="p-4 rounded-xl border border-border bg-card space-y-2 shadow-xs"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-amber-500">
+                              {Array.from({ length: 5 }).map((_, idx) => (
+                                <Star
+                                  key={idx}
+                                  className={`h-4 w-4 ${
+                                    idx < rev.rating
+                                      ? "fill-amber-500 text-amber-500"
+                                      : "text-muted-foreground/30"
+                                  }`}
+                                />
+                              ))}
+                              <span className="ml-1 text-xs font-semibold text-foreground">
+                                {rev.rating} / 5
+                              </span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(rev.createdAt)}
+                            </span>
+                          </div>
+                          {rev.title && (
+                            <p className="font-semibold text-sm text-foreground">{rev.title}</p>
+                          )}
+                          {rev.comment && (
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              {rev.comment}
+                            </p>
+                          )}
+                          <span className="text-[11px] text-muted-foreground pt-1 block border-t border-border/50">
+                            Reviewed Advocate: <strong className="text-foreground">{rev.expertName}</strong>
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            {b.paymentStatus}
-                          </span>
+                        </div>
+                      ))
+                    )}
+                  </TabsContent>
+
+                  {/* Account Info Tab */}
+                  <TabsContent value="account" className="mt-4 space-y-3">
+                    <div className="rounded-xl border border-border bg-card p-4 space-y-3 text-xs">
+                      <div className="flex items-center justify-between py-1.5 border-b border-border/60">
+                        <span className="text-muted-foreground">{t("clientId")}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono">{activeClientDetail.id}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(activeClientDetail.id, "clientId")}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            {copiedKey === "clientId" ? (
+                              <Check size={12} className="text-emerald-500" />
+                            ) : (
+                              <Copy size={12} />
+                            )}
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </TabsContent>
 
-                {/* Reviews List */}
-                <TabsContent value="reviews" className="mt-4 space-y-3">
-                  {activeClientDetail.recentReviews.length === 0 ? (
-                    <div className="py-8 text-center text-sm text-muted-foreground">
-                      {t("noReviewsDesc")}
-                    </div>
-                  ) : (
-                    activeClientDetail.recentReviews.map((rev) => (
-                      <div
-                        key={rev.id}
-                        className="p-3.5 rounded-lg border border-border bg-card space-y-2"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-amber-500">
-                            {Array.from({ length: 5 }).map((_, idx) => (
-                              <Star
-                                key={idx}
-                                className={`h-4 w-4 ${
-                                  idx < rev.rating
-                                    ? "fill-amber-500 text-amber-500"
-                                    : "text-muted-foreground/30"
-                                }`}
-                              />
-                            ))}
-                            <span className="ml-1 text-xs font-semibold text-foreground">
-                              {rev.rating} / 5
-                            </span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(rev.createdAt)}
-                          </span>
-                        </div>
-                        {rev.title && (
-                          <p className="font-medium text-sm text-foreground">{rev.title}</p>
-                        )}
-                        {rev.comment && (
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {rev.comment}
-                          </p>
-                        )}
-                        <span className="text-[11px] text-muted-foreground block">
-                          Reviewed: {rev.expertName}
+                      <div className="flex items-center justify-between py-1.5 border-b border-border/60">
+                        <span className="text-muted-foreground">Email Address</span>
+                        <span className="font-medium text-foreground">{activeClientDetail.email}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-1.5 border-b border-border/60">
+                        <span className="text-muted-foreground">Phone Number</span>
+                        <span className="font-medium text-foreground">{activeClientDetail.phone || "—"}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-1.5 border-b border-border/60">
+                        <span className="text-muted-foreground">{t("language")}</span>
+                        <span className="font-medium uppercase text-foreground">{activeClientDetail.preferredLanguage || "en"}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-1.5 border-b border-border/60">
+                        <span className="text-muted-foreground">{t("joined")}</span>
+                        <span className="text-foreground">{formatDateTime(activeClientDetail.createdAt)}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between py-1.5">
+                        <span className="text-muted-foreground">{t("lastLogin")}</span>
+                        <span className="text-foreground">
+                          {activeClientDetail.lastLoginAt ? formatDateTime(activeClientDetail.lastLoginAt) : t("never")}
                         </span>
                       </div>
-                    ))
-                  )}
-                </TabsContent>
-              </Tabs>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
 
-              <DialogFooter className="border-t border-border pt-4">
+              {/* Modal Footer */}
+              <div className="border-t border-border p-4 px-6 flex justify-end bg-card">
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => setDetailClientId(null)}
                 >
                   {t("close")}
                 </Button>
-              </DialogFooter>
+              </div>
             </div>
           )}
         </DialogContent>

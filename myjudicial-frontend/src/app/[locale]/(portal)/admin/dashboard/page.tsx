@@ -21,6 +21,7 @@ import { ErrorState } from "@/shared/components/dashboard";
 import { EmptyState } from "@/shared/components/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { formatRWF } from "@/lib/utils";
 
 function resolveValue(obj: any, path: string[]): number | null {
@@ -259,9 +260,12 @@ export default function AdminDashboardPage() {
               <ul className="divide-y divide-border">
                 {recentVerifications.map((record) => (
                   <li key={record.id} className="flex items-center gap-3 py-3 min-w-0">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-                    </div>
+                    <ExpertAvatar
+                      src={(record.expert as any)?.profileImageUrl}
+                      name={record.expert?.displayName ?? "Expert"}
+                      size="xs"
+                      className="h-8 w-8 text-xs shrink-0"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground">
                         {record.expert?.displayName ?? "Expert"}

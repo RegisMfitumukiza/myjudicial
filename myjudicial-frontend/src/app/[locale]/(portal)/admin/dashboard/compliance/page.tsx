@@ -21,6 +21,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Select,
@@ -60,6 +61,7 @@ interface Expert {
   fullName: string;
   email: string;
   phone: string | null;
+  profileImageUrl?: string | null;
   barNumber: string | null;
   credentialsExpiry: string | null;
   daysUntilExpiry?: number | null;
@@ -189,9 +191,11 @@ function ExpertTable({
                   <tr key={expert.id} className="transition-colors hover:bg-muted/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          {expert.fullName.charAt(0).toUpperCase()}
-                        </div>
+                        <ExpertAvatar
+                          src={expert.profileImageUrl}
+                          name={expert.fullName}
+                          size="sm"
+                        />
                         <div>
                           <p className="font-medium text-foreground">{expert.fullName}</p>
                           <p className="text-xs text-muted-foreground">{expert.email}</p>

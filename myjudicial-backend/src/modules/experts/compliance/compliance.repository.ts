@@ -15,6 +15,8 @@ export const ComplianceRepository = {
           select: {
             id: true,
             status: true,
+            identityDocumentObjectKey: true,
+            barCertificateObjectKey: true,
             rejectionReason: true,
             reviewedAt: true,
             createdAt: true,

@@ -46,8 +46,8 @@ export const BookingRepository = {
     return db.booking.findUnique({
       where: { id },
       include: {
-        citizen: { select: { id: true, email: true, firstName: true, lastName: true, phone: true } },
-        expert: { select: { id: true, displayName: true, officeAddress: true, city: true, user: { select: { id: true, email: true, phone: true } } } },
+        citizen: { select: { id: true, email: true, firstName: true, lastName: true, phone: true, avatarObjectKey: true } },
+        expert: { select: { id: true, displayName: true, officeAddress: true, city: true, profileImageObjectKey: true, user: { select: { id: true, email: true, phone: true, avatarObjectKey: true } } } },
         service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
         review: true,
       },
@@ -85,8 +85,8 @@ export const BookingRepository = {
         skip,
         take: filters.limit,
         include: {
-          citizen: { select: { id: true, email: true, firstName: true, lastName: true } },
-          expert: { select: { id: true, displayName: true, officeAddress: true, city: true } },
+          citizen: { select: { id: true, email: true, firstName: true, lastName: true, avatarObjectKey: true } },
+          expert: { select: { id: true, displayName: true, officeAddress: true, city: true, profileImageObjectKey: true } },
           service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
           payment: {
             select: {

@@ -30,6 +30,7 @@ import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/stat
 import { TableSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { ExpertAvatar, UserAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -456,9 +457,12 @@ export default function BookingsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <Link href={`/admin/dashboard/bookings/${booking.id}`} className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs text-primary">
-                            {name.charAt(0).toUpperCase()}
-                          </div>
+                          <UserAvatar
+                            src={(booking.citizen as any)?.avatarUrl}
+                            name={name}
+                            size="xs"
+                            className="h-8 w-8 text-xs shrink-0"
+                          />
                           <div>
                             <p className="font-medium text-foreground hover:underline">{name}</p>
                             <p className="text-xs text-muted-foreground">{booking.citizen?.email ?? "—"}</p>
@@ -467,9 +471,12 @@ export default function BookingsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-xs text-success">
-                            {(booking.expert?.displayName ?? "E").charAt(0).toUpperCase()}
-                          </div>
+                          <ExpertAvatar
+                            src={(booking.expert as any)?.profileImageUrl}
+                            name={booking.expert?.displayName ?? "Expert"}
+                            size="xs"
+                            className="h-8 w-8 text-xs shrink-0"
+                          />
                           <div>
                             <p className="font-medium text-foreground">
                               {booking.expert?.displayName ?? "Expert"}

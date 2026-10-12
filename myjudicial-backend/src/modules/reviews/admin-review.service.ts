@@ -3,6 +3,7 @@ import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
 import { ReviewStatus, ReviewReportReason } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
+import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 interface ListFilters {
   status?: ReviewStatus;
@@ -113,10 +114,10 @@ export const AdminReviewService = {
         orderBy,
         include: {
           citizen: {
-            select: { id: true, firstName: true, lastName: true, email: true },
+            select: { id: true, firstName: true, lastName: true, email: true, avatarObjectKey: true },
           },
           expert: {
-            select: { id: true, displayName: true, barNumber: true },
+            select: { id: true, displayName: true, barNumber: true, profileImageObjectKey: true },
           },
           booking: {
             select: { id: true, scheduledStart: true },
@@ -129,8 +130,25 @@ export const AdminReviewService = {
       prisma.review.count({ where }),
     ]);
 
+    const transformedReviews = await Promise.all(
+      reviews.map(async (review) => {
+        const expertAvatarUrl = await resolveStorageUrl(review.expert?.profileImageObjectKey);
+        const clientAvatarUrl = await resolveStorageUrl(review.citizen?.avatarObjectKey);
+        const expertName = review.expert?.displayName ?? "Expert";
+        const clientName = [review.citizen?.firstName, review.citizen?.lastName].filter(Boolean).join(" ") || review.citizen?.email || "Client";
+
+        return {
+          ...review,
+          expertName,
+          clientName,
+          expertAvatarUrl,
+          clientAvatarUrl,
+        };
+      })
+    );
+
     return {
-      reviews,
+      reviews: transformedReviews,
       pagination: {
         page,
         limit,

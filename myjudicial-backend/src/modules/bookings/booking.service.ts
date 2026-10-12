@@ -34,6 +34,7 @@ import { NotificationRepository } from "../notifications/notification.repository
 import { ScheduleSettingsRepository } from "../experts/schedule-settings/schedule-settings.repository.js";
 import { OverridesRepository } from "../experts/availability-overrides/overrides.repository.js";
 import type { TimeBlock } from "../experts/availability/time-blocks.types.js";
+import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 
 // Fallback buffer time if settings not configured (Phase 1 compatibility)
@@ -954,8 +955,20 @@ export const BookingService = {
       limit: filters.limit,
     });
 
+    const transformedBookings = await Promise.all(
+      result.data.map(async (b: any) => {
+        const citizenAvatarUrl = await resolveStorageUrl(b.citizen?.avatarObjectKey);
+        const expertAvatarUrl = await resolveStorageUrl(b.expert?.profileImageObjectKey);
+        return {
+          ...b,
+          citizen: b.citizen ? { ...b.citizen, avatarUrl: citizenAvatarUrl } : b.citizen,
+          expert: b.expert ? { ...b.expert, profileImageUrl: expertAvatarUrl } : b.expert,
+        };
+      })
+    );
+
     return {
-      bookings: result.data,
+      bookings: transformedBookings,
       pagination: result.pagination,
     };
   },

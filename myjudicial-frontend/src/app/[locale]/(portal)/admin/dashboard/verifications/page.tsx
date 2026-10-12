@@ -11,6 +11,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Select,
@@ -46,6 +47,7 @@ interface VerificationRecord {
     city: string | null;
     status: string;
     profileImageObjectKey: string | null;
+    profileImageUrl?: string | null;
     user: {
       id?: string;
       email: string;
@@ -191,10 +193,20 @@ export default function AdminVerificationsPage() {
                       className="border-b border-border text-[12px] text-foreground last:border-0 transition-colors hover:bg-muted/50"
                     >
                       <td className="px-5 py-3.5">
-                        <p className="font-semibold text-foreground">
-                          {record.expert.displayName}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">{record.expert.user.email}</p>
+                        <div className="flex items-center gap-3">
+                          <ExpertAvatar
+                            src={record.expert.profileImageUrl}
+                            name={record.expert.displayName}
+                            size="xs"
+                            className="h-8 w-8 text-xs"
+                          />
+                          <div>
+                            <p className="font-semibold text-foreground">
+                              {record.expert.displayName}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">{record.expert.user.email}</p>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-5 py-3.5 text-muted-foreground">
                         {record.expert.primarySpecialty.replace(/_/g, " ")}

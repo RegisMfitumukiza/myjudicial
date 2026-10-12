@@ -34,8 +34,12 @@ export const VerificationService = {
       throw new ConflictError("Profile is already verified.");
     }
     const existingPending = await AdminVerificationRepo.findByExpertId(profile.id);
-    if (existingPending?.status === "PENDING") {
-      throw new ConflictError("A verification request is already pending.");
+    if (
+      existingPending?.status === "PENDING" &&
+      existingPending.identityDocumentObjectKey &&
+      existingPending.barCertificateObjectKey
+    ) {
+      throw new ConflictError("A verification request is already pending review.");
     }
 
     // Guard: profile must be complete enough for meaningful verification
@@ -163,13 +167,29 @@ export const VerificationService = {
       });
     }
 
-    // Create verification request in the admin queue
-    const verification = await AdminVerificationRepo.create(
-      profile.id,
-      identityDocumentKey,
-      barCertificateKey,
-      additionalKeys
-    );
+    // Create or update verification request in the admin queue
+    let verification;
+    if (existingPending?.status === "PENDING") {
+      verification = await prisma.expertVerification.update({
+        where: { id: existingPending.id },
+        data: {
+          identityDocumentObjectKey: identityDocumentKey || existingPending.identityDocumentObjectKey,
+          barCertificateObjectKey: barCertificateKey || existingPending.barCertificateObjectKey,
+          additionalDocumentKeys: [
+            ...(existingPending.additionalDocumentKeys ?? []),
+            ...additionalKeys,
+          ],
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      verification = await AdminVerificationRepo.create(
+        profile.id,
+        identityDocumentKey,
+        barCertificateKey,
+        additionalKeys
+      );
+    }
 
     // Notify all admins about the new verification request
     try {

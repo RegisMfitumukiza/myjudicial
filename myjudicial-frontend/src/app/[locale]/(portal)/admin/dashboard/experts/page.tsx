@@ -24,6 +24,7 @@ import { StatusBadge } from "@/shared/components/dashboard/status-badge";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Card } from "@/shared/components/ui/card";
@@ -61,6 +62,7 @@ interface Expert {
   credentialsExpiry: string | null;
   yearsOfExperience: number | null;
   profileImage: string | null;
+  profileImageUrl?: string | null;
   officeAddress: string | null;
   verificationId: string | null;
   verificationStatus: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED" | null;
@@ -382,9 +384,12 @@ export default function ExpertsPage() {
                   {/* Expert */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        {expert.fullName.charAt(0).toUpperCase()}
-                      </div>
+                      <ExpertAvatar
+                        src={expert.profileImageUrl}
+                        name={expert.fullName}
+                        size="xs"
+                        className="h-9 w-9 text-xs"
+                      />
                       <div>
                         <p className="font-medium text-foreground">{expert.fullName}</p>
                         <p className="text-xs text-muted-foreground">{expert.email}</p>

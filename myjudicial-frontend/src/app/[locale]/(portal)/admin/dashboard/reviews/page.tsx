@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/shared/components/ui/button";
+import { ExpertAvatar, UserAvatar } from "@/shared/components/expert-avatar";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Select,
@@ -42,6 +43,8 @@ interface Review {
   id: string;
   expertName: string;
   clientName: string;
+  expertAvatarUrl?: string | null;
+  clientAvatarUrl?: string | null;
   rating: number;
   comment: string;
   createdAt: string;
@@ -220,17 +223,23 @@ export default function ReviewsPage() {
                     <tr key={review.id} className="transition-colors hover:bg-muted/50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs text-primary">
-                            {(review.expertName ?? "E").charAt(0).toUpperCase()}
-                          </div>
+                          <ExpertAvatar
+                            src={review.expertAvatarUrl}
+                            name={review.expertName ?? "Expert"}
+                            size="xs"
+                            className="h-8 w-8 text-xs shrink-0"
+                          />
                           <p className="font-medium text-foreground">{review.expertName ?? "Expert"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs text-primary">
-                            {(review.clientName ?? "C").charAt(0).toUpperCase()}
-                          </div>
+                          <UserAvatar
+                            src={review.clientAvatarUrl}
+                            name={review.clientName ?? "Client"}
+                            size="xs"
+                            className="h-8 w-8 text-xs shrink-0"
+                          />
                           <p className="font-medium text-foreground">{review.clientName ?? "Client"}</p>
                         </div>
                       </td>

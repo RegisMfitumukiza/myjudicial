@@ -39,6 +39,7 @@ import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import {
@@ -89,6 +90,7 @@ interface ExpertDetail {
   lastLoginAt?: string;
   verified: boolean;
   profileImageObjectKey?: string | null;
+  profileImageUrl?: string | null;
   verificationId: string | null;
   verificationStatus: VerificationStatus;
   rejectionReason?: string | null;
@@ -545,9 +547,12 @@ export default function ExpertDetailPage() {
             <CardContent className="pt-5">
               {/* Avatar / Photo */}
               <div className="flex flex-col items-center gap-3 pb-5 border-b border-border">
-                <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-primary-foreground shadow">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
+                <ExpertAvatar
+                  src={expert.profileImageUrl}
+                  name={displayName}
+                  size="2xl"
+                  className="shadow ring-4 ring-background"
+                />
                 <div className="text-center">
                   <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
                   {expert.displayName && expert.displayName !== displayName && (

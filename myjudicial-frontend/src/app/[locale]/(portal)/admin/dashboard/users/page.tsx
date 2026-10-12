@@ -23,6 +23,7 @@ import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/stat
 import { TableSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
+import { UserAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -66,6 +67,7 @@ interface User {
   phone: string | null;
   role: UserRole;
   accountStatus: AccountStatus;
+  avatarUrl?: string | null;
   emailVerified: boolean;
   createdAt: string;
   lastLoginAt: string | null;
@@ -401,9 +403,11 @@ export default function UsersPage() {
                   <tr key={user.id} className="transition-colors hover:bg-muted/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          {user.fullName.charAt(0).toUpperCase()}
-                        </div>
+                        <UserAvatar
+                          src={user.avatarUrl}
+                          name={user.fullName}
+                          size="sm"
+                        />
                         <div>
                           <p className="font-medium text-foreground">{user.fullName}</p>
                           <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">

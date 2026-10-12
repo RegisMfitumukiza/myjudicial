@@ -2,7 +2,7 @@
 
 import { LanguageSettingsCard } from "@/features/settings/components/language-settings-card";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
-import { Palette, User, Bell, Star, ArrowRight, FileText, CreditCard } from "lucide-react";
+import { Palette, User, Bell, Star, ArrowRight, FileText, CreditCard, Shield } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
@@ -122,6 +122,22 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">{t("shortcuts.reviews")}</p>
                   <p className="text-xs text-muted-foreground">{t("shortcuts.reviewsDesc")}</p>
+                </div>
+              </div>
+              <ArrowRight size={16} className="text-muted-foreground" />
+            </Link>
+
+            <Link
+              href="/client/dashboard/security"
+              className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Shield size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{t("shortcuts.security")}</p>
+                  <p className="text-xs text-muted-foreground">{t("shortcuts.securityDesc")}</p>
                 </div>
               </div>
               <ArrowRight size={16} className="text-muted-foreground" />

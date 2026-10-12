@@ -1999,7 +1999,8 @@
     "myReviews": "Mes avis",
     "saved": "Enregistrés",
     "documents": "Documents",
-    "payments": "Paiements & Facturation"
+    "payments": "Paiements & Facturation",
+    "security": "Sécurité"
   },
   "public": {
     "bookings": {
@@ -3621,7 +3622,9 @@
         "notifications": "Notifications",
         "notificationsDesc": "Activité & alertes",
         "reviews": "Mes avis",
-        "reviewsDesc": "Retours passés"
+        "reviewsDesc": "Retours passés",
+        "security": "Sécurité & Appareils",
+        "securityDesc": "Sessions actives & sécurité"
       }
     },
     "consultations": {

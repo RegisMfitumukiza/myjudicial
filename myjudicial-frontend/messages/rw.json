@@ -1999,7 +1999,8 @@
     "myReviews": "Ibitekerezo byanjye",
     "saved": "Ababitswe",
     "documents": "Inyandiko",
-    "payments": "Kwishyura & Inyemezabwishyu"
+    "payments": "Kwishyura & Inyemezabwishyu",
+    "security": "Umutekano"
   },
   "public": {
     "bookings": {
@@ -3621,7 +3622,9 @@
         "notifications": "Amakuru",
         "notificationsDesc": "Ibikorwa & impuruza",
         "reviews": "Ibitekerezo byanjye",
-        "reviewsDesc": "Ibitekerezo byabanjirije"
+        "reviewsDesc": "Ibitekerezo byabanjirije",
+        "security": "Umutekano & Ibikoresho",
+        "securityDesc": "Ibikoresho bikoreshwa & umutekano"
       }
     },
     "consultations": {

@@ -1532,7 +1532,9 @@
         "notifications": "Notifications",
         "notificationsDesc": "Activity & alerts",
         "reviews": "My Reviews",
-        "reviewsDesc": "Past feedback"
+        "reviewsDesc": "Past feedback",
+        "security": "Security & Devices",
+        "securityDesc": "Active sessions & security"
       }
     },
     "consultations": {
@@ -5344,7 +5346,8 @@
     "myReviews": "My Reviews",
     "saved": "Saved",
     "documents": "Documents",
-    "payments": "Payments & Billing"
+    "payments": "Payments & Billing",
+    "security": "Security"
   },
   "partnersPage": {
     "meta": {

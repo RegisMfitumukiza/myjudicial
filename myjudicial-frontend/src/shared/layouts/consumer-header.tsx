@@ -19,6 +19,7 @@ import {
   Sparkles,
   FileText,
   CreditCard,
+  Shield,
 } from "lucide-react";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
@@ -204,6 +205,14 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                       >
                         <Settings size={16} className="text-gray-400" />
                         {t("settings")}
+                      </Link>
+                      <Link
+                        href="/client/dashboard/security"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        <Shield size={16} className="text-gray-400" />
+                        {t("security")}
                       </Link>
                     </div>
 

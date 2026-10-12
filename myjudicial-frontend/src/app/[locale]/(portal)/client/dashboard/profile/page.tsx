@@ -163,6 +163,18 @@ export default async function ProfilePage({
                     <button className="text-sm font-semibold text-brand-dark hover:underline">{t("security.enable")}</button>
                   </div>
                 </div>
+                <div className="flex items-center justify-between px-4 py-3.5">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Active Devices & Sessions</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">View logged-in devices and remember me status</p>
+                  </div>
+                  <Link
+                    href="/client/dashboard/security"
+                    className="text-sm font-semibold text-brand-dark dark:text-brand-blue hover:underline"
+                  >
+                    Manage &rarr;
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

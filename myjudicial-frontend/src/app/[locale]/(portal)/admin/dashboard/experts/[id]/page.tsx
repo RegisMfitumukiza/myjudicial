@@ -30,6 +30,8 @@ import {
   BadgeCheck,
   TrendingUp,
   Hash,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
@@ -375,6 +377,14 @@ export default function ExpertDetailPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [showCorrectionsForm, setShowCorrectionsForm] = useState(false);
   const [correctionNotes, setCorrectionNotes] = useState("");
+  const [copiedId, setCopiedId] = useState(false);
+
+  const handleCopyId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedId(true);
+    toast.success(t("copied"));
+    setTimeout(() => setCopiedId(false), 2000);
+  };
 
   const expertStatusLabel = (status: ExpertStatus): string => {
     switch (status) {
@@ -682,9 +692,25 @@ export default function ExpertDetailPage() {
                     <span>{new Date(expert.lastLoginAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between">
-                  <span>ID</span>
-                  <span className="font-mono">{expert.id.slice(0, 8)}...</span>
+                <div className="flex items-center justify-between pt-0.5">
+                  <span title="Internal platform user account identifier (UUID)">{t("expertId")}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="font-mono text-[11px] bg-muted/80 text-foreground px-1.5 py-0.5 rounded border border-border"
+                      title={expert.id}
+                    >
+                      {expert.id.slice(0, 8)}...
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyId(expert.id)}
+                      className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-muted cursor-pointer"
+                      title={expert.id}
+                      aria-label={t("expertId")}
+                    >
+                      {copiedId ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </CardContent>

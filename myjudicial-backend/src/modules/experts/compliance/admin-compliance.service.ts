@@ -2,6 +2,7 @@ import { getErrorMessage } from "../../../shared/utils/i18n-messages.js";
 import { prisma } from "../../../infrastructure/database/prisma.js";
 import { NotFoundError, ValidationError } from "../../../shared/errors/index.js";
 import { UserStatus, Role } from "../../../generated/prisma/client.js";
+import { resolveStorageUrl } from "../../../infrastructure/storage/oci-object-storage.service.js";
 
 
 interface PaginationOptions {
@@ -119,6 +120,7 @@ export const AdminComplianceService = {
               lastName: true,
               email: true,
               phone: true,
+              avatarObjectKey: true,
             },
           },
         },
@@ -129,22 +131,30 @@ export const AdminComplianceService = {
       prisma.expertProfile.count({ where }),
     ]);
 
-    const transformedExperts = experts.map((expert) => ({
-      id: expert.user.id,
-      expertId: expert.id,
-      fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.user.email,
-      email: expert.user.email,
-      phone: expert.user.phone,
-      barNumber: expert.barNumber,
-      credentialsExpiry: expert.credentialsExpiry,
-      daysUntilExpiry: expert.credentialsExpiry
-        ? Math.floor(
-            (expert.credentialsExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-          )
-        : null,
-      specialties: expert.specialties,
-      officeAddress: expert.officeAddress,
-    }));
+    const transformedExperts = await Promise.all(
+      experts.map(async (expert) => {
+        const photoKey = expert.profileImageObjectKey || expert.user.avatarObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+
+        return {
+          id: expert.user.id,
+          expertId: expert.id,
+          fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.user.email,
+          email: expert.user.email,
+          phone: expert.user.phone,
+          profileImageUrl,
+          barNumber: expert.barNumber,
+          credentialsExpiry: expert.credentialsExpiry,
+          daysUntilExpiry: expert.credentialsExpiry
+            ? Math.floor(
+                (expert.credentialsExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+              )
+            : null,
+          specialties: expert.specialties,
+          officeAddress: expert.officeAddress,
+        };
+      })
+    );
 
     const totalPages = Math.ceil(total / limit);
     return {
@@ -187,6 +197,7 @@ export const AdminComplianceService = {
               email: true,
               phone: true,
               status: true,
+              avatarObjectKey: true,
             },
           },
         },
@@ -197,23 +208,31 @@ export const AdminComplianceService = {
       prisma.expertProfile.count({ where }),
     ]);
 
-    const transformedExperts = experts.map((expert) => ({
-      id: expert.user.id,
-      expertId: expert.id,
-      fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.user.email,
-      email: expert.user.email,
-      phone: expert.user.phone,
-      accountStatus: expert.user.status,
-      barNumber: expert.barNumber,
-      credentialsExpiry: expert.credentialsExpiry,
-      daysOverdue: expert.credentialsExpiry
-        ? Math.floor(
-            (now.getTime() - expert.credentialsExpiry.getTime()) / (1000 * 60 * 60 * 24)
-          )
-        : null,
-      specialties: expert.specialties,
-      officeAddress: expert.officeAddress,
-    }));
+    const transformedExperts = await Promise.all(
+      experts.map(async (expert) => {
+        const photoKey = expert.profileImageObjectKey || expert.user.avatarObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+
+        return {
+          id: expert.user.id,
+          expertId: expert.id,
+          fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.user.email,
+          email: expert.user.email,
+          phone: expert.user.phone,
+          profileImageUrl,
+          accountStatus: expert.user.status,
+          barNumber: expert.barNumber,
+          credentialsExpiry: expert.credentialsExpiry,
+          daysOverdue: expert.credentialsExpiry
+            ? Math.floor(
+                (now.getTime() - expert.credentialsExpiry.getTime()) / (1000 * 60 * 60 * 24)
+              )
+            : null,
+          specialties: expert.specialties,
+          officeAddress: expert.officeAddress,
+        };
+      })
+    );
 
     const totalPages2 = Math.ceil(total / limit);
     return {
@@ -252,6 +271,7 @@ export const AdminComplianceService = {
               credentialsExpiry: true,
               specialties: true,
               officeAddress: true,
+              profileImageObjectKey: true,
             },
           },
         },
@@ -262,19 +282,27 @@ export const AdminComplianceService = {
       prisma.user.count({ where }),
     ]);
 
-    const transformedExperts = users.map((user) => ({
-      id: user.id,
-      expertId: user.expertProfile?.id,
-      fullName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email,
-      email: user.email,
-      phone: user.phone,
-      accountStatus: user.status,
-      barNumber: user.expertProfile?.barNumber,
-      credentialsExpiry: user.expertProfile?.credentialsExpiry,
-      specialties: user.expertProfile?.specialties ?? [],
-      officeAddress: user.expertProfile?.officeAddress,
-      suspendedAt: user.updatedAt,
-    }));
+    const transformedExperts = await Promise.all(
+      users.map(async (user) => {
+        const photoKey = user.avatarObjectKey || user.expertProfile?.profileImageObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+
+        return {
+          id: user.id,
+          expertId: user.expertProfile?.id,
+          fullName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email,
+          email: user.email,
+          phone: user.phone,
+          profileImageUrl,
+          accountStatus: user.status,
+          barNumber: user.expertProfile?.barNumber,
+          credentialsExpiry: user.expertProfile?.credentialsExpiry,
+          specialties: user.expertProfile?.specialties ?? [],
+          officeAddress: user.expertProfile?.officeAddress,
+          suspendedAt: user.updatedAt,
+        };
+      })
+    );
 
     const totalPages3 = Math.ceil(total / limit);
     return {

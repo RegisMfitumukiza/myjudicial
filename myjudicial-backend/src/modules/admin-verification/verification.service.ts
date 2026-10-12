@@ -12,6 +12,7 @@ import { logger } from "../../shared/utils/logger.js";
 import { triggerEmbeddingSync } from "../ai/embedding-sync.service.js";
 import { NotificationRepository } from "../notifications/notification.repository.js";
 import type { NotificationEvent } from "../../generated/prisma/client.js";
+import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 export const VerificationService = {
   /**
@@ -28,7 +29,20 @@ export const VerificationService = {
       VerificationRepository.findByStatus(status, pagination.skip, pagination.limit),
       VerificationRepository.countByStatus(status),
     ]);
-    return { records, meta: buildPaginationMeta(total, pagination) };
+    const transformedRecords = await Promise.all(
+      records.map(async (record) => {
+        const photoKey = record.expert?.profileImageObjectKey || record.expert?.user?.avatarObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+        return {
+          ...record,
+          expert: {
+            ...record.expert,
+            profileImageUrl,
+          },
+        };
+      })
+    );
+    return { records: transformedRecords, meta: buildPaginationMeta(total, pagination) };
   },
 
   /**
@@ -37,7 +51,15 @@ export const VerificationService = {
   getById: async (id: string) => {
     const record = await VerificationRepository.findById(id);
     if (!record) throw new NotFoundError("Verification request");
-    return record;
+    const photoKey = record.expert?.profileImageObjectKey || record.expert?.user?.avatarObjectKey;
+    const profileImageUrl = await resolveStorageUrl(photoKey);
+    return {
+      ...record,
+      expert: {
+        ...record.expert,
+        profileImageUrl,
+      },
+    };
   },
 
   /**

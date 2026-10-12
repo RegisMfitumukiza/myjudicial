@@ -4,6 +4,7 @@ import { Role, UserStatus } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { SupabaseSyncService } from "../../infrastructure/supabase/sync.service.js";
 import { logger } from "../../shared/utils/logger.js";
+import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 interface ListFilters {
   role?: Role;
@@ -95,6 +96,7 @@ export const AdminUserService = {
           phone: true,
           role: true,
           status: true,
+          avatarObjectKey: true,
           createdAt: true,
           lastLoginAt: true,
           expertProfile: {
@@ -103,6 +105,7 @@ export const AdminUserService = {
               status: true,
               barNumber: true,
               specialties: true,
+              profileImageObjectKey: true,
             },
           },
           _count: {
@@ -118,21 +121,29 @@ export const AdminUserService = {
       prisma.user.count({ where }),
     ]);
 
-    const transformedUsers = users.map((user) => ({
-      id: user.id,
-      email: user.email,
-      fullName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email,
-      phone: user.phone,
-      role: user.role,
-      accountStatus: user.status,
-      createdAt: user.createdAt,
-      lastLoginAt: user.lastLoginAt,
-      isExpert: user.role === Role.EXPERT,
-      expertStatus: user.expertProfile?.status,
-      barNumber: user.expertProfile?.barNumber,
-      specialties: user.expertProfile?.specialties ?? [],
-      totalBookings: user._count.citizenBookings,
-    }));
+    const transformedUsers = await Promise.all(
+      users.map(async (user) => {
+        const avatarKey = user.avatarObjectKey || user.expertProfile?.profileImageObjectKey;
+        const avatarUrl = await resolveStorageUrl(avatarKey);
+
+        return {
+          id: user.id,
+          email: user.email,
+          fullName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email,
+          phone: user.phone,
+          role: user.role,
+          accountStatus: user.status,
+          avatarUrl,
+          createdAt: user.createdAt,
+          lastLoginAt: user.lastLoginAt,
+          isExpert: user.role === Role.EXPERT,
+          expertStatus: user.expertProfile?.status,
+          barNumber: user.expertProfile?.barNumber,
+          specialties: user.expertProfile?.specialties ?? [],
+          totalBookings: user._count.citizenBookings,
+        };
+      })
+    );
 
     const totalPages = Math.ceil(total / limit);
     return {
@@ -199,6 +210,9 @@ export const AdminUserService = {
       throw new NotFoundError("User not found");
     }
 
+    const avatarKey = user.avatarObjectKey || user.expertProfile?.profileImageObjectKey;
+    const avatarUrl = await resolveStorageUrl(avatarKey);
+
     return {
       id: user.id,
       email: user.email,
@@ -206,6 +220,7 @@ export const AdminUserService = {
       phone: user.phone,
       role: user.role,
       accountStatus: user.status,
+      avatarUrl,
       createdAt: user.createdAt,
       lastLoginAt: user.lastLoginAt,
       expert: user.expertProfile

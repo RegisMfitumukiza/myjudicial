@@ -311,6 +311,28 @@ export const getSignedDownloadUrl = async (
   }
 };
 
+/**
+ * Safely resolves an avatar or image object key to a download URL.
+ * Supports direct HTTP/HTTPS URLs (e.g. Google OAuth) and pre-signed storage URLs.
+ * Returns null if key is empty or if signing fails.
+ */
+export const resolveStorageUrl = async (
+  key?: string | null,
+  expiresInSecs?: number
+): Promise<string | null> => {
+  if (!key) return null;
+  if (key.startsWith("http://") || key.startsWith("https://")) {
+    return key;
+  }
+  try {
+    const signed = await getSignedDownloadUrl(key, expiresInSecs);
+    return signed.url;
+  } catch (err) {
+    logger.warn("Failed to generate signed storage URL for key", { key, error: err });
+    return null;
+  }
+};
+
 // ─── Object Existence Check ───────────────────────────────────────────────────
 
 /**

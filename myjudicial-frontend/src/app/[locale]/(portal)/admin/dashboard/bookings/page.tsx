@@ -373,7 +373,7 @@ export default function BookingsPage() {
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && (
           <div className="flex items-center gap-3 border-b border-border bg-primary/5 px-6 py-3">
-            <span className="text-sm font-medium text-foreground">{t("selected", { count: selectedIds.size })}</span>
+            <span className="text-sm font-medium text-foreground">{t("selected", { n: selectedIds.size, count: selectedIds.size })}</span>
             {bulkCompletable.length > 0 && (
               <Button
                 size="xs"
@@ -382,7 +382,7 @@ export default function BookingsPage() {
                 disabled={completeMutation.isPending}
               >
                 <CheckCheck size={14} />
-                {t("completeN", { count: bulkCompletable.length })}
+                {t("completeN", { n: bulkCompletable.length, count: bulkCompletable.length })}
               </Button>
             )}
             {!isBookingFirst && bulkRefundable.length > 0 && (
@@ -393,7 +393,7 @@ export default function BookingsPage() {
                 disabled={refundMutation.isPending}
               >
                 <DollarSign size={14} />
-                {t("refundN", { count: bulkRefundable.length })}
+                {t("refundN", { n: bulkRefundable.length, count: bulkRefundable.length })}
               </Button>
             )}
             <Button
@@ -625,7 +625,7 @@ export default function BookingsPage() {
                 setSelectedBooking(null);
               }}
             >
-              {t("processing")}
+              Cancel
             </Button>
             <Button
               variant="destructive"
@@ -644,7 +644,7 @@ export default function BookingsPage() {
           <DialogHeader>
             <DialogTitle>{t("bulkRefund")}</DialogTitle>
             <DialogDescription>
-              {t("refundNBookings", { count: bulkRefundable.length })}
+              {t("refundNBookings", { n: bulkRefundable.length, count: bulkRefundable.length })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -690,7 +690,7 @@ export default function BookingsPage() {
               onClick={confirmBulkRefund}
               disabled={bulkRefundReason.trim().length < 5 || refundMutation.isPending}
             >
-              {refundMutation.isPending ? t("processing") : t("refundNBookingAction", { count: bulkRefundable.length })}
+              {refundMutation.isPending ? t("processing") : t("refundNBookingAction", { n: bulkRefundable.length, count: bulkRefundable.length })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -704,7 +704,7 @@ export default function BookingsPage() {
           <DialogHeader>
             <DialogTitle>{t("markAsComplete")}</DialogTitle>
             <DialogDescription>
-              {t("markCompleteConfirm")}
+              {t("markCompleteConfirm", { name: selectedBooking ? clientName(selectedBooking) : "the client" })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -732,7 +732,7 @@ export default function BookingsPage() {
           <DialogHeader>
             <DialogTitle>{t("markAsComplete")}</DialogTitle>
             <DialogDescription>
-              {t("markBulkCompleteConfirm", { count: bulkCompletable.length })}
+              {t("markBulkCompleteConfirm", { n: bulkCompletable.length, count: bulkCompletable.length })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

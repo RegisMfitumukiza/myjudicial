@@ -3,7 +3,7 @@ import { prisma } from "../../infrastructure/database/prisma.js";
 import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { UserStatus, Role, LegalSpecialty } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
-import { getSignedDownloadUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { getSignedDownloadUrl, resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 
 interface ListFilters {
@@ -173,6 +173,9 @@ export const AdminExpertService = {
           ? Array.from(new Set([expert.primarySpecialty, ...(expert.specialties ?? [])]))
           : (expert?.specialties ?? []);
 
+        const photoKey = expert?.profileImageObjectKey || user.avatarObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+
         return {
           id: user.id,
           fullName,
@@ -189,6 +192,7 @@ export const AdminExpertService = {
           credentialsExpiry: expert?.credentialsExpiry,
           yearsOfExperience: expert?.yearsExperience,
           profileImage: expert?.profileImageObjectKey,
+          profileImageUrl,
           officeAddress: expert?.officeAddress,
           latitude: expert?.latitude ? Number(expert.latitude) : null,
           longitude: expert?.longitude ? Number(expert.longitude) : null,
@@ -323,6 +327,9 @@ export const AdminExpertService = {
       ? Array.from(new Set([expert.primarySpecialty, ...(expert.specialties ?? [])]))
       : (expert.specialties ?? []);
 
+    const photoKey = expert.profileImageObjectKey || user.avatarObjectKey;
+    const profileImageUrl = await resolveStorageUrl(photoKey);
+
     return {
       id: user.id,
       fullName,
@@ -352,6 +359,7 @@ export const AdminExpertService = {
       yearsOfExperience: expert.yearsExperience,
       // Profile image
       profileImageObjectKey: expert.profileImageObjectKey,
+      profileImageUrl,
       officeAddress: expert.officeAddress,
       latitude: expert.latitude ? Number(expert.latitude) : null,
       longitude: expert.longitude ? Number(expert.longitude) : null,

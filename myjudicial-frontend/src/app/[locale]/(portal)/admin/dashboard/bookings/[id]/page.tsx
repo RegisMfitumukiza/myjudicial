@@ -79,7 +79,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
 
   const formatDuration = (start: string, end: string) => {
     const diff = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000);
-    return t("durationMin", { min: diff });
+    return t("durationMin", { n: diff, min: diff });
   };
 
   const formatCurrency = (amount: number, currency = "RWF") => {
@@ -257,7 +257,10 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                 <Clock className="h-4 w-4 shrink-0 text-success" />
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    {t("actualMin", { min: Math.round((new Date((booking as any).actualEndTime).getTime() - new Date((booking as any).actualStartTime).getTime()) / 60000) })}
+                    {t("actualMin", {
+                      n: Math.round((new Date((booking as any).actualEndTime).getTime() - new Date((booking as any).actualStartTime).getTime()) / 60000),
+                      min: Math.round((new Date((booking as any).actualEndTime).getTime() - new Date((booking as any).actualStartTime).getTime()) / 60000),
+                    })}
                   </p>
                   <p className="text-xs text-muted-foreground">{t("consultationDuration")}</p>
                 </div>

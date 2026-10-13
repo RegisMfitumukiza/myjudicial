@@ -834,8 +834,11 @@ export const AuthService = {
     file: { buffer: Buffer; mimetype: string },
     ipAddress?: string
   ) => {
-    const user = await AuthRepository.findById(userId);
-    const oldAvatarKey = user?.avatarObjectKey;
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarObjectKey: true },
+    });
+    const oldAvatarKey = existing?.avatarObjectKey;
 
     const extension = file.mimetype.split("/")[1] ?? "jpg";
     const objectKey = `users/${userId}/avatar/${crypto.randomUUID()}.${extension}`;

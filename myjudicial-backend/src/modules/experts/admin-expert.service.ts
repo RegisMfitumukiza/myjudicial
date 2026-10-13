@@ -248,7 +248,9 @@ export const AdminExpertService = {
       expertProfile: {
         include: {
           education: true,
-          certifications: true,
+          certifications: {
+            orderBy: { createdAt: "desc" as const },
+          },
           services: true,
           bookings: {
             take: 10,

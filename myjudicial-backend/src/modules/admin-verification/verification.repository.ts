@@ -108,6 +108,19 @@ export const VerificationRepository = {
         },
       });
 
+      if (expiryToSet) {
+        const latestCert = await tx.expertCertification.findFirst({
+          where: { expertId: verification.expert.id },
+          orderBy: { createdAt: "desc" },
+        });
+        if (latestCert && (!latestCert.expiryDate || latestCert.expiryDate.getTime() !== expiryToSet.getTime())) {
+          await tx.expertCertification.update({
+            where: { id: latestCert.id },
+            data: { expiryDate: expiryToSet },
+          });
+        }
+      }
+
       await tx.mapMarker.updateMany({
         where: { expertId: verification.expert.id },
         data: { isVisible: true },

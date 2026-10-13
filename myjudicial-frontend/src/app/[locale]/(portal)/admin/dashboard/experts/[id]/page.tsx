@@ -32,6 +32,7 @@ import {
   Hash,
   Copy,
   Check,
+  Eye,
 } from "lucide-react";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
@@ -42,6 +43,8 @@ import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -99,6 +102,16 @@ interface ExpertDetail {
   additionalDocumentKeys: string[];
   barCertificateUrl?: string | null;
   identityDocumentUrl?: string | null;
+  credentialsExpiry?: string | null;
+  certifications?: {
+    id: string;
+    certificateName: string;
+    issuer: string;
+    issueDate: string;
+    expiryDate?: string | null;
+    documentObjectKey?: string | null;
+    createdAt?: string;
+  }[];
   recentBookings: {
     id: string;
     status: string;
@@ -395,6 +408,17 @@ export default function ExpertDetailPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
 
+  // ── Accreditation & Document Audit Approval Modal State ──
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [confirmedExpiryDate, setConfirmedExpiryDate] = useState("");
+  const [checklist, setChecklist] = useState({
+    barMatch: false,
+    issueDateMatch: false,
+    expiryDateMatch: false,
+    sealAuthentic: false,
+  });
+  const [auditViewerKey, setAuditViewerKey] = useState<string | null>(null);
+
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(true);
@@ -434,7 +458,12 @@ export default function ExpertDetailPage() {
   const approveMutation = useMutation({
     mutationFn: (credentialsExpiry?: string | void) =>
       approveVerification(expert!.verificationId!, typeof credentialsExpiry === "string" ? credentialsExpiry : undefined),
-    onSuccess: () => { invalidate(); toast.success(t("verificationApproved")); },
+    onSuccess: () => {
+      invalidate();
+      setShowApproveModal(false);
+      setChecklist({ barMatch: false, issueDateMatch: false, expiryDateMatch: false, sealAuthentic: false });
+      toast.success(t("verificationApproved"));
+    },
     onError: () => toast.error(t("actionFailed")),
   });
 
@@ -506,6 +535,25 @@ export default function ExpertDetailPage() {
 
   const displayName = expert.fullName || `${expert.firstName ?? ""} ${expert.lastName ?? ""}`.trim() || expert.email;
   const isSuspended = expert.accountStatus === "SUSPENDED";
+
+  const latestCert = expert.certifications?.[0];
+  const effectiveExpiry = latestCert?.expiryDate || expert.credentialsExpiry || null;
+  const initialExpiry = effectiveExpiry
+    ? new Date(effectiveExpiry).toISOString().split("T")[0]
+    : "";
+
+  useEffect(() => {
+    if (initialExpiry && !confirmedExpiryDate) {
+      setConfirmedExpiryDate(initialExpiry);
+    }
+  }, [initialExpiry, confirmedExpiryDate]);
+
+  const isChecklistComplete =
+    checklist.barMatch &&
+    checklist.issueDateMatch &&
+    checklist.expiryDateMatch &&
+    checklist.sealAuthentic &&
+    Boolean(confirmedExpiryDate);
 
   const requiredDocs = [
     { label: t("identityDocument"), key: expert.identityDocumentObjectKey, required: true },
@@ -800,6 +848,106 @@ export default function ExpertDetailPage() {
 
             <CardContent className="space-y-6 pt-5">
 
+              {/* Certificate & Accreditation Audit Card */}
+              <section className="rounded-xl border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-card p-4 sm:p-5 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                      <ShieldCheck size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">
+                        {t("auditCardTitle")}
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        {t("auditCardDesc")}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/20">
+                    <BadgeCheck size={11} /> {t("auditVisualBadge")}
+                  </span>
+                </div>
+
+                <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("barNumber")}
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm font-bold text-foreground">
+                      {expert.barNumber || "--"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("certIssuer")}
+                    </p>
+                    <p className="mt-0.5 text-xs font-semibold text-foreground">
+                      {latestCert?.issuer || "Rwanda Bar Association"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("certName")}
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-foreground truncate" title={latestCert?.certificateName}>
+                      {latestCert?.certificateName || t("barCertificate")}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("certIssueDate")}
+                    </p>
+                    <p className="mt-0.5 text-xs font-semibold text-foreground">
+                      {latestCert?.issueDate
+                        ? new Date(latestCert.issueDate).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                        : "--"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-border/60 bg-background/60 p-2.5 sm:col-span-2">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t("certExpiryDate")}
+                      </p>
+                      {effectiveExpiry && (
+                        <span className="text-[11px] font-medium text-primary">
+                          {(() => {
+                            const exp = new Date(effectiveExpiry);
+                            const now = new Date();
+                            const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                            if (diffDays < 0) return "Expired";
+                            if (diffDays === 1) return "1 day remaining";
+                            return `${diffDays} days remaining`;
+                          })()}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-xs font-bold text-foreground">
+                      {effectiveExpiry
+                        ? new Date(effectiveExpiry).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                        : "--"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Inspect Bar Certificate Action */}
+                {expert.barCertificateObjectKey && expert.verificationId && (
+                  <div className="mt-3.5 flex items-center justify-between border-t border-border/80 pt-3">
+                    <p className="text-xs text-muted-foreground">
+                      Cross-verify details against certificate scan:
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
+                      className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                    >
+                      <Eye size={13} /> {t("inspectBarCert")}
+                    </Button>
+                  </div>
+                )}
+              </section>
+
               {/* Document checklist */}
               <section>
                 <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -863,10 +1011,13 @@ export default function ExpertDetailPage() {
 
                   <div className="flex flex-wrap gap-2">
 
-                    {/* Approve */}
+                    {/* Approve - opens mandatory audit checklist modal */}
                     {isPending && allRequiredPresent && !showRejectForm && !showCorrectionsForm && (
                       <Button
-                        onClick={() => approveMutation.mutate()}
+                        onClick={() => {
+                          if (initialExpiry) setConfirmedExpiryDate(initialExpiry);
+                          setShowApproveModal(true);
+                        }}
                         disabled={approveMutation.isPending}
                         id="btn-approve-verification"
                         className="bg-green-600 text-white hover:bg-green-700"
@@ -928,6 +1079,51 @@ export default function ExpertDetailPage() {
                   {showRejectForm && (
                     <div className="rounded-xl border border-red-300 bg-red-50 p-4 space-y-3 dark:border-red-700 dark:bg-red-950/30">
                       <p className="text-sm font-semibold text-red-800 dark:text-red-200">{t("rejectionReason")}</p>
+
+                      {/* Quick Discrepancy Templates */}
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-semibold text-red-900/80 dark:text-red-300/80">
+                          {t("discrepancyTemplates")}:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRejectReason(
+                                t("templateExpiryText", {
+                                  date: effectiveExpiry
+                                    ? new Date(effectiveExpiry).toLocaleDateString(locale)
+                                    : "--",
+                                })
+                              )
+                            }
+                            className="rounded-md border border-red-300 bg-red-100/70 px-2 py-1 text-[11px] font-medium text-red-900 transition-colors hover:bg-red-200 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60"
+                          >
+                            {t("discrepancyExpiryMismatch")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRejectReason(
+                                t("templateBarText", {
+                                  barNumber: expert.barNumber || "--",
+                                })
+                              )
+                            }
+                            className="rounded-md border border-red-300 bg-red-100/70 px-2 py-1 text-[11px] font-medium text-red-900 transition-colors hover:bg-red-200 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60"
+                          >
+                            {t("discrepancyBarMismatch")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRejectReason(t("templateIllegibleText"))}
+                            className="rounded-md border border-red-300 bg-red-100/70 px-2 py-1 text-[11px] font-medium text-red-900 transition-colors hover:bg-red-200 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900/60"
+                          >
+                            {t("discrepancyIllegible")}
+                          </button>
+                        </div>
+                      </div>
+
                       <textarea
                         rows={3}
                         value={rejectReason}
@@ -954,6 +1150,51 @@ export default function ExpertDetailPage() {
                   {showCorrectionsForm && (
                     <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-4 space-y-3 dark:border-yellow-700 dark:bg-yellow-950/30">
                       <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-200">{t("correctionNotes")}</p>
+
+                      {/* Quick Discrepancy Templates */}
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-semibold text-yellow-900/80 dark:text-yellow-300/80">
+                          {t("discrepancyTemplates")}:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCorrectionNotes(
+                                t("templateExpiryText", {
+                                  date: effectiveExpiry
+                                    ? new Date(effectiveExpiry).toLocaleDateString(locale)
+                                    : "--",
+                                })
+                              )
+                            }
+                            className="rounded-md border border-yellow-300 bg-yellow-100/70 px-2 py-1 text-[11px] font-medium text-yellow-900 transition-colors hover:bg-yellow-200 dark:border-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-200 dark:hover:bg-yellow-900/60"
+                          >
+                            {t("discrepancyExpiryMismatch")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCorrectionNotes(
+                                t("templateBarText", {
+                                  barNumber: expert.barNumber || "--",
+                                })
+                              )
+                            }
+                            className="rounded-md border border-yellow-300 bg-yellow-100/70 px-2 py-1 text-[11px] font-medium text-yellow-900 transition-colors hover:bg-yellow-200 dark:border-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-200 dark:hover:bg-yellow-900/60"
+                          >
+                            {t("discrepancyBarMismatch")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCorrectionNotes(t("templateIllegibleText"))}
+                            className="rounded-md border border-yellow-300 bg-yellow-100/70 px-2 py-1 text-[11px] font-medium text-yellow-900 transition-colors hover:bg-yellow-200 dark:border-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-200 dark:hover:bg-yellow-900/60"
+                          >
+                            {t("discrepancyIllegible")}
+                          </button>
+                        </div>
+                      </div>
+
                       <textarea
                         rows={3}
                         value={correctionNotes}
@@ -1084,6 +1325,208 @@ export default function ExpertDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ACCREDITATION & DOCUMENT AUDIT APPROVAL MODAL */}
+      <Dialog
+        open={showApproveModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowApproveModal(false);
+            setChecklist({
+              barMatch: false,
+              issueDateMatch: false,
+              expiryDateMatch: false,
+              sealAuthentic: false,
+            });
+          }
+        }}
+      >
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-primary">
+              <ShieldCheck size={20} />
+              <DialogTitle>{t("approveModalTitle")}</DialogTitle>
+            </div>
+            <DialogDescription>
+              {t("approveModalDesc")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Quick summary comparison */}
+            <div className="rounded-xl border border-border bg-muted/40 p-3.5 space-y-2 text-xs">
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <span className="text-muted-foreground">{t("expert")}:</span>
+                <span className="font-semibold text-foreground">{displayName}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <span className="text-muted-foreground">{t("barNumber")}:</span>
+                <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <span className="text-muted-foreground">{t("certName")}:</span>
+                <span className="font-medium text-foreground">{latestCert?.certificateName || t("barCertificate")}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <span className="text-muted-foreground">{t("certIssuer")}:</span>
+                <span className="font-medium text-foreground">{latestCert?.issuer || "Rwanda Bar Association"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                <span className="text-muted-foreground">{t("certIssueDate")}:</span>
+                <span className="font-medium text-foreground">
+                  {latestCert?.issueDate
+                    ? new Date(latestCert.issueDate).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                    : "--"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t("certExpiryDate")}:</span>
+                <span className="font-bold text-primary">
+                  {effectiveExpiry
+                    ? new Date(effectiveExpiry).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                    : "--"}
+                </span>
+              </div>
+
+              {expert.barCertificateObjectKey && expert.verificationId && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
+                    className="w-full gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <Eye size={13} /> {t("inspectBarCert")}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Mandatory checklist */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                  {t("checkListHeader")}
+                </p>
+                <span className="text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  {Object.values(checklist).filter(Boolean).length}/4 verified
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {t("checkListSubtext")}
+              </p>
+
+              <div className="space-y-2 rounded-xl border border-border bg-card p-3">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={checklist.barMatch}
+                    onChange={(e) => setChecklist((prev) => ({ ...prev, barMatch: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>{t("checkBarMatch", { barNumber: expert.barNumber || "--" })}</span>
+                </label>
+
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={checklist.issueDateMatch}
+                    onChange={(e) => setChecklist((prev) => ({ ...prev, issueDateMatch: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>
+                    {t("checkIssueDate", {
+                      date: latestCert?.issueDate
+                        ? new Date(latestCert.issueDate).toLocaleDateString(locale)
+                        : "--",
+                    })}
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={checklist.expiryDateMatch}
+                    onChange={(e) => setChecklist((prev) => ({ ...prev, expiryDateMatch: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>
+                    {t("checkExpiryDate", {
+                      date: effectiveExpiry
+                        ? new Date(effectiveExpiry).toLocaleDateString(locale)
+                        : "--",
+                    })}
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                  <input
+                    type="checkbox"
+                    checked={checklist.sealAuthentic}
+                    onChange={(e) => setChecklist((prev) => ({ ...prev, sealAuthentic: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>{t("checkSeal")}</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Editable Confirmed Expiry Date */}
+            <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3">
+              <Label htmlFor="confirmedExpiryDate" className="text-xs font-semibold text-foreground">
+                {t("confirmedExpiryDateLabel")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="confirmedExpiryDate"
+                type="date"
+                value={confirmedExpiryDate}
+                onChange={(e) => setConfirmedExpiryDate(e.target.value)}
+                className="bg-card text-xs"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                {t("confirmedExpiryDateHint")}
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowApproveModal(false)}
+              disabled={approveMutation.isPending}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={() => {
+                if (!isChecklistComplete) return;
+                approveMutation.mutate(confirmedExpiryDate);
+              }}
+              disabled={!isChecklistComplete || approveMutation.isPending}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              {approveMutation.isPending ? (
+                <RefreshCw size={14} className="mr-1.5 animate-spin" />
+              ) : (
+                <BadgeCheck size={14} className="mr-1.5" />
+              )}
+              {t("confirmAndApproveBtn")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Standalone Inspection Document Viewer */}
+      {auditViewerKey && expert.verificationId && (
+        <DocumentViewer
+          verificationId={expert.verificationId}
+          objectKey={auditViewerKey}
+          label={t("barCertificate")}
+          onClose={() => setAuditViewerKey(null)}
+          t={t}
+        />
+      )}
     </div>
   );
 }

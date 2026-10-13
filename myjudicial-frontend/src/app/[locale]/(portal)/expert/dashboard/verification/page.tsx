@@ -858,6 +858,15 @@ export default function VerificationPage() {
                     {t("credentialsSectionDesc")}
                   </p>
                 </div>
+
+                {/* Important cross-verification notice */}
+                <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-foreground">
+                  <ShieldCheck size={16} className="mt-0.5 text-primary shrink-0" />
+                  <p className="leading-relaxed text-muted-foreground">
+                    {t("certDatesMatchNotice")}
+                  </p>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="barNumber" className="text-xs font-medium">

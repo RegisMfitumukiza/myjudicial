@@ -50,6 +50,7 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
             href="/privacy"
             target="_blank"
             rel="noopener noreferrer"
+            prefetch={false}
             className="hover:text-foreground transition-colors"
           >
             {t("privacy")}
@@ -59,6 +60,7 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
             href="/terms"
             target="_blank"
             rel="noopener noreferrer"
+            prefetch={false}
             className="hover:text-foreground transition-colors"
           >
             {t("terms")}

@@ -17,8 +17,13 @@ const SECURITY_HEADERS: Record<string, string> = {
 const ADMIN_HOST = (process.env.ADMIN_PORTAL_HOST ?? "admin.myjudicial.com").toLowerCase();
 const MAIN_HOSTS = ["myjudicial.com", "www.myjudicial.com"];
 const LOCALES = routing.locales.join("|");
+const RE_ROOT_PATH = new RegExp(`^\\/(?:(${LOCALES})\\/?)?$`);
 const RE_ADMIN_PATH = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?admin(\\/|$)`);
 const RE_AUTH_PAGE = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?(sign-in|sign-up|post-auth)(\\/|$)`);
+// Public informational & policy pages valid across both main and admin portals
+const RE_PUBLIC_ALLOWED = new RegExp(
+  `^\\/(?:(?:${LOCALES})\\/)?(terms|privacy|cookies|help|contact|faqs)(\\/|$)`
+);
 
 function requestHost(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0];
@@ -26,7 +31,36 @@ function requestHost(request: NextRequest): string {
   return host.replace(/:\d+$/, "");
 }
 
-function withSecurityHeaders(response: NextResponse, requestId: string): NextResponse {
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname.toLowerCase();
+    // Allow any .myjudicial.com subdomain or exact apex
+    if (hostname === "myjudicial.com" || hostname.endsWith(".myjudicial.com")) {
+      return true;
+    }
+    // Allow local development and private LAN IP origins
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("172.") ||
+      hostname.startsWith("10.")
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+function withSecurityHeaders(
+  response: NextResponse,
+  requestId: string,
+  origin?: string | null
+): NextResponse {
   response.headers.set("x-request-id", requestId);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     response.headers.set(key, value);
@@ -34,6 +68,22 @@ function withSecurityHeaders(response: NextResponse, requestId: string): NextRes
   if (process.env.NODE_ENV === "production") {
     response.headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
   }
+
+  // Cross-subdomain CORS headers for trusted sibling domains
+  if (origin && isAllowedOrigin(origin)) {
+    response.headers.set("access-control-allow-origin", origin);
+    response.headers.set("access-control-allow-credentials", "true");
+    response.headers.set(
+      "access-control-allow-methods",
+      "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    );
+    response.headers.set(
+      "access-control-allow-headers",
+      "Content-Type, Authorization, RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Url, x-request-id"
+    );
+    response.headers.set("access-control-max-age", "86400");
+  }
+
   return response;
 }
 
@@ -41,6 +91,12 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const search = request.nextUrl.search;
   const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+  const origin = request.headers.get("origin");
+
+  // Handle preflight OPTIONS requests immediately
+  if (request.method === "OPTIONS") {
+    return withSecurityHeaders(new NextResponse(null, { status: 204 }), requestId, origin);
+  }
 
   // Skip i18n routing for API routes, NextAuth, internal Next.js paths,
   // and static assets (files with extensions like .png, .ico, .js, etc.).
@@ -52,7 +108,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next/') ||
     pathname.includes('.')
   ) {
-    return withSecurityHeaders(NextResponse.next(), requestId);
+    return withSecurityHeaders(NextResponse.next(), requestId, origin);
   }
 
   const host = requestHost(request);
@@ -72,34 +128,57 @@ export function middleware(request: NextRequest) {
       }
       return withSecurityHeaders(
         NextResponse.redirect(redirectUrl.toString()),
-        requestId
+        requestId,
+        origin
       );
     }
 
-    // Admin portal: root goes to the dashboard; non-admin pages go back to
-    // the main site. Auth pages (/sign-in, /post-auth) stay for admin login.
+    // Admin portal handling
     if (isAdminPortal) {
-      if (pathname === "/" || pathname === "") {
+      // 1. Root paths (/, /en, /fr, /rw): always redirect to the admin dashboard on admin portal
+      if (RE_ROOT_PATH.test(pathname)) {
+        const matchedLocale = pathname.match(RE_ROOT_PATH)?.[1] || "en";
         return withSecurityHeaders(
-          NextResponse.redirect(`${httpsBase}/en/admin/dashboard`),
-          requestId
+          NextResponse.redirect(`${httpsBase}/${matchedLocale}/admin/dashboard`),
+          requestId,
+          origin
         );
       }
-      if (!RE_ADMIN_PATH.test(pathname) && !RE_AUTH_PAGE.test(pathname)) {
+
+      // 2. Admin routes, auth routes, and public informational/legal pages (terms, privacy, cookies, help):
+      // Keep on the admin portal — served locally without cross-origin redirects!
+      const isAllowedOnAdmin =
+        RE_ADMIN_PATH.test(pathname) ||
+        RE_AUTH_PAGE.test(pathname) ||
+        RE_PUBLIC_ALLOWED.test(pathname);
+
+      if (!isAllowedOnAdmin) {
+        // If an RSC prefetch request is targeted at a page belonging to the main site,
+        // do not send a cross-origin redirect which Next.js RSC client cannot mount.
+        const isRsc =
+          request.nextUrl.searchParams.has("_rsc") ||
+          request.headers.get("rsc") === "1" ||
+          request.headers.get("next-router-prefetch") === "1";
+
+        if (isRsc) {
+          return withSecurityHeaders(new NextResponse(null, { status: 204 }), requestId, origin);
+        }
+
         const redirectUrl = new URL(`https://www.myjudicial.com${pathname}${search}`);
         if (themeCookie && ["light", "dark", "system"].includes(themeCookie) && !redirectUrl.searchParams.has("theme")) {
           redirectUrl.searchParams.set("theme", themeCookie);
         }
         return withSecurityHeaders(
           NextResponse.redirect(redirectUrl.toString()),
-          requestId
+          requestId,
+          origin
         );
       }
     }
   }
 
   const i18nResponse = handleI18nRouting(request);
-  return withSecurityHeaders(i18nResponse, requestId);
+  return withSecurityHeaders(i18nResponse, requestId, origin);
 }
 
 export const config = {

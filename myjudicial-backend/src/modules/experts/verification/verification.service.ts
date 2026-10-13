@@ -95,11 +95,30 @@ export const VerificationService = {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
 
-    for (const file of files) {
+    // Validate documentTypes strictly upfront — require explicit type per uploaded file
+    const docTypes = dto.documentTypes ?? [];
+    if (!docTypes.length || docTypes.length !== files.length) {
+      throw new ValidationError(
+        "Each uploaded file must have an explicit documentType specified ('identity_document', 'bar_certificate', or 'additional')."
+      );
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const docType = docTypes[i];
+
       if (!ALLOWED_TYPES.includes(file.mimetype)) {
         throw new ValidationError(
           `Unsupported file type: ${file.mimetype}. Only images, PDFs and Word documents are accepted.`
         );
+      }
+
+      // Map document type to file category
+      let category = "compliance-document";
+      if (docType === "identity_document") {
+        category = "expert-national-id";
+      } else if (docType === "bar_certificate") {
+        category = "expert-certificate";
       }
 
       // ── Server-side AES-256-GCM encryption with KMS key wrapping ──────────
@@ -138,6 +157,7 @@ export const VerificationService = {
         fileName:            file.originalname,
         mimeType:            file.mimetype,     // original, pre-encryption
         fileSize:            file.size,
+        category,
         sensitivity:         "CONFIDENTIAL",
         encryptedAesKey:     finalAesKey,
         iv:                  ivBase64,
@@ -150,52 +170,13 @@ export const VerificationService = {
       });
 
       uploadedKeys.push(objectKey);
-    }
 
-    // Map files to their document types
-    const docTypes  = dto.documentTypes ?? [];
-    const docLabels = dto.documentLabels ?? [];
-
-    for (let i = 0; i < uploadedKeys.length; i++) {
-      const explicitType = docTypes[i];
-      const file = files[i];
-
-      if (explicitType === "identity_document") {
-        identityDocumentKey = uploadedKeys[i];
-      } else if (explicitType === "bar_certificate") {
-        barCertificateKey = uploadedKeys[i];
-      } else if (explicitType === "additional") {
-        additionalKeys.push(uploadedKeys[i]);
-      } else {
-        // Fallback heuristic when explicitType is omitted:
-        if (files.length === 1) {
-          if (!existingPending?.barCertificateObjectKey && existingPending?.identityDocumentObjectKey) {
-            barCertificateKey = uploadedKeys[i];
-          } else if (!existingPending?.identityDocumentObjectKey && existingPending?.barCertificateObjectKey) {
-            identityDocumentKey = uploadedKeys[i];
-          } else if (file.mimetype === "application/pdf") {
-            barCertificateKey = uploadedKeys[i];
-          } else {
-            identityDocumentKey = uploadedKeys[i];
-          }
-        } else {
-          if (file.mimetype === "application/pdf") {
-            barCertificateKey = uploadedKeys[i];
-          } else {
-            identityDocumentKey = uploadedKeys[i];
-          }
-        }
-      }
-    }
-
-    // Safety guard: if multiple files were uploaded and barCertificateKey is missing,
-    // ensure the remaining uploaded file is assigned to barCertificateKey rather than leaving it null
-    if (!barCertificateKey && uploadedKeys.length >= 2) {
-      for (let i = 0; i < uploadedKeys.length; i++) {
-        if (uploadedKeys[i] !== identityDocumentKey && !additionalKeys.includes(uploadedKeys[i])) {
-          barCertificateKey = uploadedKeys[i];
-          break;
-        }
+      if (docType === "identity_document") {
+        identityDocumentKey = objectKey;
+      } else if (docType === "bar_certificate") {
+        barCertificateKey = objectKey;
+      } else if (docType === "additional") {
+        additionalKeys.push(objectKey);
       }
     }
 

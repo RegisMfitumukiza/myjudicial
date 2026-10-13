@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -98,6 +98,7 @@ interface AdminDossier {
   userName: string;
   userEmail: string;
   role: string;
+  expertProfileId?: string | null;
   documents: AdminDocument[];
   totalSize: number;
   documentCount: number;
@@ -196,6 +197,13 @@ export default function DocumentsPage() {
     retry: false,
   });
   const stats = statsResponse?.data;
+
+  // If public filter was active but platform has 0 public documents, auto-reset to ALL
+  useEffect(() => {
+    if (stats && stats.publicCount === 0 && sensitivity === "PUBLIC") {
+      setSensitivity("ALL");
+    }
+  }, [stats?.publicCount, sensitivity]);
 
   // ── Flat documents list ────────────────────────────────────────────────────
   const {
@@ -378,12 +386,14 @@ export default function DocumentsPage() {
     { value: "EXPERT", label: t("experts") },
   ] as const;
 
-  const sensitivityFilter = [
-    { value: "ALL", label: t("allSensitivities") },
-    { value: "CONFIDENTIAL", label: t("confidential") },
-    { value: "PRIVATE", label: t("private") },
-    { value: "PUBLIC", label: t("public") },
-  ] as const;
+  const sensitivityFilter = useMemo(() => [
+    { value: "ALL" as const, label: t("allSensitivities") },
+    { value: "CONFIDENTIAL" as const, label: t("confidential") },
+    { value: "PRIVATE" as const, label: t("private") },
+    ...(stats && stats.publicCount > 0
+      ? [{ value: "PUBLIC" as const, label: t("public") }]
+      : []),
+  ], [stats?.publicCount, t]);
 
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
@@ -418,7 +428,7 @@ export default function DocumentsPage() {
             <p className="text-2xl font-bold tracking-tight text-foreground">
               {stats ? stats.totalDocuments.toLocaleString() : total.toLocaleString()}
             </p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Platform-wide repository</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{t("platformRepository")}</p>
           </div>
         </Card>
 
@@ -434,7 +444,7 @@ export default function DocumentsPage() {
             <p className="text-2xl font-bold tracking-tight text-foreground">
               {formatBytes(stats?.totalSizeBytes ?? 0)}
             </p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">All platform documents</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{t("allPlatformDocs")}</p>
           </div>
         </Card>
 
@@ -450,7 +460,7 @@ export default function DocumentsPage() {
             <p className="text-2xl font-bold tracking-tight text-foreground">
               {(stats?.confidentialCount ?? 0).toLocaleString()}
             </p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">AES-256 encrypted</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{t("aesEncrypted")}</p>
           </div>
         </Card>
 
@@ -547,7 +557,7 @@ export default function DocumentsPage() {
 
           {/* Role Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">Role:</span>
+            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">{t("role")}:</span>
             {roleFilter.map((f) => (
               <Button
                 key={f.value}
@@ -566,7 +576,7 @@ export default function DocumentsPage() {
 
           {/* Sensitivity Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">Sensitivity:</span>
+            <span className="text-xs font-medium text-muted-foreground mr-1 hidden sm:inline">{t("sensitivity")}:</span>
             {sensitivityFilter.map((f) => (
               <Button
                 key={f.value}
@@ -589,20 +599,20 @@ export default function DocumentsPage() {
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
             <div className="flex flex-wrap items-center gap-1.5">
               <Filter size={12} className="text-primary" />
-              <span>Active filters:</span>
+              <span>{t("activeFilters")}</span>
               {debouncedSearch.trim() && (
                 <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground">
-                  Search: &ldquo;{debouncedSearch.trim()}&rdquo;
+                  &ldquo;{debouncedSearch.trim()}&rdquo;
                 </span>
               )}
               {role !== "ALL" && (
                 <span className="rounded-md bg-primary/10 text-primary px-2 py-0.5 text-[11px] font-medium">
-                  Role: {role}
+                  {t("role")}: {role}
                 </span>
               )}
               {sensitivity !== "ALL" && (
                 <span className="rounded-md bg-destructive/10 text-destructive px-2 py-0.5 text-[11px] font-medium">
-                  Sensitivity: {sensitivity}
+                  {t("sensitivity")}: {sensitivity}
                 </span>
               )}
             </div>
@@ -638,7 +648,7 @@ export default function DocumentsPage() {
             </div>
             <h3 className="text-base font-semibold text-foreground">{t("noSearchResults")}</h3>
             <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">
-              There are no documents matching your currently selected filters. Clear your filters or select a different role to view files.
+              {t("noMatchingFiltersDesc")}
             </p>
             <div className="mt-5 flex justify-center gap-2">
               <Button onClick={handleClearFilters} variant="default" size="sm" className="cursor-pointer">
@@ -836,7 +846,7 @@ export default function DocumentsPage() {
             </div>
             <h3 className="text-base font-semibold text-foreground">{t("noSearchResults")}</h3>
             <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">
-              No dossiers match your current filters.
+              {t("noDossiersMatch")}
             </p>
             <div className="mt-5 flex justify-center gap-2">
               <Button onClick={handleClearFilters} variant="default" size="sm" className="cursor-pointer">
@@ -886,28 +896,37 @@ export default function DocumentsPage() {
                             {dossier.role}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">{dossier.userEmail || "No email"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{dossier.userEmail || t("noEmail")}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs text-muted-foreground hidden sm:inline mr-2">
-                        {dossier.documentCount} files &bull; {formatBytes(dossier.totalSize)}
+                        {t("filesCount", { count: dossier.documentCount })} &bull; {formatBytes(dossier.totalSize)}
                       </span>
-                      {isExpert && (
+                      {isExpert ? (
+                        <>
+                          <Link
+                            href={`/${locale}/admin/dashboard/experts/${dossier.expertProfileId || dossier.userId}`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-md px-2.5 py-1.5 transition-colors"
+                          >
+                            <UserCheck size={13} /> {t("viewExpert")}
+                          </Link>
+                          <Link
+                            href={`/${locale}/admin/dashboard/verifications?search=${encodeURIComponent(dossier.userEmail || dossier.userName)}`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-md px-2.5 py-1.5 transition-colors"
+                          >
+                            <FileText size={13} /> {t("reviewVerification")}
+                          </Link>
+                        </>
+                      ) : (
                         <Link
-                          href={`/${locale}/admin/dashboard/verifications`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-md px-2.5 py-1.5 transition-colors"
+                          href={`/${locale}/admin/dashboard/clients?search=${encodeURIComponent(dossier.userEmail || dossier.userName)}`}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 rounded-md px-2.5 py-1.5 transition-colors"
                         >
-                          <UserCheck size={13} /> {t("reviewVerification")}
+                          <UserIcon size={13} /> {t("viewClient")}
                         </Link>
                       )}
-                      <Link
-                        href={`/${locale}/admin/dashboard/users`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80 border border-border rounded-md px-2.5 py-1.5 transition-colors"
-                      >
-                        <UserIcon size={13} /> {t("viewUser")}
-                      </Link>
                     </div>
                   </div>
 
@@ -1052,7 +1071,7 @@ export default function DocumentsPage() {
                   {previewDoc?.fileName}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  Uploaded by {previewDoc ? uploaderName(previewDoc.uploadedBy) : ""} &bull;{" "}
+                  {t("uploadedBy")}: {previewDoc ? uploaderName(previewDoc.uploadedBy) : ""} &bull;{" "}
                   {previewDoc ? formatBytes(previewDoc.fileSize) : ""} &bull;{" "}
                   {previewDoc?.createdAt
                     ? new Date(previewDoc.createdAt).toLocaleDateString(locale, {

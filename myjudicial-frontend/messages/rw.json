@@ -339,7 +339,20 @@
       "viewUser": "Reba umukoresha",
       "reviewVerification": "Isuzuma ry'umunyamwuga",
       "userDossier": "Dosiye y'umukoresha",
-      "latestActivity": "Ibikorwa biheruka"
+      "latestActivity": "Ibikorwa biheruka",
+      "role": "Uruhare",
+      "platformRepository": "Ububiko bwose bwa serivisi",
+      "allPlatformDocs": "Inyandiko zose zo kuri urubuga",
+      "aesEncrypted": "Bicunzwe mu buryo bwa AES-256",
+      "activeFilters": "Akayunguruzo gakora:",
+      "clearAll": "Hanagura byose",
+      "noEmail": "Nta imeri",
+      "filesCount": "Amadosiye {count}",
+      "noDossiersMatch": "Nta madosiye ahura n'ibyo wahisemo.",
+      "noMatchingFiltersDesc": "Nta nyandiko zihuye n'akayunguruzo wahisemo. Hanagura akayunguruzo cyangwa uhitemo uruhare rundi.",
+      "unassignedUser": "Bitagenwe / Sisitemu",
+      "viewExpert": "Reba umwirondoro w'umuhanga",
+      "viewClient": "Reba umukiriya"
     },
     "settings": {
       "title": "Igenamiterere ry'Adayobusi",

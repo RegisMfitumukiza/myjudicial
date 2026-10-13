@@ -244,6 +244,7 @@ export const FileStorageService = {
         fileName:            dto.fileName,
         mimeType:            dto.mimeType,
         fileSize:            buffer.length, // original file size
+        category:            dto.category,
         sensitivity:         enforcedSensitivity,
         encryptedAesKey:     finalAesKey,
         iv:                  ivBase64,

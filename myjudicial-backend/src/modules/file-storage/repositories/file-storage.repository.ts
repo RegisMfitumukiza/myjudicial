@@ -27,6 +27,7 @@ const documentSelect = {
   fileName:            true,
   mimeType:            true,
   fileSize:            true,
+  category:            true,
   sensitivity:         true,
   encryptionAlgorithm: true,
   keyVersion:          true,
@@ -55,6 +56,7 @@ export type CreateDocumentData = {
   fileName:            string;
   mimeType:            string;
   fileSize:            number;
+  category?:           string;
   sensitivity:         FileSensitivity;
   bookingId?:          string;
   encryptedAesKey?:    string;
@@ -241,6 +243,10 @@ export const FileStorageRepository = {
   }): Promise<{ records: AdminDocumentView[]; total: number }> => {
     const where: Prisma.DocumentWhereInput = {
       isDeleted: false,
+      NOT: [
+        { category: "chat-attachment" },
+        { objectKey: { startsWith: "chat/" } },
+      ],
       ...(filters.ownerType && { ownerType: filters.ownerType }),
       ...(filters.sensitivity && { sensitivity: filters.sensitivity }),
       ...(filters.role && {
@@ -335,6 +341,14 @@ export const FileStorageRepository = {
     expertUploaders: number;
     clientUploaders: number;
   }> => {
+    const baseWhere: Prisma.DocumentWhereInput = {
+      isDeleted: false,
+      NOT: [
+        { category: "chat-attachment" },
+        { objectKey: { startsWith: "chat/" } },
+      ],
+    };
+
     const [
       totalCount,
       sizeSum,
@@ -345,22 +359,22 @@ export const FileStorageRepository = {
       expertUploaders,
       citizenUploaders,
     ] = await prisma.$transaction([
-      prisma.document.count({ where: { isDeleted: false } }),
+      prisma.document.count({ where: baseWhere }),
       prisma.document.aggregate({
-        where: { isDeleted: false },
+        where: baseWhere,
         _sum: { fileSize: true },
       }),
-      prisma.document.count({ where: { isDeleted: false, sensitivity: "CONFIDENTIAL" } }),
-      prisma.document.count({ where: { isDeleted: false, sensitivity: "PRIVATE" } }),
-      prisma.document.count({ where: { isDeleted: false, sensitivity: "PUBLIC" } }),
+      prisma.document.count({ where: { ...baseWhere, sensitivity: "CONFIDENTIAL" } }),
+      prisma.document.count({ where: { ...baseWhere, sensitivity: "PRIVATE" } }),
+      prisma.document.count({ where: { ...baseWhere, sensitivity: "PUBLIC" } }),
       prisma.document.groupBy({
         by: ["uploadedById"],
-        where: { isDeleted: false, uploadedById: { not: null } },
+        where: { ...baseWhere, uploadedById: { not: null } },
       }),
       prisma.document.groupBy({
         by: ["uploadedById"],
         where: {
-          isDeleted: false,
+          ...baseWhere,
           uploadedById: { not: null },
           uploadedBy: { role: "EXPERT" },
         },
@@ -368,7 +382,7 @@ export const FileStorageRepository = {
       prisma.document.groupBy({
         by: ["uploadedById"],
         where: {
-          isDeleted: false,
+          ...baseWhere,
           uploadedById: { not: null },
           uploadedBy: { role: "CITIZEN" },
         },
@@ -402,6 +416,7 @@ export const FileStorageRepository = {
       userName: string;
       userEmail: string;
       role: string;
+      expertProfileId: string | null;
       documents: AdminDocumentView[];
       totalSize: number;
       documentCount: number;
@@ -412,6 +427,10 @@ export const FileStorageRepository = {
     const where: Prisma.DocumentWhereInput = {
       isDeleted: false,
       uploadedById: { not: null },
+      NOT: [
+        { category: "chat-attachment" },
+        { objectKey: { startsWith: "chat/" } },
+      ],
       ...(filters.sensitivity && { sensitivity: filters.sensitivity }),
       ...(filters.role && {
         uploadedBy: { role: filters.role === "CLIENT" ? "CITIZEN" : "EXPERT" },
@@ -459,6 +478,7 @@ export const FileStorageRepository = {
         firstName: true,
         lastName: true,
         role: true,
+        expertProfile: { select: { id: true } },
       },
     });
     const userMap = new Map(users.map((u) => [u.id, u]));
@@ -503,6 +523,7 @@ export const FileStorageRepository = {
         userName: fullName,
         userEmail: user?.email || "",
         role: user?.role || "USER",
+        expertProfileId: user?.expertProfile?.id || null,
         documents: docsByUploader.get(uId) ?? [],
         totalSize: g._sum.fileSize || 0,
         documentCount: g._count.id || 0,

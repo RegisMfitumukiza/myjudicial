@@ -142,6 +142,7 @@ export type StoredFileMetadata = {
   fileName:            string;
   mimeType:            string;
   fileSize:            number;
+  category:            string | null;
   sensitivity:         FileSensitivity;
   encryptionAlgorithm: string | null;
   keyVersion:          string | null;
@@ -168,6 +169,7 @@ export type AdminDocumentView = {
   fileName:     string;
   mimeType:     string;
   fileSize:     number;
+  category:     string | null;
   sensitivity:  FileSensitivity;
   ownerType:    FileOwnerType;
   bookingId:    string | null;

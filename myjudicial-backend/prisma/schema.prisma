@@ -930,6 +930,7 @@ model Document {
   fileName String
   mimeType String
   fileSize Int
+  category String? // e.g. "expert-certificate", "expert-national-id", "case-evidence", "chat-attachment", etc.
 
   // Sensitivity classification
   sensitivity FileSensitivity @default(PRIVATE)
@@ -960,6 +961,7 @@ model Document {
   @@index([ownerId])
   @@index([ownerType])
   @@index([sensitivity])
+  @@index([category])
   @@index([bookingId])
   @@index([uploadedById])
   @@index([isDeleted])

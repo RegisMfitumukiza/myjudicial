@@ -5,8 +5,10 @@ import {
   deleteObject, 
   getSignedDownloadUrl,
   headObject,
-  scanForMalware
+  scanForMalware,
+  getDefaultBucketName,
 } from "../../../infrastructure/storage/oci-object-storage.service.js";
+import { FileStorageRepository } from "../../file-storage/repositories/file-storage.repository.js";
 import { NotFoundError, ValidationError, FileUploadError } from "../../../shared/errors/index.js";
 import { logger } from "../../../shared/utils/logger.js";
 import { writeAuditLog } from "../../../shared/utils/audit.js";
@@ -72,6 +74,7 @@ export const PhotoService = {
       if (profile.profileImageObjectKey) {
         try {
           await deleteObject(profile.profileImageObjectKey);
+          await FileStorageRepository.softDeleteByObjectKey(profile.profileImageObjectKey);
         } catch (error) {
           logger.warn("Failed to delete old profile photo", { 
             oldKey: profile.profileImageObjectKey, 
@@ -95,6 +98,25 @@ export const PhotoService = {
           data: { avatarObjectKey: uploadedKey }
         })
       ]);
+
+      // Register public profile photo in Document repository for admin tracking
+      try {
+        await FileStorageRepository.create({
+          ownerId: userId,
+          ownerType: "EXPERT",
+          bucketName: getDefaultBucketName(),
+          objectKey: uploadedKey,
+          fileName: file.originalname,
+          mimeType: file.mimetype,
+          fileSize: processedBuffer.length,
+          category: "expert-profile",
+          sensitivity: "PUBLIC",
+          isVault: false,
+          uploadedById: userId,
+        });
+      } catch (docErr) {
+        logger.warn("Failed to register expert photo in Document table", { userId, uploadedKey, docErr });
+      }
 
       // Write audit log
       await writeAuditLog({
@@ -151,6 +173,7 @@ export const PhotoService = {
     try {
       // Delete from OCI
       await deleteObject(profile.profileImageObjectKey);
+      await FileStorageRepository.softDeleteByObjectKey(profile.profileImageObjectKey);
 
       // Update database
       await prisma.expertProfile.update({

@@ -339,7 +339,20 @@
       "viewUser": "Voir l'utilisateur",
       "reviewVerification": "Vérifier l'expert",
       "userDossier": "Dossier utilisateur",
-      "latestActivity": "Dernière activité"
+      "latestActivity": "Dernière activité",
+      "role": "Rôle",
+      "platformRepository": "Répertoire global de la plateforme",
+      "allPlatformDocs": "Tous les documents de la plateforme",
+      "aesEncrypted": "Chiffré en AES-256",
+      "activeFilters": "Filtres actifs :",
+      "clearAll": "Tout effacer",
+      "noEmail": "Aucun e-mail",
+      "filesCount": "{count} fichiers",
+      "noDossiersMatch": "Aucun dossier ne correspond à vos filtres actuels.",
+      "noMatchingFiltersDesc": "Aucun document ne correspond à vos filtres sélectionnés. Effacez les filtres ou sélectionnez un autre rôle.",
+      "unassignedUser": "Non assigné / Système",
+      "viewExpert": "Voir le profil de l'expert",
+      "viewClient": "Voir le client"
     },
     "settings": {
       "title": "Paramètres administrateur",

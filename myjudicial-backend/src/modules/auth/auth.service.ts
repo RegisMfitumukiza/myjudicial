@@ -19,9 +19,11 @@ import {
 import { NotificationRepository } from "../notifications/notification.repository.js";
 import {
   uploadObject,
+  deleteObject,
   getSignedDownloadUrl,
   getDefaultBucketName,
 } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { FileStorageRepository } from "../file-storage/repositories/file-storage.repository.js";
 import { logger } from "../../shared/utils/logger.js";
 import { AdminSettingService } from "../settings/admin-setting.service.js";
 import {
@@ -832,17 +834,48 @@ export const AuthService = {
     file: { buffer: Buffer; mimetype: string },
     ipAddress?: string
   ) => {
+    const user = await AuthRepository.findById(userId);
+    const oldAvatarKey = user?.avatarObjectKey;
+
     const extension = file.mimetype.split("/")[1] ?? "jpg";
     const objectKey = `users/${userId}/avatar/${crypto.randomUUID()}.${extension}`;
+    const bucketName = getDefaultBucketName();
 
     await uploadObject({
       key: objectKey,
       body: file.buffer,
       contentType: file.mimetype,
-      bucket: getDefaultBucketName(),
+      bucket: bucketName,
     });
 
+    if (oldAvatarKey) {
+      try {
+        await deleteObject(oldAvatarKey, bucketName);
+        await FileStorageRepository.softDeleteByObjectKey(oldAvatarKey);
+      } catch (err) {
+        logger.warn("Failed to delete previous avatar from storage", { oldAvatarKey, err });
+      }
+    }
+
     await AuthRepository.updateAvatarObjectKey(userId, objectKey);
+
+    try {
+      await FileStorageRepository.create({
+        ownerId: userId,
+        ownerType: "USER",
+        bucketName,
+        objectKey,
+        fileName: `avatar.${extension}`,
+        mimeType: file.mimetype,
+        fileSize: file.buffer.length,
+        category: "user-avatar",
+        sensitivity: "PUBLIC",
+        isVault: false,
+        uploadedById: userId,
+      });
+    } catch (err) {
+      logger.warn("Failed to register avatar in Document table", { userId, objectKey, err });
+    }
 
     const { url: avatarUrl } = await getSignedDownloadUrl(objectKey);
 

@@ -473,7 +473,20 @@
       "viewUser": "View User",
       "reviewVerification": "Review Verification",
       "userDossier": "User Dossier",
-      "latestActivity": "Latest activity"
+      "latestActivity": "Latest activity",
+      "role": "Role",
+      "platformRepository": "Platform-wide repository",
+      "allPlatformDocs": "All platform documents",
+      "aesEncrypted": "AES-256 encrypted",
+      "activeFilters": "Active filters:",
+      "clearAll": "Clear all",
+      "noEmail": "No email",
+      "filesCount": "{count} files",
+      "noDossiersMatch": "No dossiers match your current filters.",
+      "noMatchingFiltersDesc": "There are no documents matching your currently selected filters. Clear your filters or select a different role to view files.",
+      "unassignedUser": "Unassigned / System",
+      "viewExpert": "View Expert Profile",
+      "viewClient": "View Client"
     },
     "settings": {
       "title": "Admin Settings",

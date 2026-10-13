@@ -428,7 +428,7 @@ describe("ContentEditor — copy from English and delete", () => {
 
     fireEvent.click(screen.getByRole("button", { name: cp.deletePage }));
     await waitFor(() => expect(api.deleteContentPage).toHaveBeenCalledWith("PRIVACY", "en"));
-    expect(screen.getByText(cp.neverWrittenTitle)).toBeInTheDocument();
+    expect(await screen.findByText(cp.neverWrittenTitle)).toBeInTheDocument();
   });
 });
 

@@ -502,6 +502,18 @@ export default function ExpertDetailPage() {
     onError: () => toast.error(t("actionFailed")),
   });
 
+  const latestCert = expert?.certifications?.[0];
+  const effectiveExpiry = latestCert?.expiryDate || expert?.credentialsExpiry || null;
+  const initialExpiry = effectiveExpiry
+    ? new Date(effectiveExpiry).toISOString().split("T")[0]
+    : "";
+
+  useEffect(() => {
+    if (initialExpiry && !confirmedExpiryDate) {
+      setConfirmedExpiryDate(initialExpiry);
+    }
+  }, [initialExpiry, confirmedExpiryDate]);
+
   if (isLoading) {
     return (
       <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
@@ -535,18 +547,6 @@ export default function ExpertDetailPage() {
 
   const displayName = expert.fullName || `${expert.firstName ?? ""} ${expert.lastName ?? ""}`.trim() || expert.email;
   const isSuspended = expert.accountStatus === "SUSPENDED";
-
-  const latestCert = expert.certifications?.[0];
-  const effectiveExpiry = latestCert?.expiryDate || expert.credentialsExpiry || null;
-  const initialExpiry = effectiveExpiry
-    ? new Date(effectiveExpiry).toISOString().split("T")[0]
-    : "";
-
-  useEffect(() => {
-    if (initialExpiry && !confirmedExpiryDate) {
-      setConfirmedExpiryDate(initialExpiry);
-    }
-  }, [initialExpiry, confirmedExpiryDate]);
 
   const isChecklistComplete =
     checklist.barMatch &&

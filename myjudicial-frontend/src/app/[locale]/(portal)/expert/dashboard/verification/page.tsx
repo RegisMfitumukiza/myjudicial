@@ -220,6 +220,7 @@ function FileDropZone({
   onRemove,
   isOnFile = false,
   isRequired = true,
+  error,
 }: {
   label: string;
   accept: string;
@@ -228,6 +229,7 @@ function FileDropZone({
   onRemove: () => void;
   isOnFile?: boolean;
   isRequired?: boolean;
+  error?: string;
 }) {
   const t = useTranslations("expertDashboard_verification");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -315,7 +317,9 @@ function FileDropZone({
           onClick={() => inputRef.current?.click()}
           className={cn(
             "flex cursor-pointer flex-col items-center justify-center text-center gap-2 rounded-xl border-2 border-dashed p-5 sm:p-6 transition-colors hover:border-primary/50 hover:bg-primary/5 min-h-[120px] sm:min-h-[135px]",
-            dragging
+            error
+              ? "border-destructive/70 bg-destructive/5 hover:border-destructive"
+              : dragging
               ? "border-primary bg-primary/5"
               : isOnFile
               ? "border-green-300 dark:border-green-800/60 bg-green-50/20 dark:bg-green-950/10"
@@ -324,7 +328,11 @@ function FileDropZone({
         >
           <div className={cn(
             "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full text-primary",
-            isOnFile ? "bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400" : "bg-primary/10"
+            error
+              ? "bg-destructive/10 text-destructive"
+              : isOnFile
+              ? "bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400"
+              : "bg-primary/10"
           )}>
             <Upload size={18} />
           </div>
@@ -338,6 +346,10 @@ function FileDropZone({
             {t("fileSizeLimit")}
           </p>
         </div>
+      )}
+
+      {error && (
+        <p className="text-[11px] font-medium text-destructive">{error}</p>
       )}
 
       <input
@@ -373,6 +385,7 @@ export default function VerificationPage() {
   const [issuer, setIssuer] = useState("");
   const [issueDate, setIssueDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Pre-fill barNumber from expert profile if not already set
   useEffect(() => {
@@ -516,13 +529,55 @@ export default function VerificationPage() {
   }
 
   async function handleSubmit() {
-    if (!identityFile && !certificateFile) {
-      toast.error(
-        t("validationAttachDocs")
-      );
+    const newErrors: Record<string, string> = {};
+
+    // 1. Validate required documents
+    if (!identityFile && !hasIdentityOnFile) {
+      newErrors.identityFile = t("validationIdRequired");
+    }
+    if (!certificateFile && !hasBarCertOnFile) {
+      newErrors.certificateFile = t("validationBarCertRequired");
+    }
+
+    // 2. Validate required metadata fields
+    if (!barNumber?.trim()) {
+      newErrors.barNumber = t("validationBarNumberRequired");
+    }
+    if (!certificateName?.trim()) {
+      newErrors.certificateName = t("validationCertNameRequired");
+    }
+    if (!issuer?.trim()) {
+      newErrors.issuer = t("validationIssuerRequired");
+    }
+    if (!issueDate?.trim()) {
+      newErrors.issueDate = t("validationIssueDateRequired");
+    }
+    if (!expiryDate?.trim()) {
+      newErrors.expiryDate = t("validationExpiryDateRequired");
+    } else {
+      const expDate = new Date(expiryDate.trim());
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (issueDate?.trim()) {
+        const issDate = new Date(issueDate.trim());
+        if (!isNaN(issDate.getTime()) && !isNaN(expDate.getTime()) && expDate <= issDate) {
+          newErrors.expiryDate = t("validationExpiryAfterIssue");
+        }
+      }
+
+      if (!newErrors.expiryDate && !isNaN(expDate.getTime()) && expDate < today) {
+        newErrors.expiryDate = t("validationFutureExpiry");
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error(t("validationFixErrors"));
       return;
     }
 
+    setErrors({});
     setIsSubmitting(true);
     try {
       const formData = new FormData();
@@ -540,61 +595,51 @@ export default function VerificationPage() {
         formData.append("documentTypes", dt);
       });
 
-      if (barNumber?.trim()) formData.append("barNumber", barNumber.trim());
-      if (certificateName?.trim()) formData.append("certificateName", certificateName.trim());
-      if (issuer?.trim()) formData.append("issuer", issuer.trim());
+      formData.append("barNumber", barNumber.trim());
+      formData.append("certificateName", certificateName.trim());
+      formData.append("issuer", issuer.trim());
 
-      if (issueDate && issueDate.trim()) {
-        const trimmed = issueDate.trim();
-        let normalizedDate: string | null = null;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          normalizedDate = trimmed;
+      const trimmedIssue = issueDate.trim();
+      let normalizedIssue = trimmedIssue;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedIssue)) {
+        normalizedIssue = trimmedIssue;
+      } else {
+        const mdy = trimmedIssue.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+        if (mdy) {
+          const [, p1, p2, year] = mdy;
+          normalizedIssue =
+            Number(p1) > 12
+              ? `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`
+              : `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
         } else {
-          const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-          if (mdy) {
-            const [, p1, p2, year] = mdy;
-            if (Number(p1) > 12) {
-              normalizedDate = `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
-            } else {
-              normalizedDate = `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
-            }
-          } else {
-            const d = new Date(trimmed);
-            if (!isNaN(d.getTime())) {
-              normalizedDate = d.toISOString().split("T")[0];
-            }
+          const d = new Date(trimmedIssue);
+          if (!isNaN(d.getTime())) {
+            normalizedIssue = d.toISOString().split("T")[0];
           }
         }
-        if (normalizedDate && /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
-          formData.append("issueDate", normalizedDate);
-        }
       }
+      formData.append("issueDate", normalizedIssue);
 
-      if (expiryDate && expiryDate.trim()) {
-        const trimmed = expiryDate.trim();
-        let normalizedDate: string | null = null;
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          normalizedDate = trimmed;
+      const trimmedExpiry = expiryDate.trim();
+      let normalizedExpiry = trimmedExpiry;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedExpiry)) {
+        normalizedExpiry = trimmedExpiry;
+      } else {
+        const mdy = trimmedExpiry.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+        if (mdy) {
+          const [, p1, p2, year] = mdy;
+          normalizedExpiry =
+            Number(p1) > 12
+              ? `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`
+              : `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
         } else {
-          const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-          if (mdy) {
-            const [, p1, p2, year] = mdy;
-            if (Number(p1) > 12) {
-              normalizedDate = `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
-            } else {
-              normalizedDate = `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
-            }
-          } else {
-            const d = new Date(trimmed);
-            if (!isNaN(d.getTime())) {
-              normalizedDate = d.toISOString().split("T")[0];
-            }
+          const d = new Date(trimmedExpiry);
+          if (!isNaN(d.getTime())) {
+            normalizedExpiry = d.toISOString().split("T")[0];
           }
         }
-        if (normalizedDate && /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
-          formData.append("expiryDate", normalizedDate);
-        }
       }
+      formData.append("expiryDate", normalizedExpiry);
 
       await apiFetch("/experts/verification/submit", {
         method: "POST",
@@ -610,10 +655,14 @@ export default function VerificationPage() {
       } catch {}
 
       if (identityFile?.preview) {
-        try { URL.revokeObjectURL(identityFile.preview); } catch {}
+        try {
+          URL.revokeObjectURL(identityFile.preview);
+        } catch {}
       }
       if (certificateFile?.preview) {
-        try { URL.revokeObjectURL(certificateFile.preview); } catch {}
+        try {
+          URL.revokeObjectURL(certificateFile.preview);
+        } catch {}
       }
 
       setIdentityFile(null);
@@ -623,6 +672,7 @@ export default function VerificationPage() {
       setIssuer("");
       setIssueDate("");
       setExpiryDate("");
+      setErrors({});
       queryClient.invalidateQueries({
         queryKey: getGetExpertsComplianceQueryKey(),
       });
@@ -752,12 +802,16 @@ export default function VerificationPage() {
                   attached={identityFile}
                   isOnFile={hasIdentityOnFile}
                   isRequired={!hasIdentityOnFile}
+                  error={errors.identityFile}
                   onAttach={(f) => {
                     if (identityFile?.preview) {
                       try { URL.revokeObjectURL(identityFile.preview); } catch {}
                     }
                     setIdentityFile(createAttachedFile(f, "identity"));
                     saveDraftFile("identity", f);
+                    if (errors.identityFile) {
+                      setErrors((prev) => ({ ...prev, identityFile: "" }));
+                    }
                   }}
                   onRemove={() => {
                     if (identityFile?.preview) {
@@ -773,12 +827,16 @@ export default function VerificationPage() {
                   attached={certificateFile}
                   isOnFile={hasBarCertOnFile}
                   isRequired={!hasBarCertOnFile}
+                  error={errors.certificateFile}
                   onAttach={(f) => {
                     if (certificateFile?.preview) {
                       try { URL.revokeObjectURL(certificateFile.preview); } catch {}
                     }
                     setCertificateFile(createAttachedFile(f, "certificate"));
                     saveDraftFile("bar_certificate", f);
+                    if (errors.certificateFile) {
+                      setErrors((prev) => ({ ...prev, certificateFile: "" }));
+                    }
                   }}
                   onRemove={() => {
                     if (certificateFile?.preview) {
@@ -790,62 +848,110 @@ export default function VerificationPage() {
                 />
               </div>
 
-              {/* Optional metadata */}
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="barNumber" className="text-xs font-medium">
-                    {t("labelBarNumber")}
-                  </Label>
-                  <Input
-                    id="barNumber"
-                    value={barNumber}
-                    onChange={(e) => setBarNumber(e.target.value)}
-                    placeholder={t("placeholderBarNumber")}
-                  />
+              {/* License & Certificate Details */}
+              <div className="mt-6 border-t border-border pt-5">
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                    {t("credentialsSectionTitle")}
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("credentialsSectionDesc")}
+                  </p>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="certificateName" className="text-xs font-medium">
-                    {t("labelCertName")}
-                  </Label>
-                  <Input
-                    id="certificateName"
-                    value={certificateName}
-                    onChange={(e) => setCertificateName(e.target.value)}
-                    placeholder={t("placeholderCertName")}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="issuer" className="text-xs font-medium">
-                    {t("labelIssuer")}
-                  </Label>
-                  <Input
-                    id="issuer"
-                    value={issuer}
-                    onChange={(e) => setIssuer(e.target.value)}
-                    placeholder={t("placeholderIssuer")}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="issueDate" className="text-xs font-medium">
-                    {t("labelIssueDate")}
-                  </Label>
-                  <Input
-                    id="issueDate"
-                    type="date"
-                    value={issueDate}
-                    onChange={(e) => setIssueDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="expiryDate" className="text-xs font-medium">
-                    {t("labelExpiryDate")}
-                  </Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                  />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="barNumber" className="text-xs font-medium">
+                      {t("labelBarNumber")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="barNumber"
+                      value={barNumber}
+                      onChange={(e) => {
+                        setBarNumber(e.target.value);
+                        if (errors.barNumber) setErrors((prev) => ({ ...prev, barNumber: "" }));
+                      }}
+                      placeholder={t("placeholderBarNumber")}
+                      className={cn(errors.barNumber && "border-destructive focus-visible:ring-destructive")}
+                    />
+                    {errors.barNumber && (
+                      <p className="text-[11px] font-medium text-destructive mt-1">{errors.barNumber}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="certificateName" className="text-xs font-medium">
+                      {t("labelCertName")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="certificateName"
+                      value={certificateName}
+                      onChange={(e) => {
+                        setCertificateName(e.target.value);
+                        if (errors.certificateName) setErrors((prev) => ({ ...prev, certificateName: "" }));
+                      }}
+                      placeholder={t("placeholderCertName")}
+                      className={cn(errors.certificateName && "border-destructive focus-visible:ring-destructive")}
+                    />
+                    {errors.certificateName && (
+                      <p className="text-[11px] font-medium text-destructive mt-1">{errors.certificateName}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="issuer" className="text-xs font-medium">
+                      {t("labelIssuer")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="issuer"
+                      value={issuer}
+                      onChange={(e) => {
+                        setIssuer(e.target.value);
+                        if (errors.issuer) setErrors((prev) => ({ ...prev, issuer: "" }));
+                      }}
+                      placeholder={t("placeholderIssuer")}
+                      className={cn(errors.issuer && "border-destructive focus-visible:ring-destructive")}
+                    />
+                    {errors.issuer && (
+                      <p className="text-[11px] font-medium text-destructive mt-1">{errors.issuer}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="issueDate" className="text-xs font-medium">
+                      {t("labelIssueDate")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="issueDate"
+                      type="date"
+                      max={new Date().toISOString().split("T")[0]}
+                      value={issueDate}
+                      onChange={(e) => {
+                        setIssueDate(e.target.value);
+                        if (errors.issueDate) setErrors((prev) => ({ ...prev, issueDate: "" }));
+                        if (errors.expiryDate) setErrors((prev) => ({ ...prev, expiryDate: "" }));
+                      }}
+                      className={cn(errors.issueDate && "border-destructive focus-visible:ring-destructive")}
+                    />
+                    {errors.issueDate && (
+                      <p className="text-[11px] font-medium text-destructive mt-1">{errors.issueDate}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="expiryDate" className="text-xs font-medium">
+                      {t("labelExpiryDate")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="expiryDate"
+                      type="date"
+                      min={issueDate || new Date().toISOString().split("T")[0]}
+                      value={expiryDate}
+                      onChange={(e) => {
+                        setExpiryDate(e.target.value);
+                        if (errors.expiryDate) setErrors((prev) => ({ ...prev, expiryDate: "" }));
+                      }}
+                      className={cn(errors.expiryDate && "border-destructive focus-visible:ring-destructive")}
+                    />
+                    {errors.expiryDate && (
+                      <p className="text-[11px] font-medium text-destructive mt-1">{errors.expiryDate}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -857,9 +963,7 @@ export default function VerificationPage() {
                 <Button
                   size="lg"
                   onClick={handleSubmit}
-                  disabled={
-                    isSubmitting || (!identityFile && !certificateFile)
-                  }
+                  disabled={isSubmitting}
                   className="w-full sm:w-auto"
                 >
                   {isSubmitting ? (

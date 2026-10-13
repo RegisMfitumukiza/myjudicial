@@ -5312,6 +5312,8 @@
     "validationExpiryAfterIssue": "La date d'expiration doit être postérieure à la date de délivrance.",
     "validationFutureExpiry": "La date d'expiration doit être dans le futur.",
     "validationFixErrors": "Veuillez remplir tous les champs obligatoires signalés par un astérisque (*).",
+    "credentialsSectionTitle": "Détails de la licence et du certificat",
+    "credentialsSectionDesc": "Tous les champs sont obligatoires pour l'accréditation officielle et le suivi automatisé des renouvellements.",
     "toastSubmitted": "Documents de vérification soumis à l'administration.",
     "toastSubmitFailed": "Échec de l'envoi de la vérification.",
     "titleVerification": "Vérification d'identité",

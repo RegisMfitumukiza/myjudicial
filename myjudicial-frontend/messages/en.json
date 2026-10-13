@@ -3349,6 +3349,8 @@
     "validationExpiryAfterIssue": "Expiry date must be after the issue date.",
     "validationFutureExpiry": "Expiry date must be in the future.",
     "validationFixErrors": "Please fill in all required fields marked with an asterisk (*).",
+    "credentialsSectionTitle": "License & Certificate Details",
+    "credentialsSectionDesc": "All fields are required for official accreditation and automated renewal tracking.",
     "toastSubmitted": "Verification documents submitted for admin review.",
     "toastSubmitFailed": "Failed to submit verification.",
     "titleVerification": "Identity Verification",

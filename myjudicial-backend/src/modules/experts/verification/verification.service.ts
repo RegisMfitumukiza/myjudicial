@@ -53,10 +53,32 @@ export const VerificationService = {
     if (!profile.bio?.trim()) missingFields.push("bio");
     if (!profile.officeAddress?.trim() && !profile.city?.trim()) missingFields.push("office location");
 
+    // Guard: all certificate metadata fields are strictly required
+    if (!dto.certificateName?.trim()) missingFields.push("certificate name");
+    if (!dto.issuer?.trim()) missingFields.push("issuing authority");
+    if (!dto.issueDate?.trim()) missingFields.push("issue date");
+    if (!dto.expiryDate?.trim()) missingFields.push("expiry date");
+
     if (missingFields.length > 0) {
       throw new ValidationError(
-        `Please complete your profile before submitting verification. Missing: ${missingFields.join(", ")}.`
+        `All verification fields are required. Please provide: ${missingFields.join(", ")}.`
       );
+    }
+
+    if (dto.issueDate && dto.expiryDate) {
+      const issueD = new Date(dto.issueDate);
+      const expiryD = new Date(dto.expiryDate);
+      if (isNaN(issueD.getTime()) || isNaN(expiryD.getTime())) {
+        throw new ValidationError("Invalid issue date or expiry date format.");
+      }
+      if (expiryD <= issueD) {
+        throw new ValidationError("Certificate expiry date must be strictly after the issue date.");
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (expiryD < today) {
+        throw new ValidationError("Certificate expiry date cannot be in the past.");
+      }
     }
 
     const bucketName = getDefaultBucketName();
@@ -177,9 +199,19 @@ export const VerificationService = {
       }
     }
 
+    const finalIdentityKey = identityDocumentKey || existingPending?.identityDocumentObjectKey;
+    const finalBarCertKey = barCertificateKey || existingPending?.barCertificateObjectKey;
+
+    if (!finalIdentityKey) {
+      throw new ValidationError("National ID or Passport document is required.");
+    }
+    if (!finalBarCertKey) {
+      throw new ValidationError("Bar Association Certificate is required.");
+    }
+
     const parsedExpiryDate = dto.expiryDate ? new Date(dto.expiryDate) : null;
 
-    // Update expert profile with bar number, optional credentialsExpiry, and set status to PENDING_VERIFICATION
+    // Update expert profile with bar number, credentialsExpiry, and set status to PENDING_VERIFICATION
     await prisma.expertProfile.update({
       where: { id: profile.id },
       data: {

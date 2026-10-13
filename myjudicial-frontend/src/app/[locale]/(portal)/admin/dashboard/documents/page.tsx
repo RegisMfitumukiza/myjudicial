@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -82,7 +82,42 @@ interface DocumentsResponse {
   };
 }
 
+interface AdminDocumentStats {
+  totalDocuments: number;
+  totalSizeBytes: number;
+  confidentialCount: number;
+  privateCount: number;
+  publicCount: number;
+  totalUploaders: number;
+  expertUploaders: number;
+  clientUploaders: number;
+}
+
+interface AdminDossier {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  role: string;
+  documents: AdminDocument[];
+  totalSize: number;
+  documentCount: number;
+  latestUpload: string;
+}
+
+interface DossiersResponse {
+  data: AdminDossier[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 const PAGE_SIZE = 20;
+const DOSSIER_PAGE_SIZE = 10;
 
 function formatBytes(bytes: number): string {
   if (!bytes || isNaN(bytes)) return "0 B";
@@ -121,6 +156,7 @@ export default function DocumentsPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [dossierPage, setDossierPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortKey>("createdAt");
   const [order, setOrder] = useState<SortOrder>("desc");
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
@@ -133,14 +169,35 @@ export default function DocumentsPage() {
   // Delete Modal state
   const [deleteDoc, setDeleteDoc] = useState<AdminDocument | null>(null);
 
+  // View mode: "stream" (flat table) vs "dossiers" (grouped by person)
+  const [viewMode, setViewMode] = useState<"stream" | "dossiers">("stream");
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
+      setDossierPage(1);
     }, 350);
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+    setDossierPage(1);
+  }, [role, sensitivity]);
+
+  // ── Backend-driven statistics (platform-wide, not page-scoped) ─────────────
+  const { data: statsResponse } = useQuery({
+    queryKey: ["admin-document-stats"],
+    queryFn: () =>
+      apiFetch<{ success: boolean; data: AdminDocumentStats }>("/admin/documents/stats"),
+    staleTime: 30_000, // refresh every 30s
+    retry: false,
+  });
+  const stats = statsResponse?.data;
+
+  // ── Flat documents list ────────────────────────────────────────────────────
   const {
     data: response,
     isLoading,
@@ -164,6 +221,32 @@ export default function DocumentsPage() {
       return apiFetch<DocumentsResponse>(`/admin/documents?${params.toString()}`);
     },
     retry: false,
+    enabled: viewMode === "stream",
+  });
+
+  // ── Backend-paginated dossiers ─────────────────────────────────────────────
+  const {
+    data: dossiersResponse,
+    isLoading: dossiersLoading,
+    isError: dossiersError,
+    refetch: refetchDossiers,
+    isFetching: dossiersFetching,
+  } = useQuery({
+    queryKey: [
+      "admin-dossiers",
+      { dossierPage, role, sensitivity, search: debouncedSearch },
+    ],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set("page", String(dossierPage));
+      params.set("limit", String(DOSSIER_PAGE_SIZE));
+      if (role !== "ALL") params.set("role", role);
+      if (sensitivity !== "ALL") params.set("sensitivity", sensitivity);
+      if (debouncedSearch.trim()) params.set("search", debouncedSearch.trim());
+      return apiFetch<DossiersResponse>(`/admin/documents/dossiers?${params.toString()}`);
+    },
+    retry: false,
+    enabled: viewMode === "dossiers",
   });
 
   const deleteMutation = useMutation({
@@ -172,6 +255,8 @@ export default function DocumentsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-documents"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dossiers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-document-stats"] });
       setDeleteDoc(null);
       toast.success(t("deleteSuccess"));
     },
@@ -185,6 +270,11 @@ export default function DocumentsPage() {
   const total = meta?.total ?? 0;
   const totalPages = Math.max(meta?.totalPages ?? 1, 1);
 
+  const dossiers = Array.isArray(dossiersResponse?.data) ? dossiersResponse.data : [];
+  const dossierMeta = dossiersResponse?.meta;
+  const dossierTotal = dossierMeta?.total ?? 0;
+  const dossierTotalPages = Math.max(dossierMeta?.totalPages ?? 1, 1);
+
   const hasActiveFilters = Boolean(
     role !== "ALL" || sensitivity !== "ALL" || debouncedSearch.trim()
   );
@@ -195,6 +285,13 @@ export default function DocumentsPage() {
     setSearch("");
     setDebouncedSearch("");
     setPage(1);
+    setDossierPage(1);
+  }
+
+  function handleRefetchAll() {
+    refetch();
+    refetchDossiers();
+    queryClient.invalidateQueries({ queryKey: ["admin-document-stats"] });
   }
 
   function toggleSort(key: SortKey) {
@@ -288,81 +385,6 @@ export default function DocumentsPage() {
     { value: "PUBLIC", label: t("public") },
   ] as const;
 
-  // View mode: "stream" (flat table) vs "dossiers" (grouped by person)
-  const [viewMode, setViewMode] = useState<"stream" | "dossiers">("stream");
-
-  // Overview stats calculated from current dataset
-  const storageOnPage = documents.reduce((sum, d) => sum + (d.fileSize || 0), 0);
-  const confidentialCount = documents.filter((d) => d.sensitivity === "CONFIDENTIAL").length;
-
-  const uniqueUploaders = useMemo(() => {
-    const map = new Map<string, { id: string; name: string; email: string; role: string; count: number }>();
-    documents.forEach((d) => {
-      const u = d.uploadedBy;
-      const key = u?.id || "unknown";
-      const name = u ? `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email : "Unknown";
-      const existing = map.get(key);
-      if (!existing) {
-        map.set(key, {
-          id: key,
-          name,
-          email: u?.email || "N/A",
-          role: u?.role || "UNKNOWN",
-          count: 1,
-        });
-      } else {
-        existing.count += 1;
-      }
-    });
-    return Array.from(map.values());
-  }, [documents]);
-
-  const uniqueExpertCount = uniqueUploaders.filter((u) => u.role === "EXPERT").length;
-  const uniqueClientCount = uniqueUploaders.filter((u) => u.role === "CITIZEN").length;
-
-  const dossiers = useMemo(() => {
-    const map = new Map<
-      string,
-      {
-        userId: string;
-        userName: string;
-        userEmail: string;
-        role: string;
-        documents: AdminDocument[];
-        totalSize: number;
-        latestUpload: string;
-      }
-    >();
-
-    documents.forEach((doc) => {
-      const u = doc.uploadedBy;
-      const key = u?.id || doc.uploadedById || "unassigned";
-      const name = u ? `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email : "Unassigned / System";
-      const existing = map.get(key);
-      if (!existing) {
-        map.set(key, {
-          userId: key,
-          userName: name,
-          userEmail: u?.email || "",
-          role: u?.role || doc.ownerType || "USER",
-          documents: [doc],
-          totalSize: doc.fileSize || 0,
-          latestUpload: doc.createdAt,
-        });
-      } else {
-        existing.documents.push(doc);
-        existing.totalSize += doc.fileSize || 0;
-        if (new Date(doc.createdAt) > new Date(existing.latestUpload)) {
-          existing.latestUpload = doc.createdAt;
-        }
-      }
-    });
-
-    return Array.from(map.values()).sort(
-      (a, b) => new Date(b.latestUpload).getTime() - new Date(a.latestUpload).getTime()
-    );
-  }, [documents]);
-
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       {/* Page Header */}
@@ -373,11 +395,11 @@ export default function DocumentsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
-            disabled={isFetching}
+            onClick={handleRefetchAll}
+            disabled={isFetching || dossiersFetching}
             className="cursor-pointer"
           >
-            <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} /> {t("retry")}
+            <RefreshCw size={13} className={(isFetching || dossiersFetching) ? "animate-spin" : ""} /> {t("retry")}
           </Button>
         }
       />
@@ -393,12 +415,14 @@ export default function DocumentsPage() {
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl font-bold tracking-tight text-foreground">{total.toLocaleString()}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Platform repository</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              {stats ? stats.totalDocuments.toLocaleString() : total.toLocaleString()}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Platform-wide repository</p>
           </div>
         </Card>
 
-        {/* Card 2: Storage on Page */}
+        {/* Card 2: Total Storage Used */}
         <Card className="p-4 sm:p-5 shadow-sm border-border bg-card flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">{t("storageUsed")}</span>
@@ -407,8 +431,10 @@ export default function DocumentsPage() {
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl font-bold tracking-tight text-foreground">{formatBytes(storageOnPage)}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Current page volume</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              {formatBytes(stats?.totalSizeBytes ?? 0)}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">All platform documents</p>
           </div>
         </Card>
 
@@ -421,7 +447,9 @@ export default function DocumentsPage() {
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl font-bold tracking-tight text-foreground">{confidentialCount}</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              {(stats?.confidentialCount ?? 0).toLocaleString()}
+            </p>
             <p className="text-[11px] text-muted-foreground mt-0.5">AES-256 encrypted</p>
           </div>
         </Card>
@@ -435,16 +463,18 @@ export default function DocumentsPage() {
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl font-bold tracking-tight text-foreground">{uniqueUploaders.length}</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground">
+              {(stats?.totalUploaders ?? 0).toLocaleString()}
+            </p>
             <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground flex-wrap">
               <span className="inline-flex items-center gap-1 font-medium text-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                {uniqueExpertCount} {t("experts")}
+                {stats?.expertUploaders ?? 0} {t("experts")}
               </span>
               <span>&bull;</span>
               <span className="inline-flex items-center gap-1 font-medium text-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                {uniqueClientCount} {t("clients")}
+                {stats?.clientUploaders ?? 0} {t("clients")}
               </span>
             </div>
           </div>
@@ -787,7 +817,39 @@ export default function DocumentsPage() {
       )}
 
       {/* Dossiers Grouped by Person View */}
-      {!isLoading && !isError && documents.length > 0 && viewMode === "dossiers" && (
+      {viewMode === "dossiers" && dossiersLoading && <LoadingSpinner label={t("loading")} />}
+
+      {viewMode === "dossiers" && dossiersError && !dossiersLoading && (
+        <ErrorState
+          title={t("loadFailedTitle")}
+          message={t("loadFailedDesc")}
+          onRetry={() => refetchDossiers()}
+          retryLabel={t("retry")}
+        />
+      )}
+
+      {viewMode === "dossiers" && !dossiersLoading && !dossiersError && dossiers.length === 0 && (
+        hasActiveFilters ? (
+          <Card className="p-8 text-center border-border shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
+              <Filter size={22} />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">{t("noSearchResults")}</h3>
+            <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">
+              No dossiers match your current filters.
+            </p>
+            <div className="mt-5 flex justify-center gap-2">
+              <Button onClick={handleClearFilters} variant="default" size="sm" className="cursor-pointer">
+                <X size={14} className="mr-1.5" /> {t("clearFilters")}
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <EmptyState icon={FolderOpen} title={t("noDocuments")} description={t("noDocumentsDesc")} />
+        )
+      )}
+
+      {viewMode === "dossiers" && !dossiersLoading && !dossiersError && dossiers.length > 0 && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
             {dossiers.map((dossier) => {
@@ -830,7 +892,7 @@ export default function DocumentsPage() {
 
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs text-muted-foreground hidden sm:inline mr-2">
-                        {dossier.documents.length} files &bull; {formatBytes(dossier.totalSize)}
+                        {dossier.documentCount} files &bull; {formatBytes(dossier.totalSize)}
                       </span>
                       {isExpert && (
                         <Link
@@ -948,26 +1010,26 @@ export default function DocumentsPage() {
           {/* Dossiers Pagination */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card p-4 rounded-lg shadow-sm">
             <p className="text-xs text-muted-foreground">
-              {t("totalCount", { count: total.toLocaleString() })} &bull; {t("dossiersFound", { count: dossiers.length })}
+              {t("dossiersFound", { count: dossierTotal })}
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                disabled={!meta?.hasPrev || isFetching}
-                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={!dossierMeta?.hasPrev || dossiersFetching}
+                onClick={() => setDossierPage((p) => Math.max(p - 1, 1))}
                 className="cursor-pointer text-xs"
               >
                 <ChevronLeft size={13} /> {t("previous")}
               </Button>
               <span className="text-xs text-muted-foreground px-1">
-                {t("pageOf", { page: meta?.page ?? 1, total: totalPages })}
+                {t("pageOf", { page: dossierMeta?.page ?? 1, total: dossierTotalPages })}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                disabled={!meta?.hasNext || isFetching}
-                onClick={() => setPage((p) => p + 1)}
+                disabled={!dossierMeta?.hasNext || dossiersFetching}
+                onClick={() => setDossierPage((p) => p + 1)}
                 className="cursor-pointer text-xs"
               >
                 {t("next")} <ChevronRight size={13} />

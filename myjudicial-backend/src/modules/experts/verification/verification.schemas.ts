@@ -74,29 +74,16 @@ export const submitVerificationSchema = z.preprocess((raw: any) => {
   // Normalize documentTypes from documentTypes or multipart documentTypes[]
   const docTypesRaw = out.documentTypes ?? out["documentTypes[]"];
   if (docTypesRaw !== undefined && docTypesRaw !== null && docTypesRaw !== "") {
-    const rawList = Array.isArray(docTypesRaw) ? docTypesRaw : [docTypesRaw];
-    // Collapse consecutive duplicate pairs from dual FormData appending:
-    const deduped: string[] = [];
-    for (let i = 0; i < rawList.length; i++) {
-      if (i === 0 || rawList[i] !== rawList[i - 1]) {
-        deduped.push(rawList[i]);
-      }
-    }
-    out.documentTypes = deduped;
+    out.documentTypes = Array.isArray(docTypesRaw) ? docTypesRaw : [docTypesRaw];
   }
+  delete out["documentTypes[]"];
 
   // Normalize documentLabels from documentLabels or multipart documentLabels[]
   const docLabelsRaw = out.documentLabels ?? out["documentLabels[]"];
   if (docLabelsRaw !== undefined && docLabelsRaw !== null && docLabelsRaw !== "") {
-    const rawList = Array.isArray(docLabelsRaw) ? docLabelsRaw : [docLabelsRaw];
-    const deduped: string[] = [];
-    for (let i = 0; i < rawList.length; i++) {
-      if (i === 0 || rawList[i] !== rawList[i - 1]) {
-        deduped.push(rawList[i]);
-      }
-    }
-    out.documentLabels = deduped;
+    out.documentLabels = Array.isArray(docLabelsRaw) ? docLabelsRaw : [docLabelsRaw];
   }
+  delete out["documentLabels[]"];
 
   return out;
 }, baseSubmitVerificationSchema);

@@ -16,11 +16,25 @@ import { authenticate, requireAdmin } from "../../../shared/middleware/authentic
 import { validateQuery } from "../../../shared/middleware/validate.js";
 import { asyncHandler } from "../../../shared/utils/asyncHandler.js";
 import { FileStorageController } from "../controllers/file-storage.controller.js";
-import { adminListDocumentsQuerySchema } from "../schemas/file-storage.schemas.js";
+import {
+  adminListDocumentsQuerySchema,
+  adminListDossiersQuerySchema,
+} from "../schemas/file-storage.schemas.js";
 
 const router = Router();
 
 router.use(authenticate, requireAdmin);
+
+router.get(
+  "/stats",
+  asyncHandler(FileStorageController.getAdminDocumentStats)
+);
+
+router.get(
+  "/dossiers",
+  validateQuery(adminListDossiersQuerySchema),
+  asyncHandler(FileStorageController.findAdminDossiers)
+);
 
 router.get(
   "/",

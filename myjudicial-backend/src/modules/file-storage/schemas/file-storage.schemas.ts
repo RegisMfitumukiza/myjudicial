@@ -148,6 +148,16 @@ export const adminListDocumentsQuerySchema = z.object({
 
 export type AdminListDocumentsQuerySchema = z.infer<typeof adminListDocumentsQuerySchema>;
 
+export const adminListDossiersQuerySchema = z.object({
+  page:        z.coerce.number().int().min(1).default(1),
+  limit:       z.coerce.number().int().min(1).max(50).default(10),
+  role:        z.enum(["CLIENT", "EXPERT"]).optional(),
+  sensitivity: z.enum(fileSensitivityValues).optional(),
+  search:      z.string().trim().max(255).optional(),
+});
+
+export type AdminListDossiersQuerySchema = z.infer<typeof adminListDossiersQuerySchema>;
+
 // ─── URL Param Schema ─────────────────────────────────────────────────────────
 
 export const fileIdParamSchema = z.object({

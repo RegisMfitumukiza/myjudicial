@@ -5,6 +5,7 @@ import { prisma } from "../../../infrastructure/database/prisma.js";
 import { NotFoundError, ConflictError, ValidationError } from "../../../shared/errors/index.js";
 import { writeAuditLog } from "../../../shared/utils/audit.js";
 import { encryptBuffer } from "../../../shared/utils/crypto.js";
+import { wrapKey, getMasterKeyId } from "../../../infrastructure/kms/oci-kms.service.js";
 import {
   uploadObject,
   getDefaultBucketName,
@@ -79,8 +80,16 @@ export const VerificationService = {
         );
       }
 
-      // ── Server-side AES-256-GCM encryption ──────────────────────────────────
+      // ── Server-side AES-256-GCM encryption with KMS key wrapping ──────────
       const { ciphertext, keyBase64, ivBase64, algorithm } = encryptBuffer(file.buffer);
+
+      let finalAesKey = keyBase64;
+      let kmsKeyId: string | undefined;
+
+      if (finalAesKey) {
+        finalAesKey = await wrapKey(finalAesKey);
+        kmsKeyId = getMasterKeyId() || undefined;
+      }
 
       // Keep original extension so the stored objectKey is still descriptive
       const ext = path.extname(file.originalname) || ".bin";
@@ -98,8 +107,7 @@ export const VerificationService = {
         bucket: bucketName,
       });
 
-      // Register the document in the Document table so we can retrieve the
-      // AES key, IV, and original mimeType later (for admin decryption)
+      // Register the document in the Document table with envelope encryption parameters
       await FileStorageRepository.create({
         ownerId:             userId,
         ownerType:           "EXPERT",
@@ -109,10 +117,11 @@ export const VerificationService = {
         mimeType:            file.mimetype,     // original, pre-encryption
         fileSize:            file.size,
         sensitivity:         "CONFIDENTIAL",
-        encryptedAesKey:     keyBase64,
+        encryptedAesKey:     finalAesKey,
         iv:                  ivBase64,
         encryptionAlgorithm: algorithm,
         keyVersion:          "v1",
+        kmsKeyId,
         encryptedAt:         new Date(),
         isVault:             false,              // not a citizen vault doc
         uploadedById:        userId,
@@ -136,11 +145,23 @@ export const VerificationService = {
       } else if (explicitType === "additional") {
         additionalKeys.push(uploadedKeys[i]);
       } else {
-        // Fallback heuristic: PDFs → bar certificate, images → identity document
-        if (file.mimetype === "application/pdf") {
-          barCertificateKey = uploadedKeys[i];
+        // Fallback heuristic when explicitType is omitted:
+        if (files.length === 1) {
+          if (!existingPending?.barCertificateObjectKey && existingPending?.identityDocumentObjectKey) {
+            barCertificateKey = uploadedKeys[i];
+          } else if (!existingPending?.identityDocumentObjectKey && existingPending?.barCertificateObjectKey) {
+            identityDocumentKey = uploadedKeys[i];
+          } else if (file.mimetype === "application/pdf") {
+            barCertificateKey = uploadedKeys[i];
+          } else {
+            identityDocumentKey = uploadedKeys[i];
+          }
         } else {
-          identityDocumentKey = uploadedKeys[i];
+          if (file.mimetype === "application/pdf") {
+            barCertificateKey = uploadedKeys[i];
+          } else {
+            identityDocumentKey = uploadedKeys[i];
+          }
         }
       }
     }
@@ -182,27 +203,40 @@ export const VerificationService = {
       });
     }
 
+    // Determine effective keys carrying forward previous files if not replaced in this submission
+    const effectiveIdentityKey = identityDocumentKey || existingPending?.identityDocumentObjectKey || undefined;
+    const effectiveBarKey = barCertificateKey || existingPending?.barCertificateObjectKey || undefined;
+    const effectiveAdditionalKeys = [
+      ...(existingPending?.additionalDocumentKeys ?? []),
+      ...additionalKeys,
+    ];
+
+    // Soft-delete superseded document rows in Document table so old replaced files don't clutter admin listings
+    if (identityDocumentKey && existingPending?.identityDocumentObjectKey && existingPending.identityDocumentObjectKey !== identityDocumentKey) {
+      await FileStorageRepository.softDeleteByObjectKey(existingPending.identityDocumentObjectKey);
+    }
+    if (barCertificateKey && existingPending?.barCertificateObjectKey && existingPending.barCertificateObjectKey !== barCertificateKey) {
+      await FileStorageRepository.softDeleteByObjectKey(existingPending.barCertificateObjectKey);
+    }
+
     // Create or update verification request in the admin queue
     let verification;
     if (existingPending?.status === "PENDING") {
       verification = await prisma.expertVerification.update({
         where: { id: existingPending.id },
         data: {
-          identityDocumentObjectKey: identityDocumentKey || existingPending.identityDocumentObjectKey,
-          barCertificateObjectKey: barCertificateKey || existingPending.barCertificateObjectKey,
-          additionalDocumentKeys: [
-            ...(existingPending.additionalDocumentKeys ?? []),
-            ...additionalKeys,
-          ],
+          identityDocumentObjectKey: effectiveIdentityKey,
+          barCertificateObjectKey: effectiveBarKey,
+          additionalDocumentKeys: effectiveAdditionalKeys,
           updatedAt: new Date(),
         },
       });
     } else {
       verification = await AdminVerificationRepo.create(
         profile.id,
-        identityDocumentKey,
-        barCertificateKey,
-        additionalKeys
+        effectiveIdentityKey,
+        effectiveBarKey,
+        effectiveAdditionalKeys
       );
     }
 

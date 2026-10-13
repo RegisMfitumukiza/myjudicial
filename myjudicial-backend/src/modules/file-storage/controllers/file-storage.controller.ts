@@ -12,7 +12,7 @@ import { sendPaginated } from "../../../shared/utils/response.js";
 import { ValidationError, AuthenticationError } from "../../../shared/errors/index.js";
 import type { AuthenticatedUser } from "../../../types/express.js";
 import type { UploadFileDto } from "../dto/upload-file.dto.ts";
-import type { FileCategory, FileOwnerType, FileSensitivity } from "../types/index.js";
+import { resolveEnforcedSensitivity, type FileCategory, type FileOwnerType, type FileSensitivity } from "../types/index.js";
 
 // ─── Helper: extract requester context ───────────────────────────────────────
 
@@ -52,12 +52,15 @@ export const FileStorageController = {
         }
       }
 
+      const category = (body.category ?? "client-document") as FileCategory;
+      const requestedSensitivity = body.sensitivity as FileSensitivity | undefined;
+
       const dto: UploadFileDto = {
         fileName:    String(body.fileName   ?? ""),
         mimeType:    String(body.mimeType   ?? ""),
         fileSize:    req.file.size,
-        category:    (body.category   ?? "client-document") as FileCategory,
-        sensitivity: (body.sensitivity ?? "PRIVATE")        as FileSensitivity,
+        category,
+        sensitivity: resolveEnforcedSensitivity(category, requestedSensitivity),
         ownerId:     String(body.ownerId    ?? req.user.id),
         ownerType:   (body.ownerType  ?? "USER")            as FileOwnerType,
         bookingId:   body.bookingId ? String(body.bookingId) : undefined,
@@ -225,6 +228,58 @@ export const FileStorageController = {
           hasPrev:    result.hasPrev,
         },
         "Documents retrieved"
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/admin/documents/stats
+   *
+   * Platform-wide document metrics (totals, storage, confidentiality, uploader breakdown).
+   */
+  getAdminDocumentStats: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+      const stats = await FileStorageService.getAdminDocumentStats();
+      sendSuccess(res, stats, "Document statistics retrieved");
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/admin/documents/dossiers
+   *
+   * Paginated dossiers grouped by uploader.
+   */
+  findAdminDossiers: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+
+      const query = req.validatedQuery as {
+        page:         number;
+        limit:        number;
+        role?:        "CLIENT" | "EXPERT";
+        sensitivity?: FileSensitivity;
+        search?:      string;
+      };
+
+      const result = await FileStorageService.findAdminDossiers(query);
+
+      sendPaginated(
+        res,
+        result.dossiers,
+        {
+          page:       result.page,
+          limit:      result.limit,
+          total:      result.total,
+          totalPages: result.totalPages,
+          hasNext:    result.hasNext,
+          hasPrev:    result.hasPrev,
+        },
+        "Dossiers retrieved"
       );
     } catch (error) {
       next(error);

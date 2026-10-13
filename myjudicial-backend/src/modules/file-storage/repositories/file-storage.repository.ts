@@ -285,7 +285,7 @@ export const FileStorageRepository = {
     return { records: records as unknown as AdminDocumentView[], total };
   },
 
-  // ─── Update ────────────────────────────────────────────────────────────────
+  // ─── Update & Integrity Guards ─────────────────────────────────────────────
 
   /** Soft-delete a document. The OCI object is deleted separately by the service. */
   softDelete: async (id: string): Promise<void> => {
@@ -293,6 +293,224 @@ export const FileStorageRepository = {
       where: { id },
       data:  { isDeleted: true, deletedAt: new Date() },
     });
+  },
+
+  /** Soft-delete a document by its OCI objectKey (e.g. when superseded by a new upload). */
+  softDeleteByObjectKey: async (objectKey: string): Promise<void> => {
+    await prisma.document.updateMany({
+      where: { objectKey, isDeleted: false },
+      data:  { isDeleted: true, deletedAt: new Date() },
+    });
+  },
+
+  /**
+   * Check if an objectKey is attached to an active or pending verification.
+   * Used to guard against orphaned verification records and broken dossiers.
+   */
+  isReferencedInActiveVerification: async (objectKey: string): Promise<boolean> => {
+    const active = await prisma.expertVerification.findFirst({
+      where: {
+        status: { in: ["PENDING", "APPROVED"] },
+        OR: [
+          { identityDocumentObjectKey: objectKey },
+          { barCertificateObjectKey: objectKey },
+          { additionalDocumentKeys: { has: objectKey } },
+        ],
+      },
+      select: { id: true },
+    });
+    return active !== null;
+  },
+
+  /**
+   * Aggregate platform-wide statistics for the Admin Documents dashboard.
+   */
+  getAdminDocumentStats: async (): Promise<{
+    totalDocuments: number;
+    totalSizeBytes: number;
+    confidentialCount: number;
+    privateCount: number;
+    publicCount: number;
+    totalUploaders: number;
+    expertUploaders: number;
+    clientUploaders: number;
+  }> => {
+    const [
+      totalCount,
+      sizeSum,
+      confidentialCount,
+      privateCount,
+      publicCount,
+      uniqueUploaders,
+      expertUploaders,
+      citizenUploaders,
+    ] = await prisma.$transaction([
+      prisma.document.count({ where: { isDeleted: false } }),
+      prisma.document.aggregate({
+        where: { isDeleted: false },
+        _sum: { fileSize: true },
+      }),
+      prisma.document.count({ where: { isDeleted: false, sensitivity: "CONFIDENTIAL" } }),
+      prisma.document.count({ where: { isDeleted: false, sensitivity: "PRIVATE" } }),
+      prisma.document.count({ where: { isDeleted: false, sensitivity: "PUBLIC" } }),
+      prisma.document.groupBy({
+        by: ["uploadedById"],
+        where: { isDeleted: false, uploadedById: { not: null } },
+      }),
+      prisma.document.groupBy({
+        by: ["uploadedById"],
+        where: {
+          isDeleted: false,
+          uploadedById: { not: null },
+          uploadedBy: { role: "EXPERT" },
+        },
+      }),
+      prisma.document.groupBy({
+        by: ["uploadedById"],
+        where: {
+          isDeleted: false,
+          uploadedById: { not: null },
+          uploadedBy: { role: "CITIZEN" },
+        },
+      }),
+    ]);
+
+    return {
+      totalDocuments: totalCount,
+      totalSizeBytes: sizeSum._sum.fileSize || 0,
+      confidentialCount,
+      privateCount,
+      publicCount,
+      totalUploaders: uniqueUploaders.length,
+      expertUploaders: expertUploaders.length,
+      clientUploaders: citizenUploaders.length,
+    };
+  },
+
+  /**
+   * Dossier view: groups documents by uploader with backend pagination.
+   */
+  findAdminDossiers: async (filters: {
+    page:         number;
+    limit:        number;
+    role?:        "CLIENT" | "EXPERT";
+    sensitivity?: FileSensitivity;
+    search?:      string;
+  }): Promise<{
+    records: Array<{
+      userId: string;
+      userName: string;
+      userEmail: string;
+      role: string;
+      documents: AdminDocumentView[];
+      totalSize: number;
+      documentCount: number;
+      latestUpload: Date;
+    }>;
+    total: number;
+  }> => {
+    const where: Prisma.DocumentWhereInput = {
+      isDeleted: false,
+      uploadedById: { not: null },
+      ...(filters.sensitivity && { sensitivity: filters.sensitivity }),
+      ...(filters.role && {
+        uploadedBy: { role: filters.role === "CLIENT" ? "CITIZEN" : "EXPERT" },
+      }),
+      ...(filters.search && {
+        OR: [
+          { fileName: { contains: filters.search, mode: "insensitive" } },
+          { uploadedBy: { email: { contains: filters.search, mode: "insensitive" } } },
+          { uploadedBy: { firstName: { contains: filters.search, mode: "insensitive" } } },
+          { uploadedBy: { lastName: { contains: filters.search, mode: "insensitive" } } },
+        ],
+      }),
+    };
+
+    const groups = await prisma.document.groupBy({
+      by: ["uploadedById"],
+      where,
+      _sum: { fileSize: true },
+      _count: { id: true },
+      _max: { createdAt: true },
+      orderBy: {
+        _max: { createdAt: "desc" },
+      },
+    });
+
+    const total = groups.length;
+    const paginatedGroups = groups.slice(
+      (filters.page - 1) * filters.limit,
+      filters.page * filters.limit
+    );
+
+    const uploaderIds = paginatedGroups
+      .map((g) => g.uploadedById)
+      .filter((id): id is string => Boolean(id));
+
+    if (uploaderIds.length === 0) {
+      return { records: [], total };
+    }
+
+    const users = await prisma.user.findMany({
+      where: { id: { in: uploaderIds } },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const docs = await prisma.document.findMany({
+      where: {
+        ...where,
+        uploadedById: { in: uploaderIds },
+      },
+      select: {
+        ...documentSelect,
+        uploadedBy: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const docsByUploader = new Map<string, AdminDocumentView[]>();
+    for (const d of docs) {
+      if (d.uploadedById) {
+        const list = docsByUploader.get(d.uploadedById) ?? [];
+        list.push(d as unknown as AdminDocumentView);
+        docsByUploader.set(d.uploadedById, list);
+      }
+    }
+
+    const records = paginatedGroups.map((g) => {
+      const uId = g.uploadedById!;
+      const user = userMap.get(uId);
+      const fullName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email
+        : "Unassigned / System";
+      return {
+        userId: uId,
+        userName: fullName,
+        userEmail: user?.email || "",
+        role: user?.role || "USER",
+        documents: docsByUploader.get(uId) ?? [],
+        totalSize: g._sum.fileSize || 0,
+        documentCount: g._count.id || 0,
+        latestUpload: g._max.createdAt || new Date(),
+      };
+    });
+
+    return { records, total };
   },
 
   // ─── Share Management ──────────────────────────────────────────────────────

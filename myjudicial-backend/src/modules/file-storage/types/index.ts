@@ -18,6 +18,32 @@
  */
 export type FileSensitivity = "PUBLIC" | "PRIVATE" | "CONFIDENTIAL";
 
+/**
+ * Server-enforced sensitivity mapping.
+ * Prevents clients from declaring sensitive legal documents/IDs as PUBLIC,
+ * and guarantees that compliance credentials and court evidence are strictly CONFIDENTIAL.
+ */
+export const resolveEnforcedSensitivity = (
+  category: FileCategory,
+  requested?: FileSensitivity
+): FileSensitivity => {
+  switch (category) {
+    case "expert-certificate":
+    case "expert-national-id":
+    case "case-evidence":
+    case "compliance-document":
+      return "CONFIDENTIAL";
+    case "case-attachment":
+    case "chat-attachment":
+    case "client-document":
+      return requested === "CONFIDENTIAL" ? "CONFIDENTIAL" : "PRIVATE";
+    case "expert-profile":
+      return "PUBLIC";
+    default:
+      return "PRIVATE";
+  }
+};
+
 // ─── Owner Type ───────────────────────────────────────────────────────────────
 
 /**

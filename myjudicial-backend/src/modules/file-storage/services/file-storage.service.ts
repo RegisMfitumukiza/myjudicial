@@ -34,11 +34,13 @@ import {
   FileAccessDeniedError,
   FileUploadError,
   StorageProviderError,
+  ConflictError,
 } from "../../../shared/errors/index.js";
 import {
   FILE_SIZE_LIMITS,
   BLOCKED_EXTENSIONS,
   ALLOWED_MIME_TYPES,
+  resolveEnforcedSensitivity,
 } from "../types/index.js";
 import type {
   FileCategory,
@@ -228,6 +230,8 @@ export const FileStorageService = {
       kmsKeyId    = getMasterKeyId() || undefined;
     }
 
+    const enforcedSensitivity = resolveEnforcedSensitivity(dto.category, dto.sensitivity);
+
     // Persist metadata
     let stored: StoredFileMetadata;
     try {
@@ -240,7 +244,7 @@ export const FileStorageService = {
         fileName:            dto.fileName,
         mimeType:            dto.mimeType,
         fileSize:            buffer.length, // original file size
-        sensitivity:         dto.sensitivity,
+        sensitivity:         enforcedSensitivity,
         encryptedAesKey:     finalAesKey,
         iv:                  ivBase64,
         encryptionAlgorithm: algorithm,
@@ -431,7 +435,7 @@ export const FileStorageService = {
     };
   },
 
-  // ── Admin List ────────────────────────────────────────────────────────────
+  // ── Admin Endpoints ───────────────────────────────────────────────────────
 
   /**
    * Global, paginated documents listing for the Admin Dashboard.
@@ -453,6 +457,36 @@ export const FileStorageService = {
     };
   },
 
+  /**
+   * Platform-wide aggregated statistics for admin documents dashboard.
+   */
+  getAdminDocumentStats: async () => {
+    return FileStorageRepository.getAdminDocumentStats();
+  },
+
+  /**
+   * Dossier view: groups documents by person with backend pagination.
+   */
+  findAdminDossiers: async (dto: {
+    page:         number;
+    limit:        number;
+    role?:        "CLIENT" | "EXPERT";
+    sensitivity?: FileSensitivity;
+    search?:      string;
+  }) => {
+    const { records, total } = await FileStorageRepository.findAdminDossiers(dto);
+    const totalPages = Math.ceil(total / dto.limit);
+    return {
+      dossiers:   records,
+      total,
+      page:       dto.page,
+      limit:      dto.limit,
+      totalPages,
+      hasNext:    dto.page < totalPages,
+      hasPrev:    dto.page > 1,
+    };
+  },
+
   // ── Delete ────────────────────────────────────────────────────────────────
 
   /**
@@ -461,9 +495,10 @@ export const FileStorageService = {
    * Flow:
    *   1. Load document
    *   2. Authorization (owner or ADMIN only)
-   *   3. Delete from OCI
-   *   4. Soft-delete DB record
-   *   5. Audit log
+   *   3. Safe deletion integrity guards (active verification & bookings)
+   *   4. Delete from OCI
+   *   5. Soft-delete DB record
+   *   6. Audit log
    */
   deleteFile: async (
     fileId:    string,
@@ -475,6 +510,24 @@ export const FileStorageService = {
     if (!doc) throw new FileNotFoundError();
 
     if (!canDelete(doc, requester)) throw new FileAccessDeniedError();
+
+    // Guard: Prevent deletion of documents attached to active/pending verification records
+    const isAttachedToVerification = await FileStorageRepository.isReferencedInActiveVerification(doc.objectKey);
+    if (isAttachedToVerification) {
+      throw new ConflictError(
+        "Cannot delete document: It is attached to an active expert verification record."
+      );
+    }
+
+    // Guard: Prevent deletion of documents attached to active consultation bookings
+    if (doc.bookingId) {
+      const booking = await BookingRepository.findById(doc.bookingId);
+      if (booking && ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status)) {
+        throw new ConflictError(
+          "Cannot delete document: It is attached to an active consultation booking."
+        );
+      }
+    }
 
     await deleteObject(doc.objectKey, doc.bucketName || undefined);
     await FileStorageRepository.softDelete(fileId);

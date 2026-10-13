@@ -109,7 +109,7 @@ export function NoResultsPanel({
               <ChevronRight size={13} className="text-muted-foreground shrink-0" />
             </Link>
             <Link
-              href="/auth/expert-register"
+              href="/sign-up?role=EXPERT"
               className="inline-flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2 font-medium text-foreground hover:bg-accent transition"
             >
               <span className="flex items-center gap-1.5 min-w-0">

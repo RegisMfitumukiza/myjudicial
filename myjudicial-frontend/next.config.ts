@@ -63,6 +63,16 @@ const nextConfig: NextConfig = {
       destination: "/en/client/dashboard",
       permanent: false,
     },
+    {
+      source: "/auth/expert-register",
+      destination: "/en/sign-up?role=EXPERT",
+      permanent: false,
+    },
+    {
+      source: "/:locale/auth/expert-register",
+      destination: "/:locale/sign-up?role=EXPERT",
+      permanent: false,
+    },
   ],
 };
 

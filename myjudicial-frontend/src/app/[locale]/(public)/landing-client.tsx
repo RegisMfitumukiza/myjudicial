@@ -312,7 +312,7 @@ function PracticeAreaCard({ area }: { area: PracticeArea }) {
       <div className="min-w-0 w-full">
         <p className="text-[13px] sm:text-[14px] font-semibold text-foreground group-hover:text-brand-dark dark:group-hover:text-white transition-colors break-words leading-snug">{label}</p>
         <p className="text-[11px] sm:text-[12px] text-muted-foreground mt-0.5 truncate">
-          {t("card.expertCount", { count: area.expertCount })}
+          {area.expertCount > 0 ? t("card.expertCount", { count: area.expertCount }) : t("card.onRequest")}
         </p>
       </div>
     </Link>
@@ -364,7 +364,7 @@ export default function LandingPage() {
 
   // ── Data fetching — 6 focused API calls ──────────────────────────────────
   const { data: publicStats } = usePublicStats();
-  const { data: practiceAreas, isLoading: areasLoading } = usePracticeAreas();
+  const { data: practiceAreas } = usePracticeAreas();
   const { data: recSection, isLoading: recLoading } = useRecommendedExperts(5);
   const { data: availSection, isLoading: availLoading } = useAvailableTodayExperts(5);
   const { data: ratedSection, isLoading: ratedLoading } = useHighestRatedExperts(5);
@@ -379,7 +379,7 @@ export default function LandingPage() {
 
   // ── Visibility guards — each section hides itself when no real data ──────
   const showStats = !!publicStats && (publicStats.totalLawyers > 0 || publicStats.completedConsultations > 0);
-  const showPracticeAreas = !areasLoading && (practiceAreas?.length ?? 0) > 0;
+  const showPracticeAreas = (practiceAreas?.length ?? 0) > 0;
   const showRecommended = !recLoading && recSection?.source !== "disabled" && recommended.length > 0;
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
   const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
@@ -644,7 +644,7 @@ export default function LandingPage() {
                   {t("stats.onboardingPill")}
                 </p>
                 <Link
-                  href="/auth/expert-register"
+                  href="/sign-up?role=EXPERT"
                   className="shrink-0 text-[11px] min-[360px]:text-xs font-bold text-brand-dark dark:text-white hover:underline flex items-center gap-0.5 ml-1"
                 >
                   {t("stats.onboardingCta")} <ChevronRight size={12} />
@@ -666,41 +666,27 @@ export default function LandingPage() {
       </div>
 
       {/* ── MARKETPLACE BODY ─────────────────────────────────────────────── */}
-      {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
-          {areasLoading ? (
-            <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
-              <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {Array.from({ length: 6 }).map((_, i) => <PracticeAreaSkeleton key={i} />)}
-              </div>
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showPracticeAreas}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
-                  <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                    {practiceAreas?.map((area) => (
-                      <PracticeAreaCard key={area.specialty} area={area} />
-                    ))}
-                  </div>
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
+          {/* ① Browse by Practice Area — the primary discovery tool, shown first */}
+          <SectionFadeIn show={showPracticeAreas}>
+            <SectionRetryBoundary>
+              <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
+                <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                  {practiceAreas?.map((area) => (
+                    <PracticeAreaCard key={area.specialty} area={area} />
+                  ))}
+                </div>
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
-          {/* ② Recommended experts — Bayesian blend of rating + reviews + bookings */}
-          {recLoading ? (
-            <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
-              <ExpertHorizontalRow experts={[]} isLoading variant="recommended" />
-            </SectionRow>
-          ) : (
-            <SectionFadeIn show={showRecommended}>
-              <SectionRetryBoundary>
-                <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
-                  <ExpertHorizontalRow experts={recommended} isLoading={false} variant="recommended" />
-                </SectionRow>
-              </SectionRetryBoundary>
-            </SectionFadeIn>
-          )}
+          {/* ② Recommended experts — only renders when verified recommended experts exist */}
+          <SectionFadeIn show={showRecommended}>
+            <SectionRetryBoundary>
+              <SectionRow title={t("sections.recommended")} subtitle={t("sections.recommendedSub")} viewAllHref="/search?sort=RECOMMENDED" className="bg-muted/40">
+                <ExpertHorizontalRow experts={recommended} isLoading={false} variant="recommended" />
+              </SectionRow>
+            </SectionRetryBoundary>
+          </SectionFadeIn>
 
           {/* ③ Available Today / Next Available — dynamic urgency CTA */}
           <SectionFadeIn show={showAvailableToday}>
@@ -758,7 +744,7 @@ export default function LandingPage() {
           </SectionFadeIn>
 
           {/* Launch / Advocate Onboarding Banner — shown when no verified experts are live yet */}
-          {!areasLoading && !recLoading && !showPracticeAreas && !showRecommended && !showAvailableToday && (
+          {!showRecommended && !showAvailableToday && (
             <section className="py-8 sm:py-12 bg-background border-b border-border">
               <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
                 <div className="rounded-2xl border border-border bg-gradient-to-r from-card via-card to-brand-dark/5 dark:to-white/5 p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -776,7 +762,7 @@ export default function LandingPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
                     <Link
-                      href="/auth/expert-register"
+                      href="/sign-up?role=EXPERT"
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-dark text-on-brand px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition text-center shadow-xs"
                     >
                       <span>{t("launch.advocateCta")}</span>

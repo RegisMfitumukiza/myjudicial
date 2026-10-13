@@ -121,10 +121,16 @@ export const LandingService = {
       ORDER BY count DESC
     `;
 
-    return rows.map((r) => ({
-      specialty: r.specialty,
-      label: SPECIALTY_LABELS[r.specialty] || r.specialty,
-      expertCount: Number(r.count),
+    const countMap = new Map(rows.map((r) => [r.specialty, Number(r.count)]));
+
+    // Return all recognized legal specialties, prioritized by active advocate count then canonical order
+    const allSpecialties = Object.keys(SPECIALTY_LABELS).filter((k) => k !== "OTHER");
+    allSpecialties.sort((a, b) => (countMap.get(b) || 0) - (countMap.get(a) || 0));
+
+    return allSpecialties.map((specialty) => ({
+      specialty,
+      label: SPECIALTY_LABELS[specialty] || specialty,
+      expertCount: countMap.get(specialty) || 0,
     }));
   },
 

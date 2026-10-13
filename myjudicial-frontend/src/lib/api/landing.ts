@@ -99,13 +99,30 @@ export function usePublicStats() {
   });
 }
 
+export const CANONICAL_PRACTICE_AREAS: PracticeArea[] = [
+  { specialty: "FAMILY_LAW", label: "Family Law", expertCount: 0 },
+  { specialty: "COMMERCIAL_LAW", label: "Commercial Law", expertCount: 0 },
+  { specialty: "EMPLOYMENT_LAW", label: "Employment Law", expertCount: 0 },
+  { specialty: "LAND_LAW", label: "Land & Property Law", expertCount: 0 },
+  { specialty: "CRIMINAL_LAW", label: "Criminal Defense", expertCount: 0 },
+  { specialty: "TAX_LAW", label: "Tax & Revenue Law", expertCount: 0 },
+  { specialty: "IMMIGRATION_LAW", label: "Immigration Law", expertCount: 0 },
+  { specialty: "CORPORATE_LAW", label: "Corporate Law", expertCount: 0 },
+  { specialty: "CONTRACT_LAW", label: "Contract Law", expertCount: 0 },
+  { specialty: "INTELLECTUAL_PROPERTY", label: "Intellectual Property", expertCount: 0 },
+];
+
 export function usePracticeAreas() {
   return useQuery({
     queryKey: ["landing", "practice-areas"],
     queryFn: async () => {
       const res = await apiFetch<ApiResponse<PracticeArea[]>>("/experts/practice-areas", { method: "GET" });
-      return res.data;
+      if (res.data && res.data.length > 0) {
+        return res.data;
+      }
+      return CANONICAL_PRACTICE_AREAS;
     },
+    placeholderData: CANONICAL_PRACTICE_AREAS,
     staleTime: 5 * 60 * 1000,
   });
 }

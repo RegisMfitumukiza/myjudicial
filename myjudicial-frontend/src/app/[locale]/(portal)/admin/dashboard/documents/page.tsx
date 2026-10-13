@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -23,6 +24,9 @@ import {
   Filter,
   HardDrive,
   Users,
+  FolderOpen,
+  User as UserIcon,
+  UserCheck,
 } from "lucide-react";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
@@ -284,11 +288,80 @@ export default function DocumentsPage() {
     { value: "PUBLIC", label: t("public") },
   ] as const;
 
+  // View mode: "stream" (flat table) vs "dossiers" (grouped by person)
+  const [viewMode, setViewMode] = useState<"stream" | "dossiers">("stream");
+
   // Overview stats calculated from current dataset
   const storageOnPage = documents.reduce((sum, d) => sum + (d.fileSize || 0), 0);
   const confidentialCount = documents.filter((d) => d.sensitivity === "CONFIDENTIAL").length;
-  const expertCount = documents.filter((d) => d.uploadedBy?.role === "EXPERT").length;
-  const clientCount = documents.filter((d) => d.uploadedBy?.role === "CITIZEN").length;
+
+  const uniqueUploaders = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; email: string; role: string; count: number }>();
+    documents.forEach((d) => {
+      const u = d.uploadedBy;
+      const key = u?.id || "unknown";
+      const name = u ? `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email : "Unknown";
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          id: key,
+          name,
+          email: u?.email || "N/A",
+          role: u?.role || "UNKNOWN",
+          count: 1,
+        });
+      } else {
+        existing.count += 1;
+      }
+    });
+    return Array.from(map.values());
+  }, [documents]);
+
+  const uniqueExpertCount = uniqueUploaders.filter((u) => u.role === "EXPERT").length;
+  const uniqueClientCount = uniqueUploaders.filter((u) => u.role === "CITIZEN").length;
+
+  const dossiers = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        userId: string;
+        userName: string;
+        userEmail: string;
+        role: string;
+        documents: AdminDocument[];
+        totalSize: number;
+        latestUpload: string;
+      }
+    >();
+
+    documents.forEach((doc) => {
+      const u = doc.uploadedBy;
+      const key = u?.id || doc.uploadedById || "unassigned";
+      const name = u ? `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email : "Unassigned / System";
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          userId: key,
+          userName: name,
+          userEmail: u?.email || "",
+          role: u?.role || doc.ownerType || "USER",
+          documents: [doc],
+          totalSize: doc.fileSize || 0,
+          latestUpload: doc.createdAt,
+        });
+      } else {
+        existing.documents.push(doc);
+        existing.totalSize += doc.fileSize || 0;
+        if (new Date(doc.createdAt) > new Date(existing.latestUpload)) {
+          existing.latestUpload = doc.createdAt;
+        }
+      }
+    });
+
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(b.latestUpload).getTime() - new Date(a.latestUpload).getTime()
+    );
+  }, [documents]);
 
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
@@ -309,61 +382,118 @@ export default function DocumentsPage() {
         }
       />
 
-      {/* KPI Overview Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <Card className="p-4 shadow-sm border-border bg-card">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      {/* KPI Overview Cards - Fully Responsive Across All Scales */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: Total Documents */}
+        <Card className="p-4 sm:p-5 shadow-sm border-border bg-card flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{t("totalDocuments")}</span>
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <FileText size={18} />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">{t("totalDocuments")}</p>
-              <p className="text-xl font-bold text-foreground">{total.toLocaleString()}</p>
-            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold tracking-tight text-foreground">{total.toLocaleString()}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Platform repository</p>
           </div>
         </Card>
 
-        <Card className="p-4 shadow-sm border-border bg-card">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+        {/* Card 2: Storage on Page */}
+        <Card className="p-4 sm:p-5 shadow-sm border-border bg-card flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{t("storageUsed")}</span>
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <HardDrive size={18} />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">{t("storageUsed")}</p>
-              <p className="text-xl font-bold text-foreground">{formatBytes(storageOnPage)}</p>
-            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold tracking-tight text-foreground">{formatBytes(storageOnPage)}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Current page volume</p>
           </div>
         </Card>
 
-        <Card className="p-4 shadow-sm border-border bg-card">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
+        {/* Card 3: Confidential Files */}
+        <Card className="p-4 sm:p-5 shadow-sm border-border bg-card flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{t("confidentialFiles")}</span>
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
               <Lock size={18} />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">{t("confidentialFiles")}</p>
-              <p className="text-xl font-bold text-foreground">{confidentialCount}</p>
-            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold tracking-tight text-foreground">{confidentialCount}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">AES-256 encrypted</p>
           </div>
         </Card>
 
-        <Card className="p-4 shadow-sm border-border bg-card">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        {/* Card 4: Active Uploaders */}
+        <Card className="p-4 sm:p-5 shadow-sm border-border bg-card flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">{t("uploaders")}</span>
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Users size={18} />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Uploaders</p>
-              <p className="text-sm font-semibold text-foreground truncate">
-                {expertCount} Experts &bull; {clientCount} Clients
-              </p>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold tracking-tight text-foreground">{uniqueUploaders.length}</p>
+            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground flex-wrap">
+              <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                {uniqueExpertCount} {t("experts")}
+              </span>
+              <span>&bull;</span>
+              <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                {uniqueClientCount} {t("clients")}
+              </span>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Unified Filter Toolbar (ALWAYS Visible) */}
+      {/* Unified Filter & View Toolbar (ALWAYS Visible) */}
       <Card className="p-4 shadow-sm border-border bg-card space-y-3">
+        {/* View Mode Switcher */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="inline-flex rounded-lg border border-border bg-muted/60 p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("stream")}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === "stream"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FileText size={13} />
+              {t("viewAllFiles")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("dossiers")}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === "dossiers"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FolderOpen size={13} />
+              {t("viewByPerson")}
+              <span className="ml-1 rounded-full bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-mono">
+                {dossiers.length}
+              </span>
+            </button>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            {viewMode === "stream" ? (
+              <span>{t("totalCount", { count: total.toLocaleString() })}</span>
+            ) : (
+              <span>{t("dossiersFound", { count: dossiers.length })}</span>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Search bar */}
           <div className="relative w-full sm:max-w-xs flex-1 min-w-[200px]">
@@ -492,8 +622,8 @@ export default function DocumentsPage() {
         )
       )}
 
-      {/* Data Table */}
-      {!isLoading && !isError && documents.length > 0 && (
+      {/* Data Table (Stream Mode) */}
+      {!isLoading && !isError && documents.length > 0 && viewMode === "stream" && (
         <Card className="overflow-hidden shadow-sm border-border">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -654,6 +784,197 @@ export default function DocumentsPage() {
             </div>
           </div>
         </Card>
+      )}
+
+      {/* Dossiers Grouped by Person View */}
+      {!isLoading && !isError && documents.length > 0 && viewMode === "dossiers" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            {dossiers.map((dossier) => {
+              const isExpert = dossier.role === "EXPERT";
+              const initials =
+                dossier.userName
+                  .split(" ")
+                  .filter(Boolean)
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase() || "U";
+
+              return (
+                <Card key={dossier.userId} className="overflow-hidden border-border shadow-sm">
+                  {/* Dossier Header */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/40 p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-sm font-semibold text-foreground truncate">
+                            {dossier.userName}
+                          </h4>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                              isExpert
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+                            }`}
+                          >
+                            {dossier.role}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{dossier.userEmail || "No email"}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-muted-foreground hidden sm:inline mr-2">
+                        {dossier.documents.length} files &bull; {formatBytes(dossier.totalSize)}
+                      </span>
+                      {isExpert && (
+                        <Link
+                          href={`/${locale}/admin/dashboard/verifications`}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-md px-2.5 py-1.5 transition-colors"
+                        >
+                          <UserCheck size={13} /> {t("reviewVerification")}
+                        </Link>
+                      )}
+                      <Link
+                        href={`/${locale}/admin/dashboard/users`}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80 border border-border rounded-md px-2.5 py-1.5 transition-colors"
+                      >
+                        <UserIcon size={13} /> {t("viewUser")}
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Dossier Documents List */}
+                  <div className="divide-y divide-border">
+                    {dossier.documents.map((doc) => {
+                      const isBusy = activeFileId === doc.id;
+                      return (
+                        <div
+                          key={doc.id}
+                          className="flex flex-wrap items-center justify-between gap-3 p-3.5 hover:bg-muted/30 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="shrink-0">{getFileIcon(doc.mimeType, doc.fileName)}</div>
+                            <div className="min-w-0 flex-1">
+                              <p
+                                onClick={() => openPreview(doc)}
+                                className="text-sm font-medium text-foreground hover:text-primary transition-colors cursor-pointer truncate max-w-md"
+                                title={doc.fileName}
+                              >
+                                {doc.fileName}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground flex-wrap">
+                                <span className="font-mono">{formatBytes(doc.fileSize)}</span>
+                                <span>&bull;</span>
+                                <span>
+                                  {new Date(doc.createdAt).toLocaleDateString(locale, {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            {doc.sensitivity === "CONFIDENTIAL" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 px-2 py-0.5 text-[10px] font-semibold">
+                                <Lock size={9} /> {t("confidential")}
+                              </span>
+                            ) : doc.sensitivity === "PRIVATE" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 text-[10px] font-semibold">
+                                <Shield size={9} /> {t("private")}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-muted text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-medium">
+                                <Globe size={9} /> {t("public")}
+                              </span>
+                            )}
+
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                title={t("view")}
+                                disabled={isBusy}
+                                onClick={() => openPreview(doc)}
+                                className="text-primary hover:bg-primary/10 cursor-pointer h-7 w-7"
+                              >
+                                <Eye size={14} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                title={t("download")}
+                                disabled={isBusy}
+                                onClick={() => handleDownload(doc)}
+                                className="text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer h-7 w-7"
+                              >
+                                {isBusy ? (
+                                  <Loader2 size={13} className="animate-spin text-primary" />
+                                ) : (
+                                  <Download size={14} />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                title={t("delete")}
+                                disabled={isBusy}
+                                onClick={() => setDeleteDoc(doc)}
+                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer h-7 w-7"
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Dossiers Pagination */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card p-4 rounded-lg shadow-sm">
+            <p className="text-xs text-muted-foreground">
+              {t("totalCount", { count: total.toLocaleString() })} &bull; {t("dossiersFound", { count: dossiers.length })}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!meta?.hasPrev || isFetching}
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                className="cursor-pointer text-xs"
+              >
+                <ChevronLeft size={13} /> {t("previous")}
+              </Button>
+              <span className="text-xs text-muted-foreground px-1">
+                {t("pageOf", { page: meta?.page ?? 1, total: totalPages })}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!meta?.hasNext || isFetching}
+                onClick={() => setPage((p) => p + 1)}
+                className="cursor-pointer text-xs"
+              >
+                {t("next")} <ChevronRight size={13} />
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* In-App Document Preview Modal */}

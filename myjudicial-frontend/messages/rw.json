@@ -331,7 +331,15 @@
       "preview": "Irebamiterere ry'inyandiko",
       "openInNewTab": "Fungura mu idirishya rishya",
       "cannotPreview": "Ntibishoboka kureba iyi dosiye ako kanya. Nyamuneka yimanure kugira ngo uyisome.",
-      "cancel": "Kureka"
+      "cancel": "Kureka",
+      "uploaders": "Abashyizeho dosiye",
+      "viewAllFiles": "Dosiye zose",
+      "viewByPerson": "Ku muntu (Dosiye)",
+      "dossiersFound": "Dosiye {count} z'abakoresha",
+      "viewUser": "Reba umukoresha",
+      "reviewVerification": "Isuzuma ry'umunyamwuga",
+      "userDossier": "Dosiye y'umukoresha",
+      "latestActivity": "Ibikorwa biheruka"
     },
     "settings": {
       "title": "Igenamiterere ry'Adayobusi",

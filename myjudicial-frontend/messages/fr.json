@@ -331,7 +331,15 @@
       "preview": "Aperçu du document",
       "openInNewTab": "Ouvrir dans un nouvel onglet",
       "cannotPreview": "L'aperçu n'est pas disponible pour ce type de fichier. Veuillez le télécharger pour le consulter.",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "uploaders": "Téléverseurs actifs",
+      "viewAllFiles": "Tous les fichiers",
+      "viewByPerson": "Par personne (Dossiers)",
+      "dossiersFound": "{count} dossiers utilisateurs",
+      "viewUser": "Voir l'utilisateur",
+      "reviewVerification": "Vérifier l'expert",
+      "userDossier": "Dossier utilisateur",
+      "latestActivity": "Dernière activité"
     },
     "settings": {
       "title": "Paramètres administrateur",

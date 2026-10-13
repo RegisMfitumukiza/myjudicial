@@ -465,7 +465,15 @@
       "preview": "Document Preview",
       "openInNewTab": "Open in new tab",
       "cannotPreview": "Preview is not available for this file type. Please download to view.",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "uploaders": "Active Uploaders",
+      "viewAllFiles": "All Files",
+      "viewByPerson": "By Person (Dossiers)",
+      "dossiersFound": "{count} user dossiers",
+      "viewUser": "View User",
+      "reviewVerification": "Review Verification",
+      "userDossier": "User Dossier",
+      "latestActivity": "Latest activity"
     },
     "settings": {
       "title": "Admin Settings",

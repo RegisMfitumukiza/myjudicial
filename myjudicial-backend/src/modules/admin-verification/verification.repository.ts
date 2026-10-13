@@ -76,7 +76,7 @@ export const VerificationRepository = {
   },
 
   /** Approve — sets verification APPROVED and expert status VERIFIED */
-  approve: async (verificationId: string, reviewedById: string) => {
+  approve: async (verificationId: string, reviewedById: string, customExpiryDate?: Date | string) => {
     return prisma.$transaction(async (tx) => {
       const verification = await tx.expertVerification.update({
         where: { id: verificationId },
@@ -85,12 +85,27 @@ export const VerificationRepository = {
           reviewedById,
           reviewedAt: new Date(),
         },
-        include: { expert: { select: { id: true } } },
+        include: { expert: { select: { id: true, credentialsExpiry: true } } },
       });
+
+      let expiryToSet: Date | null = customExpiryDate ? new Date(customExpiryDate) : verification.expert.credentialsExpiry;
+      if (!expiryToSet) {
+        const latestCert = await tx.expertCertification.findFirst({
+          where: { expertId: verification.expert.id, expiryDate: { not: null } },
+          orderBy: { createdAt: "desc" },
+          select: { expiryDate: true },
+        });
+        if (latestCert?.expiryDate) {
+          expiryToSet = latestCert.expiryDate;
+        }
+      }
 
       await tx.expertProfile.update({
         where: { id: verification.expert.id },
-        data: { status: "VERIFIED" },
+        data: {
+          status: "VERIFIED",
+          ...(expiryToSet && { credentialsExpiry: expiryToSet }),
+        },
       });
 
       await tx.mapMarker.updateMany({

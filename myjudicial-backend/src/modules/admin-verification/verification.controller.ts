@@ -36,9 +36,11 @@ export const VerificationController = {
   /** PATCH /admin-verification/:id/approve */
   approve: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const credentialsExpiry = req.body?.credentialsExpiry;
       const result = await VerificationService.approve(
         String(req.params.id),
         req.user!.id,
+        credentialsExpiry,
         req.ip ?? undefined
       );
       sendSuccess(res, result, "Expert profile approved successfully");

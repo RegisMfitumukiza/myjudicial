@@ -5,6 +5,7 @@ const baseSubmitVerificationSchema = z.object({
   certificateName: z.string().optional(),
   issuer: z.string().optional(),
   issueDate: z.string().date("Must be YYYY-MM-DD").optional(),
+  expiryDate: z.string().date("Must be YYYY-MM-DD").optional(),
   // Explicit document type mapping so we don't rely on MIME-type heuristics
   // Each entry maps to the corresponding file in the multipart upload by index
   // e.g. documentTypes[0] = "identity_document", documentTypes[1] = "bar_certificate"
@@ -40,6 +41,31 @@ export const submitVerificationSchema = z.preprocess((raw: any) => {
         const d = new Date(trimmed);
         if (!isNaN(d.getTime())) {
           out.issueDate = d.toISOString().split("T")[0];
+        }
+      }
+    }
+  }
+
+  // Normalize expiryDate to YYYY-MM-DD or remove if blank
+  if (typeof out.expiryDate === "string") {
+    const trimmed = out.expiryDate.trim();
+    if (!trimmed) {
+      delete out.expiryDate;
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      out.expiryDate = trimmed;
+    } else {
+      const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+      if (mdy) {
+        const [, p1, p2, year] = mdy;
+        if (Number(p1) > 12) {
+          out.expiryDate = `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
+        } else {
+          out.expiryDate = `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
+        }
+      } else {
+        const d = new Date(trimmed);
+        if (!isNaN(d.getTime())) {
+          out.expiryDate = d.toISOString().split("T")[0];
         }
       }
     }

@@ -18,16 +18,17 @@ export const AdminComplianceController = {
 
   /**
    * GET /api/v1/admin/compliance/expiring
-   * List experts with expiring credentials (within 30 days)
+   * List experts with expiring credentials (within threshold days)
    */
   getExpiringCredentials: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { page = 1, limit = 20, daysThreshold = 30 } = req.query;
+      const { page = 1, limit = 20, daysThreshold = 30, search } = req.query;
 
       const result = await AdminComplianceService.getExpiringCredentials({
         page: Number(page),
         limit: Number(limit),
         daysThreshold: Number(daysThreshold),
+        search: search ? String(search) : undefined,
       });
 
       sendPaginated(res, result.experts, result.pagination, "Expiring credentials retrieved");
@@ -42,11 +43,12 @@ export const AdminComplianceController = {
    */
   getExpiredCredentials: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { page = 1, limit = 20 } = req.query;
+      const { page = 1, limit = 20, search } = req.query;
 
       const result = await AdminComplianceService.getExpiredCredentials({
         page: Number(page),
         limit: Number(limit),
+        search: search ? String(search) : undefined,
       });
 
       sendPaginated(res, result.experts, result.pagination, "Expired credentials retrieved");
@@ -61,14 +63,35 @@ export const AdminComplianceController = {
    */
   getSuspendedExperts: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { page = 1, limit = 20 } = req.query;
+      const { page = 1, limit = 20, search } = req.query;
 
       const result = await AdminComplianceService.getSuspendedExperts({
         page: Number(page),
         limit: Number(limit),
+        search: search ? String(search) : undefined,
       });
 
       sendPaginated(res, result.experts, result.pagination, "Suspended experts retrieved");
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/admin/compliance/verified
+   * List verified compliant experts
+   */
+  getVerifiedExperts: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { page = 1, limit = 20, search } = req.query;
+
+      const result = await AdminComplianceService.getVerifiedExperts({
+        page: Number(page),
+        limit: Number(limit),
+        search: search ? String(search) : undefined,
+      });
+
+      sendPaginated(res, result.experts, result.pagination, "Verified experts retrieved");
     } catch (error) {
       next(error);
     }

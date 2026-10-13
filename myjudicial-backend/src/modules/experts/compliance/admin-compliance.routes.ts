@@ -35,6 +35,12 @@ router.get("/expired", asyncHandler(AdminComplianceController.getExpiredCredenti
 router.get("/suspended", asyncHandler(AdminComplianceController.getSuspendedExperts));
 
 /**
+ * GET /api/v1/admin/compliance/verified
+ * List verified compliant experts
+ */
+router.get("/verified", asyncHandler(AdminComplianceController.getVerifiedExperts));
+
+/**
  * POST /api/v1/admin/compliance/:id/send-warning
  * Send compliance warning email to expert
  */

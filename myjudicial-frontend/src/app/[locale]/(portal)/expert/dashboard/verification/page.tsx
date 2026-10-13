@@ -372,6 +372,7 @@ export default function VerificationPage() {
   const [certificateName, setCertificateName] = useState("");
   const [issuer, setIssuer] = useState("");
   const [issueDate, setIssueDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
 
   // Pre-fill barNumber from expert profile if not already set
   useEffect(() => {
@@ -393,6 +394,7 @@ export default function VerificationPage() {
         if (meta.certificateName) setCertificateName((prev) => prev || meta.certificateName);
         if (meta.issuer) setIssuer((prev) => prev || meta.issuer);
         if (meta.issueDate) setIssueDate((prev) => prev || meta.issueDate);
+        if (meta.expiryDate) setExpiryDate((prev) => prev || meta.expiryDate);
       }
     } catch {
       // Ignore
@@ -436,12 +438,13 @@ export default function VerificationPage() {
           certificateName,
           issuer,
           issueDate,
+          expiryDate,
         })
       );
     } catch {
       // Ignore
     }
-  }, [barNumber, certificateName, issuer, issueDate]);
+  }, [barNumber, certificateName, issuer, issueDate, expiryDate]);
 
   // The generated hook returns AxiosResponse<{ success: boolean; data: ComplianceStatus }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -567,6 +570,32 @@ export default function VerificationPage() {
         }
       }
 
+      if (expiryDate && expiryDate.trim()) {
+        const trimmed = expiryDate.trim();
+        let normalizedDate: string | null = null;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          normalizedDate = trimmed;
+        } else {
+          const mdy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+          if (mdy) {
+            const [, p1, p2, year] = mdy;
+            if (Number(p1) > 12) {
+              normalizedDate = `${year}-${p2.padStart(2, "0")}-${p1.padStart(2, "0")}`;
+            } else {
+              normalizedDate = `${year}-${p1.padStart(2, "0")}-${p2.padStart(2, "0")}`;
+            }
+          } else {
+            const d = new Date(trimmed);
+            if (!isNaN(d.getTime())) {
+              normalizedDate = d.toISOString().split("T")[0];
+            }
+          }
+        }
+        if (normalizedDate && /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+          formData.append("expiryDate", normalizedDate);
+        }
+      }
+
       await apiFetch("/experts/verification/submit", {
         method: "POST",
         body: formData,
@@ -593,6 +622,7 @@ export default function VerificationPage() {
       setCertificateName("");
       setIssuer("");
       setIssueDate("");
+      setExpiryDate("");
       queryClient.invalidateQueries({
         queryKey: getGetExpertsComplianceQueryKey(),
       });
@@ -804,6 +834,17 @@ export default function VerificationPage() {
                     type="date"
                     value={issueDate}
                     onChange={(e) => setIssueDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="expiryDate" className="text-xs font-medium">
+                    {t("labelExpiryDate")}
+                  </Label>
+                  <Input
+                    id="expiryDate"
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
                   />
                 </div>
               </div>

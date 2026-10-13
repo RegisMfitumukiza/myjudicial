@@ -8,10 +8,39 @@ import { resolveStorageUrl } from "../../../infrastructure/storage/oci-object-st
 interface PaginationOptions {
   page: number;
   limit: number;
+  search?: string;
 }
 
 interface ExpiringOptions extends PaginationOptions {
   daysThreshold: number;
+}
+
+function buildExpertSearchWhere(search?: string) {
+  if (!search || !search.trim()) return undefined;
+  const term = search.trim();
+  return {
+    OR: [
+      { user: { firstName: { contains: term, mode: "insensitive" as const } } },
+      { user: { lastName: { contains: term, mode: "insensitive" as const } } },
+      { user: { email: { contains: term, mode: "insensitive" as const } } },
+      { barNumber: { contains: term, mode: "insensitive" as const } },
+      { displayName: { contains: term, mode: "insensitive" as const } },
+    ],
+  };
+}
+
+function buildUserSearchWhere(search?: string) {
+  if (!search || !search.trim()) return undefined;
+  const term = search.trim();
+  return {
+    OR: [
+      { firstName: { contains: term, mode: "insensitive" as const } },
+      { lastName: { contains: term, mode: "insensitive" as const } },
+      { email: { contains: term, mode: "insensitive" as const } },
+      { expertProfile: { barNumber: { contains: term, mode: "insensitive" as const } } },
+      { expertProfile: { displayName: { contains: term, mode: "insensitive" as const } } },
+    ],
+  };
 }
 
 export const AdminComplianceService = {
@@ -75,6 +104,8 @@ export const AdminComplianceService = {
       }),
     ]);
 
+    const compliantCount = Math.max(0, verifiedExperts - expiringCount - expiredCount - suspendedCount);
+
     return {
       totalExperts,
       verifiedExperts,
@@ -82,6 +113,7 @@ export const AdminComplianceService = {
       expiredCount,
       suspendedCount,
       noExpirySetCount,
+      compliantCount,
       complianceRate: totalExperts > 0
         ? ((totalExperts - expiredCount - suspendedCount) / totalExperts) * 100
         : 100,
@@ -92,14 +124,15 @@ export const AdminComplianceService = {
    * Get experts with expiring credentials
    */
   async getExpiringCredentials(options: ExpiringOptions) {
-    const { page, limit, daysThreshold } = options;
+    const { page, limit, daysThreshold, search } = options;
     const skip = (page - 1) * limit;
 
     const now = new Date();
     const thresholdDate = new Date();
     thresholdDate.setDate(now.getDate() + daysThreshold);
 
-    const where = {
+    const searchWhere = buildExpertSearchWhere(search);
+    const where: any = {
       credentialsExpiry: {
         gte: now,
         lte: thresholdDate,
@@ -107,6 +140,7 @@ export const AdminComplianceService = {
       user: {
         status: UserStatus.ACTIVE,
       },
+      ...(searchWhere ? { AND: [searchWhere] } : {}),
     };
 
     const [experts, total] = await Promise.all([
@@ -174,15 +208,17 @@ export const AdminComplianceService = {
    * Get experts with expired credentials
    */
   async getExpiredCredentials(options: PaginationOptions) {
-    const { page, limit } = options;
+    const { page, limit, search } = options;
     const skip = (page - 1) * limit;
 
     const now = new Date();
+    const searchWhere = buildExpertSearchWhere(search);
 
-    const where = {
+    const where: any = {
       credentialsExpiry: {
         lt: now,
       },
+      ...(searchWhere ? { AND: [searchWhere] } : {}),
     };
 
     const [experts, total] = await Promise.all([
@@ -216,7 +252,7 @@ export const AdminComplianceService = {
         return {
           id: expert.user.id,
           expertId: expert.id,
-          fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.user.email,
+          fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.displayName || expert.user.email,
           email: expert.user.email,
           phone: expert.user.phone,
           profileImageUrl,
@@ -252,12 +288,14 @@ export const AdminComplianceService = {
    * Get suspended experts
    */
   async getSuspendedExperts(options: PaginationOptions) {
-    const { page, limit } = options;
+    const { page, limit, search } = options;
     const skip = (page - 1) * limit;
 
-    const where = {
+    const userSearchWhere = buildUserSearchWhere(search);
+    const where: any = {
       role: Role.EXPERT,
       status: UserStatus.SUSPENDED,
+      ...(userSearchWhere ? { AND: [userSearchWhere] } : {}),
     };
 
     const [users, total] = await Promise.all([
@@ -313,6 +351,85 @@ export const AdminComplianceService = {
         total,
         totalPages: totalPages3,
         hasNext: page < totalPages3,
+        hasPrev: page > 1,
+      },
+    };
+  },
+
+  /**
+   * Get verified/compliant experts roster
+   */
+  async getVerifiedExperts(options: PaginationOptions) {
+    const { page, limit, search } = options;
+    const skip = (page - 1) * limit;
+    const now = new Date();
+
+    const searchWhere = buildExpertSearchWhere(search);
+    const where: any = {
+      status: 'VERIFIED',
+      user: {
+        status: UserStatus.ACTIVE,
+      },
+      ...(searchWhere ? { AND: [searchWhere] } : {}),
+    };
+
+    const [experts, total] = await Promise.all([
+      prisma.expertProfile.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              avatarObjectKey: true,
+            },
+          },
+        },
+        skip,
+        take: limit,
+        orderBy: [{ credentialsExpiry: "asc" }, { updatedAt: "desc" }],
+      }),
+      prisma.expertProfile.count({ where }),
+    ]);
+
+    const transformedExperts = await Promise.all(
+      experts.map(async (expert) => {
+        const photoKey = expert.profileImageObjectKey || expert.user.avatarObjectKey;
+        const profileImageUrl = await resolveStorageUrl(photoKey);
+
+        const daysUntil = expert.credentialsExpiry
+          ? Math.floor((expert.credentialsExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+          : null;
+
+        return {
+          id: expert.user.id,
+          expertId: expert.id,
+          fullName: [expert.user.firstName, expert.user.lastName].filter(Boolean).join(" ") || expert.displayName || expert.user.email,
+          email: expert.user.email,
+          phone: expert.user.phone,
+          profileImageUrl,
+          barNumber: expert.barNumber,
+          credentialsExpiry: expert.credentialsExpiry,
+          daysUntilExpiry: daysUntil,
+          isCompliant: expert.credentialsExpiry ? expert.credentialsExpiry.getTime() > now.getTime() : true,
+          specialties: expert.specialties,
+          officeAddress: expert.officeAddress,
+        };
+      })
+    );
+
+    const totalPages4 = Math.ceil(total / limit);
+    return {
+      experts: transformedExperts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: totalPages4,
+        hasNext: page < totalPages4,
         hasPrev: page > 1,
       },
     };

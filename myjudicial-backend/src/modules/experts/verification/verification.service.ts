@@ -156,11 +156,14 @@ export const VerificationService = {
       }
     }
 
-    // Update expert profile with bar number and set status to PENDING_VERIFICATION
+    const parsedExpiryDate = dto.expiryDate ? new Date(dto.expiryDate) : null;
+
+    // Update expert profile with bar number, optional credentialsExpiry, and set status to PENDING_VERIFICATION
     await prisma.expertProfile.update({
       where: { id: profile.id },
       data: {
         ...(effectiveBarNumber && { barNumber: effectiveBarNumber }),
+        ...(parsedExpiryDate && { credentialsExpiry: parsedExpiryDate }),
         status: "PENDING_VERIFICATION",
       },
     });
@@ -173,6 +176,7 @@ export const VerificationService = {
           certificateName:   dto.certificateName,
           issuer:            dto.issuer,
           issueDate:         new Date(dto.issueDate),
+          expiryDate:        parsedExpiryDate,
           documentObjectKey: barCertificateKey,
         },
       });

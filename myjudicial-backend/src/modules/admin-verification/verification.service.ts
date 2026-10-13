@@ -66,14 +66,19 @@ export const VerificationService = {
    * Approve an expert's verification.
    * Sets expert status to VERIFIED and sends approval email.
    */
-  approve: async (verificationId: string, adminId: string, ipAddress?: string) => {
+  approve: async (
+    verificationId: string,
+    adminId: string,
+    customExpiryDate?: Date | string,
+    ipAddress?: string
+  ) => {
     const existing = await VerificationRepository.findById(verificationId);
     if (!existing) throw new NotFoundError("Verification request");
     if (existing.status !== "PENDING") {
       throw new ValidationError(`Cannot approve a verification with status: ${existing.status}`);
     }
 
-    const updated = await VerificationRepository.approve(verificationId, adminId);
+    const updated = await VerificationRepository.approve(verificationId, adminId, customExpiryDate);
 
     await writeAuditLog({
       actorId: adminId,

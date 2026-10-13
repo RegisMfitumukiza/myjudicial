@@ -125,8 +125,11 @@ async function activateExpert(id: string) {
   return apiFetch(`/admin/experts/${id}/activate`, { method: "PATCH" });
 }
 
-async function approveVerification(verificationId: string) {
-  return apiFetch(`/admin-verification/${verificationId}/approve`, { method: "PATCH" });
+async function approveVerification(verificationId: string, credentialsExpiry?: string) {
+  return apiFetch(`/admin-verification/${verificationId}/approve`, {
+    method: "PATCH",
+    body: credentialsExpiry ? { credentialsExpiry } : undefined,
+  });
 }
 
 async function rejectVerification(verificationId: string, reason: string) {
@@ -429,7 +432,8 @@ export default function ExpertDetailPage() {
   });
 
   const approveMutation = useMutation({
-    mutationFn: () => approveVerification(expert!.verificationId!),
+    mutationFn: (credentialsExpiry?: string | void) =>
+      approveVerification(expert!.verificationId!, typeof credentialsExpiry === "string" ? credentialsExpiry : undefined),
     onSuccess: () => { invalidate(); toast.success(t("verificationApproved")); },
     onError: () => toast.error(t("actionFailed")),
   });

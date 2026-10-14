@@ -31,13 +31,27 @@ export const updateExpertStatusSchema = z.object({
   }),
 });
 
-export const setCredentialDatesSchema = z.object({
-  body: z.object({
-    certificateName: z.string().min(2).max(200).trim(),
-    issuer: z.string().min(2).max(200).trim(),
-    issueDate: z.string().date(),
-    expiryDate: z.string().date(),
-    auditNote: z.string().min(3).max(500).trim().optional(),
-  }),
+const dateStringSchema = z.string().transform((val, ctx) => {
+  const trimmed = val.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const d = new Date(trimmed);
+  if (!isNaN(d.getTime())) {
+    return d.toISOString().split("T")[0];
+  }
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    message: "Must be a valid date (YYYY-MM-DD)",
+  });
+  return z.NEVER;
 });
-export type SetCredentialDatesDto = z.infer<typeof setCredentialDatesSchema>['body'];
+
+export const setCredentialDatesSchema = z.object({
+  certificateName: z.string().min(2, "Certificate name must be at least 2 characters").max(200).trim(),
+  issuer: z.string().min(2, "Issuing authority must be at least 2 characters").max(200).trim(),
+  issueDate: dateStringSchema,
+  expiryDate: dateStringSchema,
+  auditNote: z.string().max(500).trim().optional().or(z.literal("")),
+});
+export type SetCredentialDatesDto = z.infer<typeof setCredentialDatesSchema>;

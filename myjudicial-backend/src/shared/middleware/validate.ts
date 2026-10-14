@@ -10,7 +10,21 @@ import { ValidationError } from "../errors/index.js";
 export const validate =
   <T extends z.ZodTypeAny>(schema: T) =>
   (req: Request, _res: Response, next: NextFunction): void => {
-    const result = schema.safeParse(req.body);
+    // If schema defines a top-level 'body' field and req.body does not have a 'body' field,
+    // evaluate schema against { body: req.body, query: req.query, params: req.params }
+    let target: any = req.body;
+    let isWrappedBody = false;
+
+    if (
+      schema instanceof z.ZodObject &&
+      "body" in schema.shape &&
+      (!req.body || typeof req.body !== "object" || !("body" in req.body))
+    ) {
+      target = { body: req.body, query: req.query, params: req.params };
+      isWrappedBody = true;
+    }
+
+    const result = schema.safeParse(target);
 
     if (!result.success) {
       const errors = (result.error as ZodError).issues.map(
@@ -25,7 +39,7 @@ export const validate =
       return next(new ValidationError("Validation failed", errors));
     }
 
-    req.body = result.data;
+    req.body = isWrappedBody ? (result.data as any).body : result.data;
     next();
   };
 

@@ -91,11 +91,23 @@ export const submitVerificationSchema = z.preprocess((raw: any) => {
 export type SubmitVerificationDto = z.infer<typeof baseSubmitVerificationSchema>;
 
 export const renewCredentialsSchema = z.object({
-  body: z.object({
-    certificateName: z.string().min(2).max(200).trim(),
-    issuer: z.string().min(2).max(200).trim(),
-    issueDate: z.string().date('Issue date must be a valid date (YYYY-MM-DD)'),
-    expiryDate: z.string().date('Expiry date must be a valid date (YYYY-MM-DD)'),
+  certificateName: z.string().min(2, "Certificate name must be at least 2 characters").max(200).trim(),
+  issuer: z.string().min(2, "Issuing authority must be at least 2 characters").max(200).trim(),
+  issueDate: z.string().transform((val, ctx) => {
+    const trimmed = val.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) return d.toISOString().split("T")[0];
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Issue date must be a valid date (YYYY-MM-DD)" });
+    return z.NEVER;
+  }),
+  expiryDate: z.string().transform((val, ctx) => {
+    const trimmed = val.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) return d.toISOString().split("T")[0];
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Expiry date must be a valid date (YYYY-MM-DD)" });
+    return z.NEVER;
   }),
 });
-export type RenewCredentialsDto = z.infer<typeof renewCredentialsSchema>['body'];
+export type RenewCredentialsDto = z.infer<typeof renewCredentialsSchema>;

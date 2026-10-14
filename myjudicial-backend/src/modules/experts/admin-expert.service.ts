@@ -719,6 +719,12 @@ export const AdminExpertService = {
 
     const { certificateName, issuer, issueDate, expiryDate, auditNote } = dto;
 
+    const latestVerification = await prisma.expertVerification.findFirst({
+      where: { expertId: profile.id },
+      orderBy: { createdAt: "desc" },
+      select: { barCertificateObjectKey: true },
+    });
+
     const [, newCert] = await prisma.$transaction([
       prisma.expertProfile.update({
         where: { id: profile.id },
@@ -731,6 +737,7 @@ export const AdminExpertService = {
           issuer,
           issueDate: new Date(issueDate),
           expiryDate: new Date(expiryDate),
+          documentObjectKey: latestVerification?.barCertificateObjectKey || null,
         },
       }),
       prisma.auditLog.create({

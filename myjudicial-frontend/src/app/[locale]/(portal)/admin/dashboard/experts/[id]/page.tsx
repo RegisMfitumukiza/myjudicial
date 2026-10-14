@@ -33,7 +33,9 @@ import {
   Copy,
   Check,
   Eye,
+  ArrowRight,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -606,6 +608,8 @@ export default function ExpertDetailPage() {
 
   // ── Credential Audit / Backfill Modal State (Track 1) ──
   const [showCredentialAuditModal, setShowCredentialAuditModal] = useState(false);
+  const [auditModalTab, setAuditModalTab] = useState<"preview" | "form">("preview");
+  const [approveModalTab, setApproveModalTab] = useState<"preview" | "checklist">("preview");
   const [credAuditForm, setCredAuditForm] = useState({
     certificateName: "",
     issuer: "",
@@ -1606,43 +1610,94 @@ export default function ExpertDetailPage() {
           }
         }}
       >
-        <DialogContent className="max-w-6xl w-[96vw] h-[88vh] max-h-[88vh] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
+        <DialogContent className="max-w-6xl w-[96vw] h-[92vh] sm:h-[88vh] max-h-[850px] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0 pr-12">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <ShieldCheck size={18} />
               </div>
               <div>
-                <DialogTitle className="text-sm font-bold text-foreground">
-                  {t("approveModalTitle")}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <DialogTitle className="text-sm font-bold text-foreground">
+                    {t("approveModalTitle")}
+                  </DialogTitle>
+                  <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    {Object.values(checklist).filter(Boolean).length}/4 Verified
+                  </span>
+                </div>
+                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
                   {t("approveModalDesc")}
                 </DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                {Object.values(checklist).filter(Boolean).length}/4 Verified
-              </span>
-            </div>
+          </div>
+
+          {/* Mobile / Tablet Tab Switcher (< lg) */}
+          <div className="flex lg:hidden border-b border-border bg-muted/40 p-1.5 shrink-0 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setApproveModalTab("preview")}
+              className={cn(
+                "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5",
+                approveModalTab === "preview"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <FileText size={13} />
+              {t("barCertificate")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setApproveModalTab("checklist")}
+              className={cn(
+                "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5",
+                approveModalTab === "checklist"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <ShieldCheck size={13} />
+              {t("checklistTitle") || "Checklist & Dates"}
+            </button>
           </div>
 
           {/* Split Body */}
           <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-background">
             {/* Left 7 cols: Embedded Document Preview */}
-            <div className="lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden min-h-[300px] lg:min-h-0 bg-muted/15">
+            <div
+              className={cn(
+                "lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden bg-muted/15",
+                approveModalTab === "preview" ? "flex flex-1" : "hidden lg:flex"
+              )}
+            >
               <EmbeddedDocumentPreview
                 verificationId={expert.verificationId || expert.id}
                 objectKey={expert.barCertificateObjectKey}
                 label={t("barCertificate")}
                 t={t}
               />
+              <div className="lg:hidden p-2.5 border-t border-border bg-card flex justify-end shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setApproveModalTab("checklist")}
+                  className="w-full text-xs gap-1.5"
+                >
+                  <span>Continue to Checklist</span>
+                  <ArrowRight size={13} />
+                </Button>
+              </div>
             </div>
 
             {/* Right 5 cols: Checklist & Confirmed Expiry Date */}
-            <div className="lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-5 sm:p-6 bg-card">
+            <div
+              className={cn(
+                "lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-4 sm:p-6 bg-card",
+                approveModalTab === "checklist" ? "flex flex-1" : "hidden lg:flex"
+              )}
+            >
               <div className="space-y-4">
                 {/* Practitioner summary */}
                 <div className="rounded-xl border border-border/70 bg-muted/40 p-3.5 space-y-1.5 text-xs">
@@ -1797,9 +1852,9 @@ export default function ExpertDetailPage() {
           }
         }}
       >
-        <DialogContent className="max-w-6xl w-[96vw] h-[88vh] max-h-[88vh] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
+        <DialogContent className="max-w-6xl w-[96vw] h-[92vh] sm:h-[88vh] max-h-[850px] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0 pr-12">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
                 <ShieldCheck size={18} />
@@ -1808,32 +1863,78 @@ export default function ExpertDetailPage() {
                 <DialogTitle className="text-sm font-bold text-foreground">
                   {effectiveExpiry ? t("updateCredentialDatesModalTitle") : t("auditSetDatesModalTitle")}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
+                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
                   {effectiveExpiry ? t("updateCredentialDatesModalDesc") : t("auditSetDatesModalDesc")}
                 </DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
-                {effectiveExpiry ? t("updateCredentialDatesBtn") : t("auditSetDatesBtn")}
-              </span>
-            </div>
+          </div>
+
+          {/* Mobile / Tablet Tab Switcher (< lg) */}
+          <div className="flex lg:hidden border-b border-border bg-muted/40 p-1.5 shrink-0 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setAuditModalTab("preview")}
+              className={cn(
+                "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5",
+                auditModalTab === "preview"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <FileText size={13} />
+              {t("barCertificate")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuditModalTab("form")}
+              className={cn(
+                "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5",
+                auditModalTab === "form"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Calendar size={13} />
+              {effectiveExpiry ? t("updateCredentialDatesBtn") : t("auditSetDatesBtn")}
+            </button>
           </div>
 
           {/* Split Body */}
           <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-background">
             {/* Left 7 cols: Embedded Document Preview */}
-            <div className="lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden min-h-[300px] lg:min-h-0 bg-muted/15">
+            <div
+              className={cn(
+                "lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden bg-muted/15",
+                auditModalTab === "preview" ? "flex flex-1" : "hidden lg:flex"
+              )}
+            >
               <EmbeddedDocumentPreview
                 verificationId={expert.verificationId || expert.id}
                 objectKey={expert.barCertificateObjectKey}
                 label={t("barCertificate")}
                 t={t}
               />
+              <div className="lg:hidden p-2.5 border-t border-border bg-card flex justify-end shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAuditModalTab("form")}
+                  className="w-full text-xs gap-1.5"
+                >
+                  <span>Continue to Record Dates</span>
+                  <ArrowRight size={13} />
+                </Button>
+              </div>
             </div>
 
             {/* Right 5 cols: Credential Form */}
-            <div className="lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-5 sm:p-6 bg-card">
+            <div
+              className={cn(
+                "lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-4 sm:p-6 bg-card",
+                auditModalTab === "form" ? "flex flex-1" : "hidden lg:flex"
+              )}
+            >
               <div className="space-y-4">
                 {/* Expert Summary */}
                 <div className="rounded-xl border border-border/70 bg-muted/40 p-3.5 space-y-1.5 text-xs">

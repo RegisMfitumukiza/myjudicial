@@ -3,6 +3,7 @@ import { VerificationService } from "./verification.service.js";
 import { sendSuccess, sendPaginated } from "../../shared/utils/response.js";
 import { z } from "zod";
 import { ValidationError } from "../../shared/errors/index.js";
+import { logger } from "../../shared/utils/logger.js";
 
 const rejectSchema = z.object({
   reason: z.string().min(10, "Rejection reason must be at least 10 characters").max(500),
@@ -89,7 +90,14 @@ export const VerificationController = {
       res.setHeader("Content-Type", mimeType);
       res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
       res.send(plaintext);
-    } catch (error) { next(error); }
+    } catch (error) {
+      logger.error("Admin streamDocument error", {
+        verificationId: req.params.id,
+        key: req.query.key,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      next(error);
+    }
   },
 
   /** POST /admin-verification/:id/request-corrections */

@@ -13,6 +13,7 @@ import { triggerEmbeddingSync } from "../ai/embedding-sync.service.js";
 import { NotificationRepository } from "../notifications/notification.repository.js";
 import type { NotificationEvent } from "../../generated/prisma/client.js";
 import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 export const VerificationService = {
   /**
@@ -191,32 +192,154 @@ export const VerificationService = {
    * Fetch a document from storage, decrypt it, and return its plaintext Buffer
    * along with its original mimeType.
    */
+  /**
+   * Fetch a document from storage, decrypt it, and return its plaintext Buffer
+   * along with its original mimeType.
+   */
   streamDocument: async (verificationId: string, objectKey: string, adminId: string) => {
-    const existing = await VerificationRepository.findById(verificationId);
-    if (!existing) throw new NotFoundError("Verification request");
+    // 1. Resolve verification record (by verificationId, expertProfileId, or expert userId)
+    let existing = await VerificationRepository.findById(verificationId);
+    if (!existing) {
+      existing = await prisma.expertVerification.findFirst({
+        where: {
+          OR: [
+            { id: verificationId },
+            { expertId: verificationId },
+            { expert: { userId: verificationId } },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          expert: {
+            select: {
+              id: true,
+              displayName: true,
+              barNumber: true,
+              primarySpecialty: true,
+              city: true,
+              status: true,
+              profileImageObjectKey: true,
+              user: { select: { id: true, email: true, firstName: true, lastName: true, preferredLanguage: true, avatarObjectKey: true } },
+            },
+          },
+        },
+      });
+    }
 
-    // Authorise: key must belong to this verification record
-    const allowedKeys = [
-      existing.identityDocumentObjectKey,
-      existing.barCertificateObjectKey,
-      existing.expert.profileImageObjectKey,
-      ...(existing.additionalDocumentKeys ?? []),
-    ].filter(Boolean) as string[];
+    if (!existing) {
+      // If still no verification found, check if this is an expert ID directly
+      const expertProfile = await prisma.expertProfile.findFirst({
+        where: {
+          OR: [{ id: verificationId }, { userId: verificationId }],
+        },
+        include: {
+          user: { select: { id: true } },
+        },
+      });
 
-    if (!allowedKeys.includes(objectKey)) {
-      throw new ValidationError("Document key does not belong to this verification record");
+      if (!expertProfile) {
+        throw new NotFoundError("Verification request or Expert");
+      }
+
+      // Check if document belongs to this expert
+      const belongsToExpert =
+        expertProfile.profileImageObjectKey === objectKey ||
+        (await prisma.expertCertification.findFirst({
+          where: { expertId: expertProfile.id, documentObjectKey: objectKey },
+        })) ||
+        (await prisma.expertVerification.findFirst({
+          where: {
+            expertId: expertProfile.id,
+            OR: [
+              { identityDocumentObjectKey: objectKey },
+              { barCertificateObjectKey: objectKey },
+              { additionalDocumentKeys: { has: objectKey } },
+            ],
+          },
+        })) ||
+        (await prisma.document.findFirst({
+          where: {
+            objectKey,
+            OR: [
+              { ownerId: expertProfile.userId },
+              { ownerId: expertProfile.id },
+            ],
+          },
+        }));
+
+      if (!belongsToExpert) {
+        throw new ValidationError("Document key does not belong to this expert");
+      }
+    } else {
+      // Authorise: key must belong to this verification record or any records of this expert
+      const expertProfileId = existing.expertId;
+      const expertUserId = existing.expert?.user?.id;
+
+      const directKeys = [
+        existing.identityDocumentObjectKey,
+        existing.barCertificateObjectKey,
+        existing.expert.profileImageObjectKey,
+        ...(existing.additionalDocumentKeys ?? []),
+      ].filter(Boolean) as string[];
+
+      let isAuthorized = directKeys.includes(objectKey);
+
+      if (!isAuthorized && expertProfileId) {
+        // Check all verification submissions for this expert
+        const otherVerifs = await prisma.expertVerification.findMany({
+          where: { expertId: expertProfileId },
+          select: {
+            identityDocumentObjectKey: true,
+            barCertificateObjectKey: true,
+            additionalDocumentKeys: true,
+          },
+        });
+        for (const v of otherVerifs) {
+          if (
+            v.identityDocumentObjectKey === objectKey ||
+            v.barCertificateObjectKey === objectKey ||
+            v.additionalDocumentKeys?.includes(objectKey)
+          ) {
+            isAuthorized = true;
+            break;
+          }
+        }
+      }
+
+      if (!isAuthorized && expertProfileId) {
+        // Check expert certifications
+        const cert = await prisma.expertCertification.findFirst({
+          where: { expertId: expertProfileId, documentObjectKey: objectKey },
+        });
+        if (cert) isAuthorized = true;
+      }
+
+      if (!isAuthorized && (expertProfileId || expertUserId)) {
+        // Check document storage table
+        const doc = await prisma.document.findFirst({
+          where: {
+            objectKey,
+            OR: [
+              ...(expertUserId ? [{ ownerId: expertUserId }] : []),
+              ...(expertProfileId ? [{ ownerId: expertProfileId }] : []),
+            ],
+          },
+        });
+        if (doc) isAuthorized = true;
+      }
+
+      if (!isAuthorized) {
+        throw new ValidationError("Document key does not belong to this verification record or expert");
+      }
     }
 
     // ── Fetch the encrypted bytes from storage ──────────────────────────────
-    const { getDefaultBucketName } = await import(
+    const { getDefaultBucketName, downloadObject } = await import(
       "../../infrastructure/storage/oci-object-storage.service.js"
     );
     const bucket = getDefaultBucketName();
 
     // Fetch raw bytes (encrypted ciphertext) from local or OCI storage
-    const { downloadObject } = await import(
-      "../../infrastructure/storage/oci-object-storage.service.js"
-    );
     const ciphertext = await downloadObject(objectKey, bucket);
 
     // ── Fetch decryption keys from Document metadata table ─────────────────
@@ -226,17 +349,34 @@ export const VerificationService = {
     const docMeta = await FileStorageRepository.findByObjectKeyWithKeys(objectKey);
 
     let plaintext: Buffer;
-    let mimeType: string;
+    let mimeType: string = docMeta?.mimeType ?? "application/octet-stream";
 
     if (docMeta?.encryptedAesKey && docMeta?.iv) {
-      // Decrypt with AES-256-GCM using the stored key + IV
-      const { decryptBuffer } = await import("../../shared/utils/crypto.js");
-      plaintext = decryptBuffer(ciphertext, docMeta.encryptedAesKey, docMeta.iv);
-      mimeType  = docMeta.mimeType ?? "application/octet-stream";
+      try {
+        // If KMS was used, unwrap the master key first
+        const { unwrapKey } = await import("../../infrastructure/kms/oci-kms.service.js");
+        const rawAesKey = await unwrapKey(docMeta.encryptedAesKey);
+        const { decryptBuffer } = await import("../../shared/utils/crypto.js");
+        plaintext = decryptBuffer(ciphertext, rawAesKey, docMeta.iv);
+      } catch (decryptErr) {
+        logger.warn("Server-side decryption failed, streaming raw ciphertext as fallback", {
+          objectKey,
+          error: decryptErr instanceof Error ? decryptErr.message : String(decryptErr),
+        });
+        plaintext = ciphertext;
+      }
     } else {
       // Fallback: file was not encrypted (legacy or profile photo path) — stream as-is
       plaintext = ciphertext;
-      mimeType  = docMeta?.mimeType ?? "application/octet-stream";
+    }
+
+    // Infer sensible MIME type if unknown
+    if (mimeType === "application/octet-stream" || !mimeType) {
+      const ext = objectKey.split(".").pop()?.toLowerCase();
+      if (ext === "pdf") mimeType = "application/pdf";
+      else if (ext === "jpg" || ext === "jpeg") mimeType = "image/jpeg";
+      else if (ext === "png") mimeType = "image/png";
+      else if (ext === "webp") mimeType = "image/webp";
     }
 
     await writeAuditLog({

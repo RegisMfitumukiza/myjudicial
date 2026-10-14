@@ -329,7 +329,9 @@
       "credentialDatesSetSuccess": "Practicing certificate dates recorded successfully.",
       "allFieldsRequired": "All credential fields are required.",
       "expiryAfterIssue": "Expiry date must be after the issue date.",
-      "optional": "optional"
+      "optional": "optional",
+      "failedToLoadDocument": "Unable to load document preview",
+      "noBarCertificateOnFile": "No Bar Certificate on file"
     },
     "users": {
       "title": "User Management",

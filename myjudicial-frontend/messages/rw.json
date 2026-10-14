@@ -195,7 +195,9 @@
       "credentialDatesSetSuccess": "Amatariki y'icyangombwa cyo gukora yanditswe neza.",
       "allFieldsRequired": "Imyanya yose y'icyangombwa igomba kuzuzwa.",
       "expiryAfterIssue": "Itariki yo kurangiriraho igomba kuza nyuma y'itariki cyatangiweho.",
-      "optional": "birashoboka"
+      "optional": "birashoboka",
+      "failedToLoadDocument": "Ntabwo byashobotse gufungura inyandiko",
+      "noBarCertificateOnFile": "Nta cyemezo cy'Urugaga rw'Abavoka kirimo"
     },
     "users": {
       "title": "Kuyoboza abakoresha",

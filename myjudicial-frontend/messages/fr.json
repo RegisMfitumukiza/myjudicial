@@ -195,7 +195,9 @@
       "credentialDatesSetSuccess": "Dates du certificat d'exercice enregistrées avec succès.",
       "allFieldsRequired": "Tous les champs de justificatifs sont obligatoires.",
       "expiryAfterIssue": "La date d'expiration doit être postérieure à la date de délivrance.",
-      "optional": "facultatif"
+      "optional": "facultatif",
+      "failedToLoadDocument": "Impossible de charger l'aperçu du document",
+      "noBarCertificateOnFile": "Aucun certificat du Barreau dans le dossier"
     },
     "users": {
       "title": "Gestion des utilisateurs",

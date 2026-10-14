@@ -227,7 +227,7 @@ function bookingStatusTone(status: string): "success" | "destructive" | "warning
   }
 }
 
-// ── Document Viewer Sheet ──
+// ── Document Viewer Sheet (Standalone overlay) ──
 
 function DocumentViewer({
   verificationId,
@@ -246,32 +246,47 @@ function DocumentViewer({
   const [mimeType, setMimeType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(false);
+
     getDocumentStream(verificationId, objectKey)
-      .then((res) => { setUrl(res.url); setMimeType(res.mimeType); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+      .then((res) => {
+        if (!active) return;
+        setUrl(res.url);
+        setMimeType(res.mimeType);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(true);
+        setLoading(false);
+      });
 
     return () => {
+      active = false;
       if (url) URL.revokeObjectURL(url);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verificationId, objectKey]);
+  }, [verificationId, objectKey, retryKey]);
 
   const isImage = mimeType ? mimeType.startsWith("image/") : /\.(jpg|jpeg|png|webp|gif)$/i.test(objectKey);
   const isPdf   = mimeType ? mimeType === "application/pdf" : /\.pdf$/i.test(objectKey);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-card border border-border shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="relative flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-card border border-border shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-muted/30">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
               <FileText size={17} className="text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">{label}</h3>
+              <h3 className="font-semibold text-foreground text-sm">{label}</h3>
               <p className="text-xs text-muted-foreground font-mono truncate max-w-xs">{objectKey}</p>
             </div>
           </div>
@@ -282,9 +297,9 @@ function DocumentViewer({
                 target="_blank"
                 rel="noreferrer"
                 download={objectKey.split('/').pop()}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
               >
-                <Download size={14} /> {t("download")}
+                <Download size={13} /> {t("download")}
               </a>
             )}
             <Button
@@ -299,27 +314,35 @@ function DocumentViewer({
         </div>
 
         {/* Content */}
-        <div className="flex flex-1 items-center justify-center overflow-auto p-4">
+        <div className="flex flex-1 items-center justify-center overflow-auto p-4 bg-muted/10">
           {loading && (
             <LoadingSpinner label={t("loading")} />
           )}
           {error && (
-            <div className="text-center">
-              <AlertTriangle size={40} className="mx-auto mb-3 text-destructive" />
-              <p className="text-sm text-foreground">{t("failedToLoad")}</p>
-              {url && (
-                <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                  <ExternalLink size={12} /> {t("view")}
-                </a>
-              )}
+            <div className="text-center p-6">
+              <AlertTriangle size={36} className="mx-auto mb-3 text-destructive" />
+              <p className="text-sm font-semibold text-foreground">{t("failedToLoadDocument")}</p>
+              <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                Could not load or decrypt document preview from storage.
+              </p>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setRetryKey((k) => k + 1)}
+                  className="gap-1.5 text-xs"
+                >
+                  <RefreshCw size={12} /> Retry
+                </Button>
+              </div>
             </div>
           )}
           {url && !loading && !error && (
             isImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={url} alt={label} className="max-h-full max-w-full rounded-lg object-contain shadow" />
+              <img src={url} alt={label} className="max-h-full max-w-full rounded-lg object-contain shadow bg-background" />
             ) : isPdf ? (
-              <iframe src={url} className="h-full w-full rounded-lg" title={label} />
+              <iframe src={url} className="h-full w-full rounded-lg bg-white" title={label} />
             ) : (
               <div className="text-center">
                 <FileText size={48} className="mx-auto mb-4 text-muted-foreground" />
@@ -331,6 +354,155 @@ function DocumentViewer({
             )
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Embedded Document Preview (Split-Pane Workstation) ──
+
+function EmbeddedDocumentPreview({
+  verificationId,
+  objectKey,
+  label,
+  t,
+}: {
+  verificationId: string | null;
+  objectKey: string | null | undefined;
+  label: string;
+  t: (key: string) => string;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [mimeType, setMimeType] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+
+  useEffect(() => {
+    if (!verificationId || !objectKey) {
+      setLoading(false);
+      setError(true);
+      return;
+    }
+
+    let active = true;
+    setLoading(true);
+    setError(false);
+
+    getDocumentStream(verificationId, objectKey)
+      .then((res) => {
+        if (!active) return;
+        setUrl(res.url);
+        setMimeType(res.mimeType);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(true);
+        setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      if (url) URL.revokeObjectURL(url);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [verificationId, objectKey, retryKey]);
+
+  const isImage = mimeType ? mimeType.startsWith("image/") : /\.(jpg|jpeg|png|webp|gif)$/i.test(objectKey || "");
+  const isPdf   = mimeType ? mimeType === "application/pdf" : /\.pdf$/i.test(objectKey || "");
+
+  if (!objectKey) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-6 text-center bg-muted/20">
+        <FileText size={36} className="mb-2 text-muted-foreground/60" />
+        <p className="text-xs font-semibold text-foreground">{t("noBarCertificateOnFile")}</p>
+        <p className="text-[11px] text-muted-foreground mt-1">No certificate scan uploaded yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col bg-muted/20 overflow-hidden">
+      {/* Workstation Viewer Toolbar */}
+      <div className="flex items-center justify-between border-b border-border/80 px-4 py-2.5 bg-card/70 backdrop-blur-sm shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <BadgeCheck size={14} className="text-primary shrink-0" />
+          <span className="text-xs font-semibold text-foreground truncate">{label}</span>
+          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground truncate hidden sm:inline-block max-w-[140px]">
+            {objectKey.split("/").pop()}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {url && (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <ExternalLink size={11} /> Open
+            </a>
+          )}
+          {url && (
+            <a
+              href={url}
+              download={objectKey.split("/").pop()}
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <Download size={11} /> Save
+            </a>
+          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            onClick={() => setRetryKey((k) => k + 1)}
+            className="h-6 px-1.5 text-[11px]"
+            title="Reload preview"
+          >
+            <RefreshCw size={11} className={loading ? "animate-spin" : ""} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Embedded Document Viewport */}
+      <div className="flex-1 flex items-center justify-center p-3 overflow-auto bg-muted/30 min-h-[300px]">
+        {loading && <LoadingSpinner label={t("loading")} />}
+        {error && (
+          <div className="text-center p-4">
+            <AlertTriangle size={32} className="mx-auto mb-2 text-amber-500" />
+            <p className="text-xs font-semibold text-foreground">{t("failedToLoadDocument")}</p>
+            <p className="text-[11px] text-muted-foreground mt-1 max-w-xs leading-relaxed">
+              Could not decrypt or render the official document scan.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setRetryKey((k) => k + 1)}
+              className="mt-3 text-xs gap-1.5"
+            >
+              <RefreshCw size={12} /> Retry Preview
+            </Button>
+          </div>
+        )}
+        {url && !loading && !error && (
+          isImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt={label} className="max-h-full max-w-full rounded-md object-contain shadow-sm border border-border bg-background" />
+          ) : isPdf ? (
+            <iframe src={url} className="h-full w-full rounded-md border border-border shadow-sm bg-white" title={label} />
+          ) : (
+            <div className="text-center p-6">
+              <FileText size={40} className="mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Binary Document</p>
+              <a href={url} download={objectKey.split("/").pop()} className="mt-2 inline-flex items-center gap-1 text-xs text-primary underline">
+                Download file
+              </a>
+            </div>
+          )
+        )}
       </div>
     </div>
   );
@@ -1434,183 +1606,188 @@ export default function ExpertDetailPage() {
           }
         }}
       >
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <div className="flex items-center gap-2 text-primary">
-              <ShieldCheck size={20} />
-              <DialogTitle>{t("approveModalTitle")}</DialogTitle>
-            </div>
-            <DialogDescription>
-              {t("approveModalDesc")}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            {/* Quick summary comparison */}
-            <div className="rounded-xl border border-border bg-muted/40 p-3.5 space-y-2 text-xs">
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-muted-foreground">{t("expert")}:</span>
-                <span className="font-semibold text-foreground">{displayName}</span>
+        <DialogContent className="max-w-6xl w-[96vw] h-[88vh] max-h-[88vh] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <ShieldCheck size={18} />
               </div>
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-muted-foreground">{t("barNumber")}:</span>
-                <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-muted-foreground">{t("certName")}:</span>
-                <span className="font-medium text-foreground">{latestCert?.certificateName || t("barCertificate")}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-muted-foreground">{t("certIssuer")}:</span>
-                <span className="font-medium text-foreground">{latestCert?.issuer || "Rwanda Bar Association"}</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-muted-foreground">{t("certIssueDate")}:</span>
-                <span className="font-medium text-foreground">
-                  {latestCert?.issueDate
-                    ? new Date(latestCert.issueDate).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
-                    : "--"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("certExpiryDate")}:</span>
-                <span className="font-bold text-primary">
-                  {effectiveExpiry
-                    ? new Date(effectiveExpiry).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
-                    : "--"}
-                </span>
-              </div>
-
-              {expert.barCertificateObjectKey && expert.verificationId && (
-                <div className="pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
-                    className="w-full gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
-                  >
-                    <Eye size={13} /> {t("inspectBarCert")}
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Mandatory checklist */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                  {t("checkListHeader")}
-                </p>
-                <span className="text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  {Object.values(checklist).filter(Boolean).length}/4 verified
-                </span>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                {t("checkListSubtext")}
-              </p>
-
-              <div className="space-y-2 rounded-xl border border-border bg-card p-3">
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
-                  <input
-                    type="checkbox"
-                    checked={checklist.barMatch}
-                    onChange={(e) => setChecklist((prev) => ({ ...prev, barMatch: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                  />
-                  <span>{t("checkBarMatch", { barNumber: expert.barNumber || "--" })}</span>
-                </label>
-
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
-                  <input
-                    type="checkbox"
-                    checked={checklist.issueDateMatch}
-                    onChange={(e) => setChecklist((prev) => ({ ...prev, issueDateMatch: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                  />
-                  <span>
-                    {t("checkIssueDate", {
-                      date: latestCert?.issueDate
-                        ? new Date(latestCert.issueDate).toLocaleDateString(locale)
-                        : "--",
-                    })}
-                  </span>
-                </label>
-
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
-                  <input
-                    type="checkbox"
-                    checked={checklist.expiryDateMatch}
-                    onChange={(e) => setChecklist((prev) => ({ ...prev, expiryDateMatch: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                  />
-                  <span>
-                    {t("checkExpiryDate", {
-                      date: effectiveExpiry
-                        ? new Date(effectiveExpiry).toLocaleDateString(locale)
-                        : "--",
-                    })}
-                  </span>
-                </label>
-
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
-                  <input
-                    type="checkbox"
-                    checked={checklist.sealAuthentic}
-                    onChange={(e) => setChecklist((prev) => ({ ...prev, sealAuthentic: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                  />
-                  <span>{t("checkSeal")}</span>
-                </label>
+              <div>
+                <DialogTitle className="text-sm font-bold text-foreground">
+                  {t("approveModalTitle")}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {t("approveModalDesc")}
+                </DialogDescription>
               </div>
             </div>
-
-            {/* Editable Confirmed Expiry Date */}
-            <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3">
-              <Label htmlFor="confirmedExpiryDate" className="text-xs font-semibold text-foreground">
-                {t("confirmedExpiryDateLabel")} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="confirmedExpiryDate"
-                type="date"
-                value={confirmedExpiryDate}
-                onChange={(e) => setConfirmedExpiryDate(e.target.value)}
-                className="bg-card text-xs"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                {t("confirmedExpiryDateHint")}
-              </p>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                {Object.values(checklist).filter(Boolean).length}/4 Verified
+              </span>
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowApproveModal(false)}
-              disabled={approveMutation.isPending}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              onClick={() => {
-                if (!isChecklistComplete) return;
-                approveMutation.mutate(confirmedExpiryDate);
-              }}
-              disabled={!isChecklistComplete || approveMutation.isPending}
-              className="bg-green-600 text-white hover:bg-green-700"
-            >
-              {approveMutation.isPending ? (
-                <RefreshCw size={14} className="mr-1.5 animate-spin" />
-              ) : (
-                <BadgeCheck size={14} className="mr-1.5" />
-              )}
-              {t("confirmAndApproveBtn")}
-            </Button>
-          </DialogFooter>
+          {/* Split Body */}
+          <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-background">
+            {/* Left 7 cols: Embedded Document Preview */}
+            <div className="lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden min-h-[300px] lg:min-h-0 bg-muted/15">
+              <EmbeddedDocumentPreview
+                verificationId={expert.verificationId || expert.id}
+                objectKey={expert.barCertificateObjectKey}
+                label={t("barCertificate")}
+                t={t}
+              />
+            </div>
+
+            {/* Right 5 cols: Checklist & Confirmed Expiry Date */}
+            <div className="lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-5 sm:p-6 bg-card">
+              <div className="space-y-4">
+                {/* Practitioner summary */}
+                <div className="rounded-xl border border-border/70 bg-muted/40 p-3.5 space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("expert")}:</span>
+                    <span className="font-semibold text-foreground">{displayName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("barNumber")}:</span>
+                    <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("certName")}:</span>
+                    <span className="font-medium text-foreground">{latestCert?.certificateName || t("barCertificate")}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("certExpiryDate")}:</span>
+                    <span className="font-bold text-primary">
+                      {effectiveExpiry
+                        ? new Date(effectiveExpiry).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
+                        : "--"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mandatory checklist */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                      {t("checkListHeader")}
+                    </p>
+                    <span className="text-[11px] font-medium text-primary">
+                      {isChecklistComplete ? "Ready to approve" : "Check all 4"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("checkListSubtext")}
+                  </p>
+
+                  <div className="space-y-2 rounded-xl border border-border bg-card p-3">
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                      <input
+                        type="checkbox"
+                        checked={checklist.barMatch}
+                        onChange={(e) => setChecklist((prev) => ({ ...prev, barMatch: e.target.checked }))}
+                        className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                      <span>{t("checkBarMatch", { barNumber: expert.barNumber || "--" })}</span>
+                    </label>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                      <input
+                        type="checkbox"
+                        checked={checklist.issueDateMatch}
+                        onChange={(e) => setChecklist((prev) => ({ ...prev, issueDateMatch: e.target.checked }))}
+                        className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                      <span>
+                        {t("checkIssueDate", {
+                          date: latestCert?.issueDate
+                            ? new Date(latestCert.issueDate).toLocaleDateString(locale)
+                            : "--",
+                        })}
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                      <input
+                        type="checkbox"
+                        checked={checklist.expiryDateMatch}
+                        onChange={(e) => setChecklist((prev) => ({ ...prev, expiryDateMatch: e.target.checked }))}
+                        className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                      <span>
+                        {t("checkExpiryDate", {
+                          date: effectiveExpiry
+                            ? new Date(effectiveExpiry).toLocaleDateString(locale)
+                            : "--",
+                        })}
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed text-foreground select-none">
+                      <input
+                        type="checkbox"
+                        checked={checklist.sealAuthentic}
+                        onChange={(e) => setChecklist((prev) => ({ ...prev, sealAuthentic: e.target.checked }))}
+                        className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                      <span>{t("checkSeal")}</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Editable Confirmed Expiry Date */}
+                <div className="space-y-1.5 rounded-xl border border-border bg-muted/20 p-3">
+                  <Label htmlFor="confirmedExpiryDate" className="text-xs font-semibold text-foreground">
+                    {t("confirmedExpiryDateLabel")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="confirmedExpiryDate"
+                    type="date"
+                    value={confirmedExpiryDate}
+                    onChange={(e) => setConfirmedExpiryDate(e.target.value)}
+                    className="bg-card text-xs"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("confirmedExpiryDateHint")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="pt-4 mt-4 border-t border-border flex items-center justify-end gap-2.5 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowApproveModal(false)}
+                  disabled={approveMutation.isPending}
+                >
+                  {t("cancel")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (!isChecklistComplete) return;
+                    approveMutation.mutate(confirmedExpiryDate);
+                  }}
+                  disabled={!isChecklistComplete || approveMutation.isPending}
+                  className="bg-green-600 text-white hover:bg-green-700 gap-1.5"
+                >
+                  {approveMutation.isPending ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : (
+                    <BadgeCheck size={14} />
+                  )}
+                  {t("confirmAndApproveBtn")}
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* CREDENTIAL AUDIT / BACKFILL MODAL (Track 1 — Admin direct date setting) */}
+      {/* CREDENTIAL AUDIT / BACKFILL MODAL (Track 1 — Split-Pane Workstation) */}
       <Dialog
         open={showCredentialAuditModal}
         onOpenChange={(open) => {
@@ -1620,160 +1797,190 @@ export default function ExpertDetailPage() {
           }
         }}
       >
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center gap-2 text-primary">
-              <ShieldCheck size={20} />
-              <DialogTitle>
-                {effectiveExpiry ? t("updateCredentialDatesModalTitle") : t("auditSetDatesModalTitle")}
-              </DialogTitle>
-            </div>
-            <DialogDescription>
-              {effectiveExpiry ? t("updateCredentialDatesModalDesc") : t("auditSetDatesModalDesc")}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-1">
-            {/* Expert Summary */}
-            <div className="rounded-lg border border-border bg-muted/40 px-3.5 py-3 text-xs space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("expert")}:</span>
-                <span className="font-semibold text-foreground">{displayName}</span>
+        <DialogContent className="max-w-6xl w-[96vw] h-[88vh] max-h-[88vh] p-0 flex flex-col overflow-hidden gap-0 rounded-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-border px-5 py-3.5 bg-card shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <ShieldCheck size={18} />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("barNumber")}:</span>
-                <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
-              </div>
-              {expert.barCertificateObjectKey && expert.verificationId && (
-                <div className="pt-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
-                    className="w-full gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
-                  >
-                    <Eye size={12} /> {t("inspectBarCertToSetDates")}
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {/* Audit notice */}
-            <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30 px-3 py-2.5 text-xs">
-              <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
-              <p className="text-amber-800 dark:text-amber-300 leading-relaxed">
-                {t("auditSetDatesNotice")}
-              </p>
-            </div>
-
-            {/* Certificate Name */}
-            <div className="space-y-1.5">
-              <Label htmlFor="credAuditCertName" className="text-xs font-medium">
-                {t("certName")} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="credAuditCertName"
-                value={credAuditForm.certificateName}
-                onChange={(e) => setCredAuditForm((p) => ({ ...p, certificateName: e.target.value }))}
-                placeholder="e.g. Rwanda Bar Practicing Certificate"
-                className="text-sm"
-              />
-            </div>
-
-            {/* Issuing Authority */}
-            <div className="space-y-1.5">
-              <Label htmlFor="credAuditIssuer" className="text-xs font-medium">
-                {t("certIssuer")} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="credAuditIssuer"
-                value={credAuditForm.issuer}
-                onChange={(e) => setCredAuditForm((p) => ({ ...p, issuer: e.target.value }))}
-                placeholder="e.g. Rwanda Bar Association"
-                className="text-sm"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {/* Issue Date */}
-              <div className="space-y-1.5">
-                <Label htmlFor="credAuditIssueDate" className="text-xs font-medium">
-                  {t("certIssueDate")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="credAuditIssueDate"
-                  type="date"
-                  max={new Date().toISOString().split("T")[0]}
-                  value={credAuditForm.issueDate}
-                  onChange={(e) => setCredAuditForm((p) => ({ ...p, issueDate: e.target.value }))}
-                  className="text-sm"
-                />
-              </div>
-
-              {/* Expiry Date */}
-              <div className="space-y-1.5">
-                <Label htmlFor="credAuditExpiryDate" className="text-xs font-medium">
-                  {t("certExpiryDate")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="credAuditExpiryDate"
-                  type="date"
-                  min={credAuditForm.issueDate || new Date().toISOString().split("T")[0]}
-                  value={credAuditForm.expiryDate}
-                  onChange={(e) => setCredAuditForm((p) => ({ ...p, expiryDate: e.target.value }))}
-                  className="text-sm"
-                />
+              <div>
+                <DialogTitle className="text-sm font-bold text-foreground">
+                  {effectiveExpiry ? t("updateCredentialDatesModalTitle") : t("auditSetDatesModalTitle")}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {effectiveExpiry ? t("updateCredentialDatesModalDesc") : t("auditSetDatesModalDesc")}
+                </DialogDescription>
               </div>
             </div>
-
-            {/* Audit Note */}
-            <div className="space-y-1.5">
-              <Label htmlFor="credAuditNote" className="text-xs font-medium text-muted-foreground">
-                {t("auditNote")} <span className="text-[10px] font-normal">({t("optional")})</span>
-              </Label>
-              <Input
-                id="credAuditNote"
-                value={credAuditForm.auditNote}
-                onChange={(e) => setCredAuditForm((p) => ({ ...p, auditNote: e.target.value }))}
-                placeholder={t("auditNotePlaceholder")}
-                className="text-sm"
-              />
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                {effectiveExpiry ? t("updateCredentialDatesBtn") : t("auditSetDatesBtn")}
+              </span>
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowCredentialAuditModal(false)}
-              disabled={credentialAuditMutation.isPending}
-            >
-              {t("cancel")}
-            </Button>
-            <Button
-              onClick={() => {
-                const { certificateName, issuer, issueDate, expiryDate } = credAuditForm;
-                if (!certificateName.trim() || !issuer.trim() || !issueDate || !expiryDate) {
-                  toast.error(t("allFieldsRequired"));
-                  return;
-                }
-                if (expiryDate <= issueDate) {
-                  toast.error(t("expiryAfterIssue"));
-                  return;
-                }
-                credentialAuditMutation.mutate();
-              }}
-              disabled={credentialAuditMutation.isPending || !credAuditForm.certificateName || !credAuditForm.issuer || !credAuditForm.issueDate || !credAuditForm.expiryDate}
-              className="bg-amber-600 text-white hover:bg-amber-700"
-            >
-              {credentialAuditMutation.isPending ? (
-                <RefreshCw size={14} className="mr-1.5 animate-spin" />
-              ) : (
-                <ShieldCheck size={14} className="mr-1.5" />
-              )}
-              {t("confirmSetDatesBtn")}
-            </Button>
-          </DialogFooter>
+          {/* Split Body */}
+          <div className="flex-1 min-h-0 flex flex-col lg:grid lg:grid-cols-12 overflow-hidden bg-background">
+            {/* Left 7 cols: Embedded Document Preview */}
+            <div className="lg:col-span-7 h-full flex flex-col border-b lg:border-b-0 lg:border-r border-border overflow-hidden min-h-[300px] lg:min-h-0 bg-muted/15">
+              <EmbeddedDocumentPreview
+                verificationId={expert.verificationId || expert.id}
+                objectKey={expert.barCertificateObjectKey}
+                label={t("barCertificate")}
+                t={t}
+              />
+            </div>
+
+            {/* Right 5 cols: Credential Form */}
+            <div className="lg:col-span-5 h-full flex flex-col justify-between overflow-y-auto p-5 sm:p-6 bg-card">
+              <div className="space-y-4">
+                {/* Expert Summary */}
+                <div className="rounded-xl border border-border/70 bg-muted/40 p-3.5 space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("expert")}:</span>
+                    <span className="font-semibold text-foreground">{displayName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">{t("barNumber")}:</span>
+                    <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
+                  </div>
+                  {effectiveExpiry && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{t("certExpiryDate")}:</span>
+                      <span className="font-bold text-primary">
+                        {new Date(effectiveExpiry).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Audit notice */}
+                <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-700/60 dark:bg-amber-950/30 p-3 text-xs">
+                  <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <p className="text-amber-800 dark:text-amber-300 leading-relaxed text-[11px]">
+                    {t("auditSetDatesNotice")}
+                  </p>
+                </div>
+
+                {/* Certificate Name */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="credAuditCertName" className="text-xs font-semibold text-foreground">
+                    {t("certName")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="credAuditCertName"
+                    value={credAuditForm.certificateName}
+                    onChange={(e) => setCredAuditForm((p) => ({ ...p, certificateName: e.target.value }))}
+                    placeholder="e.g. Rwanda Bar Practicing Certificate"
+                    className="text-xs bg-background"
+                  />
+                </div>
+
+                {/* Issuing Authority */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="credAuditIssuer" className="text-xs font-semibold text-foreground">
+                    {t("certIssuer")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="credAuditIssuer"
+                    value={credAuditForm.issuer}
+                    onChange={(e) => setCredAuditForm((p) => ({ ...p, issuer: e.target.value }))}
+                    placeholder="e.g. Rwanda Bar Association"
+                    className="text-xs bg-background"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Issue Date */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="credAuditIssueDate" className="text-xs font-semibold text-foreground">
+                      {t("certIssueDate")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="credAuditIssueDate"
+                      type="date"
+                      max={new Date().toISOString().split("T")[0]}
+                      value={credAuditForm.issueDate}
+                      onChange={(e) => setCredAuditForm((p) => ({ ...p, issueDate: e.target.value }))}
+                      className="text-xs bg-background"
+                    />
+                  </div>
+
+                  {/* Expiry Date */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="credAuditExpiryDate" className="text-xs font-semibold text-foreground">
+                      {t("certExpiryDate")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="credAuditExpiryDate"
+                      type="date"
+                      min={credAuditForm.issueDate || new Date().toISOString().split("T")[0]}
+                      value={credAuditForm.expiryDate}
+                      onChange={(e) => setCredAuditForm((p) => ({ ...p, expiryDate: e.target.value }))}
+                      className="text-xs bg-background"
+                    />
+                  </div>
+                </div>
+
+                {/* Audit Note */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="credAuditNote" className="text-xs font-semibold text-muted-foreground">
+                    {t("auditNote")} <span className="text-[10px] font-normal">({t("optional")})</span>
+                  </Label>
+                  <Input
+                    id="credAuditNote"
+                    value={credAuditForm.auditNote}
+                    onChange={(e) => setCredAuditForm((p) => ({ ...p, auditNote: e.target.value }))}
+                    placeholder={t("auditNotePlaceholder")}
+                    className="text-xs bg-background"
+                  />
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="pt-4 mt-4 border-t border-border flex items-center justify-end gap-2.5 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCredentialAuditModal(false)}
+                  disabled={credentialAuditMutation.isPending}
+                >
+                  {t("cancel")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const { certificateName, issuer, issueDate, expiryDate } = credAuditForm;
+                    if (!certificateName.trim() || !issuer.trim() || !issueDate || !expiryDate) {
+                      toast.error(t("allFieldsRequired"));
+                      return;
+                    }
+                    if (expiryDate <= issueDate) {
+                      toast.error(t("expiryAfterIssue"));
+                      return;
+                    }
+                    credentialAuditMutation.mutate();
+                  }}
+                  disabled={
+                    credentialAuditMutation.isPending ||
+                    !credAuditForm.certificateName ||
+                    !credAuditForm.issuer ||
+                    !credAuditForm.issueDate ||
+                    !credAuditForm.expiryDate
+                  }
+                  className="bg-amber-600 text-white hover:bg-amber-700 gap-1.5"
+                >
+                  {credentialAuditMutation.isPending ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : (
+                    <ShieldCheck size={14} />
+                  )}
+                  {t("confirmSetDatesBtn")}
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

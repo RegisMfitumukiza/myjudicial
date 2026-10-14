@@ -343,19 +343,58 @@ export const VerificationService = {
     const ciphertext = await downloadObject(objectKey, bucket);
 
     // ── Fetch decryption keys from Document metadata table ─────────────────
-    const { FileStorageRepository } = await import(
-      "../../modules/file-storage/repositories/file-storage.repository.js"
-    );
-    const docMeta = await FileStorageRepository.findByObjectKeyWithKeys(objectKey);
+    let docMeta: {
+      encryptedAesKey: string | null;
+      iv: string | null;
+      mimeType: string;
+      fileName: string;
+      kmsKeyId: string | null;
+    } | null = null;
+
+    try {
+      docMeta = await prisma.document.findFirst({
+        where: { objectKey, isDeleted: false },
+        select: {
+          encryptedAesKey: true,
+          iv: true,
+          mimeType: true,
+          fileName: true,
+          kmsKeyId: true,
+        },
+      });
+    } catch (dbErr) {
+      logger.warn("Direct document metadata lookup failed, attempting FileStorageRepository fallback", {
+        objectKey,
+        error: dbErr instanceof Error ? dbErr.message : String(dbErr),
+      });
+      try {
+        const { FileStorageRepository } = await import(
+          "../../modules/file-storage/repositories/file-storage.repository.js"
+        );
+        docMeta = await FileStorageRepository.findByObjectKeyWithKeys(objectKey);
+      } catch {
+        docMeta = null;
+      }
+    }
 
     let plaintext: Buffer;
     let mimeType: string = docMeta?.mimeType ?? "application/octet-stream";
 
     if (docMeta?.encryptedAesKey && docMeta?.iv) {
       try {
-        // If KMS was used, unwrap the master key first
-        const { unwrapKey } = await import("../../infrastructure/kms/oci-kms.service.js");
-        const rawAesKey = await unwrapKey(docMeta.encryptedAesKey);
+        let rawAesKey = docMeta.encryptedAesKey;
+        // Only attempt KMS unwrap if a KMS Master Key ID was recorded on this document
+        if (docMeta.kmsKeyId) {
+          try {
+            const { unwrapKey } = await import("../../infrastructure/kms/oci-kms.service.js");
+            rawAesKey = await unwrapKey(docMeta.encryptedAesKey);
+          } catch (kmsErr) {
+            logger.warn("OCI KMS unwrap failed, attempting direct AES key fallback", {
+              objectKey,
+              error: kmsErr instanceof Error ? kmsErr.message : String(kmsErr),
+            });
+          }
+        }
         const { decryptBuffer } = await import("../../shared/utils/crypto.js");
         plaintext = decryptBuffer(ciphertext, rawAesKey, docMeta.iv);
       } catch (decryptErr) {

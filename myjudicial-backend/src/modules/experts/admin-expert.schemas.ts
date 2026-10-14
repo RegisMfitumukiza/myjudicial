@@ -30,3 +30,14 @@ export const updateExpertStatusSchema = z.object({
     reason: z.string().optional(),
   }),
 });
+
+export const setCredentialDatesSchema = z.object({
+  body: z.object({
+    certificateName: z.string().min(2).max(200).trim(),
+    issuer: z.string().min(2).max(200).trim(),
+    issueDate: z.string().date(),
+    expiryDate: z.string().date(),
+    auditNote: z.string().min(3).max(500).trim().optional(),
+  }),
+});
+export type SetCredentialDatesDto = z.infer<typeof setCredentialDatesSchema>['body'];

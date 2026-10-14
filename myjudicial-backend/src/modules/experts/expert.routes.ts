@@ -63,7 +63,7 @@ import quotationRoutes from "./quotations/quotations.routes.js";
 
 // Verification
 import { VerificationController } from "./verification/verification.controller.js";
-import { submitVerificationSchema } from "./verification/verification.schemas.js";
+import { submitVerificationSchema, renewCredentialsSchema } from "./verification/verification.schemas.js";
 import { avatarUpload, encryptedFilesUpload } from "../../shared/middleware/upload.js";
 
 // Landing page
@@ -601,6 +601,14 @@ router.post("/messages", authenticate, requireExpert, asyncHandler(async (req, r
 }));
 
 // ── Verification ──────────────────────────
+router.post(
+  "/verification/renew-credentials",
+  authenticate,
+  requireExpert,
+  validate(renewCredentialsSchema),
+  asyncHandler(VerificationController.renewCredentials)
+);
+
 router.post(
   "/verification/submit",
   authenticate, requireExpert,

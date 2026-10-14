@@ -491,28 +491,51 @@ export const AdminComplianceService = {
       throw new ValidationError("New expiry date must be in the future");
     }
 
-    // Update expiry date
-    const updatedExpert = await prisma.expertProfile.update({
-      where: { id: user.expertProfile.id },
-      data: {
-        credentialsExpiry: newDate,
-      },
+    // Update expiry date and sync ExpertCertification in a transaction
+    const latestCert = await prisma.expertCertification.findFirst({
+      where: { expertId: user.expertProfile.id },
+      orderBy: { createdAt: "desc" },
     });
 
-    // Log action
-    await prisma.auditLog.create({
-      data: {
-        actorId: adminId,
-        action: "UPDATE",
-        resource: "EXPERT",
-        resourceId: userId,
-        metadata: {
-          oldExpiry: user.expertProfile.credentialsExpiry,
-          newExpiry: newDate,
-          reason,
-        } as any,
-      },
-    });
+    const [updatedExpert] = await prisma.$transaction([
+      prisma.expertProfile.update({
+        where: { id: user.expertProfile.id },
+        data: {
+          credentialsExpiry: newDate,
+        },
+      }),
+      ...(latestCert
+        ? [
+            prisma.expertCertification.update({
+              where: { id: latestCert.id },
+              data: { expiryDate: newDate },
+            }),
+          ]
+        : [
+            prisma.expertCertification.create({
+              data: {
+                expertId: user.expertProfile.id,
+                certificateName: "Rwanda Bar Practicing Certificate",
+                issuer: "Rwanda Bar Association",
+                issueDate: new Date(),
+                expiryDate: newDate,
+              },
+            }),
+          ]),
+      prisma.auditLog.create({
+        data: {
+          actorId: adminId,
+          action: "UPDATE",
+          resource: "EXPERT",
+          resourceId: userId,
+          metadata: {
+            oldExpiry: user.expertProfile.credentialsExpiry,
+            newExpiry: newDate,
+            reason,
+          } as any,
+        },
+      }),
+    ]);
 
     return {
       id: updatedExpert.id,

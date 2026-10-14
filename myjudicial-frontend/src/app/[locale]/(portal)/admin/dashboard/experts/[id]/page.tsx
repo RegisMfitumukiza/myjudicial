@@ -167,6 +167,19 @@ async function resetToDraft(expertUserId: string) {
   return apiFetch(`/admin/experts/${expertUserId}/reset-to-resubmit`, { method: "PATCH" });
 }
 
+async function setCredentialDates(expertUserId: string, body: {
+  certificateName: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate: string;
+  auditNote?: string;
+}) {
+  return apiFetch(`/admin/experts/${expertUserId}/credentials`, {
+    method: "PATCH",
+    body,
+  });
+}
+
 async function getDocumentStream(verificationId: string, objectKey: string): Promise<{ url: string; mimeType: string }> {
   const blob = await apiFetchBlob(
     `/admin-verification/${verificationId}/document-stream?key=${encodeURIComponent(objectKey)}`,
@@ -419,6 +432,16 @@ export default function ExpertDetailPage() {
   });
   const [auditViewerKey, setAuditViewerKey] = useState<string | null>(null);
 
+  // ── Credential Audit / Backfill Modal State (Track 1) ──
+  const [showCredentialAuditModal, setShowCredentialAuditModal] = useState(false);
+  const [credAuditForm, setCredAuditForm] = useState({
+    certificateName: "",
+    issuer: "",
+    issueDate: "",
+    expiryDate: "",
+    auditNote: "",
+  });
+
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(true);
@@ -498,6 +521,23 @@ export default function ExpertDetailPage() {
       invalidate();
       setShowResetModal(false);
       toast.success(t("resetSuccess"));
+    },
+    onError: () => toast.error(t("actionFailed")),
+  });
+
+  const credentialAuditMutation = useMutation({
+    mutationFn: () => setCredentialDates(expertId, {
+      certificateName: credAuditForm.certificateName,
+      issuer: credAuditForm.issuer,
+      issueDate: credAuditForm.issueDate,
+      expiryDate: credAuditForm.expiryDate,
+      auditNote: credAuditForm.auditNote || undefined,
+    }),
+    onSuccess: () => {
+      invalidate();
+      setShowCredentialAuditModal(false);
+      setCredAuditForm({ certificateName: "", issuer: "", issueDate: "", expiryDate: "", auditNote: "" });
+      toast.success(t("credentialDatesSetSuccess"));
     },
     onError: () => toast.error(t("actionFailed")),
   });
@@ -930,23 +970,76 @@ export default function ExpertDetailPage() {
                   </div>
                 </div>
 
-                {/* Inspect Bar Certificate Action */}
-                {expert.barCertificateObjectKey && expert.verificationId && (
-                  <div className="mt-3.5 flex items-center justify-between border-t border-border/80 pt-3">
+                {/* Audit Card Bottom Actions */}
+                <div className="mt-3.5 border-t border-border/80 pt-3 space-y-2.5">
+                  {/* Missing dates banner for already-verified experts */}
+                  {isVerified && !effectiveExpiry && (
+                    <div className="flex items-center gap-2.5 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30 px-3 py-2">
+                      <AlertTriangle size={14} className="shrink-0 text-amber-600 dark:text-amber-400" />
+                      <p className="text-xs text-amber-800 dark:text-amber-300 flex-1">
+                        {t("credentialDatesNotSet")}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-xs text-muted-foreground">
-                      Cross-verify details against certificate scan:
+                      {t("crossVerifyHint")}
                     </p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
-                      className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
-                    >
-                      <Eye size={13} /> {t("inspectBarCert")}
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Audit & Set Validity Dates — shown when dates are missing for verified expert */}
+                      {isVerified && !effectiveExpiry && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setCredAuditForm({
+                              certificateName: latestCert?.certificateName || "Rwanda Bar Practicing Certificate",
+                              issuer: latestCert?.issuer || "Rwanda Bar Association",
+                              issueDate: latestCert?.issueDate ? new Date(latestCert.issueDate).toISOString().split("T")[0] : "",
+                              expiryDate: "",
+                              auditNote: "",
+                            });
+                            setShowCredentialAuditModal(true);
+                          }}
+                          className="gap-1.5 bg-amber-600 text-white hover:bg-amber-700"
+                        >
+                          <ShieldCheck size={13} /> {t("auditSetDatesBtn")}
+                        </Button>
+                      )}
+                      {/* Update Credential Dates — shown for verified expert who already has dates (annual renewal) */}
+                      {isVerified && effectiveExpiry && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setCredAuditForm({
+                              certificateName: latestCert?.certificateName || "Rwanda Bar Practicing Certificate",
+                              issuer: latestCert?.issuer || "Rwanda Bar Association",
+                              issueDate: latestCert?.issueDate ? new Date(latestCert.issueDate).toISOString().split("T")[0] : "",
+                              expiryDate: initialExpiry,
+                              auditNote: "",
+                            });
+                            setShowCredentialAuditModal(true);
+                          }}
+                          className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                        >
+                          <RefreshCw size={13} /> {t("updateCredentialDatesBtn")}
+                        </Button>
+                      )}
+                      {expert.barCertificateObjectKey && expert.verificationId && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
+                          className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                        >
+                          <Eye size={13} /> {t("inspectBarCert")}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                )}
+                </div>
               </section>
+
 
               {/* Document checklist */}
               <section>
@@ -1512,6 +1605,173 @@ export default function ExpertDetailPage() {
                 <BadgeCheck size={14} className="mr-1.5" />
               )}
               {t("confirmAndApproveBtn")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CREDENTIAL AUDIT / BACKFILL MODAL (Track 1 — Admin direct date setting) */}
+      <Dialog
+        open={showCredentialAuditModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowCredentialAuditModal(false);
+            setCredAuditForm({ certificateName: "", issuer: "", issueDate: "", expiryDate: "", auditNote: "" });
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-primary">
+              <ShieldCheck size={20} />
+              <DialogTitle>
+                {effectiveExpiry ? t("updateCredentialDatesModalTitle") : t("auditSetDatesModalTitle")}
+              </DialogTitle>
+            </div>
+            <DialogDescription>
+              {effectiveExpiry ? t("updateCredentialDatesModalDesc") : t("auditSetDatesModalDesc")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-1">
+            {/* Expert Summary */}
+            <div className="rounded-lg border border-border bg-muted/40 px-3.5 py-3 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t("expert")}:</span>
+                <span className="font-semibold text-foreground">{displayName}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t("barNumber")}:</span>
+                <span className="font-mono font-bold text-foreground">{expert.barNumber || "--"}</span>
+              </div>
+              {expert.barCertificateObjectKey && expert.verificationId && (
+                <div className="pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAuditViewerKey(expert.barCertificateObjectKey!)}
+                    className="w-full gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <Eye size={12} /> {t("inspectBarCertToSetDates")}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Audit notice */}
+            <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30 px-3 py-2.5 text-xs">
+              <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <p className="text-amber-800 dark:text-amber-300 leading-relaxed">
+                {t("auditSetDatesNotice")}
+              </p>
+            </div>
+
+            {/* Certificate Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="credAuditCertName" className="text-xs font-medium">
+                {t("certName")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="credAuditCertName"
+                value={credAuditForm.certificateName}
+                onChange={(e) => setCredAuditForm((p) => ({ ...p, certificateName: e.target.value }))}
+                placeholder="e.g. Rwanda Bar Practicing Certificate"
+                className="text-sm"
+              />
+            </div>
+
+            {/* Issuing Authority */}
+            <div className="space-y-1.5">
+              <Label htmlFor="credAuditIssuer" className="text-xs font-medium">
+                {t("certIssuer")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="credAuditIssuer"
+                value={credAuditForm.issuer}
+                onChange={(e) => setCredAuditForm((p) => ({ ...p, issuer: e.target.value }))}
+                placeholder="e.g. Rwanda Bar Association"
+                className="text-sm"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Issue Date */}
+              <div className="space-y-1.5">
+                <Label htmlFor="credAuditIssueDate" className="text-xs font-medium">
+                  {t("certIssueDate")} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="credAuditIssueDate"
+                  type="date"
+                  max={new Date().toISOString().split("T")[0]}
+                  value={credAuditForm.issueDate}
+                  onChange={(e) => setCredAuditForm((p) => ({ ...p, issueDate: e.target.value }))}
+                  className="text-sm"
+                />
+              </div>
+
+              {/* Expiry Date */}
+              <div className="space-y-1.5">
+                <Label htmlFor="credAuditExpiryDate" className="text-xs font-medium">
+                  {t("certExpiryDate")} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="credAuditExpiryDate"
+                  type="date"
+                  min={credAuditForm.issueDate || new Date().toISOString().split("T")[0]}
+                  value={credAuditForm.expiryDate}
+                  onChange={(e) => setCredAuditForm((p) => ({ ...p, expiryDate: e.target.value }))}
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Audit Note */}
+            <div className="space-y-1.5">
+              <Label htmlFor="credAuditNote" className="text-xs font-medium text-muted-foreground">
+                {t("auditNote")} <span className="text-[10px] font-normal">({t("optional")})</span>
+              </Label>
+              <Input
+                id="credAuditNote"
+                value={credAuditForm.auditNote}
+                onChange={(e) => setCredAuditForm((p) => ({ ...p, auditNote: e.target.value }))}
+                placeholder={t("auditNotePlaceholder")}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowCredentialAuditModal(false)}
+              disabled={credentialAuditMutation.isPending}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={() => {
+                const { certificateName, issuer, issueDate, expiryDate } = credAuditForm;
+                if (!certificateName.trim() || !issuer.trim() || !issueDate || !expiryDate) {
+                  toast.error(t("allFieldsRequired"));
+                  return;
+                }
+                if (expiryDate <= issueDate) {
+                  toast.error(t("expiryAfterIssue"));
+                  return;
+                }
+                credentialAuditMutation.mutate();
+              }}
+              disabled={credentialAuditMutation.isPending || !credAuditForm.certificateName || !credAuditForm.issuer || !credAuditForm.issueDate || !credAuditForm.expiryDate}
+              className="bg-amber-600 text-white hover:bg-amber-700"
+            >
+              {credentialAuditMutation.isPending ? (
+                <RefreshCw size={14} className="mr-1.5 animate-spin" />
+              ) : (
+                <ShieldCheck size={14} className="mr-1.5" />
+              )}
+              {t("confirmSetDatesBtn")}
             </Button>
           </DialogFooter>
         </DialogContent>

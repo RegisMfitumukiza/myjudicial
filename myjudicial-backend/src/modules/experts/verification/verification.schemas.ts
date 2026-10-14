@@ -89,3 +89,13 @@ export const submitVerificationSchema = z.preprocess((raw: any) => {
 }, baseSubmitVerificationSchema);
 
 export type SubmitVerificationDto = z.infer<typeof baseSubmitVerificationSchema>;
+
+export const renewCredentialsSchema = z.object({
+  body: z.object({
+    certificateName: z.string().min(2).max(200).trim(),
+    issuer: z.string().min(2).max(200).trim(),
+    issueDate: z.string().date('Issue date must be a valid date (YYYY-MM-DD)'),
+    expiryDate: z.string().date('Expiry date must be a valid date (YYYY-MM-DD)'),
+  }),
+});
+export type RenewCredentialsDto = z.infer<typeof renewCredentialsSchema>['body'];

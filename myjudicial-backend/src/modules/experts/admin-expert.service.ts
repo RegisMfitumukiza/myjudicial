@@ -6,6 +6,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import { getSignedDownloadUrl, resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 import { logger } from "../../shared/utils/logger.js";
 import { sendVerificationResetToDraftEmail } from "../../infrastructure/email/email.service.js";
+import type { SetCredentialDatesDto } from "./admin-expert.schemas.js";
 
 
 interface ListFilters {
@@ -684,6 +685,77 @@ export const AdminExpertService = {
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
+    };
+  },
+
+  /**
+   * Backfill / set credential dates for an expert (admin action).
+   * Creates a new ExpertCertification record and updates credentialsExpiry on ExpertProfile.
+   */
+  async setCredentialDates(expertId: string, dto: SetCredentialDatesDto, adminId: string) {
+    const user = await this.resolveExpertUser(expertId);
+
+    if (!user || !user.expertProfile) {
+      throw new NotFoundError("Expert");
+    }
+
+    const profile = user.expertProfile;
+
+    // Validate date logic
+    const issueD = new Date(dto.issueDate);
+    const expiryD = new Date(dto.expiryDate);
+
+    if (isNaN(issueD.getTime()) || isNaN(expiryD.getTime())) {
+      throw new ValidationError("Invalid issue date or expiry date format.");
+    }
+    if (expiryD <= issueD) {
+      throw new ValidationError("Expiry date must be strictly after the issue date.");
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (expiryD < today) {
+      throw new ValidationError("Expiry date cannot be in the past.");
+    }
+
+    const { certificateName, issuer, issueDate, expiryDate, auditNote } = dto;
+
+    const [, newCert] = await prisma.$transaction([
+      prisma.expertProfile.update({
+        where: { id: profile.id },
+        data: { credentialsExpiry: new Date(expiryDate) },
+      }),
+      prisma.expertCertification.create({
+        data: {
+          expertId: profile.id,
+          certificateName,
+          issuer,
+          issueDate: new Date(issueDate),
+          expiryDate: new Date(expiryDate),
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          actorId: adminId,
+          action: "UPDATE",
+          resource: "EXPERT",
+          resourceId: user.id,
+          metadata: {
+            action: "credential_backfill",
+            certificateName,
+            issuer,
+            issueDate,
+            expiryDate,
+            auditNote,
+            adminId,
+          } as any,
+        },
+      }),
+    ]);
+
+    return {
+      id: user.id,
+      credentialsExpiry: new Date(expiryDate),
+      certificationId: newCert.id,
     };
   },
 };

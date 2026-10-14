@@ -471,6 +471,48 @@ export default function VerificationPage() {
     ? rawReason!.replace(/^\[CORRECTIONS_REQUIRED\]\s*/, "")
     : rawReason;
 
+  // ── Renewal form state (Track 2 — expert self-service annual credential renewal) ──
+  const [showRenewalForm, setShowRenewalForm] = useState(false);
+  const [renewalForm, setRenewalForm] = useState({ certificateName: "", issuer: "", issueDate: "", expiryDate: "" });
+  const [renewalErrors, setRenewalErrors] = useState<Record<string, string>>({});
+  const [isRenewing, setIsRenewing] = useState(false);
+
+  // credentialsExpiry from compliance data (may be null for pre-implementation verified experts)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const credentialsExpiry: string | null = (compliance as any)?.credentialsExpiry ?? null;
+  const needsCredentialUpdate = status === "VERIFIED" && !credentialsExpiry;
+  const isExpiringSoon = status === "VERIFIED" && credentialsExpiry &&
+    Math.ceil((new Date(credentialsExpiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 30;
+
+  async function handleRenewalSubmit() {
+    const newErrs: Record<string, string> = {};
+    if (!renewalForm.certificateName.trim()) newErrs.certificateName = t("validationRequired");
+    if (!renewalForm.issuer.trim()) newErrs.issuer = t("validationRequired");
+    if (!renewalForm.issueDate) newErrs.issueDate = t("validationRequired");
+    if (!renewalForm.expiryDate) newErrs.expiryDate = t("validationRequired");
+    if (renewalForm.issueDate && renewalForm.expiryDate && renewalForm.expiryDate <= renewalForm.issueDate) {
+      newErrs.expiryDate = t("validationExpiryAfterIssue");
+    }
+    if (Object.keys(newErrs).length > 0) { setRenewalErrors(newErrs); return; }
+
+    setIsRenewing(true);
+    try {
+      await apiFetch("/experts/verification/renew-credentials", {
+        method: "POST",
+        body: renewalForm,
+      });
+      toast.success(t("renewalSuccess"));
+      queryClient.invalidateQueries({ queryKey: getGetExpertsComplianceQueryKey() });
+      setShowRenewalForm(false);
+      setRenewalForm({ certificateName: "", issuer: "", issueDate: "", expiryDate: "" });
+      setRenewalErrors({});
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setIsRenewing(false);
+    }
+  }
+
   const lastVerif = compliance?.lastVerification as any;
   const hasIdentityOnFile = Boolean(lastVerif?.identityDocumentObjectKey);
   const hasBarCertOnFile = Boolean(lastVerif?.barCertificateObjectKey);
@@ -1027,34 +1069,196 @@ export default function VerificationPage() {
 
           {/* Verified Celebration Card */}
           {!isLoading && status === "VERIFIED" && (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-                  <BadgeCheck size={22} />
+            <div className="space-y-4">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 shadow-sm space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+                    <BadgeCheck size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-foreground">
+                      {t("verifiedBannerTitle")}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {t("verifiedBannerText")}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-foreground">
-                    {t("verifiedBannerTitle")}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("verifiedBannerText")}
-                  </p>
+                <div className="border-t border-primary/20 pt-4 flex flex-wrap gap-3">
+                  <Button size="sm" asChild>
+                    <Link href="/expert/dashboard/calendar" className="gap-2">
+                      <Calendar size={14} />
+                      {t("btnGoCalendar")}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/expert/dashboard/profile" className="gap-2">
+                      <ExternalLink size={14} />
+                      {t("btnViewProfile")}
+                    </Link>
+                  </Button>
                 </div>
               </div>
-              <div className="border-t border-primary/20 pt-4 flex flex-wrap gap-3">
-                <Button size="sm" asChild>
-                  <Link href="/expert/dashboard/calendar" className="gap-2">
-                    <Calendar size={14} />
-                    {t("btnGoCalendar")}
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/expert/dashboard/profile" className="gap-2">
-                    <ExternalLink size={14} />
-                    {t("btnViewProfile")}
-                  </Link>
-                </Button>
-              </div>
+
+              {/* Compliance Status Card (Track 2 — Missing date backfill or annual renewal) */}
+              {(needsCredentialUpdate || isExpiringSoon || showRenewalForm) && (
+                <div className="rounded-xl border border-amber-300 bg-amber-50/60 dark:border-amber-700 dark:bg-amber-950/20 p-5 shadow-sm space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+                      <AlertTriangle size={18} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                        {needsCredentialUpdate
+                          ? t("complianceActionRequiredTitle")
+                          : t("annualRenewalTitle")}
+                      </h4>
+                      <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mt-0.5">
+                        {needsCredentialUpdate
+                          ? t("complianceActionRequiredDesc")
+                          : t("annualRenewalDesc")}
+                      </p>
+                      {credentialsExpiry && (
+                        <p className="text-[11px] font-mono font-semibold text-amber-900 dark:text-amber-300 mt-1">
+                          Current expiry: {new Date(credentialsExpiry).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    {!showRenewalForm && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setRenewalForm({
+                            certificateName: "Rwanda Bar Practicing Certificate",
+                            issuer: "Rwanda Bar Association",
+                            issueDate: "",
+                            expiryDate: "",
+                          });
+                          setShowRenewalForm(true);
+                        }}
+                        className="bg-amber-600 text-white hover:bg-amber-700 shrink-0 text-xs gap-1.5"
+                      >
+                        <ShieldCheck size={13} />
+                        {needsCredentialUpdate ? t("btnUpdateValidityDates") : t("btnRenewCredentials")}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Inline Renewal Form */}
+                  {showRenewalForm && (
+                    <div className="border-t border-amber-200 dark:border-amber-800/60 pt-4 space-y-4">
+                      <p className="text-xs font-semibold text-amber-950 dark:text-amber-200">
+                        {t("enterPracticingCertificateDates")}
+                      </p>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {/* Certificate Name */}
+                        <div className="space-y-1">
+                          <Label className="text-xs text-foreground font-medium">
+                            {t("certNameLabel")} <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            value={renewalForm.certificateName}
+                            onChange={(e) => {
+                              setRenewalForm((p) => ({ ...p, certificateName: e.target.value }));
+                              if (renewalErrors.certificateName) setRenewalErrors((p) => ({ ...p, certificateName: "" }));
+                            }}
+                            placeholder="e.g. Rwanda Bar Practicing Certificate"
+                            className="bg-card text-xs"
+                          />
+                          {renewalErrors.certificateName && (
+                            <p className="text-[11px] text-destructive">{renewalErrors.certificateName}</p>
+                          )}
+                        </div>
+
+                        {/* Issuing Authority */}
+                        <div className="space-y-1">
+                          <Label className="text-xs text-foreground font-medium">
+                            {t("issuerLabel")} <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            value={renewalForm.issuer}
+                            onChange={(e) => {
+                              setRenewalForm((p) => ({ ...p, issuer: e.target.value }));
+                              if (renewalErrors.issuer) setRenewalErrors((p) => ({ ...p, issuer: "" }));
+                            }}
+                            placeholder="e.g. Rwanda Bar Association"
+                            className="bg-card text-xs"
+                          />
+                          {renewalErrors.issuer && (
+                            <p className="text-[11px] text-destructive">{renewalErrors.issuer}</p>
+                          )}
+                        </div>
+
+                        {/* Issue Date */}
+                        <div className="space-y-1">
+                          <Label className="text-xs text-foreground font-medium">
+                            {t("issueDateLabel")} <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            type="date"
+                            max={new Date().toISOString().split("T")[0]}
+                            value={renewalForm.issueDate}
+                            onChange={(e) => {
+                              setRenewalForm((p) => ({ ...p, issueDate: e.target.value }));
+                              if (renewalErrors.issueDate) setRenewalErrors((p) => ({ ...p, issueDate: "" }));
+                            }}
+                            className="bg-card text-xs"
+                          />
+                          {renewalErrors.issueDate && (
+                            <p className="text-[11px] text-destructive">{renewalErrors.issueDate}</p>
+                          )}
+                        </div>
+
+                        {/* Expiry Date */}
+                        <div className="space-y-1">
+                          <Label className="text-xs text-foreground font-medium">
+                            {t("expiryDateLabel")} <span className="text-destructive">*</span>
+                          </Label>
+                          <Input
+                            type="date"
+                            min={renewalForm.issueDate || new Date().toISOString().split("T")[0]}
+                            value={renewalForm.expiryDate}
+                            onChange={(e) => {
+                              setRenewalForm((p) => ({ ...p, expiryDate: e.target.value }));
+                              if (renewalErrors.expiryDate) setRenewalErrors((p) => ({ ...p, expiryDate: "" }));
+                            }}
+                            className="bg-card text-xs"
+                          />
+                          {renewalErrors.expiryDate && (
+                            <p className="text-[11px] text-destructive">{renewalErrors.expiryDate}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowRenewalForm(false);
+                            setRenewalErrors({});
+                          }}
+                          disabled={isRenewing}
+                          className="text-xs"
+                        >
+                          {t("cancel")}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handleRenewalSubmit}
+                          disabled={isRenewing}
+                          className="bg-amber-600 text-white hover:bg-amber-700 text-xs gap-1.5"
+                        >
+                          {isRenewing && <Loader2 size={13} className="animate-spin" />}
+                          {t("submitDatesBtn")}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

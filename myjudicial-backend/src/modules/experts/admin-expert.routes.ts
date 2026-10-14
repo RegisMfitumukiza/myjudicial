@@ -7,6 +7,7 @@ import {
   listExpertsSchema,
   suspendExpertSchema,
   updateExpertStatusSchema,
+  setCredentialDatesSchema,
 } from "./admin-expert.schemas.js";
 
 const router = Router();
@@ -110,4 +111,18 @@ router.patch(
   asyncHandler(AdminExpertController.resetToResubmit)
 );
 
+/**
+ * PATCH /api/v1/admin/experts/:id/credentials
+ * Direct backfill or update of validity dates on expert credentials
+ * Admin only
+ */
+router.patch(
+  "/:id/credentials",
+  authenticate,
+  requireAdmin,
+  validate(setCredentialDatesSchema),
+  asyncHandler(AdminExpertController.setCredentialDates)
+);
+
 export default router;
+

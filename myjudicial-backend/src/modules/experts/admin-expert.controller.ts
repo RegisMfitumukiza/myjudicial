@@ -162,4 +162,19 @@ export const AdminExpertController = {
       next(error);
     }
   },
+
+  /**
+   * PATCH /api/v1/admin/experts/:id/credentials
+   * Direct backfill or update of validity dates on expert credentials
+   */
+  setCredentialDates: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const id = req.params.id as string;
+      const result = await AdminExpertService.setCredentialDates(id, req.body, req.user!.id);
+      sendSuccess(res, result, "Credential dates set successfully");
+    } catch (error) {
+      next(error);
+    }
+  },
 };
+

@@ -45,7 +45,25 @@ interface SigninDraft {
   adminMode?: boolean;
 }
 
-export function SignInForm() {
+interface SignInFormProps {
+  defaultAdminMode?: boolean;
+}
+
+function getStoredTheme(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const local = localStorage.getItem("theme");
+    if (local && ["light", "dark", "system"].includes(local)) return local;
+    const match = document.cookie.match(/(?:^|;\s*)mj_theme=([^;]+)/);
+    if (match && match[1]) {
+      const val = decodeURIComponent(match[1]);
+      if (["light", "dark", "system"].includes(val)) return val;
+    }
+  } catch {}
+  return "";
+}
+
+export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocale() as 'en' | 'fr' | 'rw';
@@ -71,40 +89,23 @@ export function SignInForm() {
   const [otpExpiresAt, setOtpExpiresAt] = useState<string | null>(null);
   const [otpRemaining, setOtpRemaining] = useState<number | null>(null);
   const [otpExpired, setOtpExpired] = useState(false);
-  const [adminMode, setAdminMode] = useState(() => {
-    if (typeof window !== "undefined" && window.location.hostname.toLowerCase() === ADMIN_PORTAL_HOST) {
-      return true;
-    }
-    return searchParams.get("admin") === "1";
-  });
+  const [adminMode, setAdminMode] = useState(
+    () => defaultAdminMode || searchParams.get("admin") === "1"
+  );
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [adminRememberMe, setAdminRememberMe] = useState(false);
   const isHydratedRef = useRef(false);
 
-function getStoredTheme(): string {
-  if (typeof window === "undefined") return "";
-  try {
-    const local = localStorage.getItem("theme");
-    if (local && ["light", "dark", "system"].includes(local)) return local;
-    const match = document.cookie.match(/(?:^|;\s*)mj_theme=([^;]+)/);
-    if (match && match[1]) {
-      const val = decodeURIComponent(match[1]);
-      if (["light", "dark", "system"].includes(val)) return val;
-    }
-  } catch {}
-  return "";
-}
-
   // If user requests admin mode while on main host, immediately forward to admin portal
   // BEFORE they fill credentials so they never suffer double submission or theme reset.
   useEffect(() => {
-    if (typeof window === "undefined" || process.env.NODE_ENV !== "production") return;
+    if (typeof window === "undefined") return;
     const currentHost = window.location.hostname.toLowerCase();
     if (currentHost === ADMIN_PORTAL_HOST) {
       setAdminMode(true);
-    } else if (searchParams.get("admin") === "1") {
+    } else if (process.env.NODE_ENV === "production" && searchParams.get("admin") === "1") {
       const currentLocale = locale || "en";
       const theme = getStoredTheme();
       const themeParam = theme ? `&theme=${encodeURIComponent(theme)}` : "";

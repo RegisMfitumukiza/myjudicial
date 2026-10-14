@@ -31,9 +31,16 @@ export const globalErrorHandler = (
     });
   }
 
+  const isAppError =
+    error instanceof AppError ||
+    (Boolean(error) &&
+      typeof (error as any).statusCode === "number" &&
+      (error as any).isOperational === true);
+
   // Operational errors — safe to expose message to client
-  if (error instanceof AppError) {
-    const errorCode = error.message;
+  if (isAppError) {
+    const appErr = error as AppError;
+    const errorCode = appErr.message;
     const availableCodes = getAvailableErrorCodes();
 
     // If the error message matches a known translation key, translate it.
@@ -45,12 +52,12 @@ export const globalErrorHandler = (
 
     // Determine the machine-readable code to forward (for frontend i18n mapping).
     // Prefer explicit error.code, then fall back to the message string if it's a known code.
-    const responseCode = error.code ?? (isKnownCode ? errorCode : undefined);
+    const responseCode = appErr.code ?? (isKnownCode ? errorCode : undefined);
 
     const body: ErrorResponse = { success: false, message: translatedMessage };
     if (responseCode) body.code = responseCode;
-    if (error.errors?.length) body.errors = error.errors;
-    res.status(error.statusCode).json(body);
+    if (appErr.errors?.length) body.errors = appErr.errors;
+    res.status(appErr.statusCode).json(body);
     return;
   }
 

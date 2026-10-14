@@ -44,6 +44,18 @@ const ExpertNestedSchema = z
       .nullable()
       .optional()
       .openapi({ example: "0781234567" }),
+    contactPhone: z
+      .string()
+      .nullable()
+      .optional()
+      .openapi({ example: "+250783456723" }),
+    payoutPhone: z
+      .string()
+      .nullable()
+      .optional()
+      .openapi({ example: "+250783456723" }),
+    isPayoutFallback: z.boolean().optional(),
+    payoutProvider: z.string().nullable().optional(),
   })
   .openapi("ExpertNested");
 

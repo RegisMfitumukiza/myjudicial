@@ -3,6 +3,7 @@ import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { EscrowStatus, PaymentStatus } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { EscrowService } from "./escrow.service.js";
+import { resolveExpertPayoutPhone } from "./payout.helper.js";
 
 interface PaymentFilters {
   status?: PaymentStatus;
@@ -170,6 +171,11 @@ export const AdminFinanceService = {
                   id: true,
                   displayName: true,
                   momoNumber: true,
+                  user: {
+                    select: {
+                      phone: true,
+                    },
+                  },
                 },
               },
             },
@@ -183,23 +189,34 @@ export const AdminFinanceService = {
     ]);
 
     return {
-      payments: payments.map((p) => ({
-        id: p.id,
-        bookingId: p.bookingId,
-        amount: Number(p.amount),
-        currency: p.currency,
-        platformFee: Number(p.platformFee),
-        expertPayout: Number(p.expertPayout),
-        txRef: p.txRef,
-        providerTransactionId: p.providerTransactionId,
-        providerPayoutRef: p.providerPayoutRef,
-        status: p.status,
-        paidAt: p.paidAt,
-        payoutSentAt: p.payoutSentAt,
-        createdAt: p.createdAt,
-        citizen: p.booking.citizen,
-        expert: p.booking.expert,
-      })),
+      payments: payments.map((p) => {
+        const resolved = resolveExpertPayoutPhone(p.booking.expert);
+        return {
+          id: p.id,
+          bookingId: p.bookingId,
+          amount: Number(p.amount),
+          currency: p.currency,
+          platformFee: Number(p.platformFee),
+          expertPayout: Number(p.expertPayout),
+          txRef: p.txRef,
+          providerTransactionId: p.providerTransactionId,
+          providerPayoutRef: p.providerPayoutRef,
+          status: p.status,
+          paidAt: p.paidAt,
+          payoutSentAt: p.payoutSentAt,
+          createdAt: p.createdAt,
+          citizen: p.booking.citizen,
+          expert: {
+            id: p.booking.expert.id,
+            displayName: p.booking.expert.displayName,
+            momoNumber: p.booking.expert.momoNumber,
+            contactPhone: p.booking.expert.user?.phone ?? null,
+            payoutPhone: resolved?.phone ?? null,
+            isPayoutFallback: resolved?.isFallback ?? false,
+            payoutProvider: resolved?.provider ?? null,
+          },
+        };
+      }),
       pagination: {
         page,
         limit,
@@ -252,6 +269,11 @@ export const AdminFinanceService = {
                   id: true,
                   displayName: true,
                   momoNumber: true,
+                  user: {
+                    select: {
+                      phone: true,
+                    },
+                  },
                 },
               },
             },
@@ -265,18 +287,29 @@ export const AdminFinanceService = {
     ]);
 
     return {
-      ledgers: ledgers.map((l) => ({
-        id: l.id,
-        roomId: l.roomId,
-        bookingId: l.bookingId,
-        lawyerWalletPhone: l.lawyerWalletPhone,
-        totalFee: Number(l.totalFee),
-        status: l.status,
-        createdAt: l.createdAt,
-        settledAt: l.settledAt,
-        citizen: l.booking.citizen,
-        expert: l.booking.expert,
-      })),
+      ledgers: ledgers.map((l) => {
+        const resolved = resolveExpertPayoutPhone(l.booking.expert);
+        return {
+          id: l.id,
+          roomId: l.roomId,
+          bookingId: l.bookingId,
+          lawyerWalletPhone: l.lawyerWalletPhone,
+          totalFee: Number(l.totalFee),
+          status: l.status,
+          createdAt: l.createdAt,
+          settledAt: l.settledAt,
+          citizen: l.booking.citizen,
+          expert: {
+            id: l.booking.expert.id,
+            displayName: l.booking.expert.displayName,
+            momoNumber: l.booking.expert.momoNumber,
+            contactPhone: l.booking.expert.user?.phone ?? null,
+            payoutPhone: resolved?.phone ?? null,
+            isPayoutFallback: resolved?.isFallback ?? false,
+            payoutProvider: resolved?.provider ?? null,
+          },
+        };
+      }),
       pagination: {
         page,
         limit,
@@ -319,6 +352,11 @@ export const AdminFinanceService = {
                   id: true,
                   displayName: true,
                   momoNumber: true,
+                  user: {
+                    select: {
+                      phone: true,
+                    },
+                  },
                 },
               },
             },
@@ -340,18 +378,29 @@ export const AdminFinanceService = {
     ]);
 
     return {
-      payments: payments.map((p) => ({
-        id: p.id,
-        bookingId: p.bookingId,
-        amount: Number(p.amount),
-        expertPayout: Number(p.expertPayout),
-        txRef: p.txRef,
-        providerTransactionId: p.providerTransactionId,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-        citizen: p.booking.citizen,
-        expert: p.booking.expert,
-      })),
+      payments: payments.map((p) => {
+        const resolved = resolveExpertPayoutPhone(p.booking.expert);
+        return {
+          id: p.id,
+          bookingId: p.bookingId,
+          amount: Number(p.amount),
+          expertPayout: Number(p.expertPayout),
+          txRef: p.txRef,
+          providerTransactionId: p.providerTransactionId,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+          citizen: p.booking.citizen,
+          expert: {
+            id: p.booking.expert.id,
+            displayName: p.booking.expert.displayName,
+            momoNumber: p.booking.expert.momoNumber,
+            contactPhone: p.booking.expert.user?.phone ?? null,
+            payoutPhone: resolved?.phone ?? null,
+            isPayoutFallback: resolved?.isFallback ?? false,
+            payoutProvider: resolved?.provider ?? null,
+          },
+        };
+      }),
       pagination: {
         page,
         limit,

@@ -370,6 +370,8 @@ export interface ExpertProfile {
   currency: string;
   /** @nullable */
   credentialsExpiry: string | null;
+  /** @nullable */
+  momoNumber?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -410,6 +412,8 @@ export interface CreateProfileDto {
      * @maxLength 3
      */
   currency?: string;
+  /** @nullable */
+  momoNumber?: string | null;
 }
 
 export type LegalServiceDeliveryMode = typeof LegalServiceDeliveryMode[keyof typeof LegalServiceDeliveryMode];
@@ -2331,6 +2335,8 @@ export type PatchExpertsProfileMeBody = {
      * @maxLength 3
      */
   currency?: string;
+  /** @nullable */
+  momoNumber?: string | null;
 };
 
 export type PatchExpertsProfileMe200 = {

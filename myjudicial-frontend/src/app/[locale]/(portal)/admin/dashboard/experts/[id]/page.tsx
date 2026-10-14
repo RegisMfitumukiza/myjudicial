@@ -34,6 +34,7 @@ import {
   Check,
   Eye,
   ArrowRight,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,7 @@ interface ExpertDetail {
   fullName: string;
   displayName?: string;
   phone?: string;
+  momoNumber?: string | null;
   accountStatus: AccountStatus;
   bio?: string;
   firmName?: string;
@@ -874,9 +876,31 @@ export default function ExpertDetailPage() {
                   </div>
                   {expert.phone && (
                     <div className="flex items-center gap-2.5 text-muted-foreground">
-                      <Phone size={13} className="shrink-0 text-muted-foreground" /> {expert.phone}
+                      <Phone size={13} className="shrink-0 text-muted-foreground" />
+                      <span>{expert.phone}</span>
+                      <span className="text-[10px] text-muted-foreground/60 font-mono">(Contact)</span>
                     </div>
                   )}
+                  <div className="flex items-center gap-2.5 text-muted-foreground">
+                    <CreditCard size={13} className="shrink-0 text-primary" />
+                    {expert.momoNumber ? (
+                      <span className="font-mono text-xs text-foreground font-medium flex items-center gap-1.5 flex-wrap">
+                        {expert.momoNumber}
+                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          Payout MoMo
+                        </span>
+                      </span>
+                    ) : expert.phone ? (
+                      <span className="font-mono text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                        {expert.phone}
+                        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          Fallback MoMo
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-destructive italic">No payout MoMo registered</span>
+                    )}
+                  </div>
                   {expert.officeAddress && (
                     <div className="flex items-start gap-2.5 text-muted-foreground">
                       <MapPin size={13} className="shrink-0 mt-0.5 text-muted-foreground" />

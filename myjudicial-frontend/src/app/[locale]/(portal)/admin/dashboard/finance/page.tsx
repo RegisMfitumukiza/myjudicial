@@ -20,6 +20,7 @@ import {
   Mail,
   User,
   ArrowRight,
+  CreditCard,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
@@ -106,6 +107,10 @@ interface Payment {
     id: string;
     displayName: string;
     momoNumber: string | null;
+    contactPhone?: string | null;
+    payoutPhone?: string | null;
+    isPayoutFallback?: boolean;
+    payoutProvider?: string | null;
   };
 }
 
@@ -128,6 +133,10 @@ interface EscrowLedgerItem {
     id: string;
     displayName: string;
     momoNumber: string | null;
+    contactPhone?: string | null;
+    payoutPhone?: string | null;
+    isPayoutFallback?: boolean;
+    payoutProvider?: string | null;
   };
 }
 
@@ -150,6 +159,10 @@ interface FailedSettlement {
     id: string;
     displayName: string;
     momoNumber: string | null;
+    contactPhone?: string | null;
+    payoutPhone?: string | null;
+    isPayoutFallback?: boolean;
+    payoutProvider?: string | null;
   };
 }
 
@@ -1072,10 +1085,21 @@ export default function FinancePage() {
                                   </p>
                                 </td>
                                 <td className="px-6 py-4">
-                                  {payment.expert.momoNumber ? (
-                                    <span className="font-mono text-xs text-muted-foreground">
-                                      {payment.expert.momoNumber}
-                                    </span>
+                                  {payment.expert.payoutPhone || payment.expert.momoNumber ? (
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="font-mono text-xs text-foreground font-medium">
+                                        {payment.expert.payoutPhone || payment.expert.momoNumber}
+                                      </span>
+                                      {payment.expert.isPayoutFallback ? (
+                                        <span className="inline-flex items-center rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                          Fallback
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                          {payment.expert.payoutProvider || "MTN"}
+                                        </span>
+                                      )}
+                                    </div>
                                   ) : (
                                     <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
                                       <AlertCircle className="h-3.5 w-3.5" />
@@ -1091,7 +1115,7 @@ export default function FinancePage() {
                                     variant="default"
                                     size="sm"
                                     onClick={() => handleRetryPayout(payment)}
-                                    disabled={!payment.expert.momoNumber || retryMutation.isPending}
+                                    disabled={(!payment.expert.payoutPhone && !payment.expert.momoNumber) || retryMutation.isPending}
                                   >
                                     <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${retryMutation.isPending ? "animate-spin" : ""}`} />
                                     {t("retryPayout")}
@@ -1208,12 +1232,34 @@ export default function FinancePage() {
                   <p className="text-sm font-medium text-foreground">
                     {selectedPayment.expert.displayName}
                   </p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Phone className="h-3 w-3" />
-                    {selectedPayment.expert.momoNumber || (
-                      <span className="text-destructive">{t("noMoMo")}</span>
+                  {selectedPayment.expert.contactPhone && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <Phone className="h-3 w-3" />
+                      <span>{selectedPayment.expert.contactPhone}</span>
+                      <span className="text-[10px] text-muted-foreground/70 font-mono">(Contact Phone)</span>
+                    </p>
+                  )}
+                  <div className="text-xs flex items-center gap-1.5 pt-0.5">
+                    <CreditCard className="h-3 w-3 text-primary shrink-0" />
+                    {selectedPayment.expert.payoutPhone || selectedPayment.expert.momoNumber ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono text-foreground font-medium">
+                          {selectedPayment.expert.payoutPhone || selectedPayment.expert.momoNumber}
+                        </span>
+                        {selectedPayment.expert.isPayoutFallback ? (
+                          <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            Account Phone Fallback
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            {selectedPayment.expert.payoutProvider || "MTN"} MoMo
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-destructive font-medium">{t("noMoMo")}</span>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -1324,8 +1370,16 @@ export default function FinancePage() {
                   <p className="text-sm font-medium text-foreground">
                     {selectedEscrow.expert.displayName}
                   </p>
-                  <p className="text-xs text-muted-foreground font-mono">
-                    {selectedEscrow.expert.momoNumber || t("noMoMo")}
+                  {selectedEscrow.expert.contactPhone && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <Phone className="h-3 w-3" />
+                      <span>{selectedEscrow.expert.contactPhone}</span>
+                      <span className="text-[10px] text-muted-foreground/70 font-mono">(Contact Phone)</span>
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground font-mono flex items-center gap-1.5">
+                    <CreditCard className="h-3 w-3 text-primary shrink-0" />
+                    {selectedEscrow.expert.payoutPhone || selectedEscrow.expert.momoNumber || t("noMoMo")}
                   </p>
                 </div>
               </div>
@@ -1381,7 +1435,7 @@ export default function FinancePage() {
               />
             </div>
 
-            {selectedFailedSettlement && !selectedFailedSettlement.expert.momoNumber && (
+            {selectedFailedSettlement && !selectedFailedSettlement.expert.payoutPhone && !selectedFailedSettlement.expert.momoNumber && (
               <div className="rounded-lg bg-destructive/10 p-3">
                 <p className="text-sm text-destructive">
                   {t("noMoMo")}
@@ -1406,7 +1460,7 @@ export default function FinancePage() {
               disabled={
                 retryReason.trim().length < 10 ||
                 retryMutation.isPending ||
-                !selectedFailedSettlement?.expert.momoNumber
+                (!selectedFailedSettlement?.expert.payoutPhone && !selectedFailedSettlement?.expert.momoNumber)
               }
             >
               {retryMutation.isPending ? t("retrying") : t("retryPayout")}

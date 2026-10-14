@@ -360,6 +360,7 @@ export const AdminExpertService = {
       totalReviews: expert._count.reviews,
       baseConsultationFee: expert.baseConsultationFee ? Number(expert.baseConsultationFee) : null,
       currency: expert.currency,
+      momoNumber: expert.momoNumber ?? null,
       credentialsExpiry: expert.credentialsExpiry,
       yearsOfExperience: expert.yearsExperience,
       // Profile image

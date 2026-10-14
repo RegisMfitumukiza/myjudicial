@@ -589,6 +589,10 @@
             "type": "string",
             "nullable": true
           },
+          "momoNumber": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "type": "string"
           },
@@ -712,6 +716,10 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 3
+          },
+          "momoNumber": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -6047,6 +6055,10 @@
                     "type": "string",
                     "minLength": 3,
                     "maxLength": 3
+                  },
+                  "momoNumber": {
+                    "type": "string",
+                    "nullable": true
                   }
                 }
               }

@@ -23,6 +23,7 @@ const profileSelect = {
   baseConsultationFee: true,
   currency: true,
   credentialsExpiry: true,
+  momoNumber: true,
   averageRating: true,
   reviewCount: true,
   createdAt: true,
@@ -98,6 +99,7 @@ export const ProfileRepository = {
           longitude: dto.longitude,
           baseConsultationFee: dto.baseConsultationFee,
           currency: dto.currency,
+          momoNumber: dto.momoNumber ?? null,
           status: "DRAFT",
         },
         select: profileSelect,
@@ -148,6 +150,7 @@ export const ProfileRepository = {
           ...(dto.longitude !== undefined && { longitude: dto.longitude }),
           ...(dto.baseConsultationFee !== undefined && { baseConsultationFee: dto.baseConsultationFee }),
           ...(dto.currency && { currency: dto.currency }),
+          ...(dto.momoNumber !== undefined && { momoNumber: dto.momoNumber }),
         },
         select: profileSelect,
       });

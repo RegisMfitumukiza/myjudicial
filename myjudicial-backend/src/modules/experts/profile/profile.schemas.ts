@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeRwandaMomoPhone } from "../../payments/payout.helper.js";
 
 const legalSpecialties = [
   "FAMILY_LAW", "COMMERCIAL_LAW", "EMPLOYMENT_LAW", "LAND_LAW",
@@ -32,6 +33,21 @@ export const createProfileSchema = z.object({
   locationAccuracy: z.number().optional(), // GPS accuracy in meters
   baseConsultationFee: z.number().positive().optional(),
   currency: z.string().length(3).default("RWF"),
+  momoNumber: z
+    .string()
+    .trim()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        return normalizeRwandaMomoPhone(val) !== null;
+      },
+      {
+        message: "Please enter a valid Rwandan MTN (078/079) or Airtel (072/073) Mobile Money number",
+      }
+    )
+    .transform((val) => (val ? normalizeRwandaMomoPhone(val) : null))
+    .nullable()
+    .optional(),
 });
 
 /** PATCH /experts/profile — partial update */

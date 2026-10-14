@@ -133,6 +133,7 @@ const ProfileSchema = z.object({
   baseConsultationFee: z.number().nullable(),
   currency: z.string(),
   credentialsExpiry: z.string().nullable(),
+  momoNumber: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 }).openapi("ExpertProfile");
@@ -153,6 +154,7 @@ const CreateProfileBody = z.object({
   longitude: z.number().optional(),
   baseConsultationFee: z.number().positive().optional(),
   currency: z.string().length(3).optional(),
+  momoNumber: z.string().nullable().optional(),
 }).openapi("CreateProfileDto");
 
 registry.register("ExpertProfile", ProfileSchema);
@@ -801,6 +803,7 @@ const AdminExpertListItemSchema = z.object({
 
 const AdminExpertDetailSchema = AdminExpertListItemSchema.extend({
   phone: z.string().nullable(),
+  momoNumber: z.string().nullable().optional(),
   lastLoginAt: z.string().nullable(),
   languages: z.array(z.string()),
   bio: z.string().nullable(),

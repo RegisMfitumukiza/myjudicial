@@ -1,5 +1,6 @@
 // src/modules/payment/escrow.service.ts
 import { AzamPayService } from "./azam.service.js";
+import { resolveExpertPayoutPhone } from "./payout.helper.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
 import { logger } from "../../shared/utils/logger.js";
 import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
@@ -135,7 +136,11 @@ export const EscrowService = {
   ) => {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { service: true, expert: true, citizen: { select: { email: true } } },
+      include: {
+        service: true,
+        expert: { include: { user: { select: { phone: true } } } },
+        citizen: { select: { email: true } },
+      },
     });
 
     if (!booking) {
@@ -200,7 +205,7 @@ export const EscrowService = {
       await EscrowLedgerRepository.create({
         roomId: meetingRoomId || `consultation_${bookingId}`,
         bookingId,
-        lawyerWalletPhone: booking.expert.momoNumber || "",
+        lawyerWalletPhone: resolveExpertPayoutPhone(booking.expert)?.phone || booking.expert.momoNumber || "",
         totalFee: Number(amount),
         status: "LOCKED",
       }, tx);
@@ -390,10 +395,10 @@ export const EscrowService = {
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
-        expert: true,     // ExpertProfile — has momoNumber
+        expert: { include: { user: { select: { phone: true } } } },
         service: true,
         payment: true,
-        citizen: true,    // User — for audit
+        citizen: true, // User — for audit
       },
     });
 
@@ -426,10 +431,19 @@ export const EscrowService = {
       return;
     }
 
-    if (!booking.expert.momoNumber) {
+    const resolvedPayout = resolveExpertPayoutPhone(booking.expert);
+    if (!resolvedPayout) {
       throw new ValidationError(
-        "Expert has no MoMo number registered. Cannot release payout."
+        "Expert has no valid Rwandan Mobile Money payout number registered (neither dedicated MoMo nor valid contact phone)."
       );
+    }
+
+    if (resolvedPayout.isFallback) {
+      logger.info("Expert using contact phone fallback for MoMo payout", {
+        bookingId,
+        payoutPhone: resolvedPayout.phone,
+        provider: resolvedPayout.provider,
+      });
     }
 
     if (!booking.payment) {
@@ -444,7 +458,7 @@ export const EscrowService = {
     // 1. Send payout to expert MoMo account (MTN or Airtel)
     const payout = await AzamPayService.sendExpertPayout({
       bookingId,
-      momoNumber: booking.expert.momoNumber,
+      momoNumber: resolvedPayout.phone,
       amount: expertPayoutAmount,
       expertName: booking.expert.displayName ?? "Legal Expert",
     });

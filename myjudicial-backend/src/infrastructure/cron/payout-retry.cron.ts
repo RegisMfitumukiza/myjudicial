@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { prisma } from "../database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
 import { EscrowService } from "../../modules/payments/escrow.service.js";
+import { resolveExpertPayoutPhone } from "../../modules/payments/payout.helper.js";
 import { PaymentStatus } from "../../generated/prisma/client.js";
 
 const MAX_AUTO_RETRIES = 3;
@@ -34,7 +35,10 @@ export const startPayoutRetryCron = (): void => {
             status: "COMPLETED",
             completedAt: { lte: cutoff },
             expert: {
-              momoNumber: { not: null },
+              OR: [
+                { momoNumber: { not: null } },
+                { user: { phone: { not: null } } },
+              ],
             },
           },
         },
@@ -46,6 +50,11 @@ export const startPayoutRetryCron = (): void => {
                   id: true,
                   displayName: true,
                   momoNumber: true,
+                  user: {
+                    select: {
+                      phone: true,
+                    },
+                  },
                 },
               },
             },
@@ -65,8 +74,9 @@ export const startPayoutRetryCron = (): void => {
       for (const payment of stalledPayments) {
         const bookingId = payment.bookingId;
         const expert = payment.booking.expert;
+        const resolved = resolveExpertPayoutPhone(expert);
 
-        if (!expert?.momoNumber) {
+        if (!resolved) {
           continue; // Needs manual intervention from advocate
         }
 
@@ -97,7 +107,8 @@ export const startPayoutRetryCron = (): void => {
           logger.info("Payout retry cron: attempting automated disbursement", {
             bookingId,
             attempt: recentAttempts + 1,
-            momoNumber: expert.momoNumber,
+            momoNumber: resolved.phone,
+            isFallback: resolved.isFallback,
             amount: Number(payment.expertPayout),
           });
 

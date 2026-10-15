@@ -3569,7 +3569,13 @@ expertId?: string;
  * UUID identifier
  */
 citizenId?: string;
+/**
+ * Start date filter (ISO or YYYY-MM-DD)
+ */
 dateFrom?: string;
+/**
+ * End date filter (ISO or YYYY-MM-DD)
+ */
 dateTo?: string;
 };
 
@@ -3586,7 +3592,13 @@ export const GetAdminBookingsStatus = {
 } as const;
 
 export type GetAdminBookingsStatsParams = {
+/**
+ * Start date filter (ISO or YYYY-MM-DD)
+ */
 dateFrom?: string;
+/**
+ * End date filter (ISO or YYYY-MM-DD)
+ */
 dateTo?: string;
 };
 

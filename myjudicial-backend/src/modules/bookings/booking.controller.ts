@@ -16,9 +16,10 @@ export const BookingController = {
         throw new AuthorizationError("UNAUTHORIZED");
       }
 
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const status = req.query.status as BookingStatus | undefined;
+      const query = (req.validatedQuery ?? req.query) as any;
+      const page = Number(query?.page) || 1;
+      const limit = Number(query?.limit) || 10;
+      const status = (query?.status && query?.status !== "ALL" ? query.status : undefined) as BookingStatus | undefined;
 
       const result = await BookingService.listBookings({
         userId,
@@ -267,13 +268,14 @@ export const BookingController = {
   adminListBookings: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const query = (req.validatedQuery ?? req.query) as unknown as AdminListBookingsQuery;
-      const page = parseInt(query.page || "1") || 1;
-      const limit = parseInt(query.limit || "10") || 10;
+      const page = Number(query?.page) || 1;
+      const limit = Number(query?.limit) || 10;
+      const status = (query?.status && (query.status as string) !== "ALL" ? query.status : undefined) as BookingStatus | undefined;
 
       const result = await BookingService.listAllBookings({
         expertId: query.expertId,
         citizenId: query.citizenId,
-        status: query.status,
+        status,
         dateFrom: query.dateFrom,
         dateTo: query.dateTo,
         page,

@@ -957,8 +957,16 @@ export const BookingService = {
       citizenId: filters.citizenId,
       expertId: filters.expertId,
       status: filters.status,
-      dateFrom: filters.dateFrom ? new Date(filters.dateFrom) : undefined,
-      dateTo: filters.dateTo ? new Date(filters.dateTo) : undefined,
+      dateFrom: filters.dateFrom
+        ? filters.dateFrom.length <= 10
+          ? new Date(`${filters.dateFrom}T00:00:00.000Z`)
+          : new Date(filters.dateFrom)
+        : undefined,
+      dateTo: filters.dateTo
+        ? filters.dateTo.length <= 10
+          ? new Date(`${filters.dateTo}T23:59:59.999Z`)
+          : new Date(filters.dateTo)
+        : undefined,
       page: filters.page,
       limit: filters.limit,
     });
@@ -1102,8 +1110,16 @@ export const BookingService = {
    * Admin: Get booking stats
    */
   getBookingStats: async (dateFrom?: string, dateTo?: string) => {
-    const from = dateFrom ? new Date(dateFrom) : undefined;
-    const to = dateTo ? new Date(dateTo) : undefined;
+    const from = dateFrom
+      ? dateFrom.length <= 10
+        ? new Date(`${dateFrom}T00:00:00.000Z`)
+        : new Date(dateFrom)
+      : undefined;
+    const to = dateTo
+      ? dateTo.length <= 10
+        ? new Date(`${dateTo}T23:59:59.999Z`)
+        : new Date(dateTo)
+      : undefined;
     return BookingRepository.getStats(from, to);
   },
 

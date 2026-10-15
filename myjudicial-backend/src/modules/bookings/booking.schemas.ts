@@ -76,12 +76,25 @@ export const reportIssueSchema = z.object({
 export type ReportIssueDto = z.infer<typeof reportIssueSchema>;
 
 /**
+ * Date query parameter preprocessor:
+ * - Empty string, null, or undefined -> undefined
+ * - Validates any parseable ISO datetime or YYYY-MM-DD date string
+ */
+const dateQuerySchema = z.preprocess(
+  (val) => (val === "" || val === undefined || val === null ? undefined : val),
+  z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date format").optional()
+);
+
+/**
  * List bookings query parameters
  */
 export const listBookingsSchema = z.object({
-  page: z.string().refine((val) => Number(val) >= 1, "Page must be >= 1").default("1"),
-  limit: z.string().refine((val) => { const n = Number(val); return n >= 1 && n <= 200; }, "Limit must be between 1 and 200").default("10"),
-  status: z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional(),
+  page: z.coerce.number().int().min(1, "Page must be >= 1").default(1),
+  limit: z.coerce.number().int().min(1).max(200, "Limit must be between 1 and 200").default(10),
+  status: z.preprocess(
+    (val) => (val === "" || val === "ALL" || val === undefined || val === null ? undefined : val),
+    z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional()
+  ),
 });
 
 export type ListBookingsQuery = z.infer<typeof listBookingsSchema>;
@@ -100,13 +113,22 @@ export type GetAvailableSlotsDto = z.infer<typeof getAvailableSlotsSchema>;
  * Admin List bookings query parameters
  */
 export const adminListBookingsSchema = z.object({
-  page: z.string().refine((val) => Number(val) >= 1, "Page must be >= 1").optional().default("1"),
-  limit: z.string().refine((val) => { const n = Number(val); return n >= 1 && n <= 200; }, "Limit must be between 1 and 200").optional().default("10"),
-  status: z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional(),
-  expertId: z.string().uuid("Invalid expert ID").optional(),
-  citizenId: z.string().uuid("Invalid citizen ID").optional(),
-  dateFrom: z.string().datetime("Invalid dateFrom format").optional(),
-  dateTo: z.string().datetime("Invalid dateTo format").optional(),
+  page: z.coerce.number().int().min(1, "Page must be >= 1").default(1),
+  limit: z.coerce.number().int().min(1).max(200, "Limit must be between 1 and 200").default(10),
+  status: z.preprocess(
+    (val) => (val === "" || val === "ALL" || val === undefined || val === null ? undefined : val),
+    z.enum(["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED", "REFUNDED"]).optional()
+  ),
+  expertId: z.preprocess(
+    (val) => (val === "" || val === "ALL" || val === undefined || val === null ? undefined : val),
+    z.string().uuid("Invalid expert ID").optional()
+  ),
+  citizenId: z.preprocess(
+    (val) => (val === "" || val === "ALL" || val === undefined || val === null ? undefined : val),
+    z.string().uuid("Invalid citizen ID").optional()
+  ),
+  dateFrom: dateQuerySchema,
+  dateTo: dateQuerySchema,
 });
 
 export type AdminListBookingsQuery = z.infer<typeof adminListBookingsSchema>;
@@ -125,8 +147,8 @@ export type AdminRefundDto = z.infer<typeof adminRefundSchema>;
  * Admin Stats query parameters
  */
 export const adminStatsSchema = z.object({
-  dateFrom: z.string().datetime("Invalid dateFrom format").optional(),
-  dateTo: z.string().datetime("Invalid dateTo format").optional(),
+  dateFrom: dateQuerySchema,
+  dateTo: dateQuerySchema,
 });
 
 export type AdminStatsQuery = z.infer<typeof adminStatsSchema>;

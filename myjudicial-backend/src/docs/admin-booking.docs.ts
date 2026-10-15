@@ -74,8 +74,8 @@ registry.registerPath({
       status: BookingStatusEnum.optional(),
       expertId: uuidField.optional(),
       citizenId: uuidField.optional(),
-      dateFrom: z.string().datetime().optional(),
-      dateTo: z.string().datetime().optional(),
+      dateFrom: z.string().optional().describe("Start date filter (ISO or YYYY-MM-DD)"),
+      dateTo: z.string().optional().describe("End date filter (ISO or YYYY-MM-DD)"),
     }).openapi("AdminListBookingsQuery"),
   },
   responses: {
@@ -97,8 +97,8 @@ registry.registerPath({
   security: [{ bearerAuth: [] }],
   request: {
     query: z.object({
-      dateFrom: z.string().datetime().optional(),
-      dateTo: z.string().datetime().optional(),
+      dateFrom: z.string().optional().describe("Start date filter (ISO or YYYY-MM-DD)"),
+      dateTo: z.string().optional().describe("End date filter (ISO or YYYY-MM-DD)"),
     }).openapi("AdminBookingStatsQuery"),
   },
   responses: {

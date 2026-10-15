@@ -1211,14 +1211,9 @@ export const BookingService = {
     const booking = await BookingRepository.findById(bookingId);
     if (!booking) throw new NotFoundError(getErrorMessage('BOOKING_NOT_FOUND'));
 
-    // Only PENDING or CONFIRMED can be rescheduled
-    if (!["PENDING", "CONFIRMED"].includes(booking.status)) {
-      throw new ValidationError("Only pending or confirmed bookings can be rescheduled");
-    }
-
-    // Must be before scheduled start
-    if (new Date(booking.scheduledStart) <= new Date()) {
-      throw new ValidationError("Cannot reschedule a booking that has already started");
+    // Only PENDING, CONFIRMED, or ACTIVE can be rescheduled
+    if (!["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status)) {
+      throw new ValidationError(`Cannot reschedule a ${booking.status.toLowerCase()} booking`);
     }
 
     // Authorization: citizen who owns the booking, expert who owns the booking, or admin
@@ -1360,10 +1355,35 @@ export const BookingService = {
       throw new ConflictError("Expert is no longer available at the requested time. The requester should submit a new request.");
     }
 
-    // Apply the reschedule
+    // Refresh LiveKit room if video consultation
+    const isVideoMeeting = !booking.service?.deliveryMode || booking.service.deliveryMode === "VIDEO";
+    let meetingRoomId = booking.meetingRoomId;
+    let meetingJoinUrl = booking.meetingJoinUrl;
+    if (isVideoMeeting) {
+      try {
+        const durationMin = booking.service?.durationMin ?? 30;
+        meetingRoomId = await LiveKitService.createRoom(bookingId, durationMin);
+        meetingJoinUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/bookings/${bookingId}/join`;
+      } catch (err) {
+        logger.error("Failed to refresh LiveKit room on reschedule approval", { bookingId, err });
+      }
+    }
+
+    // Apply the reschedule with fresh clean session state (Escrow stays safely locked)
     const updatedBooking = await BookingRepository.update(bookingId, {
+      status: "CONFIRMED",
       scheduledStart: newStart,
       scheduledEnd: newEnd,
+      meetingRoomId,
+      meetingJoinUrl,
+      actualStartTime: null,
+      actualEndTime: null,
+      actualDurationMin: null,
+      deliveredAt: null,
+      deliverySummary: null,
+      autoReleaseAt: null,
+      issueReportedAt: null,
+      issueReason: null,
       pendingRescheduleStart: null,
       pendingRescheduleEnd: null,
       pendingRescheduleReason: null,
@@ -1483,5 +1503,195 @@ export const BookingService = {
     logger.info("Reschedule declined", { bookingId, declinedBy: userId, reason });
 
     return { booking: updatedBooking };
+  },
+
+  /**
+   * Expert marks consultation delivered (for PHONE, IN_PERSON, CHAT or completed VIDEO).
+   * Initiates 24-hour client confirmation countdown before escrow auto-releases.
+   */
+  markConsultationDelivered: async (
+    bookingId: string,
+    userId: string,
+    role: string,
+    dto: { deliverySummary?: string }
+  ) => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new NotFoundError(getErrorMessage("BOOKING_NOT_FOUND"));
+
+    const expertUserId = await resolveExpertIdForUser(userId, role);
+    const isExpert = role === "EXPERT" && booking.expertId === expertUserId;
+    const isAdmin = role === "ADMIN";
+    if (!isExpert && !isAdmin) {
+      throw new AuthorizationError("Only the assigned expert or an admin can mark consultation delivered");
+    }
+
+    if (!["CONFIRMED", "ACTIVE"].includes(booking.status)) {
+      throw new ValidationError(`Cannot mark consultation delivered in ${booking.status} state`);
+    }
+
+    const now = new Date();
+    // 24 hours from now
+    const autoReleaseAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    const updated = await BookingRepository.update(bookingId, {
+      status: "ACTIVE",
+      deliveredAt: now,
+      deliverySummary: dto.deliverySummary ?? null,
+      autoReleaseAt,
+      issueReportedAt: null,
+      issueReason: null,
+    });
+
+    await writeAuditLog({
+      actorId: userId,
+      action: "UPDATE",
+      resource: "BOOKING",
+      resourceId: bookingId,
+      description: `Expert marked consultation delivered. Auto-release scheduled for ${autoReleaseAt.toISOString()}`,
+      metadata: { deliverySummary: dto.deliverySummary, autoReleaseAt },
+    });
+
+    // In-app notification to Citizen
+    try {
+      await NotificationRepository.create({
+        userId: booking.citizenId,
+        event: "BOOKING_CONFIRMED",
+        recipient: booking.citizen.email,
+        subject: "Consultation marked as completed by your expert",
+        body: `Your expert marked your consultation for ${booking.service?.name} as completed. Please confirm to release payment, or report an issue within 24 hours.`,
+      });
+    } catch (err) {
+      logger.error("Failed to notify citizen of delivery", { bookingId, err });
+    }
+
+    logger.info("Consultation marked delivered by expert", { bookingId, autoReleaseAt });
+    return BookingRepository.findById(bookingId);
+  },
+
+  /**
+   * Citizen confirms consultation completion.
+   * Completes booking and releases escrow to expert MoMo wallet.
+   */
+  confirmConsultationCompletion: async (
+    bookingId: string,
+    userId: string,
+    role: string
+  ) => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new NotFoundError(getErrorMessage("BOOKING_NOT_FOUND"));
+
+    const isCitizen = role === "CITIZEN" && booking.citizenId === userId;
+    const isAdmin = role === "ADMIN";
+    if (!isCitizen && !isAdmin) {
+      throw new AuthorizationError("Only the client or an admin can confirm consultation completion");
+    }
+
+    if (!["CONFIRMED", "ACTIVE"].includes(booking.status)) {
+      throw new ValidationError(`Cannot confirm completion in ${booking.status} state`);
+    }
+
+    const now = new Date();
+    const paymentMode = await AdminSettingService.get("paymentMode");
+
+    if (paymentMode === "PAYMENT_REQUIRED") {
+      await EscrowService.releaseEscrow(bookingId);
+    } else {
+      await BookingRepository.update(bookingId, {
+        status: "COMPLETED",
+        completedAt: now,
+      });
+    }
+
+    await BookingRepository.update(bookingId, {
+      autoReleaseAt: null,
+      issueReportedAt: null,
+      issueReason: null,
+    });
+
+    await writeAuditLog({
+      actorId: userId,
+      action: "UPDATE",
+      resource: "BOOKING",
+      resourceId: bookingId,
+      description: "Citizen confirmed consultation completion. Escrow released.",
+    });
+
+    // Notify Expert
+    const full = await BookingRepository.findFullBookingById(bookingId);
+    if (full?.expert?.user?.email) {
+      try {
+        await NotificationRepository.create({
+          userId: full.expert.user.id ?? "",
+          event: "PAYMENT_SUCCESS",
+          recipient: full.expert.user.email,
+          subject: "Consultation confirmed & payment released",
+          body: `Client confirmed completion for ${full.service?.name}. Payout is processing to your Mobile Money wallet.`,
+        });
+      } catch (err) {
+        logger.error("Failed to notify expert of client confirmation", { bookingId, err });
+      }
+    }
+
+    logger.info("Consultation confirmed by citizen", { bookingId, userId });
+    return BookingRepository.findById(bookingId);
+  },
+
+  /**
+   * Citizen reports an issue (e.g. expert did not call, call dropped).
+   * Pauses auto-release timer and flags booking for mutual reschedule.
+   */
+  reportConsultationIssue: async (
+    bookingId: string,
+    userId: string,
+    role: string,
+    dto: { reason: string }
+  ) => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new NotFoundError(getErrorMessage("BOOKING_NOT_FOUND"));
+
+    const isCitizen = role === "CITIZEN" && booking.citizenId === userId;
+    const isAdmin = role === "ADMIN";
+    if (!isCitizen && !isAdmin) {
+      throw new AuthorizationError("Only the client or an admin can report an issue");
+    }
+
+    if (!["CONFIRMED", "ACTIVE"].includes(booking.status)) {
+      throw new ValidationError(`Cannot report issue in ${booking.status} state`);
+    }
+
+    const now = new Date();
+    const updated = await BookingRepository.update(bookingId, {
+      issueReportedAt: now,
+      issueReason: dto.reason,
+      autoReleaseAt: null, // Freeze 24h auto-release!
+    });
+
+    await writeAuditLog({
+      actorId: userId,
+      action: "UPDATE",
+      resource: "BOOKING",
+      resourceId: bookingId,
+      description: `Citizen reported consultation issue: ${dto.reason}. Auto-release paused.`,
+      metadata: { reason: dto.reason },
+    });
+
+    // Notify Expert
+    const full = await BookingRepository.findFullBookingById(bookingId);
+    if (full?.expert?.user?.email) {
+      try {
+        await NotificationRepository.create({
+          userId: full.expert.user.id ?? "",
+          event: "BOOKING_CANCELLED",
+          recipient: full.expert.user.email,
+          subject: "Client reported an issue regarding your consultation",
+          body: `Client reported: "${dto.reason}". You can discuss via messages or propose a free reschedule.`,
+        });
+      } catch (err) {
+        logger.error("Failed to notify expert of issue report", { bookingId, err });
+      }
+    }
+
+    logger.info("Consultation issue reported by citizen", { bookingId, reason: dto.reason });
+    return BookingRepository.findById(bookingId);
   },
 };

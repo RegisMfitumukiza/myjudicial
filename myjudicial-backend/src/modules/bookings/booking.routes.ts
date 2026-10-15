@@ -12,6 +12,8 @@ import {
   getAvailableSlotsSchema,
   retryPaymentSchema,
   rescheduleBookingSchema,
+  markDeliveredSchema,
+  reportIssueSchema,
 } from "./booking.schemas.js";
 
 const router = Router();
@@ -135,5 +137,27 @@ router.post(
   asyncHandler(BookingController.declineReschedule)
 );
 
+// Expert marks consultation delivered (initiates 24-hour auto-release countdown)
+router.post(
+  "/:id/mark-delivered",
+  authenticate,
+  validate(markDeliveredSchema),
+  asyncHandler(BookingController.markConsultationDelivered)
+);
+
+// Citizen confirms consultation completed (releases escrow payout immediately)
+router.post(
+  "/:id/confirm-completion",
+  authenticate,
+  asyncHandler(BookingController.confirmConsultationCompletion)
+);
+
+// Citizen reports consultation issue (pauses auto-release timer)
+router.post(
+  "/:id/report-issue",
+  authenticate,
+  validate(reportIssueSchema),
+  asyncHandler(BookingController.reportConsultationIssue)
+);
 
 export default router;

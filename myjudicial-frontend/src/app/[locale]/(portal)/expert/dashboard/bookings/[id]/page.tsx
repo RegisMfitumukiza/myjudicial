@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays, Loader2,
   ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock,
-  FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send,
+  FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send, AlertCircle,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -18,6 +18,7 @@ import { useAcceptBooking } from "@/features/booking/hooks/useAcceptBooking";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import { useRescheduleBooking } from "@/features/booking/hooks/useRescheduleBooking";
 import { useApproveReschedule, useDeclineReschedule } from "@/features/booking/hooks/useApproveDeclineReschedule";
+import { useMarkConsultationDelivered } from "@/features/booking/hooks/useDeliveryLifecycle";
 import { RescheduleModal } from "@/features/booking/components/reschedule-modal";
 import { ReschedulePendingBanner } from "@/features/booking/components/reschedule-pending-banner";
 import { downloadICS } from "@/features/booking/lib/ics";
@@ -75,9 +76,12 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const { mutate: rescheduleBooking, isPending: isRescheduling } = useRescheduleBooking();
   const { mutate: approveReschedule, isPending: isApproving } = useApproveReschedule();
   const { mutate: declineReschedule, isPending: isDeclining } = useDeclineReschedule();
+  const { mutate: markDelivered, isPending: isMarkingDelivered } = useMarkConsultationDelivered();
   const [showDecline, setShowDecline] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showMarkDelivered, setShowMarkDelivered] = useState(false);
+  const [deliverySummary, setDeliverySummary] = useState("");
   const [isResolvingChat, setIsResolvingChat] = useState(false);
 
   function handleAccept() {
@@ -208,7 +212,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const startsInMs = new Date(booking.scheduledStart).getTime() - Date.now();
   const canJoin = (booking.status === "ACTIVE" || (booking.status === "CONFIRMED" && startsInMs <= JOINABLE_WINDOW_MS)) && startsInMs > -JOINABLE_WINDOW_MS;
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
-  const canReschedule = ["PENDING", "CONFIRMED"].includes(booking.status) && new Date(booking.scheduledStart) > new Date();
+  const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
+  const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt;
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
@@ -277,6 +282,51 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onApprove={() => approveReschedule({ bookingId: booking.id })}
               onDecline={(reason) => declineReschedule({ bookingId: booking.id, reason })}
             />
+          </div>
+        )}
+
+        {/* Consultation Delivered - Awaiting Client Confirmation */}
+        {booking.deliveredAt && booking.status !== "COMPLETED" && (
+          <div className="mb-8 rounded-xl border border-emerald-500/30 bg-emerald-50/50 p-5 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+            <div className="flex items-start gap-3.5">
+              <CheckCircle size={20} className="text-emerald-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">
+                  {t("details.deliveredAwaitingClient")}
+                </h3>
+                <p className="mt-1 text-xs text-emerald-900/80 dark:text-emerald-200/80">
+                  {t("details.deliveredAwaitingClientDesc", {
+                    date: new Date(booking.deliveredAt).toLocaleString(locale),
+                    autoReleaseDate: booking.autoReleaseAt ? new Date(booking.autoReleaseAt).toLocaleString(locale) : "",
+                  })}
+                </p>
+                {booking.deliverySummary && (
+                  <div className="mt-3 rounded-lg border border-emerald-500/20 bg-background/80 p-3 text-xs text-foreground">
+                    <span className="font-medium text-emerald-900 dark:text-emerald-300 block mb-1">
+                      {t("actions.deliverySummaryLabel")}
+                    </span>
+                    <p className="whitespace-pre-wrap">{booking.deliverySummary}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Client Reported Issue Banner */}
+        {booking.issueReportedAt && booking.status !== "COMPLETED" && (
+          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-50/50 p-5 dark:border-amber-500/20 dark:bg-amber-950/20">
+            <div className="flex items-start gap-3.5">
+              <AlertCircle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-semibold text-amber-950 dark:text-amber-100">
+                  {t("details.clientReportedIssue")}
+                </h3>
+                <p className="mt-1 text-xs text-amber-900/80 dark:text-amber-200/80">
+                  {t("details.clientReportedIssueDesc", { reason: booking.issueReason ?? "" })}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -545,6 +595,16 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <span>{t("details.inPersonAppointment")}</span>
             </div>
           )}
+          {canMarkDelivered && !showMarkDelivered && (
+            <Button
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium flex items-center gap-2"
+              onClick={() => setShowMarkDelivered(true)}
+            >
+              <CheckCircle size={15} />
+              {t("actions.markDelivered")}
+            </Button>
+          )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "EMAIL" && (
             <Button
               variant="outline"
@@ -612,6 +672,43 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
         <div id="case-documents-section" className="mt-6">
           <CaseDocumentsCard bookingId={booking.id} canUpload />
         </div>
+
+        {/* Mark Delivered Panel */}
+        {showMarkDelivered && (
+          <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 p-5 dark:border-emerald-500/20 dark:bg-emerald-950/10 mb-6">
+            <h3 className="text-sm font-semibold text-emerald-950 dark:text-emerald-200 mb-1">{t("actions.markDeliveredTitle")}</h3>
+            <p className="text-xs text-emerald-900/70 dark:text-emerald-300/70 mb-3">{t("actions.markDeliveredDesc")}</p>
+            <Textarea
+              value={deliverySummary}
+              onChange={(e) => setDeliverySummary(e.target.value)}
+              placeholder={t("actions.deliverySummaryPlaceholder")}
+              rows={3}
+              className="mb-3"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => { setShowMarkDelivered(false); setDeliverySummary(""); }}>
+                {t("actions.cancel")}
+              </Button>
+              <Button
+                disabled={isMarkingDelivered}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => {
+                  markDelivered({ bookingId: booking.id, deliverySummary: deliverySummary.trim() || undefined }, {
+                    onSuccess: () => {
+                      setShowMarkDelivered(false);
+                      setDeliverySummary("");
+                      toast.success("Consultation marked as delivered. Client has been notified.");
+                    },
+                    onError: (err: any) => toast.error(err.message ?? "Failed to mark delivered"),
+                  });
+                }}
+              >
+                {isMarkingDelivered ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+                {isMarkingDelivered ? t("actions.markingDelivered") : t("actions.confirmMarkDelivered")}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Decline Panel */}
         {showDecline && (

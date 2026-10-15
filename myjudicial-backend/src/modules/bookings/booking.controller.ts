@@ -479,4 +479,82 @@ export const BookingController = {
       next(error);
     }
   },
+
+  /**
+   * POST /bookings/:id/mark-delivered
+   * Expert marks consultation completed
+   */
+  markConsultationDelivered: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params as { id: string };
+      const userId = req.user?.id;
+      const role = req.user?.role;
+
+      if (!userId || !role) {
+        throw new AuthorizationError("UNAUTHORIZED");
+      }
+
+      const booking = await BookingService.markConsultationDelivered(id, userId, role, req.body);
+
+      res.status(200).json({
+        success: true,
+        data: booking,
+        message: "Consultation marked as delivered. 24-hour client confirmation countdown initiated.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /bookings/:id/confirm-completion
+   * Citizen confirms consultation completion and triggers escrow release
+   */
+  confirmConsultationCompletion: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params as { id: string };
+      const userId = req.user?.id;
+      const role = req.user?.role;
+
+      if (!userId || !role) {
+        throw new AuthorizationError("UNAUTHORIZED");
+      }
+
+      const booking = await BookingService.confirmConsultationCompletion(id, userId, role);
+
+      res.status(200).json({
+        success: true,
+        data: booking,
+        message: "Consultation confirmed successfully. Escrow release initiated.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /bookings/:id/report-issue
+   * Citizen reports consultation issue / pauses auto-release
+   */
+  reportConsultationIssue: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params as { id: string };
+      const userId = req.user?.id;
+      const role = req.user?.role;
+
+      if (!userId || !role) {
+        throw new AuthorizationError("UNAUTHORIZED");
+      }
+
+      const booking = await BookingService.reportConsultationIssue(id, userId, role, req.body);
+
+      res.status(200).json({
+        success: true,
+        data: booking,
+        message: "Issue reported. Auto-release paused. You may reschedule or contact support.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

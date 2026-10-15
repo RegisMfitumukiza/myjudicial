@@ -166,6 +166,11 @@ export const BookingSchema = z
     platformFee: z.number().optional().nullable(),
     expertPayout: z.number().optional().nullable(),
     completedAt: isoDateTimeField.optional().nullable(),
+    deliveredAt: isoDateTimeField.optional().nullable().describe("When expert marked consultation delivered"),
+    deliverySummary: z.string().optional().nullable().describe("Notes/summary from expert"),
+    autoReleaseAt: isoDateTimeField.optional().nullable().describe("When escrow will auto-release if no dispute"),
+    issueReportedAt: isoDateTimeField.optional().nullable().describe("When client reported an issue"),
+    issueReason: z.string().optional().nullable().describe("Reason for client issue report"),
     createdAt: isoDateTimeField,
     updatedAt: isoDateTimeField,
     citizen: CitizenNestedSchema.optional(),
@@ -552,5 +557,88 @@ registry.registerPath({
     ...errorResponses,
   },
 });
+
+// Mark consultation delivered (Expert)
+registry.registerPath({
+  method: "post",
+  path: "/bookings/{id}/mark-delivered",
+  tags: ["Bookings"],
+  summary: "Expert marks consultation delivered",
+  description:
+    "Marks a consultation as delivered by the expert (e.g. for phone call, in-person, or chat). " +
+    "Initiates a 24-hour review window for the client. If no dispute is raised, escrow auto-releases.",
+  request: {
+    params: z.object({ id: uuidField }).openapi("BookingIdParamDelivery"),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            deliverySummary: z.string().max(1000).optional().describe("Summary or notes of advice given"),
+          }),
+        },
+      },
+    },
+  },
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Consultation marked as delivered",
+      content: { "application/json": { schema: z.object({ success: z.literal(true), data: BookingSchema }) } },
+    },
+    ...errorResponses,
+  },
+});
+
+// Confirm consultation completion (Client)
+registry.registerPath({
+  method: "post",
+  path: "/bookings/{id}/confirm-completion",
+  tags: ["Bookings"],
+  summary: "Citizen confirms consultation completion",
+  description:
+    "Citizen confirms consultation was successfully completed. Immediately releases escrow payout to expert MoMo wallet.",
+  request: {
+    params: z.object({ id: uuidField }).openapi("BookingIdParamConfirm"),
+  },
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Consultation confirmed and escrow released",
+      content: { "application/json": { schema: z.object({ success: z.literal(true), data: BookingSchema }) } },
+    },
+    ...errorResponses,
+  },
+});
+
+// Report consultation issue (Client)
+registry.registerPath({
+  method: "post",
+  path: "/bookings/{id}/report-issue",
+  tags: ["Bookings"],
+  summary: "Citizen reports consultation issue",
+  description:
+    "Citizen reports an issue (e.g. expert never called, network dropped). Pauses the 24-hour auto-release timer and allows mutual reschedule.",
+  request: {
+    params: z.object({ id: uuidField }).openapi("BookingIdParamReport"),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            reason: z.string().min(5).max(500).describe("Reason for issue report"),
+          }),
+        },
+      },
+    },
+  },
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: "Issue reported and auto-release paused",
+      content: { "application/json": { schema: z.object({ success: z.literal(true), data: BookingSchema }) } },
+    },
+    ...errorResponses,
+  },
+});
+
 
 

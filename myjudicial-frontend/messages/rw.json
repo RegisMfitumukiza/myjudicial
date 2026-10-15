@@ -3982,6 +3982,19 @@
       "modeInPerson": "Imbonankubone (Mu biro)",
       "modePhone": "Guhamagara kuri terefone",
       "modeDocument": "Inyandiko z'amategeko",
+      "deliveryBannerTitle": "Guhura byarangiye ku ruhande rw'umunyamategeko",
+      "deliveryBannerDesc": "Umunyamategeko yerekanye ko inama yanyu cyangwa serivisi yarangiye. Niba wanyuzwe, hejuru kanda kwemeza kugira ngo amafaranga yo mu bwishingizi yoherezwe kuri konte ye ya Mobile Money.",
+      "autoReleaseNotice": "Amafaranga azoherezwa mu buryo bwikora ku wa {date} niba nta kibazo gitanzwe.",
+      "expertNotesTitle": "Ibisobanuro byatanzwe n'umunyamategeko:",
+      "confirmCompletion": "Emeza kandi Wohereze Amafaranga",
+      "confirmingCompletion": "Kwohereza amafaranga...",
+      "reportIssue": "Tanga Ikibazo / Hindura Igihe",
+      "reportingIssue": "Kohereza...",
+      "issueReportedBanner": "Ikibazo cyatanzwe: {reason}. Kohereza amafaranga byahagaritswe by'agateganyo. Mufatanyije n'umunyamategeko mushobora guhindura igihe ku buntu cyangwa mukegera ubuyobozi.",
+      "reportIssueModalTitle": "Tanga Ikibazo ku Inama",
+      "reportIssueModalDesc": "Sobanura impamvu inama itagenze neza (urugero: umunyamategeko ntiyaguhamagaye, murandasi yacitse). Ibi bihagarika amasaha 24 yo kohereza amafaranga.",
+      "issueReasonPlaceholder": "Sobanura ibyabaye (byibuze inyuguti 5)...",
+      "submitIssue": "Ohereza Ikibazo",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
@@ -7027,7 +7040,14 @@
       "declineTitle": "Wanze iyi gahunda y'inama?",
       "reasonLabel": "Impamvu yo kwanga (byibuze inyuguti 5)",
       "reasonPlaceholder": "urug. Gahunda zirabangikanye, sinshobora gufata iyi dosiye...",
-      "declining": "Kwirukana..."
+      "declining": "Kwirukana...",
+      "markDelivered": "Emeza ko Inama Yarangiye",
+      "markingDelivered": "Kwemeza birimo gukorwa...",
+      "markDeliveredTitle": "Emeza ko Inama Yarangiye",
+      "markDeliveredDesc": "Erekana ko iyi nama yabayeho (urugero: guhamagara kuri terefone byarangiye, inama mu biro yabaye, cyangwa inama zatanzwe). Ibi bitangiza amasaha 24 y'umukiriya yo kwemeza.",
+      "deliverySummaryLabel": "Incamake y'ibyafashwe n'inama (Ku bushake)",
+      "deliverySummaryPlaceholder": "urug. Nahamagaye umukiriya kuri 078..., twaganiriye ku kibazo cy'ubutaka ndetse muha inama z'ibanze...",
+      "confirmMarkDelivered": "Emeza kandi Umumenyeshe"
     },
     "details": {
       "withClient": "hamwe na {name}",
@@ -7046,7 +7066,11 @@
       "yourPayout": "Amafaranga yawe",
       "officeLocation": "Ibiro: {address}",
       "callClientAt": "Hamagara umukiriya kuri: {phone}",
-      "inPersonAppointment": "Inama imbonankubone ku biro"
+      "inPersonAppointment": "Inama imbonankubone ku biro",
+      "deliveredAwaitingClient": "Inama Yarangiye",
+      "deliveredAwaitingClientDesc": "Werekanye ko iyi nama yarangiye ku wa {date}. Hategerejwe ko umukiriya abyemeza cyangwa amafaranga akoherezwa mu buryo bwikora ku wa {autoReleaseDate}.",
+      "clientReportedIssue": "Umukiriya Yatanze Ikibazo",
+      "clientReportedIssueDesc": "Umukiriya yatanze ikibazo: « {reason} ». Kohereza amafaranga byahagaritswe. Ushobora kumuvugisha mu butumwa cyangwa mukongera guhindura igihe ku buntu."
     },
     "ai": {
       "clientNotes": "Inyandiko z'umukiriya",

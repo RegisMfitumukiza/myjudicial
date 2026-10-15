@@ -1891,6 +1891,19 @@
       "modeInPerson": "In-Person (Office)",
       "modePhone": "Phone Call",
       "modeDocument": "Document Package",
+      "deliveryBannerTitle": "Consultation Delivered by Expert",
+      "deliveryBannerDesc": "Your legal expert has marked this consultation as delivered. If you are satisfied, confirm below to release payment to the expert's Mobile Money wallet.",
+      "autoReleaseNotice": "Payment will automatically release on {date} if no issue is reported.",
+      "expertNotesTitle": "Notes from Expert:",
+      "confirmCompletion": "Confirm & Release Payment",
+      "confirmingCompletion": "Releasing Payment...",
+      "reportIssue": "Report Issue / Reschedule",
+      "reportingIssue": "Submitting...",
+      "issueReportedBanner": "Issue Reported: {reason}. Escrow release is paused. You and your expert may mutually reschedule for free, or contact support.",
+      "reportIssueModalTitle": "Report an Issue with Consultation",
+      "reportIssueModalDesc": "Explain why the consultation did not take place satisfactorily (e.g. expert did not call, connectivity dropped). This pauses the 24-hour auto-release timer.",
+      "issueReasonPlaceholder": "Describe what occurred (min. 5 characters)...",
+      "submitIssue": "Submit Report",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
@@ -7029,7 +7042,14 @@
       "declineTitle": "Decline this booking?",
       "reasonLabel": "Reason for declining (min. 5 characters)",
       "reasonPlaceholder": "e.g. Schedule conflict, unable to take this case...",
-      "declining": "Declining..."
+      "declining": "Declining...",
+      "markDelivered": "Mark Consultation Delivered",
+      "markingDelivered": "Marking Delivered...",
+      "markDeliveredTitle": "Mark Consultation Delivered",
+      "markDeliveredDesc": "Record that this consultation took place (e.g. phone call concluded, in-person meeting held, or advice delivered). This initiates the 24-hour client confirmation review window.",
+      "deliverySummaryLabel": "Consultation Summary & Notes (Optional)",
+      "deliverySummaryPlaceholder": "e.g. Called client on 078..., discussed property dispute and provided initial guidance...",
+      "confirmMarkDelivered": "Confirm & Notify Client"
     },
     "details": {
       "withClient": "with {name}",
@@ -7048,7 +7068,11 @@
       "yourPayout": "Your Payout",
       "officeLocation": "Office: {address}",
       "callClientAt": "Call client at: {phone}",
-      "inPersonAppointment": "In-Person Office Appointment"
+      "inPersonAppointment": "In-Person Office Appointment",
+      "deliveredAwaitingClient": "Consultation Delivered",
+      "deliveredAwaitingClientDesc": "You marked this consultation as delivered on {date}. Waiting for client confirmation or automatic payout release on {autoReleaseDate}.",
+      "clientReportedIssue": "Client Reported an Issue",
+      "clientReportedIssueDesc": "Client reported: \"{reason}\". Escrow auto-release is paused. You can message the client to clarify or offer a free reschedule."
     },
     "ai": {
       "clientNotes": "Client Notes",

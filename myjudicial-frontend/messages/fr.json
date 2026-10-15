@@ -3982,6 +3982,19 @@
       "modeInPerson": "Au cabinet (En personne)",
       "modePhone": "Appel téléphonique",
       "modeDocument": "Dossier de documents",
+      "deliveryBannerTitle": "Consultation effectuée par l'expert",
+      "deliveryBannerDesc": "Votre expert juridique a indiqué avoir effectué la consultation. Si vous êtes satisfait, confirmez ci-dessous pour débloquer le paiement vers son portefeuille Mobile Money.",
+      "autoReleaseNotice": "Le paiement sera automatiquement débloqué le {date} en l'absence de réclamation.",
+      "expertNotesTitle": "Notes de l'expert :",
+      "confirmCompletion": "Confirmer et débloquer le paiement",
+      "confirmingCompletion": "Déblocage du paiement...",
+      "reportIssue": "Signaler un problème / Reporter",
+      "reportingIssue": "Envoi...",
+      "issueReportedBanner": "Problème signalé : {reason}. Le déblocage du séquestre est suspendu. Vous pouvez reprogrammer gratuitement ou contacter le support.",
+      "reportIssueModalTitle": "Signaler un problème avec la consultation",
+      "reportIssueModalDesc": "Expliquez pourquoi la consultation ne s'est pas déroulée correctement (ex. l'expert n'a pas appelé, coupure de connexion). Cela suspend le délai de 24 heures.",
+      "issueReasonPlaceholder": "Décrivez ce qui s'est passé (au moins 5 caractères)...",
+      "submitIssue": "Envoyer le signalement",
       "cancelModal": {
         "title": "Cancel this booking?",
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
@@ -7027,7 +7040,14 @@
       "declineTitle": "Refuser cette réservation ?",
       "reasonLabel": "Motif du refus (5 caractères minimum)",
       "reasonPlaceholder": "ex. Conflit d'horaire, impossible de prendre ce dossier...",
-      "declining": "Refus en cours..."
+      "declining": "Refus en cours...",
+      "markDelivered": "Marquer la consultation comme effectuée",
+      "markingDelivered": "Validation en cours...",
+      "markDeliveredTitle": "Marquer la consultation comme effectuée",
+      "markDeliveredDesc": "Indiquez que la consultation a bien eu lieu (appel téléphonique terminé, rendez-vous au cabinet ou conseils rendus). Cela lance le délai de confirmation client de 24 heures.",
+      "deliverySummaryLabel": "Résumé et notes de consultation (Optionnel)",
+      "deliverySummaryPlaceholder": "ex. Appel téléphonique passé au 078..., discussion sur le litige foncier et recommandations données...",
+      "confirmMarkDelivered": "Confirmer et notifier le client"
     },
     "details": {
       "withClient": "avec {name}",
@@ -7046,7 +7066,11 @@
       "yourPayout": "Votre versement",
       "officeLocation": "Cabinet : {address}",
       "callClientAt": "Appeler le client au : {phone}",
-      "inPersonAppointment": "Rendez-vous au cabinet en personne"
+      "inPersonAppointment": "Rendez-vous au cabinet en personne",
+      "deliveredAwaitingClient": "Consultation effectuée",
+      "deliveredAwaitingClientDesc": "Vous avez marqué cette consultation comme effectuée le {date}. En attente de confirmation du client ou déblocage automatique le {autoReleaseDate}.",
+      "clientReportedIssue": "Le client a signalé un problème",
+      "clientReportedIssueDesc": "Le client a signalé : « {reason} ». Le déblocage automatique est suspendu. Vous pouvez échanger par message ou proposer un report gratuit."
     },
     "ai": {
       "clientNotes": "Notes du client",

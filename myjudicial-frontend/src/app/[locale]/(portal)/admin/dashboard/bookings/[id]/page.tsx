@@ -349,6 +349,43 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             )}
           </CardContent>
         </Card>
+
+        {/* Delivery & Escrow Handshake */}
+        {(booking.deliveredAt || booking.issueReportedAt) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Delivery & Escrow Handshake
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              {booking.deliveredAt && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Delivered At</span>
+                  <span className="font-medium text-foreground">{formatDate(booking.deliveredAt)} {formatTime(booking.deliveredAt)}</span>
+                </div>
+              )}
+              {booking.autoReleaseAt && booking.status !== "COMPLETED" && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Auto-Release Scheduled</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">{formatDate(booking.autoReleaseAt)} {formatTime(booking.autoReleaseAt)}</span>
+                </div>
+              )}
+              {booking.deliverySummary && (
+                <div className="pt-2">
+                  <span className="text-muted-foreground block text-xs mb-1">Expert Summary</span>
+                  <p className="rounded-lg bg-muted p-2.5 text-xs text-foreground whitespace-pre-wrap">{booking.deliverySummary}</p>
+                </div>
+              )}
+              {booking.issueReportedAt && (
+                <div className="pt-2 border-t border-border">
+                  <span className="text-destructive font-semibold block text-xs mb-1">Client Reported Issue</span>
+                  <p className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs whitespace-pre-wrap">{booking.issueReason}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Citizen notes */}

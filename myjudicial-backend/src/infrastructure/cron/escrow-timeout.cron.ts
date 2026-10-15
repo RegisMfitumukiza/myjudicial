@@ -24,12 +24,19 @@ export const startEscrowTimeoutCron = (): void => {
 
     let count = 0;
     try {
-      // Find CONFIRMED bookings past their scheduled end + grace period
-      // that never transitioned to ACTIVE (no room_started event)
+      // Find CONFIRMED VIDEO bookings past their scheduled end + grace period
+      // that never transitioned to ACTIVE (no room_started event) and have no
+      // pending reschedule or expert delivery recorded.
       const staleBookings = await prisma.booking.findMany({
         where: {
           status: "CONFIRMED",
           scheduledEnd: { lt: cutoff },
+          actualStartTime: null,
+          deliveredAt: null,
+          pendingRescheduleStart: null,
+          service: {
+            deliveryMode: "VIDEO",
+          },
         },
         select: { id: true, citizenId: true, expertId: true, scheduledEnd: true },
       });

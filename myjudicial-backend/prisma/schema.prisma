@@ -389,6 +389,12 @@ model Booking {
   actualEndTime     DateTime?
   actualDurationMin Int?
 
+  deliveredAt                  DateTime?
+  deliverySummary              String?
+  autoReleaseAt                DateTime?
+  issueReportedAt              DateTime?
+  issueReason                  String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -398,6 +404,7 @@ model Booking {
   @@index([serviceId])
   @@index([status])
   @@index([scheduledStart])
+  @@index([autoReleaseAt])
   @@map("bookings")
 }
 

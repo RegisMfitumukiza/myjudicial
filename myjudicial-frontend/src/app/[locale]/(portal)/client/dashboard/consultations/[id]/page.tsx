@@ -14,6 +14,7 @@ import { useCancelBooking } from "@/features/booking/hooks/useCancelBooking";
 import { useRetryPayment } from "@/features/booking/hooks/useRetryPayment";
 import { useRescheduleBooking } from "@/features/booking/hooks/useRescheduleBooking";
 import { useApproveReschedule, useDeclineReschedule } from "@/features/booking/hooks/useApproveDeclineReschedule";
+import { useConfirmConsultationCompletion, useReportConsultationIssue } from "@/features/booking/hooks/useDeliveryLifecycle";
 import { RescheduleModal } from "@/features/booking/components/reschedule-modal";
 import { ReschedulePendingBanner } from "@/features/booking/components/reschedule-pending-banner";
 import { downloadICS } from "@/features/booking/lib/ics";
@@ -83,9 +84,13 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const { mutate: rescheduleBooking, isPending: isRescheduling } = useRescheduleBooking();
   const { mutate: approveReschedule, isPending: isApproving } = useApproveReschedule();
   const { mutate: declineReschedule, isPending: isDeclining } = useDeclineReschedule();
+  const { mutate: confirmCompletion, isPending: isConfirming } = useConfirmConsultationCompletion();
+  const { mutate: reportIssue, isPending: isReporting } = useReportConsultationIssue();
   const [showCancel, setShowCancel] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showReportIssue, setShowReportIssue] = useState(false);
+  const [issueReason, setIssueReason] = useState("");
   const [isResolvingChat, setIsResolvingChat] = useState(false);
 
   async function handleMessageExpert() {
@@ -199,7 +204,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const canReview = booking.status === "COMPLETED";
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canDownloadReceipt = booking.paymentStatus === "PAID";
-  const canReschedule = ["PENDING", "CONFIRMED"].includes(booking.status) && new Date(booking.scheduledStart) > new Date();
+  const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
@@ -283,6 +288,70 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               onApprove={() => approveReschedule({ bookingId: booking.id })}
               onDecline={(reason) => declineReschedule({ bookingId: booking.id, reason })}
             />
+          </div>
+        )}
+
+        {/* Delivery / Escrow Confirmation Banner */}
+        {booking.deliveredAt && booking.status !== "COMPLETED" && !booking.issueReportedAt && (
+          <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-50/60 p-6 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                <CheckCircle size={22} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[15px] font-bold text-emerald-950 dark:text-emerald-100">
+                  {t("deliveryBannerTitle")}
+                </h3>
+                <p className="mt-1 text-[13px] text-emerald-900/80 dark:text-emerald-200/80">
+                  {t("deliveryBannerDesc")}
+                </p>
+                {booking.autoReleaseAt && (
+                  <p className="mt-2 text-[12px] font-medium text-emerald-800/70 dark:text-emerald-300/70">
+                    {t("autoReleaseNotice", { date: new Date(booking.autoReleaseAt).toLocaleString(locale) })}
+                  </p>
+                )}
+                {booking.deliverySummary && (
+                  <div className="mt-3 rounded-xl border border-emerald-500/20 bg-white/80 p-3.5 text-[13px] text-brand-dark dark:bg-black/40 dark:text-white">
+                    <span className="font-semibold text-emerald-900 dark:text-emerald-300 block mb-1">
+                      {t("expertNotesTitle")}
+                    </span>
+                    <p className="whitespace-pre-wrap">{booking.deliverySummary}</p>
+                  </div>
+                )}
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button
+                    onClick={() => confirmCompletion(booking.id)}
+                    disabled={isConfirming}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm"
+                  >
+                    {isConfirming ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
+                    {isConfirming ? t("confirmingCompletion") : t("confirmCompletion")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowReportIssue(true)}
+                    className="border-emerald-600/30 text-emerald-950 hover:bg-emerald-100/50 dark:text-emerald-200 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2"
+                  >
+                    <AlertCircle size={14} />
+                    {t("reportIssue")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Issue Reported Banner */}
+        {booking.issueReportedAt && booking.status !== "COMPLETED" && (
+          <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-50/60 p-5 dark:border-amber-500/20 dark:bg-amber-950/20">
+            <div className="flex items-start gap-3.5">
+              <AlertCircle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[13px] font-semibold text-amber-900 dark:text-amber-200">
+                  {t("issueReportedBanner", { reason: booking.issueReason ?? "Issue reported" })}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -682,6 +751,46 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 onClick={() => { setShowCancel(false); setCancelReason(""); }}
               >
                 {t("cancelModal.keepBooking")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Report Issue Form */}
+        {showReportIssue && (
+          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50/80 p-5 dark:border-amber-900/30 dark:bg-amber-900/10 mb-6">
+            <h3 className="text-[14px] font-bold text-amber-950 dark:text-amber-200 mb-1">{t("reportIssueModalTitle")}</h3>
+            <p className="text-[12px] text-amber-900/70 dark:text-amber-300/70 mb-3">{t("reportIssueModalDesc")}</p>
+            <textarea
+              value={issueReason}
+              onChange={(e) => setIssueReason(e.target.value)}
+              placeholder={t("issueReasonPlaceholder")}
+              rows={3}
+              className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2.5 text-[13px] text-brand-dark outline-none placeholder:text-brand-dark/30 focus:border-amber-500 dark:bg-black dark:text-white"
+            />
+            <div className="mt-3 flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                className="rounded-lg border-brand-border/20 px-4 py-2 text-[12px] font-semibold"
+                onClick={() => { setShowReportIssue(false); setIssueReason(""); }}
+              >
+                {t("cancelModal.keepBooking")}
+              </Button>
+              <Button
+                className="rounded-lg bg-amber-600 px-4 py-2 text-[12px] font-semibold text-white hover:bg-amber-700 disabled:opacity-40"
+                disabled={isReporting || issueReason.trim().length < 5}
+                onClick={() => {
+                  reportIssue({ bookingId: booking.id, reason: issueReason.trim() }, {
+                    onSuccess: () => {
+                      setShowReportIssue(false);
+                      setIssueReason("");
+                      toast.success("Issue reported. Escrow auto-release paused.");
+                    },
+                    onError: (err: any) => toast.error(err.message ?? "Failed to report issue"),
+                  });
+                }}
+              >
+                {isReporting ? t("reportingIssue") : t("submitIssue")}
               </Button>
             </div>
           </div>

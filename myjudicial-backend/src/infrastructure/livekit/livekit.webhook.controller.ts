@@ -164,9 +164,24 @@ export const LiveKitWebhookController = {
               logger.info("Booking marked COMPLETED after consultation (booking-first)", { bookingId, durationSec });
             }
           } else {
-            // Shorter than the configured minimum -> cancel
-            logger.info("Consultation duration short, triggering cancel", { bookingId, durationSec, minEscrowSec });
-            await BookingService.cancelBooking(bookingId, "SYSTEM", `Consultation lasted less than ${Math.floor(minEscrowSec / 60)} minutes (${durationSec}s)`);
+            // Shorter than configured minimum -> Call interrupted or dropped early.
+            // Do NOT cancel the booking immediately; keep escrow locked and allow reconnection or mutual reschedule.
+            logger.info("Consultation ended with short duration; flagging for reconnect or reschedule", {
+              bookingId,
+              durationSec,
+              minEscrowSec,
+            });
+            await BookingRepository.update(bookingId, {
+              issueReason: `Consultation disconnected early (${durationSec}s vs min ${minEscrowSec}s required). Reconnect or reschedule available.`,
+              actualEndTime: null, // Allow room restart/reconnection
+            });
+            await writeAuditLog({
+              actorId: booking.citizenId,
+              action: "UPDATE",
+              resource: "BOOKING",
+              resourceId: bookingId,
+              description: `Video room ended early (${durationSec}s). Escrow retained; booking available for reconnect or free reschedule.`,
+            });
           }
         }
       } catch (err) {

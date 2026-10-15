@@ -743,6 +743,8 @@ export type AdminExpertDetail = AdminExpertListItem & ({
   /** @nullable */
   phone: string | null;
   /** @nullable */
+  momoNumber?: string | null;
+  /** @nullable */
   lastLoginAt: string | null;
   languages: string[];
   /** @nullable */
@@ -1199,6 +1201,31 @@ export interface Booking {
      * @nullable
      */
   completedAt?: string | null;
+  /**
+     * When expert marked consultation delivered
+     * @nullable
+     */
+  deliveredAt?: string | null;
+  /**
+     * Notes/summary from expert
+     * @nullable
+     */
+  deliverySummary?: string | null;
+  /**
+     * When escrow will auto-release if no dispute
+     * @nullable
+     */
+  autoReleaseAt?: string | null;
+  /**
+     * When client reported an issue
+     * @nullable
+     */
+  issueReportedAt?: string | null;
+  /**
+     * Reason for client issue report
+     * @nullable
+     */
+  issueReason?: string | null;
   /** ISO 8601 datetime string */
   createdAt: string;
   /** ISO 8601 datetime string */
@@ -3483,6 +3510,38 @@ date: string;
  * Service being booked — determines slot length
  */
 serviceId?: string;
+};
+
+export type PostBookingsIdMarkDeliveredBody = {
+  /**
+     * Summary or notes of advice given
+     * @maxLength 1000
+     */
+  deliverySummary?: string;
+};
+
+export type PostBookingsIdMarkDelivered200 = {
+  success: true;
+  data: Booking;
+};
+
+export type PostBookingsIdConfirmCompletion200 = {
+  success: true;
+  data: Booking;
+};
+
+export type PostBookingsIdReportIssueBody = {
+  /**
+     * Reason for issue report
+     * @minLength 5
+     * @maxLength 500
+     */
+  reason: string;
+};
+
+export type PostBookingsIdReportIssue200 = {
+  success: true;
+  data: Booking;
 };
 
 export type GetAdminBookingsParams = {
@@ -14535,6 +14594,356 @@ export function useGetBookingsExpertIdSlots<TData = Awaited<ReturnType<typeof ge
 
 
 
+
+export type postBookingsIdMarkDeliveredResponse200 = {
+  data: PostBookingsIdMarkDelivered200
+  status: 200
+}
+
+export type postBookingsIdMarkDeliveredResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postBookingsIdMarkDeliveredResponse401 = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type postBookingsIdMarkDeliveredResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type postBookingsIdMarkDeliveredResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type postBookingsIdMarkDeliveredResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type postBookingsIdMarkDeliveredResponse429 = {
+  data: ErrorResponse
+  status: 429
+}
+
+export type postBookingsIdMarkDeliveredResponseSuccess = (postBookingsIdMarkDeliveredResponse200) & {
+  headers: Headers;
+};
+export type postBookingsIdMarkDeliveredResponseError = (postBookingsIdMarkDeliveredResponse400 | postBookingsIdMarkDeliveredResponse401 | postBookingsIdMarkDeliveredResponse403 | postBookingsIdMarkDeliveredResponse404 | postBookingsIdMarkDeliveredResponse409 | postBookingsIdMarkDeliveredResponse429) & {
+  headers: Headers;
+};
+
+export type postBookingsIdMarkDeliveredResponse = (postBookingsIdMarkDeliveredResponseSuccess | postBookingsIdMarkDeliveredResponseError)
+
+export const getPostBookingsIdMarkDeliveredUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/mark-delivered`
+}
+
+/**
+ * Marks a consultation as delivered by the expert (e.g. for phone call, in-person, or chat). Initiates a 24-hour review window for the client. If no dispute is raised, escrow auto-releases.
+ * @summary Expert marks consultation delivered
+ */
+export const postBookingsIdMarkDelivered = async (id: string,
+    postBookingsIdMarkDeliveredBody?: PostBookingsIdMarkDeliveredBody, options?: RequestInit): Promise<postBookingsIdMarkDeliveredResponse> => {
+
+  return apiFetchEnvelope<postBookingsIdMarkDeliveredResponse>(getPostBookingsIdMarkDeliveredUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(postBookingsIdMarkDeliveredBody)
+  }
+);}
+
+
+
+
+
+export const getPostBookingsIdMarkDeliveredMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>, TError,{id: string;data?: PostBookingsIdMarkDeliveredBody}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+): UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>, TError,{id: string;data?: PostBookingsIdMarkDeliveredBody}, TContext> => {
+
+const mutationKey = ['postBookingsIdMarkDelivered'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>, {id: string;data?: PostBookingsIdMarkDeliveredBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postBookingsIdMarkDelivered(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostBookingsIdMarkDeliveredMutationResult = NonNullable<Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>>
+    export type PostBookingsIdMarkDeliveredMutationBody = PostBookingsIdMarkDeliveredBody | undefined
+    export type PostBookingsIdMarkDeliveredMutationError = ErrorResponse
+
+    /**
+ * @summary Expert marks consultation delivered
+ */
+export const usePostBookingsIdMarkDelivered = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>, TError,{id: string;data?: PostBookingsIdMarkDeliveredBody}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postBookingsIdMarkDelivered>>,
+        TError,
+        {id: string;data?: PostBookingsIdMarkDeliveredBody},
+        TContext
+      > => {
+      return useMutation(getPostBookingsIdMarkDeliveredMutationOptions(options), queryClient);
+    }
+
+export type postBookingsIdConfirmCompletionResponse200 = {
+  data: PostBookingsIdConfirmCompletion200
+  status: 200
+}
+
+export type postBookingsIdConfirmCompletionResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postBookingsIdConfirmCompletionResponse401 = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type postBookingsIdConfirmCompletionResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type postBookingsIdConfirmCompletionResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type postBookingsIdConfirmCompletionResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type postBookingsIdConfirmCompletionResponse429 = {
+  data: ErrorResponse
+  status: 429
+}
+
+export type postBookingsIdConfirmCompletionResponseSuccess = (postBookingsIdConfirmCompletionResponse200) & {
+  headers: Headers;
+};
+export type postBookingsIdConfirmCompletionResponseError = (postBookingsIdConfirmCompletionResponse400 | postBookingsIdConfirmCompletionResponse401 | postBookingsIdConfirmCompletionResponse403 | postBookingsIdConfirmCompletionResponse404 | postBookingsIdConfirmCompletionResponse409 | postBookingsIdConfirmCompletionResponse429) & {
+  headers: Headers;
+};
+
+export type postBookingsIdConfirmCompletionResponse = (postBookingsIdConfirmCompletionResponseSuccess | postBookingsIdConfirmCompletionResponseError)
+
+export const getPostBookingsIdConfirmCompletionUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/confirm-completion`
+}
+
+/**
+ * Citizen confirms consultation was successfully completed. Immediately releases escrow payout to expert MoMo wallet.
+ * @summary Citizen confirms consultation completion
+ */
+export const postBookingsIdConfirmCompletion = async (id: string, options?: RequestInit): Promise<postBookingsIdConfirmCompletionResponse> => {
+
+  return apiFetchEnvelope<postBookingsIdConfirmCompletionResponse>(getPostBookingsIdConfirmCompletionUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getPostBookingsIdConfirmCompletionMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+): UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['postBookingsIdConfirmCompletion'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postBookingsIdConfirmCompletion(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostBookingsIdConfirmCompletionMutationResult = NonNullable<Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>>
+
+    export type PostBookingsIdConfirmCompletionMutationError = ErrorResponse
+
+    /**
+ * @summary Citizen confirms consultation completion
+ */
+export const usePostBookingsIdConfirmCompletion = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postBookingsIdConfirmCompletion>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getPostBookingsIdConfirmCompletionMutationOptions(options), queryClient);
+    }
+
+export type postBookingsIdReportIssueResponse200 = {
+  data: PostBookingsIdReportIssue200
+  status: 200
+}
+
+export type postBookingsIdReportIssueResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postBookingsIdReportIssueResponse401 = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type postBookingsIdReportIssueResponse403 = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type postBookingsIdReportIssueResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type postBookingsIdReportIssueResponse409 = {
+  data: ErrorResponse
+  status: 409
+}
+
+export type postBookingsIdReportIssueResponse429 = {
+  data: ErrorResponse
+  status: 429
+}
+
+export type postBookingsIdReportIssueResponseSuccess = (postBookingsIdReportIssueResponse200) & {
+  headers: Headers;
+};
+export type postBookingsIdReportIssueResponseError = (postBookingsIdReportIssueResponse400 | postBookingsIdReportIssueResponse401 | postBookingsIdReportIssueResponse403 | postBookingsIdReportIssueResponse404 | postBookingsIdReportIssueResponse409 | postBookingsIdReportIssueResponse429) & {
+  headers: Headers;
+};
+
+export type postBookingsIdReportIssueResponse = (postBookingsIdReportIssueResponseSuccess | postBookingsIdReportIssueResponseError)
+
+export const getPostBookingsIdReportIssueUrl = (id: string,) => {
+
+
+
+
+  return `/bookings/${id}/report-issue`
+}
+
+/**
+ * Citizen reports an issue (e.g. expert never called, network dropped). Pauses the 24-hour auto-release timer and allows mutual reschedule.
+ * @summary Citizen reports consultation issue
+ */
+export const postBookingsIdReportIssue = async (id: string,
+    postBookingsIdReportIssueBody?: PostBookingsIdReportIssueBody, options?: RequestInit): Promise<postBookingsIdReportIssueResponse> => {
+
+  return apiFetchEnvelope<postBookingsIdReportIssueResponse>(getPostBookingsIdReportIssueUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(postBookingsIdReportIssueBody)
+  }
+);}
+
+
+
+
+
+export const getPostBookingsIdReportIssueMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdReportIssue>>, TError,{id: string;data?: PostBookingsIdReportIssueBody}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+): UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdReportIssue>>, TError,{id: string;data?: PostBookingsIdReportIssueBody}, TContext> => {
+
+const mutationKey = ['postBookingsIdReportIssue'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postBookingsIdReportIssue>>, {id: string;data?: PostBookingsIdReportIssueBody}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  postBookingsIdReportIssue(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostBookingsIdReportIssueMutationResult = NonNullable<Awaited<ReturnType<typeof postBookingsIdReportIssue>>>
+    export type PostBookingsIdReportIssueMutationBody = PostBookingsIdReportIssueBody | undefined
+    export type PostBookingsIdReportIssueMutationError = ErrorResponse
+
+    /**
+ * @summary Citizen reports consultation issue
+ */
+export const usePostBookingsIdReportIssue = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postBookingsIdReportIssue>>, TError,{id: string;data?: PostBookingsIdReportIssueBody}, TContext>, request?: SecondParameter<typeof apiFetchEnvelope>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postBookingsIdReportIssue>>,
+        TError,
+        {id: string;data?: PostBookingsIdReportIssueBody},
+        TContext
+      > => {
+      return useMutation(getPostBookingsIdReportIssueMutationOptions(options), queryClient);
+    }
 
 export type getAdminBookingsResponse200 = {
   data: AdminBookingListResponse

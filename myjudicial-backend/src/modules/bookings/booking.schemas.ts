@@ -58,6 +58,24 @@ export const rescheduleBookingSchema = z.object({
 export type RescheduleBookingDto = z.infer<typeof rescheduleBookingSchema>;
 
 /**
+ * Mark consultation delivered by expert
+ */
+export const markDeliveredSchema = z.object({
+  deliverySummary: z.string().max(1000, "Summary must be at most 1000 characters").optional(),
+});
+
+export type MarkDeliveredDto = z.infer<typeof markDeliveredSchema>;
+
+/**
+ * Report consultation issue / dispute by client
+ */
+export const reportIssueSchema = z.object({
+  reason: z.string().min(5, "Issue reason must be at least 5 characters").max(500, "Reason must be at most 500 characters"),
+});
+
+export type ReportIssueDto = z.infer<typeof reportIssueSchema>;
+
+/**
  * List bookings query parameters
  */
 export const listBookingsSchema = z.object({

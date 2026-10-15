@@ -209,13 +209,18 @@ export const BookingRepository = {
       citizenNotes?: string;
       scheduledStart?: Date;
       scheduledEnd?: Date;
-      actualStartTime?: Date;
-      actualEndTime?: Date;
-      actualDurationMin?: number;
+      actualStartTime?: Date | null;
+      actualEndTime?: Date | null;
+      actualDurationMin?: number | null;
       pendingRescheduleStart?: Date | null;
       pendingRescheduleEnd?: Date | null;
       pendingRescheduleReason?: string | null;
       pendingRescheduleRequestedBy?: string | null;
+      deliveredAt?: Date | null;
+      deliverySummary?: string | null;
+      autoReleaseAt?: Date | null;
+      issueReportedAt?: Date | null;
+      issueReason?: string | null;
     },
     tx?: any
   ) => {

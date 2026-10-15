@@ -212,11 +212,16 @@ async function handleLogout() {
     // Ignore signOut errors
   }
 
-  // Redirect to sign-in with locale prefix
+  // Redirect to sign-in with locale prefix and admin parameter if applicable
   if (typeof window !== "undefined") {
     const stored = localStorage.getItem("mj_lang");
-    const locale = stored && ["en", "fr", "rw"].includes(stored) ? stored : "en";
-    window.location.href = `/${locale}/sign-in`;
+    const match = window.location.pathname.match(/^\/(en|fr|rw)(\/|$)/);
+    const locale = match ? match[1] : (stored && ["en", "fr", "rw"].includes(stored) ? stored : "en");
+    const isAdmin =
+      window.location.pathname.includes("/admin") ||
+      window.location.search.includes("admin=1") ||
+      window.location.hostname.toLowerCase().startsWith("admin.");
+    window.location.href = isAdmin ? `/${locale}/sign-in?admin=1` : `/${locale}/sign-in`;
   }
 }
 

@@ -135,11 +135,17 @@ export function middleware(request: NextRequest) {
 
     // Admin portal handling
     if (isAdminPortal) {
-      // 1. Root paths (/, /en, /fr, /rw): always redirect to the admin dashboard on admin portal
+      // 1. Root paths (/, /en, /fr, /rw): redirect to admin dashboard if authenticated, or admin sign-in
       if (RE_ROOT_PATH.test(pathname)) {
         const matchedLocale = pathname.match(RE_ROOT_PATH)?.[1] || "en";
+        const hasSession =
+          request.cookies.has("authjs.session-token") ||
+          request.cookies.has("__Secure-authjs.session-token") ||
+          request.cookies.has("next-auth.session-token") ||
+          request.cookies.has("__Secure-next-auth.session-token");
+        const target = hasSession ? "/admin/dashboard" : "/sign-in?admin=1";
         return withSecurityHeaders(
-          NextResponse.redirect(`${httpsBase}/${matchedLocale}/admin/dashboard`),
+          NextResponse.redirect(`${httpsBase}/${matchedLocale}${target}`),
           requestId,
           origin
         );

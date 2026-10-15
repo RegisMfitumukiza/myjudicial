@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
-import { signOut } from "next-auth/react";
+import { handleAppSignOut } from "@/lib/auth-signout";
 import {
   Search,
   Calendar,
@@ -71,7 +71,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/" });
+    await handleAppSignOut({ role: user?.role, pathname });
   };
 
   return (

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link } from "@/i18n/routing";
-import { useSession, signOut } from "next-auth/react";
+import { Link, usePathname } from "@/i18n/routing";
+import { useSession } from "next-auth/react";
+import { handleAppSignOut } from "@/lib/auth-signout";
 import {
   LogOut,
   LayoutDashboard,
@@ -21,6 +22,7 @@ function getDashboardHref(role?: string): string {
 
 export function ProfileMenu() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
   const tNav = useTranslations("nav");
@@ -148,7 +150,10 @@ export function ProfileMenu() {
           </Link>
           <div className="my-1 border-t border-border" />
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => {
+              setOpen(false);
+              handleAppSignOut({ role: session?.user?.role, pathname });
+            }}
             className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
             <LogOut size={15} />

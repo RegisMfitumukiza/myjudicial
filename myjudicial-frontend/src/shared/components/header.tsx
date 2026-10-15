@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { usePathname, Link } from "@/i18n/routing";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { handleAppSignOut } from "@/lib/auth-signout";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
@@ -254,7 +255,7 @@ export function Header() {
               <button
                 onClick={() => {
                   setMobileOpen(false);
-                  signOut({ callbackUrl: "/" });
+                  handleAppSignOut({ role, pathname });
                 }}
                 className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
               >

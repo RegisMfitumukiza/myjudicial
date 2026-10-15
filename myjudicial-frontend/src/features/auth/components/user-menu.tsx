@@ -1,15 +1,16 @@
 "use client";
 
-import { useRouter } from "@/i18n/routing";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { useState } from "react";
 import { Menu, LogOut, Loader2 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { postAuthLogout } from "@/api/generated";
+import { handleAppSignOut } from "@/lib/auth-signout";
 
 export function UserMenu() {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const t = useTranslations("features.auth");
   const tNav = useTranslations("nav");
@@ -20,16 +21,11 @@ export function UserMenu() {
   async function handleSignOut() {
     setIsSigningOut(true);
     try {
-      await postAuthLogout().catch(() => {});
-      await signOut({ redirect: false, callbackUrl: "/sign-in" });
+      await handleAppSignOut({ role: session?.user?.role, pathname });
       toast.success(t("signedOut"));
-    } catch {
-      await signOut({ redirect: false, callbackUrl: "/sign-in" });
     } finally {
       setIsSigningOut(false);
       setOpen(false);
-      router.push("/sign-in");
-      router.refresh();
     }
   }
 

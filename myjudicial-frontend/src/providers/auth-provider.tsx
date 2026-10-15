@@ -6,16 +6,7 @@ import { toast } from "sonner";
 import type { PublicUser } from "@/features/auth/types";
 import { getAuthMe, postAuthLogout } from "@/api/generated";
 import { setCachedAuthToken } from "@/lib/api/client";
-
-function getLocale(): string {
-  if (typeof window === "undefined") return "en";
-  const match = window.location.pathname.match(/^\/(en|fr|rw)(\/|$)/);
-  return match ? match[1] : "en";
-}
-
-function signinUrl(): string {
-  return `/${getLocale()}/sign-in`;
-}
+import { getSignOutRedirectUrl, handleAppSignOut } from "@/lib/auth-signout";
 
 type AuthContextType = {
   user: PublicUser | null;
@@ -63,9 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           queryClient.clear();
           
-          // Force sign out and redirect to login
-          await signOut({ redirect: false });
-          window.location.href = signinUrl();
+          // Force sign out and redirect to appropriate login
+          const targetUrl = getSignOutRedirectUrl({
+            role: (session?.user as any)?.role ?? userData?.role,
+          });
+          await handleAppSignOut({ callbackUrl: targetUrl });
           
           return null;
         }
@@ -98,32 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      // Clear backend session first
-      try {
-        await postAuthLogout();
-      } catch (logoutError) {
-        console.warn("Backend logout failed, clearing local session anyway", logoutError);
-        // Continue with local cleanup regardless of backend error
-      }
-      
-      // CRITICAL: Clear ALL stored tokens and session data to prevent cross-user contamination
-      if (typeof window !== "undefined") {
-        setCachedAuthToken(null);
-        // Clear all possible token storage locations
-        sessionStorage.removeItem("accessToken");
-        sessionStorage.removeItem("refreshToken");
-        sessionStorage.removeItem("access_token");
-        sessionStorage.removeItem("refresh_token");
-        sessionStorage.removeItem("tokenExpiresAt");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("tokenExpiresAt");
-        
-        // Clear all session storage (nuclear option to prevent leaks)
-        sessionStorage.clear();
-      }
+      const targetUrl = getSignOutRedirectUrl({
+        role: (session?.user as any)?.role ?? user?.role,
+      });
 
       // Clear local auth provider cache immediately
       queryClient.setQueryData<PublicUser | null>(AUTH_USER_QUERY_KEY, null);
@@ -131,13 +101,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear ALL React Query cache to prevent cross-user data leaks
       queryClient.clear();
       
-      // Sign out from NextAuth (this should also clear NextAuth cookies)
-      await signOut({ redirect: false, callbackUrl: signinUrl() });
+      await handleAppSignOut({
+        role: (session?.user as any)?.role ?? user?.role,
+        callbackUrl: targetUrl,
+      });
       
       toast.success("Signed out successfully.");
-      
-      // Force navigation to ensure clean state
-      window.location.href = signinUrl();
     } catch (error) {
       console.error("Logout failed", error);
       toast.error("Failed to sign out. Please try again.");
@@ -148,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryClient.clear();
       }
     }
-  }, [queryClient, accessToken]);
+  }, [queryClient, session, user]);
 
   return (
     <AuthContext.Provider

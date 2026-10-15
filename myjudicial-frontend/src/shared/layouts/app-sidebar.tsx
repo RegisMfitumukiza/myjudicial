@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
-import { signOut } from "next-auth/react";
+import { handleAppSignOut } from "@/lib/auth-signout";
 import { useExpertPhotoUrl } from "@/features/experts/hooks/useExpertProfile";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import {
@@ -192,7 +192,7 @@ function ProfileDropdown({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/" });
+    await handleAppSignOut({ role: user?.role, pathname });
   };
 
   const navigate = useCallback((path: string) => {
@@ -724,7 +724,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                   <button
                     onClick={async () => {
                       closeMobile();
-                      await signOut({ callbackUrl: "/" });
+                      await handleAppSignOut({ role: effectiveRole, pathname });
                     }}
                     className="flex items-center justify-start gap-2 rounded-lg py-2 px-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
                   >

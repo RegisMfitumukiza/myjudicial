@@ -282,6 +282,14 @@ export const BookingService = {
       throw new ValidationError("Phone number is required for Mobile Money payment");
     }
 
+    if (!citizen.phone && dto.paymentPhoneNumber) {
+      await prisma.user.update({
+        where: { id: dto.citizenId },
+        data: { phone: dto.paymentPhoneNumber },
+      });
+      citizen.phone = dto.paymentPhoneNumber;
+    }
+
     // 5 & 6. Transactional conflict check and booking creation (C3 fix)
     let booking: any;
     try {

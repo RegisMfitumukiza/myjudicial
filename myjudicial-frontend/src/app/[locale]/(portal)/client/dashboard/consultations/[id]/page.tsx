@@ -201,7 +201,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
   const startsInMs = new Date(booking.scheduledStart).getTime() - Date.now();
   const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS);
-  const canReview = booking.status === "COMPLETED";
+  const canReview = booking.status === "COMPLETED" && !booking.review;
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canDownloadReceipt = booking.paymentStatus === "PAID";
   const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
@@ -691,6 +691,12 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               <Star size={15} />
               {t("leaveReview")}
             </Button>
+          )}
+          {booking.review && (
+            <div className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-50/50 px-4 py-2.5 text-[13px] font-semibold text-amber-900 dark:bg-amber-950/20 dark:text-amber-300">
+              <Star size={15} className="fill-amber-400 text-amber-500" />
+              <span>{booking.review.rating}/5 Rated</span>
+            </div>
           )}
           {canDownloadReceipt && (
             <Button

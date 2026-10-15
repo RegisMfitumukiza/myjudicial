@@ -1006,6 +1006,8 @@ export interface CitizenNested {
   email: string;
   firstName: string;
   lastName: string;
+  /** @nullable */
+  phone?: string | null;
 }
 
 export type ExpertNestedUser = {

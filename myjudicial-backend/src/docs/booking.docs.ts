@@ -84,6 +84,7 @@ const CitizenNestedSchema = z
     email: emailField,
     firstName: z.string(),
     lastName: z.string(),
+    phone: z.string().nullable().optional(),
   })
   .openapi("CitizenNested");
 

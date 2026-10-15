@@ -586,7 +586,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "PHONE" && (
             <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-sm">
               <Phone size={15} className="text-primary" />
-              <span>{t("details.callClientAt", { phone: (booking as any).citizen?.phone || "Registered Phone" })}</span>
+              <span>{t("details.callClientAt", { phone: booking.citizen?.phone || "Registered Phone" })}</span>
             </div>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "IN_PERSON" && (

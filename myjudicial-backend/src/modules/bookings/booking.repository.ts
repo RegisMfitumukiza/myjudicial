@@ -47,7 +47,7 @@ export const BookingRepository = {
       where: { id },
       include: {
         citizen: { select: { id: true, email: true, firstName: true, lastName: true, phone: true, avatarObjectKey: true } },
-        expert: { select: { id: true, displayName: true, officeAddress: true, city: true, profileImageObjectKey: true, user: { select: { id: true, email: true, phone: true, avatarObjectKey: true } } } },
+        expert: { select: { id: true, displayName: true, momoNumber: true, officeAddress: true, city: true, profileImageObjectKey: true, user: { select: { id: true, email: true, phone: true, avatarObjectKey: true } } } },
         service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
         review: true,
       },

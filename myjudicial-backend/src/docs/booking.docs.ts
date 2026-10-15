@@ -92,6 +92,7 @@ const ExpertNestedSchema = z
   .object({
     id: uuidField,
     displayName: z.string(),
+    momoNumber: z.string().nullable().optional(),
     officeAddress: z.string().nullable().optional(),
     city: z.string().nullable().optional(),
     user: z

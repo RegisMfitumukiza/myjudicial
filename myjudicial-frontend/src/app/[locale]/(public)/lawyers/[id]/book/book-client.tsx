@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, use, useMemo, Suspense } from "react";
+import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/routing";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
@@ -19,7 +20,7 @@ import { ExpertInfoHeader } from "@/features/search/components/expert-info-heade
 import { ServiceCard } from "@/features/booking/components/service-card";
 import { BookingSummaryCard } from "@/features/booking/components/booking-summary-card";
 import { TimeSlotList } from "@/features/booking/components/time-slot-list";
-import { PaymentForm } from "@/features/booking/components/payment-form";
+import { PaymentForm, formatPhoneForInput } from "@/features/booking/components/payment-form";
 import { TimeZonePicker } from "@/features/booking/components/timezone-picker";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -139,6 +140,16 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const [paymentPhone, setPaymentPhone] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
+
+  const { data: session } = useSession();
+  const registeredUserPhone = session?.user?.phone ?? null;
+
+  /* ── Prefill payment phone with registered profile phone if empty ── */
+  useEffect(() => {
+    if (registeredUserPhone && !paymentPhone) {
+      setPaymentPhone(formatPhoneForInput(registeredUserPhone));
+    }
+  }, [registeredUserPhone, paymentPhone]);
   const [timezone, setTimezone] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("mj_timezone") || "Africa/Kigali";
@@ -224,7 +235,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     }
 
     const isPaymentRequired = !isBookingFirst;
-    if (isPaymentRequired && (!paymentPhone || paymentPhone.length < 9)) {
+    const finalPhone = paymentPhone.trim() || formatPhoneForInput(registeredUserPhone);
+    if (isPaymentRequired && (!finalPhone || finalPhone.length < 9)) {
       toast.error(t("invalidPhoneNumber"));
       return;
     }
@@ -236,7 +248,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
       scheduledEnd: selectedSlot.end,
       citizenNotes: reason || undefined,
       ...(isPaymentRequired
-        ? { paymentMNO, paymentPhoneNumber: paymentPhone }
+        ? { paymentMNO, paymentPhoneNumber: finalPhone }
         : {}),
     }, {
       onSuccess: (data) => {
@@ -522,6 +534,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                         paymentPhone={paymentPhone}
                         onMNOChange={setPaymentMNO}
                         onPhoneChange={setPaymentPhone}
+                        registeredPhone={registeredUserPhone}
                         showLabel={false}
                         compact
                       />

@@ -9,19 +9,31 @@ interface PaymentFormProps {
   paymentPhone: string;
   onMNOChange: (value: string) => void;
   onPhoneChange: (value: string) => void;
+  registeredPhone?: string | null;
   showLabel?: boolean;
   compact?: boolean;
 }
 
-function detectNetwork(phone: string): "MTN" | "Airtel" | null {
-  const digits = phone.replace(/\D/g, "");
-  let local = digits;
+function cleanDigits(phone?: string | null): string {
+  if (!phone) return "";
+  let digits = phone.replace(/\D/g, "");
   if (digits.startsWith("250")) {
-    local = digits.slice(3);
+    digits = digits.slice(3);
   }
-  if (local.startsWith("0")) {
-    local = local.slice(1);
+  if (digits.startsWith("0")) {
+    digits = digits.slice(1);
   }
+  return digits;
+}
+
+export function formatPhoneForInput(phone?: string | null): string {
+  const digits = cleanDigits(phone);
+  if (!digits) return "";
+  return digits.length === 9 ? `0${digits}` : digits;
+}
+
+function detectNetwork(phone: string): "MTN" | "Airtel" | null {
+  const local = cleanDigits(phone);
   if (local.startsWith("78") || local.startsWith("79")) {
     return "MTN";
   }
@@ -36,6 +48,7 @@ export function PaymentForm({
   paymentPhone,
   onMNOChange,
   onPhoneChange,
+  registeredPhone,
   showLabel = true,
   compact = false,
 }: PaymentFormProps) {
@@ -43,6 +56,18 @@ export function PaymentForm({
   const detectedNetwork = detectNetwork(paymentPhone);
   const isAirtelSelected = paymentMNO === "Airtel";
   const isAirtelPhoneOnMtn = detectedNetwork === "Airtel" && paymentMNO === "MTN";
+
+  const registeredDigits = cleanDigits(registeredPhone);
+  const currentDigits = cleanDigits(paymentPhone);
+  const isUsingRegisteredPhone = Boolean(registeredDigits && registeredDigits === currentDigits);
+
+  const handlePhoneInputChange = (val: string) => {
+    onPhoneChange(val);
+    const network = detectNetwork(val);
+    if (network && network !== paymentMNO) {
+      onMNOChange(network);
+    }
+  };
 
   return (
     <div className="space-y-3.5">
@@ -157,9 +182,28 @@ export function PaymentForm({
 
       {/* Phone Number Input */}
       <div>
-        <label className="mb-1 block text-[12px] font-semibold text-brand-dark dark:text-white">
-          {t("mobileNumber")}
-        </label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="block text-[12px] font-semibold text-brand-dark dark:text-white">
+            {t("mobileNumber")}
+          </label>
+          {registeredDigits ? (
+            <div className="text-[11px]">
+              {isUsingRegisteredPhone ? (
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                  {t("usingRegisteredPhone")}
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handlePhoneInputChange(formatPhoneForInput(registeredPhone))}
+                  className="text-primary hover:underline font-medium cursor-pointer"
+                >
+                  {t("useRegisteredPhone")}
+                </button>
+              )}
+            </div>
+          ) : null}
+        </div>
         <div
           className={`flex items-stretch rounded-lg border border-brand-border/20 bg-white dark:border-white/20 dark:bg-black overflow-hidden focus-within:border-brand-dark dark:focus-within:border-white transition-colors ${
             compact ? "h-10" : "h-11"
@@ -176,7 +220,7 @@ export function PaymentForm({
             inputMode="numeric"
             placeholder={t("mobileNumberPlaceholder")}
             value={paymentPhone}
-            onChange={(e) => onPhoneChange(e.target.value)}
+            onChange={(e) => handlePhoneInputChange(e.target.value)}
             className="flex-1 px-3 bg-transparent text-[13px] text-brand-dark dark:text-white outline-none placeholder:text-brand-dark/30 dark:placeholder:text-white/30"
           />
         </div>

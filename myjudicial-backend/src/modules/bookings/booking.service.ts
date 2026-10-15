@@ -1152,6 +1152,14 @@ export const BookingService = {
       throw new ValidationError("Phone number is required for Mobile Money payment");
     }
 
+    if (!citizen.phone && dto.paymentPhoneNumber) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { phone: dto.paymentPhoneNumber },
+      });
+      citizen.phone = dto.paymentPhoneNumber;
+    }
+
     // Get the service for the amount
     const service = await ServicesRepository.findById(booking.serviceId);
     if (!service) throw new NotFoundError("Service not found");

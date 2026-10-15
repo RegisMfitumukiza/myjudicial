@@ -10,6 +10,8 @@ import {
   User,
   Shield,
   Banknote,
+  Phone,
+  Smartphone,
 } from "lucide-react";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
@@ -288,6 +290,12 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                 {booking.citizen?.email && (
                   <p className="text-xs text-muted-foreground">{booking.citizen.email}</p>
                 )}
+                {booking.citizen?.phone && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                    <Phone size={11} className="text-muted-foreground/70" />
+                    <span>{booking.citizen.phone}</span>
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -311,6 +319,18 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
                 </p>
                 {booking.expert?.user?.email && (
                   <p className="text-xs text-muted-foreground">{booking.expert.user.email}</p>
+                )}
+                {booking.expert?.user?.phone && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                    <Phone size={11} className="text-muted-foreground/70" />
+                    <span>{booking.expert.user.phone}</span>
+                  </p>
+                )}
+                {(booking.expert as any)?.momoNumber && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5 mt-0.5">
+                    <Smartphone size={11} className="text-amber-600 dark:text-amber-400" />
+                    <span>MoMo: {(booking.expert as any).momoNumber}</span>
+                  </p>
                 )}
               </div>
             </div>

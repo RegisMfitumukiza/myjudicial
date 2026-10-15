@@ -1024,6 +1024,8 @@ export interface ExpertNested {
   id: string;
   displayName: string;
   /** @nullable */
+  momoNumber?: string | null;
+  /** @nullable */
   officeAddress?: string | null;
   /** @nullable */
   city?: string | null;

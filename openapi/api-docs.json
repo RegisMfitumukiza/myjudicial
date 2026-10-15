@@ -2117,6 +2117,10 @@
           "displayName": {
             "type": "string"
           },
+          "momoNumber": {
+            "type": "string",
+            "nullable": true
+          },
           "officeAddress": {
             "type": "string",
             "nullable": true

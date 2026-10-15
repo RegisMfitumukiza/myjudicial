@@ -28,6 +28,7 @@ interface ExportFilters {
   resourceId?: string;
   fromDate?: Date;
   toDate?: Date;
+  search?: string;
 }
 
 export const AdminAuditService = {
@@ -137,6 +138,10 @@ export const AdminAuditService = {
         OR: [
           { description: { contains: filters.search, mode: "insensitive" as const } },
           { resourceId: { contains: filters.search, mode: "insensitive" as const } },
+          { ipAddress: { contains: filters.search, mode: "insensitive" as const } },
+          { actor: { firstName: { contains: filters.search, mode: "insensitive" as const } } },
+          { actor: { lastName: { contains: filters.search, mode: "insensitive" as const } } },
+          { actor: { email: { contains: filters.search, mode: "insensitive" as const } } },
         ],
       }),
     };
@@ -258,6 +263,24 @@ export const AdminAuditService = {
             lte: filters.toDate,
           },
         }),
+      ...(filters.fromDate &&
+        !filters.toDate && {
+          createdAt: { gte: filters.fromDate },
+        }),
+      ...(!filters.fromDate &&
+        filters.toDate && {
+          createdAt: { lte: filters.toDate },
+        }),
+      ...(filters.search && {
+        OR: [
+          { description: { contains: filters.search, mode: "insensitive" as const } },
+          { resourceId: { contains: filters.search, mode: "insensitive" as const } },
+          { ipAddress: { contains: filters.search, mode: "insensitive" as const } },
+          { actor: { firstName: { contains: filters.search, mode: "insensitive" as const } } },
+          { actor: { lastName: { contains: filters.search, mode: "insensitive" as const } } },
+          { actor: { email: { contains: filters.search, mode: "insensitive" as const } } },
+        ],
+      }),
     };
 
     const logs = await prisma.auditLog.findMany({

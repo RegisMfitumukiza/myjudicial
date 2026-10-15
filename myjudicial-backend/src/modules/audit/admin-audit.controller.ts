@@ -26,7 +26,8 @@ export const AdminAuditController = {
    */
   async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = listAuditLogsQuerySchema.parse(req.query);
+      const rawQuery = (req as any).validatedQuery ?? req.query;
+      const query = listAuditLogsQuerySchema.parse(rawQuery);
 
       const result = await AdminAuditService.list({
         page: query.page,
@@ -70,7 +71,8 @@ export const AdminAuditController = {
    */
   async export(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = exportAuditLogsQuerySchema.parse(req.query);
+      const rawQuery = (req as any).validatedQuery ?? req.query;
+      const query = exportAuditLogsQuerySchema.parse(rawQuery);
 
       const logs = await AdminAuditService.export({
         action: query.action,
@@ -79,23 +81,40 @@ export const AdminAuditController = {
         resourceId: query.resourceId,
         fromDate: query.fromDate,
         toDate: query.toDate,
+        search: query.search,
       });
 
       if (query.format === "csv") {
-        // Convert to CSV
+        const escapeCsv = (val: unknown): string => {
+          if (val === null || val === undefined) return '""';
+          if (typeof val === "object") {
+            try {
+              return `"${JSON.stringify(val).replace(/"/g, '""')}"`;
+            } catch {
+              return '""';
+            }
+          }
+          return `"${String(val).replace(/"/g, '""')}"`;
+        };
+
         const headers = [
           "ID",
           "Timestamp",
           "Action",
           "Resource",
           "Resource ID",
+          "Actor ID",
           "Actor Name",
           "Actor Email",
+          "Actor Role",
           "Description",
           "IP Address",
+          "User Agent",
+          "Metadata",
         ];
+
         const csvRows = [
-          headers.join(","),
+          headers.map(escapeCsv).join(","),
           ...logs.map((log) =>
             [
               log.id,
@@ -103,15 +122,21 @@ export const AdminAuditController = {
               log.action,
               log.resource,
               log.resourceId || "",
+              log.actorId || "",
               log.actorName || "System",
               log.actorEmail || "",
-              `"${log.description || ""}"`,
+              log.actorRole || "",
+              log.description || "",
               log.ipAddress || "",
-            ].join(",")
+              log.userAgent || "",
+              log.metadata || "",
+            ]
+              .map(escapeCsv)
+              .join(",")
           ),
         ];
 
-        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
         res.setHeader(
           "Content-Disposition",
           `attachment; filename=audit-logs-${Date.now()}.csv`
@@ -124,7 +149,21 @@ export const AdminAuditController = {
           "Content-Disposition",
           `attachment; filename=audit-logs-${Date.now()}.json`
         );
-        res.json({ success: true, data: logs });
+        res.json({
+          success: true,
+          meta: {
+            totalExported: logs.length,
+            exportedAt: new Date().toISOString(),
+            filters: {
+              action: query.action,
+              resource: query.resource,
+              search: query.search,
+              fromDate: query.fromDate,
+              toDate: query.toDate,
+            },
+          },
+          data: logs,
+        });
       }
     } catch (error) {
       next(error);

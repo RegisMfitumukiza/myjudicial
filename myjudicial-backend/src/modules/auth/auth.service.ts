@@ -605,6 +605,7 @@ export const AuthService = {
           resourceId: dbUser.id,
           description: "OTP login (custom)",
           ipAddress,
+          userAgent,
         });
 
         // Send welcome email on first successful login (after email verification)
@@ -764,6 +765,7 @@ export const AuthService = {
       resourceId: data.user.id,
       description: "Admin login",
       ipAddress,
+      userAgent,
     });
 
     return {

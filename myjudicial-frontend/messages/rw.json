@@ -742,7 +742,45 @@
       "verificationResource": "Kwemeza",
       "documentResource": "Iyangombwa",
       "conversationResource": "Ibiganiro",
-      "messageResource": "Ubutumwa"
+      "messageResource": "Ubutumwa",
+      "actionCreate": "Gukora",
+      "actionUpdate": "Guhindura",
+      "actionDelete": "Gusiba",
+      "actionLogin": "Kwinjira",
+      "actionLogout": "Gusohoka",
+      "actionVerify": "Kwemeza",
+      "actionReject": "Kwangira",
+      "actionBook": "Gufata gahunda",
+      "actionCancel": "Guhagarika",
+      "actionPayment": "Kwishyura",
+      "actionEscrowLocked": "Amafaranga yafunzwe",
+      "actionEscrowReleased": "Amafaranga yarekuwe",
+      "actionUpload": "Kwinjiza dosiye",
+      "actionDownload": "Gukuramo dosiye",
+      "actionShare": "Gusangiza",
+      "resourceUser": "Ukoresha",
+      "resourceExpert": "Inzobere",
+      "resourceBooking": "Gahunda",
+      "resourceService": "Serivisi",
+      "resourceReview": "Icyo utekereza",
+      "resourceVerification": "Igenzura",
+      "resourcePayment": "Ubwishyu",
+      "resourceDocument": "Inyandiko",
+      "resourceConversation": "Ibiganiro",
+      "resourceMessage": "Ubutumwa",
+      "actions": "Ibikorwa",
+      "exporting": "Birimo gukururwa...",
+      "totalEvents": "Ibikorwa byose",
+      "criticalActions": "Ibikorwa bikomeye",
+      "retention": "Kubika",
+      "days": "iminsi",
+      "searchPlaceholder": "Shakisha umukoresha, IP cyangwa ibisobanuro...",
+      "startDate": "Itariki yo gutangira",
+      "endDate": "Itariki yo gusoza",
+      "reset": "Gusubiramo",
+      "details": "Ibisobanuro",
+      "retentionDesc": "Inyandiko zibitswe mu minsi {days} mbere yo gushyingurwa.",
+      "eventId": "ID y'igikorwa"
     },
     "analytics": {
       "title": "Ivyerekezo vy'Urubuga",
@@ -1135,7 +1173,9 @@
       "recording": "Birimo kwandika...",
       "stop": "Hagarika kwandika",
       "processing": "Birimo gutunganya amajwi...",
-      "error": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi."
+      "error": "Ntibyashobotse gutunganya amajwi. Nyamuneka gerageza ukundi.",
+      "signInRequired": "Nyamuneka injira kugira ngo ukoreshe amajwi.",
+      "stopHint": "Kanda kuri mikoro kugira ngo uhagarike"
     },
     "files": {
       "dropHere": "Tega aha dosiye",
@@ -2850,7 +2890,8 @@
       "closeNavigationMenu": "Funga menu y'urubuga",
       "pageContent": "Ibikoresho by'ipaji",
       "careers": "Imirimo",
-      "clients": "Abakiriya"
+      "clients": "Abakiriya",
+      "expandSidebar": "Gwagura umuyoboro w'ibumoso"
     }
   },
   "sidebar": {
@@ -4628,7 +4669,8 @@
     "placeholderCurrent": "Andika ijambobanga usanganywe",
     "placeholderNew": "Andika ijambobanga rishya",
     "placeholderConfirm": "Emeza ijambobanga rishya",
-    "submitButton": "Kora Impinduka ku Jambobanga"
+    "submitButton": "Kora Impinduka ku Jambobanga",
+    "subtitle": "Vugurura ijambo ry'ibanga rya konti yawe"
   },
   "expertDashboard_consultation-room": {
     "connectingToConsultation": "Connecting to consultation...",
@@ -4803,7 +4845,8 @@
     "signInHere": "Injira hano",
     "emailValidation": "Nyamuneka andika aderesi ya imeri yemewe.",
     "successToast": "Niba konti ibaho, twohereje umurongo wo guhindura ijambobanga.",
-    "errorMsg": "Kohereza umurongo wo guhindura ijambobanga byanze."
+    "errorMsg": "Kohereza umurongo wo guhindura ijambobanga byanze.",
+    "emailInvalid": "Nyamuneka andika imeri yemewe."
   },
   "expertDashboard_gettingstarted": {
     "title": "Getting Started",
@@ -5111,7 +5154,14 @@
     "confirmPasswordLabel": "Emeza ijambobanga rishya",
     "passwordRequirements": "Nibura inyuguti 12, harimo inyuguti nkuru, ntoya, n'umubare.",
     "resetting": "Ririmo guhindurwa...",
-    "resetPasswordBtn": "Hindura ijambobanga"
+    "resetPasswordBtn": "Hindura ijambobanga",
+    "minChars": "Ijambo ry'ibanga rigomba kugira byibuze inyuguti 12.",
+    "uppercaseReq": "Shyiramo inyuguti nkuru.",
+    "lowercaseReq": "Shyiramo inyuguti ntoya.",
+    "numberReq": "Shyiramo umubare.",
+    "confirmPasswordReq": "Nyamuneka emeza ijambo ry'ibanga ryawe.",
+    "passwordsMismatch": "Amagambo y'ibanga ntabwo ahuye.",
+    "backToSignIn": "Subira kwinjira"
   },
   "expertDashboard_reviews": {
     "title": "Client Reviews",
@@ -5151,7 +5201,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "daysAgo": "{days} days ago",
-    "weeksAgo": "{weeks} weeks ago"
+    "weeksAgo": "{weeks} weeks ago",
+    "monitorSubtitle": "Gukurikirana ibitekerezo by'inzobere muri Rwanda hose"
   },
   "expertDashboard_schedulesettings": {
     "settingsUpdatedSuccess": "Schedule settings updated successfully",
@@ -5402,7 +5453,7 @@
     "validationIssuerRequired": "Urwego rwatanze icyangombwa rurakenewe.",
     "validationIssueDateRequired": "Itariki cyatangiweho irakenewe.",
     "validationExpiryDateRequired": "Itariki kizarangiriraho irakenewe.",
-    "validationExpiryAfterIssue": "Itariki yo kurangiriraho igomba kuba nyuma y'itariki cyatangiweho.",
+    "validationExpiryAfterIssue": "Itariki yo kurangiriraho igomba kuza nyuma y'itariki cyatangiweho.",
     "validationFutureExpiry": "Itariki yo kurangiriraho igomba kuba itariki yo mu gihe kizaza.",
     "validationFixErrors": "Nyamuneka uzuza imyanya yose isabwa iriho akamenyetso ka (*).",
     "credentialsSectionTitle": "Amakuru y'icyemezo cy'ubunyamwuga",
@@ -5475,7 +5526,7 @@
     "submitDatesBtn": "Ohereza amatariki y'agaciro",
     "renewalSuccess": "Amatariki y'agaciro k'icyangombwa yanditswe neza.",
     "validationRequired": "Uyu mwanya urakenewe.",
-    "validationExpiryAfterIssue": "Itariki yo kurangiriraho igomba kuza nyuma y'itariki cyatangiweho."
+    "cancel": "Guhagarika"
   },
   "experts": {
     "presence": {

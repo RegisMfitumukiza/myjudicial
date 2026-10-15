@@ -742,7 +742,45 @@
       "verificationResource": "Vérification",
       "documentResource": "Document",
       "conversationResource": "Conversation",
-      "messageResource": "Message"
+      "messageResource": "Message",
+      "actionCreate": "Créer",
+      "actionUpdate": "Mettre à jour",
+      "actionDelete": "Supprimer",
+      "actionLogin": "Connexion",
+      "actionLogout": "Déconnexion",
+      "actionVerify": "Vérifier",
+      "actionReject": "Rejeter",
+      "actionBook": "Réserver",
+      "actionCancel": "Annuler",
+      "actionPayment": "Paiement",
+      "actionEscrowLocked": "Escrow verrouillé",
+      "actionEscrowReleased": "Escrow libéré",
+      "actionUpload": "Téléverser",
+      "actionDownload": "Télécharger",
+      "actionShare": "Partager",
+      "resourceUser": "Utilisateur",
+      "resourceExpert": "Expert",
+      "resourceBooking": "Réservation",
+      "resourceService": "Service",
+      "resourceReview": "Avis",
+      "resourceVerification": "Vérification",
+      "resourcePayment": "Paiement",
+      "resourceDocument": "Document",
+      "resourceConversation": "Conversation",
+      "resourceMessage": "Message",
+      "actions": "Actions",
+      "exporting": "Exportation...",
+      "totalEvents": "Total des événements",
+      "criticalActions": "Actions critiques",
+      "retention": "Rétention",
+      "days": "jours",
+      "searchPlaceholder": "Rechercher par acteur, IP ou description...",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "reset": "Réinitialiser",
+      "details": "Détails",
+      "retentionDesc": "Les journaux sont automatiquement conservés pendant {days} jours avant archivage.",
+      "eventId": "ID de l'événement"
     },
     "analytics": {
       "title": "Analyses de la plateforme",
@@ -1135,7 +1173,9 @@
       "recording": "Enregistrement...",
       "stop": "Arreter l'enregistrement",
       "processing": "Traitement de l'audio...",
-      "error": "Impossible de traiter l'audio. Veuillez reessayer."
+      "error": "Impossible de traiter l'audio. Veuillez reessayer.",
+      "signInRequired": "Veuillez vous connecter pour utiliser les fonctionnalités vocales.",
+      "stopHint": "Cliquez sur le micro pour arrêter"
     },
     "files": {
       "dropHere": "Deposez les fichiers ici",
@@ -2850,7 +2890,8 @@
       "closeNavigationMenu": "Fermer le menu de navigation",
       "pageContent": "Contenu des pages",
       "careers": "Carrieres",
-      "clients": "Clients"
+      "clients": "Clients",
+      "expandSidebar": "Développer la barre latérale"
     }
   },
   "sidebar": {
@@ -4628,7 +4669,8 @@
     "placeholderCurrent": "Entrez votre mot de passe actuel",
     "placeholderNew": "Entrez votre nouveau mot de passe",
     "placeholderConfirm": "Confirmez votre nouveau mot de passe",
-    "submitButton": "Mettre à jour le mot de passe"
+    "submitButton": "Mettre à jour le mot de passe",
+    "subtitle": "Mettez à jour le mot de passe de votre compte"
   },
   "expertDashboard_consultation-room": {
     "connectingToConsultation": "Connecting to consultation...",
@@ -4803,7 +4845,8 @@
     "signInHere": "Connectez-vous ici",
     "emailValidation": "Veuillez saisir une adresse e-mail valide.",
     "successToast": "Si un compte existe, nous avons envoyé un lien de réinitialisation.",
-    "errorMsg": "Échec de l'envoi du lien de réinitialisation."
+    "errorMsg": "Échec de l'envoi du lien de réinitialisation.",
+    "emailInvalid": "Veuillez entrer une adresse e-mail valide."
   },
   "expertDashboard_gettingstarted": {
     "title": "Getting Started",
@@ -5111,7 +5154,14 @@
     "confirmPasswordLabel": "Confirmer le mot de passe",
     "passwordRequirements": "Minimum 12 caractères, incluant des majuscules, des minuscules et un chiffre.",
     "resetting": "Réinitialisation en cours...",
-    "resetPasswordBtn": "Réinitialiser le mot de passe"
+    "resetPasswordBtn": "Réinitialiser le mot de passe",
+    "minChars": "Le mot de passe doit comporter au moins 12 caractères.",
+    "uppercaseReq": "Inclure une lettre majuscule.",
+    "lowercaseReq": "Inclure une lettre minuscule.",
+    "numberReq": "Inclure un chiffre.",
+    "confirmPasswordReq": "Veuillez confirmer votre mot de passe.",
+    "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+    "backToSignIn": "Retour à la connexion"
   },
   "expertDashboard_reviews": {
     "title": "Client Reviews",
@@ -5151,7 +5201,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "daysAgo": "{days} days ago",
-    "weeksAgo": "{weeks} weeks ago"
+    "weeksAgo": "{weeks} weeks ago",
+    "monitorSubtitle": "Surveiller les avis d'experts à travers le Rwanda"
   },
   "expertDashboard_schedulesettings": {
     "settingsUpdatedSuccess": "Schedule settings updated successfully",
@@ -5402,7 +5453,7 @@
     "validationIssuerRequired": "L'autorité émettrice est obligatoire.",
     "validationIssueDateRequired": "La date de délivrance est obligatoire.",
     "validationExpiryDateRequired": "La date d'expiration est obligatoire.",
-    "validationExpiryAfterIssue": "La date d'expiration doit être postérieure à la date de délivrance.",
+    "validationExpiryAfterIssue": "La date d'expiration doit être strictement postérieure à la date de délivrance.",
     "validationFutureExpiry": "La date d'expiration doit être dans le futur.",
     "validationFixErrors": "Veuillez remplir tous les champs obligatoires signalés par un astérisque (*).",
     "credentialsSectionTitle": "Détails de la licence et du certificat",
@@ -5475,7 +5526,7 @@
     "submitDatesBtn": "Soumettre les dates de validité",
     "renewalSuccess": "Dates de validité du certificat d'exercice enregistrées avec succès.",
     "validationRequired": "Ce champ est obligatoire.",
-    "validationExpiryAfterIssue": "La date d'expiration doit être strictement postérieure à la date de délivrance."
+    "cancel": "Annuler"
   },
   "experts": {
     "presence": {

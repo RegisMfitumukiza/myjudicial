@@ -15,7 +15,8 @@ export const AdminFinanceController = {
    */
   async getStats(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = financeStatsQuerySchema.parse(req.query);
+      const rawQuery = (req as any).validatedQuery ?? req.query;
+      const query = financeStatsQuerySchema.parse(rawQuery);
       const stats = await AdminFinanceService.getStats(query.fromDate, query.toDate);
       res.json({ success: true, data: stats });
     } catch (error) {
@@ -29,7 +30,8 @@ export const AdminFinanceController = {
    */
   async listPayments(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = listPaymentsQuerySchema.parse(req.query);
+      const rawQuery = (req as any).validatedQuery ?? req.query;
+      const query = listPaymentsQuerySchema.parse(rawQuery);
 
       const result = await AdminFinanceService.listPayments({
         page: query.page,
@@ -56,7 +58,8 @@ export const AdminFinanceController = {
    */
   async listEscrowLedgers(req: Request, res: Response, next: NextFunction) {
     try {
-      const query = listEscrowQuerySchema.parse(req.query);
+      const rawQuery = (req as any).validatedQuery ?? req.query;
+      const query = listEscrowQuerySchema.parse(rawQuery);
 
       const result = await AdminFinanceService.listEscrowLedgers({
         page: query.page,
@@ -81,8 +84,8 @@ export const AdminFinanceController = {
    */
   async getFailedSettlements(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.min(1000, Math.max(1, parseInt(req.query.limit as string) || 20));
 
       const result = await AdminFinanceService.getFailedSettlements(page, limit);
       res.json({ success: true, data: result });

@@ -204,8 +204,8 @@ interface FailedSettlementsResponse {
 
 const fetchStats = async (fromDate?: string, toDate?: string): Promise<{ data: FinanceStats }> => {
   const queryParams = new URLSearchParams();
-  if (fromDate) queryParams.append("fromDate", fromDate);
-  if (toDate) queryParams.append("toDate", toDate);
+  if (fromDate && fromDate.trim()) queryParams.append("fromDate", fromDate.trim());
+  if (toDate && toDate.trim()) queryParams.append("toDate", toDate.trim());
   const q = queryParams.toString();
   return apiFetch(`/admin/finance/stats${q ? `?${q}` : ""}`);
 };
@@ -221,11 +221,12 @@ const fetchPayments = async (params: {
   const queryParams = new URLSearchParams();
   if (params.page) queryParams.append("page", params.page.toString());
   if (params.limit) queryParams.append("limit", params.limit.toString());
-  if (params.status) queryParams.append("status", params.status);
-  if (params.search) queryParams.append("search", params.search);
-  if (params.fromDate) queryParams.append("fromDate", params.fromDate);
-  if (params.toDate) queryParams.append("toDate", params.toDate);
-  return apiFetch(`/admin/finance/payments?${queryParams.toString()}`);
+  if (params.status && (params.status as string) !== "ALL") queryParams.append("status", params.status);
+  if (params.search && params.search.trim()) queryParams.append("search", params.search.trim());
+  if (params.fromDate && params.fromDate.trim()) queryParams.append("fromDate", params.fromDate.trim());
+  if (params.toDate && params.toDate.trim()) queryParams.append("toDate", params.toDate.trim());
+  const q = queryParams.toString();
+  return apiFetch(`/admin/finance/payments${q ? `?${q}` : ""}`);
 };
 
 const fetchEscrow = async (params: {
@@ -237,9 +238,10 @@ const fetchEscrow = async (params: {
   const queryParams = new URLSearchParams();
   if (params.page) queryParams.append("page", params.page.toString());
   if (params.limit) queryParams.append("limit", params.limit.toString());
-  if (params.status) queryParams.append("status", params.status);
-  if (params.search) queryParams.append("search", params.search);
-  return apiFetch(`/admin/finance/escrow?${queryParams.toString()}`);
+  if (params.status && (params.status as string) !== "ALL") queryParams.append("status", params.status);
+  if (params.search && params.search.trim()) queryParams.append("search", params.search.trim());
+  const q = queryParams.toString();
+  return apiFetch(`/admin/finance/escrow${q ? `?${q}` : ""}`);
 };
 
 const fetchFailedSettlements = async (page: number, limit: number): Promise<FailedSettlementsResponse> => {

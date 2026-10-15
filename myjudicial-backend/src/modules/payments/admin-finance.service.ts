@@ -190,7 +190,8 @@ export const AdminFinanceService = {
 
     return {
       payments: payments.map((p) => {
-        const resolved = resolveExpertPayoutPhone(p.booking.expert);
+        const expert = p.booking?.expert;
+        const resolved = expert ? resolveExpertPayoutPhone(expert) : null;
         return {
           id: p.id,
           bookingId: p.bookingId,
@@ -205,16 +206,31 @@ export const AdminFinanceService = {
           paidAt: p.paidAt,
           payoutSentAt: p.payoutSentAt,
           createdAt: p.createdAt,
-          citizen: p.booking.citizen,
-          expert: {
-            id: p.booking.expert.id,
-            displayName: p.booking.expert.displayName,
-            momoNumber: p.booking.expert.momoNumber,
-            contactPhone: p.booking.expert.user?.phone ?? null,
-            payoutPhone: resolved?.phone ?? null,
-            isPayoutFallback: resolved?.isFallback ?? false,
-            payoutProvider: resolved?.provider ?? null,
+          citizen: p.booking?.citizen ?? {
+            id: "",
+            firstName: "Unknown",
+            lastName: "Citizen",
+            email: "",
           },
+          expert: expert
+            ? {
+                id: expert.id,
+                displayName: expert.displayName,
+                momoNumber: expert.momoNumber,
+                contactPhone: expert.user?.phone ?? null,
+                payoutPhone: resolved?.phone ?? null,
+                isPayoutFallback: resolved?.isFallback ?? false,
+                payoutProvider: resolved?.provider ?? null,
+              }
+            : {
+                id: "",
+                displayName: "Unknown Expert",
+                momoNumber: null,
+                contactPhone: null,
+                payoutPhone: null,
+                isPayoutFallback: false,
+                payoutProvider: null,
+              },
         };
       }),
       pagination: {
@@ -288,7 +304,8 @@ export const AdminFinanceService = {
 
     return {
       ledgers: ledgers.map((l) => {
-        const resolved = resolveExpertPayoutPhone(l.booking.expert);
+        const expert = l.booking?.expert;
+        const resolved = expert ? resolveExpertPayoutPhone(expert) : null;
         return {
           id: l.id,
           roomId: l.roomId,
@@ -298,16 +315,31 @@ export const AdminFinanceService = {
           status: l.status,
           createdAt: l.createdAt,
           settledAt: l.settledAt,
-          citizen: l.booking.citizen,
-          expert: {
-            id: l.booking.expert.id,
-            displayName: l.booking.expert.displayName,
-            momoNumber: l.booking.expert.momoNumber,
-            contactPhone: l.booking.expert.user?.phone ?? null,
-            payoutPhone: resolved?.phone ?? null,
-            isPayoutFallback: resolved?.isFallback ?? false,
-            payoutProvider: resolved?.provider ?? null,
+          citizen: l.booking?.citizen ?? {
+            id: "",
+            firstName: "Unknown",
+            lastName: "Citizen",
+            email: "",
           },
+          expert: expert
+            ? {
+                id: expert.id,
+                displayName: expert.displayName,
+                momoNumber: expert.momoNumber,
+                contactPhone: expert.user?.phone ?? null,
+                payoutPhone: resolved?.phone ?? null,
+                isPayoutFallback: resolved?.isFallback ?? false,
+                payoutProvider: resolved?.provider ?? null,
+              }
+            : {
+                id: "",
+                displayName: "Unknown Expert",
+                momoNumber: null,
+                contactPhone: null,
+                payoutPhone: null,
+                isPayoutFallback: false,
+                payoutProvider: null,
+              },
         };
       }),
       pagination: {
@@ -379,7 +411,8 @@ export const AdminFinanceService = {
 
     return {
       payments: payments.map((p) => {
-        const resolved = resolveExpertPayoutPhone(p.booking.expert);
+        const expert = p.booking?.expert;
+        const resolved = expert ? resolveExpertPayoutPhone(expert) : null;
         return {
           id: p.id,
           bookingId: p.bookingId,
@@ -389,16 +422,31 @@ export const AdminFinanceService = {
           providerTransactionId: p.providerTransactionId,
           createdAt: p.createdAt,
           updatedAt: p.updatedAt,
-          citizen: p.booking.citizen,
-          expert: {
-            id: p.booking.expert.id,
-            displayName: p.booking.expert.displayName,
-            momoNumber: p.booking.expert.momoNumber,
-            contactPhone: p.booking.expert.user?.phone ?? null,
-            payoutPhone: resolved?.phone ?? null,
-            isPayoutFallback: resolved?.isFallback ?? false,
-            payoutProvider: resolved?.provider ?? null,
+          citizen: p.booking?.citizen ?? {
+            id: "",
+            firstName: "Unknown",
+            lastName: "Citizen",
+            email: "",
           },
+          expert: expert
+            ? {
+                id: expert.id,
+                displayName: expert.displayName,
+                momoNumber: expert.momoNumber,
+                contactPhone: expert.user?.phone ?? null,
+                payoutPhone: resolved?.phone ?? null,
+                isPayoutFallback: resolved?.isFallback ?? false,
+                payoutProvider: resolved?.provider ?? null,
+              }
+            : {
+                id: "",
+                displayName: "Unknown Expert",
+                momoNumber: null,
+                contactPhone: null,
+                payoutPhone: null,
+                isPayoutFallback: false,
+                payoutProvider: null,
+              },
         };
       }),
       pagination: {

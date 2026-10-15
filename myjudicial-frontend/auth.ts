@@ -294,11 +294,14 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         session.expires = new Date((token.exp as number) * 1000) as unknown as typeof session.expires;
       }
       // Ensure session data matches token completely
-      if (session.user && token.id) {
-        session.user.id = String(token.id);
+      const userId = (token.id || token.sub) as string | undefined;
+      if (session.user && userId) {
+        session.user.id = String(userId);
         session.user.email = String(token.email || session.user.email);
         session.user.name = String(token.name || session.user.name);
-        session.user.role = String(token.role);
+        if (token.role && String(token.role) !== "undefined") {
+          session.user.role = String(token.role);
+        }
         session.user.firstName = String(token.firstName || "");
         session.user.lastName = String(token.lastName || "");
         session.user.phone = token.phone as string | null;

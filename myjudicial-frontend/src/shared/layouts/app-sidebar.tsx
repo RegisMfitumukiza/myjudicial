@@ -152,8 +152,21 @@ interface AppSidebarProps {
   pathname: string;
 }
 
-function getDashboardBase(role: UserRole): string {
-  return `/${role.toLowerCase()}/dashboard`;
+export function getEffectiveRole(role?: UserRole | string | null, pathname?: string): UserRole {
+  if (role) {
+    const upper = String(role).toUpperCase();
+    if (upper === "ADMIN") return UserRole.ADMIN;
+    if (upper === "EXPERT") return UserRole.EXPERT;
+    if (upper === "CITIZEN") return UserRole.CITIZEN;
+  }
+  if (pathname?.includes("/admin")) return UserRole.ADMIN;
+  if (pathname?.includes("/expert")) return UserRole.EXPERT;
+  return UserRole.CITIZEN;
+}
+
+export function getDashboardBase(role?: UserRole | string | null, pathname?: string): string {
+  const effectiveRole = getEffectiveRole(role, pathname);
+  return `/${effectiveRole.toLowerCase()}/dashboard`;
 }
 
 /* ─── Profile Dropdown (Desktop) ─── */
@@ -164,6 +177,7 @@ function ProfileDropdown({
   avatarUrl,
   isCollapsed = false,
   triggerRef,
+  pathname,
 }: {
   open: boolean;
   onClose: () => void;
@@ -171,6 +185,7 @@ function ProfileDropdown({
   avatarUrl: string | null;
   isCollapsed?: boolean;
   triggerRef?: React.RefObject<HTMLButtonElement | null>;
+  pathname?: string;
 }) {
   const t = useTranslations("shared.sidebar");
   const router = useRouter();
@@ -256,7 +271,7 @@ function ProfileDropdown({
 
       <div className="space-y-0.5 py-1">
         <button
-          onClick={() => navigate(`${getDashboardBase(user.role)}/profile`)}
+          onClick={() => navigate(`${getDashboardBase(user?.role, pathname)}/profile`)}
           className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
           role="menuitem"
         >
@@ -264,7 +279,7 @@ function ProfileDropdown({
           {t("profile")}
         </button>
         <button
-          onClick={() => navigate(`${getDashboardBase(user.role)}/security`)}
+          onClick={() => navigate(`${getDashboardBase(user?.role, pathname)}/security`)}
           className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
           role="menuitem"
         >
@@ -272,7 +287,7 @@ function ProfileDropdown({
           {t("security")}
         </button>
         <button
-          onClick={() => navigate(`${getDashboardBase(user.role)}/profile#preferences`)}
+          onClick={() => navigate(`${getDashboardBase(user?.role, pathname)}/profile#preferences`)}
           className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
           role="menuitem"
         >
@@ -317,17 +332,19 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
   });
   const notifUnreadCount = unreadNotifData?.status === 200 ? unreadNotifData.data.data.count : 0;
 
-  const isExpert = user.role === UserRole.EXPERT;
+  const effectiveRole = getEffectiveRole(user?.role, pathname);
+  const isExpert = effectiveRole === UserRole.EXPERT;
+  const isAdmin = effectiveRole === UserRole.ADMIN;
   const { data: expertPhotoUrl } = useExpertPhotoUrl({ enabled: isExpert });
-  const avatarUrl = isExpert ? (expertPhotoUrl ?? null) : (user.avatarUrl ?? null);
+  const avatarUrl = isExpert ? (expertPhotoUrl ?? null) : (user?.avatarUrl ?? null);
 
   const { data: complianceRes } = useGetExpertsCompliance({
     query: { enabled: isExpert },
   });
   const compliance = complianceRes?.status === 200 ? complianceRes.data.data : null;
 
-  const navGroups = ROLE_NAVIGATION[user.role] || [];
-  const base = getDashboardBase(user.role);
+  const navGroups = ROLE_NAVIGATION[effectiveRole] || [];
+  const base = getDashboardBase(effectiveRole, pathname);
 
   const isActive = useCallback(
     (href: string) => {
@@ -388,7 +405,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
 
         <div className="flex items-center gap-1.5 shrink-0">
           <Link
-            href={user.role === UserRole.ADMIN ? "/admin/dashboard/notifications" : "/expert/dashboard/notifications"}
+            href={isAdmin ? "/admin/dashboard/notifications" : "/expert/dashboard/notifications"}
             className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label={t("notifications")}
             title={t("notifications")}
@@ -600,6 +617,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                   avatarUrl={avatarUrl}
                   isCollapsed
                   triggerRef={collapsedTriggerRef}
+                  pathname={pathname}
                 />
               </div>
               <ThemeToggle variant="header" className="h-8 w-8 text-muted-foreground hover:text-foreground" />
@@ -633,7 +651,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                           {user.firstName} {user.lastName}
                         </p>
                         <p className="truncate text-[10px] font-medium text-muted-foreground/80 capitalize leading-tight">
-                          {user.role.toLowerCase()}
+                          {effectiveRole.toLowerCase()}
                         </p>
                       </div>
                     </div>
@@ -646,6 +664,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
                     avatarUrl={avatarUrl}
                     isCollapsed={false}
                     triggerRef={expandedTriggerRef}
+                    pathname={pathname}
                   />
                 </div>
                 <div className="flex items-center shrink-0">

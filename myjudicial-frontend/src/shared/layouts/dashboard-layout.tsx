@@ -24,12 +24,21 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
   const pathname = usePathname();
 
   // Use prop user if provided, fallback to auth user
-  const user = propUser || authUser;
+  const rawUser = propUser || authUser;
 
   // Real-time notification subscription for active user
-  useNotificationsRealtime(user?.id);
+  useNotificationsRealtime(rawUser?.id);
 
-  if (!user) return null;
+  if (!rawUser) return null;
+
+  const inferredRole = pathname?.includes("/admin")
+    ? UserRole.ADMIN
+    : pathname?.includes("/expert")
+      ? UserRole.EXPERT
+      : UserRole.CITIZEN;
+
+  const role = (rawUser.role as UserRole) || inferredRole;
+  const user: PublicUser = { ...rawUser, role };
 
   // Citizens get consumer-style layout (top nav)
   if (user.role === UserRole.CITIZEN) {

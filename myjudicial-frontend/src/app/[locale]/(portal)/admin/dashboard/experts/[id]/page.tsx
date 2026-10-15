@@ -197,7 +197,8 @@ async function getDocumentStream(verificationId: string, objectKey: string): Pro
 
 // ── Helpers ──
 
-function formatSpecialty(s: string) {
+function formatSpecialty(s?: string | null) {
+  if (!s) return "";
   return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
@@ -720,7 +721,7 @@ export default function ExpertDetailPage() {
     onError: () => toast.error(t("actionFailed")),
   });
 
-  const latestCert = expert?.certifications?.[0];
+  const latestCert = Array.isArray(expert?.certifications) ? expert.certifications[0] : undefined;
   const effectiveExpiry = latestCert?.expiryDate || expert?.credentialsExpiry || null;
   const initialExpiry = effectiveExpiry
     ? new Date(effectiveExpiry).toISOString().split("T")[0]
@@ -763,7 +764,7 @@ export default function ExpertDetailPage() {
 
   // ── Derived state ──
 
-  const displayName = expert.fullName || `${expert.firstName ?? ""} ${expert.lastName ?? ""}`.trim() || expert.email;
+  const displayName = expert.fullName || `${expert.firstName ?? ""} ${expert.lastName ?? ""}`.trim() || expert.email || "Expert";
   const isSuspended = expert.accountStatus === "SUSPENDED";
 
   const isChecklistComplete =
@@ -779,7 +780,7 @@ export default function ExpertDetailPage() {
   ];
   const optionalDocs = [
     { label: t("profilePhoto"),     key: expert.profileImageObjectKey,     required: false },
-    ...expert.additionalDocumentKeys.map((k, i) => ({
+    ...(Array.isArray(expert.additionalDocumentKeys) ? expert.additionalDocumentKeys : []).map((k, i) => ({
       label: `${t("additionalDocument")} ${i + 1}`,
       key: k,
       required: false,

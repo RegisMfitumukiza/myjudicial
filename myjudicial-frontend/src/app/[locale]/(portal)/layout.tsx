@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/shared/layouts";
 import { useAuth } from "@/providers/auth-provider";
-import { UserRole, UserStatus } from "@/features/auth/types";
+import { UserRole, UserStatus, type PublicUser } from "@/features/auth/types";
 
 export default function PortalLayout({
   children,
@@ -67,12 +67,24 @@ export default function PortalLayout({
   // Use NextAuth session as primary source of truth for user data
   // This ensures role consistency during the authentication flow
   const sessionUser = session?.user;
-  const user = authUser && !authLoading ? authUser : (sessionUser ? {
-    id: sessionUser.id!,
-    email: sessionUser.email!,
+  const inferredRole = pathname.includes("/admin")
+    ? UserRole.ADMIN
+    : pathname.includes("/expert")
+      ? UserRole.EXPERT
+      : UserRole.CITIZEN;
+
+  const rawRole = (sessionUser as any)?.role || (authUser as any)?.role;
+  const effectiveRole = (rawRole as UserRole) || inferredRole;
+
+  const user: PublicUser | null = authUser && !authLoading ? {
+    ...authUser,
+    role: authUser.role || effectiveRole,
+  } : (sessionUser ? {
+    id: sessionUser.id || 'current-user',
+    email: sessionUser.email || '',
     firstName: sessionUser.name?.split(' ')[0] || (sessionUser as any).firstName || '',
     lastName: sessionUser.name?.split(' ').slice(1).join(' ') || (sessionUser as any).lastName || '',
-    role: (sessionUser as any).role as UserRole,
+    role: effectiveRole,
     phone: (sessionUser as any).phone || null,
     preferredLanguage: 'en',
     status: ((sessionUser as any).status as UserStatus) || UserStatus.ACTIVE,

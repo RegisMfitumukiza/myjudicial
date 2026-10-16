@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star, Lock } from "lucide-react";
+import { Activity, Banknote, CalendarCheck, CheckCircle2, MessageSquare, Star, Lock, Clock } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
   EmptyState,
@@ -14,7 +14,7 @@ import {
   StatCard,
   StatusBadge,
 } from "@/shared/components/dashboard";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, cn } from "@/lib/utils";
 import {
   useGetExpertsStatistics,
   useGetExpertsEarnings,
@@ -206,6 +206,15 @@ export default function ExpertDashboardPage() {
   const alerts: RegulatoryAlert[] = useMemo(() => {
     if (!compliance) return [];
     const result: RegulatoryAlert[] = [];
+    if (availability.length === 0 && !isUnverified) {
+      result.push({
+        id: "schedule-not-configured",
+        severity: "warning",
+        title: t("alerts.scheduleNotSetTitle"),
+        message: t("alerts.scheduleNotSetDesc"),
+        href: "/expert/dashboard/availability",
+      });
+    }
     if (compliance.isExpired) {
       result.push({
         id: "credentials-expired",
@@ -239,7 +248,7 @@ export default function ExpertDashboardPage() {
       });
     }
     return result;
-  }, [compliance, services, t]);
+  }, [compliance, services, availability, isUnverified, t]);
 
   const availableSlotsToday = useMemo(() => {
     if (!isOnline) return 0;
@@ -300,17 +309,31 @@ export default function ExpertDashboardPage() {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                    isOnline ? "bg-white/15 text-white" : "bg-white/10 text-white/70"
-                  }`}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                    isOnline
+                      ? "bg-white/15 text-white"
+                      : availability.length === 0 && !isUnverified
+                      ? "bg-amber-400/20 text-amber-200 border border-amber-400/30 font-semibold"
+                      : "bg-white/10 text-white/70"
+                  )}
                 >
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      isOnline ? "bg-white animate-pulse" : "bg-white/50"
-                    }`}
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isOnline
+                        ? "bg-white animate-pulse"
+                        : availability.length === 0 && !isUnverified
+                        ? "bg-amber-400 animate-pulse"
+                        : "bg-white/50"
+                    )}
                     aria-hidden="true"
                   />
-                  {isOnline ? t("onlineAvailable") : t("offline")}
+                  {isOnline
+                    ? t("onlineAvailable")
+                    : availability.length === 0 && !isUnverified
+                    ? t("scheduleNotConfigured")
+                    : t("offline")}
                 </span>
                 {(stats?.activeConsultations || 0) > 0 && (
                   <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
@@ -341,15 +364,18 @@ export default function ExpertDashboardPage() {
                   <Lock size={13} className="shrink-0 text-white/70" />
                   {t("verificationRequired")}
                 </Button>
+              ) : availability.length === 0 ? (
+                <Button
+                  onClick={() => router.push("/expert/dashboard/availability")}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold shadow-md text-xs sm:text-sm gap-2"
+                >
+                  <Clock size={14} className="shrink-0" />
+                  <span>{t("setConsultationSchedule")}</span>
+                </Button>
               ) : (
                 <Button
                   onClick={() => handleToggleAvailable(!isOnline)}
                   disabled={isTogglingAvailable}
-                  title={
-                    !isOnline && availability.length === 0
-                      ? t("availabilityRequiredBeforeOnlineDesc")
-                      : undefined
-                  }
                   className={
                     isOnline
                       ? "bg-white/10 text-white shadow-none hover:bg-white/20"
@@ -433,6 +459,7 @@ export default function ExpertDashboardPage() {
             isTogglingAvailable={isTogglingAvailable}
             nextBooking={nextBooking?.service ? { scheduledStart: nextBooking.scheduledStart, service: { name: nextBooking.service.name } } : null}
             availableSlotsToday={availableSlotsToday}
+            hasConfiguredSchedule={availability.length > 0}
           />
 
           {/* Performance Metrics */}

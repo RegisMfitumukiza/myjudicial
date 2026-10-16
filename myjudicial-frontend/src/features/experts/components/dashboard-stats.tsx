@@ -1,9 +1,11 @@
 "use client";
 
-import { Clock, Star, Sun, Wallet } from "lucide-react";
+import { ArrowRight, Clock, Star, Sun, Wallet } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Switch } from "@/shared/components/ui/switch";
+import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface DashboardStatsProps {
   availableFundsRwf: number;
@@ -17,6 +19,7 @@ interface DashboardStatsProps {
   isTogglingAvailable?: boolean;
   nextBooking?: { scheduledStart: string; service: { name: string } } | null;
   availableSlotsToday?: number;
+  hasConfiguredSchedule?: boolean;
 }
 
 export function DashboardStats({
@@ -31,6 +34,7 @@ export function DashboardStats({
   isTogglingAvailable,
   nextBooking,
   availableSlotsToday = 0,
+  hasConfiguredSchedule = true,
 }: DashboardStatsProps) {
   const t = useTranslations("expertDashboard.stats");
   const tDashboard = useTranslations("expertDashboard");
@@ -106,14 +110,27 @@ export function DashboardStats({
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+      <div
+        className={cn(
+          "rounded-xl border shadow-sm min-w-0 flex flex-col justify-between transition-colors",
+          !hasConfiguredSchedule
+            ? "border-amber-500/40 bg-amber-500/[0.04] p-3.5 sm:p-4 min-[1440px]:p-5"
+            : "border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5"
+        )}
+      >
         <div>
           <div className="flex items-center justify-between gap-2 min-w-0">
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <Sun
                 size={14}
                 aria-hidden="true"
-                className={`shrink-0 ${available ? "text-primary" : "text-muted-foreground"}`}
+                className={`shrink-0 ${
+                  !hasConfiguredSchedule
+                    ? "text-amber-600 dark:text-amber-400"
+                    : available
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
               />
               <p
                 className="text-xs font-medium uppercase tracking-normal text-muted-foreground break-words leading-tight line-clamp-1"
@@ -121,18 +138,49 @@ export function DashboardStats({
               >
                 {t("availability")}
               </p>
+              {!hasConfiguredSchedule && (
+                <span className="hidden min-[400px]:inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                  {t("notConfigured")}
+                </span>
+              )}
             </div>
-            <Switch
-              checked={available}
-              disabled={isTogglingAvailable}
-              onCheckedChange={(next) => onToggleAvailable(next)}
-              className="shrink-0"
-              aria-label={available ? tDashboard("onlineAvailable") : tDashboard("offline")}
-            />
+
+            {!hasConfiguredSchedule ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onToggleAvailable(true)}
+                className="h-7 px-2 text-xs font-semibold rounded-lg border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/15 hover:text-amber-800 gap-1 shrink-0"
+              >
+                <span>{t("configureSchedule")}</span>
+                <ArrowRight size={11} />
+              </Button>
+            ) : (
+              <Switch
+                checked={available}
+                disabled={isTogglingAvailable}
+                onCheckedChange={(next) => onToggleAvailable(next)}
+                className="shrink-0"
+                aria-label={available ? tDashboard("onlineAvailable") : tDashboard("offline")}
+              />
+            )}
           </div>
 
-          <p className={`mt-2 text-xl sm:text-2xl font-semibold tabular-nums truncate ${available ? "text-primary" : "text-muted-foreground"}`}>
-            {available ? tDashboard("onlineAvailable") : tDashboard("offline")}
+          <p
+            className={cn(
+              "mt-2 text-xl sm:text-2xl font-semibold tabular-nums truncate",
+              !hasConfiguredSchedule
+                ? "text-amber-600 dark:text-amber-400 font-bold"
+                : available
+                ? "text-primary"
+                : "text-muted-foreground"
+            )}
+          >
+            {!hasConfiguredSchedule
+              ? t("scheduleNotSet")
+              : available
+              ? tDashboard("onlineAvailable")
+              : tDashboard("offline")}
           </p>
         </div>
 
@@ -147,8 +195,17 @@ export function DashboardStats({
             </p>
           </div>
         ) : (
-          <p className="mt-3 text-xs text-muted-foreground break-words line-clamp-2 leading-relaxed">
-            {available
+          <p
+            className={cn(
+              "mt-3 text-xs break-words line-clamp-2 leading-relaxed",
+              !hasConfiguredSchedule
+                ? "text-amber-700 dark:text-amber-300/90 font-medium"
+                : "text-muted-foreground"
+            )}
+          >
+            {!hasConfiguredSchedule
+              ? t("setHoursToActivate")
+              : available
               ? availableSlotsToday > 0
                 ? t("slotsRemainingToday", {
                     count: availableSlotsToday,

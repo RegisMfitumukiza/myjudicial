@@ -4396,7 +4396,11 @@
       "availability": "Ibihe",
       "slotsRemainingToday": "{count, plural, =1 {Icyiciro 1 gisigaye uyu munsi} other {Ibyiciro # bisigaye uyu munsi}}",
       "noMoreSlotsToday": "Nta bihe byongera kubaho unyu mw'umuini",
-      "goOnlineToAccept": "Jya kuri internet ukore"
+      "goOnlineToAccept": "Jya kuri internet ukore",
+      "notConfigured": "Setup Required",
+      "scheduleNotSet": "Schedule Not Set",
+      "configureSchedule": "Configure",
+      "setHoursToActivate": "Set hours to activate bookings"
     },
     "performance": {
       "consultations": "Ivuganiro",
@@ -4418,7 +4422,9 @@
       "verificationRejectedDesc": "Kwemeza kwawe kwankwiwe. Mwongere urebereye n'ongere ubyasuzume.",
       "expandServices": "Kwandikisha Ibikorwa Byawe",
       "expandServicesDesc": "Ubu ufita gusa serivisi ya Consultation. Ongeza ibindi bikorwa ku dashboard yawe kugira ngo ufike abatewe benshi.",
-      "takeAction": "Gukora Ikibazo →"
+      "takeAction": "Gukora Ikibazo →",
+      "scheduleNotSetTitle": "Consultation Schedule Required",
+      "scheduleNotSetDesc": "You haven't activated your weekly consultation hours yet. Clients cannot book consultations until your schedule is saved."
     },
     "queue": {
       "priorityQueue": "Uruhara Rw'Iby'ingenzi",
@@ -4493,7 +4499,9 @@
     "setScheduleAction": "Set Schedule",
     "setScheduleToOnline": "Configure your weekly schedule to go online and receive client consultations",
     "nowOnline": "You are now online and ready to accept bookings",
-    "nowOffline": "You are now offline"
+    "nowOffline": "You are now offline",
+    "scheduleNotConfigured": "Schedule Not Configured",
+    "setConsultationSchedule": "Set Consultation Schedule"
   },
   "expertDashboard_ai-case": {
     "title": "AI Case Analysis",
@@ -4593,7 +4601,18 @@
     "templateWeekend": "Iherezo ry'icyumweru gusa",
     "templateLunchBreak": "Hamwe n'ikiruhuko cy'ibyakurya (9h-12h, 14h-17h)",
     "loadErrorV2": "Gutera gahunda y'igihe byanze",
-    "loadErrorV2Desc": "Habaye ikosa mu gutura gahunda yawe"
+    "loadErrorV2Desc": "Habaye ikosa mu gutura gahunda yawe",
+    "notActivated": "Not Activated",
+    "activeSchedule": "Active & Saved",
+    "unsavedChanges": "Unsaved Changes",
+    "saveAndActivate": "Save & Activate Schedule",
+    "saveChanges": "Save Changes",
+    "saved": "Saved",
+    "firstTimeBannerTitle": "Action Required: Save & Activate Your Schedule",
+    "firstTimeBannerDesc": "We’ve pre-filled standard business hours (Mon–Fri, 9:00 AM – 5:00 PM). Your schedule is currently not active in the database. Clients cannot book consultations until you click Save & Activate Schedule.",
+    "draftPreview": "Draft Preview",
+    "unsavedFloatingText": "You have unsaved schedule changes",
+    "notActivatedFloatingText": "Schedule not activated yet"
   },
   "expertDashboard_billing": {
     "title": "Subscription & Billing",

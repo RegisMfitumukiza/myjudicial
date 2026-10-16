@@ -4396,7 +4396,11 @@
       "availability": "Disponibilité",
       "slotsRemainingToday": "{count, plural, =1 {1 créneau restant aujourd'hui} other {# créneaux restants aujourd'hui}}",
       "noMoreSlotsToday": "Plus de créneaux aujourd'hui",
-      "goOnlineToAccept": "Connectez-vous pour accepter les réservations"
+      "goOnlineToAccept": "Connectez-vous pour accepter les réservations",
+      "notConfigured": "Setup Required",
+      "scheduleNotSet": "Schedule Not Set",
+      "configureSchedule": "Configure",
+      "setHoursToActivate": "Set hours to activate bookings"
     },
     "performance": {
       "consultations": "Consultations",
@@ -4418,7 +4422,9 @@
       "verificationRejectedDesc": "Votre vérification a été rejetée. Veuillez examiner et resoumettre.",
       "expandServices": "Étendre Vos Services",
       "expandServicesDesc": "Vous n'offrez actuellement que le service de Consultation par défaut. Ajoutez plus de services depuis votre tableau de bord pour atteindre plus de clients.",
-      "takeAction": "Passer à l'action →"
+      "takeAction": "Passer à l'action →",
+      "scheduleNotSetTitle": "Consultation Schedule Required",
+      "scheduleNotSetDesc": "You haven't activated your weekly consultation hours yet. Clients cannot book consultations until your schedule is saved."
     },
     "queue": {
       "priorityQueue": "File de Priorité",
@@ -4493,7 +4499,9 @@
     "setScheduleAction": "Set Schedule",
     "setScheduleToOnline": "Configure your weekly schedule to go online and receive client consultations",
     "nowOnline": "You are now online and ready to accept bookings",
-    "nowOffline": "You are now offline"
+    "nowOffline": "You are now offline",
+    "scheduleNotConfigured": "Schedule Not Configured",
+    "setConsultationSchedule": "Set Consultation Schedule"
   },
   "expertDashboard_ai-case": {
     "title": "AI Case Analysis",
@@ -4593,7 +4601,18 @@
     "templateWeekend": "Week-end uniquement",
     "templateLunchBreak": "Avec pause déjeuner (9h-12h, 14h-17h)",
     "loadErrorV2": "Impossible de charger les disponibilités",
-    "loadErrorV2Desc": "Une erreur s'est produite lors du chargement de votre planning"
+    "loadErrorV2Desc": "Une erreur s'est produite lors du chargement de votre planning",
+    "notActivated": "Not Activated",
+    "activeSchedule": "Active & Saved",
+    "unsavedChanges": "Unsaved Changes",
+    "saveAndActivate": "Save & Activate Schedule",
+    "saveChanges": "Save Changes",
+    "saved": "Saved",
+    "firstTimeBannerTitle": "Action Required: Save & Activate Your Schedule",
+    "firstTimeBannerDesc": "We’ve pre-filled standard business hours (Mon–Fri, 9:00 AM – 5:00 PM). Your schedule is currently not active in the database. Clients cannot book consultations until you click Save & Activate Schedule.",
+    "draftPreview": "Draft Preview",
+    "unsavedFloatingText": "You have unsaved schedule changes",
+    "notActivatedFloatingText": "Schedule not activated yet"
   },
   "expertDashboard_billing": {
     "title": "Subscription & Billing",

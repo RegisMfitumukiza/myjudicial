@@ -86,22 +86,31 @@ const BASE_SELECT = {
 
 export const LandingService = {
   getPublicStats: async () => {
-    const [userCounts, expertCounts, bookingCounts, practiceAreaCount] = await Promise.all([
+    const [userCounts, expertCounts, bookingCounts, verifiedExpertsList] = await Promise.all([
       prisma.user.groupBy({ by: ["role"], _count: true }),
       prisma.expertProfile.groupBy({ by: ["status"], _count: true }),
       prisma.booking.groupBy({ by: ["status"], _count: true }),
-      prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT COUNT(DISTINCT s)::bigint AS count
-        FROM experts e, UNNEST(e.specialties) AS s
-        WHERE e.status = 'VERIFIED'
-      `,
+      prisma.expertProfile.findMany({
+        where: { status: "VERIFIED" },
+        select: { primarySpecialty: true, specialties: true },
+      }),
     ]);
+
+    const activeSpecialties = new Set<string>();
+    for (const e of verifiedExpertsList) {
+      if (e.primarySpecialty) activeSpecialties.add(e.primarySpecialty);
+      if (Array.isArray(e.specialties)) {
+        for (const s of e.specialties) {
+          if (s) activeSpecialties.add(s);
+        }
+      }
+    }
 
     const totalClients = userCounts.find((c) => c.role === "CITIZEN")?._count || 0;
     const totalExperts = userCounts.find((c) => c.role === "EXPERT")?._count || 0;
     const verifiedExperts = expertCounts.find((c) => c.status === "VERIFIED")?._count || 0;
     const completedConsultations = bookingCounts.find((c) => c.status === "COMPLETED")?._count || 0;
-    const totalPracticeAreas = Number(practiceAreaCount[0]?.count || 0);
+    const totalPracticeAreas = activeSpecialties.size;
 
     return {
       verifiedExperts,
@@ -113,15 +122,24 @@ export const LandingService = {
   },
 
   getPracticeAreas: async () => {
-    const rows = await prisma.$queryRaw<{ specialty: string; count: bigint }[]>`
-      SELECT s AS specialty, COUNT(*)::bigint AS count
-      FROM experts e, UNNEST(e.specialties) AS s
-      WHERE e.status = 'VERIFIED'
-      GROUP BY s
-      ORDER BY count DESC
-    `;
+    const experts = await prisma.expertProfile.findMany({
+      where: { status: "VERIFIED" },
+      select: { primarySpecialty: true, specialties: true },
+    });
 
-    const countMap = new Map(rows.map((r) => [r.specialty, Number(r.count)]));
+    const countMap = new Map<string, number>();
+    for (const e of experts) {
+      const expertSpecialties = new Set<string>();
+      if (e.primarySpecialty) expertSpecialties.add(e.primarySpecialty);
+      if (Array.isArray(e.specialties)) {
+        for (const s of e.specialties) {
+          if (s) expertSpecialties.add(s);
+        }
+      }
+      for (const s of expertSpecialties) {
+        countMap.set(s, (countMap.get(s) || 0) + 1);
+      }
+    }
 
     // Return all recognized legal specialties, prioritized by active advocate count then canonical order
     const allSpecialties = Object.keys(SPECIALTY_LABELS).filter((k) => k !== "OTHER");
@@ -549,20 +567,34 @@ export const LandingService = {
     }
 
     // Cold-start: fall back to verified expert specialty counts
-    const rows = await prisma.$queryRaw<{ specialty: string; count: bigint }[]>`
-      SELECT s AS specialty, COUNT(*)::bigint AS count
-      FROM experts e, UNNEST(e.specialties) AS s
-      WHERE e.status = 'VERIFIED'
-      GROUP BY s
-      ORDER BY count DESC
-      LIMIT ${limit}
-    `;
+    const experts = await prisma.expertProfile.findMany({
+      where: { status: "VERIFIED" },
+      select: { primarySpecialty: true, specialties: true },
+    });
 
-    const results = rows.map((r) => ({
-      specialty: r.specialty,
-      label: SPECIALTY_LABELS[r.specialty] || r.specialty,
-      count: Number(r.count),
-    }));
+    const countMap = new Map<string, number>();
+    for (const e of experts) {
+      const expertSpecialties = new Set<string>();
+      if (e.primarySpecialty) expertSpecialties.add(e.primarySpecialty);
+      if (Array.isArray(e.specialties)) {
+        for (const s of e.specialties) {
+          if (s) expertSpecialties.add(s);
+        }
+      }
+      for (const s of expertSpecialties) {
+        countMap.set(s, (countMap.get(s) || 0) + 1);
+      }
+    }
+
+    const results = [...countMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([specialty, count]) => ({
+        specialty,
+        label: SPECIALTY_LABELS[specialty] || specialty,
+        count,
+      }));
+
     return wrapSection(results, results.length > 0 ? "curated" : "disabled");
   },
 };

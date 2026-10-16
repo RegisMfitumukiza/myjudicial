@@ -4487,7 +4487,13 @@
     "aiDocumentReview": "Kuraba muwandiko",
     "aiKeyClauses": "Ibice bikwiye n'amagambo",
     "aiRiskAssessment": "Isuzuma ry'ibibazo",
-    "aiNoExperts": "Nta badageste bo mu bwoko bwo bahiswe kuri iki kibazo."
+    "aiNoExperts": "Nta badageste bo mu bwoko bwo bahiswe kuri iki kibazo.",
+    "availabilityRequiredBeforeOnline": "Set weekly availability first",
+    "availabilityRequiredBeforeOnlineDesc": "Please configure your weekly availability schedule before going online to accept bookings.",
+    "setScheduleAction": "Set Schedule",
+    "setScheduleToOnline": "Configure your weekly schedule to go online and receive client consultations",
+    "nowOnline": "You are now online and ready to accept bookings",
+    "nowOffline": "You are now offline"
   },
   "expertDashboard_ai-case": {
     "title": "AI Case Analysis",

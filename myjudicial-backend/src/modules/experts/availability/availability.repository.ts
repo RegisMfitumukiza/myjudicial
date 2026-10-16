@@ -29,15 +29,31 @@ export const AvailabilityRepository = {
   },
 
   /**
+   * Current presence as the rest of the app reads it: the first weekday row
+   * (same ordering as findByExpertId). Undefined when no rows exist yet.
+   */
+  getCurrentPresence: async (expertId: string): Promise<PresenceStatus | undefined> => {
+    const first = await prisma.expertAvailability.findFirst({
+      where: { expertId },
+      orderBy: { dayOfWeek: "asc" },
+      select: { presenceStatus: true },
+    });
+    return first?.presenceStatus;
+  },
+
+  /**
    * Upsert schedule slots — one per day per expert.
    * Phase 4: Now supports time blocks format.
    * Uses Prisma upsert with unique([expertId, dayOfWeek]).
    */
   upsertSchedule: async (expertId: string, slots: ScheduleSlot[]) => {
+    // New weekday rows inherit the expert's current presence instead of the
+    // column default (OFFLINE), so adding a day never flips presence per-row.
+    const presence = await AvailabilityRepository.getCurrentPresence(expertId);
     const operations = slots.map((slot) =>
       prisma.expertAvailability.upsert({
         where: { expertId_dayOfWeek: { expertId, dayOfWeek: slot.dayOfWeek } },
-        create: { expertId, ...slot },
+        create: { expertId, ...slot, ...(presence && { presenceStatus: presence }) },
         update: {
           startTime: slot.startTime,
           endTime: slot.endTime,
@@ -52,6 +68,7 @@ export const AvailabilityRepository = {
    * Phase 4: Upsert schedule with time blocks support
    */
   upsertScheduleWithBlocks: async (expertId: string, slots: ScheduleSlotWithBlocks[]) => {
+    const presence = await AvailabilityRepository.getCurrentPresence(expertId);
     const operations = slots.map((slot) => {
       // Validate time blocks if provided
       if (slot.timeBlocks && !areValidTimeBlocks(slot.timeBlocks)) {

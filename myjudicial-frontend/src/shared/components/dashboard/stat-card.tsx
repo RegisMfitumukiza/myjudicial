@@ -23,13 +23,16 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "min-w-0 flex flex-col justify-between rounded-xl border border-border bg-card p-3.5 sm:p-5 shadow-sm transition-shadow hover:shadow-md",
+        "min-w-0 flex flex-col justify-between rounded-xl border border-border bg-card p-3 sm:p-4 min-[1400px]:p-5 shadow-sm transition-shadow hover:shadow-md",
         className
       )}
     >
       <div>
-        <div className="flex items-start justify-between gap-1.5 min-w-0">
-          <p className="min-w-0 flex-1 text-xs font-medium tracking-wide text-muted-foreground line-clamp-2">
+        <div className="flex items-start justify-between gap-2 min-w-0">
+          <p
+            className="min-w-0 flex-1 text-xs sm:text-[13px] font-medium text-muted-foreground break-words leading-snug line-clamp-2"
+            title={typeof label === "string" ? label : undefined}
+          >
             {label}
           </p>
           {Icon && (
@@ -38,7 +41,7 @@ export function StatCard({
             </div>
           )}
         </div>
-        <p className="mt-2 text-lg sm:text-2xl font-semibold tracking-tight text-foreground tabular-nums truncate">
+        <p className="mt-2 text-xl sm:text-2xl font-semibold tracking-tight text-foreground tabular-nums truncate">
           {value}
         </p>
       </div>

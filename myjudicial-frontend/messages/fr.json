@@ -4487,7 +4487,13 @@
     "aiReferralHint": "Vous pouvez orienter vos clients vers ces experts ou collaborer sur des questions complexes.",
     "aiDocumentReview": "Examen de document",
     "aiKeyClauses": "Clauses et termes clés",
-    "aiRiskAssessment": "Évaluation des risques"
+    "aiRiskAssessment": "Évaluation des risques",
+    "availabilityRequiredBeforeOnline": "Set weekly availability first",
+    "availabilityRequiredBeforeOnlineDesc": "Please configure your weekly availability schedule before going online to accept bookings.",
+    "setScheduleAction": "Set Schedule",
+    "setScheduleToOnline": "Configure your weekly schedule to go online and receive client consultations",
+    "nowOnline": "You are now online and ready to accept bookings",
+    "nowOffline": "You are now offline"
   },
   "expertDashboard_ai-case": {
     "title": "AI Case Analysis",

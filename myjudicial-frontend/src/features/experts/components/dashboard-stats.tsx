@@ -51,8 +51,8 @@ export function DashboardStats({
   }
 
   return (
-    <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+    <div className="grid grid-cols-1 min-[340px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{t("availableFunds")}</p>
           <div className="mt-2 flex items-baseline gap-1.5 min-w-0">

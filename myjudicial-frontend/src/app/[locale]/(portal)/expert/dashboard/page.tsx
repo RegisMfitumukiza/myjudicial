@@ -133,11 +133,23 @@ export default function ExpertDashboardPage() {
   };
 
   function handleToggleAvailable(next: boolean) {
+    if (next && availability.length === 0) {
+      toast.warning(t("availabilityRequiredBeforeOnline"), {
+        description: t("availabilityRequiredBeforeOnlineDesc"),
+        action: {
+          label: t("setScheduleAction"),
+          onClick: () => router.push("/expert/dashboard/availability"),
+        },
+      });
+      return;
+    }
+
     updatePresence(
       { data: { presenceStatus: next ? "ONLINE" : "OFFLINE" } },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getGetExpertsAvailabilityQueryKey() });
+          toast.success(next ? t("nowOnline") : t("nowOffline"));
         },
         onError: (error) => {
           toast.error(getErrorMessage(error, t("profileUpdateFailed")));
@@ -312,7 +324,9 @@ export default function ExpertDashboardPage() {
               <p className="mt-2 text-white/70 lg:text-lg">
                 {isOnline 
                   ? t("readyToServe") 
-                  : t("setStatusOnline")}
+                  : availability.length === 0 && !isUnverified
+                    ? t("setScheduleToOnline")
+                    : t("setStatusOnline")}
               </p>
             </div>
             
@@ -331,6 +345,11 @@ export default function ExpertDashboardPage() {
                 <Button
                   onClick={() => handleToggleAvailable(!isOnline)}
                   disabled={isTogglingAvailable}
+                  title={
+                    !isOnline && availability.length === 0
+                      ? t("availabilityRequiredBeforeOnlineDesc")
+                      : undefined
+                  }
                   className={
                     isOnline
                       ? "bg-white/10 text-white shadow-none hover:bg-white/20"
@@ -422,7 +441,7 @@ export default function ExpertDashboardPage() {
               <RevenueChart data={revenueData} highestTransactionRwf={highestTransactionRwf} />
               
               {/* Quick Stats Row */}
-              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 min-[1360px]:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard
                   label={t("performance.consultations")}
                   value={stats?.completedConsultations ?? 0}

@@ -95,6 +95,19 @@ export const AvailabilityService = {
     if (dto.presenceStatus === "ONLINE" && profile.status !== "VERIFIED") {
       throw new ValidationError("Verification required: only verified experts can go online.");
     }
+
+    // Presence is stored on the expert's availability rows (one per weekday).
+    // With no rows, updateMany would match nothing and report success while the
+    // expert stays OFFLINE, so refuse explicitly instead of failing silently.
+    if (dto.presenceStatus === "ONLINE") {
+      const rows = await AvailabilityRepository.findByExpertId(profile.id);
+      if (rows.length === 0) {
+        throw new ValidationError(
+          "Set your weekly availability before going online."
+        );
+      }
+    }
+
     await AvailabilityRepository.updatePresence(profile.id, dto.presenceStatus as PresenceStatus);
     return { presenceStatus: dto.presenceStatus };
   },

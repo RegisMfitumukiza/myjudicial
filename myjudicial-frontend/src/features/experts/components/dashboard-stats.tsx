@@ -51,10 +51,10 @@ export function DashboardStats({
   }
 
   return (
-    <div className="grid grid-cols-1 min-[340px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+    <div className="grid grid-cols-1 min-[340px]:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5 shadow-sm min-w-0 flex flex-col justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{t("availableFunds")}</p>
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground break-words leading-tight line-clamp-1">{t("availableFunds")}</p>
           <div className="mt-2 flex items-baseline gap-1.5 min-w-0">
             <span className="text-xl sm:text-2xl font-semibold tabular-nums text-foreground truncate">
               {availableFundsRwf.toLocaleString()}
@@ -62,61 +62,71 @@ export function DashboardStats({
             <span className="text-sm font-normal text-muted-foreground shrink-0">RWF</span>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground truncate">
+        <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground min-w-0">
           <Wallet size={12} className="shrink-0" aria-hidden="true" />
-          <span className="truncate">{pendingEscrowRwf.toLocaleString()} RWF {t("pendingEscrow")}</span>
+          <span className="break-words line-clamp-1">{pendingEscrowRwf.toLocaleString()} RWF {t("pendingEscrow")}</span>
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5 shadow-sm min-w-0 flex flex-col justify-between">
         <div>
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{t("activeBookings")}</p>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Clock size={15} aria-hidden="true" />
+          <div className="flex items-start justify-between gap-1.5 min-w-0">
+            <p className="min-w-0 flex-1 text-xs font-medium uppercase tracking-normal text-muted-foreground break-words leading-tight line-clamp-2">
+              {t("activeBookings")}
+            </p>
+            <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Clock size={14} aria-hidden="true" />
             </span>
           </div>
           <p className="mt-2 text-xl sm:text-2xl font-semibold tabular-nums text-foreground">{activeBookings}</p>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground truncate">
+        <p className="mt-1 text-xs text-muted-foreground break-words line-clamp-1">
           {pendingBookings} {t("pendingBookings", { count: pendingBookings })}
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5 shadow-sm min-w-0 flex flex-col justify-between">
         <div>
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{t("clientRating")}</p>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Star size={15} aria-hidden="true" />
+          <div className="flex items-start justify-between gap-1.5 min-w-0">
+            <p className="min-w-0 flex-1 text-xs font-medium uppercase tracking-normal text-muted-foreground break-words leading-tight line-clamp-2">
+              {t("clientRating")}
+            </p>
+            <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Star size={14} aria-hidden="true" />
             </span>
           </div>
           <p className="mt-2 text-xl sm:text-2xl font-semibold tabular-nums text-foreground">
             {clientRating !== null ? clientRating.toFixed(1) : "—"}
           </p>
         </div>
-        <p className="mt-1 text-xs text-primary truncate">
+        <p className="mt-1 text-xs text-primary break-words line-clamp-1">
           {reviewCount > 0
             ? t("basedOnReviews", { count: reviewCount, plural: reviewCount === 1 ? "" : "s" })
             : t("noReviewsYet")}
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-sm min-w-0 flex flex-col justify-between">
+      <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 min-[1440px]:p-5 shadow-sm min-w-0 flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <Sun
-                size={15}
+                size={14}
                 aria-hidden="true"
                 className={`shrink-0 ${available ? "text-primary" : "text-muted-foreground"}`}
               />
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{t("availability")}</p>
+              <p
+                className="text-xs font-medium uppercase tracking-normal text-muted-foreground break-words leading-tight line-clamp-1"
+                title={t("availability")}
+              >
+                {t("availability")}
+              </p>
             </div>
             <Switch
               checked={available}
               disabled={isTogglingAvailable}
               onCheckedChange={(next) => onToggleAvailable(next)}
+              className="shrink-0"
               aria-label={available ? tDashboard("onlineAvailable") : tDashboard("offline")}
             />
           </div>
@@ -137,7 +147,7 @@ export function DashboardStats({
             </p>
           </div>
         ) : (
-          <p className="mt-3 text-xs text-muted-foreground truncate">
+          <p className="mt-3 text-xs text-muted-foreground break-words line-clamp-2 leading-relaxed">
             {available
               ? availableSlotsToday > 0
                 ? t("slotsRemainingToday", {

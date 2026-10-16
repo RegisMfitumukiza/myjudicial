@@ -1315,7 +1315,11 @@
     "signingOut": "Ku rugendo rwo gusohoka...",
     "signUp": "Sign Up",
     "codeTooManyAttempts": "Bikemera byinshi byabaye mu kugenzura. Nyamuneka saba kode nshya maze ugerageze bundi.",
-    "loginTooManyAttempts": "Kwinjira byageragejwe kenshi. Nyamuneka ugerageze nyuma y'iminota mike."
+    "loginTooManyAttempts": "Kwinjira byageragejwe kenshi. Nyamuneka ugerageze nyuma y'iminota mike.",
+    "noAccountFound": "Nta konti yabonetse kuri iyi imeri. Nyamuneka iyandikishe kugira ngo utangire.",
+    "noAccountFoundTitle": "Nta konti yabonetse",
+    "noAccountFoundDesc": "Nta konti yanditswe ibaho kuri {email}. Niba uri mushya kuri MyJudicial, nyamuneka fungura konti kugira ngo utangire.",
+    "checkSpelling": "Kugenzura imyandikire"
   },
   "booking": {
     "bookNow": "Tanga gahunda ubu",

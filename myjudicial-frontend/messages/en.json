@@ -1449,7 +1449,11 @@
     "signedOutSuccess": "Signed out successfully.",
     "signingOut": "Signing out...",
     "codeTooManyAttempts": "Too many verification attempts. Please request a new code and try again.",
-    "loginTooManyAttempts": "Too many login attempts. Please try again in a few minutes."
+    "loginTooManyAttempts": "Too many login attempts. Please try again in a few minutes.",
+    "noAccountFound": "No account found with this email. Please sign up to get started.",
+    "noAccountFoundTitle": "No account found",
+    "noAccountFoundDesc": "No registered account exists for {email}. If you are new to MyJudicial, please create an account to get started.",
+    "checkSpelling": "Check spelling"
   },
   "booking": {
     "bookNow": "Book Now",

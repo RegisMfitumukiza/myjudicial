@@ -399,8 +399,9 @@ export default function SignUpPage() {
       let expiresAt: string | null = null;
       try {
         const otpRes = await postAuthOtpSend({ email: normalEmail });
-        expiresAt =
-          (otpRes as { data?: { expiresAt?: string } })?.data?.expiresAt ?? null;
+        const resBody = (otpRes as any)?.data ?? otpRes;
+        const resData = resBody?.data ?? resBody;
+        expiresAt = resData?.expiresAt ?? resBody?.expiresAt ?? null;
       } catch {
         // Never strand the user here: they can still hit "Resend" on the
         // next step once any rate limit or transient error clears.
@@ -491,9 +492,11 @@ export default function SignUpPage() {
     setIsResending(true);
     try {
       const res = await postAuthOtpSend({ email: pendingEmail });
+      const resBody = (res as any)?.data ?? res;
+      const resData = resBody?.data ?? resBody;
       setOtpCode("");
       setApiError(null);
-      setOtpExpiresAt((res as { data?: { expiresAt?: string } })?.data?.expiresAt ?? null);
+      setOtpExpiresAt(resData?.expiresAt ?? resBody?.expiresAt ?? null);
       toast.success(t("toast.codeResent"));
       countdown.start();
     } catch (err) {

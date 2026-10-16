@@ -1315,7 +1315,11 @@
     "signingOut": "Déconnexion...",
     "signUp": "Sign Up",
     "codeTooManyAttempts": "Trop de tentatives de vérification. Veuillez demander un nouveau code et réessayer.",
-    "loginTooManyAttempts": "Trop de tentatives de connexion. Veuillez réessayer dans quelques minutes."
+    "loginTooManyAttempts": "Trop de tentatives de connexion. Veuillez réessayer dans quelques minutes.",
+    "noAccountFound": "Aucun compte trouvé avec cet e-mail. Veuillez vous inscrire pour commencer.",
+    "noAccountFoundTitle": "Aucun compte trouvé",
+    "noAccountFoundDesc": "Aucun compte enregistré n'existe pour {email}. Si vous êtes nouveau sur MyJudicial, veuillez créer un compte pour commencer.",
+    "checkSpelling": "Vérifier l'orthographe"
   },
   "booking": {
     "bookNow": "Réserver maintenant",

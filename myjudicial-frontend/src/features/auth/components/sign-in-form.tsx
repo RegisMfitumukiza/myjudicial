@@ -230,17 +230,25 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
     const email = values.email.trim().toLowerCase();
     try {
       const response = await postAuthOtpSend({ email, language: locale });
-      const resData = (response as any)?.data ?? (response as any);
+      // Unwrap both the outer client envelope { data, status, headers } and the backend envelope { success, message, data }
+      const resBody = (response as any)?.data ?? response;
+      const resData = resBody?.data ?? resBody;
+
+      const isRegistered = resData?.registered ?? resBody?.registered;
+      const isAdmin = resData?.isAdmin ?? resBody?.isAdmin;
+      const expiresAt = resData?.expiresAt ?? resBody?.expiresAt ?? null;
+      const responseMsg = (resData?.message ?? resBody?.message ?? "") as string;
 
       // Account not found: gracefully guide user to sign up instead of trapping them in OTP
-      if (resData?.registered === false) {
+      if (isRegistered === false || responseMsg.toLowerCase().includes("no account found")) {
         setUnregisteredEmail(email);
         setError(null);
+        toast.error(t("noAccountFound") || "No account found with this email. Please sign up to get started.");
         return;
       }
 
       // Admin account: direct to password-based admin login
-      if (resData?.isAdmin) {
+      if (isAdmin) {
         setAdminMode(true);
         form.setValue("email", email);
         setError(t("adminDescription") || "Admin accounts sign in with email and password.");
@@ -249,7 +257,7 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
 
       setPendingEmail(email);
       setOtpCode("");
-      setOtpExpiresAt(resData?.expiresAt ?? null);
+      setOtpExpiresAt(expiresAt);
       setOtpExpired(false);
       toast.success(t("codeSentCheckInbox"));
       countdown.start();
@@ -301,9 +309,11 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
     setIsResending(true);
     try {
       const res = await postAuthOtpSend({ email: pendingEmail, language: locale });
+      const resBody = (res as any)?.data ?? res;
+      const resData = resBody?.data ?? resBody;
       setOtpCode("");
       setError(null);
-      setOtpExpiresAt((res as any).data?.expiresAt ?? null);
+      setOtpExpiresAt(resData?.expiresAt ?? resBody?.expiresAt ?? null);
       setOtpExpired(false);
       toast.success(t("newCodeSent"));
       countdown.start();
@@ -673,10 +683,14 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
                 <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-foreground">
-                    No account found
+                    {t("noAccountFoundTitle") || "No account found"}
                   </p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    No registered account exists for <strong className="text-foreground">{unregisteredEmail}</strong>. If you are new to MyJudicial, please create an account to get started.
+                    {t("noAccountFoundDesc", { email: unregisteredEmail }) || (
+                      <>
+                        No registered account exists for <strong className="text-foreground">{unregisteredEmail}</strong>. If you are new to MyJudicial, please create an account to get started.
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -687,7 +701,7 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
                   className="bg-brand-dark text-on-brand font-semibold text-xs h-9 px-4 rounded-lg shadow-sm hover:opacity-90"
                 >
                   <Link href={`/sign-up?email=${encodeURIComponent(unregisteredEmail)}`}>
-                    Create an account <ArrowRight size={13} className="ml-1" />
+                    {t("createFreeAccount") || "Create an account"} <ArrowRight size={13} className="ml-1" />
                   </Link>
                 </Button>
                 <Button
@@ -700,7 +714,7 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
                     form.setFocus("email");
                   }}
                 >
-                  Check spelling
+                  {t("checkSpelling") || "Check spelling"}
                 </Button>
               </div>
             </div>

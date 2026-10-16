@@ -202,6 +202,7 @@ export default function SignUpPage() {
         if (draft && typeof draft === "object") {
           const params = new URLSearchParams(window.location.search);
           const roleParam = params.get("role");
+          const emailParam = params.get("email");
           const finalRole: Role | "" = (roleParam === "EXPERT" || roleParam === "CITIZEN")
             ? roleParam
             : (draft.role === "EXPERT" || draft.role === "CITIZEN" ? draft.role : "");
@@ -216,7 +217,11 @@ export default function SignUpPage() {
 
           if (typeof draft.firstName === "string") setFirstName(draft.firstName);
           if (typeof draft.lastName === "string") setLastName(draft.lastName);
-          if (typeof draft.email === "string") setEmail(draft.email);
+          if (emailParam) {
+            setEmail(emailParam);
+          } else if (typeof draft.email === "string") {
+            setEmail(draft.email);
+          }
           if (typeof draft.phone === "string") setPhone(draft.phone);
           if (typeof draft.terms === "boolean") setTerms(draft.terms);
 
@@ -239,6 +244,8 @@ export default function SignUpPage() {
         const roleParam = params.get("role");
         if (roleParam === "EXPERT") setRole("EXPERT");
         else if (roleParam === "CITIZEN") setRole("CITIZEN");
+        const emailParam = params.get("email");
+        if (emailParam) setEmail(emailParam);
       }
     } catch {
       // Storage access blocked or invalid JSON

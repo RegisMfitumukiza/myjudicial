@@ -364,47 +364,55 @@ export const AuthService = {
   sendOtp: async (dto: SendOtpDto) => {
     const sendTime = new Date();
     
-    // Check if user exists in our database (but don't reveal it in the response)
+    // Check if user exists in our database
     const user = await AuthRepository.findByEmail(dto.email);
     
-    // Admin accounts sign in exclusively through the password-based admin login
-    // page; never grant them OTP-based access.
-    if (user && user.role !== "ADMIN") {
-      // User exists - send actual OTP
-      const otp = await CustomOtpService.generate(dto.email);
-      const userLanguage = (dto.language || user.preferredLanguage || 'en') as 'en' | 'fr' | 'rw';
-      const sent = await retrySupabase(
-        async () => {
-          try {
-            await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage);
-            return { error: null };
-          } catch (err) {
-            return { error: { message: err instanceof Error ? err.message : String(err) } };
-          }
-        },
-        "sendOtpEmail"
-      );
-      if (sent.error) throw new ServiceUnavailableError(`Email delivery failed: ${sent.error.message}`);
-      
-      logger.info("Custom OTP generated and sent", {
-        email: dto.email,
-        language: userLanguage,
-        sentAt: sendTime.toISOString(),
-        expiresAt: new Date(sendTime.getTime() + 600000).toISOString(), // 10 minutes
-      });
-    } else {
-      // User is unregistered or an admin - don't send OTP (but don't reveal this)
-      logger.info("OTP requested for unavailable email", {
-        email: dto.email,
-        isAdmin: user?.role === "ADMIN",
-      });
+    // Non-existent email: immediately return registered: false so frontend can guide user to register
+    if (!user) {
+      logger.info("OTP requested for unregistered email", { email: dto.email });
+      return {
+        registered: false,
+        message: "No account found with this email. Please sign up to get started.",
+      };
     }
 
-    // Always return success - never reveal if email is registered.
-    // expiresAt reflects the custom OTP TTL so the UI can show a real
-    // countdown (10 minutes). Returned unconditionally to avoid enumeration.
+    // Admin accounts sign in exclusively through the password-based admin login
+    // page; never grant them OTP-based access.
+    if (user.role === "ADMIN") {
+      logger.info("OTP requested for admin email", { email: dto.email });
+      return {
+        registered: true,
+        isAdmin: true,
+        message: "Admin accounts sign in with email and password.",
+      };
+    }
+
+    // User exists - send actual OTP
+    const otp = await CustomOtpService.generate(dto.email);
+    const userLanguage = (dto.language || user.preferredLanguage || 'en') as 'en' | 'fr' | 'rw';
+    const sent = await retrySupabase(
+      async () => {
+        try {
+          await CustomOtpService.sendOtpEmail(dto.email, otp, user.firstName, userLanguage);
+          return { error: null };
+        } catch (err) {
+          return { error: { message: err instanceof Error ? err.message : String(err) } };
+        }
+      },
+      "sendOtpEmail"
+    );
+    if (sent.error) throw new ServiceUnavailableError(`Email delivery failed: ${sent.error.message}`);
+    
+    logger.info("Custom OTP generated and sent", {
+      email: dto.email,
+      language: userLanguage,
+      sentAt: sendTime.toISOString(),
+      expiresAt: new Date(sendTime.getTime() + 600000).toISOString(), // 10 minutes
+    });
+
     return {
-      message: "If this email is registered, a login code has been sent",
+      registered: true,
+      message: "Verification code sent to your email",
       expiresAt: new Date(Date.now() + 600_000).toISOString(),
     };
   },

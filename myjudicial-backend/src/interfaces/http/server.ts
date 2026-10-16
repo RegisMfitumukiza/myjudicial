@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import app from "../../app.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { ensureDatabaseSchema } from "../../infrastructure/database/schema-sync.js";
 import { connectRedis } from "../../infrastructure/redis/redis.client.js";
 import { logger } from "../../shared/utils/logger.js";
 import { startComplianceCron } from "../../infrastructure/cron/compliance.cron.js";
@@ -19,6 +20,9 @@ async function startServer() {
     // Connect to PostgreSQL
     await prisma.$connect();
     logger.info("PostgreSQL connected");
+
+    // Ensure incremental schema migrations are applied
+    await ensureDatabaseSchema();
 
     // Connect to Redis
     await connectRedis();

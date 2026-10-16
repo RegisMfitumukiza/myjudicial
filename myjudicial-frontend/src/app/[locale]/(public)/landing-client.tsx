@@ -363,7 +363,7 @@ export default function LandingPage() {
   const geo = useGeolocation();
 
   // ── Data fetching — 6 focused API calls ──────────────────────────────────
-  const { data: publicStats } = usePublicStats();
+  const { data: publicStats, isLoading: statsLoading } = usePublicStats();
   const { data: practiceAreas } = usePracticeAreas();
   const { data: recSection, isLoading: recLoading } = useRecommendedExperts(5);
   const { data: availSection, isLoading: availLoading } = useAvailableTodayExperts(5);
@@ -384,6 +384,10 @@ export default function LandingPage() {
   const showAvailableToday = !availLoading && availSection?.source !== "disabled" && availableToday.length > 0;
   const showTopRated = !ratedLoading && ratedSection?.source !== "disabled" && topRated.length > 0;
   const showReviews = !reviewsLoading && reviewsSection?.source !== "disabled" && reviews.length > 0;
+
+  const isExpertsLoading = recLoading || availLoading || ratedLoading;
+  const hasAnyExperts = showRecommended || showAvailableToday || showTopRated;
+  const showOnboardingBanner = !isExpertsLoading && !hasAnyExperts;
 
   // ── Dropdown outside-click handlers ──────────────────────────────────────
   useEffect(() => {
@@ -589,7 +593,24 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-y-3 gap-x-4 sm:gap-x-6">
             {/* Live Metric Badges or Launching State */}
-            {showStats ? (
+            {statsLoading || !publicStats ? (
+              <div className="flex items-center gap-2.5 sm:gap-4">
+                <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 rounded-lg bg-muted animate-pulse" />
+                  <div className="space-y-1">
+                    <div className="h-3.5 w-10 sm:w-12 rounded bg-muted animate-pulse" />
+                    <div className="h-2.5 w-14 sm:w-16 rounded bg-muted animate-pulse" />
+                  </div>
+                </div>
+                <div className="hidden min-[480px]:flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 rounded-lg bg-muted animate-pulse" />
+                  <div className="space-y-1">
+                    <div className="h-3.5 w-10 sm:w-12 rounded bg-muted animate-pulse" />
+                    <div className="h-2.5 w-14 sm:w-16 rounded bg-muted animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ) : showStats ? (
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
                 {publicStats!.totalLawyers > 0 && (
                   <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-card px-2.5 py-1.5 sm:px-3.5 sm:py-2 shadow-xs min-w-0">
@@ -743,8 +764,8 @@ export default function LandingPage() {
             </SectionRetryBoundary>
           </SectionFadeIn>
 
-          {/* Launch / Advocate Onboarding Banner — shown when no verified experts are live yet */}
-          {!showRecommended && !showAvailableToday && (
+          {/* Launch / Advocate Onboarding Banner — shown only when queries finish and no verified experts are live yet */}
+          {showOnboardingBanner && (
             <section className="py-8 sm:py-12 bg-background border-b border-border">
               <div className="mx-auto max-w-[1400px] px-3 min-[360px]:px-4 sm:px-6">
                 <div className="rounded-2xl border border-border bg-gradient-to-r from-card via-card to-brand-dark/5 dark:to-white/5 p-6 sm:p-8 lg:p-10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">

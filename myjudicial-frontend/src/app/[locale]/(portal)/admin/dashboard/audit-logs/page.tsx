@@ -18,6 +18,14 @@ import {
   Check,
   Shield,
   Loader2,
+  Laptop,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Server,
+  Info,
+  LayoutGrid,
+  Table as TableIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
@@ -233,6 +241,7 @@ export default function AuditLogsPage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [exportingFormat, setExportingFormat] = useState<"csv" | "json" | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
 
   const ACTION_LABELS: Record<AuditAction, string> = {
     CREATE: t("actionCreate"),
@@ -277,6 +286,87 @@ export default function AuditLogsPage() {
     } catch {
       return dateString;
     }
+  };
+
+  const formatDateShort = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleTimeString(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  };
+
+  const formatIp = (ip?: string | null) => {
+    if (!ip) return "—";
+    return ip.replace(/^::ffff:/i, "");
+  };
+
+  const parseUserAgentInfo = (ua?: string | null) => {
+    if (!ua || !ua.trim()) {
+      return {
+        device: "Server / Task",
+        browser: "Direct API",
+        icon: Server,
+        raw: null,
+      };
+    }
+    const cleanUa = ua.trim();
+    let device = "Desktop PC";
+    let icon = Laptop;
+
+    if (/iphone/i.test(cleanUa)) {
+      device = "iPhone";
+      icon = Smartphone;
+    } else if (/ipad/i.test(cleanUa)) {
+      device = "iPad";
+      icon = Tablet;
+    } else if (/android/i.test(cleanUa)) {
+      device = /mobile/i.test(cleanUa) ? "Android Phone" : "Android Tablet";
+      icon = Smartphone;
+    } else if (/macintosh|mac os x/i.test(cleanUa)) {
+      device = "Macintosh";
+      icon = Monitor;
+    } else if (/windows nt 10/i.test(cleanUa) || /windows/i.test(cleanUa)) {
+      device = "Windows PC";
+      icon = Laptop;
+    } else if (/linux/i.test(cleanUa)) {
+      device = "Linux PC";
+      icon = Monitor;
+    } else if (/curl|postman|insomnia|python|axios|node-fetch/i.test(cleanUa)) {
+      device = "Script / Bot";
+      icon = Server;
+    }
+
+    let browser = "Web Browser";
+    if (/edg/i.test(cleanUa)) browser = "Microsoft Edge";
+    else if (/chrome|crios/i.test(cleanUa)) browser = "Google Chrome";
+    else if (/firefox|fxios/i.test(cleanUa)) browser = "Mozilla Firefox";
+    else if (/safari/i.test(cleanUa)) browser = "Apple Safari";
+    else if (/opera|opr/i.test(cleanUa)) browser = "Opera";
+    else if (/curl/i.test(cleanUa)) browser = "cURL Script";
+    else if (/postman/i.test(cleanUa)) browser = "Postman Client";
+
+    return {
+      device,
+      browser,
+      icon,
+      raw: cleanUa,
+    };
   };
 
   const { data: statsData, isLoading: loadingStats } = useQuery({
@@ -374,7 +464,7 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <div className="space-y-5 sm:space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+    <div className="space-y-5 sm:space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-6 min-w-0">
       {/* Page Header with Responsive Action Controls */}
       <PageHeader
         title={t("title")}
@@ -412,30 +502,43 @@ export default function AuditLogsPage() {
         }
       />
 
-      {/* Metric Cards - 5 columns on desktop, 3 on tablet, 2 on mobile with 5th card spanning 2 */}
+      {/* Responsive Metric Cards:
+          - Mobile (<640px): 2 columns, 5th card spans 2 columns (clean 2-2-1 layout).
+          - Tablet & Mid-Desktop (640px–1279px, including 1053px): 6-column virtual grid.
+            Row 1: Cards 1, 2, 3 take 2 cols each (1/3 each).
+            Row 2: Cards 4, 5 take 3 cols each (1/2 each). Both rows are 100% full width and spacious.
+          - Large Desktop (>=1280px): 5 equal columns across 1 row. */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 lg:gap-4">
-          <StatCard
-            label={t("totalEvents")}
-            value={stats.totalLogs.toLocaleString()}
-            icon={FileText}
-          />
-          <StatCard
-            label={t("today")}
-            value={stats.byPeriod.today}
-            icon={Activity}
-          />
-          <StatCard
-            label={t("thisWeek")}
-            value={stats.byPeriod.thisWeek}
-            icon={Calendar}
-          />
-          <StatCard
-            label={t("criticalActions")}
-            value={stats.recentCritical}
-            icon={AlertTriangle}
-          />
-          <div className="col-span-2 sm:col-span-1 lg:col-span-1">
+        <div className="grid grid-cols-2 sm:grid-cols-6 xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="col-span-1 sm:col-span-2 xl:col-span-1">
+            <StatCard
+              label={t("totalEvents")}
+              value={stats.totalLogs.toLocaleString()}
+              icon={FileText}
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2 xl:col-span-1">
+            <StatCard
+              label={t("today")}
+              value={stats.byPeriod.today}
+              icon={Activity}
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2 xl:col-span-1">
+            <StatCard
+              label={t("thisWeek")}
+              value={stats.byPeriod.thisWeek}
+              icon={Calendar}
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-3 xl:col-span-1">
+            <StatCard
+              label={t("criticalActions")}
+              value={stats.recentCritical}
+              icon={AlertTriangle}
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-3 xl:col-span-1">
             <StatCard
               label={t("retention")}
               value={`${stats.retentionDays} ${t("days")}`}
@@ -669,18 +772,59 @@ export default function AuditLogsPage() {
 
       {/* Main Content Area: Responsive Table (Desktop/Tablet) + Native Card List (Mobile) */}
       <Card className="border border-border/80 shadow-sm overflow-hidden">
-        {/* Desktop & Tablet Table View (md: 768px and up) */}
-        <div className="hidden md:block overflow-x-auto scrollbar-thin">
+        {/* Table / Cards View Mode Header Controls */}
+        <div className="flex items-center justify-between border-b border-border/70 px-4 sm:px-6 py-3 bg-muted/20">
+          <div className="flex items-center gap-2">
+            <Shield size={16} className="text-primary" />
+            <span className="text-xs sm:text-sm font-semibold text-foreground">
+              {logs.length > 0 ? `${pagination?.total ?? logs.length} Activity Records` : "Audit Records"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/50 text-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all font-medium text-xs ${
+                viewMode === "table"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Table view"
+              aria-label="Table view"
+            >
+              <TableIcon size={13} />
+              <span className="hidden sm:inline">Table</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("cards")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all font-medium text-xs ${
+                viewMode === "cards"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Card list view"
+              aria-label="Card list view"
+            >
+              <LayoutGrid size={13} />
+              <span className="hidden sm:inline">Cards</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop & Tablet Table View (shown when viewMode is 'table', on md: 768px and up) */}
+        <div className={`${viewMode === "table" ? "hidden md:block" : "hidden"} overflow-x-auto scrollbar-thin`}>
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-border bg-muted/30 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 lg:px-6 py-3.5 whitespace-nowrap w-[160px]">{t("timestamp")}</th>
-                <th className="px-4 lg:px-6 py-3.5 whitespace-nowrap min-w-[200px]">{t("actor")}</th>
-                <th className="px-4 lg:px-6 py-3.5 whitespace-nowrap w-[120px]">{t("action")}</th>
-                <th className="px-4 lg:px-6 py-3.5 whitespace-nowrap w-[110px]">{t("resource")}</th>
-                <th className="px-4 lg:px-6 py-3.5 min-w-[180px] max-w-xs">{t("details")}</th>
-                <th className="px-4 lg:px-6 py-3.5 whitespace-nowrap w-[130px]">{t("ipAddress")}</th>
-                <th className="px-4 lg:px-6 py-3.5 text-right w-[60px]"></th>
+                <th className="px-3 sm:px-4 py-3 whitespace-nowrap w-[110px]">{t("timestamp")}</th>
+                <th className="px-3 sm:px-4 py-3 whitespace-nowrap min-w-[140px] max-w-[180px]">{t("actor")}</th>
+                <th className="px-3 sm:px-4 py-3 whitespace-nowrap w-[90px]">{t("action")}</th>
+                <th className="px-3 sm:px-4 py-3 whitespace-nowrap w-[90px]">{t("resource")}</th>
+                <th className="px-3 sm:px-4 py-3 min-w-[130px] max-w-[200px]">{t("details")}</th>
+                <th className="px-3 sm:px-4 py-3 whitespace-nowrap w-[110px]">{t("ipAddress")}</th>
+                <th className="px-3 sm:px-4 py-3 text-right w-[44px]"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -697,50 +841,53 @@ export default function AuditLogsPage() {
               ) : (
                 logs.map((log) => (
                   <tr key={log.id} className="transition-colors hover:bg-muted/40">
-                    <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap text-xs text-muted-foreground">
-                      {formatDate(log.createdAt)}
+                    <td className="px-3 sm:px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                      <div className="font-medium text-foreground">{formatDateShort(log.createdAt)}</div>
+                      <div className="text-[11px] text-muted-foreground">{formatTime(log.createdAt)}</div>
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5">
+                    <td className="px-3 sm:px-4 py-3 min-w-[140px] max-w-[180px]">
                       {log.actor ? (
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0">
                             {getInitials(log.actor.fullName)}
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground text-xs sm:text-sm truncate">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-foreground text-xs truncate" title={log.actor.fullName || ""}>
                               {log.actor.fullName}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">{log.actor.email}</p>
+                            <p className="text-[11px] text-muted-foreground truncate" title={log.actor.email || ""}>
+                              {log.actor.email}
+                            </p>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Shield size={14} className="text-muted-foreground/70" />
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Shield size={13} className="text-muted-foreground/70" />
                           <span>{t("system")}</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-3 whitespace-nowrap">
                       <StatusBadge tone={ACTION_TONE[log.action]} dot={false}>
                         {ACTION_LABELS[log.action]}
                       </StatusBadge>
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-3 whitespace-nowrap">
                       <StatusBadge tone={RESOURCE_TONE[log.resource]} dot={false}>
                         {RESOURCE_LABELS[log.resource]}
                       </StatusBadge>
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5">
-                      <p className="max-w-xs truncate text-xs text-muted-foreground" title={log.description || ""}>
+                    <td className="px-3 sm:px-4 py-3 min-w-[130px] max-w-[200px]">
+                      <p className="truncate text-xs text-muted-foreground" title={log.description || ""}>
                         {log.description || "—"}
                       </p>
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5 whitespace-nowrap">
-                      <span className="font-mono text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">
-                        {log.ipAddress || "—"}
+                    <td className="px-3 sm:px-4 py-3 whitespace-nowrap">
+                      <span className="font-mono text-xs text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded" title={log.ipAddress || ""}>
+                        {formatIp(log.ipAddress)}
                       </span>
                     </td>
-                    <td className="px-4 lg:px-6 py-3.5 text-right whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-3 text-right whitespace-nowrap">
                       <Button
                         variant="outline"
                         size="sm"
@@ -758,8 +905,8 @@ export default function AuditLogsPage() {
           </table>
         </div>
 
-        {/* Mobile & Very Small Devices Native Card List View (< 768px) */}
-        <div className="block md:hidden divide-y divide-border">
+        {/* Card List View (Always on < md, or on md+ when viewMode is 'cards') */}
+        <div className={`${viewMode === "cards" ? "block" : "block md:hidden"} divide-y divide-border`}>
           {logs.length === 0 ? (
             <div className="p-8">
               <EmptyState
@@ -819,9 +966,9 @@ export default function AuditLogsPage() {
                     {RESOURCE_LABELS[log.resource]}
                   </StatusBadge>
                   {log.ipAddress && (
-                    <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground ml-auto bg-muted/40 px-1.5 py-0.5 rounded">
+                    <span className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground ml-auto bg-muted/40 px-1.5 py-0.5 rounded" title={log.ipAddress}>
                       <Globe size={11} className="text-muted-foreground/60" />
-                      {log.ipAddress}
+                      {formatIp(log.ipAddress)}
                     </span>
                   )}
                 </div>
@@ -984,9 +1131,13 @@ export default function AuditLogsPage() {
 
               {/* IP Address and User Agent */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-lg border border-border/70 p-3 bg-muted/20">
+                {/* IP Address Card */}
+                <div className="rounded-lg border border-border/70 p-3 bg-muted/20 space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">{t("ipAddress")}</span>
+                    <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                      <Globe size={13} className="text-primary/80" />
+                      {t("ipAddress")}
+                    </span>
                     {selectedLog.ipAddress && (
                       <button
                         onClick={() => handleCopy(selectedLog.ipAddress || "", "ip")}
@@ -997,14 +1148,82 @@ export default function AuditLogsPage() {
                       </button>
                     )}
                   </div>
-                  <p className="mt-1 font-mono text-xs text-foreground">
-                    {selectedLog.ipAddress || "—"}
-                  </p>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <p className="font-mono text-xs sm:text-sm text-foreground font-semibold">
+                      {formatIp(selectedLog.ipAddress)}
+                    </p>
+                    {selectedLog.ipAddress?.includes("172.") && (
+                      <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground font-mono">
+                        VPC / Docker Internal
+                      </span>
+                    )}
+                  </div>
+                  {selectedLog.ipAddress?.startsWith("::ffff:") && (
+                    <p className="text-[10px] text-muted-foreground font-mono truncate" title={selectedLog.ipAddress}>
+                      Raw: {selectedLog.ipAddress}
+                    </p>
+                  )}
                 </div>
-                <div className="rounded-lg border border-border/70 p-3 bg-muted/20">
-                  <span className="text-xs font-medium text-muted-foreground">{t("userAgent")}</span>
-                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 break-all" title={selectedLog.userAgent || ""}>
-                    {selectedLog.userAgent || "—"}
+
+                {/* User Agent Card with Industrial Device & Browser Intelligence */}
+                {(() => {
+                  const uaInfo = parseUserAgentInfo(selectedLog.userAgent);
+                  const DeviceIcon = uaInfo.icon;
+                  return (
+                    <div className="rounded-lg border border-border/70 p-3 bg-muted/20 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                          <DeviceIcon size={13} className="text-primary/80" />
+                          {t("userAgent")}
+                        </span>
+                        {uaInfo.raw && (
+                          <button
+                            onClick={() => handleCopy(uaInfo.raw || "", "ua")}
+                            className="flex items-center gap-1 text-xs text-primary hover:underline"
+                            title="Copy raw User-Agent header string"
+                          >
+                            {copiedField === "ua" ? <Check size={12} /> : <Copy size={12} />}
+                            {copiedField === "ua" ? "Copied" : "Copy Raw"}
+                          </button>
+                        )}
+                      </div>
+
+                      {uaInfo.raw ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center gap-1 bg-primary/10 text-primary font-medium text-xs px-2 py-0.5 rounded">
+                              {uaInfo.browser}
+                            </span>
+                            <span className="inline-flex items-center gap-1 bg-muted text-foreground font-medium text-xs px-2 py-0.5 rounded border border-border">
+                              {uaInfo.device}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground font-mono line-clamp-2 break-all pt-0.5" title={uaInfo.raw}>
+                            {uaInfo.raw}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground italic">
+                            Not captured (Historical log or Server task)
+                          </p>
+                          <p className="text-[10px] text-muted-foreground/80">
+                            Sent by client browsers to identify device/OS.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Informative Security & Forensic Context Banner */}
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-start gap-2.5 text-xs text-foreground/80">
+                <Info size={16} className="text-primary shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-foreground text-xs">Security & Device Attribution</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    The <strong>IP Address</strong> and <strong>User Agent</strong> capture the network origin and software environment (browser, operating system, and device) from which this event was triggered. They are used in forensic audits to verify actor identity and detect account compromise or suspicious automated scripts.
                   </p>
                 </div>
               </div>

@@ -691,7 +691,7 @@ export default function LandingPage() {
           <SectionFadeIn show={showPracticeAreas}>
             <SectionRetryBoundary>
               <SectionRow title={t("sections.browseAreas")} subtitle={t("sections.browseAreasSub")} viewAllHref="/practice-areas" className="bg-background">
-                <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
                   {practiceAreas?.map((area) => (
                     <PracticeAreaCard key={area.specialty} area={area} />
                   ))}

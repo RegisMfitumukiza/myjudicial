@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
-import { signIn as authSignIn } from "next-auth/react";
+import { signIn as authSignIn, signOut } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -118,25 +118,30 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
 
-  const otpExpiresAtRef = useRef(0);
-
   useEffect(() => {
     setOtpRemaining(null);
     setOtpExpired(false);
     if (!otpExpiresAt) return;
     const expiresMs = new Date(otpExpiresAt).getTime();
-    otpExpiresAtRef.current = expiresMs;
-    const initId = setTimeout(() => {
-      const r = Math.max(0, Math.floor((expiresMs - Date.now()) / 1000));
-      setOtpRemaining(r);
-      if (r <= 0) { setOtpExpired(true); return; }
-    }, 0);
+
+    // Guard against client/server clock skew:
+    // If client clock is set fast, diffSec might be <= 0 even though code was just generated.
+    // Default to full 10-minute (600s) window in such cases.
+    const diffSec = Math.floor((expiresMs - Date.now()) / 1000);
+    const initialSec = diffSec > 0 ? diffSec : 600;
+    setOtpRemaining(initialSec);
+
     const interval = setInterval(() => {
-      const next = Math.max(0, Math.floor((otpExpiresAtRef.current - Date.now()) / 1000));
-      setOtpRemaining(next);
-      if (next <= 0) { setOtpExpired(true); clearInterval(interval); }
+      setOtpRemaining((prev) => {
+        if (prev === null || prev <= 1) {
+          setOtpExpired(true);
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
-    return () => { clearTimeout(initId); clearInterval(interval); };
+    return () => clearInterval(interval);
   }, [otpExpiresAt]);
 
   useEffect(() => {
@@ -268,18 +273,21 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
     }
   }
 
-  async function verifyOtp() {
+  async function verifyOtp(codeParam?: string | unknown) {
     if (!pendingEmail) return;
     if (isVerifyingRef.current) return;
-    if (otpExpired) { setError(t("codeExpiredRequestNew")); return; }
-    if (otpCode.length < 6) { setError(t("enterCompleteCode")); return; }
+    const targetCode = (typeof codeParam === "string" && codeParam.trim().length === 6 ? codeParam.trim() : otpCode).trim();
+    if (targetCode.length < 6) { setError(t("enterCompleteCode")); return; }
     isVerifyingRef.current = true;
     setIsLoading(true);
     setError(null);
     try {
+      // Purge any stale session cookie before new sign-in to prevent token contamination
+      await signOut({ redirect: false }).catch(() => {});
+
       const result = await authSignIn("email-otp", {
-        email: pendingEmail,
-        code: otpCode,
+        email: pendingEmail.trim().toLowerCase(),
+        code: targetCode,
         rememberMe: String(rememberMe),
         redirect: false,
       });
@@ -287,6 +295,9 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
         const code = result.code ?? result.error;
         if (code === "TooManyAttempts") {
           throw new Error(t("codeTooManyAttempts"));
+        }
+        if (code === "ServerError") {
+          throw new Error(t("serverError") || "Server temporarily unavailable. Please try again.");
         }
         throw new Error(t("codeInvalidExpired"));
       }
@@ -467,8 +478,8 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
             <OtpInput
               value={otpCode}
               onChange={setOtpCode}
-              onComplete={verifyOtp}
-              disabled={isOtpLoading || otpExpired}
+              onComplete={(code) => verifyOtp(code)}
+              disabled={isOtpLoading}
               error={error}
             />
           </div>
@@ -495,7 +506,7 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
 
           <Button
             type="submit"
-            disabled={isOtpLoading || otpCode.length < 6 || otpExpired}
+            disabled={isOtpLoading || otpCode.length < 6}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-bold text-on-brand shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {isLoading ? (

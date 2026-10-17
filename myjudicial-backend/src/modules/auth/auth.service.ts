@@ -53,7 +53,7 @@ function generateStrongPassword(): string {
   const lower = "abcdefghijklmnopqrstuvwxyz";
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const digits = "0123456789";
-  const specials = "!@#$%^&*()_+-=[]{};':\"|<>?,./`~";
+  const specials = "!@#$*&-_";
   const getRandom = (chars: string) => chars[crypto.randomInt(chars.length)];
   return `${getRandom(lower)}${getRandom(upper)}${getRandom(digits)}${getRandom(specials)}${crypto.randomUUID().replace(/-/g, "")}`;
 }
@@ -548,6 +548,7 @@ export const AuthService = {
     const { error: updateError } = await retrySupabase(
       () => supabaseAdmin.auth.admin.updateUserById(dbUser.id, {
         password: otp,
+        email_confirm: true,
       }),
       "updateUserById (otp login)"
     );
@@ -560,14 +561,30 @@ export const AuthService = {
       throw new ServiceUnavailableError(getErrorMessage('SERVER_ERROR'));
     }
 
-    // Sign in with the one-time password
-    const { data: sessionData, error: sessionError } = await retrySupabase(
-      () => supabaseAnon.auth.signInWithPassword({
-        email: dto.email,
-        password: otp,
-      }),
-      "signInWithPassword (otp login)"
-    );
+    // Sign in with the one-time password.
+    // GoTrue may experience a transient propagation delay right after admin password update.
+    // Retry up to 3 times with brief backoff if session creation is not immediate.
+    let sessionData: any = null;
+    let sessionError: any = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const res = await retrySupabase(
+        () => supabaseAnon.auth.signInWithPassword({
+          email: dto.email,
+          password: otp,
+        }),
+        `signInWithPassword attempt ${attempt} (otp login)`
+      );
+      if (res.data?.session) {
+        sessionData = res.data;
+        sessionError = null;
+        break;
+      }
+      sessionError = res.error;
+      logger.warn(`Supabase signInWithPassword attempt ${attempt}/3 did not yield session (${sessionError?.message ?? "unknown error"}), retrying...`);
+      if (attempt < 3) {
+        await sleep(250 * attempt);
+      }
+    }
     
     if (sessionError || !sessionData?.session) {
       logger.error("Failed to create session with temporary password", {

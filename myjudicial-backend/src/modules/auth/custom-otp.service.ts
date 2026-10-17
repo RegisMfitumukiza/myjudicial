@@ -92,7 +92,7 @@ export const CustomOtpService = {
     await redisSet(attemptsKey, (attempts + 1).toString(), ATTEMPT_WINDOW_SECONDS);
     
     // Verify OTP
-    if (storedOtp !== token) {
+    if (storedOtp?.trim() !== token?.trim()) {
       logger.warn("Custom OTP verification failed - incorrect code", {
         email,
         attempts: attempts + 1,
@@ -130,7 +130,7 @@ export const CustomOtpService = {
   checkOtp: async (email: string, token: string): Promise<boolean> => {
     const storedOtp = await redisGet(`${REDIS_KEY_PREFIX}${email}`);
     if (!storedOtp) return false;
-    return storedOtp === token;
+    return storedOtp.trim() === token.trim();
   },
 
   /**

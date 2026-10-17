@@ -325,7 +325,8 @@ export default function SignUpPage() {
 
   const otpRemaining = useMemo(() => {
     if (!otpExpiresAt) return null;
-    return Math.max(0, Math.floor((new Date(otpExpiresAt).getTime() - Date.now()) / 1000));
+    const diffSec = Math.floor((new Date(otpExpiresAt).getTime() - Date.now()) / 1000);
+    return Math.max(0, diffSec > 0 ? diffSec : Math.max(0, 600 - tick));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otpExpiresAt, tick]);
 
@@ -493,19 +494,19 @@ export default function SignUpPage() {
   }
 
   /* ────────── OTP verify ────────── */
-  async function verifyOtp() {
+  async function verifyOtp(codeParam?: string | unknown) {
     if (!pendingEmail) return;
     if (isVerifyingRef.current) return;
-    if (otpExpired) { setApiError(t("otp.codeExpired")); return; }
-    if (otpCode.length < 6) { setApiError(t("otp.enterComplete")); return; }
+    const targetCode = (typeof codeParam === "string" && codeParam.trim().length === 6 ? codeParam.trim() : otpCode).trim();
+    if (targetCode.length < 6) { setApiError(t("otp.enterComplete")); return; }
     isVerifyingRef.current = true;
     setIsLoading(true);
     setApiError(null);
     try {
-      await signOut({ redirect: false });
+      await signOut({ redirect: false }).catch(() => {});
       const result = await authSignIn("email-otp", {
-        email: pendingEmail,
-        code: otpCode,
+        email: pendingEmail.trim().toLowerCase(),
+        code: targetCode,
         rememberMe: "true",
         redirect: false,
       });
@@ -1013,8 +1014,8 @@ export default function SignUpPage() {
               <OtpInput
                 value={otpCode}
                 onChange={setOtpCode}
-                onComplete={verifyOtp}
-                disabled={isLoading || isResending || otpExpired}
+                onComplete={(code) => verifyOtp(code)}
+                disabled={isLoading || isResending}
                 error={apiError}
               />
 

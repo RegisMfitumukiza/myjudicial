@@ -84,7 +84,19 @@ function throwMapAuthFailure(error: unknown): never {
     err.code = "TooManyLoginAttempts";
     throw err;
   }
-  return null as never;
+  if (lower.includes("service unavailable") || lower.includes("server error") || lower.includes("cannot reach backend")) {
+    const err = new CredentialsSignin();
+    err.code = "ServerError";
+    throw err;
+  }
+  if (lower.includes("account not found")) {
+    const err = new CredentialsSignin();
+    err.code = "AccountNotFound";
+    throw err;
+  }
+  const err = new CredentialsSignin();
+  err.code = "CredentialsSignin";
+  throw err;
 }
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
@@ -205,7 +217,8 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       
       if (user) {
         const userAny = user as Record<string, unknown>;
-        // Complete token replacement on new login
+        // Complete token replacement on new login — clear any residual session errors
+        delete token.error;
         token.id = user.id;
         token.accessToken = userAny.accessToken as string;
         token.refreshToken = userAny.refreshToken as string;

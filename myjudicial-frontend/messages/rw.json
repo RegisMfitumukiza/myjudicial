@@ -3260,7 +3260,9 @@
         "notUrgent": "Ntigihumbiko",
         "moderate": "Biragoye",
         "urgent": "Birihumbiko",
-        "emergency": "Ibihumbiko"
+        "emergency": "Ibihumbiko",
+        "emergencyNoticeTitle": "Icyitonderwa cy'Ibibazo Byihutirwa Cyane",
+        "emergencyNoticeDesc": "Niba wowe cyangwa undi muntu muri mu kaga gakomeye, mwafashwe na polisi cyangwa mukeneye ubutabazi bwihuse, hamagara Polisi y'u Rwanda kuri 112. Inama za MyJudicial zigenewe ibibazo by'amategeko bisanzwe biteganyijwe."
       },
       "location": {
         "district": "Akagerero kawe",

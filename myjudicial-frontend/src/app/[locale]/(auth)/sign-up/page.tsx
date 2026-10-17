@@ -442,6 +442,19 @@ export default function SignUpPage() {
   async function submitOnboarding() {
     if (!isCitizenFlow || !cArea) return;
     try {
+      sessionStorage.setItem("mj_client_intake", JSON.stringify({
+        area: cArea,
+        situation: cSituation.trim(),
+        urgency: cUrgency,
+        district: cDistrict,
+        language: cLanguage,
+        consultation: cConsult,
+      }));
+    } catch {
+      // ignore
+    }
+
+    try {
       await apiFetch("/auth/onboarding", {
         method: "POST",
         body: {
@@ -490,7 +503,14 @@ export default function SignUpPage() {
         // ignore
       }
       await submitOnboarding();
-      setTimeout(() => router.push("/post-auth"), 1500);
+
+      // Tailor the initial discovery landing: pre-filter lawyers by their chosen area and district
+      const searchParams = new URLSearchParams();
+      if (cArea) searchParams.set("specialty", cArea);
+      if (cDistrict) searchParams.set("city", cDistrict);
+      if (cUrgency === "urgent" || cUrgency === "emergency") searchParams.set("instant", "1");
+      const targetUrl = isCitizenFlow && cArea ? `/search?${searchParams.toString()}` : "/post-auth";
+      setTimeout(() => router.push(targetUrl), 1500);
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("toast.verificationFailed");
       setOtpCode("");
@@ -703,6 +723,16 @@ export default function SignUpPage() {
               </button>
             ))}
           </div>
+
+          {cUrgency === "emergency" && (
+            <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-red-300 bg-red-50 p-3.5 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold">{t("citizen.urgency.emergencyNoticeTitle")}</p>
+                <p className="leading-relaxed opacity-90">{t("citizen.urgency.emergencyNoticeDesc")}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -725,13 +755,18 @@ export default function SignUpPage() {
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-foreground">{t("citizen.language.label")}</label>
-            <div className="flex flex-col gap-2">
-              {[["kinyarwanda", tCommon("languages.rw")], ["english", tCommon("languages.en")], ["french", tCommon("languages.fr")]].map(([v, l]) => (
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                ["kinyarwanda", tCommon("languages.rw")],
+                ["english", tCommon("languages.en")],
+                ["french", tCommon("languages.fr")],
+                ["swahili", tCommon("languages.sw")],
+              ].map(([v, l]) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setCLanguage(v)}
-                  className={`flex items-center gap-2 rounded-xl border-2 px-4 py-2 text-sm font-semibold transition-all ${cLanguage === v ? "border-brand-dark dark:border-white bg-accent/40 text-foreground font-bold" : "border-border bg-background text-muted-foreground hover:border-border"
+                  className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-sm font-semibold transition-all ${cLanguage === v ? "border-brand-dark dark:border-white bg-accent/40 text-foreground font-bold" : "border-border bg-background text-muted-foreground hover:border-border"
                     }`}
                 >
                   {cLanguage === v && <Check size={13} />} {l}

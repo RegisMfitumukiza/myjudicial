@@ -172,11 +172,23 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
         if (parsed.selectedSlot) setSelectedSlot(parsed.selectedSlot);
         if (parsed.reason) setReason(parsed.reason);
         sessionStorage.removeItem(`mj_pending_booking_${id}`);
+      } else {
+        // If no pending booking draft, check if the client recently completed onboarding intake
+        const intakeRaw = sessionStorage.getItem("mj_client_intake");
+        if (intakeRaw) {
+          const intake = JSON.parse(intakeRaw);
+          if (intake.situation && !reason) {
+            const urgencyPrefix = (intake.urgency === "urgent" || intake.urgency === "emergency")
+              ? `[${intake.urgency.toUpperCase()}] `
+              : "";
+            setReason(`${urgencyPrefix}${intake.situation}`);
+          }
+        }
       }
     } catch {
       // ignore
     }
-  }, [id]);
+  }, [id, reason]);
 
   const servicesResult = useGetExpertsExpertIdServices(id);
   const services: LegalService[] = (servicesResult.data as { data?: { data?: LegalService[] } } | undefined)?.data?.data ?? [];

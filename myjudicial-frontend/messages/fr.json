@@ -3260,7 +3260,9 @@
         "notUrgent": "Pas urgent",
         "moderate": "Modéré",
         "urgent": "Urgent",
-        "emergency": "Urgence"
+        "emergency": "Urgence",
+        "emergencyNoticeTitle": "Avis d'urgence immédiate",
+        "emergencyNoticeDesc": "Si vous ou une autre personne êtes en danger physique immédiat, faites face à une arrestation soudaine ou avez besoin d'une protection policière urgente, appelez la Police Nationale du Rwanda au 112. Les consultations MyJudicial sont destinées aux conseils juridiques planifiés."
       },
       "location": {
         "district": "Votre district",

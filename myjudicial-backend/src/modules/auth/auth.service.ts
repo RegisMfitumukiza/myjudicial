@@ -432,9 +432,20 @@ export const AuthService = {
       throw new AuthenticationError(getErrorMessage("UNAUTHORIZED"));
     }
 
+    const langMap: Record<string, string> = {
+      english: "en",
+      french: "fr",
+      kinyarwanda: "rw",
+      swahili: "sw",
+    };
+    const preferredLanguage = dto.citizen?.language ? langMap[dto.citizen.language] : undefined;
+
     await prisma.user.update({
       where: { id: userId },
-      data: { onboarding: dto as unknown as Prisma.InputJsonValue },
+      data: {
+        onboarding: dto as unknown as Prisma.InputJsonValue,
+        ...(preferredLanguage && { preferredLanguage }),
+      },
     });
 
     await writeAuditLog({

@@ -5132,7 +5132,9 @@
         "notUrgent": "Not urgent",
         "moderate": "Moderate",
         "urgent": "Urgent",
-        "emergency": "Emergency"
+        "emergency": "Emergency",
+        "emergencyNoticeTitle": "Immediate Emergency Notice",
+        "emergencyNoticeDesc": "If you or someone else is in immediate physical danger, facing sudden arrest, or requires emergency police protection, call Rwanda National Police directly at 112. MyJudicial consultations are for scheduled legal advice."
       },
       "location": {
         "district": "Your district",

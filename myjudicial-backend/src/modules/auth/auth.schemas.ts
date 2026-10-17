@@ -127,7 +127,7 @@ export const onboardingSchema = z.object({
       situation: z.string().trim().max(500).optional(),
       urgency: z.enum(["not-urgent", "moderate", "urgent", "emergency"]).optional(),
       district: z.string().trim().max(50).optional(),
-      language: z.enum(["kinyarwanda", "english", "french"]).optional(),
+      language: z.enum(["kinyarwanda", "english", "french", "swahili"]).optional(),
       consultation: z.enum(["video", "phone", "inperson"]).optional(),
     })
     .optional(),

@@ -180,6 +180,7 @@ export default function SignUpPage() {
   const [tick, setTick] = useState(0);
 
   const cardRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
   const countdown = useCountdown(60);
   const isVerifyingRef = useRef(false);
 
@@ -330,10 +331,24 @@ export default function SignUpPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCitizenFlow]);
 
-  // Move focus to the card on every step change so keyboard and screen-reader
-  // users are announced into the new step.
+  // On every step change, ensure the user is brought to the top of the page/wizard
+  // and focus the card for accessibility without causing scroll displacement.
   useEffect(() => {
-    cardRef.current?.focus();
+    const scrollToTop = () => {
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
+      if (topRef.current) {
+        topRef.current.scrollIntoView({ behavior: "instant", block: "start" });
+      }
+      cardRef.current?.focus({ preventScroll: true });
+    };
+
+    scrollToTop();
+    const raf = requestAnimationFrame(scrollToTop);
+    return () => cancelAnimationFrame(raf);
   }, [step]);
 
   /* ────────── account field validation ────────── */
@@ -1032,7 +1047,7 @@ export default function SignUpPage() {
 
       {/* ── Wizard body ── */}
       <div className="flex flex-1 items-center justify-center px-3 min-[360px]:px-4 py-3 sm:py-6">
-        <div className="w-full max-w-3xl">
+        <div ref={topRef} className="w-full max-w-3xl">
 
           {/* Progress */}
           {role && <ProgressBar step={step} labels={labels} />}

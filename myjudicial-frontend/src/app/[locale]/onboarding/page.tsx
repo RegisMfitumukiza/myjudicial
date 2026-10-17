@@ -911,6 +911,15 @@ function OnboardingWizard() {
     }
   }, [step, citizenData, expertData]);
 
+  // 3. Auto-scroll to top on step change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, [step]);
+
   const totalSteps = 5;
   const labels     = role === "CITIZEN"
     ? [t("progress.legalArea"), t("progress.situation"), t("progress.location"), t("progress.preferences"), t("progress.done")]

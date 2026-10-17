@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { SearchFilters, SortOption, ProximityFilter } from "../types";
+import { findDistrictCoordinates } from "../constants";
 
 export type MapCenter = { lat: number; lng: number };
 
@@ -16,9 +17,12 @@ export function useSearchState() {
 
   const latParam = searchParams.get("lat");
   const lngParam = searchParams.get("lng");
+  const districtParam = searchParams.get("district") ?? searchParams.get("city") ?? searchParams.get("q");
+  const districtCoords = findDistrictCoordinates(districtParam);
+
   const center: MapCenter = {
-    lat: latParam ? Number(latParam) : -1.9441,
-    lng: lngParam ? Number(lngParam) : 30.0619,
+    lat: latParam ? Number(latParam) : districtCoords ? districtCoords.lat : -1.9441,
+    lng: lngParam ? Number(lngParam) : districtCoords ? districtCoords.lng : 30.0619,
   };
 
   const setFilters = useCallback(
@@ -84,8 +88,12 @@ function parseFiltersFromParams(params: URLSearchParams): SearchFilters {
     ? specialtyRaw.split(",").filter(Boolean)
     : [];
 
+  const rawQ = params.get("q") ?? "";
+  const isDistrictQuery = Boolean(rawQ && findDistrictCoordinates(rawQ));
+  const searchQuery = isDistrictQuery ? "" : rawQ;
+
   return {
-    searchQuery: params.get("q") ?? params.get("city") ?? "",
+    searchQuery,
     specialties,
     sort: (params.get("sort") as SortOption) ?? "NEAREST",
     proximity: validateProximity(params.get("proximity")),

@@ -44,47 +44,6 @@ export function SearchPageClient() {
     [practiceAreas, tSpecialties]
   );
 
-  const activeContext = useMemo(() => {
-    if (filters.sort === "RECOMMENDED") {
-      return {
-        title: t("contextBannerRecommendedTitle"),
-        desc: t("contextBannerRecommendedDesc"),
-        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
-      };
-    }
-    if (filters.availableToday) {
-      return {
-        title: t("contextBannerAvailableTodayTitle"),
-        desc: t("contextBannerAvailableTodayDesc"),
-        onReset: () => setFilters((prev) => ({ ...prev, availableToday: false })),
-      };
-    }
-    if (filters.sort === "HIGHEST_RATED") {
-      return {
-        title: t("contextBannerHighestRatedTitle"),
-        desc: t("contextBannerHighestRatedDesc"),
-        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
-      };
-    }
-    if (filters.specialties.length > 0) {
-      const labels = filters.specialties.map((s) => {
-        return getLocalizedSpecialty(s, tSpecialties);
-      });
-      const title =
-        labels.length === 1
-          ? t("specialistsIn", { specialty: labels[0] })
-          : t("practiceAreasCount", {
-              count: labels.length,
-              areas: `${labels.slice(0, 2).join(", ")}${labels.length > 2 ? "..." : ""}`,
-            });
-      return {
-        title,
-        desc: t("verifiedAdvocatesInSpecialties", { specialties: labels.join(", ") }),
-        onReset: () => setFilters((prev) => ({ ...prev, specialties: [] })),
-      };
-    }
-    return null;
-  }, [filters.sort, filters.availableToday, filters.specialties, tSpecialties, setFilters, t]);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -151,10 +110,99 @@ export function SearchPageClient() {
     });
   }, [allLawyers, filters.maxBudgetRwf]);
 
+  const isLocalRadius = filters.proximity !== "anywhere";
+  const shouldFetchStatewideFallback =
+    !isLoading &&
+    filteredLawyers.length === 0 &&
+    isLocalRadius &&
+    filters.specialties.length > 0;
+
+  const { data: statewideResults } = useExpertSearch(
+    {
+      lat: center.lat,
+      lng: center.lng,
+      radius: 500, // Search all Rwanda
+      specialties: filters.specialties,
+      sort: filters.sort,
+      limit: 50,
+      search: filters.searchQuery.trim() || undefined,
+    },
+    { enabled: shouldFetchStatewideFallback }
+  );
+
+  const statewideLawyers = useMemo(() => {
+    const list = statewideResults?.lawyers ?? [];
+    return list.filter((lawyer) => {
+      if (
+        filters.maxBudgetRwf < 200000 &&
+        lawyer.startingRateRwf > filters.maxBudgetRwf
+      )
+        return false;
+      return true;
+    });
+  }, [statewideResults?.lawyers, filters.maxBudgetRwf]);
+
+  const isShowingStatewideFallback =
+    filteredLawyers.length === 0 &&
+    statewideLawyers.length > 0 &&
+    isLocalRadius;
+
+  const displayedLawyers = isShowingStatewideFallback ? statewideLawyers : filteredLawyers;
+
   const selectedLawyer = useMemo(() => {
     if (!selectedId) return null;
-    return filteredLawyers.find((l) => l.id === selectedId) ?? null;
-  }, [selectedId, filteredLawyers]);
+    return displayedLawyers.find((l) => l.id === selectedId) ?? null;
+  }, [selectedId, displayedLawyers]);
+
+  const activeContext = useMemo(() => {
+    if (isShowingStatewideFallback && filters.specialties.length > 0) {
+      const labels = filters.specialties.map((s) => getLocalizedSpecialty(s, tSpecialties));
+      return {
+        title: `${labels[0] || "Specialist"} Advocates Across Rwanda`,
+        desc: `No advocates found with physical offices directly in this local radius. Showing verified ${labels.join(", ")} advocates across Rwanda available for video, phone, or statewide consultations.`,
+        onReset: () => setFilters((prev) => ({ ...prev, proximity: "anywhere" })),
+      };
+    }
+    if (filters.sort === "RECOMMENDED") {
+      return {
+        title: t("contextBannerRecommendedTitle"),
+        desc: t("contextBannerRecommendedDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
+      };
+    }
+    if (filters.availableToday) {
+      return {
+        title: t("contextBannerAvailableTodayTitle"),
+        desc: t("contextBannerAvailableTodayDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, availableToday: false })),
+      };
+    }
+    if (filters.sort === "HIGHEST_RATED") {
+      return {
+        title: t("contextBannerHighestRatedTitle"),
+        desc: t("contextBannerHighestRatedDesc"),
+        onReset: () => setFilters((prev) => ({ ...prev, sort: "NEAREST" })),
+      };
+    }
+    if (filters.specialties.length > 0) {
+      const labels = filters.specialties.map((s) => {
+        return getLocalizedSpecialty(s, tSpecialties);
+      });
+      const title =
+        labels.length === 1
+          ? t("specialistsIn", { specialty: labels[0] })
+          : t("practiceAreasCount", {
+              count: labels.length,
+              areas: `${labels.slice(0, 2).join(", ")}${labels.length > 2 ? "..." : ""}`,
+            });
+      return {
+        title,
+        desc: t("verifiedAdvocatesInSpecialties", { specialties: labels.join(", ") }),
+        onReset: () => setFilters((prev) => ({ ...prev, specialties: [] })),
+      };
+    }
+    return null;
+  }, [isShowingStatewideFallback, filters.sort, filters.availableToday, filters.specialties, tSpecialties, setFilters, t]);
 
   const activeFilterCount = useMemo(() => {
     let count = filters.specialties.length;
@@ -242,7 +290,7 @@ export function SearchPageClient() {
   );
 
   const showMap = viewMode === "split" || (isMobile && mapExpanded);
-  const hasResults = filteredLawyers.length > 0;
+  const hasResults = displayedLawyers.length > 0;
 
   return (
     <div
@@ -279,7 +327,7 @@ export function SearchPageClient() {
         {showMap && (
           <div className="relative min-h-0 min-w-0">
             <MapView
-              lawyers={filteredLawyers}
+              lawyers={displayedLawyers}
               selectedId={selectedId}
               hoveredId={hoveredId}
               onSelect={handleSelect}
@@ -361,7 +409,7 @@ export function SearchPageClient() {
               />
             ) : hasResults ? (
               <ResultsList
-                lawyers={filteredLawyers}
+                lawyers={displayedLawyers}
                 selectedId={selectedId}
                 hoveredId={hoveredId}
                 onHover={setHoveredId}

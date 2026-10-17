@@ -50,6 +50,20 @@ export const ProfileService = {
       }
     }
 
+    // Auto-detect district if coordinates exist but city is missing or generic
+    if (enhancedDto.latitude && enhancedDto.longitude && (!enhancedDto.city || enhancedDto.city.trim() === "" || enhancedDto.city.toLowerCase() === "rwanda" || enhancedDto.city.toLowerCase() === "kigali")) {
+      const detectedDistrict = GeocodingService.detectDistrict(
+        Number(enhancedDto.latitude),
+        Number(enhancedDto.longitude)
+      );
+      enhancedDto.city = detectedDistrict;
+      logger.info("Auto-detected district from coordinates", {
+        userId,
+        coordinates: { lat: enhancedDto.latitude, lng: enhancedDto.longitude },
+        detectedDistrict,
+      });
+    }
+
     const profile = await ProfileRepository.create(userId, enhancedDto);
 
     // Every expert needs at least one bookable service to appear bookable to
@@ -142,7 +156,12 @@ export const ProfileService = {
       throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
     }
 
-    const updated = await ProfileRepository.update(profile.id, dto);
+    let enhancedDto = { ...dto };
+    if (enhancedDto.latitude && enhancedDto.longitude && (!enhancedDto.city || enhancedDto.city.trim() === "" || enhancedDto.city.toLowerCase() === "rwanda" || enhancedDto.city.toLowerCase() === "kigali")) {
+      enhancedDto.city = GeocodingService.detectDistrict(Number(enhancedDto.latitude), Number(enhancedDto.longitude));
+    }
+
+    const updated = await ProfileRepository.update(profile.id, enhancedDto);
 
     // Sync the default Consultation service price when base fee changes
     if (dto.baseConsultationFee !== undefined || dto.currency !== undefined) {

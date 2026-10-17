@@ -32,6 +32,7 @@ import { apiFetch } from "@/lib/api/client";
 import { ExpertOnboardingHeader, StepProgress } from "./ExpertOnboardingHeader";
 import { ProfilePhotoUpload } from "./ProfilePhotoUpload";
 import { FreeLocationInput } from "@/shared/components/location/FreeLocationInput";
+import { extractDistrictFromAddress, detectDistrictFromCoordinates } from "@/features/search/constants";
 import {
   useExpertProfile,
   EXPERT_PROFILE_QUERY_KEY,
@@ -882,6 +883,14 @@ export function ExpertOnboardingWizard({ fullName }: { fullName: string }) {
                     updateField("location", location);
                     if (location?.address) {
                       updateField("officeAddress", location.address);
+                      const districtFromAddr = extractDistrictFromAddress(location.address);
+                      if (districtFromAddr) {
+                        updateField("city", districtFromAddr);
+                      } else if (location.latitude && location.longitude) {
+                        updateField("city", detectDistrictFromCoordinates(location.latitude, location.longitude));
+                      }
+                    } else if (location?.latitude && location?.longitude) {
+                      updateField("city", detectDistrictFromCoordinates(location.latitude, location.longitude));
                     }
                   }}
                   required={false}

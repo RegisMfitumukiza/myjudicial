@@ -86,6 +86,29 @@ const RWANDA_LOCATIONS = {
 
 export class GeocodingService {
   /**
+   * Determine the closest Rwandan district from latitude and longitude.
+   * Compares coordinates against the centers of all 30 official districts.
+   */
+  static detectDistrict(lat: number, lng: number): string {
+    let closestDistrict = "Nyarugenge";
+    let minDistanceSq = Infinity;
+
+    for (const province of Object.values(RWANDA_LOCATIONS.provinces)) {
+      for (const [districtName, district] of Object.entries(province.districts)) {
+        const dLat = lat - district.center[0];
+        const dLng = lng - district.center[1];
+        const distSq = dLat * dLat + dLng * dLng;
+        if (distSq < minDistanceSq) {
+          minDistanceSq = distSq;
+          closestDistrict = districtName;
+        }
+      }
+    }
+
+    return closestDistrict;
+  }
+
+  /**
    * FREE: Validate address using Nominatim (OpenStreetMap)
    * No API key required, unlimited usage
    */

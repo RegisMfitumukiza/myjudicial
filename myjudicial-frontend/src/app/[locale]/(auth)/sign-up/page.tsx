@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { apiFetch } from "@/lib/api/client";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
+import { findDistrictCoordinates } from "@/features/search/constants";
 
 /* ══════════════════════════ DATA ══════════════════════════ */
 
@@ -523,7 +524,14 @@ export default function SignUpPage() {
       // Tailor the initial discovery landing: pre-filter lawyers by their chosen area and district
       const searchParams = new URLSearchParams();
       if (cArea) searchParams.set("specialty", cArea);
-      if (cDistrict) searchParams.set("city", cDistrict);
+      if (cDistrict) {
+        searchParams.set("district", cDistrict);
+        const coords = findDistrictCoordinates(cDistrict);
+        if (coords) {
+          searchParams.set("lat", coords.lat.toFixed(4));
+          searchParams.set("lng", coords.lng.toFixed(4));
+        }
+      }
       if (cUrgency === "urgent" || cUrgency === "emergency") searchParams.set("instant", "1");
       const targetUrl = isCitizenFlow && cArea ? `/search?${searchParams.toString()}` : "/post-auth";
       setTimeout(() => router.push(targetUrl), 1500);

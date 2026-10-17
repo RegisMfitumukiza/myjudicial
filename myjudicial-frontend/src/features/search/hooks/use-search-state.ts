@@ -85,7 +85,7 @@ function parseFiltersFromParams(params: URLSearchParams): SearchFilters {
     : [];
 
   return {
-    searchQuery: params.get("q") ?? "",
+    searchQuery: params.get("q") ?? params.get("city") ?? "",
     specialties,
     sort: (params.get("sort") as SortOption) ?? "NEAREST",
     proximity: validateProximity(params.get("proximity")),

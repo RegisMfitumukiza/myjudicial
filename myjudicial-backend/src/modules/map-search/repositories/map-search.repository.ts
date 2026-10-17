@@ -135,6 +135,7 @@ export const MapSearchRepository = {
           u."firstName" ILIKE ${"%" + search + "%"}
           OR u."lastName" ILIKE ${"%" + search + "%"}
           OR e."displayName" ILIKE ${"%" + search + "%"}
+          OR e."city" ILIKE ${"%" + search + "%"}
         )`
       );
     }

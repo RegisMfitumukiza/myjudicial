@@ -147,6 +147,18 @@ export default function SignUpPage() {
 
   /* ─── dynamic specialties ─── */
   type Specialty = { id: string; slug: string; label: string; description: string | null; icon: string | null; group: string | null };
+
+  const FALLBACK_SPECIALTIES: Specialty[] = [
+    { id: "1", slug: "family_law", label: "Family Law", description: "Divorce, custody, adoption, domestic relations", icon: "Users", group: "Civil" },
+    { id: "2", slug: "property_law", label: "Property & Land Law", description: "Land disputes, titles, tenancy, transactions", icon: "Home", group: "Civil" },
+    { id: "3", slug: "business_corporate", label: "Business & Corporate Law", description: "Company formation, governance, commercial contracts", icon: "Briefcase", group: "Commercial" },
+    { id: "4", slug: "criminal_defense", label: "Criminal Defense", description: "Representation, appeals, bail applications", icon: "ShieldCheck", group: "Criminal" },
+    { id: "5", slug: "employment_law", label: "Employment & Labor", description: "Workplace disputes, wrongful dismissal, contracts", icon: "Users", group: "Employment" },
+    { id: "6", slug: "contract_law", label: "Contract Law", description: "Commercial agreements, breach of contract, drafting", icon: "FileText", group: "Commercial" },
+    { id: "7", slug: "tax_law", label: "Tax & Revenue Law", description: "Tax planning, audits, compliance, RRA disputes", icon: "Calculator", group: "Commercial" },
+    { id: "8", slug: "immigration_law", label: "Immigration Law", description: "Visas, permits, residency, citizenship", icon: "Globe", group: "Immigration" },
+  ];
+
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [specialtiesLoading, setSpecialtiesLoading] = useState(true);
 
@@ -155,9 +167,12 @@ export default function SignUpPage() {
       .then((r) => r.json())
       .then((res) => {
         const items = res?.data ?? res;
-        if (Array.isArray(items)) setSpecialties(items);
+        if (Array.isArray(items) && items.length > 0) setSpecialties(items);
+        else setSpecialties(FALLBACK_SPECIALTIES);
       })
-      .catch(() => {})
+      .catch(() => {
+        setSpecialties(FALLBACK_SPECIALTIES);
+      })
       .finally(() => setSpecialtiesLoading(false));
   }, []);
 
@@ -457,6 +472,7 @@ export default function SignUpPage() {
     try {
       await apiFetch("/auth/onboarding", {
         method: "POST",
+        skipLogoutOn401: true,
         body: {
           role: "CITIZEN",
           citizen: {

@@ -192,16 +192,27 @@ export async function refreshAccessToken(): Promise<string | null> {
   return refreshPromise;
 }
 
+let isLoggingOut = false;
+
 /**
  * Logs out the user by clearing tokens and redirecting to login.
+ * Guarded against concurrent calls and auth-page loops.
  */
 async function handleLogout() {
+  if (isLoggingOut) return;
+  isLoggingOut = true;
+
   setCachedAuthToken(null);
   if (typeof window !== "undefined") {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("refresh_token");
+    sessionStorage.removeItem("tokenExpiresAt");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("tokenExpiresAt");
   }
 
@@ -214,14 +225,18 @@ async function handleLogout() {
 
   // Redirect to sign-in with locale prefix and admin parameter if applicable
   if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("mj_lang");
-    const match = window.location.pathname.match(/^\/(en|fr|rw)(\/|$)/);
-    const locale = match ? match[1] : (stored && ["en", "fr", "rw"].includes(stored) ? stored : "en");
-    const isAdmin =
-      window.location.pathname.includes("/admin") ||
-      window.location.search.includes("admin=1") ||
-      window.location.hostname.toLowerCase().startsWith("admin.");
-    window.location.href = isAdmin ? `/${locale}/sign-in?admin=1` : `/${locale}/sign-in`;
+    const pathname = window.location.pathname;
+    const isAuthPage = /\/(sign-in|sign-up|post-auth|forgot-password|reset-password)(\/|$)/.test(pathname);
+    if (!isAuthPage) {
+      const stored = localStorage.getItem("mj_lang");
+      const match = pathname.match(/^\/(en|fr|rw)(\/|$)/);
+      const locale = match ? match[1] : (stored && ["en", "fr", "rw"].includes(stored) ? stored : "en");
+      const isAdmin =
+        pathname.includes("/admin") ||
+        window.location.search.includes("admin=1") ||
+        window.location.hostname.toLowerCase().startsWith("admin.");
+      window.location.href = isAdmin ? `/${locale}/sign-in?admin=1` : `/${locale}/sign-in`;
+    }
   }
 }
 
@@ -295,7 +310,9 @@ async function fetchWithRefresh<T>(
     const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
     if (isOnline && typeof window !== "undefined") {
       const session = await getSession();
-      const isTerminal = (session as any)?.error === "RefreshAccessTokenError" || !session;
+      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      const isProtectedRoute = /\/(client|expert|admin)(\/|$)/.test(currentPath);
+      const isTerminal = (session as any)?.error === "RefreshAccessTokenError" || (!session && isProtectedRoute);
       if (isTerminal) {
         console.warn("[apiClient] Session permanently expired, logging out...");
         await handleLogout();

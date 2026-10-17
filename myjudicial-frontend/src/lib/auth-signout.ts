@@ -53,12 +53,19 @@ export function getSignOutRedirectUrl(options?: {
   return isAdmin ? `/${locale}/sign-in?admin=1` : `/${locale}/sign-in`;
 }
 
+let isSigningOut = false;
+
+export function resetSignOutLock(): void {
+  isSigningOut = false;
+}
+
 /**
  * Executes a clean, robust sign-out:
- * 1. Invalidates backend refresh tokens via /auth/logout.
- * 2. Clears all client-side cached auth tokens and session storage.
- * 3. Calls NextAuth signOut with the designated sign-in target URL.
- * 4. Ensures window.location navigates to the sign-in URL if needed.
+ * 1. Prevents duplicate concurrent sign-out calls.
+ * 2. Invalidates backend refresh tokens via /auth/logout.
+ * 3. Clears all client-side cached auth tokens and session storage.
+ * 4. Calls NextAuth signOut with the designated sign-in target URL.
+ * 5. Ensures window.location navigates to the sign-in URL if needed.
  */
 export async function handleAppSignOut(options?: {
   role?: string | null;
@@ -66,34 +73,43 @@ export async function handleAppSignOut(options?: {
   locale?: string | null;
   callbackUrl?: string;
 }): Promise<void> {
+  if (isSigningOut) return;
+  isSigningOut = true;
+
   const targetUrl = options?.callbackUrl ?? getSignOutRedirectUrl(options);
 
   try {
-    await postAuthLogout().catch(() => {});
-  } catch {
-    // Non-blocking: continue client cleanup even if network fails
-  }
-
-  if (typeof window !== "undefined") {
-    setCachedAuthToken(null);
-    sessionStorage.removeItem("accessToken");
-    sessionStorage.removeItem("refreshToken");
-    sessionStorage.removeItem("access_token");
-    sessionStorage.removeItem("refresh_token");
-    sessionStorage.removeItem("tokenExpiresAt");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("tokenExpiresAt");
-    sessionStorage.clear();
-  }
-
-  try {
-    await signOut({ callbackUrl: targetUrl });
-  } catch {
-    if (typeof window !== "undefined") {
-      window.location.href = targetUrl;
+    try {
+      await postAuthLogout().catch(() => {});
+    } catch {
+      // Non-blocking: continue client cleanup even if network fails
     }
+
+    if (typeof window !== "undefined") {
+      setCachedAuthToken(null);
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("access_token");
+      sessionStorage.removeItem("refresh_token");
+      sessionStorage.removeItem("tokenExpiresAt");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("tokenExpiresAt");
+      sessionStorage.clear();
+    }
+
+    try {
+      await signOut({ callbackUrl: targetUrl });
+    } catch {
+      if (typeof window !== "undefined") {
+        window.location.href = targetUrl;
+      }
+    }
+  } finally {
+    setTimeout(() => {
+      isSigningOut = false;
+    }, 100);
   }
 }

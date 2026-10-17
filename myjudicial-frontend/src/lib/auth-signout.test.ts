@@ -4,6 +4,7 @@ import {
   isCurrentContextAdmin,
   getSignOutRedirectUrl,
   handleAppSignOut,
+  resetSignOutLock,
 } from "./auth-signout";
 import { signOut } from "next-auth/react";
 
@@ -22,6 +23,7 @@ vi.mock("@/lib/api/client", () => ({
 describe("auth-signout utility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetSignOutLock();
   });
 
   describe("getAuthLocale", () => {

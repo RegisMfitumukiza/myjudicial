@@ -31,6 +31,9 @@ const CANONICAL_SPECIALTY_LABELS: Record<string, string> = {
   CONTRACT_LAW: "Contract Law",
   INTELLECTUAL_PROPERTY: "Intellectual Property",
   OTHER: "Other",
+  GENERAL_PRACTICE: "General Practice",
+  LEGAL_SERVICES: "General Legal Practice",
+  ADVOCATE: "Licensed Advocate",
 };
 
 /**
@@ -78,6 +81,10 @@ export function normalizeSpecialtyCode(code: string | null | undefined): string 
     IP_LAW: "INTELLECTUAL_PROPERTY",
     IP: "INTELLECTUAL_PROPERTY",
     OTHER: "OTHER",
+    GENERAL_PRACTICE: "GENERAL_PRACTICE",
+    LEGAL_SERVICES: "GENERAL_PRACTICE",
+    LEGAL_SERVICE: "GENERAL_PRACTICE",
+    ADVOCATE: "GENERAL_PRACTICE",
   };
 
   return ALIAS_MAP[cleaned] || cleaned;
@@ -109,6 +116,9 @@ export function getLocalizedSpecialty(
     return CANONICAL_SPECIALTY_LABELS[key];
   }
 
-  // Fallback: convert SNAKE_CASE or snake_case to Title Case
-  return code.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  // Fallback: convert SNAKE_CASE or uppercase to Clean Title Case
+  return code
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }

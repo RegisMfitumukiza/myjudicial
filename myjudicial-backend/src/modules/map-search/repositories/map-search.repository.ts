@@ -80,12 +80,16 @@ export const MapSearchRepository = {
     }
 
     if (specialties && specialties.length > 0) {
-      // Postgres ANY operator — matches if any specialty overlaps
+      // Postgres ANY / overlap operator — matches if any specialty overlaps or matches primarySpecialty
+      const specialtySqlList = Prisma.join(
+        specialties.map((s) => Prisma.sql`${s}::"LegalSpecialty"`),
+        ", "
+      );
       whereClauses.push(
-        Prisma.sql`e.specialties && ARRAY[${Prisma.join(
-          specialties.map((s) => Prisma.sql`${s}::"LegalSpecialty"`),
-          ", "
-        )}]::"LegalSpecialty"[]`
+        Prisma.sql`(
+          e.specialties && ARRAY[${specialtySqlList}]::"LegalSpecialty"[]
+          OR e."primarySpecialty" = ANY(ARRAY[${specialtySqlList}]::"LegalSpecialty"[])
+        )`
       );
     }
 

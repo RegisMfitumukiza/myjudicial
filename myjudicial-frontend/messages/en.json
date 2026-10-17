@@ -7056,7 +7056,9 @@
     "CORPORATE_LAW": "Corporate Law",
     "CONTRACT_LAW": "Contract Law",
     "INTELLECTUAL_PROPERTY": "Intellectual Property",
-    "OTHER": "Other"
+    "OTHER": "Other",
+    "GENERAL_PRACTICE": "General Practice",
+    "LEGAL_SERVICES": "General Legal Practice"
   },
   "lawyers": {
     "verifiedTooltip": "Rwanda Bar Verified Advocate",

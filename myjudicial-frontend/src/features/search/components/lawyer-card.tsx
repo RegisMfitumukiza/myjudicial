@@ -94,6 +94,11 @@ export function LawyerCard({ lawyer, selected, onClick, onHover }: LawyerCardPro
           <span className="rounded-full border border-brand-dark/20 bg-brand-dark/[0.05] px-2.5 py-0.5 text-[11px] font-semibold text-brand-dark dark:border-white/15 dark:bg-white/[0.08] dark:text-white truncate max-w-[200px]">
             {getLocalizedSpecialty(lawyer.specialtyLabel, tSpecialties)}
           </span>
+          {lawyer.specialties && lawyer.specialties.length > 1 && (
+            <span className="rounded-full border border-border/80 bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+              +{lawyer.specialties.length - 1}
+            </span>
+          )}
           {lawyer.yearsExperience != null && lawyer.yearsExperience > 0 && (
             <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
               <Clock className="h-3 w-3 text-muted-foreground/70" />

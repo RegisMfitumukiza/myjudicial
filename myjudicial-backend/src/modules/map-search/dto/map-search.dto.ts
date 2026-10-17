@@ -12,6 +12,7 @@ export interface ExpertMapCardDto {
   profileImage: string | null;
   /** Time-limited signed URL to display the photo — null if none uploaded. */
   avatarUrl: string | null;
+  primarySpecialty?: string | null;
   specialties: string[];
   yearsOfExperience: number | null;
   rating: number | null;

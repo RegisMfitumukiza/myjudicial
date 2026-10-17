@@ -14,12 +14,18 @@ async function toExpertCard(row: any): Promise<ExpertMapCardDto> {
     ? (await getSignedDownloadUrl(row.profileImageObjectKey)).url
     : null;
 
+  const rawSpecialties = Array.isArray(row.specialties) ? row.specialties : [];
+  const allSpecialties = row.primarySpecialty
+    ? Array.from(new Set([row.primarySpecialty, ...rawSpecialties]))
+    : rawSpecialties;
+
   return {
     id: row.id,
     fullName: `${row.firstName} ${row.lastName}`,
     profileImage: row.profileImageObjectKey ?? null,
     avatarUrl,
-    specialties: Array.isArray(row.specialties) ? row.specialties : [],
+    primarySpecialty: row.primarySpecialty ?? allSpecialties[0] ?? null,
+    specialties: allSpecialties,
     yearsOfExperience: row.yearsExperience !== null ? Number(row.yearsExperience) : null,
     rating: row.averageRating !== null ? Number(Number(row.averageRating).toFixed(2)) : null,
     reviewCount: parseInt(String(row.reviewCount ?? "0"), 10),

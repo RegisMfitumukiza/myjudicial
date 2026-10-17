@@ -7054,7 +7054,9 @@
     "CORPORATE_LAW": "Droit des sociétés",
     "CONTRACT_LAW": "Droit des contrats",
     "INTELLECTUAL_PROPERTY": "Propriété intellectuelle",
-    "OTHER": "Autre"
+    "OTHER": "Autre",
+    "GENERAL_PRACTICE": "Pratique générale",
+    "LEGAL_SERVICES": "Pratique juridique générale"
   },
   "lawyers": {
     "verifiedTooltip": "Avocat certifié par le Barreau du Rwanda",

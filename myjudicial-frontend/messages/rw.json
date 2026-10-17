@@ -7054,7 +7054,9 @@
     "CORPORATE_LAW": "Amategeko y'amasosiyete",
     "CONTRACT_LAW": "Amategeko y'amasezerano",
     "INTELLECTUAL_PROPERTY": "Umutungo mu by'ubwenge",
-    "OTHER": "Ibindi"
+    "OTHER": "Ibindi",
+    "GENERAL_PRACTICE": "Amategeko rusange",
+    "LEGAL_SERVICES": "Ubuvugizi mu mategeko"
   },
   "lawyers": {
     "verifiedTooltip": "Umwavoka wemewe n'Urugaga rw'Abavoka mu Rwanda",

@@ -152,6 +152,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
       currency: expert.currency,
       yearsExperience: expert.yearsOfExperience || 0,
       languages: expert.languages,
+      primarySpecialty: expert.primarySpecialty,
       specialties: expert.specialties,
       rating: expert.rating,
       reviewCount: expert.reviewCount,

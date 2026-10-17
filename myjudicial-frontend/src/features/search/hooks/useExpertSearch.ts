@@ -31,6 +31,7 @@ type ApiExpert = {
   yearsExperience: number;
   languages: string[];
   specialties: string[];
+  primarySpecialty?: string | null;
   rating: number | null;
   reviewCount: number;
   avatarObjectKey?: string | null;
@@ -65,15 +66,21 @@ function humanizeSpecialty(specialty: string): string {
 }
 
 function mapApiExpertToLawyer(expert: ApiExpert): Lawyer {
-  const [firstSpecialty] = expert.specialties || ["Other"];
+  const allSpecialties = Array.from(
+    new Set([
+      ...(expert.primarySpecialty ? [expert.primarySpecialty] : []),
+      ...(expert.specialties || []),
+    ])
+  );
+  const [firstSpecialty] = allSpecialties;
   const name = expert.fullName || [expert.firstName, expert.lastName].filter(Boolean).join(" ") || "Legal Expert";
   const rate = expert.baseConsultationFee ?? expert.hourlyRate ?? null;
 
   return {
     id: expert.id,
     name,
-    specialtyLabel: firstSpecialty ? humanizeSpecialty(firstSpecialty) : "Legal Services",
-    specialties: expert.specialties || [],
+    specialtyLabel: firstSpecialty ? humanizeSpecialty(firstSpecialty) : "General Practice",
+    specialties: allSpecialties,
     rating: expert.rating ?? 0,
     reviewCount: expert.reviewCount || 0,
     verified: expert.verified === true,

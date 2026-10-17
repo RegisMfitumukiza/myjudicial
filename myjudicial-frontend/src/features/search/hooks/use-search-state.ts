@@ -88,12 +88,10 @@ function parseFiltersFromParams(params: URLSearchParams): SearchFilters {
     ? specialtyRaw.split(",").filter(Boolean)
     : [];
 
-  const rawQ = params.get("q") ?? "";
-  const isDistrictQuery = Boolean(rawQ && findDistrictCoordinates(rawQ));
-  const searchQuery = isDistrictQuery ? "" : rawQ;
+  const rawQ = params.get("q") ?? params.get("district") ?? "";
 
   return {
-    searchQuery,
+    searchQuery: rawQ,
     specialties,
     sort: (params.get("sort") as SortOption) ?? "NEAREST",
     proximity: validateProximity(params.get("proximity")),
@@ -132,9 +130,20 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
   if (filters.minYearsExperience > 0) params.set("minExp", String(filters.minYearsExperience));
   if (filters.availableToday) params.set("today", "1");
 
+  // Check if searchQuery is a Rwandan district or city
+  const districtMatch = findDistrictCoordinates(filters.searchQuery);
+  if (districtMatch) {
+    params.set("lat", districtMatch.lat.toFixed(5));
+    params.set("lng", districtMatch.lng.toFixed(5));
+    params.set("district", districtMatch.canonicalName);
+  } else {
+    const existing = new URLSearchParams(window.location.search);
+    if (existing.has("lat")) params.set("lat", existing.get("lat")!);
+    if (existing.has("lng")) params.set("lng", existing.get("lng")!);
+    if (existing.has("district")) params.set("district", existing.get("district")!);
+  }
+
   const existing = new URLSearchParams(window.location.search);
-  if (existing.has("lat")) params.set("lat", existing.get("lat")!);
-  if (existing.has("lng")) params.set("lng", existing.get("lng")!);
   if (existing.has("view")) params.set("view", existing.get("view")!);
 
   router.replace(`/search?${params.toString()}`, { scroll: false });

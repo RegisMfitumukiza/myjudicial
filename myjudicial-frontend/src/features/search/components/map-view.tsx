@@ -587,6 +587,17 @@ export function MapView({
 
   useEffect(() => {
     const map = mapRef.current;
+    if (!map || !ready || !center || isDraggingRef.current) return;
+    const current = map.getCenter();
+    const dist = Math.hypot(current.lat - center.lat, current.lng - center.lng);
+    // Smoothly fly to new center if moved significantly (> 400m)
+    if (dist > 0.004) {
+      map.flyTo({ center: [center.lng, center.lat], zoom: 12, duration: 800 });
+    }
+  }, [ready, center?.lat, center?.lng]);
+
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map || !ready) return;
 
     const validIds = new Set(

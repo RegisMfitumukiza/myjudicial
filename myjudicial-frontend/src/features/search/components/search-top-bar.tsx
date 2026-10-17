@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, SlidersHorizontal, Map as MapIcon, List, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -26,6 +27,50 @@ export function SearchTopBar({
 }: SearchTopBarProps) {
   const t = useTranslations("search");
 
+  // Keep local input state for silky-smooth 60fps typing without dropped keystrokes
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync from props if updated externally (e.g. from clear chips or URL)
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
+
+  const triggerDebounce = useCallback(
+    (val: string) => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        onSearchQueryChange(val);
+      }, 400);
+    },
+    [onSearchQueryChange]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalQuery(val);
+    triggerDebounce(val);
+  };
+
+  const handleCommitImmediate = () => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    onSearchQueryChange(localQuery);
+    onSearch();
+  };
+
+  const handleClear = () => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    setLocalQuery("");
+    onSearchQueryChange("");
+    onSearch();
+  };
+
   const isSplit = viewMode === "split";
   const isFixedLayout = isSplit || viewMode === "map";
 
@@ -46,17 +91,19 @@ export function SearchTopBar({
       <div className="flex flex-1 items-center justify-center">
         <div className="flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm transition-shadow focus-within:border-brand-dark focus-within:ring-1 focus-within:ring-brand-dark/20 hover:shadow-md">
           <input
-            value={searchQuery}
-            onChange={(e) => onSearchQueryChange(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
+            value={localQuery}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCommitImmediate();
+            }}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchPlaceholder")}
             className="flex-1 bg-transparent px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
           />
-          {searchQuery && (
+          {localQuery && (
             <button
               type="button"
-              onClick={() => onSearchQueryChange("")}
+              onClick={handleClear}
               className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
               aria-label="Clear search"
             >
@@ -65,7 +112,7 @@ export function SearchTopBar({
           )}
           <button
             type="button"
-            onClick={onSearch}
+            onClick={handleCommitImmediate}
             aria-label={t("searchPlaceholder")}
             className="mr-1 flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
           >

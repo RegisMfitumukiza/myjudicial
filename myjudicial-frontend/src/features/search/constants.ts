@@ -3,17 +3,22 @@ export const RWANDA_DISTRICT_COORDINATES: Record<string, { lat: number; lng: num
   "Nyarugenge": { lat: -1.9540, lng: 30.0520 },
   "Gasabo": { lat: -1.9356, lng: 30.1086 },
   "Kicukiro": { lat: -1.9864, lng: 30.1019 },
+  "Kigali": { lat: -1.9441, lng: 30.0619 },
 
   // Northern Province
   "Musanze": { lat: -1.4833, lng: 29.6333 },
+  "Ruhengeri": { lat: -1.4833, lng: 29.6333 },
   "Burera": { lat: -1.4833, lng: 29.8667 },
   "Gicumbi": { lat: -1.5833, lng: 30.1167 },
+  "Byumba": { lat: -1.5833, lng: 30.1167 },
   "Rulindo": { lat: -1.7667, lng: 29.9833 },
   "Gakenke": { lat: -1.6833, lng: 29.7833 },
 
   // Southern Province
   "Huye": { lat: -2.5833, lng: 29.7333 },
+  "Butare": { lat: -2.5833, lng: 29.7333 },
   "Muhanga": { lat: -2.0833, lng: 29.7333 },
+  "Gitarama": { lat: -2.0833, lng: 29.7333 },
   "Kamonyi": { lat: -2.0833, lng: 29.8000 },
   "Nyanza": { lat: -2.3667, lng: 29.7500 },
   "Ruhango": { lat: -2.1667, lng: 29.7833 },
@@ -23,8 +28,11 @@ export const RWANDA_DISTRICT_COORDINATES: Record<string, { lat: number; lng: num
 
   // Western Province
   "Rubavu": { lat: -1.6833, lng: 29.3333 },
+  "Gisenyi": { lat: -1.6833, lng: 29.3333 },
   "Rusizi": { lat: -2.4667, lng: 28.9000 },
+  "Cyangugu": { lat: -2.4667, lng: 28.9000 },
   "Karongi": { lat: -2.0000, lng: 29.3833 },
+  "Kibuye": { lat: -2.0000, lng: 29.3833 },
   "Rutsiro": { lat: -1.8667, lng: 29.3333 },
   "Nyabihu": { lat: -1.6500, lng: 29.5000 },
   "Ngororero": { lat: -1.7500, lng: 29.5167 },
@@ -37,17 +45,43 @@ export const RWANDA_DISTRICT_COORDINATES: Record<string, { lat: number; lng: num
   "Nyagatare": { lat: -1.3000, lng: 30.3167 },
   "Gatsibo": { lat: -1.5833, lng: 30.4167 },
   "Ngoma": { lat: -2.1833, lng: 30.5167 },
+  "Kibungo": { lat: -2.1833, lng: 30.5167 },
   "Kirehe": { lat: -2.2167, lng: 30.7167 },
 };
 
-export function findDistrictCoordinates(districtName?: string | null): { lat: number; lng: number } | null {
+export type DistrictCoordinatesResult = {
+  lat: number;
+  lng: number;
+  canonicalName: string;
+};
+
+export function findDistrictCoordinates(
+  districtName?: string | null
+): DistrictCoordinatesResult | null {
   if (!districtName) return null;
-  const normalized = districtName.trim().toLowerCase();
+  const raw = districtName.trim().toLowerCase();
+  // Strip common prefixes/suffixes: "district of nyarugenge", "nyarugenge district", "akarere ka nyarugenge"
+  const clean = raw
+    .replace(/\b(district|akarere|ville|city|province|intara|ka|ya|of)\b/gi, "")
+    .trim();
+
+  if (!clean) return null;
+
+  // Exact match first
   for (const [name, coords] of Object.entries(RWANDA_DISTRICT_COORDINATES)) {
-    if (name.toLowerCase() === normalized) {
-      return coords;
+    if (name.toLowerCase() === clean) {
+      return { ...coords, canonicalName: name };
     }
   }
+
+  // Substring match (e.g., "Kicukiro, Kigali" contains "kicukiro")
+  for (const [name, coords] of Object.entries(RWANDA_DISTRICT_COORDINATES)) {
+    const lowerName = name.toLowerCase();
+    if (clean.includes(lowerName) || (clean.length >= 4 && lowerName.includes(clean))) {
+      return { ...coords, canonicalName: name };
+    }
+  }
+
   return null;
 }
 

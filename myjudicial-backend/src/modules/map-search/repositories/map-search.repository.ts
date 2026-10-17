@@ -137,6 +137,13 @@ export const MapSearchRepository = {
           OR e."displayName" ILIKE ${"%" + search + "%"}
           OR e."city" ILIKE ${"%" + search + "%"}
           OR e."officeAddress" ILIKE ${"%" + search + "%"}
+          OR array_to_string(e.specialties, ' ') ILIKE ${"%" + search + "%"}
+          OR EXISTS (
+            SELECT 1 FROM services s
+            WHERE s."expertId" = e.id
+              AND s."isActive" = true
+              AND (s.name ILIKE ${"%" + search + "%"} OR s.description ILIKE ${"%" + search + "%"})
+          )
         )`
       );
     }

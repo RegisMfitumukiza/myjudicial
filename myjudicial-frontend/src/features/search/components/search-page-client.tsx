@@ -18,6 +18,7 @@ import LandingFooter from "@/shared/components/landing/landing-footer";
 import { PROXIMITY_OPTIONS } from "../types";
 import type { ProximityFilter } from "../types";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { findDistrictCoordinates } from "../constants";
 
 export function SearchPageClient() {
   const t = useTranslations("search");
@@ -78,18 +79,32 @@ export function SearchPageClient() {
     return opt?.km ?? 500;
   }, [filters.proximity]);
 
+  const districtMatch = useMemo(
+    () => findDistrictCoordinates(filters.searchQuery),
+    [filters.searchQuery]
+  );
+
+  // If searchQuery is a recognized district or city, search by coordinates rather than advocate name
+  const textSearchParam = districtMatch
+    ? undefined
+    : filters.searchQuery.trim() || undefined;
+
+  const searchCenter = districtMatch
+    ? { lat: districtMatch.lat, lng: districtMatch.lng }
+    : center;
+
   const {
     data: searchResults,
     isLoading,
     isFetching,
   } = useExpertSearch({
-    lat: center.lat,
-    lng: center.lng,
+    lat: searchCenter.lat,
+    lng: searchCenter.lng,
     radius: radiusKm,
     specialties: filters.specialties,
     sort: filters.sort,
     limit: 50,
-    search: filters.searchQuery.trim() || undefined,
+    search: textSearchParam,
     minRating: filters.minRating > 0 ? filters.minRating : undefined,
     minYearsExperience:
       filters.minYearsExperience > 0 ? filters.minYearsExperience : undefined,
@@ -119,13 +134,13 @@ export function SearchPageClient() {
 
   const { data: statewideResults } = useExpertSearch(
     {
-      lat: center.lat,
-      lng: center.lng,
+      lat: searchCenter.lat,
+      lng: searchCenter.lng,
       radius: 500, // Search all Rwanda
       specialties: filters.specialties,
       sort: filters.sort,
       limit: 50,
-      search: filters.searchQuery.trim() || undefined,
+      search: textSearchParam,
     },
     { enabled: shouldFetchStatewideFallback }
   );
@@ -157,9 +172,10 @@ export function SearchPageClient() {
   const activeContext = useMemo(() => {
     if (isShowingStatewideFallback && filters.specialties.length > 0) {
       const labels = filters.specialties.map((s) => getLocalizedSpecialty(s, tSpecialties));
+      const districtLabel = districtMatch?.canonicalName || "this district";
       return {
         title: `${labels[0] || "Specialist"} Advocates Across Rwanda`,
-        desc: `No advocates found with physical offices directly in this local radius. Showing verified ${labels.join(", ")} advocates across Rwanda available for video, phone, or statewide consultations.`,
+        desc: `No advocates found with physical offices directly in ${districtLabel}. Showing verified ${labels.join(", ")} advocates across Rwanda available for video, phone, or statewide consultations.`,
         onReset: () => setFilters((prev) => ({ ...prev, proximity: "anywhere" })),
       };
     }
@@ -331,7 +347,7 @@ export function SearchPageClient() {
               selectedId={selectedId}
               hoveredId={hoveredId}
               onSelect={handleSelect}
-              center={center}
+              center={searchCenter}
               onCenterChange={handleMapCenterChange}
               searchRadiusKm={radiusKm}
               userLocation={userLocation}

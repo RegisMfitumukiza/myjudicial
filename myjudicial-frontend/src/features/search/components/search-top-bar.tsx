@@ -113,7 +113,7 @@ export function SearchTopBar({
       >
       {/* Search Pill */}
       <div className="flex flex-1 items-center justify-center">
-        <div className="flex w-full max-w-xl items-center rounded-full border border-border bg-card shadow-sm transition-shadow focus-within:border-brand-dark focus-within:ring-1 focus-within:ring-brand-dark/20 hover:shadow-md">
+        <div className="flex w-full max-w-xl items-center rounded-full border border-border bg-card p-1 sm:p-1.5 shadow-2xs transition-all focus-within:border-brand-dark focus-within:ring-2 focus-within:ring-brand-dark/15 hover:shadow-xs hover:border-border/80">
           <input
             value={localQuery}
             onChange={handleInputChange}
@@ -128,13 +128,13 @@ export function SearchTopBar({
             }}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchPlaceholder")}
-            className="flex-1 bg-transparent px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+            className="flex-1 min-w-0 bg-transparent pl-3.5 sm:pl-4 pr-2 py-1 text-xs sm:text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
           />
           {localQuery && (
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 text-muted-foreground hover:text-foreground transition mr-0.5"
+              className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition mr-0.5"
               aria-label="Clear search"
             >
               <X size={14} />
@@ -144,7 +144,7 @@ export function SearchTopBar({
             type="button"
             onClick={handleCommitImmediate}
             aria-label={t("searchPlaceholder")}
-            className="mr-1 flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition hover:opacity-90"
+            className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-brand-dark text-on-brand transition-all hover:opacity-90 active:scale-95 shadow-2xs dark:bg-white dark:text-black"
           >
             <Search size={13} className="sm:hidden" strokeWidth={2.5} />
             <Search size={14} className="hidden sm:block" strokeWidth={2.5} />

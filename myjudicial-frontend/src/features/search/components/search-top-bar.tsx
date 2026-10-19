@@ -30,16 +30,32 @@ export function SearchTopBar({
   // Keep local input state for silky-smooth 60fps typing without dropped keystrokes
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Tracks whether the user is currently typing — blocks external prop sync while true
-  const isUserTypingRef = useRef(false);
+  // Track what value this component dispatched to avoid echoing it back into localQuery
+  const lastDispatchedRef = useRef(searchQuery);
+  // Track focus so that while the user is actively inside the input, router transitions never overwrite text
+  const isFocusedRef = useRef(false);
 
-  // Sync from props ONLY when the change is external (e.g. filter chips clear the query,
-  // or page loads with a URL param) — never while our own debounce is mid-flight.
+  // Sync from props ONLY when the change comes from outside (e.g. filter chips, browser back/forward)
   useEffect(() => {
-    if (!isUserTypingRef.current) {
-      setLocalQuery(searchQuery);
+    // If this prop update is an echo of what we dispatched, ignore it
+    if (searchQuery === lastDispatchedRef.current) {
+      return;
     }
-  }, [searchQuery]);
+
+    // While the user has focus on the input, never overwrite their typing/backspacing
+    // unless an external reset completely emptied the query
+    if (isFocusedRef.current) {
+      if (searchQuery === "" && localQuery !== "") {
+        lastDispatchedRef.current = "";
+        setLocalQuery("");
+      }
+      return;
+    }
+
+    // External change (e.g. page navigation, chip removed, browser back/forward)
+    lastDispatchedRef.current = searchQuery;
+    setLocalQuery(searchQuery);
+  }, [searchQuery, localQuery]);
 
   useEffect(() => {
     return () => {
@@ -49,10 +65,9 @@ export function SearchTopBar({
 
   const triggerDebounce = useCallback(
     (val: string) => {
-      isUserTypingRef.current = true; // block external sync while user is typing
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = setTimeout(() => {
-        isUserTypingRef.current = false; // re-allow external sync after 400ms idle
+        lastDispatchedRef.current = val;
         onSearchQueryChange(val);
       }, 400);
     },
@@ -67,14 +82,14 @@ export function SearchTopBar({
 
   const handleCommitImmediate = () => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    isUserTypingRef.current = false;
+    lastDispatchedRef.current = localQuery;
     onSearchQueryChange(localQuery);
     onSearch();
   };
 
   const handleClear = () => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    isUserTypingRef.current = false; // allow external sync after clear
+    lastDispatchedRef.current = "";
     setLocalQuery("");
     onSearchQueryChange("");
     onSearch();
@@ -102,6 +117,12 @@ export function SearchTopBar({
           <input
             value={localQuery}
             onChange={handleInputChange}
+            onFocus={() => {
+              isFocusedRef.current = true;
+            }}
+            onBlur={() => {
+              isFocusedRef.current = false;
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleCommitImmediate();
             }}

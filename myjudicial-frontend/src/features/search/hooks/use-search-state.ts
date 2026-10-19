@@ -132,6 +132,9 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
 
   // Check if searchQuery is a Rwandan district or city
   const districtMatch = findDistrictCoordinates(filters.searchQuery);
+  const existing = new URLSearchParams(window.location.search);
+  const hadOldDistrict = existing.has("district");
+
   if (districtMatch) {
     params.set("lat", districtMatch.lat.toFixed(5));
     params.set("lng", districtMatch.lng.toFixed(5));
@@ -142,13 +145,15 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
       params.set("proximity", "20km");
     }
   } else {
-    const existing = new URLSearchParams(window.location.search);
-    if (existing.has("lat")) params.set("lat", existing.get("lat")!);
-    if (existing.has("lng")) params.set("lng", existing.get("lng")!);
-    if (existing.has("district")) params.set("district", existing.get("district")!);
+    // If the query was a district before and is now cleared or changed to a non-district,
+    // do NOT copy over the old district or old district coordinates!
+    // Only preserve manual lat/lng if the user panned the map manually without a district query.
+    if (!hadOldDistrict) {
+      if (existing.has("lat")) params.set("lat", existing.get("lat")!);
+      if (existing.has("lng")) params.set("lng", existing.get("lng")!);
+    }
   }
 
-  const existing = new URLSearchParams(window.location.search);
   if (existing.has("view")) params.set("view", existing.get("view")!);
 
   router.replace(`/search?${params.toString()}`, { scroll: false });

@@ -136,6 +136,11 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
     params.set("lat", districtMatch.lat.toFixed(5));
     params.set("lng", districtMatch.lng.toFixed(5));
     params.set("district", districtMatch.canonicalName);
+    // Auto-apply a local radius so PostGIS actually filters by distance from the district.
+    // Only override if the user hasn't manually chosen a radius yet.
+    if (!filters.proximity || filters.proximity === "anywhere") {
+      params.set("proximity", "20km");
+    }
   } else {
     const existing = new URLSearchParams(window.location.search);
     if (existing.has("lat")) params.set("lat", existing.get("lat")!);

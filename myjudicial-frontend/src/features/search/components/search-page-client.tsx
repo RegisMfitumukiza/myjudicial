@@ -126,11 +126,13 @@ export function SearchPageClient() {
   }, [allLawyers, filters.maxBudgetRwf]);
 
   const isLocalRadius = filters.proximity !== "anywhere";
+  // Trigger statewide fallback when a local radius returned zero results —
+  // either for a specialty filter or a district search (both narrow the radius)
   const shouldFetchStatewideFallback =
     !isLoading &&
     filteredLawyers.length === 0 &&
     isLocalRadius &&
-    filters.specialties.length > 0;
+    (filters.specialties.length > 0 || !!districtMatch);
 
   const { data: statewideResults } = useExpertSearch(
     {
@@ -176,6 +178,14 @@ export function SearchPageClient() {
       return {
         title: `${labels[0] || "Specialist"} Advocates Across Rwanda`,
         desc: `No advocates found with physical offices directly in ${districtLabel}. Showing verified ${labels.join(", ")} advocates across Rwanda available for video, phone, or statewide consultations.`,
+        onReset: () => setFilters((prev) => ({ ...prev, proximity: "anywhere" })),
+      };
+    }
+    if (isShowingStatewideFallback && districtMatch) {
+      const districtLabel = districtMatch.canonicalName;
+      return {
+        title: `Advocates Across Rwanda`,
+        desc: `No verified advocates found with offices in ${districtLabel} yet. Showing all advocates across Rwanda — many offer video and phone consultations nationwide.`,
         onReset: () => setFilters((prev) => ({ ...prev, proximity: "anywhere" })),
       };
     }

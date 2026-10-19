@@ -30,10 +30,15 @@ export function SearchTopBar({
   // Keep local input state for silky-smooth 60fps typing without dropped keystrokes
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tracks whether the user is currently typing — blocks external prop sync while true
+  const isUserTypingRef = useRef(false);
 
-  // Sync from props if updated externally (e.g. from clear chips or URL)
+  // Sync from props ONLY when the change is external (e.g. filter chips clear the query,
+  // or page loads with a URL param) — never while our own debounce is mid-flight.
   useEffect(() => {
-    setLocalQuery(searchQuery);
+    if (!isUserTypingRef.current) {
+      setLocalQuery(searchQuery);
+    }
   }, [searchQuery]);
 
   useEffect(() => {
@@ -44,8 +49,10 @@ export function SearchTopBar({
 
   const triggerDebounce = useCallback(
     (val: string) => {
+      isUserTypingRef.current = true; // block external sync while user is typing
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = setTimeout(() => {
+        isUserTypingRef.current = false; // re-allow external sync after 400ms idle
         onSearchQueryChange(val);
       }, 400);
     },
@@ -60,12 +67,14 @@ export function SearchTopBar({
 
   const handleCommitImmediate = () => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    isUserTypingRef.current = false;
     onSearchQueryChange(localQuery);
     onSearch();
   };
 
   const handleClear = () => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    isUserTypingRef.current = false; // allow external sync after clear
     setLocalQuery("");
     onSearchQueryChange("");
     onSearch();

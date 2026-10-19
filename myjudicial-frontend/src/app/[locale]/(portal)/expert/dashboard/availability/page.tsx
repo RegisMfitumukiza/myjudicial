@@ -2,7 +2,18 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, Copy, Clock, CalendarCheck, Sparkles, SunMedium, ShieldAlert, CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  Save,
+  Copy,
+  Clock,
+  CalendarCheck,
+  Sparkles,
+  SunMedium,
+  CheckCircle2,
+  SlidersHorizontal,
+  Info,
+} from "lucide-react";
 import {
   useGetExpertsAvailability,
   usePatchExpertsAvailability,
@@ -22,7 +33,9 @@ import { useTranslations } from "next-intl";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
 
-type DaySchedule = { dayOfWeek: (typeof DAYS)[number]; startTime: string; endTime: string; isAvailable: boolean };
+type DayOfWeek = (typeof DAYS)[number];
+type DaySchedule = { dayOfWeek: DayOfWeek; startTime: string; endTime: string; isAvailable: boolean };
+type TemplatePreset = "standard" | "monSat" | "fullWeek" | "weekendOnly" | "custom";
 
 function defaultSchedule(): DaySchedule[] {
   return DAYS.map((day) => ({
@@ -31,6 +44,62 @@ function defaultSchedule(): DaySchedule[] {
     endTime: "17:00",
     isAvailable: day !== "SATURDAY" && day !== "SUNDAY",
   }));
+}
+
+function getEffectiveDbSchedule(dbRecords: DaySchedule[] | undefined): DaySchedule[] {
+  return DAYS.map((day) => {
+    const rec = dbRecords?.find((r) => r.dayOfWeek === day);
+    return rec
+      ? { dayOfWeek: day, startTime: rec.startTime, endTime: rec.endTime, isAvailable: rec.isAvailable }
+      : { dayOfWeek: day, startTime: "09:00", endTime: "17:00", isAvailable: false };
+  });
+}
+
+function isScheduleEqual(a: DaySchedule[], b: DaySchedule[]): boolean {
+  return DAYS.every((day) => {
+    const dayA = a.find((d) => d.dayOfWeek === day);
+    const dayB = b.find((d) => d.dayOfWeek === day);
+    if (!dayA || !dayB) return false;
+    if (dayA.isAvailable !== dayB.isAvailable) return false;
+    if (dayA.isAvailable) {
+      if (dayA.startTime !== dayB.startTime || dayA.endTime !== dayB.endTime) return false;
+    }
+    return true;
+  });
+}
+
+function matchesStandard(sched: DaySchedule[]): boolean {
+  return sched.every((d) => {
+    if (d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY") {
+      return !d.isAvailable;
+    }
+    return d.isAvailable && d.startTime === "09:00" && d.endTime === "17:00";
+  });
+}
+
+function matchesMonSat(sched: DaySchedule[]): boolean {
+  return sched.every((d) => {
+    if (d.dayOfWeek === "SUNDAY") return !d.isAvailable;
+    if (d.dayOfWeek === "SATURDAY") {
+      return d.isAvailable && d.startTime === "09:00" && d.endTime === "13:00";
+    }
+    return d.isAvailable && d.startTime === "09:00" && d.endTime === "17:00";
+  });
+}
+
+function matchesFullWeek(sched: DaySchedule[]): boolean {
+  return sched.every((d) => {
+    return d.isAvailable && d.startTime === "09:00" && d.endTime === "17:00";
+  });
+}
+
+function matchesWeekendOnly(sched: DaySchedule[]): boolean {
+  return sched.every((d) => {
+    if (d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY") {
+      return d.isAvailable && d.startTime === "10:00" && d.endTime === "16:00";
+    }
+    return !d.isAvailable;
+  });
 }
 
 export default function AvailabilityPage() {
@@ -42,40 +111,41 @@ export default function AvailabilityPage() {
   const [schedule, setSchedule] = useState<DaySchedule[]>(defaultSchedule());
   const [hydrated, setHydrated] = useState(false);
 
-  const hasSavedSchedule = Boolean(data?.status === 200 && (data.data.data?.length ?? 0) > 0);
+  // Normalize DB schedule: missing records are treated as isAvailable: false
+  const savedDbSchedule = useMemo(() => {
+    if (data?.status !== 200 || !data.data?.data) return null;
+    return getEffectiveDbSchedule(data.data.data as DaySchedule[]);
+  }, [data]);
 
+  // Expert has an active saved schedule if DB exists and at least one day is available
+  const hasSavedSchedule = useMemo(() => {
+    if (!savedDbSchedule) return false;
+    return savedDbSchedule.some((d) => d.isAvailable);
+  }, [savedDbSchedule]);
+
+  // Hydrate local state from DB on first load or when query completes
   useEffect(() => {
-    if (hydrated || data?.status !== 200) return;
-    const existing = data.data.data;
-    if (existing.length === 0) {
-      setHydrated(true);
-      return;
+    if (hydrated || !savedDbSchedule) return;
+    if (hasSavedSchedule) {
+      setSchedule(savedDbSchedule);
     }
-    setSchedule(
-      DAYS.map((day) => {
-        const record = existing.find((r) => r.dayOfWeek === day);
-        return record
-          ? { dayOfWeek: day, startTime: record.startTime, endTime: record.endTime, isAvailable: record.isAvailable }
-          : { dayOfWeek: day, startTime: "09:00", endTime: "17:00", isAvailable: false };
-      })
-    );
     setHydrated(true);
-  }, [data, hydrated]);
+  }, [savedDbSchedule, hasSavedSchedule, hydrated]);
 
+  // Is current local state dirty compared to DB
   const isDirty = useMemo(() => {
-    if (!hasSavedSchedule || data?.status !== 200) return true;
-    const existing = data.data.data;
-    if (existing.length !== schedule.length) return true;
-    return schedule.some((d) => {
-      const rec = existing.find((r) => r.dayOfWeek === d.dayOfWeek);
-      if (!rec) return true;
-      return (
-        rec.isAvailable !== d.isAvailable ||
-        rec.startTime !== d.startTime ||
-        rec.endTime !== d.endTime
-      );
-    });
-  }, [hasSavedSchedule, data, schedule]);
+    if (!savedDbSchedule) return false;
+    return !isScheduleEqual(schedule, savedDbSchedule);
+  }, [schedule, savedDbSchedule]);
+
+  // Detect which preset matches the editor currently
+  const currentPreset: TemplatePreset = useMemo(() => {
+    if (matchesStandard(schedule)) return "standard";
+    if (matchesMonSat(schedule)) return "monSat";
+    if (matchesFullWeek(schedule)) return "fullWeek";
+    if (matchesWeekendOnly(schedule)) return "weekendOnly";
+    return "custom";
+  }, [schedule]);
 
   const scheduleMetrics = useMemo(() => {
     let totalMinutes = 0;
@@ -95,13 +165,22 @@ export default function AvailabilityPage() {
     };
   }, [schedule]);
 
+  const liveDaysSummary = useMemo(() => {
+    if (!savedDbSchedule) return "";
+    const active = savedDbSchedule.filter((d) => d.isAvailable);
+    if (active.length === 0) return "";
+    return active
+      .map((d) => `${t(d.dayOfWeek.toLowerCase() as any)} (${d.startTime}–${d.endTime})`)
+      .join(", ");
+  }, [savedDbSchedule, t]);
+
   const hasWeekendActive = useMemo(() => {
     return schedule.some(
       (d) => (d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY") && d.isAvailable
     );
   }, [schedule]);
 
-  function updateDay(day: (typeof DAYS)[number], patch: Partial<DaySchedule>) {
+  function updateDay(day: DayOfWeek, patch: Partial<DaySchedule>) {
     setSchedule((prev) => prev.map((d) => (d.dayOfWeek === day ? { ...d, ...patch } : d)));
   }
 
@@ -119,47 +198,10 @@ export default function AvailabilityPage() {
     toast.success(tHub("appliedMonToWeekdays"));
   }
 
-  function handleApplyTemplate(type: "standard" | "monSat" | "fullWeek" | "weekendOnly") {
-    let newSchedule: DaySchedule[] = [];
-    if (type === "standard") {
-      newSchedule = DAYS.map((day) => ({
-        dayOfWeek: day,
-        startTime: "09:00",
-        endTime: "17:00",
-        isAvailable: day !== "SATURDAY" && day !== "SUNDAY",
-      }));
-      toast.success(tHub("appliedTemplate", { template: tHub("templateStandard") }));
-    } else if (type === "monSat") {
-      newSchedule = DAYS.map((day) => ({
-        dayOfWeek: day,
-        startTime: "09:00",
-        endTime: day === "SATURDAY" ? "13:00" : "17:00",
-        isAvailable: day !== "SUNDAY",
-      }));
-      toast.success(tHub("appliedTemplate", { template: tHub("templateMonSat") }));
-    } else if (type === "fullWeek") {
-      newSchedule = DAYS.map((day) => ({
-        dayOfWeek: day,
-        startTime: "09:00",
-        endTime: "17:00",
-        isAvailable: true,
-      }));
-      toast.success(tHub("appliedTemplate", { template: tHub("templateFullWeek") }));
-    } else if (type === "weekendOnly") {
-      newSchedule = DAYS.map((day) => ({
-        dayOfWeek: day,
-        startTime: "10:00",
-        endTime: "16:00",
-        isAvailable: day === "SATURDAY" || day === "SUNDAY",
-      }));
-      toast.success(tHub("appliedTemplate", { template: tHub("templateWeekendOnly") }));
-    }
-    setSchedule(newSchedule);
-  }
-
-  function handleSave() {
+  function handleSave(scheduleToSave?: DaySchedule[] | React.MouseEvent) {
+    const toSave = Array.isArray(scheduleToSave) ? scheduleToSave : schedule;
     saveAvailability(
-      { data: { schedule } },
+      { data: { schedule: toSave } },
       {
         onSuccess: () => {
           toast.success(t("saveSuccess"));
@@ -170,6 +212,55 @@ export default function AvailabilityPage() {
         },
       }
     );
+  }
+
+  function handleApplyTemplate(type: "standard" | "monSat" | "fullWeek" | "weekendOnly") {
+    let newSchedule: DaySchedule[] = [];
+    let templateName = "";
+
+    if (type === "standard") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: "17:00",
+        isAvailable: day !== "SATURDAY" && day !== "SUNDAY",
+      }));
+      templateName = tHub("templateStandard");
+    } else if (type === "monSat") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: day === "SATURDAY" ? "13:00" : "17:00",
+        isAvailable: day !== "SUNDAY",
+      }));
+      templateName = tHub("templateMonSat");
+    } else if (type === "fullWeek") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "09:00",
+        endTime: "17:00",
+        isAvailable: true,
+      }));
+      templateName = tHub("templateFullWeek");
+    } else if (type === "weekendOnly") {
+      newSchedule = DAYS.map((day) => ({
+        dayOfWeek: day,
+        startTime: "10:00",
+        endTime: "16:00",
+        isAvailable: day === "SATURDAY" || day === "SUNDAY",
+      }));
+      templateName = tHub("templateWeekendOnly");
+    }
+
+    setSchedule(newSchedule);
+
+    toast.info(tHub("templateLoadedHint", { template: templateName }), {
+      action: {
+        label: tHub("saveNow"),
+        onClick: () => handleSave(newSchedule),
+      },
+      duration: 6000,
+    });
   }
 
   return (
@@ -283,52 +374,89 @@ export default function AvailabilityPage() {
             </div>
           )}
 
-          {/* Quick Schedule Templates Bar */}
-          <div className="p-3 sm:p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-xs sm:text-sm font-semibold text-foreground">
-                  Schedule Templates
-                </span>
+          {/* Quick Schedule Presets Bar */}
+          <div className="p-3.5 sm:p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold text-foreground">
+                    {tHub("presetsTitle")}
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                  {tHub("presetsSubtitle")}
+                </p>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5">
+
+              <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={currentPreset === "standard" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("standard")}
-                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                  className={cn(
+                    "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
+                    currentPreset === "standard"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "border-border/80 hover:bg-muted/60"
+                  )}
                 >
+                  {currentPreset === "standard" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateStandard")}
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={currentPreset === "monSat" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("monSat")}
-                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium bg-amber-500/5 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+                  className={cn(
+                    "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
+                    currentPreset === "monSat"
+                      ? "bg-amber-600 text-white dark:bg-amber-500 dark:text-black font-semibold shadow-xs"
+                      : "border-border/80 bg-amber-500/5 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
+                  )}
                 >
+                  {currentPreset === "monSat" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateMonSat")}
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={currentPreset === "fullWeek" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("fullWeek")}
-                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                  className={cn(
+                    "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
+                    currentPreset === "fullWeek"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "border-border/80 hover:bg-muted/60"
+                  )}
                 >
+                  {currentPreset === "fullWeek" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateFullWeek")}
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={currentPreset === "weekendOnly" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("weekendOnly")}
-                  className="text-xs h-7.5 rounded-lg border-border/80 px-2.5 font-medium"
+                  className={cn(
+                    "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
+                    currentPreset === "weekendOnly"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "border-border/80 hover:bg-muted/60"
+                  )}
                 >
+                  {currentPreset === "weekendOnly" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateWeekendOnly")}
                 </Button>
+
+                {currentPreset === "custom" && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-muted text-foreground border border-border">
+                    <SlidersHorizontal className="h-3 w-3 text-primary" />
+                    {tHub("customPreset")}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -348,18 +476,53 @@ export default function AvailabilityPage() {
             )}
           </div>
 
-          {/* Summary & Fast Weekday Copy Banner */}
+          {/* Client Visibility & Weekday Copy Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:px-4 rounded-xl border border-border/80 bg-muted/40 text-foreground">
-            <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5 font-medium text-foreground">
-                <Clock className="h-4 w-4 text-primary" />
-                <span>{tHub("totalWeeklyHours", { hours: scheduleMetrics.hours })}</span>
+            <div className="space-y-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5 font-medium text-foreground">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span>{tHub("totalWeeklyHours", { hours: scheduleMetrics.hours })}</span>
+                </div>
+                <span className="hidden sm:inline text-border">•</span>
+                <div className="flex items-center gap-1.5">
+                  <CalendarCheck className="h-4 w-4 text-muted-foreground" />
+                  <span>{tHub("daysActive", { count: scheduleMetrics.activeDays })}</span>
+                </div>
+                <span className="hidden sm:inline text-border">•</span>
+                <div className="flex items-center gap-1.5">
+                  {isDirty ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-400 px-2 py-0.5 text-[11px] font-medium">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      {t("unsavedChanges")}
+                    </span>
+                  ) : hasSavedSchedule ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 text-[11px] font-medium">
+                      <CheckCircle2 size={11} className="text-emerald-600 dark:text-emerald-400" />
+                      {t("activeSchedule")}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-              <span className="hidden sm:inline text-border">•</span>
-              <div className="flex items-center gap-1.5">
-                <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-                <span>{tHub("daysActive", { count: scheduleMetrics.activeDays })}</span>
-              </div>
+
+              <p className="text-[11px] sm:text-xs text-muted-foreground/90">
+                {!hasSavedSchedule ? (
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">
+                    {tHub("clientVisibilityNone")}
+                  </span>
+                ) : isDirty ? (
+                  <span>
+                    <strong>{tHub("clientVisibilityTitle")}:</strong> {tHub("clientVisibilityUnsaved")}{" "}
+                    {liveDaysSummary && (
+                      <span className="text-foreground/80">({tHub("clientVisibilityLive")} {liveDaysSummary})</span>
+                    )}
+                  </span>
+                ) : (
+                  <span>
+                    <strong>{tHub("clientVisibilityTitle")}:</strong> {tHub("clientVisibilityLive")} {liveDaysSummary}
+                  </span>
+                )}
+              </p>
             </div>
 
             <Button
@@ -367,7 +530,7 @@ export default function AvailabilityPage() {
               variant="outline"
               size="sm"
               onClick={handleApplyMonToWeekdays}
-              className="text-xs font-medium rounded-lg border-border/80 h-8 self-start sm:self-auto gap-1.5"
+              className="text-xs font-medium rounded-lg border-border/80 h-8 shrink-0 self-start sm:self-auto gap-1.5"
             >
               <Copy className="h-3.5 w-3.5 text-muted-foreground" />
               <span>{tHub("applyMonToWeekdays")}</span>

@@ -5297,7 +5297,16 @@
     "appliedTemplate": "Modèle {template} appliqué",
     "weekendBadge": "Consultations le week-end disponibles",
     "weekendBadgeShort": "Dispo. Week-end",
-    "weekendAdvice": "Vous travaillez le week-end ? Activez le samedi ou le dimanche pour attirer les clients actifs en semaine."
+    "weekendAdvice": "Vous travaillez le week-end ? Activez le samedi ou le dimanche pour attirer les clients actifs en semaine.",
+    "templateLoadedHint": "{template} preset loaded into editor. Click 'Save Changes' to publish to clients.",
+    "customPreset": "Custom Schedule",
+    "presetsTitle": "Schedule Presets",
+    "presetsSubtitle": "Load standard hours into the editor with one click, or customize any day below.",
+    "saveNow": "Save Now",
+    "clientVisibilityTitle": "Client Visibility",
+    "clientVisibilityLive": "Currently bookable on your public profile:",
+    "clientVisibilityUnsaved": "Unsaved Draft — Clients will only see this once you click 'Save Changes'.",
+    "clientVisibilityNone": "Your calendar is not yet open to clients. Click 'Save & Activate Schedule' to publish."
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

@@ -73,21 +73,21 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
     : false;
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-brand-border/20 bg-brand-dark/5 p-4 dark:border-white/20 dark:bg-white/5">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-dark/10 dark:bg-white/10">
-          <Calendar size={18} className="text-brand-dark dark:text-white" />
+    <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-3 rounded-xl border border-brand-border/20 bg-brand-dark/5 p-3 sm:p-3.5 dark:border-white/20 dark:bg-white/5">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 dark:bg-white/10">
+          <Calendar size={18} className="text-brand-dark dark:text-white shrink-0" />
         </div>
-        <div>
-          <div className="flex items-center gap-1.5">
-            <p className="text-[12px] text-brand-dark/60 dark:text-white/60">{t("nextAvailable")}</p>
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <p className="text-[11px] sm:text-[12px] text-brand-dark/60 dark:text-white/60">{t("nextAvailable")}</p>
             {isWeekendSlot && (
               <span className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:text-amber-300">
                 {tHub("weekendBadgeShort")}
               </span>
             )}
           </div>
-          <p className="text-[14px] font-bold text-brand-dark dark:text-white">
+          <p className="text-[13px] sm:text-[14px] font-bold text-brand-dark dark:text-white truncate">
             {tBooking("dateAtTime", { date: nextSlotDate ?? "", time: nextSlotTime ?? "" })}
           </p>
         </div>
@@ -95,10 +95,10 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
       {onBookClick && (
         <button
           onClick={onBookClick}
-          className="flex items-center gap-1 rounded-lg bg-brand-dark px-3 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black"
+          className="w-full min-[380px]:w-auto shrink-0 whitespace-nowrap justify-center flex items-center gap-1.5 rounded-lg bg-brand-dark px-3 py-2 text-[12px] font-semibold text-white hover:opacity-90 active:scale-[0.98] transition-all dark:bg-white dark:text-black cursor-pointer"
         >
-          {t("bookNow")}
-          <ArrowRight size={12} />
+          <span>{t("bookNow")}</span>
+          <ArrowRight size={12} className="shrink-0" />
         </button>
       )}
     </div>

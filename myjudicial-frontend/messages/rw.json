@@ -5297,7 +5297,16 @@
     "appliedTemplate": "Ingero ya gahunda ya {template} yashyizweho",
     "weekendBadge": "Ubujyanama bwo muri weekend buraboneka",
     "weekendBadgeShort": "Arahari muri Weekend",
-    "weekendAdvice": "Ukora muri weekend? Emeza kuwa Gatandatu cyangwa ku Cyumweru kugira ngo ukurure abakiriya bakora mu minsi y'akazi."
+    "weekendAdvice": "Ukora muri weekend? Emeza kuwa Gatandatu cyangwa ku Cyumweru kugira ngo ukurure abakiriya bakora mu minsi y'akazi.",
+    "templateLoadedHint": "{template} preset loaded into editor. Click 'Save Changes' to publish to clients.",
+    "customPreset": "Custom Schedule",
+    "presetsTitle": "Schedule Presets",
+    "presetsSubtitle": "Load standard hours into the editor with one click, or customize any day below.",
+    "saveNow": "Save Now",
+    "clientVisibilityTitle": "Client Visibility",
+    "clientVisibilityLive": "Currently bookable on your public profile:",
+    "clientVisibilityUnsaved": "Unsaved Draft — Clients will only see this once you click 'Save Changes'.",
+    "clientVisibilityNone": "Your calendar is not yet open to clients. Click 'Save & Activate Schedule' to publish."
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

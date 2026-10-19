@@ -87,7 +87,7 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
               </span>
             )}
           </div>
-          <p className="text-[13px] sm:text-[14px] font-bold text-brand-dark dark:text-white truncate">
+          <p className="text-[13px] sm:text-[14px] font-bold text-brand-dark dark:text-white break-words">
             {tBooking("dateAtTime", { date: nextSlotDate ?? "", time: nextSlotTime ?? "" })}
           </p>
         </div>

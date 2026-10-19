@@ -3335,6 +3335,7 @@
     "templateMonSat": "Mon–Fri + Sat Half-Day",
     "templateFullWeek": "Full Week (7 Days)",
     "templateWeekendOnly": "Weekend Practice (Sat–Sun)",
+    "templateCustom": "Custom Schedule",
     "appliedTemplate": "Applied {template} schedule template",
     "templateLoadedHint": "{template} preset loaded into editor. Click 'Save Changes' to publish to clients.",
     "customPreset": "Custom Schedule",
@@ -3347,7 +3348,10 @@
     "clientVisibilityNone": "Your calendar is not yet open to clients. Click 'Save & Activate Schedule' to publish.",
     "weekendBadge": "Weekend Consultations Available",
     "weekendBadgeShort": "Weekend Available",
-    "weekendAdvice": "Work on weekends? Enable Saturday or Sunday to attract clients who work during the week."
+    "weekendAdvice": "Work on weekends? Enable Saturday or Sunday to attract clients who work during the week.",
+    "templateLockedDay": "{day} is not included in {template}. Switch to Custom to enable.",
+    "lockedBadge": "Locked ({template})",
+    "switchToCustom": "Switch to Custom"
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

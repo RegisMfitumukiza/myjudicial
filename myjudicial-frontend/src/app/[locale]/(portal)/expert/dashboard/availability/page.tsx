@@ -12,6 +12,7 @@ import {
   SunMedium,
   CheckCircle2,
   SlidersHorizontal,
+  Lock,
   Info,
 } from "lucide-react";
 import {
@@ -36,6 +37,13 @@ const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"
 type DayOfWeek = (typeof DAYS)[number];
 type DaySchedule = { dayOfWeek: DayOfWeek; startTime: string; endTime: string; isAvailable: boolean };
 type TemplatePreset = "standard" | "monSat" | "fullWeek" | "weekendOnly" | "custom";
+
+const TEMPLATE_ALLOWED_DAYS: Record<Exclude<TemplatePreset, "custom">, readonly DayOfWeek[]> = {
+  standard: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+  monSat: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"],
+  fullWeek: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+  weekendOnly: ["SATURDAY", "SUNDAY"],
+};
 
 function defaultSchedule(): DaySchedule[] {
   return DAYS.map((day) => ({
@@ -109,6 +117,7 @@ export default function AvailabilityPage() {
   const { data, isLoading, isError, refetch } = useGetExpertsAvailability();
   const { mutate: saveAvailability, isPending: isSaving } = usePatchExpertsAvailability();
   const [schedule, setSchedule] = useState<DaySchedule[]>(defaultSchedule());
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplatePreset>("standard");
   const [hydrated, setHydrated] = useState(false);
 
   // Normalize DB schedule: missing records are treated as isAvailable: false
@@ -128,6 +137,17 @@ export default function AvailabilityPage() {
     if (hydrated || !savedDbSchedule) return;
     if (hasSavedSchedule) {
       setSchedule(savedDbSchedule);
+      if (matchesWeekendOnly(savedDbSchedule)) {
+        setSelectedTemplate("weekendOnly");
+      } else if (matchesMonSat(savedDbSchedule)) {
+        setSelectedTemplate("monSat");
+      } else if (matchesStandard(savedDbSchedule)) {
+        setSelectedTemplate("standard");
+      } else if (matchesFullWeek(savedDbSchedule)) {
+        setSelectedTemplate("fullWeek");
+      } else {
+        setSelectedTemplate("custom");
+      }
     }
     setHydrated(true);
   }, [savedDbSchedule, hasSavedSchedule, hydrated]);
@@ -138,14 +158,35 @@ export default function AvailabilityPage() {
     return !isScheduleEqual(schedule, savedDbSchedule);
   }, [schedule, savedDbSchedule]);
 
-  // Detect which preset matches the editor currently
-  const currentPreset: TemplatePreset = useMemo(() => {
-    if (matchesStandard(schedule)) return "standard";
-    if (matchesMonSat(schedule)) return "monSat";
-    if (matchesFullWeek(schedule)) return "fullWeek";
-    if (matchesWeekendOnly(schedule)) return "weekendOnly";
-    return "custom";
-  }, [schedule]);
+  function getTemplateName(tpl: TemplatePreset): string {
+    switch (tpl) {
+      case "standard":
+        return tHub("templateStandard");
+      case "monSat":
+        return tHub("templateMonSat");
+      case "fullWeek":
+        return tHub("templateFullWeek");
+      case "weekendOnly":
+        return tHub("templateWeekendOnly");
+      case "custom":
+        return tHub("templateCustom");
+    }
+  }
+
+  function getTemplateShortName(tpl: TemplatePreset): string {
+    switch (tpl) {
+      case "standard":
+        return "Mon–Fri";
+      case "monSat":
+        return "Mon–Sat";
+      case "fullWeek":
+        return "Full Week";
+      case "weekendOnly":
+        return "Weekend";
+      case "custom":
+        return "Custom";
+    }
+  }
 
   const scheduleMetrics = useMemo(() => {
     let totalMinutes = 0;
@@ -214,26 +255,31 @@ export default function AvailabilityPage() {
     );
   }
 
-  function handleApplyTemplate(type: "standard" | "monSat" | "fullWeek" | "weekendOnly") {
+  function handleApplyTemplate(type: TemplatePreset) {
+    setSelectedTemplate(type);
+
+    if (type === "custom") {
+      toast.info(tHub("templateLoadedHint", { template: tHub("templateCustom") }));
+      return;
+    }
+
     let newSchedule: DaySchedule[] = [];
-    let templateName = "";
+    const templateName = getTemplateName(type);
 
     if (type === "standard") {
       newSchedule = DAYS.map((day) => ({
         dayOfWeek: day,
         startTime: "09:00",
         endTime: "17:00",
-        isAvailable: day !== "SATURDAY" && day !== "SUNDAY",
+        isAvailable: TEMPLATE_ALLOWED_DAYS.standard.includes(day),
       }));
-      templateName = tHub("templateStandard");
     } else if (type === "monSat") {
       newSchedule = DAYS.map((day) => ({
         dayOfWeek: day,
         startTime: "09:00",
         endTime: day === "SATURDAY" ? "13:00" : "17:00",
-        isAvailable: day !== "SUNDAY",
+        isAvailable: TEMPLATE_ALLOWED_DAYS.monSat.includes(day),
       }));
-      templateName = tHub("templateMonSat");
     } else if (type === "fullWeek") {
       newSchedule = DAYS.map((day) => ({
         dayOfWeek: day,
@@ -241,15 +287,13 @@ export default function AvailabilityPage() {
         endTime: "17:00",
         isAvailable: true,
       }));
-      templateName = tHub("templateFullWeek");
     } else if (type === "weekendOnly") {
       newSchedule = DAYS.map((day) => ({
         dayOfWeek: day,
         startTime: "10:00",
         endTime: "16:00",
-        isAvailable: day === "SATURDAY" || day === "SUNDAY",
+        isAvailable: TEMPLATE_ALLOWED_DAYS.weekendOnly.includes(day),
       }));
-      templateName = tHub("templateWeekendOnly");
     }
 
     setSchedule(newSchedule);
@@ -261,6 +305,25 @@ export default function AvailabilityPage() {
       },
       duration: 6000,
     });
+  }
+
+  function handleLockedDayClick(day: DayOfWeek) {
+    const dayLabel = t(day.toLowerCase() as any);
+    const templateLabel = getTemplateName(selectedTemplate);
+
+    toast.info(tHub("templateLockedDay", { day: dayLabel, template: templateLabel }), {
+      action: {
+        label: tHub("switchToCustom"),
+        onClick: () => handleUnlockDayInCustom(day),
+      },
+      duration: 5000,
+    });
+  }
+
+  function handleUnlockDayInCustom(day: DayOfWeek) {
+    setSelectedTemplate("custom");
+    updateDay(day, { isAvailable: true });
+    toast.info(tHub("templateLoadedHint", { template: tHub("templateCustom") }));
   }
 
   return (
@@ -392,71 +455,83 @@ export default function AvailabilityPage() {
               <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                 <Button
                   type="button"
-                  variant={currentPreset === "standard" ? "default" : "outline"}
+                  variant={selectedTemplate === "standard" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("standard")}
                   className={cn(
                     "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
-                    currentPreset === "standard"
+                    selectedTemplate === "standard"
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                       : "border-border/80 hover:bg-muted/60"
                   )}
                 >
-                  {currentPreset === "standard" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                  {selectedTemplate === "standard" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateStandard")}
                 </Button>
                 <Button
                   type="button"
-                  variant={currentPreset === "monSat" ? "default" : "outline"}
+                  variant={selectedTemplate === "monSat" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("monSat")}
                   className={cn(
                     "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
-                    currentPreset === "monSat"
+                    selectedTemplate === "monSat"
                       ? "bg-amber-600 text-white dark:bg-amber-500 dark:text-black font-semibold shadow-xs"
                       : "border-border/80 bg-amber-500/5 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10"
                   )}
                 >
-                  {currentPreset === "monSat" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                  {selectedTemplate === "monSat" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateMonSat")}
                 </Button>
                 <Button
                   type="button"
-                  variant={currentPreset === "fullWeek" ? "default" : "outline"}
+                  variant={selectedTemplate === "fullWeek" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("fullWeek")}
                   className={cn(
                     "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
-                    currentPreset === "fullWeek"
+                    selectedTemplate === "fullWeek"
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                       : "border-border/80 hover:bg-muted/60"
                   )}
                 >
-                  {currentPreset === "fullWeek" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                  {selectedTemplate === "fullWeek" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateFullWeek")}
                 </Button>
                 <Button
                   type="button"
-                  variant={currentPreset === "weekendOnly" ? "default" : "outline"}
+                  variant={selectedTemplate === "weekendOnly" ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleApplyTemplate("weekendOnly")}
                   className={cn(
                     "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
-                    currentPreset === "weekendOnly"
+                    selectedTemplate === "weekendOnly"
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                       : "border-border/80 hover:bg-muted/60"
                   )}
                 >
-                  {currentPreset === "weekendOnly" && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                  {selectedTemplate === "weekendOnly" && <CheckCircle2 className="h-3 w-3 mr-1" />}
                   {tHub("templateWeekendOnly")}
                 </Button>
-
-                {currentPreset === "custom" && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-muted text-foreground border border-border">
-                    <SlidersHorizontal className="h-3 w-3 text-primary" />
-                    {tHub("customPreset")}
-                  </span>
-                )}
+                <Button
+                  type="button"
+                  variant={selectedTemplate === "custom" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleApplyTemplate("custom")}
+                  className={cn(
+                    "text-xs h-7.5 rounded-lg px-2.5 font-medium transition-all",
+                    selectedTemplate === "custom"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "border-border/80 hover:bg-muted/60"
+                  )}
+                >
+                  {selectedTemplate === "custom" ? (
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                  ) : (
+                    <SlidersHorizontal className="h-3 w-3 mr-1 text-primary" />
+                  )}
+                  {tHub("templateCustom")}
+                </Button>
               </div>
             </div>
 
@@ -542,34 +617,74 @@ export default function AvailabilityPage() {
             <div className="divide-y divide-border/70">
               {schedule.map((d) => {
                 const isWeekend = d.dayOfWeek === "SATURDAY" || d.dayOfWeek === "SUNDAY";
+                const isLocked = selectedTemplate !== "custom" && !TEMPLATE_ALLOWED_DAYS[selectedTemplate].includes(d.dayOfWeek);
 
                 return (
                   <div
                     key={d.dayOfWeek}
                     className={cn(
                       "flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3.5 transition-colors",
-                      isWeekend ? "bg-amber-500/[0.02] dark:bg-amber-400/[0.02]" : "hover:bg-muted/20"
+                      isLocked
+                        ? "bg-muted/30 opacity-75"
+                        : isWeekend
+                        ? "bg-amber-500/[0.02] dark:bg-amber-400/[0.02]"
+                        : "hover:bg-muted/20"
                     )}
                   >
                     <div className="flex items-center gap-3.5 min-w-[170px]">
-                      <Switch
-                        checked={d.isAvailable}
-                        onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
-                        className="shrink-0"
-                      />
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground">
+                      <div
+                        onClick={() => isLocked && handleLockedDayClick(d.dayOfWeek)}
+                        className={cn("shrink-0", isLocked && "cursor-pointer")}
+                        title={
+                          isLocked
+                            ? tHub("templateLockedDay", {
+                                day: t(d.dayOfWeek.toLowerCase() as any),
+                                template: getTemplateName(selectedTemplate),
+                              })
+                            : undefined
+                        }
+                      >
+                        <Switch
+                          checked={d.isAvailable}
+                          disabled={isLocked}
+                          onCheckedChange={(checked) => updateDay(d.dayOfWeek, { isAvailable: checked })}
+                          className={cn("shrink-0", isLocked && "opacity-40")}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={cn("text-sm font-semibold", isLocked ? "text-muted-foreground" : "text-foreground")}>
                           {t(d.dayOfWeek.toLowerCase() as any)}
                         </span>
-                        {isWeekend && (
+                        {isLocked ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-muted text-muted-foreground border border-border/60">
+                            <Lock size={10} className="text-muted-foreground/80 shrink-0" />
+                            {tHub("lockedBadge", { template: getTemplateShortName(selectedTemplate) })}
+                          </span>
+                        ) : isWeekend ? (
                           <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400">
                             Weekend
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 
-                    {d.isAvailable ? (
+                    {isLocked ? (
+                      <div className="pl-12 sm:pl-0 flex flex-wrap items-center gap-2.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                          {t("unavailable")}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUnlockDayInCustom(d.dayOfWeek)}
+                          className="h-6 px-2 text-[11px] text-primary hover:text-primary/90 hover:bg-primary/10 font-semibold gap-1 rounded-md"
+                        >
+                          <SlidersHorizontal className="h-3 w-3" />
+                          <span>{tHub("switchToCustom")}</span>
+                        </Button>
+                      </div>
+                    ) : d.isAvailable ? (
                       <div className="flex flex-wrap items-center gap-2 text-sm pl-12 sm:pl-0">
                         <Input
                           type="time"

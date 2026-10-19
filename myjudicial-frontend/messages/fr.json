@@ -5306,7 +5306,11 @@
     "clientVisibilityTitle": "Client Visibility",
     "clientVisibilityLive": "Currently bookable on your public profile:",
     "clientVisibilityUnsaved": "Unsaved Draft — Clients will only see this once you click 'Save Changes'.",
-    "clientVisibilityNone": "Your calendar is not yet open to clients. Click 'Save & Activate Schedule' to publish."
+    "clientVisibilityNone": "Your calendar is not yet open to clients. Click 'Save & Activate Schedule' to publish.",
+    "templateCustom": "Custom Schedule",
+    "templateLockedDay": "{day} is not included in {template}. Switch to Custom to enable.",
+    "lockedBadge": "Locked ({template})",
+    "switchToCustom": "Switch to Custom"
   },
   "expertDashboard_search": {
     "loadingSearch": "Loading search…"

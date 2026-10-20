@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { MapPin } from "lucide-react";
 
 import { ActiveFilterChips } from "./active-filter-chips";
 import { CategoryPills } from "./category-pills";
@@ -13,6 +14,8 @@ import { ResultsList } from "./results-list";
 import { SearchTopBar } from "./search-top-bar";
 import { useExpertSearch } from "../hooks/useExpertSearch";
 import { useSearchState } from "../hooks/use-search-state";
+import { useDeviceLocation } from "../hooks/useDeviceLocation";
+import { calculateHaversineDistanceKm } from "../utils/geo";
 import { usePracticeAreas } from "@/lib/api/landing";
 import LandingFooter from "@/shared/components/landing/landing-footer";
 import { PROXIMITY_OPTIONS } from "../types";
@@ -28,6 +31,8 @@ export function SearchPageClient() {
     setFilters,
     center,
     setCenter,
+    clearCenter,
+    hasExplicitCenter,
     viewMode,
     mapExpanded,
     setMapExpanded,
@@ -45,46 +50,16 @@ export function SearchPageClient() {
     [practiceAreas, tSpecialties]
   );
 
-
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const centerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [hasLocation, setHasLocation] = useState(false);
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-  const hasFittedRef = useRef(false);
 
-  useEffect(() => {
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const loc = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
-          setHasLocation(true);
-          setUserLocation(loc);
-          if (typeof window !== "undefined") {
-            const params = new URLSearchParams(window.location.search);
-            if (!params.has("lat") && !params.has("district") && !params.has("q")) {
-              setCenter(loc);
-            }
-          }
-        },
-        () => setHasLocation(false),
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
-      );
-    }
-  }, [setCenter]);
-
-  useEffect(() => {
-    return () => {
-      if (centerTimerRef.current) clearTimeout(centerTimerRef.current);
-    };
-  }, []);
+  // Modern device geolocation with continuous live tracking & zero stale cache
+  const {
+    userLocation,
+    status: geoStatus,
+    requestLocation,
+  } = useDeviceLocation();
 
   const radiusKm = useMemo(() => {
     if (filters.proximity === "anywhere") return 500;
@@ -102,19 +77,36 @@ export function SearchPageClient() {
     ? undefined
     : filters.searchQuery.trim() || undefined;
 
-  const searchCenter = districtMatch
-    ? { lat: districtMatch.lat, lng: districtMatch.lng }
-    : center;
+  // Search origin resolution:
+  // 1. Explicit district search (e.g. "Musanze") takes precedence
+  // 2. Explicit manual pin/exploration ("Search this area" in URL)
+  // 3. User's live device GPS location
+  // 4. Default fallback: Kigali City Center
+  const searchCenter = useMemo(() => {
+    if (districtMatch) {
+      return { lat: districtMatch.lat, lng: districtMatch.lng };
+    }
+    if (hasExplicitCenter) {
+      return center;
+    }
+    if (userLocation) {
+      return userLocation;
+    }
+    return center;
+  }, [districtMatch, hasExplicitCenter, center, userLocation]);
 
   const distanceAnchorLabel = useMemo(() => {
     if (districtMatch) {
       return t("fromLocation", { location: districtMatch.canonicalName });
     }
+    if (hasExplicitCenter && !userLocation) {
+      return t("fromCityCenter");
+    }
     if (userLocation) {
       return t("fromYou");
     }
     return t("fromCityCenter");
-  }, [districtMatch, userLocation, t]);
+  }, [districtMatch, hasExplicitCenter, userLocation, t]);
 
   const {
     data: searchResults,
@@ -187,7 +179,33 @@ export function SearchPageClient() {
     statewideLawyers.length > 0 &&
     isLocalRadius;
 
-  const displayedLawyers = isShowingStatewideFallback ? statewideLawyers : filteredLawyers;
+  const baseLawyers = isShowingStatewideFallback ? statewideLawyers : filteredLawyers;
+
+  // Compute live geometric geodesic distance from user's live position when available
+  const displayedLawyers = useMemo(() => {
+    return baseLawyers
+      .map((lawyer) => {
+        if (userLocation && !districtMatch && !hasExplicitCenter && lawyer.lat && lawyer.lng) {
+          const liveDist = calculateHaversineDistanceKm(
+            userLocation.lat,
+            userLocation.lng,
+            lawyer.lat,
+            lawyer.lng
+          );
+          return {
+            ...lawyer,
+            distanceKm: Number(liveDist.toFixed(2)),
+          };
+        }
+        return lawyer;
+      })
+      .sort((a, b) => {
+        if (filters.sort === "NEAREST") {
+          return a.distanceKm - b.distanceKm;
+        }
+        return 0;
+      });
+  }, [baseLawyers, userLocation, districtMatch, hasExplicitCenter, filters.sort]);
 
   const selectedLawyer = useMemo(() => {
     if (!selectedId) return null;
@@ -266,11 +284,7 @@ export function SearchPageClient() {
 
   const handleMapCenterChange = useCallback(
     (lat: number, lng: number) => {
-      if (centerTimerRef.current) clearTimeout(centerTimerRef.current);
-      centerTimerRef.current = setTimeout(
-        () => setCenter({ lat, lng }),
-        400
-      );
+      setCenter({ lat, lng });
     },
     [setCenter]
   );
@@ -305,29 +319,18 @@ export function SearchPageClient() {
   }, [setFilters, setCenter]);
 
   const handleRequestLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        };
-        setUserLocation(loc);
-        setCenter(loc);
-        setFilters((prev) => ({ ...prev, sort: "NEAREST" }));
-      },
-      () => {},
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-    );
-  }, [setCenter, setFilters]);
+    clearCenter();
+    requestLocation(true);
+    setFilters((prev) => ({ ...prev, sort: "NEAREST" }));
+  }, [clearCenter, requestLocation, setFilters]);
 
   const handleUserLocationChange = useCallback(
-    (loc: { lat: number; lng: number }) => {
-      setUserLocation(loc);
-      setCenter(loc);
+    () => {
+      clearCenter();
+      requestLocation(true);
       setFilters((prev) => ({ ...prev, sort: "NEAREST" }));
     },
-    [setCenter, setFilters]
+    [clearCenter, requestLocation, setFilters]
   );
 
   const handleProximityChange = useCallback(
@@ -445,6 +448,22 @@ export function SearchPageClient() {
             specialties={specialtyOptions}
           />
 
+          {!userLocation && !districtMatch && !hasExplicitCenter && (
+            <div className="px-5 py-2 bg-muted/40 border-b border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 truncate">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                <span className="truncate">{t("fromCityCenter")}</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleRequestLocation}
+                className="font-semibold text-brand-dark dark:text-white hover:underline shrink-0 ml-2 cursor-pointer"
+              >
+                {t("useMyLocation")}
+              </button>
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {isLoading ? (
               <ResultsList
@@ -475,7 +494,7 @@ export function SearchPageClient() {
                 onExpandSearch={handleExpandSearch}
                 onSearchAllRwanda={handleSearchAllRwanda}
                 onRemoveFilters={handleRemoveFilters}
-                hasLocation={hasLocation}
+                hasLocation={Boolean(userLocation)}
                 onRequestLocation={handleRequestLocation}
                 currentRadius={filters.proximity}
                 onSetRadius={(r: ProximityFilter) =>

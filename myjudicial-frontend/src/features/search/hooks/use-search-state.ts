@@ -20,6 +20,8 @@ export function useSearchState() {
   const districtParam = searchParams.get("district") ?? searchParams.get("city") ?? searchParams.get("q");
   const districtCoords = findDistrictCoordinates(districtParam);
 
+  const hasExplicitCenter = Boolean(latParam && lngParam);
+
   const center: MapCenter = {
     lat: latParam ? Number(latParam) : districtCoords ? districtCoords.lat : -1.9441,
     lng: lngParam ? Number(lngParam) : districtCoords ? districtCoords.lng : 30.0619,
@@ -45,6 +47,14 @@ export function useSearchState() {
     },
     [router]
   );
+
+  const clearCenter = useCallback(() => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete("lat");
+    params.delete("lng");
+    params.delete("district");
+    router.replace(`/search?${params.toString()}`, { scroll: false });
+  }, [router]);
 
   const viewParam = searchParams.get("view");
   const [mapExpanded, setMapExpanded] = useState(false);
@@ -74,6 +84,8 @@ export function useSearchState() {
     setFilters,
     center,
     setCenter,
+    clearCenter,
+    hasExplicitCenter,
     viewMode: effectiveView,
     mapExpanded,
     setMapExpanded,

@@ -8,6 +8,7 @@ import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { getLocalizedLanguage } from "@/shared/constants/languages";
+import { formatDistance } from "../utils/geo";
 import type { Lawyer } from "../types";
 
 type LawyerCardProps = {
@@ -127,7 +128,7 @@ export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorL
           <div className="flex items-center gap-1 min-w-0 overflow-hidden">
             <MapPin className="h-3 w-3 text-muted-foreground/70 shrink-0" />
             <span className="shrink-0 whitespace-nowrap">
-              {lawyer.distanceKm.toFixed(1)}&nbsp;{t("km")}{distanceAnchorLabel ? ` ${distanceAnchorLabel}` : ""}
+              {formatDistance(lawyer.distanceKm)}{distanceAnchorLabel ? ` ${distanceAnchorLabel}` : ""}
             </span>
             {locationLabel && (
               <span className="text-muted-foreground/60 truncate min-w-0">

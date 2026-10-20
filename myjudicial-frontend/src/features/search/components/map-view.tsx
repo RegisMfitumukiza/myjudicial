@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
 import { formatSpecialtyName } from "./mobile-map-expert-card";
 import { getLocalizedLanguage } from "@/shared/constants/languages";
+import { formatDistance } from "../utils/geo";
 
 const STREET_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -63,12 +64,6 @@ type MapViewProps = {
 function formatRate(rate: number): string {
   if (rate >= 1000) return `${(rate / 1000).toFixed(0)}k`;
   return String(rate);
-}
-
-function formatDistance(km: number): string {
-  if (km < 1) return `${Math.round(km * 1000)} m`;
-  if (km < 10) return `${km.toFixed(1)} km`;
-  return `${Math.round(km)} km`;
 }
 
 /**
@@ -547,10 +542,8 @@ export function MapView({
       });
 
       map.on("dragend", () => {
-        if (onCenterChange) {
-          const c = map.getCenter();
-          onCenterChange(c.lat, c.lng);
-        }
+        // Panning finished: show "Search this area" button for user to confirm area exploration
+        setShowSearchThisArea(true);
       });
 
       mapRef.current = map;
@@ -646,6 +639,31 @@ export function MapView({
 
         existing.inner.style.transform = isHigh ? "scale(1.15)" : "";
         existing.element.style.zIndex = isSelected ? "35" : isHovered ? "25" : "1";
+
+        // Refresh popup content so updated distances and details stay completely in sync
+        existing.popup.setHTML(
+          createRichPopupHtml({
+            name: lawyer.name,
+            rate: lawyer.startingRateRwf,
+            rating: lawyer.rating,
+            reviewCount: lawyer.reviewCount,
+            verified: lawyer.verified,
+            avatarUrl: lawyer.avatarUrl ?? "",
+            lawyerId: lawyer.id,
+            online: lawyer.online,
+            specialty: formatSpecialtyName(lawyer.specialtyLabel, tSpecialties),
+            specialties: (lawyer.specialties || []).map((s) => formatSpecialtyName(s, tSpecialties)).join(", "),
+            distanceKm: lawyer.distanceKm,
+            distanceAnchorLabel,
+            officeAddress: lawyer.officeAddress ?? "",
+            city: lawyer.city ?? "",
+            yearsExperience: lawyer.yearsExperience ?? 0,
+            languages: (lawyer.languages || []).map((l) => getLocalizedLanguage(l, locale)).join(", "),
+            locale,
+            t,
+            tSpecialties,
+          })
+        );
 
         if (isSelected) {
           if (!isMobile) {
@@ -858,6 +876,7 @@ export function MapView({
 
   const requestUserLocation = useCallback(() => {
     if (!navigator.geolocation) return;
+    setShowSearchThisArea(false);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -871,7 +890,7 @@ export function MapView({
       () => {
         /* denied */
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }, [onUserLocationChange]);
 

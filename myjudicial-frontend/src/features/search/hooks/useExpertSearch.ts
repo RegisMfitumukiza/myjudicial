@@ -105,10 +105,13 @@ export function useExpertSearch(
   params: ExpertSearchParams = {},
   options: { enabled?: boolean } = {}
 ) {
+  const roundedLat = params.lat !== undefined ? Math.round(params.lat * 10000) / 10000 : undefined;
+  const roundedLng = params.lng !== undefined ? Math.round(params.lng * 10000) / 10000 : undefined;
+
   const queryString = new URLSearchParams();
 
-  if (params.lat !== undefined) queryString.append("lat", params.lat.toString());
-  if (params.lng !== undefined) queryString.append("lng", params.lng.toString());
+  if (roundedLat !== undefined) queryString.append("lat", roundedLat.toString());
+  if (roundedLng !== undefined) queryString.append("lng", roundedLng.toString());
   if (params.radius !== undefined) queryString.append("radius", params.radius.toString());
   if (params.specialties && params.specialties.length > 0) {
     queryString.append("specialties", params.specialties.join(","));
@@ -125,8 +128,14 @@ export function useExpertSearch(
   if (params.availableToday) queryString.append("availableToday", "true");
   if (params.instantConsult) queryString.append("instantConsult", "true");
 
+  const stableParams = {
+    ...params,
+    lat: roundedLat,
+    lng: roundedLng,
+  };
+
   return useQuery({
-    queryKey: ["experts", params],
+    queryKey: ["experts", stableParams],
     enabled: options.enabled !== false,
     queryFn: async () => {
       const response = await apiFetch<ApiResponse>(
@@ -145,7 +154,7 @@ export function useExpertSearch(
         pagination: meta,
       };
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
     placeholderData: keepPreviousData,
     retry: 2,
   });

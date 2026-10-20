@@ -5,16 +5,11 @@ import { Star, BadgeCheck, Navigation, X, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { formatDistance } from "../utils/geo";
 import type { Lawyer } from "../types";
 
 export function formatSpecialtyName(code: string, tSpecialties?: (k: string) => string): string {
   return getLocalizedSpecialty(code, tSpecialties);
-}
-
-function formatDist(km: number): string {
-  if (km < 1) return `${Math.round(km * 1000)} m`;
-  if (km < 10) return `${km.toFixed(1)} km`;
-  return `${Math.round(km)} km`;
 }
 
 type MobileMapExpertCardProps = {
@@ -136,7 +131,7 @@ export function MobileMapExpertCard({ lawyer, onClose, distanceAnchorLabel }: Mo
           <div className="text-right">
             <span className="text-xs font-semibold text-foreground flex items-center gap-1">
               <MapPin size={11} className="text-brand-dark dark:text-white" />
-              <span>{formatDist(lawyer.distanceKm)} {distanceAnchorLabel || t("fromCityCenter")}</span>
+              <span>{formatDistance(lawyer.distanceKm)} {distanceAnchorLabel || t("fromCityCenter")}</span>
             </span>
           </div>
         </div>

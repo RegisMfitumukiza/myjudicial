@@ -55,6 +55,7 @@ type MapViewProps = {
   searchRadiusKm?: number;
   userLocation?: { lat: number; lng: number } | null;
   onUserLocationChange?: (loc: { lat: number; lng: number }) => void;
+  distanceAnchorLabel?: string;
   className?: string;
   isMobile?: boolean;
 };
@@ -245,6 +246,7 @@ function createRichPopupHtml(props: {
   specialty: string;
   specialties: string;
   distanceKm: number;
+  distanceAnchorLabel?: string;
   officeAddress: string;
   city: string;
   yearsExperience: number;
@@ -351,7 +353,7 @@ function createRichPopupHtml(props: {
         </div>
         <div style="text-align:right">
           <p style="margin:0;font-size:12px;font-weight:600;color:${BRAND}">${distStr}</p>
-          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("away")}</p>
+          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.distanceAnchorLabel || props.t("fromCityCenter")}</p>
         </div>
       </div>
 
@@ -440,6 +442,7 @@ export function MapView({
   searchRadiusKm,
   userLocation,
   onUserLocationChange,
+  distanceAnchorLabel,
   className,
   isMobile = false,
 }: MapViewProps) {
@@ -699,6 +702,7 @@ export function MapView({
           specialty: formatSpecialtyName(lawyer.specialtyLabel, tSpecialties),
           specialties: (lawyer.specialties || []).map((s) => formatSpecialtyName(s, tSpecialties)).join(", "),
           distanceKm: lawyer.distanceKm,
+          distanceAnchorLabel,
           officeAddress: lawyer.officeAddress ?? "",
           city: lawyer.city ?? "",
           yearsExperience: lawyer.yearsExperience ?? 0,

@@ -21,6 +21,7 @@ type ResultsListProps = {
   isLoading: boolean;
   viewMode?: "split" | "list" | "map";
   activeContext?: ActiveContextInfo | null;
+  distanceAnchorLabel?: string;
 };
 
 export function ResultsList({
@@ -32,6 +33,7 @@ export function ResultsList({
   isLoading,
   viewMode = "split",
   activeContext,
+  distanceAnchorLabel,
 }: ResultsListProps) {
   const t = useTranslations("search");
   const selectedRef = useRef<HTMLDivElement>(null);
@@ -115,6 +117,7 @@ export function ResultsList({
               selected={lawyer.id === selectedId}
               onClick={() => onSelect(lawyer.id)}
               onHover={onHover}
+              distanceAnchorLabel={distanceAnchorLabel}
             />
           </div>
         ))}

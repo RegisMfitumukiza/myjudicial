@@ -160,6 +160,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
       avatarUrl: expert.avatarUrl,
       status: expert.verified ? 'VERIFIED' : 'PENDING_VERIFICATION',
       city: expert.city,
+      officeAddress: expert.officeAddress,
       latitude: expert.latitude,
       longitude: expert.longitude,
       distance: expert.distanceKm,

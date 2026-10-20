@@ -60,12 +60,25 @@ export function SearchPageClient() {
   useEffect(() => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        () => setHasLocation(true),
+        (pos) => {
+          const loc = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setHasLocation(true);
+          setUserLocation(loc);
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has("lat") && !params.has("district") && !params.has("q")) {
+              setCenter(loc);
+            }
+          }
+        },
         () => setHasLocation(false),
-        { timeout: 5000 }
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
       );
     }
-  }, []);
+  }, [setCenter]);
 
   useEffect(() => {
     return () => {
@@ -92,6 +105,16 @@ export function SearchPageClient() {
   const searchCenter = districtMatch
     ? { lat: districtMatch.lat, lng: districtMatch.lng }
     : center;
+
+  const distanceAnchorLabel = useMemo(() => {
+    if (districtMatch) {
+      return t("fromLocation", { location: districtMatch.canonicalName });
+    }
+    if (userLocation) {
+      return t("fromYou");
+    }
+    return t("fromCityCenter");
+  }, [districtMatch, userLocation, t]);
 
   const {
     data: searchResults,
@@ -362,6 +385,7 @@ export function SearchPageClient() {
               searchRadiusKm={radiusKm}
               userLocation={userLocation}
               onUserLocationChange={handleUserLocationChange}
+              distanceAnchorLabel={distanceAnchorLabel}
               isMobile={isMobile}
             />
           </div>
@@ -432,6 +456,7 @@ export function SearchPageClient() {
                 isLoading={true}
                 viewMode={viewMode}
                 activeContext={activeContext}
+                distanceAnchorLabel={distanceAnchorLabel}
               />
             ) : hasResults ? (
               <ResultsList
@@ -443,6 +468,7 @@ export function SearchPageClient() {
                 isLoading={false}
                 viewMode={viewMode}
                 activeContext={activeContext}
+                distanceAnchorLabel={distanceAnchorLabel}
               />
             ) : (
               <NoResultsPanel
@@ -485,6 +511,7 @@ export function SearchPageClient() {
         <MobileMapExpertCard
           lawyer={selectedLawyer}
           onClose={() => setSelectedId(null)}
+          distanceAnchorLabel={distanceAnchorLabel}
         />
       )}
 

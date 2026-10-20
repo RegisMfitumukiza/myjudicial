@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Link } from "@/i18n/routing";
 import { MapPin, ShieldCheck, BadgeCheck, Clock } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
@@ -14,12 +15,23 @@ type LawyerCardProps = {
   selected?: boolean;
   onClick?: () => void;
   onHover?: (id: string | null) => void;
+  distanceAnchorLabel?: string;
 };
 
-export function LawyerCard({ lawyer, selected, onClick, onHover }: LawyerCardProps) {
+export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorLabel }: LawyerCardProps) {
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
   const locale = useLocale();
+
+  const locationLabel = useMemo(() => {
+    if (lawyer.officeAddress) {
+      if (lawyer.city && !lawyer.officeAddress.toLowerCase().includes(lawyer.city.toLowerCase())) {
+        return `${lawyer.officeAddress}, ${lawyer.city}`;
+      }
+      return lawyer.officeAddress;
+    }
+    return lawyer.city || null;
+  }, [lawyer.officeAddress, lawyer.city]);
 
   return (
     <div
@@ -111,8 +123,10 @@ export function LawyerCard({ lawyer, selected, onClick, onHover }: LawyerCardPro
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] sm:text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 shrink-0">
             <MapPin className="h-3 w-3 text-muted-foreground/70" />
-            <span>{lawyer.distanceKm.toFixed(1)} {t("km")}</span>
-            {lawyer.city && <span className="text-muted-foreground/70">• {lawyer.city}</span>}
+            <span>
+              {lawyer.distanceKm.toFixed(1)} {t("km")}{distanceAnchorLabel ? ` ${distanceAnchorLabel}` : ""}
+            </span>
+            {locationLabel && <span className="text-muted-foreground/70">• {locationLabel}</span>}
           </span>
           {lawyer.languages && lawyer.languages.length > 0 && (
             <span className="truncate text-muted-foreground/80">

@@ -20,9 +20,10 @@ function formatDist(km: number): string {
 type MobileMapExpertCardProps = {
   lawyer: Lawyer;
   onClose: () => void;
+  distanceAnchorLabel?: string;
 };
 
-export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProps) {
+export function MobileMapExpertCard({ lawyer, onClose, distanceAnchorLabel }: MobileMapExpertCardProps) {
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
 
@@ -109,6 +110,13 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
                 </>
               )}
             </div>
+
+            {locationText && (
+              <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground truncate">
+                <MapPin size={10} className="shrink-0 text-muted-foreground/70" />
+                <span className="truncate">{locationText}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -128,7 +136,7 @@ export function MobileMapExpertCard({ lawyer, onClose }: MobileMapExpertCardProp
           <div className="text-right">
             <span className="text-xs font-semibold text-foreground flex items-center gap-1">
               <MapPin size={11} className="text-brand-dark dark:text-white" />
-              <span>{formatDist(lawyer.distanceKm)} {t("away").toLowerCase()}</span>
+              <span>{formatDist(lawyer.distanceKm)} {distanceAnchorLabel || t("fromCityCenter")}</span>
             </span>
           </div>
         </div>

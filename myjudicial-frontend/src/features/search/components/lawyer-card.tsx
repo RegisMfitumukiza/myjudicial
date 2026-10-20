@@ -23,14 +23,16 @@ export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorL
   const tSpecialties = useTranslations("specialties");
   const locale = useLocale();
 
+  // Short location label: show city, or the first meaningful segment of the address.
+  // Full address is available on the expert's profile page — cards stay compact.
   const locationLabel = useMemo(() => {
+    if (lawyer.city) return lawyer.city;
     if (lawyer.officeAddress) {
-      if (lawyer.city && !lawyer.officeAddress.toLowerCase().includes(lawyer.city.toLowerCase())) {
-        return `${lawyer.officeAddress}, ${lawyer.city}`;
-      }
-      return lawyer.officeAddress;
+      // Take only the first comma-separated segment (neighbourhood / sector)
+      const firstSegment = lawyer.officeAddress.split(",")[0].trim();
+      return firstSegment || lawyer.officeAddress;
     }
-    return lawyer.city || null;
+    return null;
   }, [lawyer.officeAddress, lawyer.city]);
 
   return (
@@ -119,27 +121,33 @@ export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorL
           )}
         </div>
 
-        {/* Row 3: Distance & Languages */}
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] sm:text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 shrink-0">
-            <MapPin className="h-3 w-3 text-muted-foreground/70" />
-            <span>
-              {lawyer.distanceKm.toFixed(1)} {t("km")}{distanceAnchorLabel ? ` ${distanceAnchorLabel}` : ""}
+        {/* Row 3: Distance, location & languages — fully responsive */}
+        <div className="flex flex-col gap-0.5 text-[11px] sm:text-xs text-muted-foreground">
+          {/* Distance + location on one line; location truncates gracefully */}
+          <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+            <MapPin className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+            <span className="shrink-0 whitespace-nowrap">
+              {lawyer.distanceKm.toFixed(1)}&nbsp;{t("km")}{distanceAnchorLabel ? ` ${distanceAnchorLabel}` : ""}
             </span>
-            {locationLabel && <span className="text-muted-foreground/70">• {locationLabel}</span>}
-          </span>
+            {locationLabel && (
+              <span className="text-muted-foreground/60 truncate min-w-0">
+                &nbsp;·&nbsp;{locationLabel}
+              </span>
+            )}
+          </div>
+          {/* Languages on a second line to avoid crowding */}
           {lawyer.languages && lawyer.languages.length > 0 && (
-            <span className="truncate text-muted-foreground/80">
-              • {lawyer.languages.slice(0, 2).map((l) => getLocalizedLanguage(l, locale)).join(", ")}
+            <span className="truncate text-muted-foreground/70 pl-4">
+              {lawyer.languages.slice(0, 2).map((l) => getLocalizedLanguage(l, locale)).join(", ")}
             </span>
           )}
         </div>
 
-        {/* Row 4: Price & CTAs */}
-        <div className="pt-2 border-t border-border/60 flex items-center justify-between gap-2">
+        {/* Row 4: Price & CTAs — wraps on very small screens */}
+        <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
           <div className="min-w-0">
             {lawyer.startingRateRwf > 0 ? (
-              <p className="text-sm sm:text-[15px] font-extrabold text-foreground leading-tight">
+              <p className="text-sm sm:text-[15px] font-extrabold text-foreground leading-tight truncate">
                 {lawyer.startingRateRwf.toLocaleString()}{" "}
                 <span className="text-[10px] sm:text-[11px] font-normal text-muted-foreground">{t("rwfPerConsult")}</span>
               </p>
@@ -147,18 +155,18 @@ export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorL
               <p className="text-xs text-muted-foreground font-medium">{t("contactForPricing")}</p>
             )}
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
             <Link
               href={`/lawyers/${lawyer.id}`}
               onClick={(e) => e.stopPropagation()}
-              className="rounded-xl border border-border bg-background px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition text-center shadow-2xs"
+              className="rounded-xl border border-border bg-background px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition text-center shadow-2xs whitespace-nowrap"
             >
               {t("viewProfile")}
             </Link>
             <Link
               href={`/lawyers/${lawyer.id}/book`}
               onClick={(e) => e.stopPropagation()}
-              className="rounded-xl bg-brand-dark px-3 py-1.5 text-xs font-bold text-on-brand hover:opacity-90 dark:bg-white dark:text-black transition shadow-2xs text-center"
+              className="rounded-xl bg-brand-dark px-3 py-1.5 text-xs font-bold text-on-brand hover:opacity-90 dark:bg-white dark:text-black transition shadow-2xs text-center whitespace-nowrap"
             >
               {t("bookConsultationShort")}
             </Link>

@@ -112,9 +112,9 @@ export function MobileMapExpertCard({ lawyer, onClose, distanceAnchorLabel }: Mo
             </div>
 
             {locationText && (
-              <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground truncate">
+              <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground min-w-0 overflow-hidden">
                 <MapPin size={10} className="shrink-0 text-muted-foreground/70" />
-                <span className="truncate">{locationText}</span>
+                <span className="truncate min-w-0">{locationText}</span>
               </div>
             )}
           </div>

@@ -111,6 +111,7 @@ export function ResultsList({
           <div
             key={lawyer.id}
             ref={lawyer.id === selectedId ? selectedRef : undefined}
+            className="min-w-0"
           >
             <LawyerCard
               lawyer={lawyer}

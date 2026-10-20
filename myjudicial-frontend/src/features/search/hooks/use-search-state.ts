@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,17 +15,30 @@ export function useSearchState() {
   const isMobile = useIsMobile();
   const filters = parseFiltersFromParams(searchParams);
 
-  const latParam = searchParams.get("lat");
-  const lngParam = searchParams.get("lng");
+  // Immediately strip legacy/stale lat and lng parameters from browser URL on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const current = new URLSearchParams(window.location.search);
+      if (current.has("lat") || current.has("lng")) {
+        current.delete("lat");
+        current.delete("lng");
+        const cleanQuery = current.toString() ? `?${current.toString()}` : "";
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${cleanQuery}`
+        );
+      }
+    }
+  }, []);
+
   const districtParam = searchParams.get("district") ?? searchParams.get("city") ?? searchParams.get("q");
   const districtCoords = findDistrictCoordinates(districtParam);
 
-  const hasExplicitCenter = Boolean(latParam && lngParam);
-
-  const center: MapCenter = {
-    lat: latParam ? Number(latParam) : districtCoords ? districtCoords.lat : -1.9441,
-    lng: lngParam ? Number(lngParam) : districtCoords ? districtCoords.lng : 30.0619,
-  };
+  const [center, setCenterState] = useState<MapCenter>({
+    lat: districtCoords ? districtCoords.lat : -1.9441,
+    lng: districtCoords ? districtCoords.lng : 30.0619,
+  });
 
   const setFilters = useCallback(
     (updater: SearchFilters | ((prev: SearchFilters) => SearchFilters)) => {
@@ -38,21 +51,16 @@ export function useSearchState() {
     [router]
   );
 
-  const setCenter = useCallback(
-    (c: MapCenter) => {
-      const params = new URLSearchParams(window.location.search);
-      params.set("lat", c.lat.toFixed(5));
-      params.set("lng", c.lng.toFixed(5));
-      router.replace(`/search?${params.toString()}`, { scroll: false });
-    },
-    [router]
-  );
+  const setCenter = useCallback((c: MapCenter) => {
+    setCenterState(c);
+  }, []);
 
   const clearCenter = useCallback(() => {
+    setCenterState({ lat: -1.9441, lng: 30.0619 });
     const params = new URLSearchParams(window.location.search);
+    params.delete("district");
     params.delete("lat");
     params.delete("lng");
-    params.delete("district");
     router.replace(`/search?${params.toString()}`, { scroll: false });
   }, [router]);
 
@@ -85,7 +93,6 @@ export function useSearchState() {
     center,
     setCenter,
     clearCenter,
-    hasExplicitCenter,
     viewMode: effectiveView,
     mapExpanded,
     setMapExpanded,
@@ -148,21 +155,11 @@ function syncToUrl(filters: SearchFilters, router: ReturnType<typeof useRouter>)
   const hadOldDistrict = existing.has("district");
 
   if (districtMatch) {
-    params.set("lat", districtMatch.lat.toFixed(5));
-    params.set("lng", districtMatch.lng.toFixed(5));
     params.set("district", districtMatch.canonicalName);
     // Auto-apply a local radius so PostGIS actually filters by distance from the district.
     // Only override if the user hasn't manually chosen a radius yet.
     if (!filters.proximity || filters.proximity === "anywhere") {
       params.set("proximity", "20km");
-    }
-  } else {
-    // If the query was a district before and is now cleared or changed to a non-district,
-    // do NOT copy over the old district or old district coordinates!
-    // Only preserve manual lat/lng if the user panned the map manually without a district query.
-    if (!hadOldDistrict) {
-      if (existing.has("lat")) params.set("lat", existing.get("lat")!);
-      if (existing.has("lng")) params.set("lng", existing.get("lng")!);
     }
   }
 

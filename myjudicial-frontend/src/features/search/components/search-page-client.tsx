@@ -32,7 +32,6 @@ export function SearchPageClient() {
     center,
     setCenter,
     clearCenter,
-    hasExplicitCenter,
     viewMode,
     mapExpanded,
     setMapExpanded,
@@ -53,6 +52,7 @@ export function SearchPageClient() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [manualMapCenter, setManualMapCenter] = useState<{ lat: number; lng: number } | null>(null);
 
   // Modern device geolocation with continuous live tracking & zero stale cache
   const {
@@ -79,34 +79,34 @@ export function SearchPageClient() {
 
   // Search origin resolution:
   // 1. Explicit district search (e.g. "Musanze") takes precedence
-  // 2. Explicit manual pin/exploration ("Search this area" in URL)
+  // 2. User clicked "Search this area" on the map (in-memory exploration)
   // 3. User's live device GPS location
   // 4. Default fallback: Kigali City Center
   const searchCenter = useMemo(() => {
     if (districtMatch) {
       return { lat: districtMatch.lat, lng: districtMatch.lng };
     }
-    if (hasExplicitCenter) {
-      return center;
+    if (manualMapCenter) {
+      return manualMapCenter;
     }
     if (userLocation) {
       return userLocation;
     }
     return center;
-  }, [districtMatch, hasExplicitCenter, center, userLocation]);
+  }, [districtMatch, manualMapCenter, center, userLocation]);
 
   const distanceAnchorLabel = useMemo(() => {
     if (districtMatch) {
       return t("fromLocation", { location: districtMatch.canonicalName });
     }
-    if (hasExplicitCenter && !userLocation) {
+    if (manualMapCenter && !userLocation) {
       return t("fromCityCenter");
     }
     if (userLocation) {
       return t("fromYou");
     }
     return t("fromCityCenter");
-  }, [districtMatch, hasExplicitCenter, userLocation, t]);
+  }, [districtMatch, manualMapCenter, userLocation, t]);
 
   const {
     data: searchResults,
@@ -185,7 +185,7 @@ export function SearchPageClient() {
   const displayedLawyers = useMemo(() => {
     return baseLawyers
       .map((lawyer) => {
-        if (userLocation && !districtMatch && !hasExplicitCenter && lawyer.lat && lawyer.lng) {
+        if (userLocation && !districtMatch && !manualMapCenter && lawyer.lat && lawyer.lng) {
           const liveDist = calculateHaversineDistanceKm(
             userLocation.lat,
             userLocation.lng,
@@ -205,7 +205,7 @@ export function SearchPageClient() {
         }
         return 0;
       });
-  }, [baseLawyers, userLocation, districtMatch, hasExplicitCenter, filters.sort]);
+  }, [baseLawyers, userLocation, districtMatch, manualMapCenter, filters.sort]);
 
   const selectedLawyer = useMemo(() => {
     if (!selectedId) return null;
@@ -319,6 +319,7 @@ export function SearchPageClient() {
   }, [setFilters, setCenter]);
 
   const handleRequestLocation = useCallback(() => {
+    setManualMapCenter(null);
     clearCenter();
     requestLocation(true);
     setFilters((prev) => ({ ...prev, sort: "NEAREST" }));
@@ -326,6 +327,7 @@ export function SearchPageClient() {
 
   const handleUserLocationChange = useCallback(
     () => {
+      setManualMapCenter(null);
       clearCenter();
       requestLocation(true);
       setFilters((prev) => ({ ...prev, sort: "NEAREST" }));
@@ -448,7 +450,7 @@ export function SearchPageClient() {
             specialties={specialtyOptions}
           />
 
-          {!userLocation && !districtMatch && !hasExplicitCenter && (
+          {!userLocation && !districtMatch && !manualMapCenter && (
             <div className="px-5 py-2 bg-muted/40 border-b border-border/60 flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 truncate">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />

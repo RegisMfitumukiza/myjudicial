@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
-import { Layers, Navigation, LocateFixed, ZoomIn, MapPin } from "lucide-react";
+import { Layers, Navigation, LocateFixed, ZoomIn, MapPin, Plus, Minus } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
 import { formatSpecialtyName } from "./mobile-map-expert-card";
@@ -45,6 +45,7 @@ type MapViewProps = {
   selectedId: string | null;
   hoveredId?: string | null;
   onSelect: (id: string) => void;
+  onHover?: (id: string | null) => void;
   center?: { lat: number; lng: number };
   onCenterChange?: (lat: number, lng: number) => void;
   onBoundsChange?: (bounds: {
@@ -60,6 +61,29 @@ type MapViewProps = {
   className?: string;
   isMobile?: boolean;
 };
+
+function createGeoJsonCircle(center: [number, number], radiusInKm: number, points = 64) {
+  const coords = { latitude: center[1], longitude: center[0] };
+  const km = radiusInKm;
+  const ret: [number, number][] = [];
+  const distanceX = km / (111.32 * Math.cos((coords.latitude * Math.PI) / 180));
+  const distanceY = km / 110.574;
+  for (let i = 0; i < points; i++) {
+    const theta = (i / points) * (2 * Math.PI);
+    const x = distanceX * Math.cos(theta);
+    const y = distanceY * Math.sin(theta);
+    ret.push([coords.longitude + x, coords.latitude + y]);
+  }
+  ret.push(ret[0]);
+  return {
+    type: "Feature",
+    geometry: {
+      type: "Polygon",
+      coordinates: [ret],
+    },
+    properties: {},
+  };
+}
 
 function formatRate(rate: number): string {
   if (rate >= 1000) return `${(rate / 1000).toFixed(0)}k`;
@@ -431,6 +455,7 @@ export function MapView({
   selectedId,
   hoveredId,
   onSelect,
+  onHover,
   center,
   onCenterChange,
   onBoundsChange,
@@ -702,6 +727,14 @@ export function MapView({
         onSelect(lawyer.id);
       });
 
+      container.addEventListener("mouseenter", () => {
+        onHover?.(lawyer.id);
+      });
+
+      container.addEventListener("mouseleave", () => {
+        onHover?.(null);
+      });
+
       const popup = new maplibregl.Popup({
         offset: [0, -42],
         closeButton: true,
@@ -836,10 +869,11 @@ export function MapView({
     if (userLocationMarkerRef.current) userLocationMarkerRef.current.remove();
 
     const el = document.createElement("div");
-    el.style.cssText = `
-      width:18px;height:18px;border-radius:50%;
-      background:rgb(59,130,246);border:3px solid white;
-      box-shadow:0 0 0 3px rgba(59,130,246,0.25), 0 2px 6px rgba(0,0,0,0.2);
+    el.style.cssText =
+      "width:36px;height:36px;pointer-events:none;display:flex;align-items:center;justify-content:center;position:relative;";
+    el.innerHTML = `
+      <span style="position:absolute;width:32px;height:32px;border-radius:50%;background:rgba(37,99,235,0.22);animation:map-user-ping 2s cubic-bezier(0,0,0.2,1) infinite;"></span>
+      <span style="position:relative;width:15px;height:15px;border-radius:50%;background:#2563eb;border:2.5px solid #ffffff;box-shadow:0 0 0 2px rgba(37,99,235,0.4), 0 2px 6px rgba(0,0,0,0.3);"></span>
     `;
 
     userLocationMarkerRef.current = new maplibregl.Marker({
@@ -849,6 +883,65 @@ export function MapView({
       .setLngLat([userLocation.lng, userLocation.lat])
       .addTo(map);
   }, [userLocation]);
+
+  // Visual search radius boundary circle on map (Airbnb / Uber pattern)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    const sourceId = "search-radius-source";
+    const fillLayerId = "search-radius-fill";
+    const lineLayerId = "search-radius-line";
+
+    const removeLayers = () => {
+      try {
+        if (map.getLayer(lineLayerId)) map.removeLayer(lineLayerId);
+        if (map.getLayer(fillLayerId)) map.removeLayer(fillLayerId);
+        if (map.getSource(sourceId)) map.removeSource(sourceId);
+      } catch {}
+    };
+
+    if (!searchRadiusKm || searchRadiusKm >= 500 || !center) {
+      removeLayers();
+      return;
+    }
+
+    const circleGeoJson = createGeoJsonCircle([center.lng, center.lat], searchRadiusKm);
+
+    try {
+      const existingSource = map.getSource(sourceId) as maplibregl.GeoJSONSource | undefined;
+      if (existingSource) {
+        existingSource.setData(circleGeoJson as any);
+      } else {
+        map.addSource(sourceId, {
+          type: "geojson",
+          data: circleGeoJson as any,
+        });
+
+        map.addLayer({
+          id: fillLayerId,
+          type: "fill",
+          source: sourceId,
+          paint: {
+            "fill-color": "#2563eb",
+            "fill-opacity": 0.05,
+          },
+        });
+
+        map.addLayer({
+          id: lineLayerId,
+          type: "line",
+          source: sourceId,
+          paint: {
+            "line-color": "#2563eb",
+            "line-width": 1.5,
+            "line-dasharray": [3, 2],
+            "line-opacity": 0.45,
+          },
+        });
+      }
+    } catch {}
+  }, [ready, center?.lat, center?.lng, searchRadiusKm]);
 
 
   const prevBaseLayerRef = useRef(baseLayer);
@@ -962,7 +1055,64 @@ export function MapView({
         >
           <LocateFixed className="h-4 w-4 text-foreground" />
         </button>
+
+        {/* Zoom Controls (+ / -) */}
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-md ring-1 ring-black/5 dark:ring-white/10 flex flex-col">
+          <button
+            type="button"
+            onClick={() => mapRef.current?.zoomIn({ duration: 300 })}
+            className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-accent transition cursor-pointer"
+            title="Zoom in"
+            aria-label="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+          <div className="h-px w-full bg-border" />
+          <button
+            type="button"
+            onClick={() => mapRef.current?.zoomOut({ duration: 300 })}
+            className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-accent transition cursor-pointer"
+            title="Zoom out"
+            aria-label="Zoom out"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+
+      {/* ── Empty Viewport Recovery pill ── */}
+      {ready && lawyers.length === 0 && (
+        <div className="absolute left-1/2 top-4 sm:top-5 z-20 -translate-x-1/2 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-md px-4 py-2 text-xs font-semibold text-foreground shadow-lg">
+            <span>{t("noExpertsInArea", { defaultValue: "No advocates in this area" })}</span>
+            <span className="text-muted-foreground">•</span>
+            {userLocation ? (
+              <button
+                type="button"
+                onClick={requestUserLocation}
+                className="text-brand-dark dark:text-white font-bold hover:underline cursor-pointer"
+              >
+                {t("locateMe")}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onCenterChange?.(-1.9441, 30.0619)}
+                className="text-brand-dark dark:text-white font-bold hover:underline cursor-pointer"
+              >
+                {t("allRwanda")}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes map-user-ping {
+          0% { transform: scale(0.6); opacity: 0.8; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }

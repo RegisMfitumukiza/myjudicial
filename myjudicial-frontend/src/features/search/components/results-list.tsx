@@ -116,6 +116,7 @@ export function ResultsList({
             <LawyerCard
               lawyer={lawyer}
               selected={lawyer.id === selectedId}
+              hovered={lawyer.id === hoveredId}
               onClick={() => onSelect(lawyer.id)}
               onHover={onHover}
               distanceAnchorLabel={distanceAnchorLabel}

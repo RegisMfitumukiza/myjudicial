@@ -363,6 +363,12 @@ export function SearchPageClient() {
         viewMode={viewMode}
         onToggleMap={toggleViewMode}
         isMobile={isMobile}
+        specialties={specialtyOptions}
+        onSelectSpecialty={(s) =>
+          setFilters((prev) => ({ ...prev, specialties: [s] }))
+        }
+        lawyers={displayedLawyers}
+        onSelectLawyer={(id) => handleSelect(id)}
       />
 
       <CategoryPills
@@ -385,6 +391,7 @@ export function SearchPageClient() {
               selectedId={selectedId}
               hoveredId={hoveredId}
               onSelect={handleSelect}
+              onHover={setHoveredId}
               center={searchCenter}
               onCenterChange={handleMapCenterChange}
               searchRadiusKm={radiusKm}

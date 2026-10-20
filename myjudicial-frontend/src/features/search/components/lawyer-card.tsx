@@ -14,12 +14,13 @@ import type { Lawyer } from "../types";
 type LawyerCardProps = {
   lawyer: Lawyer;
   selected?: boolean;
+  hovered?: boolean;
   onClick?: () => void;
   onHover?: (id: string | null) => void;
   distanceAnchorLabel?: string;
 };
 
-export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorLabel }: LawyerCardProps) {
+export function LawyerCard({ lawyer, selected, hovered, onClick, onHover, distanceAnchorLabel }: LawyerCardProps) {
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
   const locale = useLocale();
@@ -48,7 +49,9 @@ export function LawyerCard({ lawyer, selected, onClick, onHover, distanceAnchorL
       className={`group relative flex gap-3 sm:gap-3.5 rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 ${
         selected
           ? "border-brand-dark bg-accent/60 shadow-md ring-2 ring-brand-dark/40 dark:border-white dark:ring-white/40 dark:bg-white/[0.06]"
-          : "border-border bg-card hover:border-brand-dark/40 hover:shadow-md hover:bg-card/90"
+          : hovered
+            ? "border-brand-dark/60 bg-accent/40 shadow-sm ring-1 ring-brand-dark/30 dark:border-white/60 dark:ring-white/30 dark:bg-white/[0.04]"
+            : "border-border bg-card hover:border-brand-dark/40 hover:shadow-md hover:bg-card/90"
       } ${onClick ? "cursor-pointer" : ""}`}
     >
       {/* Avatar */}

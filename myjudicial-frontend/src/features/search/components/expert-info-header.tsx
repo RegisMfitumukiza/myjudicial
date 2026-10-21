@@ -57,7 +57,7 @@ export function ExpertInfoHeader({
           <div className="mt-2.5 flex flex-wrap items-center gap-4 text-xs text-brand-dark/50 dark:text-white/50">
             {officeAddress && (
               <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {officeAddress}
+                <MapPin className="h-3 w-3" /> {officeAddress.replace(/^[\s,.-]+|[\s,.-]+$/g, "").trim()}
               </span>
             )}
             {yearsExperience != null && yearsExperience > 0 && (

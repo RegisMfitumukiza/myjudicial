@@ -5,7 +5,7 @@ import { Star, BadgeCheck, Navigation, X, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
-import { formatDistance } from "../utils/geo";
+import { formatDistance, formatCleanAddress } from "../utils/geo";
 import type { Lawyer } from "../types";
 
 export function formatSpecialtyName(code: string, tSpecialties?: (k: string) => string): string {
@@ -22,9 +22,10 @@ export function MobileMapExpertCard({ lawyer, onClose, distanceAnchorLabel }: Mo
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
 
-  const locationText = [lawyer.officeAddress, lawyer.city || lawyer.district]
-    .filter(Boolean)
-    .join(", ");
+  const locationText = formatCleanAddress(
+    lawyer.officeAddress,
+    lawyer.city || lawyer.district
+  );
 
   const googleMapsDestination = encodeURIComponent(locationText || lawyer.city || "Kigali, Rwanda");
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${googleMapsDestination}`;
@@ -107,9 +108,9 @@ export function MobileMapExpertCard({ lawyer, onClose, distanceAnchorLabel }: Mo
             </div>
 
             {locationText && (
-              <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground min-w-0 overflow-hidden">
-                <MapPin size={10} className="shrink-0 text-muted-foreground/70" />
-                <span className="truncate min-w-0">{locationText}</span>
+              <div className="mt-1 flex items-start gap-1 text-[11px] text-muted-foreground min-w-0">
+                <MapPin size={11} className="shrink-0 text-muted-foreground/70 mt-0.5" />
+                <span className="line-clamp-2 leading-snug break-words min-w-0 flex-1">{locationText}</span>
               </div>
             )}
           </div>

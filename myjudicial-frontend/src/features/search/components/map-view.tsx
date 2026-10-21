@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Lawyer } from "../types";
 import { formatSpecialtyName } from "./mobile-map-expert-card";
 import { getLocalizedLanguage } from "@/shared/constants/languages";
-import { formatDistance } from "../utils/geo";
+import { formatDistance, formatCleanAddress } from "../utils/geo";
 
 const STREET_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -280,38 +280,32 @@ function createRichPopupHtml(props: {
       ? `${props.rate.toLocaleString()} RWF`
       : props.t("contactForPricing");
   const distStr = formatDistance(props.distanceKm);
-
-  const BRAND = "rgb(36,85,141)";
-  const MUTED = "#64748b";
-  const BORDER = "#e2e8f0";
   const prefix = `/${props.locale}`;
+
+  const cleanLocation = formatCleanAddress(props.officeAddress, props.city);
 
   const starsHtml =
     props.rating > 0
-      ? `<span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:600;color:${BRAND}">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="${BRAND}" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      ? `<span class="popup-rating-score">
+           <svg class="popup-star-icon" width="12" height="12" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
            ${props.rating.toFixed(1)}
          </span>
-         <span style="font-size:11px;color:${MUTED}">(${props.reviewCount} ${props.t("reviews")})</span>`
-      : `<span style="font-size:11px;font-weight:500;color:${MUTED}">${props.t("new")}</span>`;
+         <span class="popup-reviews-count">(${props.reviewCount} ${props.t("reviews")})</span>`
+      : `<span class="popup-reviews-count font-medium">${props.t("new")}</span>`;
 
   const onlineBadge = props.online
-    ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#16a34a">
-         <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block"></span>
+    ? `<span class="popup-online-badge">
+         <span class="popup-online-dot"></span>
          ${props.t("availableNow")}
        </span>`
     : "";
 
   const verifiedBadge = props.verified
-    ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:${BRAND};flex-shrink:0;white-space:nowrap">
-         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${BRAND}" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+    ? `<span class="popup-verified-badge">
+         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
          ${props.t("verified")}
        </span>`
     : "";
-
-  const locationLine = [props.officeAddress, props.city]
-    .filter(Boolean)
-    .join(", ");
 
   const rawSpecialties = props.specialties
     ? props.specialties.split(", ").map((s) => formatSpecialtyName(s, props.tSpecialties))
@@ -322,87 +316,91 @@ function createRichPopupHtml(props: {
     rawSpecialties.length > 0
       ? rawSpecialties
           .slice(0, 2)
-          .map(
-            (s) =>
-              `<span style="display:inline-block;font-size:11px;font-weight:500;color:${BRAND};background:rgba(36,85,141,0.08);border:1px solid #cbd5e1;border-radius:6px;padding:2px 8px">${s}</span>`
-          )
+          .map((s) => `<span class="popup-specialty-pill">${s}</span>`)
           .join(" ") +
         (rawSpecialties.length > 2
-          ? `<span style="font-size:11px;font-weight:500;color:${MUTED};margin-left:4px">+${rawSpecialties.length - 2}</span>`
+          ? `<span class="popup-specialty-extra">+${rawSpecialties.length - 2}</span>`
           : "")
       : "";
 
-  const expLine = props.yearsExperience > 0
-    ? `<span style="font-size:11px;color:${MUTED}">${props.yearsExperience} ${props.t("yrShort")}</span>`
-    : "";
+  const expLine =
+    props.yearsExperience > 0
+      ? `<span class="popup-exp-line">${props.yearsExperience} ${props.t("yrShort")}</span>`
+      : "";
+
+  const initials = props.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
 
   return `
-    <div style="padding:0;min-width:280px;max-width:320px;font-family:system-ui,-apple-system,sans-serif;overflow:hidden">
-
-      <div style="padding:14px 44px 10px 14px;position:relative;display:flex;gap:12px;align-items:flex-start">
-        <a href="${prefix}/lawyers/${props.lawyerId}" title="${props.t("viewProfile")}" style="text-decoration:none;position:relative;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:${BRAND};display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+    <div class="popup-card">
+      <div class="popup-header">
+        <a href="${prefix}/lawyers/${props.lawyerId}" title="${props.t("viewProfile")}" class="popup-avatar">
           ${props.avatarUrl
-            ? `<img src="${props.avatarUrl}" alt="${props.name}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid ${BRAND}" onerror="this.parentElement.innerHTML='${props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()}'" />`
-            : props.name.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()
+            ? `<img src="${props.avatarUrl}" alt="${props.name}" onerror="this.parentElement.innerHTML='${initials}'" />`
+            : initials
           }
         </a>
-        <div style="min-width:0;flex:1">
-          <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-            <a href="${prefix}/lawyers/${props.lawyerId}" style="margin:0;font-size:14px;font-weight:700;color:${BRAND};line-height:1.25;word-break:break-word;text-decoration:none;cursor:pointer" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${props.name}</a>
+        <div class="popup-header-info">
+          <div class="popup-name-row">
+            <a href="${prefix}/lawyers/${props.lawyerId}" class="popup-name">${props.name}</a>
             ${verifiedBadge}
           </div>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:3px">
+          <div class="popup-meta-line">
             ${onlineBadge}
             ${expLine}
           </div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">
+          <div class="popup-stars-row">
             ${starsHtml}
           </div>
         </div>
       </div>
 
       ${specialtiesList ? `
-      <div style="border-top:1px solid ${BORDER};padding:8px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">
+      <div class="popup-specialties-row">
         ${specialtiesList}
       </div>` : ""}
 
-      <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+      <div class="popup-pricing-row">
         <div>
-          <p style="margin:0;font-size:15px;font-weight:800;color:${BRAND}">${rateStr}</p>
-          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.t("rwfPerConsult")}</p>
+          <p class="popup-price">${rateStr}</p>
+          <p class="popup-subtext">${props.t("rwfPerConsult")}</p>
         </div>
         <div style="text-align:right">
-          <p style="margin:0;font-size:12px;font-weight:600;color:${BRAND}">${distStr}</p>
-          <p style="margin:1px 0 0;font-size:10px;color:${MUTED}">${props.distanceAnchorLabel || props.t("fromCityCenter")}</p>
+          <p class="popup-dist">${distStr}</p>
+          <p class="popup-subtext">${props.distanceAnchorLabel || props.t("fromCityCenter")}</p>
         </div>
       </div>
 
-      ${locationLine ? `
-      <div style="border-top:1px solid ${BORDER};padding:8px 14px;display:flex;align-items:center;gap:6px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${MUTED}" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span style="font-size:11px;color:${MUTED};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${locationLine}</span>
+      ${cleanLocation ? `
+      <div class="popup-location-row">
+        <svg class="popup-location-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span class="popup-location-text" title="${cleanLocation}">${cleanLocation}</span>
       </div>` : ""}
 
-      <div style="border-top:1px solid ${BORDER};padding:10px 14px;display:flex;flex-direction:column;gap:7px">
-        <a href="${prefix}/lawyers/${props.lawyerId}/book"
-          style="display:flex;align-items:center;justify-content:center;gap:6px;height:36px;font-size:13px;font-weight:600;color:white;background:${BRAND};border-radius:8px;text-decoration:none;transition:opacity 0.15s"
-          onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          ${props.t("bookConsultation")}
+      <div class="popup-actions-row">
+        <a href="${prefix}/lawyers/${props.lawyerId}/book" class="popup-btn-book">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span>${props.t("bookConsultation")}</span>
         </a>
-        <div style="display:flex;gap:6px">
-          <a href="${prefix}/lawyers/${props.lawyerId}"
-            style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;height:32px;font-size:12px;font-weight:600;color:${BRAND};background:rgb(241,245,249);border-radius:7px;text-decoration:none;transition:background 0.15s"
-            onmouseover="this.style.background='rgb(226,232,240)'" onmouseout="this.style.background='rgb(241,245,249)'">
+        <div class="popup-secondary-actions">
+          <a href="${prefix}/lawyers/${props.lawyerId}" class="popup-btn-profile">
             ${props.t("viewProfile")}
           </a>
-          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationLine || props.city || "Kigali")}"
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation || props.city || "Kigali")}"
             target="_blank" rel="noopener noreferrer"
             title="${props.t("getDirections")}"
             aria-label="${props.t("getDirections")}"
-            style="width:36px;height:32px;display:flex;align-items:center;justify-content:center;color:${BRAND};background:rgb(241,245,249);border-radius:7px;text-decoration:none;transition:background 0.15s"
-            onmouseover="this.style.background='rgb(226,232,240)'" onmouseout="this.style.background='rgb(241,245,249)'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+            class="popup-btn-directions">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 11l19-9-9 19-2-8-8-2z"/>
+            </svg>
           </a>
         </div>
       </div>
@@ -740,7 +738,7 @@ export function MapView({
       const popup = new maplibregl.Popup({
         offset: [0, -42],
         closeButton: true,
-        maxWidth: "320px",
+        maxWidth: "min(360px, calc(100vw - 32px))",
         className: "lawyer-popup",
       }).setHTML(
         createRichPopupHtml({

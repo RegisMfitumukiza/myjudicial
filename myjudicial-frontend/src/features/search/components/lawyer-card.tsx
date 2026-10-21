@@ -30,9 +30,9 @@ export function LawyerCard({ lawyer, selected, hovered, onClick, onHover, distan
   const locationLabel = useMemo(() => {
     if (lawyer.city) return lawyer.city;
     if (lawyer.officeAddress) {
-      // Take only the first comma-separated segment (neighbourhood / sector)
-      const firstSegment = lawyer.officeAddress.split(",")[0].trim();
-      return firstSegment || lawyer.officeAddress;
+      const cleaned = lawyer.officeAddress.replace(/^[\s,.-]+|[\s,.-]+$/g, "").trim();
+      const segments = cleaned.split(",").map((s) => s.trim()).filter(Boolean);
+      return segments[0] || cleaned || null;
     }
     return null;
   }, [lawyer.officeAddress, lawyer.city]);

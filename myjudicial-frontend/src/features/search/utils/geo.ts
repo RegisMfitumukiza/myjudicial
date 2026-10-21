@@ -50,6 +50,41 @@ export function formatDistance(km: number | undefined | null): string {
 }
 
 /**
+ * Cleans and formats raw address strings:
+ * - Strips leading/trailing commas, periods, and stray whitespace
+ * - Removes accidental duplicate commas (e.g. ", , KN 4")
+ * - Combines officeAddress with city without repeating segments
+ */
+export function formatCleanAddress(
+  officeAddress?: string | null,
+  city?: string | null
+): string {
+  const parts: string[] = [];
+
+  if (officeAddress) {
+    const cleaned = officeAddress
+      .replace(/^[\s,.-]+|[\s,.-]+$/g, "")
+      .replace(/\s*,\s*,+/g, ", ")
+      .trim();
+    if (cleaned) parts.push(cleaned);
+  }
+
+  if (city) {
+    const cleanedCity = city
+      .replace(/^[\s,.-]+|[\s,.-]+$/g, "")
+      .trim();
+    if (
+      cleanedCity &&
+      !parts.some((p) => p.toLowerCase().includes(cleanedCity.toLowerCase()))
+    ) {
+      parts.push(cleanedCity);
+    }
+  }
+
+  return parts.join(", ");
+}
+
+/**
  * Round coordinate to 4 decimal places (~11m resolution) to stabilize cache keys.
  */
 export function roundCoord(val: number): number {

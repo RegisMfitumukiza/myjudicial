@@ -4515,7 +4515,21 @@
     "nowOnline": "You are now online and ready to accept bookings",
     "nowOffline": "You are now offline",
     "scheduleNotConfigured": "Schedule Not Configured",
-    "setConsultationSchedule": "Set Consultation Schedule"
+    "setConsultationSchedule": "Set Consultation Schedule",
+    "practicePaused": "Your practice is currently paused. Go online when you are ready to receive bookings.",
+    "onLeave": "On Leave",
+    "onLeaveDesc": "You are currently marked as on leave. Return online when you are ready to resume consultations.",
+    "verificationInReview": "Verification in Review",
+    "verificationInReviewDesc": "Your credentials are under regulatory review. You will be notified once approved.",
+    "verificationActionRequired": "Verification Action Needed",
+    "verificationActionRequiredDesc": "Your application requires updates. Please review the regulatory notes and resubmit.",
+    "credentialsExpiredTitle": "Credentials Expired",
+    "credentialsExpiredDesc": "Your practicing credentials have expired. Please upload renewed documents to reactivate.",
+    "unverifiedDesc": "Complete verification with the regulatory body to activate client consultations.",
+    "viewVerificationStatus": "View Verification",
+    "reviewFeedback": "Review Feedback",
+    "renewCredentials": "Renew Credentials",
+    "getVerified": "Get Verified"
   },
   "expertDashboard_ai-case": {
     "title": "AI Case Analysis",

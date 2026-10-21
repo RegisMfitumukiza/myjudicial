@@ -86,10 +86,10 @@ export default function ExpertDashboardPage() {
     { limit: 50 },
     { query: { enabled: profileEnabled } }
   );
-  const { data: availabilityRes } = useGetExpertsAvailability(
+  const { data: availabilityRes, isLoading: availabilityLoading } = useGetExpertsAvailability(
     { query: { enabled: profileEnabled } }
   );
-  const { data: servicesRes } = useGetExpertsServices(
+  const { data: servicesRes, isLoading: servicesLoading } = useGetExpertsServices(
     { query: { enabled: profileEnabled } }
   );
   
@@ -121,8 +121,25 @@ export default function ExpertDashboardPage() {
   const services = servicesRes?.status === 200 ? servicesRes.data.data : [];
   const onboarding = onboardingRes?.data ?? null;
 
-  const isOnline = availability[0]?.presenceStatus === "ONLINE";
-  const isUnverified = compliance?.status !== "VERIFIED";
+  // Domain logic & State Governance
+  // An expert has a configured schedule only if availability has records and at least one active slot
+  const hasConfiguredSchedule = availability.length > 0 && availability.some((s) => s.isAvailable);
+  const presenceStatus = availability[0]?.presenceStatus || "OFFLINE";
+  const isOnline = hasConfiguredSchedule && presenceStatus === "ONLINE";
+  const isOnLeave = presenceStatus === "ON_LEAVE";
+
+  // Verification & Compliance checks
+  const isVerified = compliance?.status === "VERIFIED" && !compliance?.isExpired;
+  const isVerificationPending = compliance?.status === "PENDING_VERIFICATION";
+  const isVerificationRejected = compliance?.status === "REJECTED";
+  const isCredentialsExpired = Boolean(compliance?.isExpired || compliance?.status === "SUSPENDED");
+  const isUnverified = !isVerified;
+
+  // Synchronized loading guards:
+  // Banner needs profile, compliance, and availability to determine its state deterministically
+  const isBannerLoading = profileLoading || (profileEnabled && (complianceLoading || availabilityLoading));
+  // Top metric cards need profile, stats, earnings, and availability
+  const isStatsLoading = profileLoading || (profileEnabled && (statsLoading || earningsLoading || availabilityLoading));
 
   // Photo status from onboarding data
   const photoStatus = onboarding?.photoStatus || {
@@ -133,7 +150,7 @@ export default function ExpertDashboardPage() {
   };
 
   function handleToggleAvailable(next: boolean) {
-    if (next && availability.length === 0) {
+    if (next && !hasConfiguredSchedule) {
       toast.warning(t("availabilityRequiredBeforeOnline"), {
         description: t("availabilityRequiredBeforeOnlineDesc"),
         action: {
@@ -204,9 +221,10 @@ export default function ExpertDashboardPage() {
   );
 
   const alerts: RegulatoryAlert[] = useMemo(() => {
-    if (!compliance) return [];
+    // While prerequisite data is still loading, do not produce transient alerts
+    if (complianceLoading || availabilityLoading || !compliance) return [];
     const result: RegulatoryAlert[] = [];
-    if (availability.length === 0 && !isUnverified) {
+    if (!hasConfiguredSchedule && !isUnverified) {
       result.push({
         id: "schedule-not-configured",
         severity: "warning",
@@ -248,7 +266,7 @@ export default function ExpertDashboardPage() {
       });
     }
     return result;
-  }, [compliance, services, availability, isUnverified, t]);
+  }, [complianceLoading, availabilityLoading, compliance, hasConfiguredSchedule, isUnverified, services, t]);
 
   const availableSlotsToday = useMemo(() => {
     if (!isOnline) return 0;
@@ -305,66 +323,111 @@ export default function ExpertDashboardPage() {
         <div className="absolute right-0 top-0 h-80 w-80 translate-x-20 -translate-y-20 rounded-full bg-white/[0.05] blur-3xl" />
         <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-12 translate-y-12 rounded-full bg-white/10 blur-3xl" />
         <div className="relative z-10">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                    isOnline
-                      ? "bg-white/15 text-white"
-                      : availability.length === 0 && !isUnverified
-                      ? "bg-amber-400/20 text-amber-200 border border-amber-400/30 font-semibold"
-                      : "bg-white/10 text-white/70"
-                  )}
-                >
+                {isBannerLoading ? (
+                  <div className="h-6 w-32 rounded-full bg-white/20 animate-pulse" />
+                ) : isOnline ? (
+                  <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                    {t("onlineAvailable")}
+                  </span>
+                ) : isOnLeave ? (
+                  <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-amber-400/20 text-amber-200 border border-amber-400/30">
+                    <span className="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
+                    {t("onLeave")}
+                  </span>
+                ) : isUnverified ? (
                   <span
                     className={cn(
-                      "h-2 w-2 rounded-full",
-                      isOnline
-                        ? "bg-white animate-pulse"
-                        : availability.length === 0 && !isUnverified
-                        ? "bg-amber-400 animate-pulse"
-                        : "bg-white/50"
+                      "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border",
+                      isVerificationRejected || isCredentialsExpired
+                        ? "bg-rose-500/20 text-rose-200 border-rose-500/30"
+                        : isVerificationPending
+                        ? "bg-amber-400/20 text-amber-200 border border-amber-400/30"
+                        : "bg-white/10 text-white/80 border-white/20"
                     )}
-                    aria-hidden="true"
-                  />
-                  {isOnline
-                    ? t("onlineAvailable")
-                    : availability.length === 0 && !isUnverified
-                    ? t("scheduleNotConfigured")
-                    : t("offline")}
-                </span>
-                {(stats?.activeConsultations || 0) > 0 && (
-                  <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
+                  >
+                    <Lock size={12} className="shrink-0" />
+                    {isCredentialsExpired
+                      ? t("credentialsExpiredTitle")
+                      : isVerificationRejected
+                      ? t("verificationActionRequired")
+                      : isVerificationPending
+                      ? t("verificationInReview")
+                      : t("verificationRequired")}
+                  </span>
+                ) : !hasConfiguredSchedule ? (
+                  <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-amber-400/20 text-amber-200 border border-amber-400/30">
+                    <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true" />
+                    {t("scheduleNotConfigured")}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium bg-white/10 text-white/80 border border-white/15">
+                    <span className="h-2 w-2 rounded-full bg-white/50" aria-hidden="true" />
+                    {t("offline")}
+                  </span>
+                )}
+
+                {!isBannerLoading && (stats?.activeConsultations || 0) > 0 && (
+                  <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white border border-white/15">
                     {stats?.activeConsultations || 0} {t("activeSessions", { count: stats?.activeConsultations || 0, plural: (stats?.activeConsultations || 0) !== 1 ? "s" : "" })}
                   </div>
                 )}
               </div>
+
               <h1 className="text-2xl sm:text-3xl font-bold text-white lg:text-4xl break-words">
                 {t(greetingKey, { name: firstName })}
               </h1>
-              <p className="mt-2 text-white/70 lg:text-lg">
-                {isOnline 
-                  ? t("readyToServe") 
-                  : availability.length === 0 && !isUnverified
+
+              {isBannerLoading ? (
+                <div className="mt-2.5 h-4 w-72 sm:w-96 rounded bg-white/20 animate-pulse" />
+              ) : (
+                <p className="mt-2 text-white/80 lg:text-lg">
+                  {isOnline
+                    ? t("readyToServe")
+                    : isOnLeave
+                    ? t("onLeaveDesc")
+                    : isUnverified
+                    ? isCredentialsExpired
+                      ? t("credentialsExpiredDesc")
+                      : isVerificationRejected
+                      ? t("verificationActionRequiredDesc")
+                      : isVerificationPending
+                      ? t("verificationInReviewDesc")
+                      : t("unverifiedDesc")
+                    : !hasConfiguredSchedule
                     ? t("setScheduleToOnline")
-                    : t("setStatusOnline")}
-              </p>
+                    : t("practicePaused")}
+                </p>
+              )}
             </div>
-            
+
             {/* Quick Actions */}
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mt-4 lg:mt-0 shrink-0">
-              {isUnverified ? (
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mt-2 sm:mt-0 shrink-0">
+              {isBannerLoading ? (
+                <div className="h-9 w-32 rounded-lg bg-white/20 animate-pulse" />
+              ) : isUnverified ? (
                 <Button
-                  disabled
-                  title={t("verificationRequiredToGoOnline")}
-                  className="bg-white/15 text-white/80 border border-white/20 cursor-not-allowed shadow-none text-xs gap-1.5 hover:bg-white/15"
+                  onClick={() => router.push("/expert/dashboard/verification")}
+                  className={cn(
+                    "text-xs gap-1.5 font-medium shadow-none",
+                    isVerificationRejected || isCredentialsExpired
+                      ? "bg-rose-500 hover:bg-rose-600 text-white"
+                      : "bg-white/15 hover:bg-white/25 text-white border border-white/20"
+                  )}
                 >
-                  <Lock size={13} className="shrink-0 text-white/70" />
-                  {t("verificationRequired")}
+                  <Lock size={13} className="shrink-0 text-white/80" />
+                  {isCredentialsExpired
+                    ? t("renewCredentials")
+                    : isVerificationRejected
+                    ? t("reviewFeedback")
+                    : isVerificationPending
+                    ? t("viewVerificationStatus")
+                    : t("getVerified")}
                 </Button>
-              ) : availability.length === 0 ? (
+              ) : !hasConfiguredSchedule ? (
                 <Button
                   onClick={() => router.push("/expert/dashboard/availability")}
                   className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold shadow-md text-xs sm:text-sm gap-2"
@@ -378,8 +441,8 @@ export default function ExpertDashboardPage() {
                   disabled={isTogglingAvailable}
                   className={
                     isOnline
-                      ? "bg-white/10 text-white shadow-none hover:bg-white/20"
-                      : "bg-white text-brand-dark hover:bg-white/90"
+                      ? "bg-white/15 text-white border border-white/20 shadow-none hover:bg-white/25"
+                      : "bg-white text-slate-900 hover:bg-white/90 font-semibold shadow-sm"
                   }
                 >
                   {isTogglingAvailable ? "..." : isOnline ? t("goOffline") : t("goOnline")}
@@ -411,7 +474,7 @@ export default function ExpertDashboardPage() {
         />
       )}
 
-      {profileLoading ? (
+      {isStatsLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </div>
@@ -419,7 +482,7 @@ export default function ExpertDashboardPage() {
         /* Profile incomplete — show setup card */
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <ProfileCompletionCard hasAvailability={availability.length > 0} />
+            <ProfileCompletionCard hasAvailability={hasConfiguredSchedule} />
           </div>
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-muted/50 p-4">
@@ -459,7 +522,7 @@ export default function ExpertDashboardPage() {
             isTogglingAvailable={isTogglingAvailable}
             nextBooking={nextBooking?.service ? { scheduledStart: nextBooking.scheduledStart, service: { name: nextBooking.service.name } } : null}
             availableSlotsToday={availableSlotsToday}
-            hasConfiguredSchedule={availability.length > 0}
+            hasConfiguredSchedule={hasConfiguredSchedule}
           />
 
           {/* Performance Metrics */}

@@ -144,7 +144,7 @@ export function useDeviceLocation(): DeviceLocationResult {
         {
           enableHighAccuracy: true,
           timeout: 15000,
-          maximumAge: 5000,
+          maximumAge: 0, // always demand fresh GPS — no stale cache
         }
       );
       watchIdRef.current = id;

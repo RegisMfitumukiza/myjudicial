@@ -5,32 +5,56 @@ import { Search, SlidersHorizontal, Map as MapIcon, List, X, MapPin, Scale, User
 import { useTranslations } from "next-intl";
 
 const RWANDA_DISTRICTS = [
+  // Kigali Districts
   { name: "Nyarugenge", province: "Kigali" },
   { name: "Gasabo", province: "Kigali" },
   { name: "Kicukiro", province: "Kigali" },
+  // Kigali — Nyarugenge neighborhoods
+  { name: "Nyamirambo", province: "Nyarugenge, Kigali" },
+  { name: "Muhima", province: "Nyarugenge, Kigali" },
+  { name: "Gitega", province: "Nyarugenge, Kigali" },
+  { name: "Biryogo", province: "Nyarugenge, Kigali" },
+  // Kigali — Gasabo neighborhoods
+  { name: "Gishushu", province: "Gasabo, Kigali" },
+  { name: "Kimironko", province: "Gasabo, Kigali" },
+  { name: "Remera", province: "Gasabo, Kigali" },
+  { name: "Kacyiru", province: "Gasabo, Kigali" },
+  { name: "Gisozi", province: "Gasabo, Kigali" },
+  { name: "Kibagabaga", province: "Gasabo, Kigali" },
+  { name: "Ndera", province: "Gasabo, Kigali" },
+  // Kigali — Kicukiro neighborhoods
+  { name: "Niboye", province: "Kicukiro, Kigali" },
+  { name: "Kagarama", province: "Kicukiro, Kigali" },
+  { name: "Gatenga", province: "Kicukiro, Kigali" },
+  { name: "Kanombe", province: "Kicukiro, Kigali" },
+  { name: "Masaka", province: "Kicukiro, Kigali" },
+  // Northern Province
   { name: "Musanze", province: "Northern Province" },
-  { name: "Rubavu", province: "Western Province" },
+  { name: "Gicumbi", province: "Northern Province" },
+  { name: "Rulindo", province: "Northern Province" },
+  { name: "Gakenke", province: "Northern Province" },
+  { name: "Burera", province: "Northern Province" },
+  // Southern Province
   { name: "Huye", province: "Southern Province" },
   { name: "Muhanga", province: "Southern Province" },
-  { name: "Rwamagana", province: "Eastern Province" },
-  { name: "Gicumbi", province: "Northern Province" },
-  { name: "Rusizi", province: "Western Province" },
-  { name: "Karongi", province: "Western Province" },
-  { name: "Nyagatare", province: "Eastern Province" },
-  { name: "Bugesera", province: "Eastern Province" },
-  { name: "Kayonza", province: "Eastern Province" },
   { name: "Nyanza", province: "Southern Province" },
   { name: "Ruhango", province: "Southern Province" },
-  { name: "Gakenke", province: "Northern Province" },
-  { name: "Rulindo", province: "Northern Province" },
-  { name: "Burera", province: "Northern Province" },
+  { name: "Gisagara", province: "Southern Province" },
+  { name: "Nyaruguru", province: "Southern Province" },
+  { name: "Nyamagabe", province: "Southern Province" },
+  // Western Province
+  { name: "Rubavu", province: "Western Province" },
+  { name: "Rusizi", province: "Western Province" },
+  { name: "Karongi", province: "Western Province" },
   { name: "Nyabihu", province: "Western Province" },
   { name: "Ngororero", province: "Western Province" },
   { name: "Rutsiro", province: "Western Province" },
   { name: "Nyamasheke", province: "Western Province" },
-  { name: "Gisagara", province: "Southern Province" },
-  { name: "Nyaruguru", province: "Southern Province" },
-  { name: "Nyamagabe", province: "Southern Province" },
+  // Eastern Province
+  { name: "Rwamagana", province: "Eastern Province" },
+  { name: "Nyagatare", province: "Eastern Province" },
+  { name: "Bugesera", province: "Eastern Province" },
+  { name: "Kayonza", province: "Eastern Province" },
   { name: "Kirehe", province: "Eastern Province" },
   { name: "Ngoma", province: "Eastern Province" },
   { name: "Gatsibo", province: "Eastern Province" },
@@ -264,10 +288,10 @@ export function SearchTopBar({
 
           {/* Autocomplete Dropdown */}
           {dropdownOpen && hasMatches && (
-            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-full max-w-xl z-50 overflow-hidden rounded-2xl border border-border bg-card/98 backdrop-blur-md shadow-2xl ring-1 ring-black/5 dark:ring-white/10 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-full max-w-xl z-50 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl ring-1 ring-black/5 dark:ring-white/10 animate-in fade-in slide-in-from-top-1 duration-150">
               {matchingDistricts.length > 0 && (
                 <div className="p-2 border-b border-border/60 last:border-b-0">
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t("districtsOrCities", { defaultValue: "Districts & Locations" })}
                   </div>
                   {matchingDistricts.map((d) => (
@@ -275,11 +299,11 @@ export function SearchTopBar({
                       key={d.name}
                       type="button"
                       onClick={() => handleSelectDistrict(d.name)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-xl hover:bg-accent transition text-xs sm:text-[13px] text-foreground cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-accent transition-colors text-xs sm:text-[13px] text-foreground cursor-pointer"
                     >
-                      <MapPin className="h-4 w-4 text-brand-dark dark:text-white shrink-0" />
+                      <MapPin className="h-4 w-4 text-brand-dark dark:text-blue-400 shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <span className="font-semibold">{d.name}</span>
+                        <span className="font-semibold text-foreground">{d.name}</span>
                         <span className="text-muted-foreground text-[11px] ml-1.5 font-normal">
                           · {d.province}
                         </span>
@@ -291,7 +315,7 @@ export function SearchTopBar({
 
               {matchingSpecialties.length > 0 && (
                 <div className="p-2 border-b border-border/60 last:border-b-0">
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t("practiceAreasTitle", { defaultValue: "Practice Areas" })}
                   </div>
                   {matchingSpecialties.map((s) => (
@@ -299,11 +323,11 @@ export function SearchTopBar({
                       key={s.value}
                       type="button"
                       onClick={() => handleSelectSpecialtyItem(s.value)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-xl hover:bg-accent transition text-xs sm:text-[13px] text-foreground cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-accent transition-colors text-xs sm:text-[13px] text-foreground cursor-pointer"
                     >
                       <Scale className="h-4 w-4 text-amber-500 shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <span className="font-semibold">{s.label}</span>
+                        <span className="font-semibold text-foreground">{s.label}</span>
                         <span className="text-muted-foreground text-[11px] ml-1.5 font-normal">
                           · {t("legalSpecialty", { defaultValue: "Legal Specialty" })}
                         </span>
@@ -315,7 +339,7 @@ export function SearchTopBar({
 
               {matchingLawyers.length > 0 && (
                 <div className="p-2">
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     {t("verifiedAdvocates", { defaultValue: "Verified Advocates" })}
                   </div>
                   {matchingLawyers.map((l) => (
@@ -323,11 +347,11 @@ export function SearchTopBar({
                       key={l.id}
                       type="button"
                       onClick={() => handleSelectLawyerItem(l)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-xl hover:bg-accent transition text-xs sm:text-[13px] text-foreground cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl hover:bg-accent transition-colors text-xs sm:text-[13px] text-foreground cursor-pointer"
                     >
                       <User className="h-4 w-4 text-emerald-500 shrink-0" />
                       <div className="min-w-0 flex-1">
-                        <span className="font-semibold">{l.name}</span>
+                        <span className="font-semibold text-foreground">{l.name}</span>
                         {l.specialtyLabel && (
                           <span className="text-muted-foreground text-[11px] ml-1.5 font-normal">
                             · {l.specialtyLabel}

@@ -1084,7 +1084,7 @@ export function MapView({
       {ready && lawyers.length === 0 && (
         <div className="absolute left-1/2 top-4 sm:top-5 z-20 -translate-x-1/2 animate-in fade-in duration-200">
           <div className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-md px-4 py-2 text-xs font-semibold text-foreground shadow-lg">
-            <span>{t("noExpertsInArea", { defaultValue: "No advocates in this area" })}</span>
+            <span>{t("noExpertsInArea")}</span>
             <span className="text-muted-foreground">•</span>
             {userLocation ? (
               <button

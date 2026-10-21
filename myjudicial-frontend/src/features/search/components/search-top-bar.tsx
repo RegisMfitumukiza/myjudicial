@@ -292,7 +292,7 @@ export function SearchTopBar({
               {matchingDistricts.length > 0 && (
                 <div className="p-2 border-b border-border/60 last:border-b-0">
                   <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t("districtsOrCities", { defaultValue: "Districts & Locations" })}
+                    {t("districtsOrCities")}
                   </div>
                   {matchingDistricts.map((d) => (
                     <button
@@ -316,7 +316,7 @@ export function SearchTopBar({
               {matchingSpecialties.length > 0 && (
                 <div className="p-2 border-b border-border/60 last:border-b-0">
                   <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t("practiceAreasTitle", { defaultValue: "Practice Areas" })}
+                    {t("practiceAreasTitle")}
                   </div>
                   {matchingSpecialties.map((s) => (
                     <button
@@ -329,7 +329,7 @@ export function SearchTopBar({
                       <div className="min-w-0 flex-1">
                         <span className="font-semibold text-foreground">{s.label}</span>
                         <span className="text-muted-foreground text-[11px] ml-1.5 font-normal">
-                          · {t("legalSpecialty", { defaultValue: "Legal Specialty" })}
+                          · {t("legalSpecialty")}
                         </span>
                       </div>
                     </button>
@@ -340,7 +340,7 @@ export function SearchTopBar({
               {matchingLawyers.length > 0 && (
                 <div className="p-2">
                   <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t("verifiedAdvocates", { defaultValue: "Verified Advocates" })}
+                    {t("verifiedAdvocates")}
                   </div>
                   {matchingLawyers.map((l) => (
                     <button

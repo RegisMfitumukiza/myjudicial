@@ -18,6 +18,8 @@ import {
   useGetExpertsEarnings,
   useGetExpertsProfileMe,
   usePatchExpertsProfileMe,
+  getGetExpertsProfileMeQueryKey,
+  getGetExpertsEarningsQueryKey,
 } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
@@ -87,7 +89,8 @@ export default function EarningsPage() {
           toast.success(t("momoSavedSuccess"));
           setIsEditingPayout(false);
           setCustomMoMo("");
-          queryClient.invalidateQueries();
+          queryClient.invalidateQueries({ queryKey: getGetExpertsProfileMeQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetExpertsEarningsQueryKey() });
         },
         onError: (err: any) => {
           toast.error(err?.message || t("momoSaveError"));
@@ -133,7 +136,9 @@ export default function EarningsPage() {
               <div>
                 <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
                   {t("payoutSettingsTitle")}
-                  {currentMomo ? (
+                  {isProfileLoading ? (
+                    <Skeleton className="h-5 w-28 rounded-full" />
+                  ) : currentMomo ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       <CheckCircle2 className="h-3 w-3" />
                       {t("verifiedMomo")}
@@ -155,7 +160,9 @@ export default function EarningsPage() {
               </div>
             </div>
 
-            {!isEditingPayout && currentMomo && (
+            {isProfileLoading ? (
+              <Skeleton className="h-8 w-36 rounded-md self-start sm:self-center" />
+            ) : !isEditingPayout && currentMomo ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -169,11 +176,19 @@ export default function EarningsPage() {
                 <Edit2 className="h-3.5 w-3.5 mr-1.5" />
                 {t("changePayoutMethod")}
               </Button>
-            )}
+            ) : null}
           </div>
 
           {/* Active Status Display or Edit Form */}
-          {!isEditingPayout ? (
+          {isProfileLoading ? (
+            <div className="flex items-center gap-3 bg-muted/40 p-4 rounded-xl border border-border">
+              <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-3 w-56" />
+              </div>
+            </div>
+          ) : !isEditingPayout ? (
             currentMomo ? (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-4 rounded-xl border border-border">
                 <div className="flex items-center gap-3">

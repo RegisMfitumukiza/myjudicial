@@ -60,6 +60,7 @@ type MapViewProps = {
   distanceAnchorLabel?: string;
   className?: string;
   isMobile?: boolean;
+  isLoading?: boolean;
 };
 
 function createGeoJsonCircle(center: [number, number], radiusInKm: number, points = 64) {
@@ -465,6 +466,7 @@ export function MapView({
   distanceAnchorLabel,
   className,
   isMobile = false,
+  isLoading = false,
 }: MapViewProps) {
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
@@ -993,8 +995,11 @@ export function MapView({
 
       {/* ── Top-Left: Live experts count badge (hidden on mobile to prevent overlap with Search this area) ── */}
       <div className="absolute left-4 top-4 z-20 hidden sm:flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-xs px-3.5 py-1.5 text-xs font-semibold text-foreground shadow-md ring-1 ring-black/5 dark:ring-white/10">
-        <span className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: "#10b981" }} />
-        <span>{t("expertsInView", { count: lawyers.length })}</span>
+        <span
+          className="h-2 w-2 rounded-full animate-pulse"
+          style={{ backgroundColor: isLoading ? "#94a3b8" : "#10b981" }}
+        />
+        <span>{isLoading ? "..." : t("expertsInView", { count: lawyers.length })}</span>
       </div>
 
       {/* ── Top-Center: Search this area pill ── */}
@@ -1081,7 +1086,7 @@ export function MapView({
       </div>
 
       {/* ── Empty Viewport Recovery pill ── */}
-      {ready && lawyers.length === 0 && (
+      {ready && !isLoading && lawyers.length === 0 && (
         <div className="absolute left-1/2 top-4 sm:top-5 z-20 -translate-x-1/2 animate-in fade-in duration-200">
           <div className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur-md px-4 py-2 text-xs font-semibold text-foreground shadow-lg">
             <span>{t("noExpertsInArea")}</span>

@@ -399,6 +399,7 @@ export function SearchPageClient() {
               onUserLocationChange={handleUserLocationChange}
               distanceAnchorLabel={distanceAnchorLabel}
               isMobile={isMobile}
+              isLoading={isLoading}
             />
           </div>
         )}
@@ -457,7 +458,7 @@ export function SearchPageClient() {
             specialties={specialtyOptions}
           />
 
-          {!userLocation && !districtMatch && !manualMapCenter && (
+          {!userLocation && !districtMatch && !manualMapCenter && geoStatus !== "loading" && geoStatus !== "idle" && (
             <div className="px-5 py-2 bg-muted/40 border-b border-border/60 flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5 truncate">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />

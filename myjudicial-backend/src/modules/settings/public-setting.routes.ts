@@ -21,6 +21,7 @@ router.get(
       data: {
         platformName: s.platformName,
         paymentMode: s.paymentMode,
+        airtelEnabled: s.airtelEnabled,
         maintenanceMode: s.maintenanceMode,
         platformFeePercent: s.platformFeePercent,
         socialLinks: s.socialLinks,

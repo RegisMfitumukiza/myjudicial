@@ -23,6 +23,8 @@ export interface SettingsData {
   platformFeePercent: number;
   minEscrowDurationSeconds: number;
   paymentMode: "BOOKING_FIRST" | "PAYMENT_REQUIRED";
+  /** Whether Airtel Money is enabled as a payment option (admin-controlled). */
+  airtelEnabled: boolean;
   socialLinks?: SocialLinks;
   // Company & Contact Details
   supportEmail: string;
@@ -91,6 +93,7 @@ export const DEFAULTS: SettingsData = {
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
   paymentMode: "PAYMENT_REQUIRED",
+  airtelEnabled: false,
   socialLinks: DEFAULT_SOCIAL,
   supportEmail: "support@myjudicial.com",
   hotlinePhone: "+250 788 312 456",
@@ -212,6 +215,7 @@ export function normalizeSettings(raw: Partial<SettingsData> | null | undefined)
       r.paymentMode === "BOOKING_FIRST" || r.paymentMode === "PAYMENT_REQUIRED"
         ? r.paymentMode
         : DEFAULTS.paymentMode,
+    airtelEnabled: asBoolean(r.airtelEnabled, DEFAULTS.airtelEnabled),
     socialLinks: r.socialLinks ? { ...DEFAULT_SOCIAL, ...r.socialLinks } : DEFAULT_SOCIAL,
     supportEmail: asString(r.supportEmail, DEFAULTS.supportEmail),
     hotlinePhone: asString(r.hotlinePhone, DEFAULTS.hotlinePhone),

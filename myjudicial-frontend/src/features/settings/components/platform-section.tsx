@@ -31,6 +31,7 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
     platformFeePercent: settings.platformFeePercent,
     minEscrowDurationSeconds: settings.minEscrowDurationSeconds,
     paymentMode: settings.paymentMode,
+    airtelEnabled: settings.airtelEnabled,
     maintenanceMode: settings.maintenanceMode,
     maintenanceNotice: settings.maintenanceNotice,
   });
@@ -43,6 +44,7 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
     draft.platformFeePercent !== saved.platformFeePercent ||
     draft.minEscrowDurationSeconds !== saved.minEscrowDurationSeconds ||
     draft.paymentMode !== saved.paymentMode ||
+    draft.airtelEnabled !== saved.airtelEnabled ||
     draft.maintenanceMode !== saved.maintenanceMode ||
     draft.maintenanceNotice !== saved.maintenanceNotice;
 
@@ -141,6 +143,25 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
             </SelectContent>
           </Select>
           <p className="text-[11px] text-muted-foreground">{t("paymentModeDesc")}</p>
+        </div>
+
+        {/* Airtel Money Toggle */}
+        <div className="sm:col-span-2 rounded-xl border border-border bg-muted/20 p-4 sm:p-5 space-y-1">
+          <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center justify-between gap-3">
+            <div>
+              <Label className="text-sm font-semibold">{t("airtelEnabled")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("airtelEnabledDesc")}</p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Switch
+                checked={draft.airtelEnabled}
+                onCheckedChange={(v) => set("airtelEnabled", v)}
+              />
+              <span className={`text-xs sm:text-sm font-medium ${draft.airtelEnabled ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                {draft.airtelEnabled ? t("airtelEnabledOn") : t("airtelEnabledOff")}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Maintenance Mode Callout */}

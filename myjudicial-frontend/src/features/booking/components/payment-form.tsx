@@ -13,6 +13,8 @@ interface PaymentFormProps {
   registeredPhone?: string | null;
   showLabel?: boolean;
   compact?: boolean;
+  /** Overrides the static MNO_OPTIONS status for Airtel. Admin-controlled. */
+  airtelEnabled?: boolean;
 }
 
 function cleanDigits(phone?: string | null): string {
@@ -52,6 +54,7 @@ export function PaymentForm({
   registeredPhone,
   showLabel = true,
   compact = false,
+  airtelEnabled = false,
 }: PaymentFormProps) {
   const t = useTranslations("booking");
   const detectedNetwork = detectNetwork(paymentPhone);
@@ -62,19 +65,17 @@ export function PaymentForm({
 
   // If Airtel is selected but unavailable, auto-switch to MTN
   useEffect(() => {
-    const airtelOpt = MNO_OPTIONS.find((o) => o.value === "Airtel");
-    if (paymentMNO === "Airtel" && airtelOpt?.status === "unavailable") {
+    if (paymentMNO === "Airtel" && !airtelEnabled) {
       onMNOChange("MTN");
     }
-  }, [paymentMNO, onMNOChange]);
+  }, [paymentMNO, airtelEnabled, onMNOChange]);
 
   const handlePhoneInputChange = (val: string) => {
     onPhoneChange(val);
     const network = detectNetwork(val);
     if (network && network !== paymentMNO) {
-      const targetOpt = MNO_OPTIONS.find((o) => o.value === network);
-      // Only auto-switch if the detected network is available
-      if (targetOpt?.status === "active") {
+      const isAvailable = network === "Airtel" ? airtelEnabled : true;
+      if (isAvailable) {
         onMNOChange(network);
       }
     }
@@ -107,7 +108,7 @@ export function PaymentForm({
           {MNO_OPTIONS.map((opt) => {
             const isSelected = paymentMNO === opt.value;
             const isMTN = opt.value === "MTN";
-            const isUnavailable = opt.status === "unavailable";
+            const isUnavailable = opt.value === "Airtel" ? !airtelEnabled : false;
 
             return (
               <button
@@ -119,7 +120,9 @@ export function PaymentForm({
                   isUnavailable
                     ? "cursor-not-allowed opacity-55 border-brand-border/15 bg-brand-light/30 dark:border-white/8 dark:bg-white/5"
                     : isSelected
-                    ? "border-amber-500 bg-amber-50/60 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-950/20 dark:ring-amber-400/20 shadow-sm cursor-pointer"
+                    ? isMTN
+                      ? "border-amber-500 bg-amber-50/60 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-950/20 dark:ring-amber-400/20 shadow-sm cursor-pointer"
+                      : "border-red-500 bg-red-50/60 ring-2 ring-red-500/20 dark:border-red-400 dark:bg-red-950/20 dark:ring-red-400/20 shadow-sm cursor-pointer"
                     : "border-brand-border/20 bg-white/70 hover:border-brand-border/40 hover:bg-white dark:border-white/10 dark:bg-black/40 dark:hover:border-white/20 dark:hover:bg-black/60 cursor-pointer"
                 }`}
               >
@@ -131,7 +134,9 @@ export function PaymentForm({
                         isUnavailable
                           ? "border-brand-border/25 bg-transparent dark:border-white/15"
                           : isSelected
-                          ? "border-amber-600 bg-amber-500 dark:border-amber-400"
+                          ? isMTN
+                            ? "border-amber-600 bg-amber-500 dark:border-amber-400"
+                            : "border-red-600 bg-red-500 dark:border-red-400"
                           : "border-brand-border/40 bg-transparent dark:border-white/30"
                       }`}
                     >
@@ -163,15 +168,15 @@ export function PaymentForm({
                 </div>
 
                 <p className={`mt-1.5 pl-6 text-[11px] leading-relaxed ${isUnavailable ? "text-brand-dark/40 dark:text-white/35 italic" : "text-brand-dark/65 dark:text-white/65"}`}>
-                  {isMTN ? t("mtnMoMoDesc") : t("airtelMoneyDesc")}
+                  {isMTN ? t("mtnMoMoDesc") : isUnavailable ? t("airtelMoneyDesc") : t("airtelMoneyActiveDesc")}
                 </p>
               </button>
             );
           })}
         </div>
 
-        {/* Airtel coming-soon callout — shown below the cards */}
-        {MNO_OPTIONS.some((o) => o.value === "Airtel" && o.status === "unavailable") && (
+        {/* Airtel coming-soon callout — shown below the cards when Airtel is unavailable */}
+        {!airtelEnabled && (
           <div className="mt-2 flex items-start gap-2 rounded-lg bg-brand-dark/4 dark:bg-white/4 border border-brand-border/15 dark:border-white/10 px-3 py-2.5">
             <Info size={13} className="mt-0.5 shrink-0 text-brand-dark/50 dark:text-white/40" />
             <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/55">
@@ -241,9 +246,14 @@ export function PaymentForm({
               <CheckCircle2 size={12} className="shrink-0" />
               <span>{t("phoneDetectedMtn")}</span>
             </div>
+          ) : detectedNetwork === "Airtel" && airtelEnabled ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 size={12} className="shrink-0" />
+              <span>{t("phoneDetectedAirtel")}</span>
+            </div>
           ) : (
             <p className="text-[11px] text-brand-dark/50 dark:text-white/50">
-              {t("phoneHintMtn")}
+              {paymentMNO === "MTN" ? t("phoneHintMtn") : t("phoneHintAirtel")}
             </p>
           )}
         </div>

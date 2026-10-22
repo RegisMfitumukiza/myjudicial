@@ -68,6 +68,12 @@ export interface SettingsData {
    *   checkout and the booking is confirmed once payment is received.
    */
   paymentMode: PaymentMode;
+  /**
+   * Controls whether Airtel Money appears as a selectable payment option.
+   * Set to true once Azampay confirms Airtel integration is production-ready.
+   * Defaults to false (disabled) until activated by an admin.
+   */
+  airtelEnabled: boolean;
   socialLinks: SocialLinks;
   // Company Contact & Headquarter Location
   supportEmail: string;
@@ -127,6 +133,7 @@ const DEFAULTS: SettingsData = {
   platformFeePercent: 15,
   minEscrowDurationSeconds: 300,
   paymentMode: "PAYMENT_REQUIRED",
+  airtelEnabled: false,
   socialLinks: {
     x: "https://twitter.com/myjudicial",
     linkedin: "https://linkedin.com/company/myjudicial",
@@ -227,6 +234,7 @@ const KEYS: Record<keyof SettingsData, string> = {
   platformFeePercent: "platform_fee_percent",
   minEscrowDurationSeconds: "min_escrow_duration_seconds",
   paymentMode: "payment_mode",
+  airtelEnabled: "airtel_enabled",
   socialLinks: "social_links",
   supportEmail: "support_email",
   hotlinePhone: "hotline_phone",
@@ -311,6 +319,7 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
         : rawPaymentMode === "PAYMENT_REQUIRED"
         ? "PAYMENT_REQUIRED"
         : DEFAULTS.paymentMode,
+    airtelEnabled: (map.get(KEYS.airtelEnabled) as boolean) ?? DEFAULTS.airtelEnabled,
     socialLinks: parsedSocial,
     supportEmail: (map.get(KEYS.supportEmail) as string) ?? DEFAULTS.supportEmail,
     hotlinePhone: (map.get(KEYS.hotlinePhone) as string) ?? DEFAULTS.hotlinePhone,
@@ -388,6 +397,7 @@ export const AdminSettingService = {
     if (input.platformFeePercent !== undefined) entries.push({ key: KEYS.platformFeePercent, value: input.platformFeePercent });
     if (input.minEscrowDurationSeconds !== undefined) entries.push({ key: KEYS.minEscrowDurationSeconds, value: input.minEscrowDurationSeconds });
     if (input.paymentMode !== undefined) entries.push({ key: KEYS.paymentMode, value: input.paymentMode });
+    if (input.airtelEnabled !== undefined) entries.push({ key: KEYS.airtelEnabled, value: input.airtelEnabled });
     if (input.socialLinks !== undefined) entries.push({ key: KEYS.socialLinks, value: input.socialLinks });
     if (input.supportEmail !== undefined) entries.push({ key: KEYS.supportEmail, value: input.supportEmail });
     if (input.hotlinePhone !== undefined) entries.push({ key: KEYS.hotlinePhone, value: input.hotlinePhone });

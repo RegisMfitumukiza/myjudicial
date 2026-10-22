@@ -123,7 +123,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const requestedServiceId = searchParams.get("serviceId");
   const { requireAuth, status: authStatus } = useRequireBookingAuth();
   const t = useTranslations("booking");
-  const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
+  const { isBookingFirst, airtelEnabled, isLoading: paymentModeLoading } = usePaymentMode();
 
   const { data: expertProfile, isLoading: profileLoading, error: profileError } = useGetExpertsIdProfile(id);
   const { mutate: createBooking, isPending: isCreatingBooking } = useCreateBooking();
@@ -551,6 +551,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                         registeredPhone={registeredUserPhone}
                         showLabel={false}
                         compact
+                        airtelEnabled={airtelEnabled}
                       />
                     </div>
                   )}

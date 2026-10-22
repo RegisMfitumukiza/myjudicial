@@ -9,12 +9,15 @@ interface PublicSettingsResponse {
   success: boolean;
   data: {
     paymentMode: PaymentMode;
+    airtelEnabled: boolean;
   };
 }
 
 interface UsePaymentModeResult {
   paymentMode: PaymentMode;
   isBookingFirst: boolean;
+  /** Whether Airtel Money is enabled as a payment option (admin-controlled). */
+  airtelEnabled: boolean;
   isLoading: boolean;
   error: Error | null;
 }
@@ -40,6 +43,8 @@ export function usePaymentMode(): UsePaymentModeResult {
   return {
     paymentMode,
     isBookingFirst: paymentMode === "BOOKING_FIRST",
+    // Default false — Airtel stays disabled unless the admin explicitly enables it
+    airtelEnabled: data?.airtelEnabled ?? false,
     isLoading,
     error: error as Error | null,
   };

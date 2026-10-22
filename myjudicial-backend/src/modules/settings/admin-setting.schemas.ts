@@ -56,6 +56,7 @@ export const updateSettingsSchema = z.object({
   platformFeePercent: z.number().min(0).max(100).optional(),
   minEscrowDurationSeconds: z.number().int().min(0).optional(),
   paymentMode: z.enum(["BOOKING_FIRST", "PAYMENT_REQUIRED"]).optional(),
+  airtelEnabled: z.boolean().optional(),
   socialLinks: socialLinksSchema.optional(),
   // Company & Contact Details
   supportEmail: z.string().email().optional(),

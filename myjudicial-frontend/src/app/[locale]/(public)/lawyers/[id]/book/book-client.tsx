@@ -522,81 +522,87 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
               </div>
 
               {/* RIGHT: Booking Summary */}
-              <aside className="h-fit space-y-4 lg:sticky lg:top-24">
-                <div className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
-                  <BookingSummaryCard
-                    data={{
-                      expertName: profile.displayName,
-                      serviceName: activeService?.name ?? t("notSelected"),
-                      date: selectedDate ? new Date(year, month, selectedDate) : undefined,
-                      slotStart: selectedSlot?.start,
-                      slotEnd: selectedSlot?.end,
-                      durationMin: activeService?.durationMin,
-                      currency: activeService?.currency,
-                      flatFee: serviceFee,
-                      deliveryMode: activeService?.deliveryMode ?? undefined,
-                      timezone,
-                    }}
-                    showDeliveryMode
-                    compact
-                  />
+              <aside className="h-fit lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)]">
+                <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col lg:max-h-[calc(100vh-5.5rem)]">
+                  {/* Scrollable upper content */}
+                  <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 space-y-4">
+                    <BookingSummaryCard
+                      data={{
+                        expertName: profile.displayName,
+                        serviceName: activeService?.name ?? t("notSelected"),
+                        date: selectedDate ? new Date(year, month, selectedDate) : undefined,
+                        slotStart: selectedSlot?.start,
+                        slotEnd: selectedSlot?.end,
+                        durationMin: activeService?.durationMin,
+                        currency: activeService?.currency,
+                        flatFee: serviceFee,
+                        deliveryMode: activeService?.deliveryMode ?? undefined,
+                        timezone,
+                      }}
+                      showDeliveryMode
+                      compact
+                    />
 
-                  {!isBookingFirst && (
-                    <div className="mt-4 border-t border-border pt-4">
-                      <PaymentForm
-                        paymentMNO={paymentMNO}
-                        paymentPhone={paymentPhone}
-                        onMNOChange={setPaymentMNO}
-                        onPhoneChange={setPaymentPhone}
-                        registeredPhone={registeredUserPhone}
-                        showLabel={false}
-                        compact
-                        airtelEnabled={airtelEnabled}
-                      />
-                    </div>
-                  )}
+                    {!isBookingFirst && (
+                      <div className="border-t border-border/60 pt-3.5">
+                        <PaymentForm
+                          paymentMNO={paymentMNO}
+                          paymentPhone={paymentPhone}
+                          onMNOChange={setPaymentMNO}
+                          onPhoneChange={setPaymentPhone}
+                          registeredPhone={registeredUserPhone}
+                          showLabel={false}
+                          compact
+                          airtelEnabled={airtelEnabled}
+                        />
+                      </div>
+                    )}
+                  </div>
 
-                  {!isBookingFirst && (
-                    <div className="mt-4 flex gap-2 rounded-lg bg-muted p-3 text-xs text-muted-foreground">
-                      <ShieldCheck className="h-4 w-4 shrink-0" />
-                      <p>
-                        <span className="font-semibold text-foreground">{t("securedByEscrow")}</span> {t("paymentHeldSafely")}
+                  {/* Pinned Action Footer */}
+                  <div className="shrink-0 pt-3 border-t border-border/60 bg-card mt-3 space-y-2.5">
+                    {!isBookingFirst && (
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-2.5 py-1.5 text-[11px] text-muted-foreground">
+                        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                        <p className="truncate">
+                          <span className="font-semibold text-foreground">{t("securedByEscrow")}</span> — {t("paymentHeldSafely")}
+                        </p>
+                      </div>
+                    )}
+
+                    <Button
+                      disabled={!canSubmit || isCreatingBooking}
+                      onClick={handleRequest}
+                      className="h-11 w-full gap-2 rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90 disabled:opacity-40"
+                    >
+                      {isCreatingBooking ? (
+                        t("processing")
+                      ) : !canSubmit ? (
+                        t("selectDateTimePrompt")
+                      ) : authStatus === "unauthenticated" ? (
+                        `${t("signInToBook")} • ${isBookingFirst ? t("requestBooking") : t("payAndBook")}`
+                      ) : isBookingFirst ? (
+                        t("requestBooking")
+                      ) : (
+                        `${t("payAndBook")} • ${activeService?.currency ?? "RWF"} ${Number(serviceFee).toLocaleString()}`
+                      )}{" "}
+                      <ArrowRight size={15} />
+                    </Button>
+
+                    {authStatus === "unauthenticated" && (
+                      <p className="text-center text-[11px] text-muted-foreground leading-normal">
+                        {t("guestBookingPrompt")}
                       </p>
+                    )}
+
+                    <div className="flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Lock size={11} /> {t("sslSecure")}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Info size={11} /> {t("noHiddenFees")}
+                      </span>
                     </div>
-                  )}
-
-                  <Button
-                    disabled={!canSubmit || isCreatingBooking}
-                    onClick={handleRequest}
-                    className="mt-5 h-11 w-full gap-2 rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90 disabled:opacity-40"
-                  >
-                    {isCreatingBooking ? (
-                      t("processing")
-                    ) : !canSubmit ? (
-                      t("selectDateTimePrompt")
-                    ) : authStatus === "unauthenticated" ? (
-                      `${t("signInToBook")} • ${isBookingFirst ? t("requestBooking") : t("payAndBook")}`
-                    ) : isBookingFirst ? (
-                      t("requestBooking")
-                    ) : (
-                      `${t("payAndBook")} • ${activeService?.currency ?? "RWF"} ${Number(serviceFee).toLocaleString()}`
-                    )}{" "}
-                    <ArrowRight size={15} />
-                  </Button>
-
-                  {authStatus === "unauthenticated" && (
-                    <p className="mt-2.5 text-center text-[11px] text-muted-foreground leading-normal">
-                      {t("guestBookingPrompt")}
-                    </p>
-                  )}
-
-                  <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Lock size={11} /> {t("sslSecure")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Info size={11} /> {t("noHiddenFees")}
-                    </span>
                   </div>
                 </div>
               </aside>

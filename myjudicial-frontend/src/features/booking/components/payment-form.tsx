@@ -177,9 +177,9 @@ export function PaymentForm({
 
         {/* Airtel coming-soon callout — shown below the cards when Airtel is unavailable */}
         {!airtelEnabled && (
-          <div className="mt-2 flex items-start gap-2 rounded-lg bg-brand-dark/4 dark:bg-white/4 border border-brand-border/15 dark:border-white/10 px-3 py-2.5">
-            <Info size={13} className="mt-0.5 shrink-0 text-brand-dark/50 dark:text-white/40" />
-            <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/55">
+          <div className="mt-1.5 flex items-start gap-2 rounded-lg bg-brand-dark/3 dark:bg-white/4 border border-brand-border/10 dark:border-white/8 px-2.5 py-2">
+            <Info size={12} className="mt-0.5 shrink-0 text-brand-dark/50 dark:text-white/40" />
+            <p className="text-[11px] leading-relaxed text-brand-dark/65 dark:text-white/55">
               {t("airtelWarningDesc")}
             </p>
           </div>

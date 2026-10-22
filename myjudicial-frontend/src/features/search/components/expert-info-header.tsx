@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { formatCleanAddress } from "../utils/geo";
 
 type ExpertInfoHeaderProps = {
   displayName: string;
@@ -54,15 +55,17 @@ export function ExpertInfoHeader({
               </span>
             )}
           </div>
-          <div className="mt-2.5 flex flex-wrap items-center gap-4 text-xs text-brand-dark/50 dark:text-white/50">
+          <div className="mt-2.5 flex flex-wrap items-start sm:items-center gap-x-4 gap-y-1.5 text-xs text-brand-dark/60 dark:text-white/60">
             {officeAddress && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> {officeAddress.replace(/^[\s,.-]+|[\s,.-]+$/g, "").trim()}
+              <span className="flex items-start gap-1.5 min-w-0 max-w-full">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground mt-0.5" />
+                <span className="break-words leading-relaxed">{formatCleanAddress(officeAddress)}</span>
               </span>
             )}
             {yearsExperience != null && yearsExperience > 0 && (
-              <span className="flex items-center gap-1">
-                <Briefcase className="h-3 w-3" /> {t("yearsExp", { years: yearsExperience })}
+              <span className="flex items-center gap-1.5 shrink-0">
+                <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span>{t("yearsExp", { years: yearsExperience })}</span>
               </span>
             )}
           </div>

@@ -63,6 +63,7 @@ export function formatCleanAddress(
 
   if (officeAddress) {
     const cleaned = officeAddress
+      .replace(/<[^>]*>/g, "") // Strip HTML / XML tags (e.g. <nomsken>)
       .replace(/^[\s,.-]+|[\s,.-]+$/g, "")
       .replace(/\s*,\s*,+/g, ", ")
       .trim();
@@ -71,6 +72,7 @@ export function formatCleanAddress(
 
   if (city) {
     const cleanedCity = city
+      .replace(/<[^>]*>/g, "")
       .replace(/^[\s,.-]+|[\s,.-]+$/g, "")
       .trim();
     if (

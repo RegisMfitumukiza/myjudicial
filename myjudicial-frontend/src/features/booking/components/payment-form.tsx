@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Smartphone, Zap } from "lucide-react";
+import { CheckCircle2, Info, Smartphone, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { MNO_OPTIONS } from "../constants";
 
@@ -55,7 +55,6 @@ export function PaymentForm({
   const t = useTranslations("booking");
   const detectedNetwork = detectNetwork(paymentPhone);
   const isAirtelSelected = paymentMNO === "Airtel";
-  const isAirtelPhoneOnMtn = detectedNetwork === "Airtel" && paymentMNO === "MTN";
 
   const registeredDigits = cleanDigits(registeredPhone);
   const currentDigits = cleanDigits(paymentPhone);
@@ -92,7 +91,7 @@ export function PaymentForm({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div className={compact ? "flex flex-col gap-2.5" : "grid grid-cols-1 sm:grid-cols-2 gap-2.5"}>
           {MNO_OPTIONS.map((opt) => {
             const isSelected = paymentMNO === opt.value;
             const isMTN = opt.value === "MTN";
@@ -106,7 +105,7 @@ export function PaymentForm({
                   isSelected
                     ? isMTN
                       ? "border-amber-500 bg-amber-50/60 ring-2 ring-amber-500/20 dark:border-amber-400 dark:bg-amber-950/20 dark:ring-amber-400/20 shadow-sm"
-                      : "border-rose-400 bg-rose-50/50 ring-2 ring-rose-400/20 dark:border-rose-500/60 dark:bg-rose-950/20 dark:ring-rose-500/20 shadow-sm"
+                      : "border-red-500 bg-red-50/60 ring-2 ring-red-500/20 dark:border-red-400 dark:bg-red-950/20 dark:ring-red-400/20 shadow-sm"
                     : "border-brand-border/20 bg-white/70 hover:border-brand-border/40 hover:bg-white dark:border-white/10 dark:bg-black/40 dark:hover:border-white/20 dark:hover:bg-black/60"
                 }`}
               >
@@ -118,7 +117,7 @@ export function PaymentForm({
                         isSelected
                           ? isMTN
                             ? "border-amber-600 bg-amber-500 dark:border-amber-400"
-                            : "border-rose-600 bg-rose-500 dark:border-rose-400"
+                            : "border-red-600 bg-red-500 dark:border-red-400"
                           : "border-brand-border/40 bg-transparent dark:border-white/30"
                       }`}
                     >
@@ -132,14 +131,14 @@ export function PaymentForm({
 
                   {/* Badges */}
                   {isMTN ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs shrink-0">
                       <Zap size={10} className="fill-white" />
                       {t("recommendedMethod")}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/50 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
-                      <AlertTriangle size={10} />
-                      {t("networkDown")}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 shrink-0">
+                      <CheckCircle2 size={10} className="text-emerald-600 dark:text-emerald-400" />
+                      {t("activeMethod")}
                     </span>
                   )}
                 </div>
@@ -155,26 +154,18 @@ export function PaymentForm({
 
       {/* Advisory Callout when Airtel is selected */}
       {isAirtelSelected && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50/80 p-3.5 dark:border-amber-900/40 dark:bg-amber-950/30">
+        <div className="rounded-xl border border-red-200/70 bg-red-50/40 p-3 dark:border-red-900/40 dark:bg-red-950/20">
           <div className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-            <div className="flex-1 space-y-1">
-              <h4 className="text-[12px] font-bold text-amber-950 dark:text-amber-200">
+            <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300">
+              <Info size={11} className="stroke-[2.5]" />
+            </div>
+            <div className="flex-1 space-y-0.5">
+              <h4 className="text-[12px] font-bold text-brand-dark dark:text-white">
                 {t("airtelWarningTitle")}
               </h4>
-              <p className="text-[11px] leading-relaxed text-amber-900/90 dark:text-amber-300/90">
+              <p className="text-[11px] leading-relaxed text-brand-dark/70 dark:text-white/70">
                 {t("airtelWarningDesc")}
               </p>
-              <div className="pt-1.5">
-                <button
-                  type="button"
-                  onClick={() => onMNOChange("MTN")}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-[11px] font-bold text-white shadow-xs hover:bg-amber-700 active:scale-[0.98] transition-all cursor-pointer"
-                >
-                  <Zap size={12} className="fill-white" />
-                  {t("switchToMtn")}
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -182,14 +173,15 @@ export function PaymentForm({
 
       {/* Phone Number Input */}
       <div>
-        <div className="mb-1 flex items-center justify-between">
+        <div className="mb-1.5 flex items-center justify-between gap-2">
           <label className="block text-[12px] font-semibold text-brand-dark dark:text-white">
             {t("mobileNumber")}
           </label>
           {registeredDigits ? (
             <div className="text-[11px]">
               {isUsingRegisteredPhone ? (
-                <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                  <CheckCircle2 size={11} />
                   {t("usingRegisteredPhone")}
                 </span>
               ) : (
@@ -225,17 +217,24 @@ export function PaymentForm({
           />
         </div>
 
+        {/* Registered phone helper hint */}
+        {registeredDigits && isUsingRegisteredPhone && (
+          <p className="mt-1 text-[11px] text-brand-dark/55 dark:text-white/55">
+            {t("prefilledPhoneHint")}
+          </p>
+        )}
+
         {/* Dynamic Contextual Helper Messages */}
         <div className="mt-1.5">
-          {isAirtelPhoneOnMtn ? (
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400">
-              <AlertTriangle size={12} className="shrink-0" />
-              <span>{t("phoneMismatchAirtelWarning")}</span>
-            </div>
-          ) : detectedNetwork === "MTN" ? (
+          {detectedNetwork === "MTN" ? (
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 size={12} className="shrink-0" />
               <span>{t("phoneDetectedMtn")}</span>
+            </div>
+          ) : detectedNetwork === "Airtel" ? (
+            <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 size={12} className="shrink-0" />
+              <span>{t("phoneDetectedAirtel")}</span>
             </div>
           ) : (
             <p className="text-[11px] text-brand-dark/50 dark:text-white/50">

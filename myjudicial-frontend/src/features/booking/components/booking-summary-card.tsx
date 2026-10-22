@@ -14,6 +14,7 @@ interface BookingSummaryData {
   currency?: string;
   flatFee?: number;
   deliveryMode?: string;
+  timezone?: string;
 }
 
 interface BookingSummaryCardProps {
@@ -30,11 +31,21 @@ export function BookingSummaryCard({
   compact = false,
 }: BookingSummaryCardProps) {
   const t = useTranslations("booking");
-  const { expertName, serviceName, date, slotStart, slotEnd, durationMin, currency, flatFee, deliveryMode } = data;
+  const { expertName, serviceName, date, slotStart, slotEnd, durationMin, currency, flatFee, deliveryMode, timezone } = data;
 
   const dateStr = date instanceof Date ? format(date, "MMMM d, yyyy") : date ?? "—";
+  const formatSlotTime = (iso: string) => {
+    try {
+      const d = new Date(iso);
+      return timezone
+        ? d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", timeZone: timezone })
+        : format(d, "h:mm a");
+    } catch {
+      return format(new Date(iso), "h:mm a");
+    }
+  };
   const timeStr = slotStart
-    ? `${format(new Date(slotStart), "h:mm a")}${slotEnd ? ` - ${format(new Date(slotEnd), "h:mm a")}` : ""}`
+    ? `${formatSlotTime(slotStart)}${slotEnd ? ` - ${formatSlotTime(slotEnd)}` : ""}`
     : "—";
   const fee = flatFee != null ? `${currency ?? "RWF"} ${Number(flatFee).toLocaleString()}` : "—";
 

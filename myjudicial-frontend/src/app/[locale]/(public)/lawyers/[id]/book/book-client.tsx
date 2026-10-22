@@ -530,16 +530,18 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                       serviceName: activeService?.name ?? t("notSelected"),
                       date: selectedDate ? new Date(year, month, selectedDate) : undefined,
                       slotStart: selectedSlot?.start,
+                      slotEnd: selectedSlot?.end,
                       durationMin: activeService?.durationMin,
                       currency: activeService?.currency,
                       flatFee: serviceFee,
                       deliveryMode: activeService?.deliveryMode ?? undefined,
+                      timezone,
                     }}
                     showDeliveryMode
                     compact
                   />
 
-                  {!isBookingFirst && canSubmit && (
+                  {!isBookingFirst && (
                     <div className="mt-4 border-t border-border pt-4">
                       <PaymentForm
                         paymentMNO={paymentMNO}
@@ -567,13 +569,17 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                     onClick={handleRequest}
                     className="mt-5 h-11 w-full gap-2 rounded-lg bg-brand-dark text-sm font-semibold text-on-brand hover:bg-brand-dark/90 disabled:opacity-40"
                   >
-                    {isCreatingBooking
-                      ? t("processing")
-                      : authStatus === "unauthenticated"
-                        ? `${t("signInToBook")} • ${isBookingFirst ? t("requestBooking") : t("payAndBook")}`
-                        : isBookingFirst
-                          ? t("requestBooking")
-                          : t("payAndBook")}{" "}
+                    {isCreatingBooking ? (
+                      t("processing")
+                    ) : !canSubmit ? (
+                      t("selectDateTimePrompt")
+                    ) : authStatus === "unauthenticated" ? (
+                      `${t("signInToBook")} • ${isBookingFirst ? t("requestBooking") : t("payAndBook")}`
+                    ) : isBookingFirst ? (
+                      t("requestBooking")
+                    ) : (
+                      `${t("payAndBook")} • ${activeService?.currency ?? "RWF"} ${Number(serviceFee).toLocaleString()}`
+                    )}{" "}
                     <ArrowRight size={15} />
                   </Button>
 
@@ -616,8 +622,10 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   serviceName: activeService?.name ?? "—",
                   date: selectedDate ? new Date(year, month, selectedDate) : undefined,
                   slotStart: selectedSlot?.start,
+                  slotEnd: selectedSlot?.end,
                   currency: activeService?.currency,
                   flatFee: serviceFee,
+                  timezone,
                 }}
                 compact
               />

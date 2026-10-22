@@ -1489,7 +1489,7 @@
     "payAndBook": "Pay & Book Appointment",
     "processing": "Processing...",
     "bookingCreated": "Booking Created!",
-    "redirectingToPayment": "Redirecting to Mobile Money payment...",
+    "redirectingToPayment": "Please check your phone — an instant Mobile Money prompt has been sent. Enter your PIN to finalize your booking.",
     "requestBooking": "Request Booking",
     "requestSent": "Request Sent!",
     "awaitingExpertConfirmation": "Your request has been sent. The lawyer will confirm your booking shortly.",

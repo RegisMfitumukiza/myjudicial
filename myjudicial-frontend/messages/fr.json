@@ -1355,7 +1355,7 @@
     "payAndBook": "Payer et réserver un rendez-vous",
     "processing": "Traitement...",
     "bookingCreated": "Réservation créée !",
-    "redirectingToPayment": "Redirection vers le paiement Mobile Money...",
+    "redirectingToPayment": "Veuillez vérifier votre téléphone — une invite Mobile Money instantanée a été envoyée. Entrez votre code PIN pour finaliser votre réservation.",
     "requestBooking": "Demander une réservation",
     "requestSent": "Demande envoyée !",
     "awaitingExpertConfirmation": "Votre demande a été envoyée. L'avocat confirmera votre réservation sous peu.",

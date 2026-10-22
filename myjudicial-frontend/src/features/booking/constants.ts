@@ -12,7 +12,7 @@ export const MNO_OPTIONS = [
     label: "Airtel Money",
     shortName: "Airtel Money",
     recommended: false,
-    status: "active" as const,
+    status: "unavailable" as const,
     prefixes: ["072", "073", "25072", "25073"],
   },
 ] as const;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useMemo, Suspense } from "react";
+import { useState, useEffect, useRef, use, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/routing";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -143,13 +143,15 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
 
   const { data: session } = useSession();
   const registeredUserPhone = session?.user?.phone ?? null;
+  const hasPrefilledPhoneRef = useRef(false);
 
-  /* ── Prefill payment phone with registered profile phone if empty ── */
+  /* ── Prefill payment phone once with registered profile phone on initial load ── */
   useEffect(() => {
-    if (registeredUserPhone && !paymentPhone) {
+    if (registeredUserPhone && !hasPrefilledPhoneRef.current) {
+      hasPrefilledPhoneRef.current = true;
       setPaymentPhone(formatPhoneForInput(registeredUserPhone));
     }
-  }, [registeredUserPhone, paymentPhone]);
+  }, [registeredUserPhone]);
   const [timezone, setTimezone] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("mj_timezone") || "Africa/Kigali";
@@ -171,6 +173,11 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
         if (parsed.selectedTime) setSelectedTime(parsed.selectedTime);
         if (parsed.selectedSlot) setSelectedSlot(parsed.selectedSlot);
         if (parsed.reason) setReason(parsed.reason);
+        if (parsed.paymentPhone) {
+          hasPrefilledPhoneRef.current = true;
+          setPaymentPhone(parsed.paymentPhone);
+        }
+        if (parsed.paymentMNO) setPaymentMNO(parsed.paymentMNO);
         sessionStorage.removeItem(`mj_pending_booking_${id}`);
       } else {
         // If no pending booking draft, check if the client recently completed onboarding intake
@@ -235,6 +242,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
               selectedTime,
               selectedSlot,
               reason,
+              paymentPhone,
+              paymentMNO,
               month,
               year,
             })
@@ -247,7 +256,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     }
 
     const isPaymentRequired = !isBookingFirst;
-    const rawInputPhone = paymentPhone.trim() || formatPhoneForInput(registeredUserPhone);
+    const rawInputPhone = paymentPhone.trim();
     const digitsOnly = rawInputPhone.replace(/\D/g, "");
     let cleanPhone = "";
     if (digitsOnly.length === 9) {

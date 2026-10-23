@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import { useTranslations } from "next-intl";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
+import { formatCopyright } from "@/lib/utils";
 
 interface AuthShellProps {
   children: React.ReactNode;
@@ -45,7 +46,7 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
       {/* Footer */}
       <div className="shrink-0 px-6 py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
-          {settings?.copyrightNotice || t("copyright")}{" · "}
+          {formatCopyright(settings?.copyrightNotice, t("copyright"))}{" · "}
           <Link
             href="/privacy"
             target="_blank"

@@ -49,3 +49,34 @@ export function formatRWF(amount?: number | null): string {
   }
   return `RWF ${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k`
 }
+
+/**
+ * Formats a copyright notice into a clean, normalized, single-copyright statement:
+ * "© [year] [entity / rights statement]"
+ *
+ * Prevents duplicated copyright symbols or years (e.g. "© 2026 © 2026 ...")
+ * whether the input comes from database settings, code defaults, or translations.
+ * Automatically keeps the current year up to date while preserving intentional
+ * historic start year ranges (e.g. "2024–2026").
+ */
+export function formatCopyright(notice?: string | null, fallback?: string): string {
+  const currentYear = new Date().getFullYear();
+  const text = (notice && notice.trim().length > 0 ? notice : fallback || "").trim();
+  if (!text) return `© ${currentYear} MyJudicial Ltd. All rights reserved.`;
+
+  // Extract intentional start year if specified as a range e.g. 2022-2026 or 2022–
+  let yearPrefix = String(currentYear);
+  const rangeMatch = text.match(/(?:^|\b)(\d{4})\s*[-–—]\s*(?:\d{4})?/);
+  if (rangeMatch && parseInt(rangeMatch[1], 10) < currentYear) {
+    yearPrefix = `${rangeMatch[1]}–${currentYear}`;
+  }
+
+  // Strip all leading copyright symbols ('©', '(c)', '&copy;', standalone 'c', '\u00A9'),
+  // separator bullets/pipes/hyphens, and any leading 4-digit years or year ranges.
+  const tokenRegex = /^(?:\s*(?:©|\(c\)|&copy;|\bc\b|\u00A9)\s*|\s*\d{4}(?:\s*[-–—]\s*\d{4})?\s*|\s*[·•\-\|]\s*)+/gi;
+  const cleaned = text.replace(tokenRegex, "").trim();
+
+  const entity = cleaned || "MyJudicial Ltd. All rights reserved.";
+  return `© ${yearPrefix} ${entity}`;
+}
+

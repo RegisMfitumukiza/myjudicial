@@ -24,6 +24,7 @@ import { useCountdown } from "@/hooks/use-countdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { apiFetch } from "@/lib/api/client";
+import { formatCopyright } from "@/lib/utils";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 import { findDistrictCoordinates } from "@/features/search/constants";
 
@@ -1169,7 +1170,7 @@ export default function SignUpPage() {
       {/* Footer */}
       <footer className="shrink-0 px-6 py-3 sm:py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
-          {settings?.copyrightNotice || tAuthShell("copyright")}{" · "}
+          {formatCopyright(settings?.copyrightNotice, tAuthShell("copyright"))}{" · "}
           <Link
             href="/privacy"
             target="_blank"

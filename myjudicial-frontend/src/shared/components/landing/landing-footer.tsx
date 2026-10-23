@@ -6,6 +6,7 @@ import { Logo } from "@/shared/components/logo";
 import { MapPin, Mail, ShieldAlert } from "lucide-react";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
+import { formatCopyright } from "@/lib/utils";
 
 /* ── Inline SVG icons (zero external deps) ─────────────────────────── */
 function XIcon(p: React.SVGProps<SVGSVGElement>) {
@@ -203,7 +204,7 @@ export default function LandingFooter() {
           
           {/* Dynamic Copyright */}
           <p className="text-xs text-muted-foreground order-2 md:order-1 break-words">
-            © {new Date().getFullYear()} {settings.copyrightNotice || t("copyright")}
+            {formatCopyright(settings.copyrightNotice, t("copyright"))}
           </p>
 
           {/* Social Icons Container with clearance for floating bot button */}

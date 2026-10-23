@@ -247,8 +247,20 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
     }
 
     const isPaymentRequired = !isBookingFirst;
-    const finalPhone = paymentPhone.trim() || formatPhoneForInput(registeredUserPhone);
-    if (isPaymentRequired && (!finalPhone || finalPhone.length < 9)) {
+    const rawInputPhone = paymentPhone.trim() || formatPhoneForInput(registeredUserPhone);
+    const digitsOnly = rawInputPhone.replace(/\D/g, "");
+    let cleanPhone = "";
+    if (digitsOnly.length === 9) {
+      cleanPhone = `0${digitsOnly}`;
+    } else if (digitsOnly.length === 10 && digitsOnly.startsWith("0")) {
+      cleanPhone = digitsOnly;
+    } else if (digitsOnly.length === 12 && digitsOnly.startsWith("250")) {
+      cleanPhone = `+${digitsOnly}`;
+    } else {
+      cleanPhone = digitsOnly;
+    }
+
+    if (isPaymentRequired && (!cleanPhone || cleanPhone.length < 10)) {
       toast.error(t("invalidPhoneNumber"));
       return;
     }
@@ -260,7 +272,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
       scheduledEnd: selectedSlot.end,
       citizenNotes: reason || undefined,
       ...(isPaymentRequired
-        ? { paymentMNO, paymentPhoneNumber: finalPhone }
+        ? { paymentMNO, paymentPhoneNumber: cleanPhone }
         : {}),
     }, {
       onSuccess: (data) => {
@@ -270,8 +282,12 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
           window.location.href = data.payment.paymentLink;
         }
       },
-      onError: () => {
-        toast.error(t("bookingFailed"));
+      onError: (err: any) => {
+        const errorMsg =
+          err?.message ||
+          (err as any)?.response?.data?.message ||
+          t("bookingFailed");
+        toast.error(errorMsg);
       },
     });
   }
@@ -525,7 +541,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
               <aside className="h-fit lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)]">
                 <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col lg:max-h-[calc(100vh-5.5rem)]">
                   {/* Scrollable upper content */}
-                  <div className="flex-1 min-h-0 overflow-y-auto pr-1 -mr-1 space-y-4">
+                  <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none pr-0.5 space-y-4">
                     <BookingSummaryCard
                       data={{
                         expertName: profile.displayName,
@@ -562,10 +578,11 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   {/* Pinned Action Footer */}
                   <div className="shrink-0 pt-3 border-t border-border/60 bg-card mt-3 space-y-2.5">
                     {!isBookingFirst && (
-                      <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-2.5 py-1.5 text-[11px] text-muted-foreground">
-                        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                        <p className="truncate">
-                          <span className="font-semibold text-foreground">{t("securedByEscrow")}</span> — {t("paymentHeldSafely")}
+                      <div className="flex items-start gap-2 rounded-lg bg-muted/60 border border-border/40 p-2.5 text-[11px] text-muted-foreground">
+                        <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                        <p className="leading-relaxed">
+                          <span className="font-semibold text-foreground">{t("securedByEscrow")}</span>{" "}
+                          <span>{t("paymentHeldSafely")}</span>
                         </p>
                       </div>
                     )}

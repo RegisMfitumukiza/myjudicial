@@ -11,7 +11,14 @@ export const createBookingSchema = z.object({
   scheduledEnd: z.string().datetime("Invalid date format"),
   citizenNotes: z.string().max(500).optional(),
   paymentMNO: z.enum(["MTN", "Airtel"]).optional(),
-  paymentPhoneNumber: z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional(),
+  paymentPhoneNumber: z.preprocess(
+    (val) => {
+      if (typeof val !== "string") return val;
+      const stripped = val.replace(/[\s\-\(\)]/g, "");
+      return stripped === "" ? undefined : stripped;
+    },
+    z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional()
+  ),
 });
 
 export type CreateBookingDto = z.infer<typeof createBookingSchema>;
@@ -158,7 +165,14 @@ export type AdminStatsQuery = z.infer<typeof adminStatsSchema>;
  */
 export const retryPaymentSchema = z.object({
   paymentMNO: z.enum(["MTN", "Airtel"]).optional(),
-  paymentPhoneNumber: z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional(),
+  paymentPhoneNumber: z.preprocess(
+    (val) => {
+      if (typeof val !== "string") return val;
+      const stripped = val.replace(/[\s\-\(\)]/g, "");
+      return stripped === "" ? undefined : stripped;
+    },
+    z.string().regex(/^(\+?250|0)?[0-9]{9}$/, "Invalid Rwanda phone number").optional()
+  ),
 });
 
 export type RetryPaymentDto = z.infer<typeof retryPaymentSchema>;

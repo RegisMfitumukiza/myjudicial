@@ -141,18 +141,26 @@ async function assertWithinAvailability(expertId: string, scheduledStart: Date, 
   const expertTimezone = settings.timezone || "Africa/Kigali";
   const offsetMin = getTimezoneOffsetMinutes(expertTimezone, scheduledStart);
   
+  // Convert UTC scheduledStart to expert's local calendar day at midnight UTC
+  const localStartMs = scheduledStart.getTime() + offsetMin * 60_000;
+  const localStartDate = new Date(localStartMs);
+  const localMidnightUTC = new Date(Date.UTC(
+    localStartDate.getUTCFullYear(),
+    localStartDate.getUTCMonth(),
+    localStartDate.getUTCDate(),
+    0, 0, 0, 0
+  ));
+  
   // Check date-specific overrides
-  const date = new Date(scheduledStart);
-  date.setUTCHours(0, 0, 0, 0);
-  const override = await OverridesRepository.findByDate(expertId, date);
+  const override = await OverridesRepository.findByDate(expertId, localMidnightUTC);
   
   if (override) {
     if (override.overrideType === "CLOSED") {
       throw new ValidationError("The expert is not available on this date.");
     }
     if (override.overrideType === "CUSTOM_HOURS" && override.startTime && override.endTime) {
-      const windowStart = scheduleTimeToUTC(scheduledStart, override.startTime, offsetMin);
-      const windowEnd = scheduleTimeToUTC(scheduledStart, override.endTime, offsetMin);
+      const windowStart = scheduleTimeToUTC(localMidnightUTC, override.startTime, offsetMin);
+      const windowEnd = scheduleTimeToUTC(localMidnightUTC, override.endTime, offsetMin);
       if (scheduledStart < windowStart || scheduledEnd > windowEnd) {
         throw new ValidationError("The expert is not available at the selected time.");
       }
@@ -160,7 +168,7 @@ async function assertWithinAvailability(expertId: string, scheduledStart: Date, 
     }
   }
   
-  const dayOfWeek = DAY_OF_WEEK_MAPPING[scheduledStart.getUTCDay()];
+  const dayOfWeek = DAY_OF_WEEK_MAPPING[localStartDate.getUTCDay()];
   const daySchedule = schedules.find((s) => s.dayOfWeek === dayOfWeek && s.isAvailable);
 
   if (!daySchedule) {
@@ -171,16 +179,16 @@ async function assertWithinAvailability(expertId: string, scheduledStart: Date, 
   if (daySchedule.usesTimeBlocks && daySchedule.timeBlocks && Array.isArray(daySchedule.timeBlocks)) {
     const blocks = daySchedule.timeBlocks as unknown as TimeBlock[];
     const withinAnyBlock = blocks.some((block) => {
-      const blockStart = scheduleTimeToUTC(scheduledStart, block.start, offsetMin);
-      const blockEnd = scheduleTimeToUTC(scheduledStart, block.end, offsetMin);
+      const blockStart = scheduleTimeToUTC(localMidnightUTC, block.start, offsetMin);
+      const blockEnd = scheduleTimeToUTC(localMidnightUTC, block.end, offsetMin);
       return scheduledStart >= blockStart && scheduledEnd <= blockEnd;
     });
     if (!withinAnyBlock) {
       throw new ValidationError("The expert is not available at the selected time.");
     }
   } else {
-    const windowStart = scheduleTimeToUTC(scheduledStart, daySchedule.startTime, offsetMin);
-    const windowEnd = scheduleTimeToUTC(scheduledStart, daySchedule.endTime, offsetMin);
+    const windowStart = scheduleTimeToUTC(localMidnightUTC, daySchedule.startTime, offsetMin);
+    const windowEnd = scheduleTimeToUTC(localMidnightUTC, daySchedule.endTime, offsetMin);
     if (scheduledStart < windowStart || scheduledEnd > windowEnd) {
       throw new ValidationError("The expert is not available at the selected time.");
     }

@@ -12,8 +12,16 @@ export function useCreateBooking() {
       const response = await postBookings(dto);
 
       if (response.status >= 400) {
-        const errData = response.data as { message?: string };
-        throw new Error(errData.message ?? "Failed to create booking");
+        const errData = response.data as {
+          message?: string;
+          errors?: string[];
+          error?: string;
+        };
+        const errorDetail =
+          errData.errors && errData.errors.length > 0
+            ? errData.errors.join(". ")
+            : errData.message || errData.error || "Failed to create booking";
+        throw new Error(errorDetail);
       }
 
       return (response.data as { data: CreateBookingResponseData }).data;

@@ -644,6 +644,17 @@ export const BookingService = {
             refunded,
             bookingId,
           }, expertLanguage).catch((e) => logger.error("Cancellation email to expert failed", { e }));
+
+          // In-app notification for the expert when client cancels
+          if (full.expert.user.id) {
+            NotificationRepository.create({
+              userId: full.expert.user.id,
+              event: "BOOKING_CANCELLED",
+              recipient: full.expert.user.email,
+              subject: "Booking Cancelled by Client",
+              body: `${full.citizen.firstName} ${full.citizen.lastName} has cancelled the ${full.service?.name ?? "consultation"} booking.${refunded ? " A refund has been issued." : ""}`,
+            }).catch((e) => logger.error("Failed to write booking-cancelled notification for expert", { e }));
+          }
         }
       }
     } catch (emailErr) {

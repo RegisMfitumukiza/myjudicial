@@ -5,8 +5,6 @@ import { prisma } from "../../infrastructure/database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
 import crypto from "crypto";
 
-const AZAMPAY_WEBHOOK_HEADER = "x-azampay-signature";
-
 const toBuffer = (body: unknown): Buffer => {
   if (Buffer.isBuffer(body)) return body;
   if (typeof body === "string") return Buffer.from(body);
@@ -14,51 +12,63 @@ const toBuffer = (body: unknown): Buffer => {
 };
 
 /**
- * Verifies the raw webhook body against AZAMPAY_WEBHOOK_SECRET using
- * HMAC-SHA256, matching this project's stated "all webhooks HMAC-SHA256
- * signed" security model (see MyJudicial_Master_Build_Reference.md).
+ * Verifies the webhook URL token query parameter against AZAMPAY_WEBHOOK_TOKEN.
  *
- * This is MyJudicial's own shared-secret scheme — Azam Pay's real webhook
- * signing mechanism has not yet been confirmed against their dashboard/docs,
- * since the integration is currently simulated (see azam.service.ts). Once
- * real Azam Pay webhooks are wired up, confirm how they expose a signing
- * secret and adjust the header name / algorithm here if needed.
+ * AzamPay officially confirmed they send raw JSON payloads with NO signature
+ * header (confirmed via email, Oct 2026). As the industry-standard fallback for
+ * providers that do not sign webhook bodies, we embed a long random secret token
+ * directly in the webhook URL we register with AzamPay:
  *
- * Fails closed: if AZAMPAY_WEBHOOK_SECRET is not configured, or the header
- * is missing/mismatched, verification fails and the webhook is rejected.
+ *   POST https://api.myjudicial.com/api/v1/payments/webhook?token=<AZAMPAY_WEBHOOK_TOKEN>
+ *
+ * Since only AzamPay knows the URL (we gave it to them), an attacker who doesn't
+ * know the token cannot spoof a fake payment success notification.
+ *
+ * Fails closed: if AZAMPAY_WEBHOOK_TOKEN is not configured, ALL webhook requests
+ * are rejected, preventing the endpoint from being wide-open on a misconfigured
+ * server.
  */
-const verifyAzamPaySignature = (rawBody: Buffer, signatureHeader?: string): boolean => {
-  const secret = process.env.AZAMPAY_WEBHOOK_SECRET;
-  if (!secret || !signatureHeader) return false;
-
-  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-
+const verifyWebhookToken = (tokenQuery?: string): boolean => {
+  const secret = process.env.AZAMPAY_WEBHOOK_TOKEN;
+  if (!secret) {
+    // Token env var not set — reject everything to avoid running unsecured
+    logger.error("AZAMPAY_WEBHOOK_TOKEN is not configured — rejecting all webhook calls");
+    return false;
+  }
+  if (!tokenQuery) return false;
+  // Timing-safe comparison to prevent timing attacks
   try {
-    return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(signatureHeader, "hex"));
+    const secretBuf = Buffer.from(secret);
+    const tokenBuf = Buffer.from(tokenQuery);
+    if (secretBuf.length !== tokenBuf.length) return false;
+    return crypto.timingSafeEqual(secretBuf, tokenBuf);
   } catch {
-    return false; // e.g. malformed/wrong-length header — treat as invalid
+    return false;
   }
 };
 
 export const PaymentController = {
   /**
    * POST /api/v1/payments/webhook
-   * Azam Pay calls this when citizen completes MoMo payment
+   * Azam Pay calls this when citizen completes MoMo payment.
+   *
+   * Security: AzamPay confirmed they send no signature header (raw JSON only).
+   * We use a secret URL token (AZAMPAY_WEBHOOK_TOKEN) embedded in the webhook
+   * URL we registered with AzamPay. Only AzamPay knows this URL.
    */
   handleWebhook: async (req: Request, res: Response): Promise<void> => {
-    const rawBody = toBuffer(req.body);
-    const signature = req.headers[AZAMPAY_WEBHOOK_HEADER] as string | undefined;
-
-    // AzamPay officially confirmed they send direct JSON payloads without a signature header.
-    // If a signature header IS present and a secret is configured, verify it.
-    if (process.env.AZAMPAY_WEBHOOK_SECRET && signature && !verifyAzamPaySignature(rawBody, signature)) {
-      logger.warn("Azam Pay webhook signature verification failed", {
-        hasSecret: !!process.env.AZAMPAY_WEBHOOK_SECRET,
-        hasSignatureHeader: !!signature,
+    // Verify URL token (primary security for no-signature providers)
+    const urlToken = req.query.token as string | undefined;
+    if (!verifyWebhookToken(urlToken)) {
+      logger.warn("Azam Pay webhook rejected — invalid or missing URL token", {
+        ip: req.ip,
+        hasToken: !!urlToken,
       });
-      res.status(401).json({ error: "Invalid webhook signature" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
+
+    const rawBody = toBuffer(req.body);
 
     let payload: any;
     try {
@@ -138,23 +148,28 @@ export const PaymentController = {
 
   /**
    * POST /api/v1/payments/payout-webhook
-   * Azam Pay calls this when expert payout transfer completes.
-   * Not yet implemented — Azam Pay's payout webhook payload/behavior is
-   * unconfirmed — but signature-gated like the payment webhook so it
-   * inherits verification from day one once it is implemented.
+   * Azam Pay calls this when an expert payout transfer completes.
+   * Protected by the same URL token as the payment webhook.
    */
   handlePayoutWebhook: async (req: Request, res: Response): Promise<void> => {
-    const rawBody = toBuffer(req.body);
-    const signature = req.headers[AZAMPAY_WEBHOOK_HEADER] as string | undefined;
-
-    if (process.env.AZAMPAY_WEBHOOK_SECRET && signature && !verifyAzamPaySignature(rawBody, signature)) {
-      logger.warn("Azam Pay payout webhook signature verification failed", {
-        hasSecret: !!process.env.AZAMPAY_WEBHOOK_SECRET,
-        hasSignatureHeader: !!signature,
+    const urlToken = req.query.token as string | undefined;
+    if (!verifyWebhookToken(urlToken)) {
+      logger.warn("Azam Pay payout webhook rejected — invalid or missing URL token", {
+        ip: req.ip,
+        hasToken: !!urlToken,
       });
-      res.status(401).json({ error: "Invalid webhook signature" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
+
+    let payload: any;
+    try {
+      payload = JSON.parse(toBuffer(req.body).toString());
+    } catch {
+      payload = req.body;
+    }
+
+    logger.info("Azam Pay payout webhook received", { payload });
 
     res.status(200).json({ received: true });
   },

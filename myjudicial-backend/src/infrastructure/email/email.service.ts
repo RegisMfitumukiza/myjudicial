@@ -351,7 +351,7 @@ export const sendExpertBookingConfirmationEmail = async (
 
   const title = getEmailContent('BOOKING_CONFIRMED', 'title', language);
   const greeting = getEmailContent('WELCOME', 'greeting', language, details.expertName);
-  const message = getEmailContent('BOOKING_CONFIRMED', 'message', language);
+  const message = getEmailContent('BOOKING_CONFIRMED', 'messageExpert', language);
   const clientLabel = getEmailContent('COMMON', 'client', language);
   const serviceLabel = getEmailContent('BOOKING_CONFIRMED', 'service', language);
   const scheduledLabel = getEmailContent('BOOKING_CONFIRMED', 'scheduled', language);
@@ -404,6 +404,7 @@ export const sendBookingSummaryEmail = async (
   },
   language: Language = 'en'
 ): Promise<void> => {
+  const bookingUrl = buildUrl(FRONTEND.bookings(details.bookingId));
   const t = (key: string) => getEmailContent('BOOKING_SUMMARY', key, language);
 
   const html = emailLayout(`
@@ -420,6 +421,7 @@ export const sendBookingSummaryEmail = async (
         (details.amount ? tableRow(t('amount'), details.amount, { bold: true }) : "") +
         tableRow(t('reference'), details.bookingId, { bold: false, color: "#94a3b8" })
       ),
+      button(t('viewBookingButton'), bookingUrl),
       paragraph(
         details.paymentRequired ? t('confirmationNote') : t('confirmationNoteAwaitingExpert'),
         { size: "13px", color: "#94a3b8" }

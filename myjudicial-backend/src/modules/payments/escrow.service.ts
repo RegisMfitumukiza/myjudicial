@@ -70,12 +70,19 @@ async function runConfirmationSideEffects(
     const citizenName = `${fullBooking.citizen.firstName} ${fullBooking.citizen.lastName}`;
     const expertName = fullBooking.expert.displayName ?? fullBooking.expert.user?.firstName ?? "Expert";
 
+    // Format the scheduled date once for both emails (human-readable, not raw ISO)
+    const scheduledAtFormatted = fullBooking.scheduledStart.toLocaleDateString("en-GB", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    }) + " at " + fullBooking.scheduledStart.toLocaleTimeString("en-GB", {
+      hour: "2-digit", minute: "2-digit",
+    });
+
     sendBookingConfirmationEmail(fullBooking.citizen.email, {
       recipientName: fullBooking.citizen.firstName,
       expertName,
       clientName: citizenName,
       serviceName: fullBooking.service.name,
-      scheduledAt: fullBooking.scheduledStart.toISOString(),
+      scheduledAt: scheduledAtFormatted,
       bookingId,
     }, citizenLanguage).catch((e) => logger.error("Failed to send booking confirmation email to citizen", { e }));
 
@@ -84,9 +91,20 @@ async function runConfirmationSideEffects(
         expertName,
         clientName: citizenName,
         serviceName: fullBooking.service.name,
-        scheduledAt: fullBooking.scheduledStart.toISOString(),
+        scheduledAt: scheduledAtFormatted,
         bookingId,
       }, expertLanguage).catch((e) => logger.error("Failed to send booking confirmation email to expert", { e }));
+    }
+
+    // In-app notification for the expert on payment confirmed
+    if (fullBooking.expert.user?.id) {
+      NotificationRepository.create({
+        userId: fullBooking.expert.user.id,
+        event: "PAYMENT_SUCCESS",
+        recipient: fullBooking.expert.user.email ?? "",
+        subject: "Payment received — consultation confirmed",
+        body: `Payment confirmed for ${citizenName}'s booking. Consultation: ${fullBooking.service.name} on ${scheduledAtFormatted}.`,
+      }).catch((e) => logger.error("Failed to write payment-confirmed notification for expert", { e }));
     }
   }
 

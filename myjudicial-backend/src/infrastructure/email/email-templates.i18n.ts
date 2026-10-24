@@ -264,6 +264,11 @@ export const EMAIL_CONTENT = {
       fr: "Votre consultation a été confirmée et le paiement a été reçu.",
       rw: "Inama yawe yemejwe kandi amafaranga yakirwe.",
     },
+    messageExpert: {
+      en: "Payment has been received. The consultation with your client is now confirmed.",
+      fr: "Le paiement a été reçu. La consultation avec votre client est maintenant confirmée.",
+      rw: "Kwishyura byakozwe. Inama n'umukiriya wawe yemejwe.",
+    },
     expert: {
       en: "Expert",
       fr: "Expert",
@@ -611,6 +616,11 @@ export const EMAIL_CONTENT = {
       en: "You will receive a confirmation email once the expert accepts your request.",
       fr: "Vous recevrez un e-mail de confirmation dès que l'expert acceptera votre demande.",
       rw: "Uzabona imeri yemeza inzobere nimara kwemeza icyifuzo cyawe.",
+    },
+    viewBookingButton: {
+      en: "View Your Booking",
+      fr: "Voir votre réservation",
+      rw: "Reba Gahunda Yawe",
     },
   },
 

@@ -418,6 +418,17 @@ export const BookingService = {
       }, expertLanguage).catch((e) => logger.error("New booking request email to expert failed", { e }));
     }
 
+    // In-app notification for the expert on new booking request
+    if (expert.user?.id) {
+      NotificationRepository.create({
+        userId: expert.user.id,
+        event: "BOOKING_CONFIRMED",
+        recipient: expert.user.email ?? "",
+        subject: "New Booking Request",
+        body: `${citizen.firstName} ${citizen.lastName} has requested a ${service.name} consultation on ${scheduledDate} at ${scheduledTime}.`,
+      }).catch((e) => logger.error("Failed to write new-booking-request notification for expert", { e }));
+    }
+
     // 10. Fire-and-forget: send booking summary to citizen
     if (citizen.email) {
       const citizenLanguage = (citizen.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';

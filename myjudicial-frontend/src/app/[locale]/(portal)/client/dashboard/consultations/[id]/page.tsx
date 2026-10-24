@@ -5,7 +5,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import {
   CalendarDays, Clock, MapPin, Briefcase, Loader2, AlertCircle,
   ArrowLeft, Video, XCircle, CheckCircle, Star, MessageSquare, RefreshCw,
-  Receipt, Download, CalendarClock, Phone, Mail, FileText, Navigation, ExternalLink,
+  Receipt, Download, CalendarClock, Phone, Mail, FileText, Navigation, ExternalLink, Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
@@ -197,7 +197,9 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   }
 
   const canCancel = ["PENDING", "CONFIRMED"].includes(booking.status);
-  const canRetry = booking.status === "PENDING" && booking.paymentStatus === "FAILED";
+  const isPaymentPending = booking.status === "PENDING" && booking.paymentStatus === "PENDING";
+  const isPaymentFailed = booking.status === "PENDING" && booking.paymentStatus === "FAILED";
+  const canRetry = isPaymentPending || isPaymentFailed;
   const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
   const startsInMs = new Date(booking.scheduledStart).getTime() - Date.now();
   const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS);
@@ -288,6 +290,71 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               onApprove={() => approveReschedule({ bookingId: booking.id })}
               onDecline={(reason) => declineReschedule({ bookingId: booking.id, reason })}
             />
+          </div>
+        )}
+
+        {/* Payment Pending Banner */}
+        {isPaymentPending && (
+          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50/80 p-5 dark:border-amber-900/30 dark:bg-amber-950/20 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
+                <Smartphone size={20} className="animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[14px] font-bold text-amber-950 dark:text-amber-200">
+                    {t("paymentPendingBannerTitle")}
+                  </h3>
+                  <span className="rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-900 dark:bg-amber-900/50 dark:text-amber-200">
+                    {t("paymentPendingBadge")}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-amber-900/80 dark:text-amber-300/80 leading-relaxed">
+                  {t("paymentPendingBannerDesc", { amount: Number(booking.service?.flatFee ?? 0).toLocaleString() })}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2.5">
+                  <Button
+                    size="sm"
+                    className="rounded-xl bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 flex items-center gap-1.5 shadow-sm"
+                    disabled={isRetrying}
+                    onClick={() => retryPayment({ bookingId: booking.id })}
+                  >
+                    {isRetrying ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                    {isRetrying ? t("retrying") : t("sendMomoPromptNow")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Failed Banner */}
+        {isPaymentFailed && (
+          <div className="mb-6 rounded-2xl border border-red-300 bg-red-50/80 p-5 dark:border-red-900/30 dark:bg-red-950/20 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500 text-white shadow-sm">
+                <AlertCircle size={20} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[14px] font-bold text-red-950 dark:text-red-200">
+                  {t("paymentFailedBannerTitle")}
+                </h3>
+                <p className="mt-1 text-xs text-red-900/80 dark:text-red-300/80 leading-relaxed">
+                  {t("paymentFailedBannerDesc")}
+                </p>
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 flex items-center gap-1.5 shadow-sm"
+                    disabled={isRetrying}
+                    onClick={() => retryPayment({ bookingId: booking.id })}
+                  >
+                    {isRetrying ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                    {isRetrying ? t("retrying") : t("retryPayment")}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -634,7 +701,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               onClick={() => retryPayment({ bookingId: booking.id })}
             >
               {isRetrying ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />}
-              {isRetrying ? t("retrying") : t("retryPayment")}
+              {isRetrying ? t("retrying") : isPaymentPending ? t("sendMomoPromptNow") : t("retryPayment")}
             </Button>
           )}
           {isVideo && ["CONFIRMED", "ACTIVE"].includes(booking.status) && (

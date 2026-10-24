@@ -321,7 +321,7 @@ export function MomoPaymentTracker({
             {/* Action buttons */}
             <div className="mt-6 flex flex-col min-[360px]:flex-row justify-center gap-2.5 sm:gap-3">
               <Button asChild className="w-full min-[360px]:w-auto rounded-xl bg-brand-dark text-xs text-on-brand hover:bg-brand-dark/90 py-2.5">
-                <Link href={`/bookings/${bookingId}`}>
+                <Link href={`/client/dashboard/consultations/${bookingId}`}>
                   {t("viewBooking")} <ArrowRight size={14} className="ml-1.5" />
                 </Link>
               </Button>

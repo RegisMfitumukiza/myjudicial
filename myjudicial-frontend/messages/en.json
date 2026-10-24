@@ -1875,7 +1875,9 @@
         "FAILED": "Failed",
         "REFUNDED": "Refunded",
         "NOT_REQUIRED": "Not Required"
-      }
+      },
+      "awaitingPaymentBadge": "Awaiting Payment",
+      "paymentPaidBadge": "Paid (Escrow)"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -1947,6 +1949,12 @@
       "paymentNotRequired": "Payment will be requested once the lawyer confirms your booking.",
       "retrying": "Retrying...",
       "retryPayment": "Retry Payment",
+      "paymentPendingBannerTitle": "Mobile Money Payment Pending",
+      "paymentPendingBadge": "Action Required",
+      "paymentPendingBannerDesc": "An instant payment request of RWF {amount} was initiated. Please approve the USSD prompt on your phone to confirm this consultation. Didn't receive the prompt?",
+      "sendMomoPromptNow": "Send MoMo Prompt to Phone",
+      "paymentFailedBannerTitle": "Payment Could Not Be Completed",
+      "paymentFailedBannerDesc": "The previous Mobile Money transaction timed out or was cancelled. Your slot is temporarily held — click below to retry the payment.",
       "joinConsultation": "Join Consultation",
       "notYetTime": "Not yet time",
       "messageExpert": "Message Expert",

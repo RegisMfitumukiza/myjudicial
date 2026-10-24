@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
-import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight, MapPin, Phone, Video, FileText } from "lucide-react";
+import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight, MapPin, Phone, Video, FileText, CheckCircle } from "lucide-react";
 import { useBookings } from "@/features/booking/hooks/useBookings";
 import type { Booking, BookingStatus } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
@@ -197,11 +197,21 @@ function ConsultationCard({
           <p className="text-[15px] font-bold text-brand-dark dark:text-white">
             RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
           </p>
-          {booking.paymentStatus && booking.paymentStatus !== "NOT_REQUIRED" && (
+          {booking.paymentStatus === "PENDING" && booking.status === "PENDING" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-300 mt-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+              {t("awaitingPaymentBadge")}
+            </span>
+          ) : booking.paymentStatus === "PAID" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-800 dark:text-emerald-300 mt-1">
+              <CheckCircle size={10} />
+              {t("paymentPaidBadge")}
+            </span>
+          ) : booking.paymentStatus && booking.paymentStatus !== "NOT_REQUIRED" ? (
             <p className="text-[10px] text-brand-dark/40 dark:text-white/40 mt-0.5">
               {t(`paymentStatus.${booking.paymentStatus}` as any, { default: booking.paymentStatus })}
             </p>
-          )}
+          ) : null}
         </div>
       </div>
     </Link>

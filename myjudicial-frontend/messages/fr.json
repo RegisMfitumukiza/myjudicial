@@ -3977,7 +3977,9 @@
         "FAILED": "Échoué",
         "REFUNDED": "Remboursé",
         "NOT_REQUIRED": "Non requis"
-      }
+      },
+      "awaitingPaymentBadge": "En attente de paiement",
+      "paymentPaidBadge": "Payé (Séquestre)"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -4047,9 +4049,15 @@
       "paymentReference": "Reference",
       "platformFee": "Platform Fee",
       "paymentNotRequired": "Le paiement sera demandé une fois que l'avocat aura confirmé votre réservation.",
-      "retrying": "Retrying...",
-      "retryPayment": "Retry Payment",
-      "joinConsultation": "Join Consultation",
+      "retrying": "Nouvelle tentative...",
+      "retryPayment": "Réessayer le paiement",
+      "paymentPendingBannerTitle": "Paiement Mobile Money en attente",
+      "paymentPendingBadge": "Action requise",
+      "paymentPendingBannerDesc": "Une demande de paiement de {amount} RWF a été initiée. Veuillez approuver l'invite USSD sur votre téléphone pour confirmer votre consultation. Vous n'avez pas reçu l'invite ?",
+      "sendMomoPromptNow": "Envoyer l'invite MoMo sur le téléphone",
+      "paymentFailedBannerTitle": "Le paiement n'a pas pu être effectué",
+      "paymentFailedBannerDesc": "La transaction Mobile Money précédente a expiré ou a été annulée. Votre créneau est temporairement réservé — cliquez ci-dessous pour réessayer le paiement.",
+      "joinConsultation": "Rejoindre la consultation",
       "notYetTime": "Not yet time",
       "messageExpert": "Message Expert",
       "cancelBooking": "Cancel Booking",

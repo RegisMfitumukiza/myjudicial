@@ -3977,7 +3977,9 @@
         "FAILED": "Byanze",
         "REFUNDED": "Byasubijwe",
         "NOT_REQUIRED": "Ntibyakenewe"
-      }
+      },
+      "awaitingPaymentBadge": "Bitegereje Kwishyurwa",
+      "paymentPaidBadge": "Byishyuwe (Bifunzwe)"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -4047,9 +4049,15 @@
       "paymentReference": "Reference",
       "platformFee": "Platform Fee",
       "paymentNotRequired": "Kwishyura bizasabwa nyuma y'uko umwunganira amaze kwemeza gahunda yawe.",
-      "retrying": "Retrying...",
-      "retryPayment": "Retry Payment",
-      "joinConsultation": "Join Consultation",
+      "retrying": "Buri kongera kugeragezwa...",
+      "retryPayment": "Kongera Kwishyura",
+      "paymentPendingBannerTitle": "Kwishyura kuri Mobile Money Birategerejwe",
+      "paymentPendingBadge": "Gusabwa Kwemeza",
+      "paymentPendingBannerDesc": "Ubusabe bwo kwishyura {amount} RWF bwateguwe. Nyamuneka emeza ubutumwa bwa USSD bwo kuri telefoni yawe kugira ngo inama yemezwe. Ntabwo wabonye ubutumwa?",
+      "sendMomoPromptNow": "Ohereza Ubutumwa bwa MoMo Kuri Telefoni",
+      "paymentFailedBannerTitle": "Kwishyura Ntibyashobotse",
+      "paymentFailedBannerDesc": "Ubutumwa bwo kwishyura bwarangiye cyangwa bwanze. Umwanya wawe uracyabitswe by'agateganyo — kanda munsi kugira ngo wongere ugerageze.",
+      "joinConsultation": "Kwinjira mu Nama",
       "notYetTime": "Not yet time",
       "messageExpert": "Message Expert",
       "cancelBooking": "Cancel Booking",

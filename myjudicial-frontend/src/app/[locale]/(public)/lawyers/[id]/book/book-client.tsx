@@ -21,6 +21,7 @@ import { ServiceCard } from "@/features/booking/components/service-card";
 import { BookingSummaryCard } from "@/features/booking/components/booking-summary-card";
 import { TimeSlotList } from "@/features/booking/components/time-slot-list";
 import { PaymentForm, formatPhoneForInput } from "@/features/booking/components/payment-form";
+import { MomoPaymentTracker } from "@/features/booking/components/momo-payment-tracker";
 import { TimeZonePicker } from "@/features/booking/components/timezone-picker";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -635,17 +636,33 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
             </div>
           </div>
         </>
+      ) : !isBookingFirst && createdBookingId ? (
+        /* INSTANT MOMO PAYMENT: REAL-TIME 3-PHASE TRACKER */
+        <MomoPaymentTracker
+          bookingId={createdBookingId}
+          expertName={profile.displayName}
+          serviceName={activeService?.name ?? t("defaultConsultationName")}
+          date={selectedDate ? new Date(year, month, selectedDate) : undefined}
+          slotStart={selectedSlot?.start}
+          slotEnd={selectedSlot?.end}
+          amount={serviceFee}
+          currency={activeService?.currency ?? "RWF"}
+          timezone={timezone}
+          initialPhone={paymentPhone}
+          initialMNO={paymentMNO}
+          onBackToEdit={() => setConfirmed(false)}
+        />
       ) : (
-        /* CONFIRMATION */
+        /* REQUEST-FIRST FLOW: AWAITING LAWYER CONFIRMATION */
         <div className="mx-auto max-w-lg px-3 min-[360px]:px-4 py-10 sm:py-16 sm:px-6">
           <div className="rounded-2xl border border-border bg-card p-5 min-[360px]:p-8 sm:p-10 text-center shadow-sm">
             <div className="mx-auto mb-4 sm:mb-5 flex h-14 w-14 min-[360px]:h-16 min-[360px]:w-16 items-center justify-center rounded-full bg-brand-dark/10">
               <CheckCircle size={28} className="min-[360px]:hidden text-brand-dark" />
               <CheckCircle size={32} className="hidden min-[360px]:block text-brand-dark" />
             </div>
-            <h2 className="text-lg min-[360px]:text-xl font-bold text-foreground">{isBookingFirst ? t("requestSent") : t("bookingCreated")}</h2>
+            <h2 className="text-lg min-[360px]:text-xl font-bold text-foreground">{t("requestSent")}</h2>
             <p className="mt-1.5 sm:mt-2 text-xs min-[360px]:text-sm text-muted-foreground">
-              {isBookingFirst ? t("awaitingExpertConfirmation") : t("redirectingToPayment")}
+              {t("awaitingExpertConfirmation")}
             </p>
 
             <div className="mx-auto mt-5 sm:mt-6 max-w-sm rounded-xl border border-border bg-muted p-3.5 min-[360px]:p-4 text-left">

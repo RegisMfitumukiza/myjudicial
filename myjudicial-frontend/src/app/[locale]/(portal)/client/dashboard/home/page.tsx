@@ -68,7 +68,7 @@ export default function ClientHomePage() {
   }, [bookings, now]);
 
   const pendingPayment = useMemo(() => {
-    return bookings.find(b => b.status === "PENDING" && b.paymentStatus === "FAILED") || null;
+    return bookings.find(b => b.status === "PENDING" && (b.paymentStatus === "PENDING" || b.paymentStatus === "FAILED")) || null;
   }, [bookings]);
 
   const pendingReview = useMemo(() => {

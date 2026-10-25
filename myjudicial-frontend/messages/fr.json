@@ -4260,7 +4260,18 @@
       "COMPLETED": "Terminé",
       "CANCELLED": "Annulé",
       "REFUNDED": "Remboursé"
-    }
+    },
+    "workspaceQuickAccess": "Accès rapide à votre espace",
+    "myDocuments": "Mes documents",
+    "myDocumentsDesc": "Contrats, preuves & dossiers juridiques",
+    "savedLawyers": "Avocats enregistrés",
+    "savedLawyersDesc": "Praticiens juridiques favoris",
+    "billingPayments": "Factures & reçus",
+    "billingPaymentsDesc": "Reçus de paiement & transactions sous séquestre",
+    "confidentialityTitle": "Conforme à la Loi n° 058/2021",
+    "confidentialityBody": "Confidentialité stricte et protection des données personnelles garanties par la loi rwandaise.",
+    "needHelpSubtitle": "Support client & assistance plateforme",
+    "viewFaqs": "Foire aux questions"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

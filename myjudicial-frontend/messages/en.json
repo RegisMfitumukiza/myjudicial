@@ -2158,7 +2158,18 @@
       "COMPLETED": "Completed",
       "CANCELLED": "Cancelled",
       "REFUNDED": "Refunded"
-    }
+    },
+    "workspaceQuickAccess": "Workspace Quick Access",
+    "myDocuments": "My Documents",
+    "myDocumentsDesc": "Contracts, evidence & legal files",
+    "savedLawyers": "Saved Advocates",
+    "savedLawyersDesc": "Bookmarked legal practitioners",
+    "billingPayments": "Billing & Receipts",
+    "billingPaymentsDesc": "Payment receipts & escrow transactions",
+    "confidentialityTitle": "Law No. 058/2021 Compliant",
+    "confidentialityBody": "Strict confidentiality and personal data protection guaranteed under Rwandan law.",
+    "needHelpSubtitle": "Client support & platform guidance",
+    "viewFaqs": "Frequently Asked Questions"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

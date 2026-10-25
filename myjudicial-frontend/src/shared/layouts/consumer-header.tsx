@@ -53,7 +53,6 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
     { href: "/ai", label: t("aiAssistant"), icon: Sparkles },
     { href: "/client/dashboard/consultations", label: t("consultations"), icon: Calendar },
     { href: "/client/dashboard/messages", label: t("messages"), icon: MessageSquare },
-    { href: "/client/dashboard/reviews", label: t("myReviews"), icon: Star },
     { href: "/client/dashboard/saved-experts", label: t("saved"), icon: Bookmark },
   ];
 
@@ -199,6 +198,14 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                         {t("payments")}
                       </Link>
                       <Link
+                        href="/client/dashboard/reviews"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+                      >
+                        <Star size={16} className="text-gray-400" />
+                        {t("myReviews")}
+                      </Link>
+                      <Link
                         href="/client/dashboard/settings"
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -292,6 +299,18 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
               >
                 <CreditCard size={18} />
                 {t("payments")}
+              </Link>
+              <Link
+                href="/client/dashboard/reviews"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
+                  isActive("/client/dashboard/reviews")
+                    ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900"
+                }`}
+              >
+                <Star size={18} />
+                {t("myReviews")}
               </Link>
             </nav>
 

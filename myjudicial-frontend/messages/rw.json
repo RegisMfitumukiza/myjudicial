@@ -4260,7 +4260,18 @@
       "COMPLETED": "Yarangiye",
       "CANCELLED": "Yahagaritswe",
       "REFUNDED": "Yasubijwe"
-    }
+    },
+    "workspaceQuickAccess": "Kwinjira vuba mu mwanya wawe",
+    "myDocuments": "Inyandiko zanjye",
+    "myDocumentsDesc": "Amasezerano, ibimenyetso n'inyandiko z'amategeko",
+    "savedLawyers": "Abategeka babitswe",
+    "savedLawyersDesc": "Inzobere mu mategeko wabitse",
+    "billingPayments": "Inyemezabwishyu n'imari",
+    "billingPaymentsDesc": "Inyemezabwishyu n'ubwishyu mu bwishingizi",
+    "confidentialityTitle": "Bihuje n'Itegeko No 058/2021",
+    "confidentialityBody": "Ibanga rikomeye no kurinda amakuru bwite byemejwe n'amategeko y'u Rwanda.",
+    "needHelpSubtitle": "Ubufasha bw'abakiriya n'ubuyobozi",
+    "viewFaqs": "Ibibazo bikunze kubazwa"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

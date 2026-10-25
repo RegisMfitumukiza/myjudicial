@@ -6695,7 +6695,7 @@
     "yearsPlus": "{years}+ years",
     "proximityLabel": "Proximity",
     "proximity": "Proximity",
-    "timezoneNote": "All consultation times shown in <strong>Africa/Kigali timezone (CAT, UTC+2)</strong>",
+    "timezoneNote": "All consultation times shown in <strong>{timezone}</strong>",
     "tip1": "Try removing some filters to see more results.",
     "tip2": "Zoom out or move the map to explore nearby districts.",
     "tip3": "Check the spelling of the name or specialty.",

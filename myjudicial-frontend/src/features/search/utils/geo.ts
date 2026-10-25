@@ -49,10 +49,22 @@ export function formatDistance(km: number | undefined | null): string {
   return `${Math.round(km)} km`;
 }
 
+const ADMINISTRATIVE_SUFFIXES = [
+  "district",
+  "sector",
+  "province",
+  "city",
+  "akarere",
+  "umurenge",
+  "intara",
+  "umujyi",
+];
+
 /**
  * Cleans and formats raw address strings:
  * - Strips leading/trailing commas, periods, and stray whitespace
  * - Removes accidental duplicate commas (e.g. ", , KN 4")
+ * - Deduplicates redundant administrative units (e.g. "Nyarugenge, Nyarugenge District" -> "Nyarugenge District")
  * - Combines officeAddress with city without repeating segments
  */
 export function formatCleanAddress(
@@ -67,7 +79,50 @@ export function formatCleanAddress(
       .replace(/^[\s,.-]+|[\s,.-]+$/g, "")
       .replace(/\s*,\s*,+/g, ", ")
       .trim();
-    if (cleaned) parts.push(cleaned);
+
+    if (cleaned) {
+      const rawSegments = cleaned
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const deduped: string[] = [];
+      for (let i = 0; i < rawSegments.length; i++) {
+        const seg = rawSegments[i];
+        const segLower = seg.toLowerCase();
+
+        let isRedundant = false;
+        for (let j = 0; j < rawSegments.length; j++) {
+          if (i === j) continue;
+          const otherLower = rawSegments[j].toLowerCase();
+
+          // Check if another segment is the qualified administrative version (e.g. "Nyarugenge District" vs "Nyarugenge")
+          const isMoreSpecific = ADMINISTRATIVE_SUFFIXES.some(
+            (sfx) =>
+              otherLower === `${segLower} ${sfx}` ||
+              otherLower === `${sfx} of ${segLower}`
+          );
+          if (isMoreSpecific) {
+            isRedundant = true;
+            break;
+          }
+
+          // Exact duplicate segment (keep the first one)
+          if (segLower === otherLower && j < i) {
+            isRedundant = true;
+            break;
+          }
+        }
+
+        if (!isRedundant) {
+          deduped.push(seg);
+        }
+      }
+
+      if (deduped.length > 0) {
+        parts.push(deduped.join(", "));
+      }
+    }
   }
 
   if (city) {

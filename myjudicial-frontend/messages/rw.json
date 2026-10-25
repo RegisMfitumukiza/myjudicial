@@ -2775,7 +2775,7 @@
     "yearsPlus": "Imyaka {years}+",
     "proximityLabel": "Ubusunzu",
     "proximity": "Ubusunzu",
-    "timezoneNote": "Ibiro vyose vy'igihe vyo gutanga inama biraboneka mu isaha y'Afrika/Kigali (CAT, UTC+2)",
+    "timezoneNote": "Amasaha yose y'inama agaragazwa mu isaha ya <strong>{timezone}</strong>",
     "tip1": "Gerageza gukuraho sisitemu zigufasha kubona ibindi vyerekezo.",
     "tip2": "Kwagura karata cyangwa uhindure ahantu kugira ngo urondera ibibanza bifitanye.",
     "tip3": "Suzuma kwandika izina cyangwa ubumenyi.",

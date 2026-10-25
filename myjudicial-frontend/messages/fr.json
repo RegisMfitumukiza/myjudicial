@@ -2775,7 +2775,7 @@
     "yearsPlus": "{years}+ ans",
     "proximityLabel": "Proximité",
     "proximity": "Proximité",
-    "timezoneNote": "Toutes les heures de consultation sont affichées dans le fuseau horaire d'Afrique/Kigali (CAT, UTC+2)",
+    "timezoneNote": "Toutes les heures de consultation sont affichées dans le fuseau horaire <strong>{timezone}</strong>",
     "tip1": "Essayez de supprimer certains filtres pour voir plus de résultats.",
     "tip2": "Dézoomez ou déplacez la carte pour explorer les districts voisins.",
     "tip3": "Vérifiez l'orthographe du nom ou de la spécialité.",

@@ -373,6 +373,7 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                     officeAddress={profile.officeAddress ?? null}
                     yearsExperience={profile.yearsExperience ?? null}
                     showTimezone
+                    timezone={timezone}
                   />
                 </section>
 

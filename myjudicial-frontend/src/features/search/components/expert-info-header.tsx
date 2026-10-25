@@ -4,6 +4,7 @@ import { StarRating } from "@/shared/components/star-rating";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
 import { formatCleanAddress } from "../utils/geo";
+import { TIMEZONE_OPTIONS } from "@/features/booking/constants";
 
 type ExpertInfoHeaderProps = {
   displayName: string;
@@ -15,6 +16,7 @@ type ExpertInfoHeaderProps = {
   officeAddress: string | null;
   yearsExperience: number | null;
   showTimezone?: boolean;
+  timezone?: string;
 };
 
 export function ExpertInfoHeader({
@@ -27,9 +29,13 @@ export function ExpertInfoHeader({
   officeAddress,
   yearsExperience,
   showTimezone = false,
+  timezone,
 }: ExpertInfoHeaderProps) {
   const t = useTranslations("search");
   const tSpecialties = useTranslations("specialties");
+
+  const matchedTz = timezone ? TIMEZONE_OPTIONS.find((opt) => opt.value === timezone) : null;
+  const tzFormatted = matchedTz ? `${matchedTz.value} (${matchedTz.label})` : (timezone ? `${timezone}` : "Africa/Kigali timezone (CAT, UTC+2)");
   return (
     <div>
       <div className="flex items-start gap-4">
@@ -75,8 +81,11 @@ export function ExpertInfoHeader({
       {showTimezone && (
         <div className="mt-4 rounded-lg bg-brand-dark/5 p-3 dark:bg-white/5">
           <p className="flex items-center gap-2 text-xs text-brand-dark/60 dark:text-white/60">
-            <Clock className="h-4 w-4" />
-            {t.rich("timezoneNote", { strong: (chunks) => <strong>{chunks}</strong> })}
+            <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+            {t.rich("timezoneNote", {
+              timezone: tzFormatted,
+              strong: (chunks) => <strong className="text-brand-dark dark:text-white">{chunks}</strong>,
+            })}
           </p>
         </div>
       )}

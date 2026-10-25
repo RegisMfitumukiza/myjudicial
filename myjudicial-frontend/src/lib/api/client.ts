@@ -155,6 +155,7 @@ export async function refreshAccessToken(): Promise<string | null> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
         credentials: "include",
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!response.ok) {

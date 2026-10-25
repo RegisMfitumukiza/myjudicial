@@ -4050,7 +4050,15 @@
       "dateLabel": "Date",
       "durationLabel": "Duration: {duration}",
       "minutesSuffix": "{count} min",
-      "paymentStatus": "Status",
+      "paymentStatusLabel": "Imiterere",
+      "paymentStatus": {
+        "PAID": "Yishyuwe",
+        "PENDING": "Itegerezwa",
+        "AUTHORIZED": "Yemejwe",
+        "FAILED": "Byanze",
+        "REFUNDED": "Yasubijwe",
+        "NOT_REQUIRED": "Ntibyakenewe"
+      },
       "paymentReference": "Reference",
       "platformFee": "Platform Fee",
       "paymentNotRequired": "Kwishyura bizasabwa nyuma y'uko umwunganira amaze kwemeza gahunda yawe.",

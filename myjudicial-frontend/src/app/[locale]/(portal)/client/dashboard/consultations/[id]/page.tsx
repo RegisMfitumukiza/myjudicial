@@ -715,7 +715,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[13px]">
-                  <span className="text-brand-dark/50 dark:text-white/50">{t("paymentStatus")}</span>
+                  <span className="text-brand-dark/50 dark:text-white/50">{t("paymentStatusLabel")}</span>
                   <span className="font-semibold text-brand-dark dark:text-white">{t(`paymentStatus.${booking.paymentStatus}` as any, { default: booking.paymentStatus })}</span>
                 </div>
                 {booking.paymentReferenceId && (

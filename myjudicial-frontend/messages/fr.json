@@ -4050,7 +4050,15 @@
       "dateLabel": "Date",
       "durationLabel": "Duration: {duration}",
       "minutesSuffix": "{count} min",
-      "paymentStatus": "Status",
+      "paymentStatusLabel": "Statut",
+      "paymentStatus": {
+        "PAID": "Payé",
+        "PENDING": "En attente",
+        "AUTHORIZED": "Autorisé",
+        "FAILED": "Échoué",
+        "REFUNDED": "Remboursé",
+        "NOT_REQUIRED": "Non requis"
+      },
       "paymentReference": "Reference",
       "platformFee": "Platform Fee",
       "paymentNotRequired": "Le paiement sera demandé une fois que l'avocat aura confirmé votre réservation.",

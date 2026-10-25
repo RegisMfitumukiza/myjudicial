@@ -1948,7 +1948,15 @@
       "dateLabel": "Date",
       "durationLabel": "Duration: {duration}",
       "minutesSuffix": "{count} min",
-      "paymentStatus": "Status",
+      "paymentStatusLabel": "Status",
+      "paymentStatus": {
+        "PAID": "Paid",
+        "PENDING": "Pending",
+        "AUTHORIZED": "Authorized",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "NOT_REQUIRED": "Not Required"
+      },
       "paymentReference": "Reference",
       "platformFee": "Platform Fee",
       "paymentNotRequired": "Payment will be requested once the lawyer confirms your booking.",

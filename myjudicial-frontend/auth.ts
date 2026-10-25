@@ -17,6 +17,7 @@ async function fetchBackend<T>(path: string, body: unknown): Promise<T> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
     });
   } catch (err) {
     // Network-level failure (DNS, connection refused, TLS) — log loudly so

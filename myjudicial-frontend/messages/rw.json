@@ -4082,6 +4082,7 @@
       "deliveryBannerTitle": "Guhura byarangiye ku ruhande rw'umunyamategeko",
       "deliveryBannerDesc": "Umunyamategeko yerekanye ko inama yanyu cyangwa serivisi yarangiye. Niba wanyuzwe, hejuru kanda kwemeza kugira ngo amafaranga yo mu bwishingizi yoherezwe kuri konte ye ya Mobile Money.",
       "autoReleaseNotice": "Amafaranga azoherezwa mu buryo bwikora ku wa {date} niba nta kibazo gitanzwe.",
+      "autoReleaseCountdown": "Kurekura mu buryo bwikora mu: {hours}h {minutes}m {seconds}s",
       "expertNotesTitle": "Ibisobanuro byatanzwe n'umunyamategeko:",
       "confirmCompletion": "Emeza kandi Wohereze Amafaranga",
       "confirmingCompletion": "Kwohereza amafaranga...",
@@ -7208,7 +7209,9 @@
       "markDeliveredDesc": "Erekana ko iyi nama yabayeho (urugero: guhamagara kuri terefone byarangiye, inama mu biro yabaye, cyangwa inama zatanzwe). Ibi bitangiza amasaha 24 y'umukiriya yo kwemeza.",
       "deliverySummaryLabel": "Incamake y'ibyafashwe n'inama (Ku bushake)",
       "deliverySummaryPlaceholder": "urug. Nahamagaye umukiriya kuri 078..., twaganiriye ku kibazo cy'ubutaka ndetse muha inama z'ibanze...",
-      "confirmMarkDelivered": "Emeza kandi Umumenyeshe"
+      "confirmMarkDelivered": "Emeza kandi Umumenyeshe",
+      "deliveryLocked": "Kumenyesha ko byakozwe biboneka inama imaze gutangira",
+      "deliveryLockedTooltip": "Inama ishobora gusa kumenyeshwa ko yarangiye igihe cyayo cyo gutangira kigeze."
     },
     "details": {
       "withClient": "hamwe na {name}",

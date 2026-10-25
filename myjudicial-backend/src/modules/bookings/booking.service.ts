@@ -12,6 +12,8 @@ import {
   sendRescheduleRequestEmail,
   sendRescheduleAcceptedEmail,
   sendRescheduleDeclinedEmail,
+  sendConsultationDeliveredEmail,
+  sendConsultationIssueReportedEmail,
 } from "../../infrastructure/email/email.service.js";
 import type { CreateBookingDto, UpdateBookingDto } from "./booking.schemas.js";
 import { BookingStatus, DayOfWeek, Prisma } from "../../generated/prisma/client.js";
@@ -1592,6 +1594,13 @@ export const BookingService = {
     }
 
     const now = new Date();
+
+    // Guard: Live consultation cannot be marked delivered before scheduled appointment start time
+    const isLiveSession = (booking.service as any)?.deliveryMode !== "EMAIL";
+    if (isLiveSession && now < booking.scheduledStart) {
+      throw new ValidationError("You cannot mark a consultation delivered before its scheduled start time.");
+    }
+
     // 24 hours from now
     const autoReleaseAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
@@ -1624,6 +1633,19 @@ export const BookingService = {
       });
     } catch (err) {
       logger.error("Failed to notify citizen of delivery", { bookingId, err });
+    }
+
+    // Fire-and-forget: Urgent email to citizen alerting of 24h auto-release countdown
+    if (booking.citizen?.email) {
+      const citizenLang = ((booking.citizen as any).preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+      const expertName = booking.expert?.displayName ?? "Expert";
+      sendConsultationDeliveredEmail(booking.citizen.email, {
+        recipientName: booking.citizen.firstName ?? "Client",
+        expertName,
+        serviceName: booking.service?.name ?? "Consultation",
+        bookingId,
+        deliverySummary: dto.deliverySummary ?? null,
+      }, citizenLang).catch((err) => logger.error("Failed to send consultation delivered email to citizen", { bookingId, err }));
     }
 
     logger.info("Consultation marked delivered by expert", { bookingId, autoReleaseAt });
@@ -1739,6 +1761,9 @@ export const BookingService = {
 
     // Notify Expert
     const full = await BookingRepository.findFullBookingById(bookingId);
+    const clientFullName = `${full?.citizen?.firstName ?? "Client"} ${full?.citizen?.lastName ?? ""}`.trim();
+    const serviceName = full?.service?.name ?? "Consultation";
+
     if (full?.expert?.user?.email) {
       try {
         await NotificationRepository.create({
@@ -1751,7 +1776,29 @@ export const BookingService = {
       } catch (err) {
         logger.error("Failed to notify expert of issue report", { bookingId, err });
       }
+
+      // Email notification to expert
+      const expertLanguage = (full.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+      sendConsultationIssueReportedEmail(full.expert.user.email, {
+        recipientName: full.expert.displayName ?? "Expert",
+        clientName: clientFullName,
+        serviceName,
+        bookingId,
+        reason: dto.reason,
+        isAdminNotification: false,
+      }, expertLanguage).catch((err) => logger.error("Failed to send issue report email to expert", { bookingId, err }));
     }
+
+    // Email notification to Platform Support Desk / Admin
+    const supportEmail = process.env.SUPPORT_EMAIL || "support@myjudicial.com";
+    sendConsultationIssueReportedEmail(supportEmail, {
+      recipientName: "MyJudicial Support Desk",
+      clientName: clientFullName,
+      serviceName,
+      bookingId,
+      reason: dto.reason,
+      isAdminNotification: true,
+    }, 'en').catch((err) => logger.error("Failed to send issue report email to admin", { bookingId, err }));
 
     logger.info("Consultation issue reported by citizen", { bookingId, reason: dto.reason });
     return BookingRepository.findById(bookingId);

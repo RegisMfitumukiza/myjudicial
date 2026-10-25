@@ -4082,6 +4082,7 @@
       "deliveryBannerTitle": "Consultation effectuée par l'expert",
       "deliveryBannerDesc": "Votre expert juridique a indiqué avoir effectué la consultation. Si vous êtes satisfait, confirmez ci-dessous pour débloquer le paiement vers son portefeuille Mobile Money.",
       "autoReleaseNotice": "Le paiement sera automatiquement débloqué le {date} en l'absence de réclamation.",
+      "autoReleaseCountdown": "Déblocage automatique dans : {hours}h {minutes}m {seconds}s",
       "expertNotesTitle": "Notes de l'expert :",
       "confirmCompletion": "Confirmer et débloquer le paiement",
       "confirmingCompletion": "Déblocage du paiement...",
@@ -7208,7 +7209,9 @@
       "markDeliveredDesc": "Indiquez que la consultation a bien eu lieu (appel téléphonique terminé, rendez-vous au cabinet ou conseils rendus). Cela lance le délai de confirmation client de 24 heures.",
       "deliverySummaryLabel": "Résumé et notes de consultation (Optionnel)",
       "deliverySummaryPlaceholder": "ex. Appel téléphonique passé au 078..., discussion sur le litige foncier et recommandations données...",
-      "confirmMarkDelivered": "Confirmer et notifier le client"
+      "confirmMarkDelivered": "Confirmer et notifier le client",
+      "deliveryLocked": "Livraison disponible après le début de la session",
+      "deliveryLockedTooltip": "La consultation ne peut être marquée comme terminée qu'après l'heure de début prévue."
     },
     "details": {
       "withClient": "avec {name}",

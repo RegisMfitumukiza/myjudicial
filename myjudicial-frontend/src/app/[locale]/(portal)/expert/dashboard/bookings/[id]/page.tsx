@@ -5,7 +5,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays, Loader2,
-  ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock,
+  ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock, Clock,
   FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send, AlertCircle,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -207,13 +207,23 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     );
   }
 
-  const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
+  const JOINABLE_EARLY_WINDOW_MS = 15 * 60 * 1000; // 15 mins before start
+  const OVERTIME_GRACE_WINDOW_MS = 30 * 60 * 1000; // 30 mins after scheduled end
   const canDecline = booking.status === "PENDING";
-  const startsInMs = new Date(booking.scheduledStart).getTime() - Date.now();
-  const canJoin = (booking.status === "ACTIVE" || (booking.status === "CONFIRMED" && startsInMs <= JOINABLE_WINDOW_MS)) && startsInMs > -JOINABLE_WINDOW_MS;
+  const nowMs = Date.now();
+  const startMs = new Date(booking.scheduledStart).getTime();
+  const endMs = new Date(booking.scheduledEnd).getTime();
+  const startsInMs = startMs - nowMs;
+  // Session is joinable from 15 mins prior until 30 mins after scheduled end
+  const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) &&
+    nowMs >= (startMs - JOINABLE_EARLY_WINDOW_MS) &&
+    nowMs <= (endMs + OVERTIME_GRACE_WINDOW_MS);
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
-  const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt;
+  const isEmailMode = ((booking as any).service?.deliveryMode === "EMAIL");
+  const isSessionStarted = nowMs >= startMs;
+  const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && (isEmailMode || isSessionStarted);
+  const isDeliveryLockedUntilStart = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && !isEmailMode && !isSessionStarted;
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
@@ -603,6 +613,18 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             >
               <CheckCircle size={15} />
               {t("actions.markDelivered")}
+            </Button>
+          )}
+          {isDeliveryLockedUntilStart && (
+            <Button
+              size="lg"
+              variant="outline"
+              disabled
+              className="border-dashed text-muted-foreground opacity-75 cursor-not-allowed flex items-center gap-2"
+              title={t("actions.deliveryLockedTooltip", { defaultValue: "Consultation can only be marked delivered after the scheduled start time." })}
+            >
+              <Clock size={15} />
+              {t("actions.deliveryLocked", { defaultValue: "Delivery available after session starts" })}
             </Button>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "EMAIL" && (

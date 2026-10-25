@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import {
   CalendarDays, Clock, MapPin, Briefcase, Loader2, AlertCircle,
@@ -73,12 +73,37 @@ const STATUS_ORDER: Record<string, number> = {
   REFUNDED: -1,
 };
 
+function useCountdown(targetIso?: string | null) {
+  const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; isExpired: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!targetIso) return;
+    function calculate() {
+      const diff = new Date(targetIso!).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return;
+      }
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ hours, minutes, seconds, isExpired: false });
+    }
+    calculate();
+    const interval = setInterval(calculate, 1000);
+    return () => clearInterval(interval);
+  }, [targetIso]);
+
+  return timeLeft;
+}
+
 export default function ConsultationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations("clientDashboard.consultationDetail");
   const locale = useLocale();
   const { booking, isLoading, error } = useBooking(id);
+  const countdown = useCountdown(booking?.autoReleaseAt);
   const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
   const { mutate: retryPayment, isPending: isRetrying } = useRetryPayment();
   const { mutate: rescheduleBooking, isPending: isRescheduling } = useRescheduleBooking();
@@ -376,6 +401,18 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                   <p className="mt-2 text-[12px] font-medium text-emerald-800/70 dark:text-emerald-300/70">
                     {t("autoReleaseNotice", { date: new Date(booking.autoReleaseAt).toLocaleString(locale) })}
                   </p>
+                )}
+                {booking.autoReleaseAt && countdown && !countdown.isExpired && (
+                  <div className="mt-2.5 inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-100/80 px-3 py-1.5 text-xs font-bold text-emerald-950 dark:bg-emerald-900/40 dark:text-emerald-200 shadow-xs">
+                    <Clock size={13} className="animate-pulse text-emerald-700 dark:text-emerald-400" />
+                    <span>
+                      {t("autoReleaseCountdown", {
+                        hours: countdown.hours,
+                        minutes: countdown.minutes,
+                        seconds: countdown.seconds,
+                      })}
+                    </span>
+                  </div>
                 )}
                 {booking.deliverySummary && (
                   <div className="mt-3 rounded-xl border border-emerald-500/20 bg-white/80 p-3.5 text-[13px] text-brand-dark dark:bg-black/40 dark:text-white">

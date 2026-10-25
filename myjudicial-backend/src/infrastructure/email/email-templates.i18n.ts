@@ -88,6 +88,16 @@ export const EMAIL_SUBJECTS = {
     fr: (serviceName: string) => `Demande de reprogrammation — ${serviceName}`,
     rw: (serviceName: string) => `Icyifuzo cyo guhindura igihe — ${serviceName}`,
   },
+  CONSULTATION_DELIVERED: {
+    en: (serviceName: string) => `Action Required: Confirm your consultation for ${serviceName}`,
+    fr: (serviceName: string) => `Action requise : Confirmez votre consultation pour ${serviceName}`,
+    rw: (serviceName: string) => `Igisabwa: Emeza inama yawe ya ${serviceName}`,
+  },
+  CONSULTATION_ISSUE_REPORTED: {
+    en: (bookingId: string) => `Issue Reported: Booking ${bookingId}`,
+    fr: (bookingId: string) => `Problème signalé : Réservation ${bookingId}`,
+    rw: (bookingId: string) => `Ikibazo cyamenyeshejwe: Gahunda ${bookingId}`,
+  },
   RESCHEDULE_ACCEPTED: {
     en: (serviceName: string) => `Reschedule Accepted — ${serviceName}`,
     fr: (serviceName: string) => `Reprogrammation acceptée — ${serviceName}`,
@@ -809,6 +819,69 @@ export const EMAIL_CONTENT = {
       en: "View Experts",
       fr: "Voir les experts",
       rw: "Reba inzobere",
+    },
+  },
+
+  // Consultation marked delivered by expert (sent to citizen)
+  CONSULTATION_DELIVERED: {
+    title: {
+      en: "Consultation Completed",
+      fr: "Consultation terminée",
+      rw: "Inama yarangiye",
+    },
+    message: {
+      en: (expertName: string) => `Your legal expert <strong>${expertName}</strong> has marked your consultation as delivered.`,
+      fr: (expertName: string) => `Votre expert juridique <strong>${expertName}</strong> a marqué votre consultation comme terminée.`,
+      rw: (expertName: string) => `Inzobere yawe mu by'amategeko <strong>${expertName}</strong> yagaragaje ko inama yanyu yarangiye.`,
+    },
+    expertNotesLabel: {
+      en: "Summary notes from your expert:",
+      fr: "Notes de synthèse de votre expert :",
+      rw: "Incamake y'inzobere yawe:",
+    },
+    autoReleaseWarning: {
+      en: "Please review and confirm completion to release payment. If no action or issue is reported within 24 hours, the consultation will be automatically confirmed and funds released.",
+      fr: "Veuillez vérifier et confirmer l'achèvement pour débloquer le paiement. Si aucune action ou aucun problème n'est signalé dans les 24 heures, la consultation sera automatiquement confirmée et les fonds débloqués.",
+      rw: "Nyamuneka reba kandi wemeze ko inama yarangiye kugira ngo amafaranga aherezwe inzobere. Niba nta cyakozwe cyangwa nta kibazo kigaragajwe mu masaha 24, inama izemezwa mu buryo bwikora kandi amafaranga aherezwe inzobere.",
+    },
+    confirmButton: {
+      en: "Review & Confirm Consultation",
+      fr: "Examiner et confirmer la consultation",
+      rw: "Genzura kandi Wemeze Inama",
+    },
+    disputeHint: {
+      en: "Did the consultation not happen or was there a problem? Click the button above and select 'Report Issue' to pause payment release immediately.",
+      fr: "La consultation n'a pas eu lieu ou y a-t-il eu un problème ? Cliquez sur le bouton ci-dessus et sélectionnez 'Signaler un problème' pour suspendre immédiatement le déblocage du paiement.",
+      rw: "Inama ntiyabaye cyangwa habayemo ikibazo? Kanda kuri buto yo hejuru maze uhitemo 'Menyesha Ikibazo' kugira ngo uhagarike kwishyura ako kanya.",
+    },
+  },
+
+  // Consultation issue reported by citizen (sent to expert & admin)
+  CONSULTATION_ISSUE_REPORTED: {
+    title: {
+      en: "Consultation Issue Reported",
+      fr: "Problème de consultation signalé",
+      rw: "Ikibazo ku nama cyamenyeshejwe",
+    },
+    messageCitizen: {
+      en: (clientName: string) => `The client <strong>${clientName}</strong> reported an issue regarding the consultation. The 24-hour escrow release has been paused.`,
+      fr: (clientName: string) => `Le client <strong>${clientName}</strong> a signalé un problème concernant la consultation. Le déblocage de l'entiercement sous 24 heures a été suspendu.`,
+      rw: (clientName: string) => `Umukiriya <strong>${clientName}</strong> yamenyesheje ikibazo ku nama yanyu. Kwishyura mu masaha 24 byahagaritswe.`,
+    },
+    reasonLabel: {
+      en: "Reported reason:",
+      fr: "Raison signalée :",
+      rw: "Impamvu yagaragajwe:",
+    },
+    actionAdvice: {
+      en: "You can reach out to the client via chat to resolve the issue or discuss a free reschedule. Platform administration has been notified.",
+      fr: "Vous pouvez contacter le client par chat pour résoudre le problème ou discuter d'une nouvelle planification gratuite. L'administration a été informée.",
+      rw: "Ushobora kwandikira umukiriya mu biganiro kugira ngo mukemure ikibazo cyangwa muvugane ku kongera gusezerana indi nama ku buntu. Ubuyobozi bw'urubuga bwamaze kumenyeshwa.",
+    },
+    viewBookingButton: {
+      en: "View Consultation Details",
+      fr: "Voir les détails de la consultation",
+      rw: "Reba ibyerekeye inama",
     },
   },
 

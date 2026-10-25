@@ -1520,5 +1520,102 @@ export const sendContactInquiryEmail = async (params: {
   });
 };
 
+/**
+ * Notify client that the expert has marked the consultation as delivered.
+ * Alerts them to review, confirm, or report an issue within 24 hours before auto-release.
+ */
+export const sendConsultationDeliveredEmail = async (
+  to: string,
+  details: {
+    recipientName: string;
+    expertName: string;
+    serviceName: string;
+    bookingId: string;
+    deliverySummary?: string | null;
+  },
+  language: Language = 'en'
+): Promise<void> => {
+  const bookingUrl = buildUrl(FRONTEND.bookings(details.bookingId));
+  const t = (key: string) => getEmailContent('CONSULTATION_DELIVERED', key, language);
+
+  const expertLabel = getEmailContent('BOOKING_CONFIRMED', 'expert', language);
+  const serviceLabel = getEmailContent('BOOKING_CONFIRMED', 'service', language);
+  const referenceLabel = getEmailContent('BOOKING_CONFIRMED', 'reference', language);
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(getEmailContent('CONSULTATION_DELIVERED', 'message', language, details.expertName)),
+      alertBox(t('autoReleaseWarning'), "warning"),
+      dataTable(
+        tableRow(expertLabel, details.expertName, { bold: true }) +
+        tableRow(serviceLabel, details.serviceName) +
+        tableRow(referenceLabel, details.bookingId, { bold: false, color: "#94a3b8" }) +
+        (details.deliverySummary ? tableRow(t('expertNotesLabel'), details.deliverySummary) : "")
+      ),
+      button(t('confirmButton'), bookingUrl),
+      divider(),
+      paragraph(t('disputeHint'), { size: "13px", color: "#64748b" }),
+    )}
+  `, { previewText: `Action required: Confirm consultation with ${details.expertName}` });
+
+  await sendEmail({
+    to: [{ email: to, name: details.recipientName }],
+    subject: getEmailSubject('CONSULTATION_DELIVERED', language, details.serviceName),
+    template: "CONSULTATION_DELIVERED",
+    htmlContent: html,
+  });
+};
+
+/**
+ * Notify expert and admin that a client reported an issue on a delivered consultation.
+ */
+export const sendConsultationIssueReportedEmail = async (
+  to: string,
+  details: {
+    recipientName: string;
+    clientName: string;
+    serviceName: string;
+    bookingId: string;
+    reason: string;
+    isAdminNotification?: boolean;
+  },
+  language: Language = 'en'
+): Promise<void> => {
+  const bookingUrl = buildUrl(
+    details.isAdminNotification
+      ? `/admin/dashboard/bookings/${details.bookingId}`
+      : FRONTEND.expertBookingsDetail(details.bookingId)
+  );
+  const t = (key: string) => getEmailContent('CONSULTATION_ISSUE_REPORTED', key, language);
+  const clientLabel = getEmailContent('COMMON', 'client', language);
+  const serviceLabel = getEmailContent('BOOKING_CONFIRMED', 'service', language);
+  const referenceLabel = getEmailContent('BOOKING_CONFIRMED', 'reference', language);
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(getEmailContent('CONSULTATION_ISSUE_REPORTED', 'messageCitizen', language, details.clientName)),
+      alertBox(`<strong>${t('reasonLabel')}</strong> ${details.reason}`, "error"),
+      dataTable(
+        tableRow(clientLabel, details.clientName, { bold: true }) +
+        tableRow(serviceLabel, details.serviceName) +
+        tableRow(referenceLabel, details.bookingId, { bold: false, color: "#94a3b8" })
+      ),
+      button(t('viewBookingButton'), bookingUrl),
+      divider(),
+      paragraph(t('actionAdvice'), { size: "13px", color: "#64748b" }),
+    )}
+  `, { previewText: `Issue reported on booking ${details.bookingId}` });
+
+  await sendEmail({
+    to: [{ email: to, name: details.recipientName }],
+    subject: getEmailSubject('CONSULTATION_ISSUE_REPORTED', language, details.bookingId),
+    template: "CONSULTATION_ISSUE_REPORTED",
+    htmlContent: html,
+  });
+};
+
+
 
 

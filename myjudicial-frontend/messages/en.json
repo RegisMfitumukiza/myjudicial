@@ -1980,6 +1980,7 @@
       "deliveryBannerTitle": "Consultation Delivered by Expert",
       "deliveryBannerDesc": "Your legal expert has marked this consultation as delivered. If you are satisfied, confirm below to release payment to the expert's Mobile Money wallet.",
       "autoReleaseNotice": "Payment will automatically release on {date} if no issue is reported.",
+      "autoReleaseCountdown": "Auto-release in: {hours}h {minutes}m {seconds}s",
       "expertNotesTitle": "Notes from Expert:",
       "confirmCompletion": "Confirm & Release Payment",
       "confirmingCompletion": "Releasing Payment...",
@@ -7210,7 +7211,9 @@
       "markDeliveredDesc": "Record that this consultation took place (e.g. phone call concluded, in-person meeting held, or advice delivered). This initiates the 24-hour client confirmation review window.",
       "deliverySummaryLabel": "Consultation Summary & Notes (Optional)",
       "deliverySummaryPlaceholder": "e.g. Called client on 078..., discussed property dispute and provided initial guidance...",
-      "confirmMarkDelivered": "Confirm & Notify Client"
+      "confirmMarkDelivered": "Confirm & Notify Client",
+      "deliveryLocked": "Delivery available after session starts",
+      "deliveryLockedTooltip": "Consultation can only be marked delivered after the scheduled start time."
     },
     "details": {
       "withClient": "with {name}",

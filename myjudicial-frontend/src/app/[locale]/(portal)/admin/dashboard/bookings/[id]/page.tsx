@@ -13,7 +13,6 @@ import {
   Phone,
   Smartphone,
   AlertCircle,
-  AlertTriangle,
 } from "lucide-react";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
@@ -191,8 +190,8 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
               <p className="text-muted-foreground mb-2">
                 Reported on: {new Date(booking.issueReportedAt).toLocaleString(locale)}
               </p>
-              <div className="rounded-lg bg-destructive/10 p-2.5 text-destructive font-medium whitespace-pre-wrap">
-                "{booking.issueReason}"
+              <div className="rounded-lg bg-destructive/10 p-2.5 text-destructive font-medium whitespace-pre-wrap break-words">
+                &ldquo;{booking.issueReason}&rdquo;
               </div>
             </div>
 
@@ -544,7 +543,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             <DialogDescription>
               This will issue an immediate 100% refund of{" "}
               <strong>{formatCurrency(Number(booking.payment?.amount ?? booking.service?.flatFee ?? 0), booking.service?.currency ?? "RWF")}</strong>{" "}
-              directly back to the client's Mobile Money wallet via AzamPay, and mark this booking as REFUNDED.
+              directly back to the client&apos;s Mobile Money wallet via AzamPay, and mark this booking as REFUNDED.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">

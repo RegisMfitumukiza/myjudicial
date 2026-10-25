@@ -142,20 +142,20 @@ function ConsultationCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-[15px] font-bold text-brand-dark dark:text-white truncate">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+            <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
             {booking.expert?.displayName ?? t("legalExpert")}
             </h3>
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${STATUS_STYLES[booking.status] ?? "bg-brand-dark/10 text-brand-dark"}`}>
               {t(`status.${booking.status}` as any, { default: booking.status })}
             </span>
             {booking.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(booking.status) && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 border border-amber-500/25">
+              <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 border border-amber-500/25">
                 <AlertCircle size={10} />
                 {t("disputeUnderReview")}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/5 px-2.5 py-0.5 text-[10px] font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
+            <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-brand-dark/5 px-2.5 py-0.5 text-[10px] font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
               {deliveryMode === "IN_PERSON" ? (
                 <>
                   <MapPin size={10} className="text-emerald-600 dark:text-emerald-400" />

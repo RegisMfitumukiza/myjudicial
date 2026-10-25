@@ -319,8 +319,8 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
                   <p className="font-semibold text-foreground mb-1">
                     {t("dispute.clientReasonLabel", { defaultValue: "Client Grievance:" })}
                   </p>
-                  <p className="text-destructive font-medium whitespace-pre-wrap">
-                    "{booking.issueReason}"
+                  <p className="text-destructive font-medium whitespace-pre-wrap break-words">
+                    &ldquo;{booking.issueReason}&rdquo;
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-2">
                     {t("dispute.reportedAt", { defaultValue: "Reported on" })}: {new Date(booking.issueReportedAt!).toLocaleString(locale)}

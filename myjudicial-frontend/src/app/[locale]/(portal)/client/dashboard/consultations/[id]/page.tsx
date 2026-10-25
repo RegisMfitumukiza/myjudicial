@@ -902,7 +902,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900/30 dark:bg-red-900/10">
             <h3 className="text-[14px] font-bold text-red-800 dark:text-red-300 mb-2">{t("cancelModal.title")}</h3>
             {/* Refund policy disclosure */}
-            <div className={`mb-3 rounded-lg p-3 text-[12px] leading-relaxed ${
+            <div className={`mb-3 rounded-lg p-3 text-[12px] leading-relaxed break-words ${
               isLateCancellation
                 ? "bg-amber-100/80 border border-amber-300/50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
                 : "bg-emerald-100/80 border border-emerald-300/50 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
@@ -931,7 +931,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               rows={3}
               className="w-full rounded-lg border border-red-200 bg-white px-3 py-2.5 text-[13px] text-brand-dark outline-none placeholder:text-brand-dark/30 focus:border-red-400 dark:bg-black dark:text-white"
             />
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 className="rounded-lg bg-red-600 px-4 py-2 text-[12px] font-semibold text-white hover:bg-red-700 disabled:opacity-40"
                 disabled={isCancelling || cancelReason.trim().length < 5}

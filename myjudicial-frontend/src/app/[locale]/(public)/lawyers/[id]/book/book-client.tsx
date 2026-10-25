@@ -317,6 +317,25 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDay(year, month);
 
+  const renderTrustBadges = (className: string) => (
+    <div className={className}>
+      {[
+        { icon: ShieldCheck, title: t("verifiedProfessional"), desc: t("verifiedProfessionalDesc") },
+        { icon: Coins, title: t("fairPricing"), desc: t("fairPricingDesc") },
+        { icon: Smartphone, title: t("instantAccess"), desc: t("instantAccessDesc") },
+      ].map(({ icon: Icon, title, desc }) => (
+        <div
+          key={title}
+          className="rounded-xl border border-border bg-card p-3.5 min-[360px]:p-4 text-center shadow-sm"
+        >
+          <Icon className="mx-auto mb-2 h-5 w-5 text-foreground" />
+          <p className="text-xs min-[360px]:text-sm font-bold text-foreground">{title}</p>
+          <p className="mt-0.5 text-[11px] min-[360px]:text-xs text-muted-foreground">{desc}</p>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {!confirmed ? (
@@ -528,23 +547,8 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                   </div>
                 </section>
 
-                {/* Trust badges */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {[
-                    { icon: ShieldCheck, title: t("verifiedProfessional"), desc: t("verifiedProfessionalDesc") },
-                    { icon: Coins, title: t("fairPricing"), desc: t("fairPricingDesc") },
-                    { icon: Smartphone, title: t("instantAccess"), desc: t("instantAccessDesc") },
-                  ].map(({ icon: Icon, title, desc }) => (
-                    <div
-                      key={title}
-                      className="rounded-xl border border-border bg-card p-3.5 min-[360px]:p-4 text-center shadow-sm"
-                    >
-                      <Icon className="mx-auto mb-2 h-5 w-5 text-foreground" />
-                      <p className="text-xs min-[360px]:text-sm font-bold text-foreground">{title}</p>
-                      <p className="mt-0.5 text-[11px] min-[360px]:text-xs text-muted-foreground">{desc}</p>
-                    </div>
-                  ))}
-                </div>
+                {/* Trust badges (Desktop: aligned at the bottom of the left column) */}
+                {renderTrustBadges("hidden lg:grid grid-cols-3 gap-3")}
               </div>
 
               {/* RIGHT: Booking Summary */}
@@ -634,6 +638,9 @@ function BookingContent({ params }: { params: Promise<{ id: string }> }) {
                 </div>
               </aside>
             </div>
+
+            {/* Trust badges (Mobile & Tablets: placed at the bottom after booking summary & payment CTA) */}
+            {renderTrustBadges("mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:hidden")}
           </div>
         </>
       ) : !isBookingFirst && createdBookingId ? (

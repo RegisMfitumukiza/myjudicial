@@ -12,6 +12,8 @@ import {
   Banknote,
   Phone,
   Smartphone,
+  AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
@@ -29,6 +31,7 @@ import { LoadingSpinner } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Textarea } from "@/shared/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -62,7 +65,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
   const { booking, isLoading, error } = useBooking(id);
   const [showComplete, setShowComplete] = useState(false);
   const [showRefund, setShowRefund] = useState(false);
-  const [refundPercentage, setRefundPercentage] = useState(100);
+  const [refundReason, setRefundReason] = useState("Client dispute arbitrated by admin — 100% full refund");
 
   const statusSteps = useMemo(() => [
     { key: "PENDING", label: t("bookingCreated"), order: 1 },
@@ -161,6 +164,68 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
           </StatusBadge>
         }
       />
+
+      {/* Dispute Resolution Card (Gap D) */}
+      {booking.issueReportedAt && !isCancelledOrRefunded && booking.status !== "COMPLETED" && (
+        <Card className="border-destructive/40 bg-destructive/5 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
+                <CardTitle className="text-sm font-bold text-destructive">
+                  Action Required: Active Client Dispute (Escrow Paused)
+                </CardTitle>
+              </div>
+              <span className="rounded-full bg-destructive/20 px-2.5 py-0.5 text-[11px] font-bold text-destructive">
+                Dispute Open
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-xl border border-destructive/20 bg-background/80 p-3.5 text-xs">
+              <p className="font-semibold text-foreground mb-1">
+                Reported by: {booking.citizen?.firstName} {booking.citizen?.lastName}
+                {(booking as any).citizen?.phone ? ` • ${(booking as any).citizen.phone}` : ""}
+                {booking.citizen?.email ? ` • ${booking.citizen.email}` : ""}
+              </p>
+              <p className="text-muted-foreground mb-2">
+                Reported on: {new Date(booking.issueReportedAt).toLocaleString(locale)}
+              </p>
+              <div className="rounded-lg bg-destructive/10 p-2.5 text-destructive font-medium whitespace-pre-wrap">
+                "{booking.issueReason}"
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50">
+              <p className="text-xs text-muted-foreground">
+                Investigate the matter. Choose to issue a 100% refund to the citizen via Mobile Money, or dismiss the dispute and release funds to the expert.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={refundMutation.isPending}
+                  onClick={() => setShowRefund(true)}
+                  className="gap-1.5"
+                >
+                  <Banknote size={14} />
+                  Approve 100% Refund to Client
+                </Button>
+                <Button
+                  size="sm"
+                  variant="default"
+                  disabled={completeMutation.isPending}
+                  onClick={() => setShowComplete(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                >
+                  <CheckCircle size={14} />
+                  Dismiss & Release to Expert
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Status Timeline */}
       {!isCancelledOrRefunded && (
@@ -471,26 +536,28 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
         </DialogContent>
       </Dialog>
 
-      {/* Refund Dialog */}
+      {/* Refund Dialog (Gap C: Binary 100% Model) */}
       <Dialog open={showRefund} onOpenChange={setShowRefund}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("processRefund")}</DialogTitle>
             <DialogDescription>
-              {t("processRefundDesc")}
+              This will issue an immediate 100% refund of{" "}
+              <strong>{formatCurrency(Number(booking.payment?.amount ?? booking.service?.flatFee ?? 0), booking.service?.currency ?? "RWF")}</strong>{" "}
+              directly back to the client's Mobile Money wallet via AzamPay, and mark this booking as REFUNDED.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-2">
-            {[50, 100].map((pct) => (
-              <Button
-                key={pct}
-                variant={refundPercentage === pct ? "default" : "outline"}
-                className="flex-1"
-                onClick={() => setRefundPercentage(pct)}
-              >
-                {t("pctRefund", { pct })}
-              </Button>
-            ))}
+          <div className="space-y-2 py-2">
+            <label className="text-xs font-semibold text-foreground">
+              Reason for Refund (sent to citizen & expert):
+            </label>
+            <Textarea
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              placeholder="e.g. Client reported expert no-show, technical connection failure..."
+              rows={3}
+              className="text-xs"
+            />
           </div>
           <DialogFooter>
             <Button
@@ -501,10 +568,18 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
             </Button>
             <Button
               variant="destructive"
-              disabled={refundMutation.isPending}
-              onClick={() => refundMutation.mutate({ id: booking.id, data: { reason: `${refundPercentage}% refund administered by admin`, percentage: refundPercentage as 50 | 100 } })}
+              disabled={refundMutation.isPending || refundReason.trim().length < 5}
+              onClick={() =>
+                refundMutation.mutate({
+                  id: booking.id,
+                  data: {
+                    reason: refundReason.trim(),
+                    percentage: 100,
+                  },
+                })
+              }
             >
-              {refundMutation.isPending ? t("processing") : t("confirmPctRefund", { pct: refundPercentage })}
+              {refundMutation.isPending ? t("processing") : "Confirm 100% Refund"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1116,13 +1116,41 @@ export const BookingService = {
     });
 
     if (refundAmount > 0 && booking.citizen?.email) {
+      const citizenLang = (booking.citizen.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+      sendRefundConfirmationEmail(booking.citizen.email, {
+        recipientName: booking.citizen.firstName ?? "User",
+        amount: refundAmount,
+        percentage,
+        bookingId,
+      }, citizenLang).catch((e) => logger.error("Failed to send refund confirmation email to citizen", { e }));
+
       NotificationRepository.create({
         userId: booking.citizenId,
         event: "REFUND_PROCESSED",
         recipient: booking.citizen.email,
         subject: "Refund processed",
-        body: `A refund of ${refundAmount} ${refundCurrency} (${percentage}%) has been processed for your booking by an administrator. Reason: ${reason}`,
+        body: `A full refund of ${refundAmount} ${refundCurrency} has been processed for your booking by an administrator. Reason: ${reason}`,
       }).catch((e) => logger.error("Failed to write refund-processed notification", { e }));
+    }
+
+    // Notify Expert of Admin Refund
+    if (booking.expert?.user?.email) {
+      const expertLang = (booking.expert.user.preferredLanguage as 'en' | 'fr' | 'rw') || 'en';
+      NotificationRepository.create({
+        userId: booking.expert.user.id,
+        event: "BOOKING_CANCELLED",
+        recipient: booking.expert.user.email,
+        subject: "Booking Refunded by Administrator",
+        body: `Booking ${bookingId} was refunded to the client by an administrator. Reason: ${reason}`,
+      }).catch((e) => logger.error("Failed to write refund notification to expert", { e }));
+
+      sendBookingCancelledEmail(booking.expert.user.email, {
+        recipientName: booking.expert.displayName ?? "Expert",
+        cancelledBy: "Administrator (Refunded)",
+        reason,
+        refunded: true,
+        bookingId,
+      }, expertLang).catch((e) => logger.error("Failed to send cancellation email to expert", { e }));
     }
 
     // Create adminAction log

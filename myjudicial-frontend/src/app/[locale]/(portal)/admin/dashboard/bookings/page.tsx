@@ -9,6 +9,7 @@ import {
   CheckCheck,
   Search,
   Filter,
+  AlertCircle,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -83,6 +84,7 @@ export default function BookingsPage() {
   const { isBookingFirst } = usePaymentMode();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [showDisputesOnly, setShowDisputesOnly] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [refundReason, setRefundReason] = useState("");
@@ -217,14 +219,23 @@ export default function BookingsPage() {
     setSelectedIds(new Set());
   }
 
-  // Client-side search filter
-  const filteredBookings = search.trim()
-    ? bookings.filter((b) => {
-        const q = search.toLowerCase();
-        const name = `${b.citizen?.firstName ?? ""} ${b.citizen?.lastName ?? ""} ${b.expert?.displayName ?? ""}`.toLowerCase();
-        return name.includes(q);
-      })
-    : bookings;
+  const activeDisputesCount = bookings.filter(
+    (b) => !!b.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(b.status)
+  ).length;
+
+  // Client-side search and dispute filter
+  const filteredBookings = bookings.filter((b) => {
+    if (showDisputesOnly) {
+      const isDisputed = !!b.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(b.status);
+      if (!isDisputed) return false;
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const name = `${b.citizen?.firstName ?? ""} ${b.citizen?.lastName ?? ""} ${b.expert?.displayName ?? ""}`.toLowerCase();
+      if (!name.includes(q)) return false;
+    }
+    return true;
+  });
 
   // Selection helpers (must be after filteredBookings)
   const selectableBookings = filteredBookings.filter((b) => ["ACTIVE", "CONFIRMED"].includes(b.status));
@@ -344,6 +355,32 @@ export default function BookingsPage() {
                     <SelectItem value="REFUNDED">{t("refunded")}</SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={showDisputesOnly ? "destructive" : "outline"}
+                  onClick={() => {
+                    setShowDisputesOnly((prev) => !prev);
+                    setPage(1);
+                  }}
+                  className={`h-9 shrink-0 gap-1.5 text-xs sm:text-sm font-medium transition-all ${
+                    showDisputesOnly
+                      ? "bg-destructive text-white hover:bg-destructive/90 shadow-sm"
+                      : "border-destructive/30 text-destructive hover:bg-destructive/10"
+                  }`}
+                >
+                  <AlertCircle size={15} />
+                  <span>{t("disputes")}</span>
+                  {activeDisputesCount > 0 && (
+                    <span
+                      className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                        showDisputesOnly ? "bg-white text-destructive" : "bg-destructive text-white"
+                      }`}
+                    >
+                      {activeDisputesCount}
+                    </span>
+                  )}
+                </Button>
               </div>
               <div className="grid grid-cols-1 min-[280px]:grid-cols-2 min-[480px]:flex min-[480px]:items-center gap-2 w-full min-[480px]:w-auto min-w-0">
                 <Input
@@ -458,9 +495,10 @@ export default function BookingsPage() {
                 filteredBookings.map((booking) => {
                   const name = clientName(booking);
                   const { amount, currency } = bookingAmount(booking);
+                  const isDisputed = !!booking.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(booking.status);
 
                   return (
-                    <tr key={booking.id} className="transition-colors hover:bg-muted/50">
+                    <tr key={booking.id} className={`transition-colors hover:bg-muted/50 ${isDisputed ? "bg-destructive/[0.04]" : ""}`}>
                       <td className="px-3 sm:px-4 py-3 sm:py-4">
                         <input
                           type="checkbox"
@@ -512,9 +550,17 @@ export default function BookingsPage() {
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                        <StatusBadge tone={getStatusTone(booking.status)}>
-                          {getStatusLabel(booking.status)}
-                        </StatusBadge>
+                        <div className="flex flex-col gap-1 items-start">
+                          <StatusBadge tone={getStatusTone(booking.status)}>
+                            {getStatusLabel(booking.status)}
+                          </StatusBadge>
+                          {isDisputed && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-bold text-destructive">
+                              <AlertCircle size={11} className="shrink-0" />
+                              {t("disputeOpen")}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <span className="font-medium text-foreground">{formatCurrency(amount, currency)}</span>
@@ -581,7 +627,7 @@ export default function BookingsPage() {
         )}
       </Card>
 
-      {/* Refund Modal */}
+      {/* Refund Modal (Gap C: Binary 100% Model) */}
       <Dialog open={showRefundModal} onOpenChange={setShowRefundModal}>
         <DialogContent>
           <DialogHeader>
@@ -592,35 +638,17 @@ export default function BookingsPage() {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-foreground">
-                {t("refundAmount")} *
-              </label>
-              <div className="mt-2 flex flex-col min-[400px]:flex-row gap-2 sm:gap-3">
-                {(() => {
-                  if (!selectedBooking) return null;
-                  const { amount, currency } = bookingAmount(selectedBooking);
-                  return (
-                    <>
-                      <Button
-                        variant={refundPercentage === 50 ? "default" : "outline"}
-                        className="flex-1 text-xs sm:text-sm"
-                        onClick={() => setRefundPercentage(50)}
-                      >
-                        50% ({formatCurrency(amount * 0.5, currency)})
-                      </Button>
-                      <Button
-                        variant={refundPercentage === 100 ? "default" : "outline"}
-                        className="flex-1 text-xs sm:text-sm"
-                        onClick={() => setRefundPercentage(100)}
-                      >
-                        100% ({formatCurrency(amount, currency)})
-                      </Button>
-                    </>
-                  );
-                })()}
+            {selectedBooking && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs">
+                <p className="font-semibold text-destructive">{t("fullRefundPolicy")}</p>
+                <p className="text-muted-foreground mt-1">
+                  {t("fullRefundNotice")}
+                </p>
+                <p className="text-foreground font-bold mt-2">
+                  {t("amount")}: {formatCurrency(bookingAmount(selectedBooking).amount, bookingAmount(selectedBooking).currency)} (100%)
+                </p>
               </div>
-            </div>
+            )}
 
             <div>
               <label className="text-sm font-medium text-foreground">
@@ -660,7 +688,7 @@ export default function BookingsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Bulk Refund Modal */}
+      {/* Bulk Refund Modal (Gap C: Binary 100% Model) */}
       <Dialog open={showBulkRefundModal} onOpenChange={setShowBulkRefundModal}>
         <DialogContent>
           <DialogHeader>
@@ -670,24 +698,11 @@ export default function BookingsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-foreground">{t("refundAmount")} *</label>
-              <div className="mt-2 flex flex-col min-[400px]:flex-row gap-2 sm:gap-3">
-                <Button
-                  variant={bulkRefundPercentage === 50 ? "default" : "outline"}
-                  className="flex-1 text-xs sm:text-sm"
-                  onClick={() => setBulkRefundPercentage(50)}
-                >
-                  50%
-                </Button>
-                <Button
-                  variant={bulkRefundPercentage === 100 ? "default" : "outline"}
-                  className="flex-1 text-xs sm:text-sm"
-                  onClick={() => setBulkRefundPercentage(100)}
-                >
-                  100%
-                </Button>
-              </div>
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs">
+              <p className="font-semibold text-destructive">{t("fullRefundPolicy")}</p>
+              <p className="text-muted-foreground mt-1">
+                {t("fullRefundNotice")}
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground">{t("reasonForRefund")} *</label>
@@ -698,6 +713,7 @@ export default function BookingsPage() {
                 value={bulkRefundReason}
                 onChange={(e) => setBulkRefundReason(e.target.value)}
               />
+              <p className="mt-1 text-xs text-muted-foreground">{t("minChars")}</p>
             </div>
           </div>
           <DialogFooter>

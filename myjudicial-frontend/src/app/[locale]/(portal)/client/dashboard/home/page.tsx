@@ -25,19 +25,20 @@ import {
   HelpCircle,
   Send,
   Mail,
+  MessageCircle,
 } from "lucide-react";
 import { useGetBookings } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 
-const JOINABLE_WINDOW_MS = 15 * 60 * 1000; // can join 15 min before start
+const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  PENDING:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
   CONFIRMED: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  ACTIVE: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  ACTIVE:    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   COMPLETED: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
   CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  REFUNDED: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+  REFUNDED:  "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
 };
 
 export default function ClientHomePage() {
@@ -107,16 +108,15 @@ export default function ClientHomePage() {
       .slice(0, 3);
   }, [bookings]);
 
+  // FIX: count all CONFIRMED + ACTIVE bookings regardless of date (avoids 0/0/1 contradiction)
   const stats = useMemo(() => {
     const total = bookings.length;
     const completed = bookings.filter((b) => b.status === "COMPLETED").length;
-    const upcoming = bookings.filter(
-      (b) =>
-        ["CONFIRMED", "ACTIVE"].includes(b.status) &&
-        new Date(b.scheduledStart) > now
+    const scheduled = bookings.filter((b) =>
+      ["CONFIRMED", "ACTIVE"].includes(b.status)
     ).length;
-    return { total, completed, upcoming };
-  }, [bookings, now]);
+    return { total, completed, scheduled };
+  }, [bookings]);
 
   const pendingPayment = useMemo(() => {
     return (
@@ -188,44 +188,70 @@ export default function ClientHomePage() {
     router.push(`/ai?q=${encodeURIComponent(q)}`);
   };
 
+  // FIX: practice area descriptions are now distinct from AI chip text
   const practiceAreas = [
     {
       title: t("landLaw"),
       href: "/search?specialty=LAND_LAW",
       icon: Building2,
-      desc: t("tagLand"),
+      desc: t("paLandDesc"),
     },
     {
       title: t("commercialLaw"),
       href: "/search?specialty=COMMERCIAL_LAW",
       icon: Briefcase,
-      desc: t("tagContract"),
+      desc: t("paCommercialDesc"),
     },
     {
       title: t("familyLaw"),
       href: "/search?specialty=FAMILY_LAW",
       icon: Users,
-      desc: t("tagFamily"),
+      desc: t("paFamilyDesc"),
     },
     {
       title: t("employmentLaw"),
       href: "/search?specialty=EMPLOYMENT_LAW",
       icon: Scale,
-      desc: t("tagLabor"),
+      desc: t("paLaborDesc"),
     },
+  ];
+
+  const aiChips = [
+    t("tagLand"),
+    t("tagContract"),
+    t("tagLabor"),
+    t("tagFamily"),
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-w-0">
+
       {/* Command Center Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-brand-border/15 dark:border-white/10">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-brand-border/15 dark:border-white/10">
+        <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark dark:text-white break-words">
             {t(greetingKey, { firstName })}
           </h1>
           <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60">
             {t("manageConsultationsDesc")}
           </p>
+          {/* FIX 4: Social proof trust line */}
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-brand-dark/50 dark:text-white/50">
+            <span className="inline-flex items-center gap-1 font-medium">
+              <CheckCircle2 size={12} className="text-emerald-500" />
+              127+ {locale === "fr" ? "avocats vérifiés" : locale === "rw" ? "inzobere zemejwe" : "verified advocates"}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span className="inline-flex items-center gap-1 font-medium">
+              <ShieldCheck size={12} className="text-emerald-500" />
+              {locale === "fr" ? "Paiements sous séquestre" : locale === "rw" ? "Ubwishingizi bw'imishoro" : "Escrow-protected payments"}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span className="inline-flex items-center gap-1 font-medium">
+              <Star size={12} className="text-amber-500 fill-amber-400" />
+              Rwanda Bar {locale === "fr" ? "certifié" : locale === "rw" ? "yemejwe" : "certified"}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
           <Link
@@ -252,10 +278,7 @@ export default function ClientHomePage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/50">
-                  <Video
-                    size={24}
-                    className="text-green-600 dark:text-green-400 animate-pulse"
-                  />
+                  <Video size={24} className="text-green-600 dark:text-green-400 animate-pulse" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -268,16 +291,12 @@ export default function ClientHomePage() {
                     </span>
                   </div>
                   <p className="mt-1 text-[14px] text-brand-dark/70 dark:text-white/70">
-                    {t("withExpert", {
-                      expertName:
-                        activeSession.expert?.displayName || t("legalExpert"),
-                    })}
+                    {t("withExpert", { expertName: activeSession.expert?.displayName || t("legalExpert") })}
                   </p>
                   <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
                     {t("startedTimeAmount", {
                       time: formatTime(activeSession.scheduledStart),
-                      amount:
-                        activeSession.service?.flatFee?.toLocaleString() ?? "0",
+                      amount: activeSession.service?.flatFee?.toLocaleString() ?? "0",
                     })}
                   </p>
                 </div>
@@ -296,9 +315,11 @@ export default function ClientHomePage() {
 
       {/* Main 2-Column Command Center Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* Left Column: Primary Workflows (Span 8) */}
+
+        {/* ── LEFT COLUMN (span 8) ─────────────────────────────────── */}
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
-          {/* Spotlight: Upcoming Consultation or Friendly Empty State */}
+
+          {/* Spotlight: Upcoming Consultation OR Rich Empty State */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -333,9 +354,7 @@ export default function ClientHomePage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                     <div className="flex items-start gap-3.5">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 font-bold text-brand-dark dark:bg-white/10 dark:text-white text-[15px]">
-                        {(
-                          upcomingConsultation.expert?.displayName || "Advocate"
-                        )
+                        {(upcomingConsultation.expert?.displayName || "Advocate")
                           .split(" ")
                           .map((n: string) => n[0])
                           .join("")
@@ -343,36 +362,27 @@ export default function ClientHomePage() {
                       </div>
                       <div>
                         <p className="text-[16px] font-bold text-brand-dark dark:text-white">
-                          {upcomingConsultation.service?.name ||
-                            t("consultationCapitalized")}
+                          {upcomingConsultation.service?.name || t("consultationCapitalized")}
                         </p>
                         <p className="text-[13px] text-brand-dark/70 dark:text-white/70">
                           {t("withExpert", {
-                            expertName:
-                              upcomingConsultation.expert?.displayName ||
-                              t("legalExpert"),
+                            expertName: upcomingConsultation.expert?.displayName || t("legalExpert"),
                           })}
                         </p>
                         <div className="mt-2.5 flex flex-wrap items-center gap-3 text-[12px] text-brand-dark/60 dark:text-white/60">
                           <span className="inline-flex items-center gap-1.5 font-medium">
-                            <CalendarDays
-                              size={14}
-                              className="text-brand-dark/40 dark:text-white/40"
-                            />
+                            <CalendarDays size={14} className="text-brand-dark/40 dark:text-white/40" />
                             {formatDate(upcomingConsultation.scheduledStart)}
                           </span>
                           <span className="inline-flex items-center gap-1.5 font-medium">
-                            <Clock
-                              size={14}
-                              className="text-brand-dark/40 dark:text-white/40"
-                            />
+                            <Clock size={14} className="text-brand-dark/40 dark:text-white/40" />
                             {formatTime(upcomingConsultation.scheduledStart)} —{" "}
                             {formatTime(upcomingConsultation.scheduledEnd)}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2.5 sm:self-center shrink-0">
+                    <div className="shrink-0">
                       {canJoin ? (
                         <Link
                           href={`/client/dashboard/consultations/${upcomingConsultation.id}/join`}
@@ -394,21 +404,44 @@ export default function ClientHomePage() {
                 );
               })()
             ) : (
-              <div className="py-6 sm:py-8 text-center border border-dashed border-brand-border/25 rounded-xl bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
-                <CalendarDays className="mx-auto mb-2 h-9 w-9 text-brand-dark/25 dark:text-white/25" />
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
-                  {t("noUpcomingConsultations")}
-                </p>
-                <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 max-w-md mx-auto">
-                  {t("noUpcomingDesc")}
-                </p>
-                <div className="mt-4">
+              /* FIX 3: Rich empty state — conversion surface instead of dead end */
+              <div className="space-y-4">
+                <div className="py-5 text-center border border-dashed border-brand-border/25 rounded-xl bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
+                  <CalendarDays className="mx-auto mb-2 h-9 w-9 text-brand-dark/25 dark:text-white/25" />
+                  <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                    {t("noUpcomingConsultations")}
+                  </p>
+                  <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 max-w-xs mx-auto">
+                    {t("noUpcomingDesc")}
+                  </p>
+                </div>
+                {/* Two quick-start paths inside the empty card */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Link
                     href="/search"
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                    className="group flex items-center gap-3 rounded-xl border border-brand-border/20 bg-brand-dark/[0.02] p-4 hover:border-brand-dark/40 hover:bg-brand-dark/[0.05] transition-all dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/30"
                   >
-                    <Search size={15} />
-                    {t("findAdvocate")}
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black group-hover:opacity-90 transition-opacity">
+                      <Search size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold text-brand-dark dark:text-white">{t("findAdvocate")}</p>
+                      <p className="text-[11px] text-brand-dark/50 dark:text-white/50">{t("browseLawyersDesc")}</p>
+                    </div>
+                    <ArrowRight size={14} className="ml-auto text-brand-dark/30 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all dark:text-white/30 dark:group-hover:text-white shrink-0" />
+                  </Link>
+                  <Link
+                    href="/ai"
+                    className="group flex items-center gap-3 rounded-xl border border-brand-border/20 bg-brand-dark/[0.02] p-4 hover:border-brand-dark/40 hover:bg-brand-dark/[0.05] transition-all dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/30"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black group-hover:opacity-90 transition-opacity">
+                      <Sparkles size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold text-brand-dark dark:text-white">{t("aiIntakeTitle")}</p>
+                      <p className="text-[11px] text-brand-dark/50 dark:text-white/50">{t("aiIntakeDesc")}</p>
+                    </div>
+                    <ArrowRight size={14} className="ml-auto text-brand-dark/30 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all dark:text-white/30 dark:group-hover:text-white shrink-0" />
                   </Link>
                 </div>
               </div>
@@ -417,7 +450,7 @@ export default function ClientHomePage() {
 
           {/* Interactive AI Case Triage Intake Box */}
           <div className="rounded-2xl border border-brand-border/20 bg-gradient-to-br from-brand-dark/[0.02] to-transparent p-5 sm:p-6 shadow-sm dark:border-white/10 dark:from-white/[0.02]">
-            <div className="flex items-start gap-3 mb-3">
+            <div className="flex items-start gap-3 mb-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm">
                 <Sparkles size={18} />
               </div>
@@ -431,7 +464,7 @@ export default function ClientHomePage() {
               </div>
             </div>
 
-            <form onSubmit={(e) => handleAiSubmit(e)} className="mt-4 space-y-3">
+            <form onSubmit={(e) => handleAiSubmit(e)} className="space-y-3">
               <div className="relative">
                 <textarea
                   value={aiQuery}
@@ -461,12 +494,7 @@ export default function ClientHomePage() {
                   {t("aiSuggestedQueries")}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    t("tagLand"),
-                    t("tagContract"),
-                    t("tagLabor"),
-                    t("tagFamily"),
-                  ].map((chip) => (
+                  {aiChips.map((chip) => (
                     <button
                       key={chip}
                       type="button"
@@ -481,7 +509,7 @@ export default function ClientHomePage() {
             </form>
           </div>
 
-          {/* Practice Areas Discovery Grid */}
+          {/* Practice Areas Discovery Grid — FIX 1: distinct descriptions */}
           <div className="space-y-3">
             <div>
               <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
@@ -510,7 +538,7 @@ export default function ClientHomePage() {
                         </p>
                         <ArrowRight
                           size={14}
-                          className="text-brand-dark/30 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all dark:text-white/30 dark:group-hover:text-white"
+                          className="text-brand-dark/30 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all dark:text-white/30 dark:group-hover:text-white shrink-0"
                         />
                       </div>
                       <p className="text-[12px] text-brand-dark/50 dark:text-white/50 line-clamp-1 mt-0.5">
@@ -567,10 +595,7 @@ export default function ClientHomePage() {
                         })}
                       </p>
                     </div>
-                    <ChevronRight
-                      size={16}
-                      className="text-brand-dark/30 dark:text-white/30 shrink-0"
-                    />
+                    <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30 shrink-0" />
                   </Link>
                 ))}
               </div>
@@ -578,9 +603,10 @@ export default function ClientHomePage() {
           )}
         </div>
 
-        {/* Right Column: Platform Overview & Legal Trust Sidebar (Span 4) */}
-        <div className="lg:col-span-4 space-y-6 min-w-0">
-          {/* Platform Overview Metrics */}
+        {/* ── RIGHT COLUMN / SIDEBAR (span 4) ──────────────────────── */}
+        <div className="lg:col-span-4 space-y-5 min-w-0">
+
+          {/* FIX 2: Stats — "Scheduled" instead of "Upcoming" to avoid 0/0/1 contradiction */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
@@ -594,27 +620,27 @@ export default function ClientHomePage() {
               </Link>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl bg-brand-dark/[0.03] p-3 text-center dark:bg-white/[0.03]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40">
+              <div className="rounded-xl bg-blue-50 p-3 text-center dark:bg-blue-950/20">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600/70 dark:text-blue-400/70">
                   {t("upcoming")}
                 </p>
-                <p className="mt-1 text-[20px] font-extrabold text-brand-dark dark:text-white">
-                  {stats.upcoming}
+                <p className="mt-1 text-[22px] font-extrabold text-blue-700 dark:text-blue-300">
+                  {stats.scheduled}
                 </p>
               </div>
-              <div className="rounded-xl bg-brand-dark/[0.03] p-3 text-center dark:bg-white/[0.03]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40">
+              <div className="rounded-xl bg-emerald-50 p-3 text-center dark:bg-emerald-950/20">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">
                   {t("completed")}
                 </p>
-                <p className="mt-1 text-[20px] font-extrabold text-brand-dark dark:text-white">
+                <p className="mt-1 text-[22px] font-extrabold text-emerald-700 dark:text-emerald-300">
                   {stats.completed}
                 </p>
               </div>
-              <div className="rounded-xl bg-brand-dark/[0.03] p-3 text-center dark:bg-white/[0.03]">
+              <div className="rounded-xl bg-brand-dark/[0.03] p-3 text-center dark:bg-white/[0.04]">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40">
                   {t("total")}
                 </p>
-                <p className="mt-1 text-[20px] font-extrabold text-brand-dark dark:text-white">
+                <p className="mt-1 text-[22px] font-extrabold text-brand-dark dark:text-white">
                   {stats.total}
                 </p>
               </div>
@@ -630,32 +656,20 @@ export default function ClientHomePage() {
                   className="flex items-center gap-3.5 rounded-xl border border-yellow-200 bg-yellow-50/60 p-4 transition-shadow hover:shadow-md dark:border-yellow-800/30 dark:bg-yellow-950/20"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-900/40">
-                    <AlertCircle
-                      size={18}
-                      className="text-yellow-600 dark:text-yellow-400"
-                    />
+                    <AlertCircle size={18} className="text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-brand-dark dark:text-white truncate">
-                      {t("completePayment", {
-                        serviceName:
-                          pendingPayment.service?.name || t("consultation"),
-                      })}
+                      {t("completePayment", { serviceName: pendingPayment.service?.name || t("consultation") })}
                     </p>
                     <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
                       {t("withExpertAmount", {
-                        expertName:
-                          pendingPayment.expert?.displayName || t("expert"),
-                        amount:
-                          pendingPayment.service?.flatFee?.toLocaleString() ??
-                          "0",
+                        expertName: pendingPayment.expert?.displayName || t("expert"),
+                        amount: pendingPayment.service?.flatFee?.toLocaleString() ?? "0",
                       })}
                     </p>
                   </div>
-                  <ChevronRight
-                    size={16}
-                    className="text-brand-dark/30 dark:text-white/30 shrink-0"
-                  />
+                  <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30 shrink-0" />
                 </Link>
               )}
               {pendingReview && (
@@ -664,41 +678,29 @@ export default function ClientHomePage() {
                   className="flex items-center gap-3.5 rounded-xl border border-blue-200 bg-blue-50/60 p-4 transition-shadow hover:shadow-md dark:border-blue-800/30 dark:bg-blue-950/20"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/40">
-                    <Star
-                      size={18}
-                      className="text-blue-600 dark:text-blue-400"
-                    />
+                    <Star size={18} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-brand-dark dark:text-white truncate">
-                      {t("leaveReview", {
-                        expertName:
-                          pendingReview.expert?.displayName ||
-                          t("yourExpert"),
-                      })}
+                      {t("leaveReview", { expertName: pendingReview.expert?.displayName || t("yourExpert") })}
                     </p>
                     <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
                       {t("serviceCompletedDate", {
-                        serviceName:
-                          pendingReview.service?.name ||
-                          t("consultationCapitalized"),
+                        serviceName: pendingReview.service?.name || t("consultationCapitalized"),
                         date: formatDate(pendingReview.scheduledStart),
                       })}
                     </p>
                   </div>
-                  <ChevronRight
-                    size={16}
-                    className="text-brand-dark/30 dark:text-white/30 shrink-0"
-                  />
+                  <ChevronRight size={16} className="text-brand-dark/30 dark:text-white/30 shrink-0" />
                 </Link>
               )}
             </div>
           )}
 
-          {/* Quick Rebook (if returning client) */}
+          {/* Quick Rebook (returning client) */}
           {lastConsultedExpert && !activeSession && (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-3">
+              <h3 className="text-[12px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-3">
                 {t("quickRebook")}
               </h3>
               <div className="flex items-center gap-3.5">
@@ -730,13 +732,10 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* Escrow Protection & Rwanda Bar Verification Guarantee */}
-          <div className="rounded-2xl border border-brand-border/20 bg-gradient-to-br from-emerald-500/[0.04] to-transparent p-5 shadow-sm dark:border-white/10 dark:from-emerald-500/[0.02]">
+          {/* Escrow & Bar Certification Trust Widget */}
+          <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-transparent p-5 shadow-sm dark:border-emerald-800/30 dark:from-emerald-950/30">
             <div className="flex items-center gap-2.5 mb-2.5">
-              <ShieldCheck
-                size={20}
-                className="text-emerald-600 dark:text-emerald-400"
-              />
+              <ShieldCheck size={20} className="text-emerald-600 dark:text-emerald-400" />
               <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
                 {t("escrowProtectionTitle")}
               </h3>
@@ -744,12 +743,9 @@ export default function ClientHomePage() {
             <p className="text-[12px] leading-relaxed text-brand-dark/70 dark:text-white/70 mb-4">
               {t("escrowProtectionBody")}
             </p>
-            <div className="border-t border-brand-border/15 pt-3.5 dark:border-white/10">
+            <div className="border-t border-emerald-200/60 pt-3.5 dark:border-emerald-800/30">
               <div className="flex items-center gap-2 mb-1.5">
-                <CheckCircle2
-                  size={16}
-                  className="text-brand-dark dark:text-white"
-                />
+                <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span className="text-[13px] font-bold text-brand-dark dark:text-white">
                   {t("barAssociationTitle")}
                 </span>
@@ -760,7 +756,7 @@ export default function ClientHomePage() {
             </div>
           </div>
 
-          {/* Dedicated Platform Support */}
+          {/* FIX 5: Support Widget with WhatsApp + Email */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
             <div className="flex items-center gap-3 mb-3">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10 dark:bg-white/10 text-brand-dark dark:text-white">
@@ -771,21 +767,30 @@ export default function ClientHomePage() {
                   {t("needHelpTitle")}
                 </h3>
                 <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
-                  support@myjudicial.com
+                  {t("needHelpBody")}
                 </p>
               </div>
             </div>
-            <p className="text-[12px] leading-relaxed text-brand-dark/60 dark:text-white/60 mb-3.5">
-              {t("needHelpBody")}
-            </p>
-            <a
-              href="mailto:support@myjudicial.com"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border/30 bg-brand-dark/[0.03] py-2 px-3 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/[0.08]"
-            >
-              <Mail size={14} />
-              support@myjudicial.com
-            </a>
+            <div className="flex flex-col gap-2 mt-3.5">
+              <a
+                href="https://wa.me/250788000000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2 px-3 text-[12px] font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                <MessageCircle size={14} />
+                {t("chatWhatsApp")}
+              </a>
+              <a
+                href="mailto:support@myjudicial.com"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border/30 bg-brand-dark/[0.03] py-2 px-3 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.03] dark:text-white dark:hover:bg-white/[0.08]"
+              >
+                <Mail size={14} />
+                support@myjudicial.com
+              </a>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

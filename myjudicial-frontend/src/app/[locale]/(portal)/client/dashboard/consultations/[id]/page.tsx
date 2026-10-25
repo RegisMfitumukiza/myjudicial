@@ -242,6 +242,20 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const isDocument = deliveryMode === "EMAIL";
   const officeAddress = (booking as BookingWithService).expert?.officeAddress || (booking as BookingWithService).expert?.city || null;
 
+  // ── Cancellation policy logic ──
+  const msUntilStart = new Date(booking.scheduledStart).getTime() - Date.now();
+  const hoursUntilStart = msUntilStart / (1000 * 60 * 60);
+  const msSinceCreated = Date.now() - new Date(booking.createdAt).getTime();
+  const GRACE_PERIOD_MS = 60 * 60 * 1000; // 60 minutes buyer's remorse
+  const isWithinGrace = msSinceCreated < GRACE_PERIOD_MS;
+  const isFreeCancellation = hoursUntilStart > 24;
+  const isGracePeriod = !isFreeCancellation && isWithinGrace;
+  const isLateCancellation = !isFreeCancellation && !isWithinGrace;
+  const totalPaid = Number(booking.service?.flatFee ?? 0);
+  const refundAmount = isLateCancellation ? Math.round(totalPaid * 0.5) : totalPaid;
+  const expertCompensation = isLateCancellation ? Math.round(totalPaid * 0.5) : 0;
+  const freeCancellationDeadline = new Date(new Date(booking.scheduledStart).getTime() - 24 * 60 * 60 * 1000);
+
   function handleCancel() {
     if (!cancelReason.trim() || cancelReason.trim().length < 5) return;
     cancelBooking({ bookingId: booking!.id, reason: cancelReason.trim() }, {
@@ -729,6 +743,53 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           </div>
         )}
 
+        {/* Cancellation Policy Banner */}
+        {canCancel && (
+          <div className={`mt-6 rounded-2xl border p-4 shadow-sm ${
+            isFreeCancellation
+              ? "border-emerald-500/30 bg-emerald-50/60 dark:border-emerald-500/20 dark:bg-emerald-950/20"
+              : isGracePeriod
+              ? "border-blue-500/30 bg-blue-50/60 dark:border-blue-500/20 dark:bg-blue-950/20"
+              : "border-amber-500/30 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-950/20"
+          }`}>
+            <div className="flex items-start gap-3">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white shadow-sm ${
+                isFreeCancellation ? "bg-emerald-600" : isGracePeriod ? "bg-blue-600" : "bg-amber-600"
+              }`}>
+                {isFreeCancellation ? <CheckCircle size={16} /> : <Clock size={16} />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className={`text-[13px] font-bold ${
+                  isFreeCancellation
+                    ? "text-emerald-950 dark:text-emerald-200"
+                    : isGracePeriod
+                    ? "text-blue-950 dark:text-blue-200"
+                    : "text-amber-950 dark:text-amber-200"
+                }`}>
+                  {isFreeCancellation
+                    ? t("cancellationPolicy.freeTitle")
+                    : isGracePeriod
+                    ? t("cancellationPolicy.graceTitle")
+                    : t("cancellationPolicy.lateTitle")}
+                </h4>
+                <p className={`mt-0.5 text-[12px] leading-relaxed ${
+                  isFreeCancellation
+                    ? "text-emerald-900/80 dark:text-emerald-300/80"
+                    : isGracePeriod
+                    ? "text-blue-900/80 dark:text-blue-300/80"
+                    : "text-amber-900/80 dark:text-amber-300/80"
+                }`}>
+                  {isFreeCancellation
+                    ? t("cancellationPolicy.freeDesc", { deadline: freeCancellationDeadline.toLocaleString(locale) })
+                    : isGracePeriod
+                    ? t("cancellationPolicy.graceDesc")
+                    : t("cancellationPolicy.lateDesc", { refund: refundAmount.toLocaleString(), total: totalPaid.toLocaleString() })}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="mt-8 flex flex-wrap gap-3">
           {canRetry && (
@@ -840,6 +901,29 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
         {showCancel && (
           <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900/30 dark:bg-red-900/10">
             <h3 className="text-[14px] font-bold text-red-800 dark:text-red-300 mb-2">{t("cancelModal.title")}</h3>
+            {/* Refund policy disclosure */}
+            <div className={`mb-3 rounded-lg p-3 text-[12px] leading-relaxed ${
+              isLateCancellation
+                ? "bg-amber-100/80 border border-amber-300/50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+                : "bg-emerald-100/80 border border-emerald-300/50 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
+            }`}>
+              {isLateCancellation ? (
+                <>
+                  <p className="font-semibold">{t("cancelModal.lateNoticeTitle")}</p>
+                  <p className="mt-1">{t("cancelModal.lateNoticeDesc", { refund: refundAmount.toLocaleString(), compensation: expertCompensation.toLocaleString(), total: totalPaid.toLocaleString() })}</p>
+                  <button
+                    type="button"
+                    className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-bold text-blue-700 hover:text-blue-900 dark:text-blue-400 underline"
+                    onClick={() => { setShowCancel(false); setShowReschedule(true); }}
+                  >
+                    <CalendarClock size={13} />
+                    {t("cancelModal.rescheduleInstead")}
+                  </button>
+                </>
+              ) : (
+                <p className="font-semibold">{t("cancelModal.freeNotice")}</p>
+              )}
+            </div>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}

@@ -23,6 +23,7 @@ import { ServicesRepository } from "../experts/services/services.repository.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
 import { PaymentRepository } from "../payments/payment.repository.js";
 import { EscrowLedgerRepository } from "../payments/escrow.repository.js";
+import { resolveExpertPayoutPhone } from "../payments/payout.helper.js";
 
 async function resolveExpertIdForUser(userId: string, role: string): Promise<string | null> {
   if (role !== "EXPERT") return null;
@@ -531,6 +532,7 @@ export const BookingService = {
     const cancellationReason = reason || (isSystem ? "Cancelled by system (short duration)" : isCitizen ? "Cancelled by client" : "Cancelled by expert");
 
     let refundPercentage = 0;
+    let expertCompensationAmount = 0;
 
     await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${bookingId}))`;
@@ -544,11 +546,22 @@ export const BookingService = {
         if (isSystem || isExpert) {
           refundPercentage = 100;
         } else {
-          const hoursUntilStart = (freshBooking.scheduledStart.getTime() - Date.now()) / (1000 * 60 * 60);
-          if (hoursUntilStart > 24) {
+          const nowMs = Date.now();
+          const createdAtMs = new Date(freshBooking.createdAt).getTime();
+          const msSinceCreated = nowMs - createdAtMs;
+          const ONE_HOUR_MS = 60 * 60 * 1000;
+          const hoursUntilStart = (freshBooking.scheduledStart.getTime() - nowMs) / (1000 * 60 * 60);
+
+          if (msSinceCreated <= ONE_HOUR_MS) {
+            // Buyer's remorse grace period (within 60 mins of booking, e.g. next-day booking mistakes)
+            refundPercentage = 100;
+          } else if (hoursUntilStart > 24) {
+            // Advance cancellation (>24h)
             refundPercentage = 100;
           } else if (hoursUntilStart > 0) {
+            // Late cancellation (<=24h) -> 50% refund to client, 50% compensation to expert
             refundPercentage = 50;
+            expertCompensationAmount = Math.round(Number(freshBooking.expertPayout ?? 0) * 0.5);
           } else {
             throw new ValidationError("Cannot cancel after booking has started");
           }
@@ -574,6 +587,21 @@ export const BookingService = {
             currency: payment.currency,
             reason: cancellationReason,
           });
+
+          // Disburse late cancellation compensation to expert if applicable
+          if (expertCompensationAmount > 0 && (freshBooking as any).expert) {
+            const resolvedPayout = resolveExpertPayoutPhone((freshBooking as any).expert);
+            if (resolvedPayout) {
+              await AzamPayService.sendExpertPayout({
+                bookingId,
+                momoNumber: resolvedPayout.phone,
+                amount: expertCompensationAmount,
+                expertName: (freshBooking as any).expert?.displayName ?? "Legal Expert",
+              }).catch((err) => {
+                logger.error("Failed to disburse late cancellation compensation to expert", { bookingId, err });
+              });
+            }
+          }
 
           await PaymentRepository.updateByBookingId(bookingId, {
             status: "REFUNDED",
@@ -649,12 +677,15 @@ export const BookingService = {
 
           // In-app notification for the expert when client cancels
           if (full.expert.user.id) {
+            const compensationNote = expertCompensationAmount > 0
+              ? ` Late cancellation compensation of ${expertCompensationAmount} RWF has been disbursed to your Mobile Money.`
+              : "";
             NotificationRepository.create({
               userId: full.expert.user.id,
               event: "BOOKING_CANCELLED",
               recipient: full.expert.user.email,
               subject: "Booking Cancelled by Client",
-              body: `${full.citizen.firstName} ${full.citizen.lastName} has cancelled the ${full.service?.name ?? "consultation"} booking.${refunded ? " A refund has been issued." : ""}`,
+              body: `${full.citizen.firstName} ${full.citizen.lastName} has cancelled the ${full.service?.name ?? "consultation"} booking.${refunded ? " A refund has been issued." : ""}${compensationNote}`,
             }).catch((e) => logger.error("Failed to write booking-cancelled notification for expert", { e }));
           }
         }
@@ -1629,6 +1660,11 @@ export const BookingService = {
       throw new ValidationError("You cannot mark a consultation delivered before its scheduled start time.");
     }
 
+    // Anti-Bypass Guard (Gap 1): Cannot mark delivered while an active client dispute is pending admin review
+    if (booking.issueReportedAt) {
+      throw new ValidationError("Cannot mark consultation delivered while a client dispute is under active review by administration.");
+    }
+
     // 24 hours from now
     const autoReleaseAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
@@ -1637,8 +1673,6 @@ export const BookingService = {
       deliveredAt: now,
       deliverySummary: dto.deliverySummary ?? null,
       autoReleaseAt,
-      issueReportedAt: null,
-      issueReason: null,
     });
 
     await writeAuditLog({

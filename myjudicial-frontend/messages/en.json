@@ -1881,7 +1881,8 @@
         "NOT_REQUIRED": "Not Required"
       },
       "awaitingPaymentBadge": "Awaiting Payment",
-      "paymentPaidBadge": "Paid (Escrow)"
+      "paymentPaidBadge": "Paid (Escrow)",
+      "disputeUnderReview": "Dispute Under Review"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -2000,7 +2001,19 @@
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
         "cancelling": "Cancelling...",
         "confirmCancellation": "Confirm Cancellation",
-        "keepBooking": "Keep Booking"
+        "keepBooking": "Keep Booking",
+        "lateNoticeTitle": "⚠️ Late Cancellation Fee Applies",
+        "lateNoticeDesc": "This booking starts within 24 hours. You will receive a 50% refund of RWF {refund}. The expert receives RWF {compensation} as compensation (total: RWF {total}).",
+        "rescheduleInstead": "Reschedule for Free Instead →",
+        "freeNotice": "✅ Full refund — this booking is more than 24 hours away."
+      },
+      "cancellationPolicy": {
+        "freeTitle": "🟢 Free Cancellation Available",
+        "freeDesc": "Cancel before {deadline} for a full refund. After this deadline, a 50% late fee applies.",
+        "graceTitle": "⏱️ Grace Period Active",
+        "graceDesc": "You just booked — cancel now for a full refund within the 60-minute buyer's remorse window.",
+        "lateTitle": "⚠️ Late Cancellation: 50% Refund",
+        "lateDesc": "This session starts within 24 hours. Cancelling now refunds RWF {refund} of RWF {total}. Consider rescheduling for free."
       },
       "status": {
         "PENDING": "Pending",

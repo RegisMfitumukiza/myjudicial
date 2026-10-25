@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock, MapPin, Phone, FileText } from "lucide-react";
+import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock, MapPin, Phone, FileText, AlertCircle } from "lucide-react";
 import {
   useGetBookings,
   usePostBookingsIdCancel,
@@ -313,6 +313,12 @@ export default function BookingsPage() {
                           {b.service?.name ?? t("details.service")} &middot; {formatScheduled(b.scheduledStart)}
                         </p>
                       </div>
+                      {b.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(b.status) && (
+                        <StatusBadge tone="destructive" className="px-2 py-0.5 text-[10px] font-bold">
+                          <AlertCircle className="h-2.5 w-2.5" />
+                          {t("status.disputeOpen", { default: "Dispute Open" })}
+                        </StatusBadge>
+                      )}
                       {b.pendingRescheduleStart && (
                         <StatusBadge tone="pending" className="px-2 py-0.5 text-[10px]">
                           <CalendarClock className="h-2.5 w-2.5" />

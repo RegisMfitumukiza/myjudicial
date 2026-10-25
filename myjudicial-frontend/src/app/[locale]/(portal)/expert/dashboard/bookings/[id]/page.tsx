@@ -222,10 +222,11 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
   const isEmailMode = ((booking as any).service?.deliveryMode === "EMAIL");
   const isSessionStarted = nowMs >= startMs;
-  const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && (isEmailMode || isSessionStarted);
-  const isDeliveryLockedUntilStart = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && !isEmailMode && !isSessionStarted;
-  const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
+  const isDisputeActive = Boolean(booking.issueReportedAt && !isCancelledOrRefunded && booking.status !== "COMPLETED");
+  const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && (isEmailMode || isSessionStarted) && !isDisputeActive;
+  const isDeliveryLockedUntilStart = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && !isEmailMode && !isSessionStarted && !isDisputeActive;
+  const currentOrder = STATUS_ORDER[booking.status] ?? 0;
 
   function handleDecline() {
     if (!booking || !declineReason.trim() || declineReason.trim().length < 5) return;
@@ -292,6 +293,64 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onApprove={() => approveReschedule({ bookingId: booking.id })}
               onDecline={(reason) => declineReschedule({ bookingId: booking.id, reason })}
             />
+          </div>
+        )}
+
+        {/* Active Client Dispute Notice (Gap 2) */}
+        {isDisputeActive && (
+          <div className="mb-8 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-2 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-bold text-destructive">
+                    {t("dispute.activeTitle", { defaultValue: "Action Required: Client Grievance Under Review" })}
+                  </h3>
+                  <span className="rounded-full bg-destructive/15 px-2.5 py-0.5 text-[11px] font-bold text-destructive">
+                    {t("dispute.badge", { defaultValue: "Dispute Open" })}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("dispute.explanation", {
+                    defaultValue: "The client reported an issue regarding this consultation. 24-hour escrow auto-release is paused pending platform administrative arbitration.",
+                  })}
+                </p>
+                <div className="rounded-lg bg-background/80 border border-destructive/20 p-3 text-xs">
+                  <p className="font-semibold text-foreground mb-1">
+                    {t("dispute.clientReasonLabel", { defaultValue: "Client Grievance:" })}
+                  </p>
+                  <p className="text-destructive font-medium whitespace-pre-wrap">
+                    "{booking.issueReason}"
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-2">
+                    {t("dispute.reportedAt", { defaultValue: "Reported on" })}: {new Date(booking.issueReportedAt!).toLocaleString(locale)}
+                  </p>
+                </div>
+                <div className="pt-1 flex flex-wrap gap-2 items-center">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleMessageClient}
+                    disabled={isResolvingChat}
+                    className="gap-1.5"
+                  >
+                    <MessageSquare size={13} />
+                    {t("actions.messageClient")}
+                  </Button>
+                  {canReschedule && !showReschedule && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowReschedule(true)}
+                      className="gap-1.5"
+                    >
+                      <CalendarClock size={13} />
+                      {t("actions.proposeReschedule", { defaultValue: "Propose Free Reschedule" })}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -625,6 +684,18 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             >
               <Clock size={15} />
               {t("actions.deliveryLocked", { defaultValue: "Delivery available after session starts" })}
+            </Button>
+          )}
+          {isDisputeActive && ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && (
+            <Button
+              size="lg"
+              variant="outline"
+              disabled
+              className="border-dashed border-destructive/40 text-destructive/80 opacity-80 cursor-not-allowed flex items-center gap-2"
+              title={t("actions.deliveryLockedDisputeTooltip", { defaultValue: "Delivery locked while client dispute is under administrative review." })}
+            >
+              <AlertCircle size={15} />
+              {t("actions.deliveryLockedDispute", { defaultValue: "Delivery Locked (Dispute Open)" })}
             </Button>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "EMAIL" && (

@@ -3983,7 +3983,8 @@
         "NOT_REQUIRED": "Non requis"
       },
       "awaitingPaymentBadge": "En attente de paiement",
-      "paymentPaidBadge": "Payé (Séquestre)"
+      "paymentPaidBadge": "Payé (Séquestre)",
+      "disputeUnderReview": "Litige en cours d'examen"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -4102,7 +4103,19 @@
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
         "cancelling": "Cancelling...",
         "confirmCancellation": "Confirm Cancellation",
-        "keepBooking": "Keep Booking"
+        "keepBooking": "Keep Booking",
+        "lateNoticeTitle": "⚠️ Frais d'annulation tardive applicables",
+        "lateNoticeDesc": "Cette réservation commence dans moins de 24 heures. Vous recevrez un remboursement de 50% de RWF {refund}. L'expert reçoit RWF {compensation} en compensation (total: RWF {total}).",
+        "rescheduleInstead": "Reprogrammer gratuitement →",
+        "freeNotice": "✅ Remboursement intégral — cette réservation est à plus de 24 heures."
+      },
+      "cancellationPolicy": {
+        "freeTitle": "🟢 Annulation gratuite disponible",
+        "freeDesc": "Annulez avant {deadline} pour un remboursement intégral. Après cette date, des frais de 50% s'appliquent.",
+        "graceTitle": "⏱️ Période de grâce active",
+        "graceDesc": "Vous venez de réserver — annulez maintenant pour un remboursement intégral dans la fenêtre de 60 minutes.",
+        "lateTitle": "⚠️ Annulation tardive: remboursement de 50%",
+        "lateDesc": "Cette session commence dans moins de 24 heures. L'annulation rembourse RWF {refund} sur RWF {total}. Envisagez de reprogrammer gratuitement."
       },
       "status": {
         "PENDING": "En attente",

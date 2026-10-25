@@ -149,6 +149,12 @@ function ConsultationCard({
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${STATUS_STYLES[booking.status] ?? "bg-brand-dark/10 text-brand-dark"}`}>
               {t(`status.${booking.status}` as any, { default: booking.status })}
             </span>
+            {booking.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(booking.status) && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400 border border-amber-500/25">
+                <AlertCircle size={10} />
+                {t("disputeUnderReview")}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark/5 px-2.5 py-0.5 text-[10px] font-medium text-brand-dark/70 dark:bg-white/10 dark:text-white/70">
               {deliveryMode === "IN_PERSON" ? (
                 <>

@@ -3983,7 +3983,8 @@
         "NOT_REQUIRED": "Ntibyakenewe"
       },
       "awaitingPaymentBadge": "Bitegereje Kwishyurwa",
-      "paymentPaidBadge": "Byishyuwe (Bifunzwe)"
+      "paymentPaidBadge": "Byishyuwe (Bifunzwe)",
+      "disputeUnderReview": "Ikibazo kiri mu busuzuma"
     },
     "join": {
       "failedToLoadBooking": "Failed to load booking",
@@ -4102,7 +4103,19 @@
         "reasonPlaceholder": "Reason for cancellation (min. 5 characters)",
         "cancelling": "Cancelling...",
         "confirmCancellation": "Confirm Cancellation",
-        "keepBooking": "Keep Booking"
+        "keepBooking": "Keep Booking",
+        "lateNoticeTitle": "⚠️ Amafaranga yo guhagarika batinze arakurikizwa",
+        "lateNoticeDesc": "Iyi gahunda itangira mu masaha 24. Uzasubizwa 50% ya RWF {refund}. Umuhanga azabona RWF {compensation} nk'inyungu (igiteranyo: RWF {total}).",
+        "rescheduleInstead": "Hindura gahunda ku buntu →",
+        "freeNotice": "✅ Isubizwa ry'amafaranga yose — iyi gahunda iri mu masaha 24 mbere."
+      },
+      "cancellationPolicy": {
+        "freeTitle": "🟢 Guhagarika ku buntu biraboneka",
+        "freeDesc": "Hagarika mbere ya {deadline} kugira ngo usubizwe amafaranga yose. Nyuma y'iyi tariki, amafaranga ya 50% arakurikizwa.",
+        "graceTitle": "⏱️ Igihe cyo kwigayira kirimo gukora",
+        "graceDesc": "Uheruka gufata gahunda — hagarika nonaha kugira ngo usubizwe mu minota 60 yo kwigayira.",
+        "lateTitle": "⚠️ Guhagarika batinze: Isubizwa rya 50%",
+        "lateDesc": "Iyi nama itangira mu masaha 24. Guhagarika bisubiza RWF {refund} kuri RWF {total}. Tekereza guhindura gahunda ku buntu."
       },
       "status": {
         "PENDING": "Itegerezwa",

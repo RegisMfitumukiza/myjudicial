@@ -4330,7 +4330,19 @@
     "paLabor": "Droit du travail",
     "paFamily": "Famille et succession",
     "paCriminal": "Défense pénale",
-    "paTax": "Fiscalité et conformité"
+    "paTax": "Fiscalité et conformité",
+    "endedJustNow": "Terminé à l'instant",
+    "endedMinutesAgo": "Terminé il y a {count} min",
+    "endedHoursAgo": "Terminé il y a {count} h",
+    "endedYesterdayAt": "Terminé hier à {time}",
+    "endedDaysAgo": "Terminé il y a {count} j",
+    "endedOnDate": "Terminé le {date}",
+    "escrowSecuredPill": "Fonds sécurisés",
+    "step1Desc": "Paiement sous séquestre",
+    "step2Desc": "Effectué en ligne",
+    "step3Desc": "Avocat rédige les notes",
+    "step4Desc": "Approbation et libération",
+    "awaitingSummaryBadge": "En attente du résumé"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

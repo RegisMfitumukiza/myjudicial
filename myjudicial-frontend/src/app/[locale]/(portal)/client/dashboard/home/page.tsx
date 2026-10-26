@@ -38,6 +38,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 
 const JOINABLE_WINDOW_MS = 15 * 60 * 1000; // Can join 15 min before scheduled start
+const SPOTLIGHT_MAX_AWAITING_MS = 48 * 60 * 60 * 1000; // 48 hours: retire stale unsummarized sessions to Recents
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -47,6 +48,132 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   REFUNDED:  "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
 };
+
+interface MilestoneLabels {
+  step1: string;
+  step1Desc: string;
+  step2: string;
+  step2Desc: string;
+  step3: string;
+  step3Desc: string;
+  step4: string;
+  step4Desc: string;
+}
+
+function CaseMilestoneTracker({
+  currentStep,
+  variant,
+  labels,
+}: {
+  currentStep: 1 | 2 | 3 | 4;
+  variant: "live" | "upcoming" | "awaiting" | "completed";
+  labels: MilestoneLabels;
+}) {
+  const steps = [
+    { step: 1, title: labels.step1, desc: labels.step1Desc },
+    { step: 2, title: labels.step2, desc: labels.step2Desc },
+    { step: 3, title: labels.step3, desc: labels.step3Desc },
+    { step: 4, title: labels.step4, desc: labels.step4Desc },
+  ];
+
+  return (
+    <div className="w-full pt-3 pb-1">
+      <div className="relative">
+        {/* Background connecting track */}
+        <div className="absolute top-3.5 left-8 right-8 sm:left-12 sm:right-12 h-0.5 bg-brand-border/25 dark:bg-white/10 -translate-y-1/2 z-0" />
+
+        {/* Active filled progress track */}
+        <div
+          className={`absolute top-3.5 left-8 sm:left-12 h-0.5 -translate-y-1/2 z-0 transition-all duration-500 ${
+            variant === "awaiting"
+              ? "bg-gradient-to-r from-emerald-500 via-emerald-500 to-amber-500"
+              : variant === "live"
+              ? "bg-emerald-500"
+              : "bg-brand-dark dark:bg-white"
+          }`}
+          style={{
+            width:
+              currentStep === 1
+                ? "12%"
+                : currentStep === 2
+                ? "37%"
+                : currentStep === 3
+                ? "70%"
+                : "calc(100% - 32px)",
+          }}
+        />
+
+        {/* 4 Steps Columns */}
+        <div className="grid grid-cols-4 gap-1 sm:gap-2 relative z-10">
+          {steps.map((s) => {
+            const isCompleted = s.step < currentStep;
+            const isCurrent = s.step === currentStep;
+
+            return (
+              <div
+                key={s.step}
+                className="flex flex-col items-center text-center px-0.5 sm:px-1"
+              >
+                {/* Circle node */}
+                <div
+                  className={`h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all shadow-sm ring-4 ${
+                    isCompleted
+                      ? "bg-emerald-600 text-white ring-emerald-50 dark:ring-emerald-950/40"
+                      : isCurrent
+                      ? variant === "awaiting"
+                        ? "bg-amber-600 text-white ring-amber-100 dark:ring-amber-950 animate-pulse"
+                        : variant === "live"
+                        ? "bg-green-600 text-white ring-green-100 dark:ring-green-950 animate-pulse"
+                        : "bg-brand-dark dark:bg-white text-white dark:text-black ring-brand-dark/10 dark:ring-white/10"
+                      : "bg-white dark:bg-zinc-900 border-2 border-brand-border/40 dark:border-white/20 text-brand-dark/70 dark:text-white/70 ring-white dark:ring-black"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 size={15} className="shrink-0" />
+                  ) : (
+                    <span>{s.step}</span>
+                  )}
+                </div>
+
+                {/* Title label: responsive, no truncate, wrapping smoothly */}
+                <span
+                  className={`mt-2 text-[11px] sm:text-[12px] leading-tight font-bold break-words whitespace-normal max-w-full ${
+                    isCompleted
+                      ? "text-emerald-700 dark:text-emerald-400"
+                      : isCurrent
+                      ? variant === "awaiting"
+                        ? "text-amber-900 dark:text-amber-200"
+                        : variant === "live"
+                        ? "text-green-900 dark:text-green-300"
+                        : "text-brand-dark dark:text-white"
+                      : "text-brand-dark/75 dark:text-white/75"
+                  }`}
+                >
+                  {s.title}
+                </span>
+
+                {/* Descriptive Subtitle (explains purpose of step, visible on sm+) */}
+                <span
+                  className={`hidden sm:block mt-0.5 text-[10px] leading-tight break-words max-w-full ${
+                    isCompleted
+                      ? "text-emerald-600/80 dark:text-emerald-400/70"
+                      : isCurrent
+                      ? variant === "awaiting"
+                        ? "text-amber-800/80 dark:text-amber-300/80 font-medium"
+                        : "text-brand-dark/60 dark:text-white/60 font-medium"
+                      : "text-brand-dark/50 dark:text-white/50"
+                  }`}
+                >
+                  {s.desc}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ClientHomePage() {
   const { data: session } = useSession();
@@ -63,6 +190,17 @@ export default function ClientHomePage() {
     "Client";
   const timeOfDay = useTimeOfDay();
   const greetingKey = TIME_GREETING_KEY[timeOfDay];
+
+  const milestoneLabels = useMemo(() => ({
+    step1: t("milestoneFunded"),
+    step1Desc: t("step1Desc"),
+    step2: t("milestoneSession"),
+    step2Desc: t("step2Desc"),
+    step3: t("milestoneSummary"),
+    step3Desc: t("step3Desc"),
+    step4: t("milestoneRelease"),
+    step4Desc: t("step4Desc"),
+  }), [t]);
 
   // 1. Bookings data
   const { data: bookingsData, isLoading: bookingsLoading } = useGetBookings({
@@ -160,12 +298,13 @@ export default function ClientHomePage() {
     )[0];
   }, [bookings, nowTime]);
 
-  // 3. Consultation ended awaiting summary: CONFIRMED and nowTime > scheduledEnd
+  // 3. Consultation ended awaiting summary: CONFIRMED and scheduledEnd < nowTime <= scheduledEnd + 48h
   const awaitingSummarySession = useMemo(() => {
     const pastUnclosed = bookings.filter((b) => {
       if (b.status !== "CONFIRMED") return false;
       const e = new Date(b.scheduledEnd).getTime();
-      return nowTime > e;
+      const elapsed = nowTime - e;
+      return elapsed > 0 && elapsed <= SPOTLIGHT_MAX_AWAITING_MS;
     });
     if (pastUnclosed.length === 0) return null;
     return [...pastUnclosed].sort(
@@ -328,6 +467,41 @@ export default function ClientHomePage() {
       minute: "2-digit",
       hour12: locale !== "fr" && locale !== "rw",
     });
+  }
+
+  function formatEndedTime(endIso: string) {
+    const endTime = new Date(endIso).getTime();
+    const elapsedMs = Math.max(0, nowTime - endTime);
+    const elapsedMin = Math.floor(elapsedMs / (60 * 1000));
+    const elapsedHours = Math.floor(elapsedMs / (60 * 60 * 1000));
+    const elapsedDays = Math.floor(elapsedMs / (24 * 60 * 60 * 1000));
+
+    if (elapsedMin < 5) {
+      return t("endedJustNow");
+    }
+    if (elapsedMin < 60) {
+      return t("endedMinutesAgo", { count: elapsedMin });
+    }
+    if (elapsedHours < 24) {
+      const endDate = new Date(endIso);
+      const nowDate = new Date(nowTime);
+      const isSameDay =
+        endDate.getFullYear() === nowDate.getFullYear() &&
+        endDate.getMonth() === nowDate.getMonth() &&
+        endDate.getDate() === nowDate.getDate();
+
+      if (isSameDay) {
+        return t("endedHoursAgo", { count: elapsedHours });
+      }
+      return t("endedYesterdayAt", { time: formatTime(endIso) });
+    }
+    if (elapsedDays === 1) {
+      return t("endedYesterdayAt", { time: formatTime(endIso) });
+    }
+    if (elapsedDays < 7) {
+      return t("endedDaysAgo", { count: elapsedDays });
+    }
+    return t("endedOnDate", { date: formatDate(endIso) });
   }
 
   function getGoogleCalendarUrl(booking: {
@@ -524,40 +698,7 @@ export default function ClientHomePage() {
 
               {/* Step Milestone Tracker */}
               <div className="mt-5 pt-4 border-t border-green-600/15 dark:border-green-400/15">
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                      <CheckCircle2 size={13} />
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-green-800 dark:text-green-300 truncate max-w-[80px]">
-                      {t("milestoneFunded")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold animate-pulse shadow-sm">
-                      2
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-green-900 dark:text-green-200 truncate max-w-[80px]">
-                      {t("milestoneSession")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center opacity-50">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
-                      3
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
-                      {t("milestoneSummary")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center opacity-50">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
-                      4
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
-                      {t("milestoneRelease")}
-                    </span>
-                  </div>
-                </div>
+                <CaseMilestoneTracker currentStep={2} variant="live" labels={milestoneLabels} />
               </div>
             </div>
           ) : upcomingSession ? (
@@ -697,40 +838,7 @@ export default function ClientHomePage() {
 
               {/* Case Milestone Progress Tracker */}
               <div className="mt-5 pt-4 border-t border-brand-border/15 dark:border-white/10">
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                      <CheckCircle2 size={13} />
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
-                      {t("milestoneFunded")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark text-white flex items-center justify-center text-[10px] font-bold dark:bg-white dark:text-black">
-                      2
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-brand-dark dark:text-white truncate max-w-[80px]">
-                      {t("milestoneSession")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center opacity-40">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
-                      3
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
-                      {t("milestoneSummary")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center opacity-40">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
-                      4
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
-                      {t("milestoneRelease")}
-                    </span>
-                  </div>
-                </div>
+                <CaseMilestoneTracker currentStep={2} variant="upcoming" labels={milestoneLabels} />
               </div>
 
               {/* Pre-consultation Case Document Preparation */}
@@ -766,8 +874,9 @@ export default function ClientHomePage() {
                         {awaitingSummarySession.service?.name ||
                           t("consultationCapitalized")}
                       </p>
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-                        {t("consultationEnded")}
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-amber-900 dark:bg-amber-900/50 dark:text-amber-200 shadow-sm shrink-0">
+                        <Clock size={11} className="shrink-0 text-amber-700 dark:text-amber-300" />
+                        <span>{formatEndedTime(awaitingSummarySession.scheduledEnd)}</span>
                       </span>
                     </div>
                     <p className="text-[13px] text-brand-dark/70 dark:text-white/70 mt-0.5">
@@ -809,40 +918,7 @@ export default function ClientHomePage() {
 
               {/* Case Milestone Progress Tracker */}
               <div className="mt-5 pt-4 border-t border-amber-300/60 dark:border-amber-700/40">
-                <div className="grid grid-cols-4 gap-2 text-center">
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                      <CheckCircle2 size={13} />
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
-                      {t("milestoneFunded")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                      <CheckCircle2 size={13} />
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
-                      {t("milestoneSession")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="h-6 w-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-bold shadow-sm animate-pulse">
-                      3
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-bold text-amber-900 dark:text-amber-200 truncate max-w-[80px]">
-                      {t("milestoneSummary")}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center opacity-40">
-                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
-                      4
-                    </div>
-                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
-                      {t("milestoneRelease")}
-                    </span>
-                  </div>
-                </div>
+                <CaseMilestoneTracker currentStep={3} variant="awaiting" labels={milestoneLabels} />
               </div>
             </div>
           ) : (
@@ -1259,15 +1335,21 @@ export default function ClientHomePage() {
                         <p className="text-[14px] font-semibold text-brand-dark dark:text-white truncate">
                           {b.service?.name || t("consultationCapitalized")}
                         </p>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            STATUS_COLORS[b.status] || STATUS_COLORS.PENDING
-                          }`}
-                        >
-                          {t(`status.${b.status}` as Parameters<typeof t>[0], {
-                            default: b.status,
-                          })}
-                        </span>
+                        {b.status === "CONFIRMED" && nowTime > new Date(b.scheduledEnd).getTime() ? (
+                          <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 shrink-0">
+                            {t("awaitingSummaryBadge")}
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              STATUS_COLORS[b.status] || STATUS_COLORS.PENDING
+                            }`}
+                          >
+                            {t(`status.${b.status}` as Parameters<typeof t>[0], {
+                              default: b.status,
+                            })}
+                          </span>
+                        )}
                       </div>
                       <p className="text-[12px] text-brand-dark/50 dark:text-white/50 truncate">
                         {t("expertDate", {
@@ -1337,19 +1419,19 @@ export default function ClientHomePage() {
           {/* Active Escrow Financial Shield (Or General Platform Protection) */}
           {activeEscrowBooking ? (
             <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50 to-emerald-100/30 p-5 shadow-sm dark:border-emerald-700/50 dark:from-emerald-950/40 dark:to-emerald-900/20">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck
-                    size={20}
-                    className="text-emerald-700 dark:text-emerald-400"
+                    size={18}
+                    className="text-emerald-700 dark:text-emerald-400 shrink-0"
                   />
-                  <h3 className="text-[14px] font-bold text-emerald-950 dark:text-emerald-200">
+                  <h3 className="text-[13px] sm:text-[14px] font-bold text-emerald-950 dark:text-emerald-200 truncate">
                     {t("activeEscrowShieldTitle")}
                   </h3>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                  <Lock size={10} />
-                  <span>{t("activeEscrowDepositLabel")}</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm shrink-0 whitespace-nowrap">
+                  <Lock size={10} className="shrink-0" />
+                  <span>{t("escrowSecuredPill")}</span>
                 </span>
               </div>
 

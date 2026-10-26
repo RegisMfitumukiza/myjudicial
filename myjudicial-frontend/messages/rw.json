@@ -4330,7 +4330,19 @@
     "paLabor": "Umurimo n'abakozi",
     "paFamily": "Umuryango n'izungura",
     "paCriminal": "Ibyaha n'ubutabera",
-    "paTax": "Imisoro n'amategeko"
+    "paTax": "Imisoro n'amategeko",
+    "endedJustNow": "Byarangiye aka kanya",
+    "endedMinutesAgo": "Byarangiye hashize iminota {count}",
+    "endedHoursAgo": "Byarangiye hashize amasaha {count}",
+    "endedYesterdayAt": "Byarangiye ejo saa {time}",
+    "endedDaysAgo": "Byarangiye hashize iminsi {count}",
+    "endedOnDate": "Byarangiye ku wa {date}",
+    "escrowSecuredPill": "Amafaranga arinzwe",
+    "step1Desc": "Amafaranga ari muri escrow",
+    "step2Desc": "Byakozwe kuri murandasi",
+    "step3Desc": "Umwunganizi arimo kwandika",
+    "step4Desc": "Kwemeza no kurekura",
+    "awaitingSummaryBadge": "Hategerejwe incamake"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

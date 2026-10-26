@@ -2227,7 +2227,19 @@
     "paLabor": "Labor & Employment",
     "paFamily": "Family & Succession",
     "paCriminal": "Criminal Defense",
-    "paTax": "Tax & Regulatory"
+    "paTax": "Tax & Regulatory",
+    "endedJustNow": "Ended just now",
+    "endedMinutesAgo": "Ended {count}m ago",
+    "endedHoursAgo": "Ended {count}h ago",
+    "endedYesterdayAt": "Ended yesterday at {time}",
+    "endedDaysAgo": "Ended {count}d ago",
+    "endedOnDate": "Ended on {date}",
+    "escrowSecuredPill": "Escrow Secured",
+    "step1Desc": "Payment in escrow",
+    "step2Desc": "Conducted online",
+    "step3Desc": "Advocate writing notes",
+    "step4Desc": "Client approval & payout",
+    "awaitingSummaryBadge": "Awaiting Summary"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

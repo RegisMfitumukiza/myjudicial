@@ -1850,7 +1850,12 @@
         "PUBLIC": "Public",
         "PRIVATE": "Privé",
         "CONFIDENTIAL": "Confidentiel"
-      }
+      },
+      "searchPlaceholder": "Rechercher par nom de document...",
+      "dropFilesHere": "Déposez le fichier ici pour le téléverser",
+      "dragAndDropHint": "Glissez-déposez votre fichier, ou cliquez pour parcourir",
+      "storageTelemetry": "{count} fichiers stockés • {size} utilisés dans le coffre chiffré",
+      "suggestedDocs": "Suggéré : Titres fonciers, contrats, assignations, pièces d'identité"
     },
     "chat": {
       "loadMessagesFailed": "Échec du chargement des anciens messages.",
@@ -3886,7 +3891,14 @@
         "twoFactorDesc": "Add an extra layer of security",
         "disabled": "Disabled",
         "enable": "Enable"
-      }
+      },
+      "activeDevicesTitle": "Appareils actifs & Sessions",
+      "activeDevicesDesc": "Voir les appareils connectés et le statut de mémorisation",
+      "manageDevices": "Gérer les appareils",
+      "statsConsultations": "Consultations",
+      "statsDocuments": "Fichiers coffre-fort",
+      "statsReviews": "Avis",
+      "memberSince": "Client depuis {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -3943,7 +3955,21 @@
         "reviewsDesc": "Retours passés",
         "security": "Sécurité & Appareils",
         "securityDesc": "Sessions actives & sécurité"
-      }
+      },
+      "notificationsCard": "Préférences de notification",
+      "notificationsCardDesc": "Choisissez comment vous recevez les rappels de consultation, messages et alertes d'entiercement.",
+      "channelEmail": "Notifications par e-mail",
+      "channelEmailDesc": "Confirmations de réservation, résumés de l'avocat et reçus de séquestre",
+      "channelSms": "SMS & Alertes mobiles",
+      "channelSmsDesc": "Comptes à rebours urgents de 15 minutes et alertes de sécurité",
+      "channelChat": "Alertes de discussion en ligne",
+      "channelChatDesc": "Notifications instantanées lorsque votre avocat envoie un message ou une note",
+      "regionalDefaults": "Juridiction & Paramètres régionaux",
+      "regionalDefaultsDesc": "Fuseau horaire et devise utilisés pour vos consultations et factures.",
+      "currentTimezone": "Fuseau horaire de la plateforme",
+      "currentCurrency": "Devise par défaut",
+      "timeValue": "Heure d'Afrique centrale (Kigali UTC+2)",
+      "currencyValue": "Franc rwandais (RWF)"
     },
     "consultations": {
       "title": "Mes réservations",
@@ -4159,7 +4185,12 @@
       "subtitle": "Avis que vous avez laissés aux experts juridiques",
       "failedToLoad": "Échec du chargement des avis. Veuillez réessayer.",
       "noReviews": "Aucun avis pour l'instant",
-      "noReviewsDesc": "Vos avis apparaîtront ici après avoir terminé une consultation et laissé un commentaire."
+      "noReviewsDesc": "Vos avis apparaîtront ici après avoir terminé une consultation et laissé un commentaire.",
+      "filterAll": "Tous les avis",
+      "filterStars": "{stars} Étoiles",
+      "pendingReviewBanner": "Vous avez {count} consultation terminée en attente de votre avis !",
+      "leaveReviewBtn": "Donner un avis",
+      "browseLawyersBtn": "Trouver un avocat vérifié"
     },
     "savedExperts": {
       "backToDashboard": "Tableau de bord",
@@ -8076,5 +8107,57 @@
       "heading": "Questions fréquentes",
       "empty": "Aucune FAQ n'a encore été publiée. Merci de revenir bientôt."
     }
+  },
+  "clientDashboard_security": {
+    "title": "Sécurité & Appareils Actifs",
+    "subtitle": "Gérez les appareils connectés, les préférences de connexion et protégez votre compte.",
+    "backToSettings": "Paramètres",
+    "accountProtection": "Protection du compte & Authentification",
+    "accountProtectionDesc": "Votre compte est enregistré sous {email} et sécurisé avec des jetons de session cryptographiques et des codes de vérification.",
+    "emailOtpActive": "Vérification OTP par e-mail active",
+    "deviceBindingActive": "Protection de liaison d'appareil activée",
+    "activeSessionsTitle": "Sessions actives & Appareils connectés",
+    "activeSessionsDesc": "Appareils et navigateurs actuellement connectés à votre compte.",
+    "signOutAllOther": "Déconnecter tous les autres appareils ({count})",
+    "signingOut": "Déconnexion...",
+    "currentDevice": "Appareil actuel",
+    "remembered30d": "Mémorisé (30j)",
+    "sessionOnly": "Session unique",
+    "lastActive": "Dernière activité",
+    "revokeBtn": "Révoquer",
+    "revoking": "Révocation...",
+    "noActiveSessions": "Aucune session active trouvée",
+    "failedLoadSessions": "Échec du chargement des sessions",
+    "sessionRevoked": "Session révoquée avec succès",
+    "failedRevokeSession": "Échec de la révocation de la session",
+    "allOtherSignedOut": "Tous les autres appareils ont été déconnectés.",
+    "localNetwork": "Réseau local",
+    "changePasswordTitle": "Changer le mot de passe",
+    "changePasswordDesc": "Mettez à jour votre mot de passe régulièrement pour protéger vos consultations et documents juridiques.",
+    "labelCurrent": "Mot de passe actuel",
+    "placeholderCurrent": "Entrez le mot de passe actuel",
+    "labelNew": "Nouveau mot de passe",
+    "placeholderNew": "Entrez le nouveau mot de passe (min. 8 caractères)",
+    "labelConfirm": "Confirmer le nouveau mot de passe",
+    "placeholderConfirm": "Retapez le nouveau mot de passe",
+    "strengthLabel": "Force du mot de passe",
+    "weak": "Faible",
+    "fair": "Moyen",
+    "strong": "Fort",
+    "reqLength": "Au moins 8 caractères",
+    "reqNumber": "Contient un chiffre (0-9)",
+    "reqSpecial": "Contient une majuscule ou un symbole",
+    "errorMinLength": "Le mot de passe doit comporter au moins 8 caractères",
+    "errorMismatch": "Les nouveaux mots de passe ne correspondent pas",
+    "errorDefault": "Échec de la mise à jour du mot de passe",
+    "successMessage": "Mot de passe mis à jour avec succès",
+    "submitButton": "Mettre à jour le mot de passe",
+    "updatingButton": "Mise à jour...",
+    "dataProtectionTitle": "Protection des données & Confidentialité",
+    "dataProtectionDesc": "Vos données personnelles et procédures juridiques sont protégées en vertu de la loi rwandaise nº 058/2021 relative à la protection des données personnelles.",
+    "dataProtectionBadge": "Conforme à la loi rwandaise nº 058/2021",
+    "exportDataBtn": "Exporter mes données personnelles",
+    "exportDataDesc": "Générez une archive lisible par machine de vos consultations, documents et reçus de paiement.",
+    "dataExported": "Archive des données de compte préparée."
   }
 }

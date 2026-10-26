@@ -1850,7 +1850,12 @@
         "PUBLIC": "Rusange",
         "PRIVATE": "Bwite",
         "CONFIDENTIAL": "Ibanga"
-      }
+      },
+      "searchPlaceholder": "Shakisha inyandiko mu izina...",
+      "dropFilesHere": "Shyira inyandiko hano kugira ngo uyishyireho",
+      "dragAndDropHint": "Kurura ushyireho inyandiko, cyangwa kanda uhitemo",
+      "storageTelemetry": "Inyandiko {count} zibitswe • {size} yakoreshejwe mu bubiko burinzwe",
+      "suggestedDocs": "Ibisabwa: Ibyangombwa by'ubutaka, amasezerano, impapuro z'urukiko, indangamuntu"
     },
     "chat": {
       "loadMessagesFailed": "Byanze gukora ubutumwa bw'imbere.",
@@ -3886,7 +3891,14 @@
         "twoFactorDesc": "Add an extra layer of security",
         "disabled": "Disabled",
         "enable": "Enable"
-      }
+      },
+      "activeDevicesTitle": "Ibikoresho bifunguye",
+      "activeDevicesDesc": "Reba ibikoresho bifunguye n'uko wibutswe",
+      "manageDevices": "Genzura ibikoresho",
+      "statsConsultations": "Inama",
+      "statsDocuments": "Inyandiko zibitswe",
+      "statsReviews": "Amanota",
+      "memberSince": "Umukiriya kuva {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -3943,7 +3955,21 @@
         "reviewsDesc": "Ibitekerezo byabanjirije",
         "security": "Umutekano & Ibikoresho",
         "securityDesc": "Ibikoresho bikoreshwa & umutekano"
-      }
+      },
+      "notificationsCard": "Uburyo bwo kumenyeshwa",
+      "notificationsCardDesc": "Hitamo uburyo wakiramo amamenyesha y'inama, ubutumwa n'umutekano w'amafaranga.",
+      "channelEmail": "Amamenyesha kuri Email",
+      "channelEmailDesc": "Kwemeza inama, incamake y'umwunganizi n'inyemezabwishyu",
+      "channelSms": "SMS n'Ubutumwa bwa Telefoni",
+      "channelSmsDesc": "Kukwibutsa iminota 15 mbere y'inama n'umutekano wa konti",
+      "channelChat": "Amamenyesha y'ubutumwa ku rubuga",
+      "channelChatDesc": "Kumenyeshwa ako kanya umwunganizi akwandikiye cyangwa ashyizeho inyandiko",
+      "regionalDefaults": "Igenamiterere ry'Urukiko n'Akarere",
+      "regionalDefaultsDesc": "Isaha n'ifaranga bikoreshwa mu nama zawe n'inyemezabwishyu.",
+      "currentTimezone": "Isaha y'urubuga",
+      "currentCurrency": "Ifaranga ry'urubuga",
+      "timeValue": "Isaha yo Hagati muri Afurika (Kigali UTC+2)",
+      "currencyValue": "Amafaranga y'u Rwanda (RWF)"
     },
     "consultations": {
       "title": "Gahunda Zanjye",
@@ -4159,7 +4185,12 @@
       "subtitle": "Ibitekerezo wasigiye inzobere mu mategeko",
       "failedToLoad": "Byanze gukora ibitekerezo. Gerageza nanone.",
       "noReviews": "Nta tekerezo nawe ugeze",
-      "noReviewsDesc": "Uzabona ibitekerezo byawe hano nyuma yo kurangiza inama no gusiga igitekerezo."
+      "noReviewsDesc": "Uzabona ibitekerezo byawe hano nyuma yo kurangiza inama no gusiga igitekerezo.",
+      "filterAll": "Amanota yose",
+      "filterStars": "Inyenyeri {stars}",
+      "pendingReviewBanner": "Ufite inama {count} yarangiye itarasubizwamo amanota!",
+      "leaveReviewBtn": "Tanga amanota",
+      "browseLawyersBtn": "Shaka Umwunganizi Wemejwe"
     },
     "savedExperts": {
       "backToDashboard": "Imbaho",
@@ -8076,5 +8107,57 @@
       "heading": "Ibibazo bikunze kubazwa",
       "empty": "Nta FAQ zatangajwe. Nyamuneka munyozele hanyuma."
     }
+  },
+  "clientDashboard_security": {
+    "title": "Umutekano n'Ibikoresho Bifunguye",
+    "subtitle": "Genzura ibikoresho bifunguye, uburyo bwo kukwibuka no kurinda konti yawe.",
+    "backToSettings": "Igenamiterere",
+    "accountProtection": "Uburinzi bwa Konti n'Iyemeza",
+    "accountProtectionDesc": "Konti yawe yanditse kuri {email} kandi irinzwe n'ibimenyetso by'umutekano n'amashusho y'ibyemezo.",
+    "emailOtpActive": "Kwemeza binyuze muri Email OTP birakora",
+    "deviceBindingActive": "Uburinzi bw'igikoresho burakora",
+    "activeSessionsTitle": "Konti zifunguye n'Ibikoresho byakoreshejwe",
+    "activeSessionsDesc": "Ibikoresho n'imiyoboro y'interineti ubu bifunguye kuri konti yawe.",
+    "signOutAllOther": "Sohoka mu bindi bikoresho byose ({count})",
+    "signingOut": "Gusohoka...",
+    "currentDevice": "Igikoresho cy'ubu",
+    "remembered30d": "Byibutswe (iminsi 30)",
+    "sessionOnly": "Kuri iyi nshuro gusa",
+    "lastActive": "Iheruka gukora",
+    "revokeBtn": "Funga",
+    "revoking": "Gufunga...",
+    "noActiveSessions": "Nta gikoresho gifunguye cyabonetse",
+    "failedLoadSessions": "Kunanirwa gupakurura ibikoresho bifunguye",
+    "sessionRevoked": "Konti yafunzwe neza kuri icyo gikoresho",
+    "failedRevokeSession": "Kunanirwa gufunga konti kuri icyo gikoresho",
+    "allOtherSignedOut": "Ibikoresho bindi byose byasohotsemo.",
+    "localNetwork": "Umuyoboro w'imbere",
+    "changePasswordTitle": "Guhindura Ijambobanga",
+    "changePasswordDesc": "Hindura ijambobanga kenshi kugira ngo urinde inama n'inyandiko zawe z'amategeko.",
+    "labelCurrent": "Ijambobanga ry'ubu",
+    "placeholderCurrent": "Andika ijambobanga ry'ubu",
+    "labelNew": "Ijambobanga rishya",
+    "placeholderNew": "Andika ijambobanga rishya (byibura inyuguti 8)",
+    "labelConfirm": "Emeza ijambobanga rishya",
+    "placeholderConfirm": "Ongera wandike ijambobanga rishya",
+    "strengthLabel": "Imbaraga z'ijambobanga",
+    "weak": "Ryoroshye",
+    "fair": "Riringaniye",
+    "strong": "Rikomeye",
+    "reqLength": "Byibura inyuguti 8",
+    "reqNumber": "Harimo umubare (0-9)",
+    "reqSpecial": "Harimo inyuguti nkuru cyangwa ikimenyetso",
+    "errorMinLength": "Ijambobanga rigomba kugira byibura inyuguti 8",
+    "errorMismatch": "Amagambobanga mashya ntabwo ahuye",
+    "errorDefault": "Kunanirwa guhindura ijambobanga",
+    "successMessage": "Ijambobanga ryahinduwe neza",
+    "submitButton": "Hindura Ijambobanga",
+    "updatingButton": "Guhindura...",
+    "dataProtectionTitle": "Uburinzi bw'Amakuru n'Ibanga",
+    "dataProtectionDesc": "Amakuru yawe bwite n'imanza zawe birinzwe hakurikijwe Itegeko ry'u Rwanda Nº 058/2021 rigenga uburinzi bw'amakuru bwite n'ubuzima bwite.",
+    "dataProtectionBadge": "Ibyubahirije Itegeko Nº 058/2021",
+    "exportDataBtn": "Kora kopi y'amakuru yanjye",
+    "exportDataDesc": "Gana dosiye irimo inama wakoze, inyandiko watsindagiye n'inyemezabwishyu.",
+    "dataExported": "Kopi y'amakuru yawe yateguwe neza."
   }
 }

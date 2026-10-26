@@ -1783,7 +1783,14 @@
         "twoFactorDesc": "Add an extra layer of security",
         "disabled": "Disabled",
         "enable": "Enable"
-      }
+      },
+      "activeDevicesTitle": "Active Devices & Sessions",
+      "activeDevicesDesc": "View logged-in devices and remember me status",
+      "manageDevices": "Manage Devices",
+      "statsConsultations": "Consultations",
+      "statsDocuments": "Vault Files",
+      "statsReviews": "Reviews",
+      "memberSince": "Client since {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -1840,7 +1847,21 @@
         "reviewsDesc": "Past feedback",
         "security": "Security & Devices",
         "securityDesc": "Active sessions & security"
-      }
+      },
+      "notificationsCard": "Notification Preferences",
+      "notificationsCardDesc": "Choose how you receive consultation reminders, chat messages, and escrow status alerts.",
+      "channelEmail": "Email Notifications",
+      "channelEmailDesc": "Booking confirmations, advocate strategy summaries, and escrow receipts",
+      "channelSms": "SMS & Mobile Alerts",
+      "channelSmsDesc": "Urgent 15-minute consultation countdowns and two-factor security alerts",
+      "channelChat": "In-Platform Chat Alerts",
+      "channelChatDesc": "Instant notifications when your advocate sends a message or uploads case notes",
+      "regionalDefaults": "Regional & Court Jurisdiction Defaults",
+      "regionalDefaultsDesc": "Timezone and financial currency utilized across your consultations and invoices.",
+      "currentTimezone": "Platform Timezone",
+      "currentCurrency": "Default Currency",
+      "timeValue": "Central Africa Time (Kigali UTC+2)",
+      "currencyValue": "Rwandan Franc (RWF)"
     },
     "consultations": {
       "title": "My Bookings",
@@ -2056,7 +2077,12 @@
       "subtitle": "Reviews you have left for legal experts",
       "failedToLoad": "Failed to load reviews. Please try again.",
       "noReviews": "No reviews yet",
-      "noReviewsDesc": "You will see your reviews here after completing a consultation and leaving feedback."
+      "noReviewsDesc": "You will see your reviews here after completing a consultation and leaving feedback.",
+      "filterAll": "All Ratings",
+      "filterStars": "{stars} Stars",
+      "pendingReviewBanner": "You have {count} completed consultation awaiting your review!",
+      "leaveReviewBtn": "Leave Review",
+      "browseLawyersBtn": "Find a Verified Advocate"
     },
     "savedExperts": {
       "backToDashboard": "Dashboard",
@@ -4278,7 +4304,12 @@
         "PUBLIC": "Public",
         "PRIVATE": "Private",
         "CONFIDENTIAL": "Confidential"
-      }
+      },
+      "searchPlaceholder": "Search documents by name...",
+      "dropFilesHere": "Drop file here to upload",
+      "dragAndDropHint": "Drag and drop your file, or click to browse",
+      "storageTelemetry": "{count} files stored • {size} used in encrypted vault",
+      "suggestedDocs": "Suggested: Land titles, contracts, summons, government IDs"
     },
     "chat": {
       "loadMessagesFailed": "Failed to load older messages.",
@@ -8078,5 +8109,57 @@
       "heading": "Frequently asked questions",
       "empty": "No FAQs have been published yet. Please check back soon."
     }
+  },
+  "clientDashboard_security": {
+    "title": "Security & Active Devices",
+    "subtitle": "Manage connected devices, remember me preferences, and protect your account.",
+    "backToSettings": "Settings",
+    "accountProtection": "Account Protection & Authentication",
+    "accountProtectionDesc": "Your account is registered under {email} and secured with cryptographic session tokens and verification codes.",
+    "emailOtpActive": "Email OTP Verification Active",
+    "deviceBindingActive": "Device Binding Protection Enabled",
+    "activeSessionsTitle": "Active Sessions & Connected Devices",
+    "activeSessionsDesc": "Devices and browsers currently logged into your account.",
+    "signOutAllOther": "Sign Out All Other Devices ({count})",
+    "signingOut": "Signing out...",
+    "currentDevice": "Current Device",
+    "remembered30d": "Remembered (30d)",
+    "sessionOnly": "Session Only",
+    "lastActive": "Last active",
+    "revokeBtn": "Revoke",
+    "revoking": "Revoking...",
+    "noActiveSessions": "No active sessions found",
+    "failedLoadSessions": "Failed to load active sessions",
+    "sessionRevoked": "Session revoked successfully",
+    "failedRevokeSession": "Failed to revoke session",
+    "allOtherSignedOut": "All other active devices signed out.",
+    "localNetwork": "Local Network",
+    "changePasswordTitle": "Change Password",
+    "changePasswordDesc": "Update your password regularly to protect your confidential legal consultations and documents.",
+    "labelCurrent": "Current Password",
+    "placeholderCurrent": "Enter current password",
+    "labelNew": "New Password",
+    "placeholderNew": "Enter new password (min. 8 characters)",
+    "labelConfirm": "Confirm New Password",
+    "placeholderConfirm": "Re-enter new password",
+    "strengthLabel": "Password strength",
+    "weak": "Weak",
+    "fair": "Medium",
+    "strong": "Strong",
+    "reqLength": "At least 8 characters",
+    "reqNumber": "Contains a number (0-9)",
+    "reqSpecial": "Contains an uppercase letter or symbol",
+    "errorMinLength": "Password must be at least 8 characters",
+    "errorMismatch": "New passwords do not match",
+    "errorDefault": "Failed to update password",
+    "successMessage": "Password updated successfully",
+    "submitButton": "Update Password",
+    "updatingButton": "Updating...",
+    "dataProtectionTitle": "Data Protection & Privacy Compliance",
+    "dataProtectionDesc": "Your personal data and legal proceedings are protected under Rwanda Law Nº 058/2021 relating to the protection of personal data and privacy.",
+    "dataProtectionBadge": "Rwanda Law Nº 058/2021 Compliant",
+    "exportDataBtn": "Export Personal Data Archive",
+    "exportDataDesc": "Generate a machine-readable export of your consultations, uploaded case documents, and payment receipts.",
+    "dataExported": "Account data archive prepared."
   }
 }

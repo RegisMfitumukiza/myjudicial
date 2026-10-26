@@ -6,7 +6,7 @@ import { CreditCard, CheckCircle, Clock, XCircle, Loader2, AlertCircle, Search, 
 import { useBookings } from "@/features/booking/hooks/useBookings";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
 import type { PaymentNestedStatus } from "@/api/generated";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 function fmt(n: number) {
   return n.toLocaleString("en-RW");
@@ -14,6 +14,7 @@ function fmt(n: number) {
 
 export default function PaymentsPage() {
   const t = useTranslations("clientDashboard.payments");
+  const locale = useLocale();
   const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
 
   const STATUS_CONFIG: Record<PaymentNestedStatus, { icon: React.ReactNode; badge: string; label: string }> = {
@@ -69,11 +70,11 @@ export default function PaymentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | PaymentNestedStatus>("ALL");
   const [dateRange, setDateRange] = useState<"all" | "30d" | "90d" | "12m">("all");
+  const [now] = useState(() => Date.now());
 
   const payments = useMemo(() => bookings.filter((b) => b.payment), [bookings]);
 
   const filteredPayments = useMemo(() => {
-    const now = Date.now();
     const ms: Record<string, number> = { "30d": 30 * 86400000, "90d": 90 * 86400000, "12m": 365 * 86400000 };
 
     return payments.filter((b) => {
@@ -86,7 +87,7 @@ export default function PaymentsPage() {
       }
       return true;
     });
-  }, [payments, statusFilter, dateRange, search]);
+  }, [payments, statusFilter, dateRange, search, now]);
 
   const total = filteredPayments.reduce((sum, b) => sum + (b.payment?.amount ?? 0), 0);
   const paid = filteredPayments.filter((b) => b.payment?.status === "PAID").reduce((sum, b) => sum + (b.payment?.amount ?? 0), 0);
@@ -173,8 +174,8 @@ export default function PaymentsPage() {
               </div>
 
               {/* Status tabs + date range */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex gap-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-1">
                   {STATUS_FILTERS.map(({ key, label }) => (
                     <button
                       key={key}
@@ -236,7 +237,7 @@ export default function PaymentsPage() {
                             {booking.payment?.currency ?? "RWF"} {fmt(booking.payment?.amount ?? 0)}
                           </span>
                           <span>&middot;</span>
-                          <span>{new Date(booking.scheduledStart).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+                          <span>{new Date(booking.scheduledStart).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}</span>
                           <span>&middot;</span>
                           <span className="font-mono">{booking.payment?.txRef}</span>
                         </div>

@@ -47,7 +47,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
       const currentScrollY = window.scrollY;
 
       // Always show when near the very top of the page
-      if (currentScrollY < 60) {
+      if (currentScrollY < 20) {
         setVisible(true);
         lastScrollY.current = currentScrollY;
         return;

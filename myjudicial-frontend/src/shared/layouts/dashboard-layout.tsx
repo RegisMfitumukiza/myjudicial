@@ -43,9 +43,9 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
   // Citizens get consumer-style layout (top nav)
   if (user.role === UserRole.CITIZEN) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-x-auto">
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <ConsumerHeader user={user} pathname={pathname} />
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 min-w-[260px]">
+        <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 min-w-0">
           {children}
         </main>
       </div>

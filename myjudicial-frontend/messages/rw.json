@@ -1855,7 +1855,8 @@
       "dropFilesHere": "Shyira inyandiko hano kugira ngo uyishyireho",
       "dragAndDropHint": "Kurura ushyireho inyandiko, cyangwa kanda uhitemo",
       "storageTelemetry": "Inyandiko {count} zibitswe • {size} yakoreshejwe mu bubiko burinzwe",
-      "suggestedDocs": "Ibisabwa: Ibyangombwa by'ubutaka, amasezerano, impapuro z'urukiko, indangamuntu"
+      "suggestedDocs": "Ibisabwa: Ibyangombwa by'ubutaka, amasezerano, impapuro z'urukiko, indangamuntu",
+      "noDocumentsMatch": "Nta nyandiko ihuye na « {query} »"
     },
     "chat": {
       "loadMessagesFailed": "Byanze gukora ubutumwa bw'imbere.",
@@ -3879,7 +3880,8 @@
         "role": "Role",
         "emailAddress": "Email Address",
         "phoneNumber": "Phone Number",
-        "emailVerified": "Email Verified"
+        "emailVerified": "Email Verified",
+        "lastLogin": "Kwinjira biheruka"
       },
       "security": {
         "title": "Account Security",
@@ -3898,7 +3900,8 @@
       "statsConsultations": "Inama",
       "statsDocuments": "Inyandiko zibitswe",
       "statsReviews": "Amanota",
-      "memberSince": "Umukiriya kuva {date}"
+      "memberSince": "Umukiriya kuva {date}",
+      "lastLogin": "Kwinjira biheruka: {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -3969,7 +3972,12 @@
       "currentTimezone": "Isaha y'urubuga",
       "currentCurrency": "Ifaranga ry'urubuga",
       "timeValue": "Isaha yo Hagati muri Afurika (Kigali UTC+2)",
-      "currencyValue": "Amafaranga y'u Rwanda (RWF)"
+      "currencyValue": "Amafaranga y'u Rwanda (RWF)",
+      "notifEnabled": "Imenyesha rya {channel} ryakoreshejwe",
+      "notifDisabled": "Imenyesha rya {channel} ryahagaritswe",
+      "notifSaveFailed": "Kugarika amahitamo yo kumenyesha byanze",
+      "timezoneNote": "Isaha y'Urukiko rw'u Rwanda (CAT)",
+      "currencyNote": "Bihuye na AzamPay MoMo Escrow"
     },
     "consultations": {
       "title": "Gahunda Zanjye",
@@ -4191,7 +4199,9 @@
       "pendingReviewBanner": "Ufite inama {count} yarangiye itarasubizwamo amanota!",
       "leaveReviewBtn": "Tanga amanota",
       "browseLawyersBtn": "Shaka Umwunganizi Wemejwe",
-      "noReviewsForRating": "Nta bisobanuro bifite {rating} inyenyeri."
+      "noReviewsForRating": "Nta bisobanuro bifite {rating} inyenyeri.",
+      "reviewCount": "{count} ibitekerezo",
+      "advocateReply": "Igisubizo cy'umwunganizi mu mategeko"
     },
     "savedExperts": {
       "backToDashboard": "Imbaho",
@@ -8159,6 +8169,7 @@
     "dataProtectionBadge": "Ibyubahirije Itegeko Nº 058/2021",
     "exportDataBtn": "Kora kopi y'amakuru yanjye",
     "exportDataDesc": "Gana dosiye irimo inama wakoze, inyandiko watsindagiye n'inyemezabwishyu.",
-    "dataExported": "Kopi y'amakuru yawe yateguwe neza."
+    "dataExported": "Kopi y'amakuru yawe yateguwe neza.",
+    "sessionStarted": "Ubutumwa bwatangiye"
   }
 }

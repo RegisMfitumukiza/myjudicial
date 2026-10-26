@@ -942,6 +942,14 @@ export const AuthService = {
       const dbSessions = await AuthRepository.listUserSessions(userId);
 
       if (dbSessions.length > 0) {
+        // Try to identify the current session by matching the access token's
+        // hash against stored token hashes. Fall back to index === 0 (most recent).
+        let currentIdx = 0;
+        if (accessToken) {
+          const hash = crypto.createHash("sha256").update(accessToken).digest("hex");
+          const matchIdx = dbSessions.findIndex((s) => s.tokenHash === hash);
+          if (matchIdx !== -1) currentIdx = matchIdx;
+        }
         return dbSessions.map((s, index) => {
           const { device, browser } = parseUserAgent(s.userAgent);
           return {
@@ -951,7 +959,7 @@ export const AuthService = {
             ip: s.ipAddress || "",
             rememberMe: s.rememberMe,
             lastActive: s.updatedAt || s.createdAt,
-            isCurrent: index === 0,
+            isCurrent: index === currentIdx,
             createdAt: s.createdAt,
             expiresAt: s.expiresAt,
           };

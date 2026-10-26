@@ -17,6 +17,7 @@ interface ExtendedUser {
   emailVerifiedAt: Date | null;
   avatarObjectKey?: string | null;
   createdAt?: string | null;
+  lastLoginAt?: string | null;
 }
 
 export default async function ProfilePage({
@@ -108,6 +109,18 @@ export default async function ProfilePage({
                   })}
                 </div>
               )}
+
+              {user.lastLoginAt && (
+                <div className="text-[11px] text-brand-dark/40 dark:text-white/40 text-center">
+                  {t("lastLogin", {
+                    date: new Date(user.lastLoginAt).toLocaleDateString(locale, {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    }),
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -155,6 +168,15 @@ export default async function ProfilePage({
                     <p className="text-sm font-medium text-brand-dark dark:text-white">
                       <Calendar size={13} className="mr-1 inline" />
                       {new Date(user.emailVerifiedAt).toLocaleDateString(locale)}
+                    </p>
+                  </div>
+                )}
+                {user.lastLoginAt && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">{t("personalInfo.lastLogin")}</label>
+                    <p className="text-sm font-medium text-brand-dark dark:text-white">
+                      <Calendar size={13} className="mr-1 inline" />
+                      {new Date(user.lastLoginAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
                 )}

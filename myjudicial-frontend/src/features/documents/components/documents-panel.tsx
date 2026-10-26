@@ -100,14 +100,14 @@ export function DocumentsPanel() {
     );
   }
 
-  async function handleDownload(fileId: string) {
+  async function handleDownload(fileId: string, fileName: string) {
     try {
       setDownloadingFileId(fileId);
       const blob = await apiFetchBlob(`/files/${fileId}/stream`);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `document-${fileId.substring(0, 6)}`;
+      a.download = fileName;
       if (blob.type.startsWith("image/") || blob.type === "application/pdf") {
         window.open(url, "_blank", "noopener,noreferrer");
       } else {
@@ -278,108 +278,113 @@ export function DocumentsPanel() {
       ) : filteredFiles.length === 0 ? (
         <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center dark:border-white/10 dark:bg-black">
           <p className="text-sm text-brand-dark/50 dark:text-white/50">
-            No documents match &ldquo;{searchQuery}&rdquo;
+            {t("noDocumentsMatch", { query: searchQuery })}
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-brand-border/20 bg-white shadow-sm dark:border-white/10 dark:bg-black">
-          <table className="w-full min-w-[620px] text-left text-sm">
-            <thead className="bg-brand-dark/[0.02] text-xs font-semibold text-brand-dark/60 dark:bg-white/[0.02] dark:text-white/60 border-b border-brand-border/10 dark:border-white/10">
-              <tr>
-                <th className="px-5 py-3.5">{t("colName")}</th>
-                <th className="px-4 py-3.5">{t("colType")}</th>
-                <th className="px-4 py-3.5">{t("colSize")}</th>
-                <th className="px-4 py-3.5">{t("colUploaded")}</th>
-                <th className="px-4 py-3.5">{t("colSensitivity")}</th>
-                <th className="px-4 py-3.5 text-right"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border/10 dark:divide-white/10">
-              {filteredFiles.map((doc) => {
-                const isDownloading = downloadingFileId === doc.id;
-                const isRemoving = isDeleting && deletingVars?.fileId === doc.id;
-                return (
-                  <tr
-                    key={doc.id}
-                    className="hover:bg-brand-dark/[0.01] dark:hover:bg-white/[0.01] transition-colors"
-                  >
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-dark/5 text-brand-dark dark:bg-white/10 dark:text-white">
-                          <FileText size={15} />
+        <div className="rounded-2xl border border-brand-border/20 bg-white shadow-sm dark:border-white/10 dark:bg-black">
+          {/* Mobile card view (< md) */}
+          <div className="divide-y divide-brand-border/10 dark:divide-white/10 md:hidden">
+            {filteredFiles.map((doc) => {
+              const isDownloading = downloadingFileId === doc.id;
+              const isRemoving = isDeleting && deletingVars?.fileId === doc.id;
+              return (
+                <div key={doc.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark/5 text-brand-dark dark:bg-white/10 dark:text-white">
+                        <FileText size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-brand-dark dark:text-gray-100 break-words">{doc.fileName}</p>
+                        <p className="text-[11px] text-brand-dark/50 dark:text-white/50 font-mono truncate">{doc.mimeType}</p>
+                      </div>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold shrink-0 ${SENSITIVITY_STYLE[doc.sensitivity] ?? SENSITIVITY_STYLE.PRIVATE}`}>
+                      {t.has(`sensitivity.${doc.sensitivity}`) ? t(`sensitivity.${doc.sensitivity}`) : doc.sensitivity}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] text-brand-dark/50 dark:text-white/50 space-x-2">
+                      <span>{formatSize(doc.fileSize)}</span>
+                      <span>·</span>
+                      <span>{new Date(doc.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button onClick={() => handleDownload(doc.id, doc.fileName)} disabled={isDownloading} title={t("download")} className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white disabled:opacity-50">
+                        {isDownloading ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                      </button>
+                      <button onClick={() => { setSharingFileId(doc.id); setShareEmail(""); }} title={t("share")} className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white">
+                        <Share2 size={15} />
+                      </button>
+                      <button onClick={() => handleDelete(doc.id)} disabled={isRemoving} title={t("cancel")} className="p-1.5 rounded-lg text-red-500/70 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30 disabled:opacity-50">
+                        {isRemoving ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table view (md+) */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-brand-dark/[0.02] text-xs font-semibold text-brand-dark/60 dark:bg-white/[0.02] dark:text-white/60 border-b border-brand-border/10 dark:border-white/10">
+                <tr>
+                  <th className="px-5 py-3.5">{t("colName")}</th>
+                  <th className="px-4 py-3.5">{t("colType")}</th>
+                  <th className="px-4 py-3.5">{t("colSize")}</th>
+                  <th className="px-4 py-3.5">{t("colUploaded")}</th>
+                  <th className="px-4 py-3.5">{t("colSensitivity")}</th>
+                  <th className="px-4 py-3.5 text-right"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-border/10 dark:divide-white/10">
+                {filteredFiles.map((doc) => {
+                  const isDownloading = downloadingFileId === doc.id;
+                  const isRemoving = isDeleting && deletingVars?.fileId === doc.id;
+                  return (
+                    <tr key={doc.id} className="hover:bg-brand-dark/[0.01] dark:hover:bg-white/[0.01] transition-colors">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-dark/5 text-brand-dark dark:bg-white/10 dark:text-white">
+                            <FileText size={15} />
+                          </div>
+                          <span className="text-sm font-semibold text-brand-dark dark:text-gray-100 max-w-[200px] truncate" title={doc.fileName}>
+                            {doc.fileName}
+                          </span>
                         </div>
-                        <span className="text-sm font-semibold text-brand-dark dark:text-gray-100">
-                          {doc.fileName}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60 font-mono">{doc.mimeType}</td>
+                      <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60">{formatSize(doc.fileSize)}</td>
+                      <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60">
+                        {new Date(doc.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${SENSITIVITY_STYLE[doc.sensitivity] ?? SENSITIVITY_STYLE.PRIVATE}`}>
+                          {t.has(`sensitivity.${doc.sensitivity}`) ? t(`sensitivity.${doc.sensitivity}`) : doc.sensitivity}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60 font-mono">
-                      {doc.mimeType}
-                    </td>
-                    <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60">
-                      {formatSize(doc.fileSize)}
-                    </td>
-                    <td className="px-4 py-3.5 text-xs text-brand-dark/60 dark:text-white/60">
-                      {new Date(doc.createdAt).toLocaleDateString(locale, {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                          SENSITIVITY_STYLE[doc.sensitivity] ?? SENSITIVITY_STYLE.PRIVATE
-                        }`}
-                      >
-                        {t.has(`sensitivity.${doc.sensitivity}`)
-                          ? t(`sensitivity.${doc.sensitivity}`)
-                          : doc.sensitivity}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleDownload(doc.id)}
-                          disabled={isDownloading}
-                          title={t("download")}
-                          className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white disabled:opacity-50"
-                        >
-                          {isDownloading ? (
-                            <Loader2 size={15} className="animate-spin" />
-                          ) : (
-                            <Download size={15} />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSharingFileId(doc.id);
-                            setShareEmail("");
-                          }}
-                          title={t("share")}
-                          className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
-                        >
-                          <Share2 size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(doc.id)}
-                          disabled={isRemoving}
-                          title={t("cancel")}
-                          className="p-1.5 rounded-lg text-red-500/70 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30 disabled:opacity-50"
-                        >
-                          {isRemoving ? (
-                            <Loader2 size={15} className="animate-spin" />
-                          ) : (
-                            <Trash2 size={15} />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleDownload(doc.id, doc.fileName)} disabled={isDownloading} title={t("download")} className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white disabled:opacity-50">
+                            {isDownloading ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+                          </button>
+                          <button onClick={() => { setSharingFileId(doc.id); setShareEmail(""); }} title={t("share")} className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white">
+                            <Share2 size={15} />
+                          </button>
+                          <button onClick={() => handleDelete(doc.id)} disabled={isRemoving} title={t("cancel")} className="p-1.5 rounded-lg text-red-500/70 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30 disabled:opacity-50">
+                            {isRemoving ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

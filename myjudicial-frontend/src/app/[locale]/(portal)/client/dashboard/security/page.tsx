@@ -107,6 +107,19 @@ export default function ClientSecurityPage() {
     return isLocal ? `${cleaned} (${t("localNetwork")})` : cleaned;
   };
 
+  /* Relative time formatter: "2h ago", "3d ago", "just now" */
+  function formatRelativeTime(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 2) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+  }
+
   /* Fetch active sessions using TanStack Query */
   const {
     data: sessions = [],
@@ -340,14 +353,13 @@ export default function ClientSecurityPage() {
                       <p className="text-xs text-brand-dark/60 dark:text-white/60 break-words mt-1">
                         {s.browser && `${s.browser} · `}
                         {cleanIp(s.ip)} · {t("lastActive")}:{" "}
-                        {s.lastActive
-                          ? new Date(s.lastActive).toLocaleDateString(locale, {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })
-                          : "—"}
+                        {s.lastActive ? formatRelativeTime(s.lastActive) : "—"}
                       </p>
+                      {s.createdAt && (
+                        <p className="text-[10px] text-brand-dark/40 dark:text-white/40 mt-0.5">
+                          {t("sessionStarted")}: {new Date(s.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      )}
                     </div>
                   </div>
                   {!s.isCurrent && (

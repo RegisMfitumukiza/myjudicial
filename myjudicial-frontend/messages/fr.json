@@ -1855,7 +1855,8 @@
       "dropFilesHere": "Déposez le fichier ici pour le téléverser",
       "dragAndDropHint": "Glissez-déposez votre fichier, ou cliquez pour parcourir",
       "storageTelemetry": "{count} fichiers stockés • {size} utilisés dans le coffre chiffré",
-      "suggestedDocs": "Suggéré : Titres fonciers, contrats, assignations, pièces d'identité"
+      "suggestedDocs": "Suggéré : Titres fonciers, contrats, assignations, pièces d'identité",
+      "noDocumentsMatch": "Aucun document ne correspond à « {query} »"
     },
     "chat": {
       "loadMessagesFailed": "Échec du chargement des anciens messages.",
@@ -3879,7 +3880,8 @@
         "role": "Role",
         "emailAddress": "Email Address",
         "phoneNumber": "Phone Number",
-        "emailVerified": "Email Verified"
+        "emailVerified": "Email Verified",
+        "lastLogin": "Dernière connexion"
       },
       "security": {
         "title": "Account Security",
@@ -3898,7 +3900,8 @@
       "statsConsultations": "Consultations",
       "statsDocuments": "Fichiers coffre-fort",
       "statsReviews": "Avis",
-      "memberSince": "Client depuis {date}"
+      "memberSince": "Client depuis {date}",
+      "lastLogin": "Dernière connexion : {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -3969,7 +3972,12 @@
       "currentTimezone": "Fuseau horaire de la plateforme",
       "currentCurrency": "Devise par défaut",
       "timeValue": "Heure d'Afrique centrale (Kigali UTC+2)",
-      "currencyValue": "Franc rwandais (RWF)"
+      "currencyValue": "Franc rwandais (RWF)",
+      "notifEnabled": "Alertes {channel} activées",
+      "notifDisabled": "Alertes {channel} désactivées",
+      "notifSaveFailed": "Impossible d'enregistrer la préférence de notification",
+      "timezoneNote": "Heure Standard des Tribunaux du Rwanda (CAT)",
+      "currencyNote": "Compatible Escrow AzamPay MoMo"
     },
     "consultations": {
       "title": "Mes réservations",
@@ -4191,7 +4199,9 @@
       "pendingReviewBanner": "Vous avez {count} consultation terminée en attente de votre avis !",
       "leaveReviewBtn": "Donner un avis",
       "browseLawyersBtn": "Trouver un avocat vérifié",
-      "noReviewsForRating": "Aucun avis avec {rating} étoiles."
+      "noReviewsForRating": "Aucun avis avec {rating} étoiles.",
+      "reviewCount": "{count} avis",
+      "advocateReply": "Réponse de l'avocat"
     },
     "savedExperts": {
       "backToDashboard": "Tableau de bord",
@@ -8159,6 +8169,7 @@
     "dataProtectionBadge": "Conforme à la loi rwandaise nº 058/2021",
     "exportDataBtn": "Exporter mes données personnelles",
     "exportDataDesc": "Générez une archive lisible par machine de vos consultations, documents et reçus de paiement.",
-    "dataExported": "Archive des données de compte préparée."
+    "dataExported": "Archive des données de compte préparée.",
+    "sessionStarted": "Session démarrée"
   }
 }

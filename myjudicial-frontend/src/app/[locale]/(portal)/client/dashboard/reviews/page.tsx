@@ -68,7 +68,7 @@ export default function MyReviewsPage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/70 px-3.5 py-1 text-xs font-semibold text-amber-900 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-200 self-start sm:self-auto shrink-0">
             <Star size={14} className="fill-amber-500 text-amber-500" />
             <span>
-              {averageRating} / 5.0 • {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
+              {averageRating} / 5.0 • {t("reviewCount", { count: reviews.length })}
             </span>
           </div>
         )}
@@ -226,6 +226,16 @@ export default function MyReviewsPage() {
                 <p className="mt-3.5 text-xs sm:text-[13px] leading-relaxed text-brand-dark/70 dark:text-white/70 border-t border-brand-border/10 dark:border-white/10 pt-3">
                   &ldquo;{review.comment}&rdquo;
                 </p>
+              )}
+              {(review as unknown as { expertReply?: { content?: string; createdAt?: string } }).expertReply?.content && (
+                <div className="mt-3 rounded-xl bg-brand-dark/[0.03] dark:bg-white/[0.03] border border-brand-border/10 dark:border-white/10 px-4 py-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-brand-dark/40 dark:text-white/40 mb-1.5">
+                    {t("advocateReply")}
+                  </p>
+                  <p className="text-xs sm:text-[13px] leading-relaxed text-brand-dark/60 dark:text-white/60 italic">
+                    &ldquo;{(review as unknown as { expertReply?: { content?: string } }).expertReply!.content}&rdquo;
+                  </p>
+                </div>
               )}
             </div>
           ))}

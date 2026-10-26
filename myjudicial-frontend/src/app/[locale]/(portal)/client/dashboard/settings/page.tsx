@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LanguageSettingsCard } from "@/features/settings/components/language-settings-card";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import {
@@ -16,31 +16,60 @@ import {
   Coins,
   Scale,
   Check,
+  Loader2,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { apiFetch } from "@/lib/api/client";
+
+interface NotificationPrefs {
+  email: boolean;
+  push: boolean;
+  inApp: boolean;
+}
 
 export default function SettingsPage() {
   const t = useTranslations("clientDashboard.settings");
 
-  /* Notification preferences local state */
-  const [emailNotifs, setEmailNotifs] = useState(true);
-  const [smsNotifs, setSmsNotifs] = useState(true);
-  const [chatNotifs, setChatNotifs] = useState(true);
+  /* Notification preferences — loaded from API, persisted on toggle */
+  const [prefs, setPrefs] = useState<NotificationPrefs>({ email: true, push: true, inApp: true });
+  const [prefsLoading, setPrefsLoading] = useState(true);
+  const [savingChannel, setSavingChannel] = useState<string | null>(null);
 
-  const handleToggle = (
-    channel: "email" | "sms" | "chat",
-    current: boolean,
-    setter: (val: boolean) => void
-  ) => {
-    const next = !current;
-    setter(next);
-    toast.success(
-      next
-        ? `${channel.toUpperCase()} alerts enabled`
-        : `${channel.toUpperCase()} alerts muted`
-    );
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await apiFetch("/auth/me/notification-preferences") as { data?: NotificationPrefs };
+        if (res?.data) setPrefs(res.data);
+      } catch {
+        // silently fallback to defaults
+      } finally {
+        setPrefsLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleToggle = async (channel: "email" | "push" | "inApp") => {
+    const next: NotificationPrefs = { ...prefs, [channel]: !prefs[channel] };
+    setPrefs(next); // optimistic update
+    setSavingChannel(channel);
+    try {
+      await apiFetch("/auth/me/notification-preferences", {
+        method: "PUT",
+        body: next,
+      });
+      toast.success(
+        next[channel]
+          ? t("notifEnabled", { channel: channel.toUpperCase() })
+          : t("notifDisabled", { channel: channel.toUpperCase() })
+      );
+    } catch {
+      setPrefs(prefs); // revert on failure
+      toast.error(t("notifSaveFailed"));
+    } finally {
+      setSavingChannel(null);
+    }
   };
 
   return (
@@ -104,88 +133,97 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="divide-y divide-brand-border/10 dark:divide-white/10 border-t border-brand-border/10 dark:border-white/10">
-            {/* Email Notifications */}
-            <div className="flex items-center justify-between py-3.5">
-              <div className="pr-4">
-                <p className="text-sm font-semibold text-brand-dark dark:text-white">
-                  {t("channelEmail")}
-                </p>
-                <p className="text-xs text-brand-dark/60 dark:text-white/60">
-                  {t("channelEmailDesc")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggle("email", emailNotifs, setEmailNotifs)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  emailNotifs ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
-                }`}
-                role="switch"
-                aria-checked={emailNotifs}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
-                    emailNotifs ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
+          {prefsLoading ? (
+            <div className="flex items-center justify-center py-6 border-t border-brand-border/10 dark:border-white/10">
+              <Loader2 size={20} className="animate-spin text-brand-dark/40 dark:text-white/40" />
             </div>
+          ) : (
+            <div className="divide-y divide-brand-border/10 dark:divide-white/10 border-t border-brand-border/10 dark:border-white/10">
+              {/* Email Notifications */}
+              <div className="flex items-center justify-between py-3.5">
+                <div className="pr-4">
+                  <p className="text-sm font-semibold text-brand-dark dark:text-white">
+                    {t("channelEmail")}
+                  </p>
+                  <p className="text-xs text-brand-dark/60 dark:text-white/60">
+                    {t("channelEmailDesc")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggle("email")}
+                  disabled={savingChannel === "email"}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-60 ${
+                    prefs.email ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
+                  }`}
+                  role="switch"
+                  aria-checked={prefs.email}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
+                      prefs.email ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
 
-            {/* SMS & Mobile Alerts */}
-            <div className="flex items-center justify-between py-3.5">
-              <div className="pr-4">
-                <p className="text-sm font-semibold text-brand-dark dark:text-white">
-                  {t("channelSms")}
-                </p>
-                <p className="text-xs text-brand-dark/60 dark:text-white/60">
-                  {t("channelSmsDesc")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggle("sms", smsNotifs, setSmsNotifs)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  smsNotifs ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
-                }`}
-                role="switch"
-                aria-checked={smsNotifs}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
-                    smsNotifs ? "translate-x-5" : "translate-x-0"
+              {/* SMS & Mobile Alerts — maps to "push" in backend */}
+              <div className="flex items-center justify-between py-3.5">
+                <div className="pr-4">
+                  <p className="text-sm font-semibold text-brand-dark dark:text-white">
+                    {t("channelSms")}
+                  </p>
+                  <p className="text-xs text-brand-dark/60 dark:text-white/60">
+                    {t("channelSmsDesc")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggle("push")}
+                  disabled={savingChannel === "push"}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-60 ${
+                    prefs.push ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
                   }`}
-                />
-              </button>
-            </div>
+                  role="switch"
+                  aria-checked={prefs.push}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
+                      prefs.push ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
 
-            {/* In-Platform Chat Alerts */}
-            <div className="flex items-center justify-between py-3.5">
-              <div className="pr-4">
-                <p className="text-sm font-semibold text-brand-dark dark:text-white">
-                  {t("channelChat")}
-                </p>
-                <p className="text-xs text-brand-dark/60 dark:text-white/60">
-                  {t("channelChatDesc")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggle("chat", chatNotifs, setChatNotifs)}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  chatNotifs ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
-                }`}
-                role="switch"
-                aria-checked={chatNotifs}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
-                    chatNotifs ? "translate-x-5" : "translate-x-0"
+              {/* In-Platform Chat Alerts — maps to "inApp" in backend */}
+              <div className="flex items-center justify-between py-3.5">
+                <div className="pr-4">
+                  <p className="text-sm font-semibold text-brand-dark dark:text-white">
+                    {t("channelChat")}
+                  </p>
+                  <p className="text-xs text-brand-dark/60 dark:text-white/60">
+                    {t("channelChatDesc")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggle("inApp")}
+                  disabled={savingChannel === "inApp"}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-60 ${
+                    prefs.inApp ? "bg-brand-dark dark:bg-white" : "bg-gray-200 dark:bg-gray-700"
                   }`}
-                />
-              </button>
+                  role="switch"
+                  aria-checked={prefs.inApp}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-black shadow ring-0 transition duration-200 ease-in-out ${
+                      prefs.inApp ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Regional & Court Jurisdiction Defaults */}
@@ -217,7 +255,7 @@ export default function SettingsPage() {
               </p>
               <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
                 <Check size={12} />
-                <span>Rwanda Court Standard Time (CAT)</span>
+                <span>{t("timezoneNote")}</span>
               </div>
             </div>
 
@@ -233,7 +271,7 @@ export default function SettingsPage() {
               </p>
               <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">
                 <Check size={12} />
-                <span>AzamPay MoMo Escrow Compatible</span>
+                <span>{t("currencyNote")}</span>
               </div>
             </div>
           </div>

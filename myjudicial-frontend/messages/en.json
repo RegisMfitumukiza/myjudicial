@@ -1771,7 +1771,8 @@
         "role": "Role",
         "emailAddress": "Email Address",
         "phoneNumber": "Phone Number",
-        "emailVerified": "Email Verified"
+        "emailVerified": "Email Verified",
+        "lastLogin": "Last Sign-In"
       },
       "security": {
         "title": "Account Security",
@@ -1790,7 +1791,8 @@
       "statsConsultations": "Consultations",
       "statsDocuments": "Vault Files",
       "statsReviews": "Reviews",
-      "memberSince": "Client since {date}"
+      "memberSince": "Client since {date}",
+      "lastLogin": "Last login: {date}"
     },
     "profileEdit": {
       "title": "Edit Profile",
@@ -1861,7 +1863,12 @@
       "currentTimezone": "Platform Timezone",
       "currentCurrency": "Default Currency",
       "timeValue": "Central Africa Time (Kigali UTC+2)",
-      "currencyValue": "Rwandan Franc (RWF)"
+      "currencyValue": "Rwandan Franc (RWF)",
+      "notifEnabled": "{channel} alerts enabled",
+      "notifDisabled": "{channel} alerts muted",
+      "notifSaveFailed": "Failed to save notification preference",
+      "timezoneNote": "Rwanda Court Standard Time (CAT)",
+      "currencyNote": "AzamPay MoMo Escrow Compatible"
     },
     "consultations": {
       "title": "My Bookings",
@@ -2083,7 +2090,9 @@
       "pendingReviewBanner": "You have {count} completed consultation awaiting your review!",
       "leaveReviewBtn": "Leave Review",
       "browseLawyersBtn": "Find a Verified Advocate",
-      "noReviewsForRating": "No reviews with {rating} stars yet."
+      "noReviewsForRating": "No reviews with {rating} stars yet.",
+      "reviewCount": "{count} review(s)",
+      "advocateReply": "Advocate Reply"
     },
     "savedExperts": {
       "backToDashboard": "Dashboard",
@@ -4310,7 +4319,8 @@
       "dropFilesHere": "Drop file here to upload",
       "dragAndDropHint": "Drag and drop your file, or click to browse",
       "storageTelemetry": "{count} files stored • {size} used in encrypted vault",
-      "suggestedDocs": "Suggested: Land titles, contracts, summons, government IDs"
+      "suggestedDocs": "Suggested: Land titles, contracts, summons, government IDs",
+      "noDocumentsMatch": "No documents match \"{query}\""
     },
     "chat": {
       "loadMessagesFailed": "Failed to load older messages.",
@@ -8161,6 +8171,7 @@
     "dataProtectionBadge": "Rwanda Law Nº 058/2021 Compliant",
     "exportDataBtn": "Export Personal Data Archive",
     "exportDataDesc": "Generate a machine-readable export of your consultations, uploaded case documents, and payment receipts.",
-    "dataExported": "Account data archive prepared."
+    "dataExported": "Account data archive prepared.",
+    "sessionStarted": "Session started"
   }
 }

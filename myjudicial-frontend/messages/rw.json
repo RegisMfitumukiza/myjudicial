@@ -3887,8 +3887,8 @@
         "emailVerification": "Email Verification",
         "emailVerifiedDesc": "Your email is verified",
         "active": "Active",
-        "twoFactor": "Two-Factor Authentication",
-        "twoFactorDesc": "Add an extra layer of security",
+        "twoFactor": "Kugenzura OTP kuri imeri",
+        "twoFactorDesc": "Amabwiriza yo kugenzura yoherezwa kuri imeri yawe arinzi buri kwinjira",
         "disabled": "Disabled",
         "enable": "Enable"
       },
@@ -4190,7 +4190,8 @@
       "filterStars": "Inyenyeri {stars}",
       "pendingReviewBanner": "Ufite inama {count} yarangiye itarasubizwamo amanota!",
       "leaveReviewBtn": "Tanga amanota",
-      "browseLawyersBtn": "Shaka Umwunganizi Wemejwe"
+      "browseLawyersBtn": "Shaka Umwunganizi Wemejwe",
+      "noReviewsForRating": "Nta bisobanuro bifite {rating} inyenyeri."
     },
     "savedExperts": {
       "backToDashboard": "Imbaho",

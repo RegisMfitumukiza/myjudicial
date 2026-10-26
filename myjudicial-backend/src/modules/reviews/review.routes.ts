@@ -31,11 +31,30 @@ router.post(
 );
 
 /**
- * GET /api/v1/reviews/:id
- * Get a single review by ID
- * Public endpoint (no authentication required)
+ * GET /api/v1/reviews/my-reviews
+ * List reviews created by the authenticated user
+ * Requires authentication
+ * IMPORTANT: Must be registered BEFORE /reviews/:id to prevent Express
+ * from matching "my-reviews" as the :id parameter.
  */
-router.get("/reviews/:id", ReviewController.getReview);
+router.get(
+  "/reviews/my-reviews",
+  authenticate,
+  validateQuery(listMyReviewsSchema),
+  ReviewController.listMyReviews
+);
+
+/**
+ * GET /api/v1/reviews/top-rated
+ * Get top-rated experts by average rating
+ * Public endpoint
+ * IMPORTANT: Must be registered BEFORE /reviews/:id.
+ */
+router.get(
+  "/reviews/top-rated",
+  validateQuery(topRatedExpertsSchema),
+  ReviewController.getTopRatedExperts
+);
 
 /**
  * GET /api/v1/experts/:expertId/reviews
@@ -56,16 +75,12 @@ router.get(
 router.get("/experts/:expertId/reviews/distribution", ReviewController.getExpertRatingDistribution);
 
 /**
- * GET /api/v1/reviews/my-reviews
- * List reviews created by the authenticated user
- * Requires authentication
+ * GET /api/v1/reviews/:id
+ * Get a single review by ID
+ * Public endpoint (no authentication required)
+ * IMPORTANT: Must come AFTER all literal /reviews/* routes.
  */
-router.get(
-  "/reviews/my-reviews",
-  authenticate,
-  validateQuery(listMyReviewsSchema),
-  ReviewController.listMyReviews
-);
+router.get("/reviews/:id", ReviewController.getReview);
 
 /**
  * PATCH /api/v1/reviews/:id
@@ -106,17 +121,6 @@ router.get(
   "/experts/:expertId/reviews/search",
   validateQuery(searchReviewsSchema),
   ReviewController.searchReviews
-);
-
-/**
- * GET /api/v1/reviews/top-rated
- * Get top-rated experts by average rating
- * Public endpoint
- */
-router.get(
-  "/reviews/top-rated",
-  validateQuery(topRatedExpertsSchema),
-  ReviewController.getTopRatedExperts
 );
 
 /**

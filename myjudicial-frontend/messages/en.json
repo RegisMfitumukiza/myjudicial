@@ -1779,8 +1779,8 @@
         "emailVerification": "Email Verification",
         "emailVerifiedDesc": "Your email is verified",
         "active": "Active",
-        "twoFactor": "Two-Factor Authentication",
-        "twoFactorDesc": "Add an extra layer of security",
+        "twoFactor": "Email OTP Verification",
+        "twoFactorDesc": "One-time verification codes sent to your email protect every sign-in",
         "disabled": "Disabled",
         "enable": "Enable"
       },
@@ -2082,7 +2082,8 @@
       "filterStars": "{stars} Stars",
       "pendingReviewBanner": "You have {count} completed consultation awaiting your review!",
       "leaveReviewBtn": "Leave Review",
-      "browseLawyersBtn": "Find a Verified Advocate"
+      "browseLawyersBtn": "Find a Verified Advocate",
+      "noReviewsForRating": "No reviews with {rating} stars yet."
     },
     "savedExperts": {
       "backToDashboard": "Dashboard",

@@ -174,7 +174,7 @@ export default function MyReviewsPage() {
       ) : filteredReviews.length === 0 ? (
         <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center dark:border-white/10 dark:bg-black">
           <p className="text-sm text-brand-dark/50 dark:text-white/50">
-            No reviews with {selectedRating} stars.
+            {t("noReviewsForRating", { rating: selectedRating })}
           </p>
         </div>
       ) : (

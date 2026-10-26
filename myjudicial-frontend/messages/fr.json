@@ -3887,8 +3887,8 @@
         "emailVerification": "Email Verification",
         "emailVerifiedDesc": "Your email is verified",
         "active": "Active",
-        "twoFactor": "Two-Factor Authentication",
-        "twoFactorDesc": "Add an extra layer of security",
+        "twoFactor": "Vérification OTP par e-mail",
+        "twoFactorDesc": "Des codes de vérification uniques envoyés à votre e-mail protègent chaque connexion",
         "disabled": "Disabled",
         "enable": "Enable"
       },
@@ -4190,7 +4190,8 @@
       "filterStars": "{stars} Étoiles",
       "pendingReviewBanner": "Vous avez {count} consultation terminée en attente de votre avis !",
       "leaveReviewBtn": "Donner un avis",
-      "browseLawyersBtn": "Trouver un avocat vérifié"
+      "browseLawyersBtn": "Trouver un avocat vérifié",
+      "noReviewsForRating": "Aucun avis avec {rating} étoiles."
     },
     "savedExperts": {
       "backToDashboard": "Tableau de bord",

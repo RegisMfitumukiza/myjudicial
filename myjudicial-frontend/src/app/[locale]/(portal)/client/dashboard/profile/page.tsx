@@ -180,8 +180,8 @@ export default async function ProfilePage({
                 </div>
                 <div className="flex items-center justify-between px-4 py-3.5">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t("security.twoFactor")}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("security.twoFactorDesc")}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t("security.emailOtp")}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t("security.emailOtpDesc")}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300">

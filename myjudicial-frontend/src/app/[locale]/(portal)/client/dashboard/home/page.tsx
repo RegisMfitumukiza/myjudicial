@@ -588,7 +588,31 @@ export default function ClientHomePage() {
           )}
 
           {/* ── Middle Section: Returning vs New Clients ── */}
-          {myLegalCounsel.length > 0 ? (
+          {/* Wait for bookings data before deciding which section to show — prevents onboarding guide flashing on hard refresh */}
+          {isLoading ? (
+            /* Skeleton placeholder — same height as the counsel card */
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black animate-pulse">
+              <div className="h-4 w-36 bg-brand-dark/10 dark:bg-white/10 rounded mb-2" />
+              <div className="h-3 w-52 bg-brand-dark/5 dark:bg-white/5 rounded mb-5" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="rounded-xl border border-brand-border/10 dark:border-white/10 p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-brand-dark/10 dark:bg-white/10 shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <div className="h-3 w-24 bg-brand-dark/10 dark:bg-white/10 rounded" />
+                        <div className="h-2.5 w-16 bg-brand-dark/5 dark:bg-white/5 rounded" />
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-brand-border/10 dark:border-white/10 flex gap-2">
+                      <div className="flex-1 h-7 rounded-lg bg-brand-dark/5 dark:bg-white/5" />
+                      <div className="flex-1 h-7 rounded-lg bg-brand-dark/10 dark:bg-white/10" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : myLegalCounsel.length > 0 ? (
             /* RETURNING CLIENT: My Legal Counsel (Fast Re-engagement) */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">

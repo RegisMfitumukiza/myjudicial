@@ -687,7 +687,21 @@
       "retrying": "Birimo kongera kugerageza...",
       "loading": "Birimo gukora amakuru y'amahera...",
       "failedToLoad": "Kubura gukora wishyura",
-      "failedToLoadSettlements": "Kubura gukora iwihezo"
+      "failedToLoadSettlements": "Kubura gukora iwihezo",
+      "paymentsDisabled": "Kwishyura ntibishoboka ubu",
+      "paymentsDisabledDesc": "Mobile Money irahagaritswe mu buryo bwa serivisi mbere yo kwishyura. Nta makuru y'ubwishyu cyangwa ububiko bwa kazoza bihari ubu. Uru rupapuro ruzongera gukora mu gihe uburyo bwo kwishyura bwakongera gukoreshwa.",
+      "twoTierTitle": "Uburinzi bw'ibyishyurwa ku nzego ebyiri buriho",
+      "twoTierDesc": "Amakosa y'agateganyo ya interineti cyangwa inzira y'ubwishyu yongera kugeragezwa mu buryo bwikora buri minota 15 inshuro zigera kuri 3. Gahunda ziri hasi aha zisaba ko ubuyobozi bugira icyo bubikoraho (urugero: nomero ya MoMo y'impuguke itarabonetse cyangwa imipaka ya konti). Iyo bikemutse, koresha uburyo bwo kohereza amafaranga intoki.",
+      "auditTraceability": "Igenzura ry'ubwishyu",
+      "payoutRef": "Inomero y'ubwishyu bwoherejwe",
+      "payoutSent": "Ubwishyu bwoherejwe",
+      "fallback": "Icyiciro cyo gutabara",
+      "contactPhoneLabel": "Telefone yo guhamagaraho",
+      "escrowCustody": "Amafaranga afatiwe mu bubiko bw'agateganyo",
+      "accountPhoneFallback": "Gukoresha telefone yo gutumanaho",
+      "roomLabel": "Icyumba",
+      "pageOf": "Urupapuro {page} / {total}",
+      "cancel": "Guhagarika"
     },
     "auditLogs": {
       "title": "Inyandiko z'Ubusununu",
@@ -5144,7 +5158,12 @@
     "momoSaveError": "Guhindura nimero ya Mobile Money byanze. Ongera ugerageze.",
     "invalidRwandaMomo": "Shyiramo nimero nyayo yo mu Rwanda ya MTN (078/079) cyangwa Airtel (072/073).",
     "verifiedMomo": "MoMo yemejwe",
-    "fallbackMomo": "Gukoresha telefone yo kwiyandikisha"
+    "fallbackMomo": "Gukoresha telefone yo kwiyandikisha",
+    "detectedCarrier": "Operator yabonye:",
+    "alternateLineDesc": "Shyiramo nomero ya MTN cyangwa Airtel y'undi muntu cyangwa konti y'akazi",
+    "matchesContactPhone": "Ihura na telefone yo gutumanahana",
+    "momoFormatHint": "Igomba gutangira na 078, 079 (MTN) cyangwa 072, 073 (Airtel).",
+    "cancel": "Hagarika"
   },
   "expertDashboard_faq-section": {
     "faqTag": "Ibibazo Bikunze Kubazwa",

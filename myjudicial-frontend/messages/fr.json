@@ -687,7 +687,21 @@
       "retrying": "Nouvelle tentative...",
       "loading": "Chargement des données financières...",
       "failedToLoad": "Échec du chargement des paiements",
-      "failedToLoadSettlements": "Échec du chargement des règlements"
+      "failedToLoadSettlements": "Échec du chargement des règlements",
+      "paymentsDisabled": "Les paiements sont actuellement désactivés",
+      "paymentsDisabledDesc": "Mobile Money est désactivé en mode réservation prioritaire. Aucun paiement ni enregistrement d'entiercement n'existe encore. Cette page deviendra active une fois le mode de paiement réactivé.",
+      "twoTierTitle": "Protection de règlement à deux niveaux active",
+      "twoTierDesc": "Les erreurs réseau ou de passerelle transitoires sont automatiquement réessayées toutes les 15 minutes jusqu'à 3 fois par des travailleurs en arrière-plan. Les réservations listées ci-dessous nécessitent une intervention administrative (ex. : numéro MoMo de l'expert manquant ou limites de solde). Une fois résolu, déclenchez le règlement manuel avec une note d'audit.",
+      "auditTraceability": "Traçabilité d'audit",
+      "payoutRef": "Réf. de paiement",
+      "payoutSent": "Paiement envoyé",
+      "fallback": "Secours",
+      "contactPhoneLabel": "Téléphone de contact",
+      "escrowCustody": "Garde sous séquestre",
+      "accountPhoneFallback": "Téléphone du compte (secours)",
+      "roomLabel": "Salle",
+      "pageOf": "Page {page} / {total}",
+      "cancel": "Annuler"
     },
     "auditLogs": {
       "title": "Journaux d'audit",
@@ -5144,7 +5158,12 @@
     "momoSaveError": "Échec de la mise à jour du numéro Mobile Money. Veuillez réessayer.",
     "invalidRwandaMomo": "Veuillez entrer un numéro valide MTN (078/079) ou Airtel (072/073) du Rwanda.",
     "verifiedMomo": "MoMo confirmé",
-    "fallbackMomo": "Repli sur numéro de contact"
+    "fallbackMomo": "Repli sur numéro de contact",
+    "detectedCarrier": "Opérateur détecté :",
+    "alternateLineDesc": "Spécifiez un autre numéro MTN ou Airtel ou un compte professionnel",
+    "matchesContactPhone": "Correspond au téléphone de contact",
+    "momoFormatHint": "Doit commencer par 078, 079 (MTN) ou 072, 073 (Airtel).",
+    "cancel": "Annuler"
   },
   "expertDashboard_faq-section": {
     "faqTag": "FAQ",

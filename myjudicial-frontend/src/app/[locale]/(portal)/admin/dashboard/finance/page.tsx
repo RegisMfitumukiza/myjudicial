@@ -270,7 +270,7 @@ export default function FinancePage() {
   const t = useTranslations("admin.finance");
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const { isBookingFirst, isLoading: paymentModeLoading } = usePaymentMode();
+  const { isBookingFirst } = usePaymentMode();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<"payments" | "escrow" | "failed">("payments");
@@ -511,16 +511,16 @@ export default function FinancePage() {
         description={t("subtitle")}
       />
 
-      {(isBookingFirst || paymentModeLoading) && (
+      {isBookingFirst && (
         <Card>
           <CardContent className="flex items-start gap-3 pt-5">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
               <p className="text-sm font-semibold text-foreground">
-                Payments are currently disabled
+                {t("paymentsDisabled")}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Mobile Money is disabled in booking-first mode. No payments or escrow records exist yet. This page will become active once the payment mode is re-enabled.
+                {t("paymentsDisabledDesc")}
               </p>
             </div>
           </CardContent>
@@ -795,8 +795,7 @@ export default function FinancePage() {
                     {paymentsPagination && paymentsPagination.totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-border px-6 py-4">
                         <p className="text-sm text-muted-foreground">
-                          Page {paymentsPagination.page} / {paymentsPagination.totalPages} (
-                          {paymentsPagination.total})
+                          {t("pageOf", { page: paymentsPagination.page, total: paymentsPagination.totalPages })} ({paymentsPagination.total})
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -975,7 +974,7 @@ export default function FinancePage() {
                     {escrowPagination && escrowPagination.totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-border px-6 py-4">
                         <p className="text-sm text-muted-foreground">
-                          Page {escrowPagination.page} / {escrowPagination.totalPages} ({escrowPagination.total})
+                          {t("pageOf", { page: escrowPagination.page, total: escrowPagination.totalPages })} ({escrowPagination.total})
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -1014,10 +1013,10 @@ export default function FinancePage() {
                   <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
                   <div className="text-xs sm:text-sm">
                     <p className="font-semibold text-amber-900 dark:text-amber-200">
-                      Two-Tier Settlement Protection Active
+                      {t("twoTierTitle")}
                     </p>
                     <p className="mt-0.5 text-amber-800 dark:text-amber-300">
-                      Transient network or gateway errors are automatically retried every 15 minutes up to 3 times by background workers. Bookings listed below require administrative intervention (e.g., missing expert MoMo number or float limits). Once resolved, trigger manual settlement with an audit note.
+                      {t("twoTierDesc")}
                     </p>
                   </div>
                 </CardContent>
@@ -1094,7 +1093,7 @@ export default function FinancePage() {
                                       </span>
                                       {payment.expert.isPayoutFallback ? (
                                         <span className="inline-flex items-center rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                                          Fallback
+                                          {t("fallback")}
                                         </span>
                                       ) : (
                                         <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -1133,7 +1132,7 @@ export default function FinancePage() {
                     {failedPagination && failedPagination.totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-border px-6 py-4">
                         <p className="text-sm text-muted-foreground">
-                          Page {failedPagination.page} / {failedPagination.totalPages} ({failedPagination.total})
+                          {t("pageOf", { page: failedPagination.page, total: failedPagination.totalPages })} ({failedPagination.total})
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -1238,7 +1237,7 @@ export default function FinancePage() {
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <Phone className="h-3 w-3" />
                       <span>{selectedPayment.expert.contactPhone}</span>
-                      <span className="text-[10px] text-muted-foreground/70 font-mono">(Contact Phone)</span>
+                      <span className="text-[10px] text-muted-foreground/70 font-mono">({t("contactPhoneLabel")})</span>
                     </p>
                   )}
                   <div className="text-xs flex items-center gap-1.5 pt-0.5">
@@ -1250,7 +1249,7 @@ export default function FinancePage() {
                         </span>
                         {selectedPayment.expert.isPayoutFallback ? (
                           <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                            Account Phone Fallback
+                            {t("accountPhoneFallback")}
                           </span>
                         ) : (
                           <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -1268,7 +1267,7 @@ export default function FinancePage() {
               {/* Gateway & Settlement Audit Trail */}
               <div className="rounded-xl border border-border p-3.5 space-y-2.5 text-xs">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Audit Traceability
+                  {t("auditTraceability")}
                 </p>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{t("gatewayRef")}:</span>
@@ -1277,7 +1276,7 @@ export default function FinancePage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Payout Ref:</span>
+                  <span className="text-muted-foreground">{t("payoutRef")}:</span>
                   <span className="font-mono text-foreground font-medium">
                     {selectedPayment.providerPayoutRef || "—"}
                   </span>
@@ -1287,7 +1286,7 @@ export default function FinancePage() {
                   <span className="text-foreground">{formatDate(selectedPayment.paidAt)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Payout Sent:</span>
+                  <span className="text-muted-foreground">{t("payoutSent")}:</span>
                   <span className="text-foreground">{formatDate(selectedPayment.payoutSentAt)}</span>
                 </div>
                 <div className="pt-2 border-t border-border flex justify-between items-center">
@@ -1321,7 +1320,7 @@ export default function FinancePage() {
                   </span>
                 </div>
                 <SheetTitle className="text-lg font-bold mt-2 font-mono">
-                  Room: {selectedEscrow.roomId}
+                  {t("roomLabel")}: {selectedEscrow.roomId}
                 </SheetTitle>
                 <SheetDescription className="text-xs">
                   {t("escrowLedger")}
@@ -1331,7 +1330,7 @@ export default function FinancePage() {
               {/* Escrow Custody Details */}
               <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Escrow Custody
+                  {t("escrowCustody")}
                 </p>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">{t("amount")}</span>
@@ -1376,7 +1375,7 @@ export default function FinancePage() {
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <Phone className="h-3 w-3" />
                       <span>{selectedEscrow.expert.contactPhone}</span>
-                      <span className="text-[10px] text-muted-foreground/70 font-mono">(Contact Phone)</span>
+                      <span className="text-[10px] text-muted-foreground/70 font-mono">({t("contactPhoneLabel")})</span>
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground font-mono flex items-center gap-1.5">
@@ -1455,7 +1454,7 @@ export default function FinancePage() {
                 setSelectedFailedSettlement(null);
               }}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               onClick={confirmRetry}

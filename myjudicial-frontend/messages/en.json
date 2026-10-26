@@ -821,7 +821,21 @@
       "retrying": "Retrying...",
       "loading": "Loading finance data...",
       "failedToLoad": "Failed to load payments",
-      "failedToLoadSettlements": "Failed to load settlements"
+      "failedToLoadSettlements": "Failed to load settlements",
+      "paymentsDisabled": "Payments are currently disabled",
+      "paymentsDisabledDesc": "Mobile Money is disabled in booking-first mode. No payments or escrow records exist yet. This page will become active once the payment mode is re-enabled.",
+      "twoTierTitle": "Two-Tier Settlement Protection Active",
+      "twoTierDesc": "Transient network or gateway errors are automatically retried every 15 minutes up to 3 times by background workers. Bookings listed below require administrative intervention (e.g., missing expert MoMo number or float limits). Once resolved, trigger manual settlement with an audit note.",
+      "auditTraceability": "Audit Traceability",
+      "payoutRef": "Payout Ref",
+      "payoutSent": "Payout Sent",
+      "fallback": "Fallback",
+      "contactPhoneLabel": "Contact Phone",
+      "escrowCustody": "Escrow Custody",
+      "accountPhoneFallback": "Account Phone Fallback",
+      "roomLabel": "Room",
+      "pageOf": "Page {page} / {total}",
+      "cancel": "Cancel"
     },
     "auditLogs": {
       "title": "Audit Logs",
@@ -3143,7 +3157,12 @@
     "momoSaveError": "Failed to update Mobile Money number. Please try again.",
     "invalidRwandaMomo": "Please enter a valid Rwandan MTN (078/079) or Airtel (072/073) number.",
     "verifiedMomo": "Confirmed MoMo",
-    "fallbackMomo": "Contact Phone Fallback"
+    "fallbackMomo": "Contact Phone Fallback",
+    "detectedCarrier": "Detected carrier:",
+    "alternateLineDesc": "Specify an alternate MTN or Airtel line or office account",
+    "matchesContactPhone": "Matches contact phone",
+    "momoFormatHint": "Must start with 078, 079 (MTN) or 072, 073 (Airtel).",
+    "cancel": "Cancel"
   },
   "expertDashboard_faq-section": {
     "faq1q": "How do bookings work?",

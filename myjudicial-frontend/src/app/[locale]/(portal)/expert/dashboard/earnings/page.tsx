@@ -37,8 +37,8 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-function formatCurrency(amount: number, currency: string): string {
-  return `${currency} ${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+function formatCurrency(amount: number, currency: string, locale: string): string {
+  return `${currency} ${amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 function detectCarrier(raw?: string | null): "MTN" | "AIRTEL" | null {
@@ -202,7 +202,7 @@ export default function EarningsPage() {
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <span>{activeCarrier ? `${activeCarrier} Mobile Money Rwanda` : "Rwanda Mobile Money"}</span>
                       {contactPhone && currentMomo === contactPhone && (
-                        <span className="text-[10px] text-muted-foreground font-mono">(Matches contact phone)</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">({t("matchesContactPhone")})</span>
                       )}
                     </p>
                   </div>
@@ -290,7 +290,7 @@ export default function EarningsPage() {
                         {t("useRegisteredPhone", { phone: contactPhone })}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Detected carrier: <strong className="text-foreground">{registeredCarrier} Rwanda</strong>
+                        {t("detectedCarrier")} <strong className="text-foreground">{registeredCarrier} Rwanda</strong>
                       </p>
                     </div>
                   </label>
@@ -316,7 +316,7 @@ export default function EarningsPage() {
                       {t("useCustomPhone")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Specify an alternate MTN or Airtel line or office account
+                      {t("alternateLineDesc")}
                     </p>
                   </div>
                 </label>
@@ -353,7 +353,7 @@ export default function EarningsPage() {
                     <p className="text-xs text-destructive">{momoError}</p>
                   )}
                   <p className="text-[11px] text-muted-foreground">
-                    Must start with 078, 079 (MTN) or 072, 073 (Airtel).
+                    {t("momoFormatHint")}
                   </p>
                 </div>
               )}
@@ -376,7 +376,7 @@ export default function EarningsPage() {
                       setMomoError("");
                     }}
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                 )}
               </div>
@@ -424,23 +424,23 @@ export default function EarningsPage() {
           <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[420px]:grid-cols-2 md:grid-cols-3">
             <StatCard
               label={t("netRevenue")}
-              value={formatCurrency(earnings.netRevenue, earnings.currency)}
+              value={formatCurrency(earnings.netRevenue, earnings.currency, locale)}
               hint={
                 earnings.platformFees > 0
-                  ? t("afterFees", { amount: formatCurrency(earnings.platformFees, earnings.currency) })
+                  ? t("afterFees", { amount: formatCurrency(earnings.platformFees, earnings.currency, locale) })
                   : t("afterNoFees")
               }
               icon={Wallet}
             />
             <StatCard
               label={t("pendingEscrow")}
-              value={formatCurrency(earnings.pendingEscrowBalance, earnings.currency)}
+              value={formatCurrency(earnings.pendingEscrowBalance, earnings.currency, locale)}
               hint={t("heldFromBookings")}
               icon={Clock}
             />
             <StatCard
               label={t("grossRevenue")}
-              value={formatCurrency(earnings.grossRevenue, earnings.currency)}
+              value={formatCurrency(earnings.grossRevenue, earnings.currency, locale)}
               hint={t("completedBookings", { count: earnings.completedPayouts })}
               icon={ArrowUpRight}
             />
@@ -475,7 +475,7 @@ export default function EarningsPage() {
                         </td>
                         <td className="px-5 py-3 text-muted-foreground">{tx.serviceName}</td>
                         <td className="px-5 py-3 font-medium tabular-nums text-primary">
-                          +{formatCurrency(tx.amount, tx.currency)}
+                          +{formatCurrency(tx.amount, tx.currency, locale)}
                         </td>
                         <td className="px-5 py-3 text-xs text-muted-foreground">
                           {formatDate(tx.completedAt)}

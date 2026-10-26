@@ -54,8 +54,9 @@ export type RequestSignedUrlDto = {
 // ─── Share ────────────────────────────────────────────────────────────────────
 
 export type ShareFileDto = {
-  sharedWithId: string;
-  expiresAt?:   Date;
+  sharedWithId?: string;
+  sharedWith?:   string;
+  expiresAt?:    Date;
 };
 
 // ─── List Query ───────────────────────────────────────────────────────────────

@@ -62,6 +62,30 @@ router.get(
 );
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   SHARED DOCUMENTS
+   Lists documents directly shared with the authenticated user via DocumentShare.
+═══════════════════════════════════════════════════════════════════════════ */
+
+router.get(
+  "/shared-with-me",
+  authenticate,
+  validateQuery(listFilesQuerySchema),
+  asyncHandler(FileStorageController.listSharedFiles)
+);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONSULTATION / CASE DOCUMENTS
+   Lists documents attached to all consultations/matters the user participates in.
+═══════════════════════════════════════════════════════════════════════════ */
+
+router.get(
+  "/consultation-files",
+  authenticate,
+  validateQuery(listFilesQuerySchema),
+  asyncHandler(FileStorageController.listConsultationFiles)
+);
+
+/* ═══════════════════════════════════════════════════════════════════════════
    BOOKING (CASE) DOCUMENTS
    Lists every document attached to a booking/case.
    Participants (citizen + assigned expert) and ADMINs only.

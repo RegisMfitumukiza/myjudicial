@@ -100,14 +100,22 @@ export type RequestSignedUrlSchema = z.infer<typeof requestSignedUrlSchema>;
 // ─── Share File Schema ────────────────────────────────────────────────────────
 
 export const shareFileSchema = z.object({
-  /** UUID of the user to share with */
-  sharedWithId: z.string().uuid("sharedWithId must be a valid UUID"),
+  /** Recipient email address or user UUID */
+  sharedWith: z.string().min(3, "Recipient email or user ID is required").optional(),
+  /** Backwards compatibility: UUID of the user to share with */
+  sharedWithId: z.string().optional(),
   /**
    * Optional ISO-8601 expiry for the share grant.
    * If omitted the share does not expire.
    */
   expiresAt: z.string().datetime().optional(),
-});
+}).refine(
+  (data) => Boolean((data.sharedWith && data.sharedWith.trim().length > 0) || (data.sharedWithId && data.sharedWithId.trim().length > 0)),
+  {
+    message: "Recipient email or user ID is required",
+    path: ["sharedWith"],
+  }
+);
 
 export type ShareFileSchema = z.infer<typeof shareFileSchema>;
 

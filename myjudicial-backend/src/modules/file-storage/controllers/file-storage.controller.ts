@@ -194,6 +194,77 @@ export const FileStorageController = {
   },
 
   /**
+   * GET /api/v1/files/shared-with-me
+   *
+   * List files shared directly with the authenticated user via DocumentShare.
+   */
+  listSharedFiles: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+
+      const query = req.validatedQuery as { page: number; limit: number };
+
+      const result = await FileStorageService.listSharedFiles(
+        req.user.id,
+        query.page,
+        query.limit
+      );
+
+      sendPaginated(
+        res,
+        result.files,
+        {
+          page:       result.page,
+          limit:      result.limit,
+          total:      result.total,
+          totalPages: result.totalPages,
+          hasNext:    result.hasNext,
+          hasPrev:    result.hasPrev,
+        },
+        "Shared files retrieved"
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /api/v1/files/consultation-files
+   *
+   * List documents attached to all consultations/matters the user participates in.
+   */
+  listConsultationFiles: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) return next(new AuthenticationError());
+
+      const query = req.validatedQuery as { page: number; limit: number };
+
+      const result = await FileStorageService.listConsultationFiles(
+        req.user.id,
+        req.user.expertProfileId,
+        query.page,
+        query.limit
+      );
+
+      sendPaginated(
+        res,
+        result.files,
+        {
+          page:       result.page,
+          limit:      result.limit,
+          total:      result.total,
+          totalPages: result.totalPages,
+          hasNext:    result.hasNext,
+          hasPrev:    result.hasPrev,
+        },
+        "Consultation files retrieved"
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * GET /api/v1/admin/documents
    *
    * Admin-only, paginated documents listing with role / ownerType / sensitivity
@@ -339,15 +410,17 @@ export const FileStorageController = {
     try {
       if (!req.user) return next(new AuthenticationError());
 
-      const { sharedWithId, expiresAt } = req.body as {
-        sharedWithId: string;
-        expiresAt?:   string;
+      const { sharedWith, sharedWithId, expiresAt } = req.body as {
+        sharedWith?:   string;
+        sharedWithId?: string;
+        expiresAt?:    string;
       };
 
       await FileStorageService.shareFile(
         String(req.params.fileId),
         getRequester(req.user),
         {
+          sharedWith,
           sharedWithId,
           expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         },

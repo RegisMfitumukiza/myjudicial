@@ -170,7 +170,7 @@ export const FileStorageRepository = {
     userId: string,
     page:   number,
     limit:  number
-  ): Promise<{ records: StoredFileMetadata[]; total: number }> => {
+  ): Promise<{ records: any[]; total: number }> => {
     const now = new Date();
 
     const shares = await prisma.documentShare.findMany({
@@ -179,9 +179,28 @@ export const FileStorageRepository = {
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
         document: { isDeleted: false },
       },
-      select: { document: { select: documentSelect } },
+      select: {
+        id: true,
+        expiresAt: true,
+        createdAt: true,
+        document: {
+          select: {
+            ...documentSelect,
+            owner: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
+      },
       skip:  (page - 1) * limit,
       take:  limit,
+      orderBy: { createdAt: "desc" },
     });
 
     const total = await prisma.documentShare.count({
@@ -192,10 +211,116 @@ export const FileStorageRepository = {
       },
     });
 
-    return {
-      records: shares.map((s) => s.document) as StoredFileMetadata[],
-      total,
+    const records = shares.map((s) => ({
+      ...s.document,
+      shareId: s.id,
+      sharedAt: s.createdAt,
+      shareExpiresAt: s.expiresAt,
+      sharedBy: s.document.owner,
+    }));
+
+    return { records, total };
+  },
+
+  /**
+   * Paginated list of non-deleted documents attached to any consultation/case
+   * where the user is a participant (either as citizen or assigned expert).
+   */
+  findConsultationDocuments: async (
+    userId: string,
+    expertProfileId: string | null | undefined,
+    page: number,
+    limit: number
+  ): Promise<{ records: any[]; total: number }> => {
+    const where: Prisma.DocumentWhereInput = {
+      isDeleted: false,
+      booking: expertProfileId
+        ? {
+            OR: [
+              { citizenId: userId },
+              { expertId: expertProfileId },
+            ],
+          }
+        : { citizenId: userId },
     };
+
+    const [documents, total] = await prisma.$transaction([
+      prisma.document.findMany({
+        where,
+        select: {
+          ...documentSelect,
+          booking: {
+            select: {
+              id: true,
+              scheduledStart: true,
+              service: {
+                select: { name: true },
+              },
+              expert: {
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          uploadedBy: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.document.count({ where }),
+    ]);
+
+    const records = (documents as any[]).map((doc) => ({
+      ...doc,
+      caseTitle: doc.booking?.service?.name || "Consultation Case",
+      expertName: doc.booking?.expert?.user
+        ? `${doc.booking.expert.user.firstName} ${doc.booking.expert.user.lastName}`.trim()
+        : null,
+      uploaderName: doc.uploadedBy
+        ? `${doc.uploadedBy.firstName} ${doc.uploadedBy.lastName}`.trim()
+        : null,
+    }));
+
+    return { records, total };
+  },
+
+  /**
+   * Find user by email or UUID for sharing document grants.
+   */
+  findUserForSharing: async (
+    identifier: string
+  ): Promise<{ id: string; email: string; firstName: string; lastName: string } | null> => {
+    const trimmed = identifier.trim();
+    if (trimmed.includes("@")) {
+      return prisma.user.findUnique({
+        where: { email: trimmed.toLowerCase() },
+        select: { id: true, email: true, firstName: true, lastName: true },
+      });
+    }
+    const uuidRegex = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
+    if (uuidRegex.test(trimmed)) {
+      return prisma.user.findUnique({
+        where: { id: trimmed },
+        select: { id: true, email: true, firstName: true, lastName: true },
+      });
+    }
+    return null;
   },
 
   /**

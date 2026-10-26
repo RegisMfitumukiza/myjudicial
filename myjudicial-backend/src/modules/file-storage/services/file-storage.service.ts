@@ -35,6 +35,8 @@ import {
   FileUploadError,
   StorageProviderError,
   ConflictError,
+  NotFoundError,
+  ValidationError,
 } from "../../../shared/errors/index.js";
 import {
   FILE_SIZE_LIMITS,
@@ -436,6 +438,58 @@ export const FileStorageService = {
     };
   },
 
+  // ── Shared Documents ──────────────────────────────────────────────────────
+
+  /**
+   * List all documents shared directly with the authenticated user via DocumentShare grants.
+   */
+  listSharedFiles: async (
+    userId: string,
+    page:   number,
+    limit:  number
+  ): Promise<{ files: any[]; total: number; page: number; limit: number; totalPages: number; hasNext: boolean; hasPrev: boolean }> => {
+    const { records, total } = await FileStorageRepository.findSharedWith(userId, page, limit);
+    const totalPages = Math.ceil(total / limit);
+    return {
+      files:      records,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext:    page < totalPages,
+      hasPrev:    page > 1,
+    };
+  },
+
+  // ── Consultation Documents ────────────────────────────────────────────────
+
+  /**
+   * List all documents attached to any consultation/matter the user participates in.
+   */
+  listConsultationFiles: async (
+    userId:          string,
+    expertProfileId: string | null | undefined,
+    page:            number,
+    limit:           number
+  ): Promise<{ files: any[]; total: number; page: number; limit: number; totalPages: number; hasNext: boolean; hasPrev: boolean }> => {
+    const { records, total } = await FileStorageRepository.findConsultationDocuments(
+      userId,
+      expertProfileId,
+      page,
+      limit
+    );
+    const totalPages = Math.ceil(total / limit);
+    return {
+      files:      records,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext:    page < totalPages,
+      hasPrev:    page > 1,
+    };
+  },
+
   // ── Admin Endpoints ───────────────────────────────────────────────────────
 
   /**
@@ -549,8 +603,9 @@ export const FileStorageService = {
   // ── Share ─────────────────────────────────────────────────────────────────
 
   /**
-   * Share a document with another user.
+   * Share a document with another user (advocate, collaborator, citizen).
    * Only the document owner or an ADMIN may grant a share.
+   * Accepts recipient email address or account UUID.
    */
   shareFile: async (
     fileId:    string,
@@ -567,9 +622,27 @@ export const FileStorageService = {
       throw new FileAccessDeniedError("Only the document owner can share files");
     }
 
+    const input = (dto.sharedWith || dto.sharedWithId || "").trim();
+    if (!input) {
+      throw new ValidationError("Please provide a recipient email address or user ID");
+    }
+
+    const recipient = await FileStorageRepository.findUserForSharing(input);
+    if (!recipient) {
+      throw new NotFoundError(
+        input.includes("@")
+          ? `No registered user found with email '${input}'`
+          : `No user found with account ID '${input}'`
+      );
+    }
+
+    if (recipient.id === requester.userId) {
+      throw new ConflictError("You cannot share a document with yourself");
+    }
+
     await FileStorageRepository.createShare(
       fileId,
-      dto.sharedWithId,
+      recipient.id,
       dto.expiresAt
     );
 
@@ -578,8 +651,8 @@ export const FileStorageService = {
       action:      "SHARE",
       resource:    "DOCUMENT",
       resourceId:  fileId,
-      description: `Shared file '${doc.fileName}' with user ${dto.sharedWithId}`,
-      metadata:    { sharedWithId: dto.sharedWithId, expiresAt: dto.expiresAt },
+      description: `Shared file '${doc.fileName}' with ${recipient.email} (${recipient.id})`,
+      metadata:    { sharedWithId: recipient.id, recipientEmail: recipient.email, expiresAt: dto.expiresAt },
       ipAddress,
       userAgent,
     });

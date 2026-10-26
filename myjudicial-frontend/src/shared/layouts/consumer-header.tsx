@@ -39,7 +39,38 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("nav");
+
+  // Close profile dropdown when clicking outside or pressing Escape (solves transformed-header clipping bug)
+  useEffect(() => {
+    if (!profileOpen) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [profileOpen]);
 
   // Smart scroll header: hide on scroll down, reveal on scroll up
   useEffect(() => {
@@ -189,10 +220,12 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
             </div>
 
             {/* Profile Dropdown */}
-            <div className="relative">
+            <div className="relative" ref={profileDropdownRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-expanded={profileOpen}
+                aria-haspopup="true"
               >
                 <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-[#16324f] text-white dark:bg-blue-950/80 dark:text-blue-200 dark:border dark:border-blue-700/50 text-[11px] sm:text-xs font-bold">
                   {getInitials(user.firstName + " " + user.lastName)}
@@ -201,12 +234,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
               {/* Dropdown Menu */}
               {profileOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setProfileOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] z-50 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900 p-2">
+                <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] z-50 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900 p-2">
                     {/* User Info */}
                     <div className="px-3 pb-2 pt-1 border-b border-gray-100 dark:border-gray-800">
                       <p className="text-sm font-bold text-gray-900 dark:text-white">
@@ -288,7 +316,6 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                       </button>
                     </div>
                   </div>
-                </>
               )}
             </div>
 

@@ -1745,9 +1745,44 @@
         "12m": "Last 12 Months"
       },
       "stats": {
-        "total": "Total",
-        "paid": "Paid",
-        "outstanding": "Outstanding"
+        "total": "Total Billed",
+        "paid": "Total Paid",
+        "escrow": "Held in Escrow",
+        "outstanding": "Pending Payment",
+        "refunded": "Refunded"
+      },
+      "escrowBadge": "Protected by Escrow",
+      "escrowNoticeTitle": "Rwanda Legal Escrow Protection",
+      "escrowNoticeDesc": "Your consultation fees are held safely in escrow. Funds are transferred to the legal expert only after your consultation is successfully delivered.",
+      "bookingFirstNoticeTitle": "Post-Confirmation Billing Mode Active",
+      "bookingFirstNoticeDesc": "Consultations are billed once the advocate accepts and confirms your booking schedule.",
+      "receipt": {
+        "title": "Payment Receipt",
+        "officialReceipt": "Official Consultation Receipt",
+        "receiptNumber": "Receipt No.",
+        "txRef": "Transaction Ref",
+        "datePaid": "Date Paid",
+        "service": "Legal Service",
+        "legalExpert": "Legal Expert",
+        "client": "Client / Citizen",
+        "paymentMethod": "Payment Method",
+        "mobileMoney": "Mobile Money (Rwanda)",
+        "serviceFee": "Service Fee",
+        "escrowFee": "Escrow & Platform Security (Included)",
+        "totalPaid": "Total Amount Paid",
+        "escrowStatus": "Escrow Status",
+        "escrowLocked": "Securely Held in Escrow",
+        "escrowReleased": "Released to Legal Expert",
+        "escrowRefunded": "Refunded to Citizen",
+        "print": "Print / Save PDF",
+        "close": "Close",
+        "viewReceipt": "View Receipt"
+      },
+      "supportedMethods": {
+        "title": "Supported Payment Channels",
+        "mtnMomo": "MTN Mobile Money Rwanda (*182#)",
+        "airtelMoney": "Airtel Money Rwanda (*182#)",
+        "secureGateway": "Centralized national Mobile Money escrow gateway"
       }
     },
     "profile": {

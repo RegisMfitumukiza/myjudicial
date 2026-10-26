@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 import { handleAppSignOut } from "@/lib/auth-signout";
 import {
   Search,
@@ -36,7 +37,55 @@ interface ConsumerHeaderProps {
 export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const t = useTranslations("nav");
+
+  // Smart scroll header: hide on scroll down, reveal on scroll up
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Always show when near the very top of the page
+      if (currentScrollY < 60) {
+        setVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      // Scrolling down -> hide header; Scrolling up -> reveal header
+      if (currentScrollY > lastScrollY.current + 8) {
+        if (!mobileMenuOpen && !profileOpen) setVisible(false);
+      } else if (currentScrollY < lastScrollY.current - 8) {
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [mobileMenuOpen, profileOpen]);
+
+  // Synchronize CSS custom property --header-offset for seamless docking
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--header-offset",
+      visible ? "4rem" : "0px"
+    );
+    return () => {
+      document.documentElement.style.setProperty("--header-offset", "4rem");
+    };
+  }, [visible]);
+
+  // Close menus and restore visibility on route change (React recommended state adjustment during render)
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setMobileMenuOpen(false);
+    setProfileOpen(false);
+    setVisible(true);
+  }
 
   const { data: unreadChatData } = useGetChatConversationsUnreadCount({
     query: { refetchInterval: 30_000 },
@@ -74,7 +123,12 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border shadow-sm">
+    <header
+      className={cn(
+        "sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm transition-transform duration-300 ease-in-out",
+        visible ? "translate-y-0" : "-translate-y-full"
+      )}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between sm:h-16">
           {/* Logo */}

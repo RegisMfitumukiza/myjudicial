@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import {
   CalendarDays,
   Clock,
-  Search,
   ArrowRight,
   Star,
   Video,
@@ -17,18 +16,17 @@ import {
   FileText,
   Sparkles,
   ShieldCheck,
-  Scale,
-  Building2,
-  Briefcase,
-  Users,
   CheckCircle2,
   HelpCircle,
-  Send,
   Bookmark,
   CreditCard,
   Lock,
+  MessageSquare,
+  Upload,
+  UserCheck,
+  CalendarCheck2,
 } from "lucide-react";
-import { useGetBookings } from "@/api/generated";
+import { useGetBookings, useGetChatConversations } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 
@@ -45,11 +43,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function ClientHomePage() {
   const { data: session } = useSession();
-  const router = useRouter();
   const t = useTranslations("clientDashboard_home");
   const locale = useLocale();
-
-  const [aiQuery, setAiQuery] = useState("");
 
   const firstName =
     (session?.user as unknown as { firstName?: string })?.firstName ||
@@ -60,67 +55,74 @@ export default function ClientHomePage() {
 
   const { data: bookingsData, isLoading: bookingsLoading } = useGetBookings({
     page: 1,
-    limit: 20,
+    limit: 30,
   });
+
+  const { data: convData } = useGetChatConversations(
+    { limit: 10 },
+    { query: { refetchInterval: 30_000 } }
+  );
 
   const bookings = useMemo(() => {
     if (bookingsData?.status === 200) return bookingsData.data.data || [];
     return [];
   }, [bookingsData]);
 
+  const conversations = useMemo(() => {
+    if (convData?.status === 200) return convData.data.data || [];
+    return [];
+  }, [convData]);
+
   const isLoading = bookingsLoading;
   const now = useMemo(() => new Date(), []);
+  const nowTime = now.getTime();
 
-  // Priority 1: Live active session
-  const activeSession = useMemo(() => {
+  // ─── Time-Aware Consultation Lifecycle ───
+  // 1. Live session: explicitly ACTIVE, or CONFIRMED within [-15m before start, scheduledEnd]
+  const liveSession = useMemo(() => {
     return (
-      bookings
-        .filter((b) => b.status === "ACTIVE")
-        .sort(
-          (a, b) =>
-            new Date(b.scheduledStart).getTime() -
-            new Date(a.scheduledStart).getTime()
-        )[0] || null
+      bookings.find((b) => {
+        if (b.status === "ACTIVE") return true;
+        if (b.status === "CONFIRMED") {
+          const s = new Date(b.scheduledStart).getTime();
+          const e = new Date(b.scheduledEnd).getTime();
+          return nowTime >= s - JOINABLE_WINDOW_MS && nowTime <= e;
+        }
+        return false;
+      }) || null
     );
-  }, [bookings]);
+  }, [bookings, nowTime]);
 
-  // Priority 2: Next scheduled consultation (CONFIRMED or ACTIVE)
-  // Aligns directly with backend status and eliminates contradictions with sidebar metrics
-  const nextConsultation = useMemo(() => {
-    if (activeSession) return activeSession;
-
-    const confirmed = bookings.filter((b) => b.status === "CONFIRMED");
-    if (confirmed.length === 0) return null;
-
-    // Sort ascending by scheduled start
-    return [...confirmed].sort(
+  // 2. Future upcoming consultation: CONFIRMED and nowTime < scheduledStart - 15m
+  const upcomingSession = useMemo(() => {
+    const future = bookings.filter((b) => {
+      if (b.status !== "CONFIRMED") return false;
+      const s = new Date(b.scheduledStart).getTime();
+      return nowTime < s - JOINABLE_WINDOW_MS;
+    });
+    if (future.length === 0) return null;
+    return [...future].sort(
       (a, b) =>
         new Date(a.scheduledStart).getTime() -
         new Date(b.scheduledStart).getTime()
     )[0];
-  }, [bookings, activeSession]);
+  }, [bookings, nowTime]);
 
-  const recentConsultations = useMemo(() => {
-    return bookings
-      .filter((b) => ["COMPLETED", "ACTIVE", "CONFIRMED"].includes(b.status))
-      .sort(
-        (a, b) =>
-          new Date(b.scheduledStart).getTime() -
-          new Date(a.scheduledStart).getTime()
-      )
-      .slice(0, 4);
-  }, [bookings]);
+  // 3. Consultation ended awaiting summary: CONFIRMED and nowTime > scheduledEnd
+  const awaitingSummarySession = useMemo(() => {
+    const pastUnclosed = bookings.filter((b) => {
+      if (b.status !== "CONFIRMED") return false;
+      const e = new Date(b.scheduledEnd).getTime();
+      return nowTime > e;
+    });
+    if (pastUnclosed.length === 0) return null;
+    return [...pastUnclosed].sort(
+      (a, b) =>
+        new Date(b.scheduledEnd).getTime() - new Date(a.scheduledEnd).getTime()
+    )[0];
+  }, [bookings, nowTime]);
 
-  // Statistics aligned exactly with Consultations tab definitions
-  const stats = useMemo(() => {
-    const total = bookings.length;
-    const completed = bookings.filter((b) => b.status === "COMPLETED").length;
-    const scheduled = bookings.filter((b) =>
-      ["CONFIRMED", "ACTIVE"].includes(b.status)
-    ).length;
-    return { total, completed, scheduled };
-  }, [bookings]);
-
+  // Priority 1: Pending payment
   const pendingPayment = useMemo(() => {
     return (
       bookings.find(
@@ -131,6 +133,7 @@ export default function ClientHomePage() {
     );
   }, [bookings]);
 
+  // Priority 2: Pending review
   const pendingReview = useMemo(() => {
     return (
       bookings.find(
@@ -142,27 +145,106 @@ export default function ClientHomePage() {
     );
   }, [bookings]);
 
-  const lastConsultedExpert = useMemo(() => {
-    const completed = bookings
-      .filter((b) => b.status === "COMPLETED" && b.expert)
+  const pendingActionCount =
+    (pendingPayment ? 1 : 0) + (pendingReview ? 1 : 0);
+
+  // My Legal Counsel: Extract previous advocates worked with (Returning clients)
+  const myLegalCounsel = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        specialty: string;
+        lastSeen: string;
+        conversationId?: string;
+      }
+    >();
+
+    for (const b of bookings) {
+      if (!b.expert) continue;
+      const expId = b.expert.id || b.expertId;
+      if (!expId || map.has(expId)) continue;
+      const expName = b.expert.displayName || "Legal Advocate";
+      const specialty =
+        (b.expert as unknown as { practiceAreas?: string[] }).practiceAreas?.[0] ||
+        b.service?.name ||
+        t("legalExpert");
+
+      // Match conversation if available
+      const conv = conversations.find((c) =>
+        c.participants.some(
+          (p) =>
+            p.user.id === (b.expert as unknown as { userId?: string }).userId ||
+            `${p.user.firstName} ${p.user.lastName}`
+              .toLowerCase()
+              .includes(expName.toLowerCase())
+        )
+      );
+
+      map.set(expId, {
+        id: expId,
+        name: expName,
+        specialty,
+        lastSeen: b.scheduledStart,
+        conversationId: conv?.id,
+      });
+    }
+
+    return Array.from(map.values()).slice(0, 3);
+  }, [bookings, conversations, t]);
+
+  // Latest message from counsel preview (Airbnb/Upwork style)
+  const latestCounselMessage = useMemo(() => {
+    const withMessages = conversations.filter(
+      (c) => !!c.lastMessageText && !!c.lastMessageAt
+    );
+    if (withMessages.length === 0) return null;
+
+    const sorted = [...withMessages].sort(
+      (a, b) =>
+        new Date(b.lastMessageAt!).getTime() -
+        new Date(a.lastMessageAt!).getTime()
+    );
+
+    const latest = sorted[0];
+    const participant =
+      latest.participants.find((p) => p.user.id !== session?.user?.id)?.user ||
+      latest.participants[0]?.user;
+    const name = participant
+      ? `${participant.firstName} ${participant.lastName}`
+      : "Counsel";
+
+    return {
+      conversationId: latest.id,
+      name,
+      text: latest.lastMessageText!,
+      time: latest.lastMessageAt!,
+    };
+  }, [conversations, session?.user?.id]);
+
+  // Recent Consultations (deduplicating the current spotlight card)
+  const recentConsultations = useMemo(() => {
+    const spotlightId =
+      liveSession?.id || upcomingSession?.id || awaitingSummarySession?.id;
+    return bookings
+      .filter(
+        (b) =>
+          b.id !== spotlightId &&
+          ["COMPLETED", "ACTIVE", "CONFIRMED"].includes(b.status)
+      )
       .sort(
         (a, b) =>
           new Date(b.scheduledStart).getTime() -
           new Date(a.scheduledStart).getTime()
-      )[0];
-    if (!completed) return null;
-    return {
-      expertId: completed.expert?.id || completed.expertId,
-      name: completed.expert?.displayName || "Legal Expert",
-      service: completed.service?.name || "Consultation",
-      date: completed.scheduledStart,
-    };
-  }, [bookings]);
+      )
+      .slice(0, 4);
+  }, [bookings, liveSession, upcomingSession, awaitingSummarySession]);
 
   function formatDate(iso: string) {
     const d = new Date(iso);
-    const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000);
-    if (diffDays <= 0) return t("today");
+    const diffDays = Math.ceil((d.getTime() - nowTime) / 86400000);
+    if (diffDays === 0) return t("today");
     if (diffDays === 1) return t("tomorrow");
     return d.toLocaleDateString(locale, {
       weekday: "short",
@@ -179,52 +261,6 @@ export default function ClientHomePage() {
     });
   }
 
-  const handleAiSubmit = (e?: React.FormEvent, customQuery?: string) => {
-    if (e) e.preventDefault();
-    const q = (customQuery !== undefined ? customQuery : aiQuery).trim();
-    if (!q) return;
-    try {
-      localStorage.setItem("mj_ai_case_draft", q);
-    } catch {
-      // storage unavailable
-    }
-    router.push(`/ai?q=${encodeURIComponent(q)}`);
-  };
-
-  const practiceAreas = [
-    {
-      title: t("landLaw"),
-      href: "/search?specialty=LAND_LAW",
-      icon: Building2,
-      desc: t("paLandDesc"),
-    },
-    {
-      title: t("commercialLaw"),
-      href: "/search?specialty=COMMERCIAL_LAW",
-      icon: Briefcase,
-      desc: t("paCommercialDesc"),
-    },
-    {
-      title: t("familyLaw"),
-      href: "/search?specialty=FAMILY_LAW",
-      icon: Users,
-      desc: t("paFamilyDesc"),
-    },
-    {
-      title: t("employmentLaw"),
-      href: "/search?specialty=EMPLOYMENT_LAW",
-      icon: Scale,
-      desc: t("paLaborDesc"),
-    },
-  ];
-
-  const aiChips = [
-    t("tagLand"),
-    t("tagContract"),
-    t("tagLabor"),
-    t("tagFamily"),
-  ];
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-w-0">
       {/* ─── Command Center Welcome Header ─── */}
@@ -237,67 +273,36 @@ export default function ClientHomePage() {
             {t("manageConsultationsDesc")}
           </p>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Link
-            href="/search"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
-          >
-            <Search size={15} />
-            {t("findAdvocate")}
-          </Link>
+
+        {/* Client Action Center Status Pill (No redundant search CTA) */}
+        <div className="shrink-0">
+          {pendingActionCount === 0 ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <CheckCircle2
+                size={15}
+                className="text-emerald-600 dark:text-emerald-400"
+              />
+              <span>{t("allCaughtUp")}</span>
+              <span className="text-emerald-600/70 dark:text-emerald-400/70">
+                • {t("noPendingActions")}
+              </span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50/80 px-3.5 py-1.5 text-[12px] font-semibold text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300">
+              <AlertCircle
+                size={15}
+                className="text-amber-600 dark:text-amber-400"
+              />
+              <span>{t("actionsRequired")}</span>
+              <span className="text-amber-600/70 dark:text-amber-400/70">
+                • {t("pendingActionsCount", { count: pendingActionCount })}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ─── PRIORITY 1: Active Video Session (Live Now) ─── */}
-      {activeSession && (
-        <div className="mb-6 sm:mb-8">
-          <div className="rounded-2xl border-2 border-green-500/40 bg-green-50/70 p-5 sm:p-6 shadow-md dark:border-green-500/30 dark:bg-green-950/30">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/50">
-                  <Video
-                    size={24}
-                    className="text-green-600 dark:text-green-400 animate-pulse"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[17px] font-bold text-brand-dark dark:text-white">
-                      {activeSession.service?.name || t("consultationCapitalized")}
-                    </p>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
-                      <span className="h-2 w-2 rounded-full bg-white animate-ping" />
-                      {t("live")}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[14px] text-brand-dark/70 dark:text-white/70">
-                    {t("withExpert", {
-                      expertName:
-                        activeSession.expert?.displayName || t("legalExpert"),
-                    })}
-                  </p>
-                  <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
-                    {t("startedTimeAmount", {
-                      time: formatTime(activeSession.scheduledStart),
-                      amount:
-                        activeSession.service?.flatFee?.toLocaleString() ?? "0",
-                    })}
-                  </p>
-                </div>
-              </div>
-              <Link
-                href={`/client/dashboard/consultations/${activeSession.id}/join`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600 shrink-0"
-              >
-                <Video size={16} />
-                {t("joinNow")}
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── PRIORITY 2: Action Required (Pending Payment / Review) ─── */}
+      {/* ─── Action Alerts (Pending Payment / Review) ─── */}
       {(pendingPayment || pendingReview) && (
         <div className="mb-6 sm:mb-8 space-y-3">
           {pendingPayment && (
@@ -333,6 +338,7 @@ export default function ClientHomePage() {
               />
             </Link>
           )}
+
           {pendingReview && (
             <Link
               href={`/client/dashboard/consultations/${pendingReview.id}/review`}
@@ -373,142 +379,338 @@ export default function ClientHomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* ── LEFT COLUMN: Primary Workspace (Span 8) ── */}
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
-          {/* Spotlight: Next Scheduled Consultation */}
-          <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <CalendarDays size={18} className="text-brand-dark dark:text-white" />
-                <h2 className="text-[15px] font-bold text-brand-dark dark:text-white">
-                  {t("upcomingConsultation")}
-                </h2>
+          {/* ── Spotlight Consultation Card (Time-Aware Lifecycle) ── */}
+          {isLoading ? (
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-black">
+              <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
+            </div>
+          ) : liveSession ? (
+            /* CASE 1: Live Now / Ready to Join */
+            <div className="rounded-2xl border-2 border-green-500/50 bg-green-50/70 p-5 sm:p-6 shadow-md dark:border-green-500/40 dark:bg-green-950/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/50">
+                    <Video
+                      size={24}
+                      className="text-green-600 dark:text-green-400 animate-pulse"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[17px] font-bold text-brand-dark dark:text-white">
+                        {liveSession.service?.name || t("consultationCapitalized")}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-sm">
+                        <span className="h-2 w-2 rounded-full bg-white animate-ping" />
+                        {t("liveNow")}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[14px] text-brand-dark/70 dark:text-white/70">
+                      {t("withExpert", {
+                        expertName:
+                          liveSession.expert?.displayName || t("legalExpert"),
+                      })}
+                    </p>
+                    <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
+                      {formatTime(liveSession.scheduledStart)} —{" "}
+                      {formatTime(liveSession.scheduledEnd)}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={`/client/dashboard/consultations/${liveSession.id}/join`}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600 shrink-0"
+                >
+                  <Video size={16} />
+                  {t("joinNow")}
+                </Link>
               </div>
-              {nextConsultation && (
+            </div>
+          ) : upcomingSession ? (
+            /* CASE 2: Scheduled Future Consultation */
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <CalendarDays size={18} className="text-brand-dark dark:text-white" />
+                  <h2 className="text-[15px] font-bold text-brand-dark dark:text-white">
+                    {t("upcomingConsultation")}
+                  </h2>
+                </div>
                 <Link
                   href="/client/dashboard/consultations"
                   className="text-[12px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
                 >
                   {t("viewAll")}
                 </Link>
-              )}
-            </div>
-
-            {isLoading ? (
-              <div className="flex items-center justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
               </div>
-            ) : nextConsultation ? (
-              (() => {
-                const startsInMs =
-                  new Date(nextConsultation.scheduledStart).getTime() -
-                  now.getTime();
-                const canJoin =
-                  nextConsultation.status === "ACTIVE" ||
-                  startsInMs <= JOINABLE_WINDOW_MS;
-                return (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                    <div className="flex items-start gap-3.5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 font-bold text-brand-dark dark:bg-white/10 dark:text-white text-[15px]">
-                        {(nextConsultation.expert?.displayName || "Advocate")
-                          .split(" ")
-                          .map((n: string) => n[0])
-                          .join("")
-                          .slice(0, 2)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-[16px] font-bold text-brand-dark dark:text-white">
-                            {nextConsultation.service?.name ||
-                              t("consultationCapitalized")}
-                          </p>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              STATUS_COLORS[nextConsultation.status] ||
-                              STATUS_COLORS.PENDING
-                            }`}
-                          >
-                            {t(`status.${nextConsultation.status}` as Parameters<typeof t>[0], {
-                              default: nextConsultation.status,
-                            })}
-                          </span>
-                        </div>
-                        <p className="text-[13px] text-brand-dark/70 dark:text-white/70 mt-0.5">
-                          {t("withExpert", {
-                            expertName:
-                              nextConsultation.expert?.displayName ||
-                              t("legalExpert"),
-                          })}
-                        </p>
-                        <div className="mt-2.5 flex flex-wrap items-center gap-3 text-[12px] text-brand-dark/60 dark:text-white/60">
-                          <span className="inline-flex items-center gap-1.5 font-medium">
-                            <CalendarDays
-                              size={14}
-                              className="text-brand-dark/40 dark:text-white/40"
-                            />
-                            {formatDate(nextConsultation.scheduledStart)}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5 font-medium">
-                            <Clock
-                              size={14}
-                              className="text-brand-dark/40 dark:text-white/40"
-                            />
-                            {formatTime(nextConsultation.scheduledStart)} —{" "}
-                            {formatTime(nextConsultation.scheduledEnd)}
-                          </span>
-                        </div>
-                      </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 font-bold text-brand-dark dark:bg-white/10 dark:text-white text-[15px]">
+                    {(upcomingSession.expert?.displayName || "Advocate")
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[16px] font-bold text-brand-dark dark:text-white">
+                        {upcomingSession.service?.name ||
+                          t("consultationCapitalized")}
+                      </p>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          STATUS_COLORS[upcomingSession.status] ||
+                          STATUS_COLORS.CONFIRMED
+                        }`}
+                      >
+                        {t(`status.${upcomingSession.status}` as Parameters<typeof t>[0], {
+                          default: upcomingSession.status,
+                        })}
+                      </span>
                     </div>
-                    <div className="shrink-0 sm:self-center">
-                      {canJoin ? (
-                        <Link
-                          href={`/client/dashboard/consultations/${nextConsultation.id}/join`}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-5 py-2.5 text-[13px] font-bold text-white shadow-sm hover:bg-green-700 transition-colors"
-                        >
-                          <Video size={15} />
-                          {t("join")}
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/client/dashboard/consultations/${nextConsultation.id}`}
-                          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2.5 text-[13px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white"
-                        >
-                          {t("notYetTime")}
-                        </Link>
-                      )}
+                    <p className="text-[13px] text-brand-dark/70 dark:text-white/70 mt-0.5">
+                      {t("withExpert", {
+                        expertName:
+                          upcomingSession.expert?.displayName ||
+                          t("legalExpert"),
+                      })}
+                    </p>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-3 text-[12px] text-brand-dark/60 dark:text-white/60">
+                      <span className="inline-flex items-center gap-1.5 font-medium">
+                        <CalendarDays
+                          size={14}
+                          className="text-brand-dark/40 dark:text-white/40"
+                        />
+                        {formatDate(upcomingSession.scheduledStart)}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 font-medium">
+                        <Clock
+                          size={14}
+                          className="text-brand-dark/40 dark:text-white/40"
+                        />
+                        {formatTime(upcomingSession.scheduledStart)} —{" "}
+                        {formatTime(upcomingSession.scheduledEnd)}
+                      </span>
                     </div>
                   </div>
-                );
-              })()
-            ) : (
-              /* Clean, purposeful empty state — no nested redundant cards */
-              <div className="py-8 text-center border border-dashed border-brand-border/25 rounded-xl bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
-                <CalendarDays className="mx-auto mb-2 h-9 w-9 text-brand-dark/25 dark:text-white/25" />
-                <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
-                  {t("noUpcomingConsultations")}
-                </p>
-                <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 max-w-sm mx-auto">
-                  {t("noUpcomingDesc")}
-                </p>
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                </div>
+
+                <div className="shrink-0 sm:self-center">
                   <Link
-                    href="/search"
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                    href={`/client/dashboard/consultations/${upcomingSession.id}`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2.5 text-[13px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white"
                   >
-                    <Search size={15} />
-                    {t("findAdvocate")}
-                  </Link>
-                  <Link
-                    href="/ai"
-                    className="inline-flex items-center gap-2 rounded-xl border border-brand-border/30 bg-white px-4 py-2.5 text-[13px] font-semibold text-brand-dark shadow-sm hover:bg-brand-dark/[0.04] dark:border-white/20 dark:bg-black dark:text-white dark:hover:bg-white/[0.05] transition-colors"
-                  >
-                    <Sparkles size={15} />
-                    {t("aiAssistant")}
+                    {t("notYetTime")}
                   </Link>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Personal Workspace Quick Access (The Client's Own Materials) */}
+              {/* Pre-consultation Case Document Preparation */}
+              <div className="mt-4 pt-3.5 border-t border-brand-border/15 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[12px]">
+                <span className="text-brand-dark/70 dark:text-white/70 flex items-center gap-1.5 font-medium">
+                  <Upload size={14} className="text-brand-dark/40 dark:text-white/40" />
+                  {t("uploadCaseDocuments")}
+                </span>
+                <Link
+                  href={`/client/dashboard/consultations/${upcomingSession.id}`}
+                  className="inline-flex items-center gap-1 font-semibold text-brand-dark hover:underline dark:text-white"
+                >
+                  <span>{t("casePreparation")}</span>
+                  <ChevronRight size={13} />
+                </Link>
+              </div>
+            </div>
+          ) : awaitingSummarySession ? (
+            /* CASE 3: Consultation Window Ended (Awaiting Advocate Summary) */
+            <div className="rounded-2xl border border-amber-300/80 bg-amber-50/50 p-5 sm:p-6 shadow-sm dark:border-amber-700/40 dark:bg-amber-950/20">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 text-[15px] font-bold">
+                    {(awaitingSummarySession.expert?.displayName || "Advocate")
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-[16px] font-bold text-brand-dark dark:text-white">
+                        {awaitingSummarySession.service?.name ||
+                          t("consultationCapitalized")}
+                      </p>
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+                        {t("consultationEnded")}
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-brand-dark/70 dark:text-white/70 mt-0.5">
+                      {t("withExpert", {
+                        expertName:
+                          awaitingSummarySession.expert?.displayName ||
+                          t("legalExpert"),
+                      })}
+                    </p>
+                    <p className="mt-1 text-[12px] text-amber-800/80 dark:text-amber-300/80 font-medium">
+                      {t("awaitingSummary")}
+                    </p>
+                  </div>
+                </div>
+                <div className="shrink-0 sm:self-center">
+                  <Link
+                    href={`/client/dashboard/consultations/${awaitingSummarySession.id}`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-white px-4 py-2 text-[13px] font-semibold text-amber-900 shadow-sm hover:bg-amber-50 transition-colors dark:border-amber-700 dark:bg-black dark:text-amber-200 dark:hover:bg-amber-950/40"
+                  >
+                    {t("viewSummary")}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* CASE 4: Zero upcoming consultations empty state */
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-6 sm:p-8 shadow-sm dark:border-white/10 dark:bg-black text-center">
+              <CalendarDays className="mx-auto mb-2 h-9 w-9 text-brand-dark/25 dark:text-white/25" />
+              <p className="text-[14px] font-semibold text-brand-dark dark:text-white">
+                {t("noUpcomingConsultations")}
+              </p>
+              <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 max-w-sm mx-auto">
+                {t("noUpcomingDesc")}
+              </p>
+            </div>
+          )}
+
+          {/* ── Middle Section: Returning vs New Clients ── */}
+          {myLegalCounsel.length > 0 ? (
+            /* RETURNING CLIENT: My Legal Counsel (Fast Re-engagement) */
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
+                    {t("myLegalCounsel")}
+                  </h3>
+                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                    {t("myLegalCounselDesc")}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {myLegalCounsel.map((counsel) => (
+                  <div
+                    key={counsel.id}
+                    className="rounded-xl border border-brand-border/15 p-4 flex flex-col justify-between dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]"
+                  >
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[13px] font-bold text-brand-dark dark:text-white">
+                          {counsel.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-bold text-brand-dark dark:text-white truncate">
+                            {counsel.name}
+                          </p>
+                          <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
+                            {counsel.specialty}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3.5 pt-3 border-t border-brand-border/10 dark:border-white/10 flex items-center gap-2">
+                      <Link
+                        href={
+                          counsel.conversationId
+                            ? `/client/dashboard/messages?conversationId=${counsel.conversationId}`
+                            : "/client/dashboard/messages"
+                        }
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-1.5 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
+                      >
+                        <MessageSquare size={13} />
+                        {t("messageAdvocate")}
+                      </Link>
+                      <Link
+                        href={`/lawyers/${counsel.id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-1.5 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                      >
+                        <CalendarCheck2 size={13} />
+                        {t("bookAgain")}
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* NEW CLIENT: 3-Step Client Journey Onboarding Guide */
+            <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
+              <div className="mb-4">
+                <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
+                  {t("onboardingTitle")}
+                </h3>
+                <p className="text-[13px] text-brand-dark/60 dark:text-white/60">
+                  {t("onboardingSubtitle")}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div className="rounded-xl border border-brand-border/15 p-4 dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400 mb-3">
+                    <UserCheck size={18} />
+                  </div>
+                  <p className="text-[13px] font-bold text-brand-dark dark:text-white">
+                    {t("onboardingStep1Title")}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                    {t("onboardingStep1Desc")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-brand-border/15 p-4 dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 mb-3">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <p className="text-[13px] font-bold text-brand-dark dark:text-white">
+                    {t("onboardingStep2Title")}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                    {t("onboardingStep2Desc")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-brand-border/15 p-4 dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 mb-3">
+                    <Video size={18} />
+                  </div>
+                  <p className="text-[13px] font-bold text-brand-dark dark:text-white">
+                    {t("onboardingStep3Title")}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                    {t("onboardingStep3Desc")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Honest AI Legal Assistant Intake Banner */}
+              <div className="mt-4 pt-4 border-t border-brand-border/15 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles size={16} className="text-brand-dark dark:text-white" />
+                  <p className="text-[13px] text-brand-dark/70 dark:text-white/70">
+                    {t("aiIntakeDesc")}
+                  </p>
+                </div>
+                <Link
+                  href="/ai"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity shrink-0"
+                >
+                  <Sparkles size={13} />
+                  {t("aiIntakeAction")}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* ── Personal Workspace Quick Access ── */}
           <div className="space-y-3">
             <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
               {t("workspaceQuickAccess")}
@@ -531,7 +733,10 @@ export default function ClientHomePage() {
                 </div>
                 <div className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-brand-dark/70 group-hover:text-brand-dark dark:text-white/70 dark:group-hover:text-white">
                   <span>{t("viewAll")}</span>
-                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight
+                    size={12}
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  />
                 </div>
               </Link>
 
@@ -552,7 +757,10 @@ export default function ClientHomePage() {
                 </div>
                 <div className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-brand-dark/70 group-hover:text-brand-dark dark:text-white/70 dark:group-hover:text-white">
                   <span>{t("viewAll")}</span>
-                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight
+                    size={12}
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  />
                 </div>
               </Link>
 
@@ -573,116 +781,16 @@ export default function ClientHomePage() {
                 </div>
                 <div className="mt-3 flex items-center gap-1 text-[12px] font-semibold text-brand-dark/70 group-hover:text-brand-dark dark:text-white/70 dark:group-hover:text-white">
                   <span>{t("viewAll")}</span>
-                  <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight
+                    size={12}
+                    className="group-hover:translate-x-0.5 transition-transform"
+                  />
                 </div>
               </Link>
             </div>
           </div>
 
-          {/* AI Legal Assistant Intake — The Canonical Dashboard Intake Box */}
-          <div className="rounded-2xl border border-brand-border/20 bg-gradient-to-br from-brand-dark/[0.02] to-transparent p-5 sm:p-6 shadow-sm dark:border-white/10 dark:from-white/[0.02]">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white dark:bg-white dark:text-black shadow-sm">
-                <Sparkles size={18} />
-              </div>
-              <div>
-                <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
-                  {t("aiIntakeTitle")}
-                </h3>
-                <p className="text-[13px] text-brand-dark/60 dark:text-white/60">
-                  {t("aiIntakeDesc")}
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={(e) => handleAiSubmit(e)} className="mt-4 space-y-3">
-              <div className="relative">
-                <textarea
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAiSubmit();
-                    }
-                  }}
-                  rows={3}
-                  placeholder={t("aiIntakePlaceholder")}
-                  className="w-full resize-none rounded-xl border border-brand-border/30 bg-white p-3.5 pr-12 text-[13px] leading-relaxed text-brand-dark placeholder:text-brand-dark/40 focus:border-brand-dark focus:outline-none focus:ring-1 focus:ring-brand-dark dark:border-white/15 dark:bg-black dark:text-white dark:placeholder:text-white/40 dark:focus:border-white dark:focus:ring-white"
-                />
-                <button
-                  type="submit"
-                  disabled={!aiQuery.trim()}
-                  className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-dark text-white disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
-                  aria-label={t("analyzeCase")}
-                >
-                  <Send size={14} />
-                </button>
-              </div>
-
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-2">
-                  {t("aiSuggestedQueries")}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {aiChips.map((chip) => (
-                    <button
-                      key={chip}
-                      type="button"
-                      onClick={() => handleAiSubmit(undefined, chip)}
-                      className="rounded-lg border border-brand-border/25 bg-white px-3 py-1.5 text-[12px] font-medium text-brand-dark/80 hover:border-brand-dark/50 hover:bg-brand-dark/[0.03] transition-colors dark:border-white/15 dark:bg-black dark:text-white/80 dark:hover:border-white/40 dark:hover:bg-white/[0.03]"
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Explore Legal Practice Areas */}
-          <div className="space-y-3">
-            <div>
-              <h3 className="text-[16px] font-bold text-brand-dark dark:text-white">
-                {t("practiceAreasTitle")}
-              </h3>
-              <p className="text-[13px] text-brand-dark/50 dark:text-white/50">
-                {t("practiceAreasSubtitle")}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {practiceAreas.map((pa) => {
-                const Icon = pa.icon;
-                return (
-                  <Link
-                    key={pa.title}
-                    href={pa.href}
-                    className="group flex items-start gap-3.5 rounded-xl border border-brand-border/20 bg-white p-4 shadow-sm hover:border-brand-dark/40 hover:shadow-md transition-all dark:border-white/10 dark:bg-black dark:hover:border-white/30"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/5 group-hover:bg-brand-dark group-hover:text-white text-brand-dark dark:bg-white/10 dark:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors">
-                      <Icon size={18} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[14px] font-bold text-brand-dark dark:text-white truncate">
-                          {pa.title}
-                        </p>
-                        <ArrowRight
-                          size={14}
-                          className="text-brand-dark/30 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all dark:text-white/30 dark:group-hover:text-white shrink-0"
-                        />
-                      </div>
-                      <p className="text-[12px] text-brand-dark/50 dark:text-white/50 line-clamp-1 mt-0.5">
-                        {pa.desc}
-                      </p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Recent Consultations List */}
+          {/* ── Recent Consultations List ── */}
           {recentConsultations.length > 0 && (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">
@@ -693,7 +801,7 @@ export default function ClientHomePage() {
                   href="/client/dashboard/consultations"
                   className="text-[12px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
                 >
-                  {t("viewAll")} ({stats.total})
+                  {t("viewAll")} ({bookings.length})
                 </Link>
               </div>
               <div className="divide-y divide-brand-border/10 dark:divide-white/10">
@@ -741,78 +849,47 @@ export default function ClientHomePage() {
 
         {/* ── RIGHT COLUMN: Sidebar Overview & Trust (Span 4) ── */}
         <div className="lg:col-span-4 space-y-5 min-w-0">
-          {/* Your Legal Overview — Aligned exactly with Consultations tab queries */}
-          <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
-                {t("yourOverview")}
-              </h3>
-              <Link
-                href="/client/dashboard/consultations"
-                className="text-[12px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
-              >
-                {t("viewAll")}
-              </Link>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl bg-blue-50 p-3 text-center dark:bg-blue-950/20">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600/70 dark:text-blue-400/70">
-                  {t("upcoming")}
-                </p>
-                <p className="mt-1 text-[22px] font-extrabold text-blue-700 dark:text-blue-300">
-                  {stats.scheduled}
-                </p>
-              </div>
-              <div className="rounded-xl bg-emerald-50 p-3 text-center dark:bg-emerald-950/20">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 dark:text-emerald-400/70">
-                  {t("completed")}
-                </p>
-                <p className="mt-1 text-[22px] font-extrabold text-emerald-700 dark:text-emerald-300">
-                  {stats.completed}
-                </p>
-              </div>
-              <div className="rounded-xl bg-brand-dark/[0.03] p-3 text-center dark:bg-white/[0.04]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40">
-                  {t("total")}
-                </p>
-                <p className="mt-1 text-[22px] font-extrabold text-brand-dark dark:text-white">
-                  {stats.total}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Rebook (Returning client with completed session) */}
-          {lastConsultedExpert && !activeSession && (
+          {/* Latest from Counsel (Upwork / Airbnb Style Message Preview) */}
+          {latestCounselMessage && (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">
-              <h3 className="text-[12px] font-bold uppercase tracking-wider text-brand-dark/40 dark:text-white/40 mb-3">
-                {t("quickRebook")}
-              </h3>
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[14px] font-bold text-brand-dark dark:text-white">
-                  {(lastConsultedExpert.name || "E")
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")
-                    .slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-brand-dark dark:text-white truncate">
-                    {lastConsultedExpert.name}
-                  </p>
-                  <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
-                    {t("lastConsultationDateService", {
-                      date: formatDate(lastConsultedExpert.date),
-                      serviceName: lastConsultedExpert.service,
-                    })}
-                  </p>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <MessageSquare
+                    size={16}
+                    className="text-brand-dark dark:text-white"
+                  />
+                  <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
+                    {t("latestFromCounsel")}
+                  </h3>
                 </div>
                 <Link
-                  href={`/lawyers/${lastConsultedExpert.expertId}`}
-                  className="inline-flex items-center gap-1 rounded-xl bg-brand-dark px-3 py-1.5 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black shrink-0 transition-opacity"
+                  href="/client/dashboard/messages"
+                  className="text-[11px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
                 >
-                  {t("rebook")} <ArrowRight size={12} />
+                  {t("viewAll")}
                 </Link>
+              </div>
+              <div className="rounded-xl border border-brand-border/15 p-3.5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
+                <div className="flex items-center justify-between">
+                  <p className="text-[13px] font-bold text-brand-dark dark:text-white truncate">
+                    {latestCounselMessage.name}
+                  </p>
+                  <span className="text-[10px] text-brand-dark/40 dark:text-white/40">
+                    {formatDate(latestCounselMessage.time)}
+                  </span>
+                </div>
+                <p className="mt-1 text-[12px] text-brand-dark/70 dark:text-white/70 line-clamp-2">
+                  {latestCounselMessage.text}
+                </p>
+                <div className="mt-3 pt-2.5 border-t border-brand-border/10 dark:border-white/10 flex justify-end">
+                  <Link
+                    href={`/client/dashboard/messages?conversationId=${latestCounselMessage.conversationId}`}
+                    className="inline-flex items-center gap-1 text-[12px] font-semibold text-brand-blue hover:underline"
+                  >
+                    <span>{t("replyToCounsel")}</span>
+                    <ArrowRight size={12} />
+                  </Link>
+                </div>
               </div>
             </div>
           )}

@@ -1783,7 +1783,9 @@
         "twoFactor": "Email OTP Verification",
         "twoFactorDesc": "One-time verification codes sent to your email protect every sign-in",
         "disabled": "Disabled",
-        "enable": "Enable"
+        "enable": "Enable",
+        "emailOtp": "Email OTP Verification",
+        "emailOtpDesc": "One-time verification codes sent to your email protect every sign-in"
       },
       "activeDevicesTitle": "Active Devices & Sessions",
       "activeDevicesDesc": "View logged-in devices and remember me status",
@@ -1792,7 +1794,24 @@
       "statsDocuments": "Vault Files",
       "statsReviews": "Reviews",
       "memberSince": "Client since {date}",
-      "lastLogin": "Last login: {date}"
+      "lastLogin": "Last login: {date}",
+      "referenceId": "Citizen Reference",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "verifiedBadge": "Verified",
+      "notProvided": "Not provided",
+      "addPhone": "Add Phone Number",
+      "jurisdiction": "Legal Jurisdiction",
+      "rwandaJurisdiction": "Republic of Rwanda",
+      "preferredLanguage": "Preferred Language",
+      "activityTitle": "Account & Case Activity",
+      "activitySubtitle": "Overview of your legal consultations, case documents, and feedback",
+      "viewAll": "View Details",
+      "dataProtection": "Data Protection Compliance",
+      "dataProtectionDesc": "Protected under Rwanda Law Nº 058/2021 relating to personal data",
+      "exportData": "Export Data",
+      "activeAccount": "Active Account",
+      "manageSecurity": "Manage Security"
     },
     "profileEdit": {
       "title": "Edit Profile",

@@ -3892,7 +3892,9 @@
         "twoFactor": "Vérification OTP par e-mail",
         "twoFactorDesc": "Des codes de vérification uniques envoyés à votre e-mail protègent chaque connexion",
         "disabled": "Disabled",
-        "enable": "Enable"
+        "enable": "Enable",
+        "emailOtp": "Vérification OTP par e-mail",
+        "emailOtpDesc": "Des codes uniques envoyés à votre adresse e-mail sécurisent chaque connexion"
       },
       "activeDevicesTitle": "Appareils actifs & Sessions",
       "activeDevicesDesc": "Voir les appareils connectés et le statut de mémorisation",
@@ -3901,7 +3903,24 @@
       "statsDocuments": "Fichiers coffre-fort",
       "statsReviews": "Avis",
       "memberSince": "Client depuis {date}",
-      "lastLogin": "Dernière connexion : {date}"
+      "lastLogin": "Dernière connexion : {date}",
+      "referenceId": "Référence Citoyen",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "verifiedBadge": "Vérifié",
+      "notProvided": "Non renseigné",
+      "addPhone": "Ajouter un numéro",
+      "jurisdiction": "Juridiction Légale",
+      "rwandaJurisdiction": "République du Rwanda",
+      "preferredLanguage": "Langue Préférée",
+      "activityTitle": "Activité du Compte et des Dossiers",
+      "activitySubtitle": "Aperçu de vos consultations juridiques, documents et avis",
+      "viewAll": "Voir les détails",
+      "dataProtection": "Protection des Données Personnelles",
+      "dataProtectionDesc": "Conforme à la Loi rwandaise nº 058/2021 sur les données personnelles",
+      "exportData": "Exporter les données",
+      "activeAccount": "Compte Actif",
+      "manageSecurity": "Gérer la sécurité"
     },
     "profileEdit": {
       "title": "Edit Profile",

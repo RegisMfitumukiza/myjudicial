@@ -3892,7 +3892,9 @@
         "twoFactor": "Kugenzura OTP kuri imeri",
         "twoFactorDesc": "Amabwiriza yo kugenzura yoherezwa kuri imeri yawe arinzi buri kwinjira",
         "disabled": "Disabled",
-        "enable": "Enable"
+        "enable": "Enable",
+        "emailOtp": "Kugenzura OTP kuri imeri",
+        "emailOtpDesc": "Amabwiriza yoherezwa kuri imeri yawe arinda kwinjira muri konti"
       },
       "activeDevicesTitle": "Ibikoresho bifunguye",
       "activeDevicesDesc": "Reba ibikoresho bifunguye n'uko wibutswe",
@@ -3901,7 +3903,24 @@
       "statsDocuments": "Inyandiko zibitswe",
       "statsReviews": "Amanota",
       "memberSince": "Umukiriya kuva {date}",
-      "lastLogin": "Kwinjira biheruka: {date}"
+      "lastLogin": "Kwinjira biheruka: {date}",
+      "referenceId": "Nomero y'umuturage",
+      "copy": "Koporora",
+      "copied": "Byakoporowe!",
+      "verifiedBadge": "Byemejwe",
+      "notProvided": "Ntabwo yatanzwe",
+      "addPhone": "Ongeraho nimero ya terefoni",
+      "jurisdiction": "Ububasha bw'amategeko",
+      "rwandaJurisdiction": "Repubulika y'u Rwanda",
+      "preferredLanguage": "Ururimi wahisemo",
+      "activityTitle": "Ibikorwa bya Konti na Dosiye",
+      "activitySubtitle": "Incamake y'ubujyanama mu mategeko, inyandiko, n'ibitekerezo watanze",
+      "viewAll": "Reba birambuye",
+      "dataProtection": "Kurengera Amakuru Bwite",
+      "dataProtectionDesc": "Biteganyijwe n'Itegeko nº 058/2021 rirengera amakuru bwite mu Rwanda",
+      "exportData": "Sohora amakuru",
+      "activeAccount": "Konti Ikora",
+      "manageSecurity": "Gucunga umutekano"
     },
     "profileEdit": {
       "title": "Edit Profile",

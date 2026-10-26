@@ -119,6 +119,8 @@ export const authenticate = async (
         preferredLanguage: true,
         avatarObjectKey: true,
         phone: true,
+        createdAt: true,
+        lastLoginAt: true,
         expertProfile: {
           select: {
             id: true,
@@ -142,12 +144,15 @@ export const authenticate = async (
       firstName: dbUser.firstName,
       lastName: dbUser.lastName,
       role: dbUser.role as Role,
+      status: dbUser.status,
       expertProfileId: dbUser.expertProfile?.id ?? null,
       expertStatus: (dbUser.expertProfile?.status as ExpertStatus) ?? null,
       expertProfile: dbUser.expertProfile ? { id: dbUser.expertProfile.id, status: dbUser.expertProfile.status as ExpertStatus } : null,
       preferredLanguage: dbUser.preferredLanguage,
       avatarObjectKey: dbUser.avatarObjectKey,
       phone: dbUser.phone,
+      createdAt: dbUser.createdAt,
+      lastLoginAt: dbUser.lastLoginAt,
     };
 
     logger.info("User authenticated from database", {

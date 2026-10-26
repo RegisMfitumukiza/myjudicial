@@ -39,6 +39,12 @@ export type AuthenticatedUser = {
   avatarObjectKey: string | null;
   /** User's phone number — null if not provided */
   phone: string | null;
+  /** Account creation timestamp */
+  createdAt?: Date | null;
+  /** Last successful login timestamp */
+  lastLoginAt?: Date | null;
+  /** Account status */
+  status?: string;
 };
 
 export {};

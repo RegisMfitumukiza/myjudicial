@@ -23,6 +23,7 @@ export type PublicUser = {
   avatarUrl?: string | null;
   preferredLanguage: string;
   createdAt: string;
+  lastLoginAt?: string | null;
   updatedAt?: string;
   expertProfile: {
     id: string;

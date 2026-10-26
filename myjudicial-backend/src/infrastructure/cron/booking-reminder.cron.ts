@@ -9,7 +9,7 @@ import { NotificationRepository } from "../../modules/notifications/notification
 /**
  * Booking Reminder Cron — runs every 5 minutes.
  *
- * Finds CONFIRMED bookings whose scheduledStart is within the next 60-65 minutes
+ * Finds CONFIRMED bookings whose scheduledStart is within the next 60 minutes
  * that have NOT yet had a reminder sent (reminderSent = false), sends reminder
  * emails and in-app notifications to both citizen and expert, and marks the
  * booking as reminded.
@@ -18,10 +18,9 @@ export const startBookingReminderCron = (): void => {
   cron.schedule("*/5 * * * *", async () => {
     const now = new Date();
     const in60min = new Date(now.getTime() + 60 * 60 * 1000);
-    const in65min = new Date(now.getTime() + 65 * 60 * 1000);
 
     logger.info("Booking reminder cron: checking for upcoming consultations", {
-      window: { from: in60min.toISOString(), to: in65min.toISOString() },
+      window: { from: now.toISOString(), to: in60min.toISOString() },
     });
 
     let bookings: any[];
@@ -31,8 +30,8 @@ export const startBookingReminderCron = (): void => {
           status: "CONFIRMED",
           reminderSent: false,
           scheduledStart: {
-            gte: in60min,
-            lte: in65min,
+            gte: now,
+            lte: in60min,
           },
         },
         include: {

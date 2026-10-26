@@ -2305,7 +2305,8 @@
     "saved": "Enregistrés",
     "documents": "Documents",
     "payments": "Paiements & Facturation",
-    "security": "Sécurité"
+    "security": "Sécurité",
+    "bookings": "Réservations"
   },
   "public": {
     "bookings": {
@@ -3945,8 +3946,8 @@
       }
     },
     "consultations": {
-      "title": "My Consultations",
-      "subtitle": "View and manage your consultation bookings",
+      "title": "Mes réservations",
+      "subtitle": "Consultez et gérez vos réservations et services juridiques",
       "tabs": {
         "all": "All",
         "upcoming": "Upcoming",
@@ -3955,8 +3956,8 @@
         "cancelled": "Cancelled"
       },
       "failedToLoad": "Failed to load consultations",
-      "noConsultationsYet": "No consultations yet",
-      "noMatchingConsultations": "No matching consultations",
+      "noConsultationsYet": "Aucune réservation pour le moment",
+      "noMatchingConsultations": "Aucune réservation correspondante",
       "findLawyerDesc": "Find a lawyer and book your first consultation.",
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
@@ -4191,17 +4192,17 @@
     "consultationCapitalized": "Consultation",
     "bookLawyer": "Book a Lawyer",
     "messages": "Messages",
-    "consultations": "Consultations",
+    "consultations": "Réservations",
     "total": "Total",
     "completed": "Completed",
     "upcoming": "Upcoming",
-    "upcomingConsultation": "Upcoming Consultation",
+    "upcomingConsultation": "Prochaine réservation",
     "legalExpert": "Legal Expert",
     "withExpert": "with {expertName}",
     "join": "Join",
     "notYetTime": "Not yet time",
-    "noUpcomingConsultations": "No upcoming consultations",
-    "recentConsultations": "Recent Consultations",
+    "noUpcomingConsultations": "Aucune réservation à venir",
+    "recentConsultations": "Réservations récentes",
     "viewAll": "View all",
     "expertDate": "{expertName} • {date}",
     "activeSession": "Active Session",

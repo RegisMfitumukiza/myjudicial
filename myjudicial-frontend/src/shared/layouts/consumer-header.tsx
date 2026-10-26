@@ -100,7 +100,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const navigation = [
     { href: "/search", label: t("findLawyers"), icon: Search },
     { href: "/ai", label: t("aiAssistant"), icon: Sparkles },
-    { href: "/client/dashboard/consultations", label: t("consultations"), icon: Calendar },
+    { href: "/client/dashboard/consultations", label: t("bookings"), icon: Calendar },
     { href: "/client/dashboard/messages", label: t("messages"), icon: MessageSquare },
     { href: "/client/dashboard/saved-experts", label: t("saved"), icon: Bookmark },
   ];

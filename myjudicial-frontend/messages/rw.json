@@ -2305,7 +2305,8 @@
     "saved": "Ababitswe",
     "documents": "Inyandiko",
     "payments": "Kwishyura & Inyemezabwishyu",
-    "security": "Umutekano"
+    "security": "Umutekano",
+    "bookings": "Gahunda"
   },
   "public": {
     "bookings": {
@@ -3945,8 +3946,8 @@
       }
     },
     "consultations": {
-      "title": "My Consultations",
-      "subtitle": "View and manage your consultation bookings",
+      "title": "Gahunda Zanjye",
+      "subtitle": "Reba kandi uyobore gahunda zawe na serivisi z'amategeko",
       "tabs": {
         "all": "All",
         "upcoming": "Upcoming",
@@ -3955,8 +3956,8 @@
         "cancelled": "Cancelled"
       },
       "failedToLoad": "Failed to load consultations",
-      "noConsultationsYet": "No consultations yet",
-      "noMatchingConsultations": "No matching consultations",
+      "noConsultationsYet": "Nta gahunda urafata",
+      "noMatchingConsultations": "Nta gahunda ihwanye n'ibyo mushaka",
       "findLawyerDesc": "Find a lawyer and book your first consultation.",
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
@@ -4191,17 +4192,17 @@
     "consultationCapitalized": "Consultation",
     "bookLawyer": "Book a Lawyer",
     "messages": "Messages",
-    "consultations": "Consultations",
+    "consultations": "Gahunda",
     "total": "Total",
     "completed": "Completed",
     "upcoming": "Upcoming",
-    "upcomingConsultation": "Upcoming Consultation",
+    "upcomingConsultation": "Gahunda Itegerejwe",
     "legalExpert": "Legal Expert",
     "withExpert": "with {expertName}",
     "join": "Join",
     "notYetTime": "Not yet time",
-    "noUpcomingConsultations": "No upcoming consultations",
-    "recentConsultations": "Recent Consultations",
+    "noUpcomingConsultations": "Nta gahunda zitegerejwe",
+    "recentConsultations": "Gahunda za vuba",
     "viewAll": "View all",
     "expertDate": "{expertName} • {date}",
     "activeSession": "Active Session",

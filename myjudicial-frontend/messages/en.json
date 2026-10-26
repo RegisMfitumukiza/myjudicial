@@ -1843,8 +1843,8 @@
       }
     },
     "consultations": {
-      "title": "My Consultations",
-      "subtitle": "View and manage your consultation bookings",
+      "title": "My Bookings",
+      "subtitle": "View and manage your bookings and legal services",
       "tabs": {
         "all": "All",
         "upcoming": "Upcoming",
@@ -1853,8 +1853,8 @@
         "cancelled": "Cancelled"
       },
       "failedToLoad": "Failed to load consultations",
-      "noConsultationsYet": "No consultations yet",
-      "noMatchingConsultations": "No matching consultations",
+      "noConsultationsYet": "No bookings yet",
+      "noMatchingConsultations": "No matching bookings",
       "findLawyerDesc": "Find a lawyer and book your first consultation.",
       "noMatchFilterDesc": "No consultations match the selected filter.",
       "findLawyers": "Find Lawyers",
@@ -2089,17 +2089,17 @@
     "consultationCapitalized": "Consultation",
     "bookLawyer": "Book a Lawyer",
     "messages": "Messages",
-    "consultations": "Consultations",
+    "consultations": "Bookings",
     "total": "Total",
     "completed": "Completed",
     "upcoming": "Upcoming",
-    "upcomingConsultation": "Upcoming Consultation",
+    "upcomingConsultation": "Upcoming Booking",
     "legalExpert": "Legal Expert",
     "withExpert": "with {expertName}",
     "join": "Join",
     "notYetTime": "Not yet time",
-    "noUpcomingConsultations": "No upcoming consultations",
-    "recentConsultations": "Recent Consultations",
+    "noUpcomingConsultations": "No upcoming bookings",
+    "recentConsultations": "Recent Bookings",
     "viewAll": "View all",
     "expertDate": "{expertName} • {date}",
     "activeSession": "Active Session",
@@ -5880,7 +5880,8 @@
     "saved": "Saved",
     "documents": "Documents",
     "payments": "Payments & Billing",
-    "security": "Security"
+    "security": "Security",
+    "bookings": "Bookings"
   },
   "partnersPage": {
     "meta": {

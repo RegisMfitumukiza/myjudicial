@@ -25,8 +25,15 @@ import {
   Upload,
   UserCheck,
   CalendarCheck2,
+  CalendarPlus,
+  Download,
+  ExternalLink,
+  BadgeCheck,
 } from "lucide-react";
-import { useGetBookings, useGetChatConversations } from "@/api/generated";
+import { useGetBookings, useGetChatConversations, useGetFiles } from "@/api/generated";
+import { useQuery } from "@tanstack/react-query";
+import { getSavedExperts } from "@/lib/api/saved-experts";
+import { downloadICS } from "@/features/booking/lib/ics";
 import { useTranslations, useLocale } from "next-intl";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 
@@ -46,6 +53,10 @@ export default function ClientHomePage() {
   const t = useTranslations("clientDashboard_home");
   const locale = useLocale();
 
+  const [calendarDropdownOpen, setCalendarDropdownOpen] = useState(false);
+  const [showAllCounsel, setShowAllCounsel] = useState(false);
+  const COUNSEL_VISIBLE = 3;
+
   const firstName =
     (session?.user as unknown as { firstName?: string })?.firstName ||
     session?.user?.name?.split(" ")[0] ||
@@ -53,15 +64,29 @@ export default function ClientHomePage() {
   const timeOfDay = useTimeOfDay();
   const greetingKey = TIME_GREETING_KEY[timeOfDay];
 
+  // 1. Bookings data
   const { data: bookingsData, isLoading: bookingsLoading } = useGetBookings({
     page: 1,
     limit: 30,
   });
 
+  // 2. Chat conversations data
   const { data: convData } = useGetChatConversations(
     { limit: 10 },
     { query: { refetchInterval: 30_000 } }
   );
+
+  // 3. User files data (Dynamic telemetry for Quick Access)
+  const { data: filesData } = useGetFiles(undefined, {
+    query: { refetchInterval: 60_000 },
+  });
+
+  // 4. Saved experts data (Dynamic telemetry for Quick Access)
+  const { data: savedExpertsData } = useQuery({
+    queryKey: ["saved-experts"],
+    queryFn: getSavedExperts,
+    staleTime: 60_000,
+  });
 
   const bookings = useMemo(() => {
     if (bookingsData?.status === 200) return bookingsData.data.data || [];
@@ -73,9 +98,36 @@ export default function ClientHomePage() {
     return [];
   }, [convData]);
 
+  const filesCount = filesData?.status === 200 ? filesData.data.data.length : 0;
+  const savedCount = savedExpertsData?.length ?? 0;
+
+  const billingSummary = useMemo(() => {
+    const paidBookings = bookings.filter(
+      (b) => b.paymentStatus === "PAID" || b.paymentStatus === "AUTHORIZED" || b.escrowLockedAt
+    );
+    const totalSpent = paidBookings.reduce(
+      (sum, b) => sum + (b.service?.flatFee || 0),
+      0
+    );
+    return {
+      count: paidBookings.length,
+      totalSpent,
+    };
+  }, [bookings]);
+
   const isLoading = bookingsLoading;
   const now = useMemo(() => new Date(), []);
   const nowTime = now.getTime();
+
+  // Local Kigali Time (CAT UTC+2)
+  const kigaliTime = useMemo(() => {
+    return new Date().toLocaleTimeString(locale, {
+      timeZone: "Africa/Kigali",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: locale !== "fr" && locale !== "rw",
+    });
+  }, [locale]);
 
   // ─── Time-Aware Consultation Lifecycle ───
   // 1. Live session: explicitly ACTIVE, or CONFIRMED within [-15m before start, scheduledEnd]
@@ -122,6 +174,17 @@ export default function ClientHomePage() {
     )[0];
   }, [bookings, nowTime]);
 
+  // Active Escrow Deposit: Booking in progress or awaiting summary with locked escrow
+  const activeEscrowBooking = useMemo(() => {
+    return (
+      bookings.find(
+        (b) =>
+          ["CONFIRMED", "ACTIVE"].includes(b.status) &&
+          (b.paymentStatus === "PAID" || !!b.escrowLockedAt)
+      ) || null
+    );
+  }, [bookings]);
+
   // Priority 1: Pending payment
   const pendingPayment = useMemo(() => {
     return (
@@ -148,7 +211,7 @@ export default function ClientHomePage() {
   const pendingActionCount =
     (pendingPayment ? 1 : 0) + (pendingReview ? 1 : 0);
 
-  // My Legal Counsel: Extract previous advocates worked with (Returning clients)
+  // My Legal Counsel: Extract unique previous advocates worked with
   const myLegalCounsel = useMemo(() => {
     const map = new Map<
       string,
@@ -158,6 +221,7 @@ export default function ClientHomePage() {
         specialty: string;
         lastSeen: string;
         conversationId?: string;
+        fee?: number;
       }
     >();
 
@@ -188,16 +252,13 @@ export default function ClientHomePage() {
         specialty,
         lastSeen: b.scheduledStart,
         conversationId: conv?.id,
+        fee: b.service?.flatFee,
       });
     }
 
-    // Return ALL unique counsels; the UI will show 3 and "View All" if more
     return Array.from(map.values());
   }, [bookings, conversations, t]);
 
-  // How many to show before collapsing into "View All"
-  const COUNSEL_VISIBLE = 3;
-  const [showAllCounsel, setShowAllCounsel] = useState(false);
   const visibleCounsel = showAllCounsel
     ? myLegalCounsel
     : myLegalCounsel.slice(0, COUNSEL_VISIBLE);
@@ -269,20 +330,45 @@ export default function ClientHomePage() {
     });
   }
 
+  function getGoogleCalendarUrl(booking: {
+    id: string;
+    expertName: string;
+    serviceName: string;
+    scheduledStart: string;
+    scheduledEnd: string;
+  }) {
+    const formatGCal = (iso: string) =>
+      new Date(iso).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const title = encodeURIComponent(
+      `Consultation with ${booking.expertName} - ${booking.serviceName}`
+    );
+    const details = encodeURIComponent(
+      `Legal consultation on MyJudicial platform.\nBooking ID: ${booking.id}\nVideo Room: https://myjudicial.com/bookings/${booking.id}/join`
+    );
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatGCal(
+      booking.scheduledStart
+    )}/${formatGCal(booking.scheduledEnd)}&details=${details}&location=Online%20(MyJudicial%20Video)`;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-w-0">
-      {/* ─── Command Center Welcome Header ─── */}
+      {/* ─── Command Center Welcome Header with Local CAT Timezone ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-brand-border/15 dark:border-white/10">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark dark:text-white break-words">
             {t(greetingKey, { firstName })}
           </h1>
-          <p className="mt-1 text-[14px] text-brand-dark/60 dark:text-white/60">
-            {t("manageConsultationsDesc")}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-1 text-[13px] text-brand-dark/60 dark:text-white/60">
+            <span>{t("manageConsultationsDesc")}</span>
+            <span className="hidden sm:inline text-brand-dark/30 dark:text-white/30">•</span>
+            <span className="inline-flex items-center gap-1.5 font-medium text-brand-dark/80 dark:text-white/80">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>{t("kigaliTimeLabel")}: {kigaliTime}</span>
+            </span>
+          </div>
         </div>
 
-        {/* Client Action Center Status Pill (No redundant search CTA) */}
+        {/* Client Action Center Status Pill */}
         <div className="shrink-0">
           {pendingActionCount === 0 ? (
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -387,7 +473,7 @@ export default function ClientHomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* ── LEFT COLUMN: Primary Workspace (Span 8) ── */}
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
-          {/* ── Spotlight Consultation Card (Time-Aware Lifecycle) ── */}
+          {/* ── Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) ── */}
           {isLoading ? (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-black">
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
@@ -425,17 +511,57 @@ export default function ClientHomePage() {
                     </p>
                   </div>
                 </div>
-                <Link
-                  href={`/client/dashboard/consultations/${liveSession.id}/join`}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600 shrink-0"
-                >
-                  <Video size={16} />
-                  {t("joinNow")}
-                </Link>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Link
+                    href={`/client/dashboard/consultations/${liveSession.id}/join`}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600"
+                  >
+                    <Video size={16} />
+                    {t("joinNow")}
+                  </Link>
+                </div>
+              </div>
+
+              {/* Step Milestone Tracker */}
+              <div className="mt-5 pt-4 border-t border-green-600/15 dark:border-green-400/15">
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-green-800 dark:text-green-300 truncate max-w-[80px]">
+                      {t("milestoneFunded")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px] font-bold animate-pulse shadow-sm">
+                      2
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-green-900 dark:text-green-200 truncate max-w-[80px]">
+                      {t("milestoneSession")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center opacity-50">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      3
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
+                      {t("milestoneSummary")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center opacity-50">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      4
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
+                      {t("milestoneRelease")}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : upcomingSession ? (
-            /* CASE 2: Scheduled Future Consultation */
+            /* CASE 2: Scheduled Future Consultation + Calendar Sync */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -505,13 +631,105 @@ export default function ClientHomePage() {
                   </div>
                 </div>
 
-                <div className="shrink-0 sm:self-center">
+                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                  {/* 1-Click Calendar Sync Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setCalendarDropdownOpen(!calendarDropdownOpen)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-3 py-2 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] transition-colors dark:border-white/15 dark:bg-black dark:text-white"
+                      title={t("addToCalendar")}
+                    >
+                      <CalendarPlus size={14} />
+                      <span className="hidden sm:inline">{t("addToCalendar")}</span>
+                    </button>
+                    {calendarDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-30"
+                          onClick={() => setCalendarDropdownOpen(false)}
+                        />
+                        <div className="absolute right-0 mt-1.5 w-52 z-40 rounded-xl border border-brand-border/20 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-gray-900">
+                          <a
+                            href={getGoogleCalendarUrl({
+                              id: upcomingSession.id,
+                              expertName: upcomingSession.expert?.displayName || "Advocate",
+                              serviceName: upcomingSession.service?.name || "Consultation",
+                              scheduledStart: upcomingSession.scheduledStart,
+                              scheduledEnd: upcomingSession.scheduledEnd,
+                            })}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setCalendarDropdownOpen(false)}
+                            className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-brand-dark hover:bg-brand-dark/[0.04] dark:text-white dark:hover:bg-white/10"
+                          >
+                            <ExternalLink size={13} className="text-blue-600" />
+                            <span>{t("googleCalendar")}</span>
+                          </a>
+                          <button
+                            onClick={() => {
+                              setCalendarDropdownOpen(false);
+                              downloadICS({
+                                id: upcomingSession.id,
+                                expertName: upcomingSession.expert?.displayName || "Advocate",
+                                serviceName: upcomingSession.service?.name || "Consultation",
+                                start: upcomingSession.scheduledStart,
+                                end: upcomingSession.scheduledEnd,
+                              });
+                            }}
+                            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-brand-dark hover:bg-brand-dark/[0.04] dark:text-white dark:hover:bg-white/10 text-left"
+                          >
+                            <Download size={13} className="text-purple-600" />
+                            <span>{t("appleOutlookCalendar")}</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   <Link
                     href={`/client/dashboard/consultations/${upcomingSession.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2.5 text-[13px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2 text-[13px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white"
                   >
                     {t("notYetTime")}
                   </Link>
+                </div>
+              </div>
+
+              {/* Case Milestone Progress Tracker */}
+              <div className="mt-5 pt-4 border-t border-brand-border/15 dark:border-white/10">
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
+                      {t("milestoneFunded")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark text-white flex items-center justify-center text-[10px] font-bold dark:bg-white dark:text-black">
+                      2
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-brand-dark dark:text-white truncate max-w-[80px]">
+                      {t("milestoneSession")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      3
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
+                      {t("milestoneSummary")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      4
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
+                      {t("milestoneRelease")}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -531,7 +749,7 @@ export default function ClientHomePage() {
               </div>
             </div>
           ) : awaitingSummarySession ? (
-            /* CASE 3: Consultation Window Ended (Awaiting Advocate Summary) */
+            /* CASE 3: Consultation Window Ended (Awaiting Advocate Summary + Milestone Tracker) */
             <div className="rounded-2xl border border-amber-300/80 bg-amber-50/50 p-5 sm:p-6 shadow-sm dark:border-amber-700/40 dark:bg-amber-950/20">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3.5">
@@ -564,13 +782,66 @@ export default function ClientHomePage() {
                     </p>
                   </div>
                 </div>
-                <div className="shrink-0 sm:self-center">
+
+                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                  <Link
+                    href={`/client/dashboard/messages?conversationId=${
+                      conversations.find((c) =>
+                        c.participants.some(
+                          (p) =>
+                            p.user.id === (awaitingSummarySession.expert as unknown as { userId?: string }).userId
+                        )
+                      )?.id || ""
+                    }`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300/80 bg-white px-3 py-2 text-[12px] font-semibold text-amber-900 shadow-sm hover:bg-amber-50 transition-colors dark:border-amber-700 dark:bg-black dark:text-amber-200 dark:hover:bg-amber-950/40"
+                  >
+                    <MessageSquare size={13} />
+                    <span>{t("messageAdvocateDirect")}</span>
+                  </Link>
                   <Link
                     href={`/client/dashboard/consultations/${awaitingSummarySession.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-white px-4 py-2 text-[13px] font-semibold text-amber-900 shadow-sm hover:bg-amber-50 transition-colors dark:border-amber-700 dark:bg-black dark:text-amber-200 dark:hover:bg-amber-950/40"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-900 px-4 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-amber-800 transition-colors dark:bg-amber-400 dark:text-black dark:hover:bg-amber-300"
                   >
                     {t("viewSummary")}
                   </Link>
+                </div>
+              </div>
+
+              {/* Case Milestone Progress Tracker */}
+              <div className="mt-5 pt-4 border-t border-amber-300/60 dark:border-amber-700/40">
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
+                      {t("milestoneFunded")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 truncate max-w-[80px]">
+                      {t("milestoneSession")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="h-6 w-6 rounded-full bg-amber-600 text-white flex items-center justify-center text-[10px] font-bold shadow-sm animate-pulse">
+                      3
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-amber-900 dark:text-amber-200 truncate max-w-[80px]">
+                      {t("milestoneSummary")}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <div className="h-6 w-6 rounded-full bg-brand-dark/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-bold">
+                      4
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-medium text-brand-dark/70 dark:text-white/70 truncate max-w-[80px]">
+                      {t("milestoneRelease")}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -588,7 +859,6 @@ export default function ClientHomePage() {
           )}
 
           {/* ── Middle Section: Returning vs New Clients ── */}
-          {/* Wait for bookings data before deciding which section to show — prevents onboarding guide flashing on hard refresh */}
           {isLoading ? (
             /* Skeleton placeholder — same height as the counsel card */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black animate-pulse">
@@ -613,7 +883,7 @@ export default function ClientHomePage() {
               </div>
             </div>
           ) : myLegalCounsel.length > 0 ? (
-            /* RETURNING CLIENT: My Legal Counsel (Fast Re-engagement) */
+            /* RETURNING CLIENT: My Legal Counsel (Adaptive Layout) */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -633,54 +903,118 @@ export default function ClientHomePage() {
                   </Link>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {visibleCounsel.map((counsel) => (
-                  <div
-                    key={counsel.id}
-                    className="rounded-xl border border-brand-border/15 p-4 flex flex-col justify-between dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]"
-                  >
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[13px] font-bold text-brand-dark dark:text-white">
-                          {counsel.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .slice(0, 2)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-bold text-brand-dark dark:text-white truncate">
-                            {counsel.name}
+
+              {/* Adaptive Layout: Rich horizontal card when exactly 1 counsel, balanced grid when 2+ */}
+              {myLegalCounsel.length === 1 ? (
+                <div className="rounded-xl border border-brand-border/15 p-5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 text-[16px] font-bold text-brand-dark dark:text-white shadow-sm">
+                        {myLegalCounsel[0].name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-[15px] font-bold text-brand-dark dark:text-white">
+                            {myLegalCounsel[0].name}
                           </p>
-                          <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
-                            {counsel.specialty}
-                          </p>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                            <BadgeCheck size={12} className="text-blue-600 dark:text-blue-400" />
+                            <span>{t("verifiedBarCounsel")}</span>
+                          </span>
                         </div>
+                        <p className="text-[12px] text-brand-dark/60 dark:text-white/60 mt-0.5">
+                          {myLegalCounsel[0].specialty}
+                        </p>
+                        <p className="text-[11px] text-brand-dark/40 dark:text-white/40 mt-1">
+                          {t("lastConsultedOn", {
+                            date: formatDate(myLegalCounsel[0].lastSeen),
+                          })}
+                        </p>
                       </div>
                     </div>
-                    <div className="mt-3.5 pt-3 border-t border-brand-border/10 dark:border-white/10 flex items-center gap-2">
+
+                    <div className="flex items-center gap-2 shrink-0">
                       <Link
                         href={
-                          counsel.conversationId
-                            ? `/client/dashboard/messages?conversationId=${counsel.conversationId}`
+                          myLegalCounsel[0].conversationId
+                            ? `/client/dashboard/messages?conversationId=${myLegalCounsel[0].conversationId}`
                             : "/client/dashboard/messages"
                         }
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-1.5 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-4 py-2 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
                       >
-                        <MessageSquare size={13} />
+                        <MessageSquare size={14} />
                         {t("messageAdvocate")}
                       </Link>
                       <Link
-                        href={`/lawyers/${counsel.id}`}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-1.5 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                        href={`/lawyers/${myLegalCounsel[0].id}`}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
                       >
-                        <CalendarCheck2 size={13} />
+                        <CalendarCheck2 size={14} />
                         {t("bookAgain")}
                       </Link>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div
+                  className={`grid gap-3 ${
+                    myLegalCounsel.length === 2
+                      ? "grid-cols-1 sm:grid-cols-2"
+                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  }`}
+                >
+                  {visibleCounsel.map((counsel) => (
+                    <div
+                      key={counsel.id}
+                      className="rounded-xl border border-brand-border/15 p-4 flex flex-col justify-between dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-dark/10 dark:bg-white/10 text-[13px] font-bold text-brand-dark dark:text-white">
+                            {counsel.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] font-bold text-brand-dark dark:text-white truncate">
+                              {counsel.name}
+                            </p>
+                            <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
+                              {counsel.specialty}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3.5 pt-3 border-t border-brand-border/10 dark:border-white/10 flex items-center gap-2">
+                        <Link
+                          href={
+                            counsel.conversationId
+                              ? `/client/dashboard/messages?conversationId=${counsel.conversationId}`
+                              : "/client/dashboard/messages"
+                          }
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-1.5 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
+                        >
+                          <MessageSquare size={13} />
+                          {t("messageAdvocate")}
+                        </Link>
+                        <Link
+                          href={`/lawyers/${counsel.id}`}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-1.5 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                        >
+                          <CalendarCheck2 size={13} />
+                          {t("bookAgain")}
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Show More / Show Less toggle — only if there are more than COUNSEL_VISIBLE */}
               {myLegalCounsel.length > COUNSEL_VISIBLE && (
@@ -764,7 +1098,7 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* ── Personal Workspace Quick Access ── */}
+          {/* ── Personal Workspace Quick Access with LIVE Dynamic Counters ── */}
           <div className="space-y-3">
             <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
               {t("workspaceQuickAccess")}
@@ -781,7 +1115,10 @@ export default function ClientHomePage() {
                   <p className="text-[14px] font-bold text-brand-dark dark:text-white">
                     {t("myDocuments")}
                   </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
+                  <p className="text-[12px] font-medium text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {t("filesStoredCount", { count: filesCount })}
+                  </p>
+                  <p className="text-[11px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
                     {t("myDocumentsDesc")}
                   </p>
                 </div>
@@ -805,7 +1142,10 @@ export default function ClientHomePage() {
                   <p className="text-[14px] font-bold text-brand-dark dark:text-white">
                     {t("savedLawyers")}
                   </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
+                  <p className="text-[12px] font-medium text-blue-700 dark:text-blue-400 mt-0.5">
+                    {t("advocatesSavedCount", { count: savedCount })}
+                  </p>
+                  <p className="text-[11px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
                     {t("savedLawyersDesc")}
                   </p>
                 </div>
@@ -829,7 +1169,13 @@ export default function ClientHomePage() {
                   <p className="text-[14px] font-bold text-brand-dark dark:text-white">
                     {t("billingPayments")}
                   </p>
-                  <p className="text-[12px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
+                  <p className="text-[12px] font-medium text-purple-700 dark:text-purple-400 mt-0.5">
+                    {t("billingTransactionsCount", {
+                      count: billingSummary.count,
+                      amount: billingSummary.totalSpent.toLocaleString(),
+                    })}
+                  </p>
+                  <p className="text-[11px] text-brand-dark/50 dark:text-white/50 mt-1 line-clamp-2">
                     {t("billingPaymentsDesc")}
                   </p>
                 </div>
@@ -841,6 +1187,46 @@ export default function ClientHomePage() {
                   />
                 </div>
               </Link>
+            </div>
+          </div>
+
+          {/* ── Returning Client Multi-Matter Quick Jump ── */}
+          <div className="rounded-2xl border border-brand-border/20 bg-white p-4 sm:p-5 shadow-sm dark:border-white/10 dark:bg-black">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <h4 className="text-[14px] font-bold text-brand-dark dark:text-white">
+                  {t("needAnotherMatter")}
+                </h4>
+                <p className="text-[12px] text-brand-dark/50 dark:text-white/50">
+                  {t("explorePracticeAreas")}
+                </p>
+              </div>
+              <Link
+                href="/search"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold text-brand-dark hover:underline dark:text-white shrink-0"
+              >
+                <span>{t("viewAll")}</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: "paLand", specialty: "LAND_LAW" },
+                { key: "paCommercial", specialty: "COMMERCIAL_LAW" },
+                { key: "paLabor", specialty: "EMPLOYMENT_LAW" },
+                { key: "paFamily", specialty: "FAMILY_LAW" },
+                { key: "paCriminal", specialty: "CRIMINAL_LAW" },
+                { key: "paTax", specialty: "TAX_LAW" },
+              ].map((item) => (
+                <Link
+                  key={item.specialty}
+                  href={`/search?specialty=${item.specialty}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-border/20 bg-brand-dark/[0.02] px-3 py-1.5 text-[12px] font-medium text-brand-dark hover:border-brand-dark/40 hover:bg-brand-dark/[0.05] transition-colors dark:border-white/10 dark:bg-white/[0.02] dark:text-white dark:hover:border-white/30"
+                >
+                  <span>{t(item.key as Parameters<typeof t>[0])}</span>
+                  <ArrowRight size={11} className="opacity-40" />
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -948,51 +1334,114 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* Platform Security & Trust Guarantee (Real, Verified Policies) */}
-          <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-transparent p-5 shadow-sm dark:border-emerald-800/30 dark:from-emerald-950/30">
-            <div className="flex items-center gap-2.5 mb-2.5">
-              <ShieldCheck
-                size={20}
-                className="text-emerald-600 dark:text-emerald-400"
-              />
-              <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
-                {t("escrowProtectionTitle")}
-              </h3>
-            </div>
-            <p className="text-[12px] leading-relaxed text-brand-dark/70 dark:text-white/70 mb-4">
-              {t("escrowProtectionBody")}
-            </p>
-            <div className="border-t border-emerald-200/60 pt-3.5 space-y-3 dark:border-emerald-800/30">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <CheckCircle2
-                    size={15}
-                    className="text-emerald-600 dark:text-emerald-400 shrink-0"
+          {/* Active Escrow Financial Shield (Or General Platform Protection) */}
+          {activeEscrowBooking ? (
+            <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50 to-emerald-100/30 p-5 shadow-sm dark:border-emerald-700/50 dark:from-emerald-950/40 dark:to-emerald-900/20">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck
+                    size={20}
+                    className="text-emerald-700 dark:text-emerald-400"
                   />
-                  <span className="text-[13px] font-bold text-brand-dark dark:text-white">
-                    {t("barAssociationTitle")}
-                  </span>
+                  <h3 className="text-[14px] font-bold text-emerald-950 dark:text-emerald-200">
+                    {t("activeEscrowShieldTitle")}
+                  </h3>
                 </div>
-                <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
-                  {t("barAssociationBody")}
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                  <Lock size={10} />
+                  <span>{t("activeEscrowDepositLabel")}</span>
+                </span>
+              </div>
+
+              <div className="mt-3 rounded-xl bg-white/80 p-3.5 backdrop-blur-sm dark:bg-black/60 border border-emerald-200/60 dark:border-emerald-800/40">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800/70 dark:text-emerald-400/70">
+                  {activeEscrowBooking.service?.name || t("consultation")}
+                </p>
+                <p className="mt-0.5 text-[20px] font-extrabold text-emerald-950 dark:text-emerald-100">
+                  {(activeEscrowBooking.service?.flatFee || 0).toLocaleString()} RWF
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-emerald-900/80 dark:text-emerald-300/80">
+                  {t("activeEscrowGuaranteed")}
                 </p>
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Lock
-                    size={14}
-                    className="text-emerald-600 dark:text-emerald-400 shrink-0"
-                  />
-                  <span className="text-[13px] font-bold text-brand-dark dark:text-white">
-                    {t("confidentialityTitle")}
-                  </span>
-                </div>
-                <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
-                  {t("confidentialityBody")}
-                </p>
+
+              <div className="mt-3.5 flex items-center justify-between text-[11px] font-semibold text-emerald-900/80 dark:text-emerald-300/80">
+                <Link
+                  href="/client/dashboard/payments"
+                  className="inline-flex items-center gap-1 text-emerald-800 hover:underline dark:text-emerald-300"
+                >
+                  <span>{t("viewEscrowReceipt")}</span>
+                  <ArrowRight size={11} />
+                </Link>
+                <a
+                  href="https://barreaudurwanda.org.rw"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-emerald-800/70 hover:underline dark:text-emerald-300/70"
+                >
+                  <span>{t("verifyBarRoll")}</span>
+                  <ExternalLink size={10} />
+                </a>
               </div>
             </div>
-          </div>
+          ) : (
+            /* General Platform Security Guarantee */
+            <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-transparent p-5 shadow-sm dark:border-emerald-800/30 dark:from-emerald-950/30">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <ShieldCheck
+                  size={20}
+                  className="text-emerald-600 dark:text-emerald-400"
+                />
+                <h3 className="text-[14px] font-bold text-brand-dark dark:text-white">
+                  {t("escrowProtectionTitle")}
+                </h3>
+              </div>
+              <p className="text-[12px] leading-relaxed text-brand-dark/70 dark:text-white/70 mb-4">
+                {t("escrowProtectionBody")}
+              </p>
+              <div className="border-t border-emerald-200/60 pt-3.5 space-y-3 dark:border-emerald-800/30">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2
+                        size={15}
+                        className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                      />
+                      <span className="text-[13px] font-bold text-brand-dark dark:text-white">
+                        {t("barAssociationTitle")}
+                      </span>
+                    </div>
+                    <a
+                      href="https://barreaudurwanda.org.rw"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                    >
+                      <span>{t("verifyBarRoll")}</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                    {t("barAssociationBody")}
+                  </p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Lock
+                      size={14}
+                      className="text-emerald-600 dark:text-emerald-400 shrink-0"
+                    />
+                    <span className="text-[13px] font-bold text-brand-dark dark:text-white">
+                      {t("confidentialityTitle")}
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-brand-dark/60 dark:text-white/60">
+                    {t("confidentialityBody")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Client Support Card with Production-Grade Popover & FAQs */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-black">

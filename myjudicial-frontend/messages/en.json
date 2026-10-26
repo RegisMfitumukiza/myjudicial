@@ -2161,11 +2161,11 @@
     },
     "workspaceQuickAccess": "Workspace Quick Access",
     "myDocuments": "My Documents",
-    "myDocumentsDesc": "Contracts, evidence & legal files",
+    "myDocumentsDesc": "Your private vault: contracts, case evidence & files you upload or receive from counsel",
     "savedLawyers": "Saved Advocates",
-    "savedLawyersDesc": "Bookmarked legal practitioners",
+    "savedLawyersDesc": "Advocates you bookmarked on their profile or search results for quick access",
     "billingPayments": "Billing & Receipts",
-    "billingPaymentsDesc": "Payment receipts & escrow transactions",
+    "billingPaymentsDesc": "Payment receipts, escrow history & transaction records",
     "confidentialityTitle": "Law No. 058/2021 Compliant",
     "confidentialityBody": "Strict confidentiality and personal data protection guaranteed under Rwandan law.",
     "needHelpSubtitle": "Client support & platform guidance",
@@ -2194,7 +2194,9 @@
     "onboardingStep3Desc": "Connect via secure video and receive legal counsel, actionable next steps, and case documentation.",
     "startsIn": "Starts in {time}",
     "readyToJoin": "Ready to join • Video room is open",
-    "liveNow": "Live Now"
+    "liveNow": "Live Now",
+    "showAllCounsel": "Show all {count} counsel",
+    "showLessCounsel": "Show less"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

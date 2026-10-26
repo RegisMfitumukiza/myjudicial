@@ -4264,11 +4264,11 @@
     },
     "workspaceQuickAccess": "Accès rapide à votre espace",
     "myDocuments": "Mes documents",
-    "myDocumentsDesc": "Contrats, preuves & dossiers juridiques",
+    "myDocumentsDesc": "Votre coffre-fort privé : contrats, preuves et fichiers que vous téléchargez ou recevez de votre conseil",
     "savedLawyers": "Avocats enregistrés",
-    "savedLawyersDesc": "Praticiens juridiques favoris",
+    "savedLawyersDesc": "Avocats que vous avez mis en favoris depuis leur profil ou les résultats de recherche",
     "billingPayments": "Factures & reçus",
-    "billingPaymentsDesc": "Reçus de paiement & transactions sous séquestre",
+    "billingPaymentsDesc": "Reçus de paiement, historique d'entiercement et relevés de transactions",
     "confidentialityTitle": "Conforme à la Loi n° 058/2021",
     "confidentialityBody": "Confidentialité stricte et protection des données personnelles garanties par la loi rwandaise.",
     "needHelpSubtitle": "Support client & assistance plateforme",
@@ -4297,7 +4297,9 @@
     "onboardingStep3Desc": "Échangez en visioconférence sécurisée et recevez des conseils juridiques, un plan d'action et des documents officiels.",
     "startsIn": "Commence dans {time}",
     "readyToJoin": "Prêt à rejoindre • Salle vidéo ouverte",
-    "liveNow": "En direct"
+    "liveNow": "En direct",
+    "showAllCounsel": "Voir tous les {count} conseillers",
+    "showLessCounsel": "Réduire"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

@@ -4264,11 +4264,11 @@
     },
     "workspaceQuickAccess": "Kwinjira vuba mu mwanya wawe",
     "myDocuments": "Inyandiko zanjye",
-    "myDocumentsDesc": "Amasezerano, ibimenyetso n'inyandiko z'amategeko",
+    "myDocumentsDesc": "Ububiko bwawe bwite: amasezerano, ibimenyetso by'ikibazo n'inyandiko utunga cyangwa uherewe n'umujyanama",
     "savedLawyers": "Abategeka babitswe",
-    "savedLawyersDesc": "Inzobere mu mategeko wabitse",
+    "savedLawyersDesc": "Abavugizi babitswe ku makuru yabo cyangwa mu bisubizo by'iperereza",
     "billingPayments": "Inyemezabwishyu n'imari",
-    "billingPaymentsDesc": "Inyemezabwishyu n'ubwishyu mu bwishingizi",
+    "billingPaymentsDesc": "Inyandiko z'ibyarishywe, amakuru y'escrow n'amateka y'ibyerekeye ubucuruzi",
     "confidentialityTitle": "Bihuje n'Itegeko No 058/2021",
     "confidentialityBody": "Ibanga rikomeye no kurinda amakuru bwite byemejwe n'amategeko y'u Rwanda.",
     "needHelpSubtitle": "Ubufasha bw'abakiriya n'ubuyobozi",
@@ -4297,7 +4297,9 @@
     "onboardingStep3Desc": "Hura na avoka kuri videwo itekanye uhabwe amabwiriza y'amategeko n'icyemezo cy'inama.",
     "startsIn": "Itangira mu {time}",
     "readyToJoin": "Witeguye kwinjira • Icyumba cya videwo cyafunguwe",
-    "liveNow": "Iri kuba nonaha"
+    "liveNow": "Iri kuba nonaha",
+    "showAllCounsel": "Reba abo {count} bawe bose",
+    "showLessCounsel": "Gukaza"
   },
   "clientDashboard_review": {
     "failedToLoadBooking": "Failed to load booking",

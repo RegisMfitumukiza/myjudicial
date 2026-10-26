@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
 import { Link } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
@@ -191,8 +191,16 @@ export default function ClientHomePage() {
       });
     }
 
-    return Array.from(map.values()).slice(0, 3);
+    // Return ALL unique counsels; the UI will show 3 and "View All" if more
+    return Array.from(map.values());
   }, [bookings, conversations, t]);
+
+  // How many to show before collapsing into "View All"
+  const COUNSEL_VISIBLE = 3;
+  const [showAllCounsel, setShowAllCounsel] = useState(false);
+  const visibleCounsel = showAllCounsel
+    ? myLegalCounsel
+    : myLegalCounsel.slice(0, COUNSEL_VISIBLE);
 
   // Latest message from counsel preview (Airbnb/Upwork style)
   const latestCounselMessage = useMemo(() => {
@@ -592,9 +600,17 @@ export default function ClientHomePage() {
                     {t("myLegalCounselDesc")}
                   </p>
                 </div>
+                {myLegalCounsel.length > COUNSEL_VISIBLE && (
+                  <Link
+                    href="/client/dashboard/consultations"
+                    className="text-[12px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
+                  >
+                    {t("viewAll")} ({myLegalCounsel.length})
+                  </Link>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {myLegalCounsel.map((counsel) => (
+                {visibleCounsel.map((counsel) => (
                   <div
                     key={counsel.id}
                     className="rounded-xl border border-brand-border/15 p-4 flex flex-col justify-between dark:border-white/10 bg-brand-dark/[0.01] dark:bg-white/[0.01]"
@@ -641,6 +657,20 @@ export default function ClientHomePage() {
                   </div>
                 ))}
               </div>
+
+              {/* Show More / Show Less toggle — only if there are more than COUNSEL_VISIBLE */}
+              {myLegalCounsel.length > COUNSEL_VISIBLE && (
+                <div className="mt-3 pt-3 border-t border-brand-border/10 dark:border-white/10 text-center">
+                  <button
+                    onClick={() => setShowAllCounsel((v: boolean) => !v)}
+                    className="text-[12px] font-semibold text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white inline-flex items-center gap-1"
+                  >
+                    {showAllCounsel
+                      ? t("showLessCounsel")
+                      : t("showAllCounsel", { count: myLegalCounsel.length })}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* NEW CLIENT: 3-Step Client Journey Onboarding Guide */

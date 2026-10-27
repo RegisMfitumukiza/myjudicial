@@ -6,13 +6,17 @@ import {
   Clock,
   ArrowUpRight,
   AlertCircle,
-  Phone,
   CreditCard,
   CheckCircle2,
   ShieldCheck,
   Edit2,
   Loader2,
   AlertTriangle,
+  Copy,
+  Check,
+  Zap,
+  ExternalLink,
+  Calendar,
 } from "lucide-react";
 import {
   useGetExpertsEarnings,
@@ -29,6 +33,9 @@ import {
   ErrorState,
   EmptyState,
 } from "@/shared/components/dashboard";
+import { StatusBadge } from "@/shared/components/dashboard/status-badge";
+import { UserAvatar } from "@/shared/components/expert-avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Button } from "@/shared/components/ui/button";
@@ -36,6 +43,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "@/i18n/routing";
 
 function formatCurrency(amount: number, currency: string, locale: string): string {
   return `${currency} ${amount.toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -49,6 +57,43 @@ function detectCarrier(raw?: string | null): "MTN" | "AIRTEL" | null {
   return null;
 }
 
+function CopyChip({
+  value,
+  displayValue,
+  label,
+  className = "",
+}: {
+  value: string;
+  displayValue?: string;
+  label?: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!value) return;
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    toast.success(label ? `${label} copied` : "Copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className={`group inline-flex items-center gap-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded px-1.5 py-0.5 hover:bg-muted/80 max-w-full ${className}`}
+      title={`Copy ${label || "value"}: ${value}`}
+    >
+      <span className="truncate">{displayValue || value}</span>
+      {copied ? (
+        <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+      ) : (
+        <Copy className="h-3 w-3 opacity-40 group-hover:opacity-100 transition-opacity shrink-0" />
+      )}
+    </button>
+  );
+}
+
 export default function EarningsPage() {
   const t = useTranslations("expertDashboard_earnings");
   const locale = useLocale();
@@ -57,6 +102,8 @@ export default function EarningsPage() {
   const { data: profileData, isLoading: isProfileLoading } = useGetExpertsProfileMe();
   const { mutate: updateProfile, isPending: isUpdatingProfile } = usePatchExpertsProfileMe();
   const { isBookingFirst } = usePaymentMode();
+
+  const [activeTab, setActiveTab] = useState<"escrow" | "completed">("escrow");
 
   const earnings = data?.status === 200 ? data.data.data : null;
   const profile = profileData?.status === 200 ? (profileData.data.data as any) : null;
@@ -72,6 +119,9 @@ export default function EarningsPage() {
   const customCarrier = detectCarrier(customMoMo);
   const registeredCarrier = detectCarrier(contactPhone);
   const activeCarrier = detectCarrier(currentMomo);
+
+  const pendingEscrowHolds: any[] = (earnings as any)?.pendingEscrowHolds || [];
+  const recentTransactions: any[] = earnings?.recentTransactions || [];
 
   function handleSavePayout(targetNumber?: string) {
     const numberToSave = targetNumber || (payoutOption === "REGISTERED" ? contactPhone : customMoMo.trim());
@@ -99,13 +149,19 @@ export default function EarningsPage() {
     );
   }
 
-  function formatDate(iso: string | null): string {
+  function formatDate(iso: string | Date | null): string {
     if (!iso) return "-";
-    return new Date(iso).toLocaleString(locale, {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    try {
+      return new Date(iso).toLocaleString(locale, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(iso);
+    }
   }
 
   return (
@@ -127,14 +183,14 @@ export default function EarningsPage() {
 
       {/* Payout Mobile Money Configuration Card */}
       <Card className="border-border bg-card shadow-sm overflow-hidden">
-        <CardContent className="p-5 sm:p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4 mb-4">
             <div className="flex items-start gap-3">
               <div className="rounded-lg bg-primary/10 p-2.5 text-primary shrink-0 mt-0.5">
                 <CreditCard className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                <h2 className="text-base font-semibold text-foreground flex items-center gap-2 flex-wrap">
                   {t("payoutSettingsTitle")}
                   {isProfileLoading ? (
                     <Skeleton className="h-5 w-28 rounded-full" />
@@ -192,20 +248,28 @@ export default function EarningsPage() {
             currentMomo ? (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-4 rounded-xl border border-border">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-background flex items-center justify-center font-bold text-xs border border-border shadow-xs">
+                  <div className="h-9 w-9 rounded-full bg-background flex items-center justify-center font-bold text-xs border border-border shadow-xs shrink-0">
                     {activeCarrier === "MTN" ? "MTN" : activeCarrier === "AIRTEL" ? "AIR" : "MoMo"}
                   </div>
                   <div>
-                    <p className="font-mono text-sm font-semibold text-foreground tracking-wide">
-                      {currentMomo}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-mono text-sm font-semibold text-foreground tracking-wide">
+                        {currentMomo}
+                      </p>
+                      <CopyChip value={currentMomo} label="MoMo Phone" />
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
                       <span>{activeCarrier ? `${activeCarrier} Mobile Money Rwanda` : "Rwanda Mobile Money"}</span>
                       {contactPhone && currentMomo === contactPhone && (
                         <span className="text-[10px] text-muted-foreground font-mono">({t("matchesContactPhone")})</span>
                       )}
                     </p>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 self-start sm:self-center shrink-0">
+                  <Zap className="h-3 w-3" />
+                  {t("autoDisbursement")}
                 </div>
               </div>
             ) : (
@@ -302,7 +366,7 @@ export default function EarningsPage() {
                     payoutOption === "CUSTOM"
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
                       : "border-border hover:bg-muted/40"
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
@@ -387,7 +451,6 @@ export default function EarningsPage() {
 
       {isLoading ? (
         <div className="flex min-h-0 flex-1 flex-col gap-6">
-          {/* stat card skeletons */}
           <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[420px]:grid-cols-2 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <div key={i} className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -397,7 +460,6 @@ export default function EarningsPage() {
               </div>
             ))}
           </div>
-          {/* transaction table skeleton */}
           <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
             <div className="border-b border-border bg-muted/50 px-5 py-4">
               <Skeleton className="h-4 w-40" />
@@ -421,6 +483,7 @@ export default function EarningsPage() {
         />
       ) : (
         <div className="space-y-6 min-w-0">
+          {/* Responsive Stat Cards: single column on compact phones, 2 on phablets, 3 on tablets/desktops */}
           <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[420px]:grid-cols-2 md:grid-cols-3">
             <StatCard
               label={t("netRevenue")}
@@ -446,47 +509,290 @@ export default function EarningsPage() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-            <div className="border-b border-border bg-muted/50 px-5 py-4">
-              <h2 className="text-sm font-semibold text-foreground">{t("recentTransactions")}</h2>
-            </div>
-            {earnings.recentTransactions.length === 0 ? (
-              <EmptyState
-                icon={Clock}
-                title={t("noTransactions")}
-                className="border-0 bg-transparent"
-              />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[500px]">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/50 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      <th className="px-5 py-3">{t("booking")}</th>
-                      <th className="px-5 py-3">{t("service")}</th>
-                      <th className="px-5 py-3">{t("amount")}</th>
-                      <th className="px-5 py-3">{t("completed")}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {earnings.recentTransactions.map((tx) => (
-                      <tr key={tx.bookingId} className="text-sm transition-colors hover:bg-muted/50">
-                        <td className="px-5 py-3 font-mono text-xs text-muted-foreground">
-                          {tx.bookingId.slice(0, 8)}...
-                        </td>
-                        <td className="px-5 py-3 text-muted-foreground">{tx.serviceName}</td>
-                        <td className="px-5 py-3 font-medium tabular-nums text-primary">
-                          +{formatCurrency(tx.amount, tx.currency, locale)}
-                        </td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground">
-                          {formatDate(tx.completedAt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* Dual-Tab Ledger Architecture */}
+          <Card className="border-border bg-card shadow-sm overflow-hidden">
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as "escrow" | "completed")}
+            >
+              <div className="border-b border-border px-4 sm:px-6 pt-3">
+                <TabsList variant="line" className="w-full justify-start overflow-x-auto scrollbar-none gap-2">
+                  <TabsTrigger value="escrow" className="gap-2">
+                    {t("inEscrowTab", { count: pendingEscrowHolds.length })}
+                    {pendingEscrowHolds.length > 0 && (
+                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                        {pendingEscrowHolds.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="gap-2">
+                    {t("completedPayoutsTab")}
+                    {recentTransactions.length > 0 && (
+                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                        {recentTransactions.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            )}
-          </div>
+
+              {/* TAB 1: IN ESCROW HOLDS (FUNDS IN CUSTODY) */}
+              <TabsContent value="escrow" className="p-4 sm:p-6 space-y-4 m-0">
+                {/* Fiduciary Explanatory Banner */}
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-start gap-3">
+                  <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div className="text-xs sm:text-sm">
+                    <p className="font-semibold text-foreground">
+                      {t("escrowBanner")}
+                    </p>
+                  </div>
+                </div>
+
+                {pendingEscrowHolds.length === 0 ? (
+                  <EmptyState
+                    icon={Clock}
+                    title={t("noEscrowHolds")}
+                    description={t("noEscrowHoldsDesc")}
+                    className="border-0 bg-transparent py-10"
+                  />
+                ) : (
+                  <>
+                    {/* Mobile / Small Devices Card Stack (< 768px) */}
+                    <div className="divide-y divide-border md:hidden border rounded-xl overflow-hidden bg-card">
+                      {pendingEscrowHolds.map((hold) => (
+                        <div key={hold.bookingId} className="p-4 space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <UserAvatar
+                                src={hold.citizenAvatarUrl}
+                                name={hold.citizenName || "Client"}
+                                size="xs"
+                                className="h-8 w-8 text-xs shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm text-foreground truncate">
+                                  {hold.citizenName || "Client"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">{hold.serviceName}</p>
+                              </div>
+                            </div>
+                            <StatusBadge tone="pending">
+                              {t("statusLocked")}
+                            </StatusBadge>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-border/60">
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Calendar className="h-3 w-3 shrink-0" />
+                              <span>{formatDate(hold.scheduledStart)}</span>
+                            </div>
+                            <div className="font-bold text-foreground tabular-nums">
+                              {formatCurrency(hold.amount, hold.currency, locale)}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+                            <CopyChip value={hold.bookingId} displayValue={`${hold.bookingId.slice(0, 10)}...`} label="Booking ID" />
+                            <Link
+                              href={`/expert/dashboard/bookings/${hold.bookingId}`}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            >
+                              <span>{t("viewBooking")}</span>
+                              <ExternalLink className="h-3 w-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tablet & Desktop Data Table (>= 768px) */}
+                    <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+                      <table className="w-full text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-border bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            <th className="px-5 py-3.5">{t("booking")}</th>
+                            <th className="px-5 py-3.5">{t("client")}</th>
+                            <th className="px-5 py-3.5">{t("service")}</th>
+                            <th className="px-5 py-3.5">{t("scheduled")}</th>
+                            <th className="px-5 py-3.5">{t("guaranteedPayout")}</th>
+                            <th className="px-5 py-3.5 text-right"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {pendingEscrowHolds.map((hold) => (
+                            <tr key={hold.bookingId} className="transition-colors hover:bg-muted/40">
+                              <td className="px-5 py-3.5">
+                                <CopyChip
+                                  value={hold.bookingId}
+                                  displayValue={`${hold.bookingId.slice(0, 8)}...`}
+                                  label="Booking ID"
+                                />
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <UserAvatar
+                                    src={hold.citizenAvatarUrl}
+                                    name={hold.citizenName || "Client"}
+                                    size="xs"
+                                    className="h-7 w-7 text-xs shrink-0"
+                                  />
+                                  <span className="font-medium text-foreground truncate">
+                                    {hold.citizenName || "Client"}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3.5 text-muted-foreground">
+                                {hold.serviceName}
+                              </td>
+                              <td className="px-5 py-3.5 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3 shrink-0 text-muted-foreground" />
+                                  <span>{formatDate(hold.scheduledStart)}</span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <span className="font-bold tabular-nums text-foreground">
+                                  {formatCurrency(hold.amount, hold.currency, locale)}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3.5 text-right">
+                                <Link
+                                  href={`/expert/dashboard/bookings/${hold.bookingId}`}
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                                >
+                                  <span>{t("viewBooking")}</span>
+                                  <ExternalLink className="h-3 w-3" />
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </TabsContent>
+
+              {/* TAB 2: COMPLETED PAYOUTS */}
+              <TabsContent value="completed" className="p-4 sm:p-6 space-y-4 m-0">
+                {recentTransactions.length === 0 ? (
+                  <EmptyState
+                    icon={Clock}
+                    title={t("noTransactions")}
+                    className="border-0 bg-transparent py-10"
+                  />
+                ) : (
+                  <>
+                    {/* Mobile / Small Devices Card Stack (< 768px) */}
+                    <div className="divide-y divide-border md:hidden border rounded-xl overflow-hidden bg-card">
+                      {recentTransactions.map((tx) => (
+                        <div key={tx.bookingId} className="p-4 space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <UserAvatar
+                                src={tx.citizenAvatarUrl}
+                                name={tx.citizenName || "Client"}
+                                size="xs"
+                                className="h-8 w-8 text-xs shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm text-foreground truncate">
+                                  {tx.citizenName || "Client"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">{tx.serviceName}</p>
+                              </div>
+                            </div>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                              <CheckCircle2 className="h-3 w-3" />
+                              {t("statusDisbursed")}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-border/60">
+                            <span className="text-muted-foreground">{formatDate(tx.completedAt)}</span>
+                            <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                              +{formatCurrency(tx.amount, tx.currency, locale)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+                            <CopyChip value={tx.bookingId} displayValue={`${tx.bookingId.slice(0, 10)}...`} label="Booking ID" />
+                            <Link
+                              href={`/expert/dashboard/bookings/${tx.bookingId}`}
+                              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            >
+                              <span>{t("viewBooking")}</span>
+                              <ExternalLink className="h-3 w-3" />
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tablet & Desktop Data Table (>= 768px) */}
+                    <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+                      <table className="w-full text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-border bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            <th className="px-5 py-3.5">{t("booking")}</th>
+                            <th className="px-5 py-3.5">{t("client")}</th>
+                            <th className="px-5 py-3.5">{t("service")}</th>
+                            <th className="px-5 py-3.5">{t("amount")}</th>
+                            <th className="px-5 py-3.5">{t("completed")}</th>
+                            <th className="px-5 py-3.5 text-right"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {recentTransactions.map((tx) => (
+                            <tr key={tx.bookingId} className="transition-colors hover:bg-muted/40">
+                              <td className="px-5 py-3.5">
+                                <CopyChip
+                                  value={tx.bookingId}
+                                  displayValue={`${tx.bookingId.slice(0, 8)}...`}
+                                  label="Booking ID"
+                                />
+                              </td>
+                              <td className="px-5 py-3.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <UserAvatar
+                                    src={tx.citizenAvatarUrl}
+                                    name={tx.citizenName || "Client"}
+                                    size="xs"
+                                    className="h-7 w-7 text-xs shrink-0"
+                                  />
+                                  <span className="font-medium text-foreground truncate">
+                                    {tx.citizenName || "Client"}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3.5 text-muted-foreground">
+                                {tx.serviceName}
+                              </td>
+                              <td className="px-5 py-3.5 font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                                +{formatCurrency(tx.amount, tx.currency, locale)}
+                              </td>
+                              <td className="px-5 py-3.5 text-xs text-muted-foreground">
+                                {formatDate(tx.completedAt)}
+                              </td>
+                              <td className="px-5 py-3.5 text-right">
+                                <Link
+                                  href={`/expert/dashboard/bookings/${tx.bookingId}`}
+                                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                                >
+                                  <span>{t("viewBooking")}</span>
+                                  <ExternalLink className="h-3 w-3" />
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </TabsContent>
+            </Tabs>
+          </Card>
         </div>
       )}
     </div>

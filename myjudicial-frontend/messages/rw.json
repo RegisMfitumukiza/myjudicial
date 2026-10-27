@@ -5537,7 +5537,8 @@
     "inAppNotifs": "In-App Notifications",
     "inAppNotifsDesc": "Receive notifications inside the platform",
     "saveNotifsBtn": "Save Notification Preferences",
-    "bioField": "Amagambo y'ubwisanzure"
+    "bioField": "Amagambo y'ubwisanzure",
+    "verifyCredentials": "Emeza ibyangombwa"
   },
   "expertDashboard_quotations": {
     "statusDraft": "Draft",
@@ -7531,7 +7532,8 @@
       "active": "Irakora",
       "pending": "Itegerezwa",
       "created": "Yaremwe",
-      "done": "Birarangiye"
+      "done": "Birarangiye",
+      "disputeOpen": "Impaka zirafunguye"
     },
     "actions": {
       "accept": "Emeza",

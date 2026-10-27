@@ -3536,7 +3536,8 @@
     "inAppNotifs": "In-App Notifications",
     "inAppNotifsDesc": "Receive notifications inside the platform",
     "saveNotifsBtn": "Save Notification Preferences",
-    "bioField": "Bio"
+    "bioField": "Bio",
+    "verifyCredentials": "Verify Credentials"
   },
   "expertDashboard_quotations": {
     "statusDraft": "Draft",
@@ -7533,7 +7534,8 @@
       "active": "Active",
       "pending": "Pending",
       "created": "Created",
-      "done": "Done"
+      "done": "Done",
+      "disputeOpen": "Dispute Open"
     },
     "actions": {
       "accept": "Accept",

@@ -71,7 +71,13 @@ export default function BookingsPage() {
   }
 
   function formatScheduled(iso: string): string {
-    return `${formatDate(iso)} at ${formatTime(iso)}`;
+    return new Date(iso).toLocaleString(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   function submitAccept(bookingId: string) {
@@ -316,7 +322,7 @@ export default function BookingsPage() {
                       {b.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(b.status) && (
                         <StatusBadge tone="destructive" className="px-2 py-0.5 text-[10px] font-bold">
                           <AlertCircle className="h-2.5 w-2.5" />
-                          {t("status.disputeOpen", { default: "Dispute Open" })}
+                          {t("status.disputeOpen")}
                         </StatusBadge>
                       )}
                       {b.pendingRescheduleStart && (

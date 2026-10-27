@@ -476,7 +476,7 @@ export default function ExpertProfilePage() {
                         href="/expert/dashboard/verification"
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline shrink-0"
                       >
-                        <span>Verify Credentials</span>
+                        <span>{t("verifyCredentials")}</span>
                         <ArrowUpRight size={14} />
                       </Link>
                     )}

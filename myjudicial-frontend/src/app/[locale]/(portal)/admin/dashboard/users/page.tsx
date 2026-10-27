@@ -376,7 +376,8 @@ export default function UsersPage() {
 
       {/* Users Table */}
       <Card>
-        <div className="overflow-x-auto">
+        {/* Desktop & Tablet Table (>= md: 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -479,11 +480,86 @@ export default function UsersPage() {
           </table>
         </div>
 
+        {/* Mobile Card Stack (< md: 768px) */}
+        <div className="block md:hidden divide-y divide-border">
+          {users.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <EmptyState icon={Users} title={t("noUsers")} />
+            </div>
+          ) : (
+            users.map((user) => (
+              <div key={user.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <UserAvatar
+                      src={user.avatarUrl}
+                      name={user.fullName}
+                      size="sm"
+                      className="h-10 w-10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{user.fullName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      {user.phone && (
+                        <p className="text-[11px] text-muted-foreground truncate">{user.phone}</p>
+                      )}
+                    </div>
+                  </div>
+                  <StatusBadge tone={getRoleTone(user.role)}>
+                    {getRoleLabel(user.role)}
+                  </StatusBadge>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
+                  <StatusBadge tone={getStatusTone(user.accountStatus)}>
+                    {getStatusLabel(user.accountStatus)}
+                  </StatusBadge>
+                  <span>{t("joined")}: {formatDate(user.createdAt)}</span>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  {currentAdmin?.id === user.id ? (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                      title={t("currentAdminTooltip")}
+                    >
+                      <Shield className="h-3 w-3" />
+                      {t("currentUserBadge")}
+                    </span>
+                  ) : user.accountStatus !== "DELETED" ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant={user.accountStatus === "ACTIVE" ? "outline" : "default"}
+                        className="flex-1 h-9 text-xs"
+                        onClick={() => handleChangeStatus(user)}
+                        disabled={updateStatusMutation.isPending}
+                      >
+                        {user.accountStatus === "ACTIVE" ? t("deactivate") : t("activate")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="flex-1 h-9 text-xs gap-1.5"
+                        onClick={() => handleDelete(user)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 size={13} />
+                        {t("delete")}
+                      </Button>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-border px-6 py-4">
-            <p className="text-sm text-muted-foreground">
-              {pagination.page} / {pagination.totalPages} ({pagination.total})
+          <div className="flex items-center justify-between border-t border-border px-4 sm:px-6 py-4">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {pagination.page} / {pagination.totalPages} ({pagination.total} {t("totalUsers").toLowerCase()})
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -491,16 +567,18 @@ export default function UsersPage() {
                 size="sm"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
+                className="h-8 px-3"
               >
-                ←
+                &#8592;
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
+                className="h-8 px-3"
               >
-                →
+                &#8594;
               </Button>
             </div>
           </div>
@@ -537,7 +615,7 @@ export default function UsersPage() {
                 setSelectedUser(null);
               }}
             >
-              {t("confirm")}
+              {t("cancel")}
             </Button>
             <Button
               onClick={confirmStatusChange}
@@ -580,7 +658,7 @@ export default function UsersPage() {
                 setSelectedUser(null);
               }}
             >
-              {t("confirm")}
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"

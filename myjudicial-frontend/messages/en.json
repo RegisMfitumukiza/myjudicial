@@ -376,7 +376,8 @@
       "joined": "Joined",
       "suspended": "Suspended",
       "currentUserBadge": "You (Current Admin)",
-      "currentAdminTooltip": "You cannot deactivate or delete your own account"
+      "currentAdminTooltip": "You cannot deactivate or delete your own account",
+      "cancel": "Cancel"
     },
     "bookings": {
       "title": "Bookings Management",

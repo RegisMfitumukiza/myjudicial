@@ -242,7 +242,8 @@
       "joined": "Inscrit le",
       "suspended": "Suspendu",
       "currentUserBadge": "Vous (Admin actuel)",
-      "currentAdminTooltip": "Vous ne pouvez pas désactiver ou supprimer votre propre compte"
+      "currentAdminTooltip": "Vous ne pouvez pas désactiver ou supprimer votre propre compte",
+      "cancel": "Annuler"
     },
     "bookings": {
       "title": "Gestion des réservations",

@@ -642,7 +642,7 @@ export default function ExpertsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                ←
+                &#8592;
               </Button>
               <Button
                 variant="outline"
@@ -650,7 +650,7 @@ export default function ExpertsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page === pagination.totalPages}
               >
-                →
+                &#8594;
               </Button>
             </div>
           </div>

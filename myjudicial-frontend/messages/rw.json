@@ -242,7 +242,8 @@
       "joined": "Yiyandikishije",
       "suspended": "Yarahagaritswe",
       "currentUserBadge": "Wowe (Umuyobozi uriho)",
-      "currentAdminTooltip": "Ntushobora guhagarika cyangwa gusiba konti yawe bwite"
+      "currentAdminTooltip": "Ntushobora guhagarika cyangwa gusiba konti yawe bwite",
+      "cancel": "Kureka"
     },
     "bookings": {
       "title": "Kuyoboza gahunda",

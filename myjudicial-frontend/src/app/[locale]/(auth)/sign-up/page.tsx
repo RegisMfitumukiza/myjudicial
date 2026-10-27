@@ -52,6 +52,21 @@ type Role = "CITIZEN" | "EXPERT";
 
 /* ══════════════════════════ HELPERS ══════════════════════════ */
 
+/** Convert a name string to Title Case (capitalise each word, including hyphenated parts). */
+function toTitleCase(name: string): string {
+  if (!name) return name;
+  return name
+    .trim()
+    .split(" ")
+    .map((word) =>
+      word
+        .split("-")
+        .map((part) => (part.length > 0 ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : part))
+        .join("-")
+    )
+    .join(" ");
+}
+
 /* ══════════════════════════ PROGRESS BAR ══════════════════════════ */
 
 function ProgressBar({
@@ -418,7 +433,7 @@ export default function SignUpPage() {
     const normalEmail = email.trim().toLowerCase();
     try {
       await postAuthRegister({
-        fullName: `${firstName.trim()} ${lastName.trim()}`,
+        fullName: `${toTitleCase(firstName.trim())} ${toTitleCase(lastName.trim())}`,
         email: normalEmail,
         phone: phone.trim(),
         role: role as "CITIZEN" | "EXPERT",
@@ -853,7 +868,7 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.firstName}
               aria-describedby={showFieldErrors && accountErrors.firstName ? "su-first-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 capitalize ${showFieldErrors && accountErrors.firstName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.firstName && (
               <p id="su-first-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.firstName}</p>
@@ -871,7 +886,7 @@ export default function SignUpPage() {
               maxLength={50}
               aria-invalid={showFieldErrors && !!accountErrors.lastName}
               aria-describedby={showFieldErrors && accountErrors.lastName ? "su-last-name-error" : undefined}
-              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
+              className={`w-full rounded-xl border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-dark dark:focus:border-white focus:outline-none focus:ring-2 focus:ring-foreground/20 capitalize ${showFieldErrors && accountErrors.lastName ? "border-red-400" : "border-border"}`}
             />
             {showFieldErrors && accountErrors.lastName && (
               <p id="su-last-name-error" className="mt-1 text-xs font-semibold text-red-600">{accountErrors.lastName}</p>

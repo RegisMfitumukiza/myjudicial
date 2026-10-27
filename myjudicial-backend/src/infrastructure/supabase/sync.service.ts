@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "./supabase.client.js";
 import { prisma } from "../database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
+import { normaliseNamePair } from "../../shared/utils/name-format.js";
 import type { User } from "../../generated/prisma/client.js";
 
 /**
@@ -28,11 +29,14 @@ export const SupabaseSyncService = {
       });
 
       const fullName = metadata?.full_name || metadata?.name || '';
-      const firstName = metadata?.first_name || (fullName ? fullName.split(" ")[0] : '') || 'User';
-      const lastName = metadata?.last_name || (fullName ? fullName.split(" ").slice(1).join(" ") : '') || firstName;
+      const rawFirstName = metadata?.first_name || (fullName ? fullName.split(" ")[0] : '') || 'User';
+      const rawLastName = metadata?.last_name || (fullName ? fullName.split(" ").slice(1).join(" ") : '') || rawFirstName;
       const role = metadata?.role || 'CITIZEN';
       const phone = metadata?.phone;
       const preferredLanguage = metadata?.preferred_language || 'en';
+
+      // Normalise names to Title Case before persisting
+      const { firstName, lastName } = normaliseNamePair(rawFirstName, rawLastName);
 
       if (existingUser) {
         // Update existing PostgreSQL user

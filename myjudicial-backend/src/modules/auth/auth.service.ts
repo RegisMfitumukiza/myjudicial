@@ -11,6 +11,7 @@ import { redisSet, redisGet, redisDel } from "../../infrastructure/redis/redis.c
 import { revokeTokenAndClearCache, clearUserCache } from "../../shared/utils/cache-cleanup.js";
 import { AuthRepository } from "./auth.repository.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
+import { normaliseNamePair, toTitleCase } from "../../shared/utils/name-format.js";
 import {
   sendWelcomeEmail,
   sendNewExpertRegistrationEmail,
@@ -216,8 +217,11 @@ export const AuthService = {
     }
 
     // No usable account - create new user in both systems
-    const [firstName, ...rest] = dto.fullName.trim().split(" ");
-    const lastName = rest.join(" ") || firstName;
+    const parts = dto.fullName.trim().split(" ");
+    const rawFirstName = parts[0];
+    const rawLastName = parts.slice(1).join(" ") || rawFirstName;
+    // Normalise to Title Case at the point of registration
+    const { firstName, lastName } = normaliseNamePair(rawFirstName, rawLastName);
 
     // Create new Supabase Auth user (retried — transient network failures
     // between the container and Supabase are observed in production)
@@ -830,8 +834,14 @@ export const AuthService = {
     phone?: string;
     preferredLanguage?: string;
   }, ipAddress?: string) => {
+    // Normalise names to Title Case before persisting
+    const normalisedData = {
+      ...data,
+      ...(data.firstName !== undefined && { firstName: toTitleCase(data.firstName) }),
+      ...(data.lastName !== undefined && { lastName: toTitleCase(data.lastName) }),
+    };
     // Update PostgreSQL record
-    const updatedUser = await AuthRepository.updateUser(userId, data);
+    const updatedUser = await AuthRepository.updateUser(userId, normalisedData);
 
     // Sync changes to Supabase Auth
     await SupabaseSyncService.syncToSupabaseAuth(updatedUser);

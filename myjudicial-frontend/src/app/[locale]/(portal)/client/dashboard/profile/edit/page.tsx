@@ -82,9 +82,23 @@ export default function EditProfilePage() {
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
     try {
+      // Normalise names to Title Case before persisting (belt-and-suspenders; backend also normalises)
+      const normalisedData = {
+        ...data,
+        firstName: data.firstName
+          .trim()
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(" "),
+        lastName: data.lastName
+          .trim()
+          .split(" ")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(" "),
+      };
       await apiFetch("/auth/me", {
         method: "PATCH",
-        body: data,
+        body: normalisedData,
       });
 
       toast.success(t("messages.updateSuccess"));
@@ -150,7 +164,7 @@ export default function EditProfilePage() {
                   <Input
                     id="firstName"
                     {...register("firstName")}
-                    className={errors.firstName ? "border-red-500" : ""}
+                    className={`capitalize ${errors.firstName ? "border-red-500" : ""}`}
                     placeholder={t("personalInfo.firstNamePlaceholder")}
                   />
                   {errors.firstName && (
@@ -166,7 +180,7 @@ export default function EditProfilePage() {
                   <Input
                     id="lastName"
                     {...register("lastName")}
-                    className={errors.lastName ? "border-red-500" : ""}
+                    className={`capitalize ${errors.lastName ? "border-red-500" : ""}`}
                     placeholder={t("personalInfo.lastNamePlaceholder")}
                   />
                   {errors.lastName && (

@@ -7540,7 +7540,10 @@
       "pending": "En attente",
       "created": "Créée",
       "done": "Terminé",
-      "disputeOpen": "Litige ouvert"
+      "disputeOpen": "Litige ouvert",
+      "awaitingDelivery": "En attente de livraison",
+      "delivered": "Livré",
+      "actionRequiredDelivery": "Action requise : enregistrez la livraison pour débloquer le séquestre"
     },
     "actions": {
       "accept": "Accepter",
@@ -7569,7 +7572,8 @@
       "confirmMarkDelivered": "Confirmer et notifier le client",
       "deliveryLocked": "Livraison disponible après le début de la session",
       "deliveryLockedTooltip": "La consultation ne peut être marquée comme terminée qu'après l'heure de début prévue.",
-      "sessionEnded": "Session terminée"
+      "sessionEnded": "Session terminée",
+      "markDeliveredShort": "Marquer comme livré"
     },
     "details": {
       "withClient": "avec {name}",
@@ -7592,7 +7596,9 @@
       "deliveredAwaitingClient": "Consultation effectuée",
       "deliveredAwaitingClientDesc": "Vous avez marqué cette consultation comme effectuée le {date}. En attente de confirmation du client ou déblocage automatique le {autoReleaseDate}.",
       "clientReportedIssue": "Le client a signalé un problème",
-      "clientReportedIssueDesc": "Le client a signalé : « {reason} ». Le déblocage automatique est suspendu. Vous pouvez échanger par message ou proposer un report gratuit."
+      "clientReportedIssueDesc": "Le client a signalé : « {reason} ». Le déblocage automatique est suspendu. Vous pouvez échanger par message ou proposer un report gratuit.",
+      "actionRequiredDeliveryTitle": "Consultation conclue — Action requise",
+      "actionRequiredDeliveryDesc": "Le créneau prévu pour cette consultation est terminé. Pour finaliser la session et déclencher le déblocage du séquestre vers votre compte Mobile Money, veuillez enregistrer votre résumé et marquer comme livré."
     },
     "ai": {
       "clientNotes": "Notes du client",

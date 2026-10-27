@@ -658,7 +658,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 <Clock className="h-4 w-4 text-brand-dark/50 dark:text-white/50 shrink-0" />
                 <div>
                   <p className="text-[13px] font-medium text-brand-dark dark:text-white">
-                    {formatTime(booking.scheduledStart, locale)} â€” {formatTime(booking.scheduledEnd, locale)}
+                    {formatTime(booking.scheduledStart, locale)} - {formatTime(booking.scheduledEnd, locale)}
                   </p>
                   <p className="text-[11px] text-brand-dark/50 dark:text-white/50">
                     {t("durationLabel", { duration: t("minutesSuffix", { count: formatDurationMin(booking.scheduledStart, booking.scheduledEnd) }) })}
@@ -710,7 +710,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 <p className="mt-2 text-[12px] text-brand-dark/50 dark:text-white/50">{(booking as BookingWithService).service?.description}</p>
               )}
               <p className="mt-2.5 text-[13px] font-semibold text-brand-dark dark:text-white">
-                RWF {booking.service?.flatFee?.toLocaleString() ?? "â€”"}
+                RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
               </p>
             </div>
           </div>

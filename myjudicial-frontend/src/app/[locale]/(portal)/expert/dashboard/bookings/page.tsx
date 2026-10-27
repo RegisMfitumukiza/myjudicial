@@ -1,10 +1,26 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Link, useRouter } from "@/i18n/routing";
+import { Suspense, useMemo, useState, useEffect, useTransition } from "react";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { Clock, Video, X, Check, Loader2, History, XCircle, MessageSquare, CalendarClock, MapPin, Phone, FileText, AlertCircle } from "lucide-react";
+import {
+  Clock,
+  Video,
+  X,
+  Check,
+  Loader2,
+  History,
+  XCircle,
+  MessageSquare,
+  CalendarClock,
+  MapPin,
+  Phone,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 import {
   useGetBookings,
   usePostBookingsIdCancel,
@@ -25,6 +41,10 @@ import {
   StatusBadge,
 } from "@/shared/components/dashboard";
 import { getErrorMessage } from "@/lib/utils";
+import {
+  JOINABLE_EARLY_WINDOW_MS,
+  OVERTIME_GRACE_WINDOW_MS,
+} from "@/features/booking/constants";
 
 type Tab = "pending" | "active" | "completed" | "cancelled";
 
@@ -37,10 +57,12 @@ const TAB_ICON: Record<Tab, React.ElementType> = {
   cancelled: XCircle,
 };
 
-const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
-
-export default function BookingsPage() {
+function BookingsPageContent() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
+
   const queryClient = useQueryClient();
   const t = useTranslations("expertDashboard_bookings");
   const locale = useLocale();
@@ -49,11 +71,29 @@ export default function BookingsPage() {
   const { isBookingFirst } = usePaymentMode();
   const { mutate: acceptBooking } = useAcceptBooking();
 
-  const [activeTab, setActiveTab] = useState<Tab>("pending");
+  const urlTab = searchParams.get("tab") as Tab | null;
+  const initialTab: Tab = useMemo(() => {
+    if (urlTab && TAB_KEYS.includes(urlTab)) return urlTab;
+    try {
+      const saved = localStorage.getItem("expert_bookings_active_tab") as Tab | null;
+      if (saved && TAB_KEYS.includes(saved)) return saved;
+    } catch {}
+    // Default to 'active' (Upcoming/Scheduled) instead of empty pending
+    return "active";
+  }, [urlTab]);
+
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [decliningId, setDecliningId] = useState<string | null>(null);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [resolvingChatId, setResolvingChatId] = useState<string | null>(null);
+
+  // Sync state if URL search param changes
+  useEffect(() => {
+    if (urlTab && TAB_KEYS.includes(urlTab) && urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    }
+  }, [urlTab, activeTab]);
 
   function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString(locale, {
@@ -77,6 +117,20 @@ export default function BookingsPage() {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+    });
+  }
+
+  function handleTabChange(newTab: Tab) {
+    setActiveTab(newTab);
+    try {
+      localStorage.setItem("expert_bookings_active_tab", newTab);
+    } catch {}
+
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", newTab);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     });
   }
 
@@ -120,9 +174,18 @@ export default function BookingsPage() {
       else if (b.status === "COMPLETED") result.completed.push(b);
       else result.cancelled.push(b);
     }
+    // Sort active: past unfulfilled first (needs action), then upcoming chronologically
     result.active.sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
     return result;
   }, [bookings]);
+
+  // If user has not explicitly chosen a tab and there are pending requests, auto-spotlight them
+  useEffect(() => {
+    const hasExplicitTab = Boolean(searchParams.get("tab"));
+    if (!hasExplicitTab && grouped.pending.length > 0) {
+      setActiveTab("pending");
+    }
+  }, [grouped.pending.length, searchParams]);
 
   const items = grouped[activeTab];
   const Icon = TAB_ICON[activeTab];
@@ -162,7 +225,7 @@ export default function BookingsPage() {
             {TAB_KEYS.map((key) => (
               <button
                 key={key}
-                onClick={() => setActiveTab(key)}
+                onClick={() => handleTabChange(key)}
                 className={`shrink-0 ${
                   activeTab === key
                     ? "rounded-md bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-sm"
@@ -287,8 +350,15 @@ export default function BookingsPage() {
               }
 
               if (activeTab === "active") {
-                const startsInMs = new Date(b.scheduledStart).getTime() - Date.now();
-                const canJoin = b.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS;
+                const nowMs = Date.now();
+                const startMs = new Date(b.scheduledStart).getTime();
+                const endMs = new Date(b.scheduledEnd).getTime();
+                const isTooEarly = nowMs < startMs - JOINABLE_EARLY_WINDOW_MS;
+                const isPastWindow = nowMs > endMs + OVERTIME_GRACE_WINDOW_MS;
+                const isEnded = Boolean((b as any).actualEndTime || (b as any).completedAt);
+                const canJoin = (b.status === "CONFIRMED" || b.status === "ACTIVE") && !isTooEarly && !isPastWindow && !isEnded;
+                const isAwaitingDelivery = (isPastWindow || isEnded) && !b.deliveredAt;
+                const isDelivered = Boolean(b.deliveredAt);
 
                 return (
                   <Link
@@ -314,9 +384,26 @@ export default function BookingsPage() {
                           <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground">
                             {deliveryModeLabel}
                           </span>
+                          {isAwaitingDelivery && (
+                            <StatusBadge tone="pending" className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                              <Clock className="h-2.5 w-2.5 mr-1" />
+                              {t("status.awaitingDelivery")}
+                            </StatusBadge>
+                          )}
+                          {isDelivered && (
+                            <StatusBadge tone="active" className="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                              <CheckCircle className="h-2.5 w-2.5 mr-1" />
+                              {t("status.delivered")}
+                            </StatusBadge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {b.service?.name ?? t("details.service")} &middot; {formatScheduled(b.scheduledStart)}
+                          {isAwaitingDelivery && (
+                            <span className="ml-1 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                              &middot; {t("status.actionRequiredDelivery")}
+                            </span>
+                          )}
                         </p>
                       </div>
                       {b.issueReportedAt && !["COMPLETED", "REFUNDED", "CANCELLED"].includes(b.status) && (
@@ -340,14 +427,27 @@ export default function BookingsPage() {
                         {resolvingChatId === b.id ? <Loader2 className="animate-spin" /> : <MessageSquare />}
                         {t("actions.message")}
                       </Button>
-                      {deliveryMode === "VIDEO" ? (
+                      {isAwaitingDelivery ? (
                         <Button
                           size="sm"
-                          onClick={(e) => { e.preventDefault(); handleJoin(b.id); }}
-                          disabled={!canJoin}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium flex items-center gap-1.5"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            router.push(`/expert/dashboard/bookings/${b.id}`);
+                          }}
                         >
-                          <Video />
-                          {canJoin ? t("actions.joinCall") : t("actions.notYetTime")}
+                          <CheckCircle size={14} />
+                          {t("actions.markDeliveredShort")}
+                        </Button>
+                      ) : deliveryMode === "VIDEO" ? (
+                        <Button
+                          size="sm"
+                          disabled={!canJoin}
+                          className={canJoin ? "bg-brand-dark hover:bg-brand-dark/90 text-white dark:bg-white dark:text-black font-semibold" : "opacity-60 cursor-not-allowed"}
+                          onClick={(e) => { e.preventDefault(); handleJoin(b.id); }}
+                        >
+                          <Video size={14} />
+                          {canJoin ? t("actions.joinCall") : isTooEarly ? t("actions.notYetTime") : t("actions.sessionEnded")}
                         </Button>
                       ) : deliveryMode === "IN_PERSON" ? (
                         <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
@@ -418,5 +518,19 @@ export default function BookingsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function BookingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-4 sm:p-6 lg:p-8">
+          <SkeletonList count={3} itemClassName="h-24" />
+        </div>
+      }
+    >
+      <BookingsPageContent />
+    </Suspense>
   );
 }

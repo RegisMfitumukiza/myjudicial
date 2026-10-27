@@ -221,12 +221,14 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     !isTooEarly &&
     !isPastWindow &&
     !isEnded;
-  const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
-  const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
-  const isEmailMode = ((booking as any).service?.deliveryMode === "EMAIL");
-  const isSessionStarted = nowMs >= startMs;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
   const isDisputeActive = Boolean(booking.issueReportedAt && !isCancelledOrRefunded && booking.status !== "COMPLETED");
+  const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
+  const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) &&
+    booking.status !== "COMPLETED" &&
+    (!isPastWindow || isDisputeActive);
+  const isEmailMode = ((booking as any).service?.deliveryMode === "EMAIL");
+  const isSessionStarted = nowMs >= startMs;
   const canMarkDelivered = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && (isEmailMode || isSessionStarted) && !isDisputeActive;
   const isDeliveryLockedUntilStart = ["CONFIRMED", "ACTIVE"].includes(booking.status) && !booking.deliveredAt && !isEmailMode && !isSessionStarted && !isDisputeActive;
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
@@ -479,7 +481,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="h-px bg-border" />
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  {formatTime(booking.scheduledStart)} â€” {formatTime(booking.scheduledEnd)}
+                  {formatTime(booking.scheduledStart)} - {formatTime(booking.scheduledEnd)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {t("details.duration", { duration: formatDuration(booking.scheduledStart, booking.scheduledEnd) })}
@@ -547,7 +549,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{(booking.service as any).description}</p>
             )}
             <p className="text-sm font-medium text-foreground mt-1.5">
-              RWF {booking.service?.flatFee?.toLocaleString() ?? "â€”"}
+              RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
             </p>
             {((booking as any).service?.deliveryMode === "IN_PERSON") && (booking as any).expert?.officeAddress && (
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 border-t border-border pt-2">
@@ -630,6 +632,23 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             {aiError && (
               <p className="text-xs text-destructive mt-2">{aiError}</p>
             )}
+          </div>
+        )}
+
+        {/* Action Required: Delivery Banner */}
+        {isPastWindow && !booking.deliveredAt && ["CONFIRMED", "ACTIVE"].includes(booking.status) && !isDisputeActive && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-900/40 dark:bg-amber-950/20 mb-6">
+            <div className="flex items-start gap-3">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  {t("details.actionRequiredDeliveryTitle")}
+                </h4>
+                <p className="mt-1 text-xs text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
+                  {t("details.actionRequiredDeliveryDesc")}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -729,7 +748,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               {t("actions.messageClient")}
             </Button>
           )}
-          {["CONFIRMED", "COMPLETED"].includes(booking.status) && (
+          {["CONFIRMED", "COMPLETED"].includes(booking.status) && !isPastWindow && (
             <Button
               variant="outline"
               size="lg"

@@ -12,7 +12,7 @@ import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
 import type { CaseAnalysis } from "@/features/ai/types";
 
-const BACK_HREF = "/expert/dashboard/consultations";
+const BACK_HREF = "/expert/dashboard/bookings";
 
 export default function ExpertJoinConsultationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -80,7 +80,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
           {error instanceof Error ? error.message : t("bookingNotFound")}
         </p>
         <Button asChild variant="outline" className="border-brand-border/20 text-xs">
-          <Link href={BACK_HREF}>{t("backToMeetings")}</Link>
+          <Link href={BACK_HREF}>{t("backToBookings", { defaultValue: "Back to Bookings" })}</Link>
         </Button>
       </div>
     );
@@ -111,7 +111,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
           {reasonText}
         </p>
         <Button asChild variant="outline" className="border-brand-border/20 text-xs">
-          <Link href={BACK_HREF}>{t("backToMeetings")}</Link>
+          <Link href={BACK_HREF}>{t("backToBookings", { defaultValue: "Back to Bookings" })}</Link>
         </Button>
       </div>
     );

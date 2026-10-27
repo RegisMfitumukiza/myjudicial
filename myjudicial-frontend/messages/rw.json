@@ -7540,7 +7540,10 @@
       "pending": "Itegerezwa",
       "created": "Yaremwe",
       "done": "Birarangiye",
-      "disputeOpen": "Impaka zirafunguye"
+      "disputeOpen": "Impaka zirafunguye",
+      "awaitingDelivery": "Hategerejwe gutanga raporo",
+      "delivered": "Byatanzwe",
+      "actionRequiredDelivery": "Hakenewe igikorwa: andika ibyakozwe kugira ngo amafaranga arekurwe"
     },
     "actions": {
       "accept": "Emeza",
@@ -7569,7 +7572,8 @@
       "confirmMarkDelivered": "Emeza kandi Umumenyeshe",
       "deliveryLocked": "Kumenyesha ko byakozwe biboneka inama imaze gutangira",
       "deliveryLockedTooltip": "Inama ishobora gusa kumenyeshwa ko yarangiye igihe cyayo cyo gutangira kigeze.",
-      "sessionEnded": "Ikiganiro Cyarangiye"
+      "sessionEnded": "Ikiganiro Cyarangiye",
+      "markDeliveredShort": "Emeza ko byatanzwe"
     },
     "details": {
       "withClient": "hamwe na {name}",
@@ -7592,7 +7596,9 @@
       "deliveredAwaitingClient": "Inama Yarangiye",
       "deliveredAwaitingClientDesc": "Werekanye ko iyi nama yarangiye ku wa {date}. Hategerejwe ko umukiriya abyemeza cyangwa amafaranga akoherezwa mu buryo bwikora ku wa {autoReleaseDate}.",
       "clientReportedIssue": "Umukiriya Yatanze Ikibazo",
-      "clientReportedIssueDesc": "Umukiriya yatanze ikibazo: « {reason} ». Kohereza amafaranga byahagaritswe. Ushobora kumuvugisha mu butumwa cyangwa mukongera guhindura igihe ku buntu."
+      "clientReportedIssueDesc": "Umukiriya yatanze ikibazo: « {reason} ». Kohereza amafaranga byahagaritswe. Ushobora kumuvugisha mu butumwa cyangwa mukongera guhindura igihe ku buntu.",
+      "actionRequiredDeliveryTitle": "Ikiganiro cyarangiye — Hakenewe igikorwa",
+      "actionRequiredDeliveryDesc": "Igihe cyagenwe kuri iyi nama cyarangiye. Kugira ngo iyi nama irangire kandi amafaranga ya escrow arekurwe kuri Mobile Money yawe, andika incamake y'ibyavuzwe hanyuma wemeze ko byatanzwe."
     },
     "ai": {
       "clientNotes": "Inyandiko z'umukiriya",

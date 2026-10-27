@@ -7,6 +7,7 @@ import type { Booking } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/shared/components/ui/button";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import {
   PageHeader,
   EmptyState,
@@ -143,13 +144,35 @@ export default function ConsultationsPage() {
                         {t("viewDetails")}
                       </Link>
                     </Button>
-                    {(c.status === "CONFIRMED" || c.status === "ACTIVE") && (
-                      <Button size="xs" asChild>
-                        <Link href={`/expert/dashboard/consultations/${c.id}/join`}>
-                          <Video size={12} className="mr-1" /> {t("joinRoom")}
-                        </Link>
-                      </Button>
-                    )}
+                    {(() => {
+                      const nowMs = Date.now();
+                      const startMs = new Date(c.scheduledStart).getTime();
+                      const endMs = new Date(c.scheduledEnd).getTime();
+                      const isTooEarly = nowMs < startMs - JOINABLE_EARLY_WINDOW_MS;
+                      const isPastWindow = nowMs > endMs + OVERTIME_GRACE_WINDOW_MS;
+                      const isEnded = Boolean((c as any).actualEndTime || (c as any).completedAt);
+                      const canJoin = (c.status === "CONFIRMED" || c.status === "ACTIVE") && !isTooEarly && !isPastWindow && !isEnded;
+
+                      if (canJoin) {
+                        return (
+                          <Button size="xs" asChild>
+                            <Link href={`/expert/dashboard/consultations/${c.id}/join`}>
+                              <Video size={12} className="mr-1" /> {t("joinRoom")}
+                            </Link>
+                          </Button>
+                        );
+                      }
+                      if (isPastWindow && !c.deliveredAt && (c.status === "CONFIRMED" || c.status === "ACTIVE")) {
+                        return (
+                          <Button size="xs" variant="outline" className="text-emerald-700 border-emerald-600/30 hover:bg-emerald-50 dark:text-emerald-300" asChild>
+                            <Link href={`/expert/dashboard/bookings/${c.id}`}>
+                              {t("viewDetails")}
+                            </Link>
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </div>
               </div>

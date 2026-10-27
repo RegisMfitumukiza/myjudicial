@@ -86,7 +86,22 @@ export const BookingRepository = {
         take: filters.limit,
         include: {
           citizen: { select: { id: true, email: true, firstName: true, lastName: true, avatarObjectKey: true } },
-          expert: { select: { id: true, displayName: true, officeAddress: true, city: true, profileImageObjectKey: true } },
+          expert: {
+            select: {
+              id: true,
+              displayName: true,
+              officeAddress: true,
+              city: true,
+              profileImageObjectKey: true,
+              primarySpecialty: true,
+              user: {
+                select: {
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
           service: { select: { id: true, name: true, description: true, category: true, deliveryMode: true, flatFee: true, durationMin: true, currency: true } },
           payment: {
             select: {

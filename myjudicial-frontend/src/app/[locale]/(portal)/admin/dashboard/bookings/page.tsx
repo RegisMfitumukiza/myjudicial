@@ -533,18 +533,41 @@ export default function BookingsPage() {
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center gap-2">
-                          <ExpertAvatar
-                            src={(booking.expert as any)?.profileImageUrl}
-                            name={booking.expert?.displayName ?? "Expert"}
-                            size="xs"
-                            className="h-8 w-8 text-xs shrink-0"
-                          />
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate">
-                              {booking.expert?.displayName ?? "Expert"}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">{booking.expert?.user?.email ?? "—"}</p>
-                          </div>
+                          {booking.expert?.id ? (
+                            <Link href={`/admin/dashboard/experts/${booking.expert.id}`} className="flex items-center gap-2 min-w-0 group">
+                              <ExpertAvatar
+                                src={(booking.expert as any)?.profileImageUrl}
+                                name={booking.expert?.displayName ?? "Expert"}
+                                size="xs"
+                                className="h-8 w-8 text-xs shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground group-hover:underline truncate">
+                                  {booking.expert?.displayName ?? "Expert"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {booking.expert?.user?.email || (booking.expert as any)?.primarySpecialty || (booking.expert as any)?.city || "Legal Expert"}
+                                </p>
+                              </div>
+                            </Link>
+                          ) : (
+                            <div className="flex items-center gap-2 min-w-0">
+                              <ExpertAvatar
+                                src={(booking.expert as any)?.profileImageUrl}
+                                name={booking.expert?.displayName ?? "Expert"}
+                                size="xs"
+                                className="h-8 w-8 text-xs shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground truncate">
+                                  {booking.expert?.displayName ?? "Expert"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {booking.expert?.user?.email || (booking.expert as any)?.primarySpecialty || (booking.expert as any)?.city || "Legal Expert"}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4">

@@ -846,7 +846,13 @@
       "reset": "Réinitialiser",
       "details": "Détails",
       "retentionDesc": "Les journaux sont automatiquement conservés pendant {days} jours avant archivage.",
-      "eventId": "ID de l'événement"
+      "eventId": "ID de l'événement",
+      "tableView": "Tableau",
+      "cardsView": "Cartes",
+      "previous": "Préc",
+      "next": "Suiv",
+      "pagination": "Page {page} sur {totalPages} ({total} au total)",
+      "copyUserAgent": "Copier l'en-tête User-Agent brut"
     },
     "analytics": {
       "title": "Analyses de la plateforme",

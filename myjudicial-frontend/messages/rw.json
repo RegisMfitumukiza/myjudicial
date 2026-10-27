@@ -846,7 +846,13 @@
       "reset": "Gusubiramo",
       "details": "Ibisobanuro",
       "retentionDesc": "Inyandiko zibitswe mu minsi {days} mbere yo gushyingurwa.",
-      "eventId": "ID y'igikorwa"
+      "eventId": "ID y'igikorwa",
+      "tableView": "Imbonerahamwe",
+      "cardsView": "Amakarita",
+      "previous": "Ibanze",
+      "next": "Ikurikira",
+      "pagination": "Ipaji {page} kuri {totalPages} ({total} zose)",
+      "copyUserAgent": "Koporora umutwe wa User-Agent wose"
     },
     "analytics": {
       "title": "Ivyerekezo vy'Urubuga",

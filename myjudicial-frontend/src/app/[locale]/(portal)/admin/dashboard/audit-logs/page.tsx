@@ -790,11 +790,11 @@ export default function AuditLogsPage() {
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               }`}
-              title="Table view"
-              aria-label="Table view"
+              title={t("tableView")}
+              aria-label={t("tableView")}
             >
               <TableIcon size={13} />
-              <span className="hidden sm:inline">Table</span>
+              <span className="hidden sm:inline">{t("tableView")}</span>
             </button>
             <button
               type="button"
@@ -804,11 +804,11 @@ export default function AuditLogsPage() {
                   ? "bg-background text-foreground shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               }`}
-              title="Card list view"
-              aria-label="Card list view"
+              title={t("cardsView")}
+              aria-label={t("cardsView")}
             >
               <LayoutGrid size={13} />
-              <span className="hidden sm:inline">Cards</span>
+              <span className="hidden sm:inline">{t("cardsView")}</span>
             </button>
           </div>
         </div>
@@ -988,9 +988,11 @@ export default function AuditLogsPage() {
         {pagination && pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 sm:px-6 py-3.5 bg-muted/10">
             <p className="text-xs text-muted-foreground text-center sm:text-left">
-              Page <span className="font-semibold text-foreground">{pagination.page}</span> of{" "}
-              <span className="font-semibold text-foreground">{pagination.totalPages}</span>{" "}
-              ({pagination.total.toLocaleString()} total)
+              {t("pagination", {
+                page: pagination.page,
+                totalPages: pagination.totalPages,
+                total: pagination.total.toLocaleString(),
+              })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -1000,7 +1002,7 @@ export default function AuditLogsPage() {
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
               >
-                ← Prev
+                &#8592; {t("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -1009,7 +1011,7 @@ export default function AuditLogsPage() {
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
               >
-                Next →
+                {t("next")} &#8594;
               </Button>
             </div>
           </div>
@@ -1180,7 +1182,7 @@ export default function AuditLogsPage() {
                           <button
                             onClick={() => handleCopy(uaInfo.raw || "", "ua")}
                             className="flex items-center gap-1 text-xs text-primary hover:underline"
-                            title="Copy raw User-Agent header string"
+                            title={t("copyUserAgent")}
                           >
                             {copiedField === "ua" ? <Check size={12} /> : <Copy size={12} />}
                             {copiedField === "ua" ? "Copied" : "Copy Raw"}

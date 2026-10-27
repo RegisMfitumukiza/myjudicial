@@ -980,7 +980,13 @@
       "reset": "Reset",
       "details": "Details",
       "retentionDesc": "Logs are automatically retained for {days} days before archival.",
-      "eventId": "Event ID"
+      "eventId": "Event ID",
+      "tableView": "Table",
+      "cardsView": "Cards",
+      "previous": "Prev",
+      "next": "Next",
+      "pagination": "Page {page} of {totalPages} ({total} total)",
+      "copyUserAgent": "Copy raw User-Agent header string"
     },
     "analytics": {
       "title": "Platform Analytics",

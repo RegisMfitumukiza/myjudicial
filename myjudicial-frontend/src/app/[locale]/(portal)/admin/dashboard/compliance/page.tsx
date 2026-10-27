@@ -26,6 +26,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { Link } from "@/i18n/routing";
 import { useTranslations, useLocale } from "next-intl";
@@ -204,13 +205,14 @@ function ExpertTable({
 
   const getDaysLabel = (days: number | null | undefined): string => {
     if (days === null || days === undefined) return t("na");
-    return `${days} ${locale === "fr" ? "jours" : locale === "rw" ? "iminsi" : "days"}`;
+    return t("daysUnit", { count: days });
   };
 
   return (
     <>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        {/* Desktop & Tablet Table (>= md: 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -223,7 +225,7 @@ function ExpertTable({
                   {activeTab === "compliant" && t("statusActive")}
                   {activeTab === "expiring" && t("daysUntilExpiry")}
                   {activeTab === "expired" && t("daysOverdue")}
-                  {activeTab === "suspended" && "Status"}
+                  {activeTab === "suspended" && t("status")}
                 </th>
                 <th className="px-5 py-3.5 text-right"></th>
               </tr>
@@ -274,7 +276,7 @@ function ExpertTable({
                     <td className="px-5 py-3.5 text-xs">
                       {activeTab === "suspended" ? (
                         <span className="text-foreground">
-                          {expert.suspendedAt ? formatDistanceToNow(new Date(expert.suspendedAt), { addSuffix: true }) : t("na")}
+                          {expert.suspendedAt ? formatDistanceToNow(new Date(expert.suspendedAt), { addSuffix: true, locale: locale === "fr" ? fr : undefined }) : t("na")}
                         </span>
                       ) : (
                         <span className="text-foreground font-medium">{formatDate(expert.credentialsExpiry)}</span>
@@ -285,7 +287,7 @@ function ExpertTable({
                         <StatusBadge tone={expert.credentialsExpiry ? "success" : "neutral"}>
                           <ShieldCheck size={12} />
                           {expert.daysUntilExpiry != null
-                            ? `${expert.daysUntilExpiry} ${locale === "fr" ? "j restants" : locale === "rw" ? "iminsi isigaye" : "days left"}`
+                            ? t("daysLeft", { count: expert.daysUntilExpiry })
                             : t("compliant")}
                         </StatusBadge>
                       )}
@@ -346,10 +348,128 @@ function ExpertTable({
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card Stack (< md: 768px) */}
+        <div className="block md:hidden divide-y divide-border">
+          {experts.length === 0 ? (
+            <div className="p-6">
+              <EmptyState
+                icon={activeTab === "suspended" ? Ban : Calendar}
+                title={
+                  activeTab === "compliant"
+                    ? t("noCompliant")
+                    : activeTab === "expiring"
+                    ? t("noExpiring")
+                    : activeTab === "expired"
+                    ? t("noExpired")
+                    : t("noSuspended")
+                }
+              />
+            </div>
+          ) : (
+            experts.map((expert) => (
+              <div
+                key={expert.id}
+                className="p-4 space-y-3 cursor-pointer hover:bg-muted/40 transition-colors"
+                onClick={() => onSelectExpert(expert)}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <ExpertAvatar
+                      src={expert.profileImageUrl}
+                      name={expert.fullName}
+                      size="sm"
+                      className="h-10 w-10 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{expert.fullName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{expert.email}</p>
+                      {expert.barNumber && (
+                        <span className="font-mono text-[11px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded border border-border mt-0.5 inline-block">
+                          {expert.barNumber}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    {activeTab === "compliant" && (
+                      <StatusBadge tone={expert.credentialsExpiry ? "success" : "neutral"}>
+                        <ShieldCheck size={12} />
+                        {expert.daysUntilExpiry != null
+                          ? t("daysLeft", { count: expert.daysUntilExpiry })
+                          : t("compliant")}
+                      </StatusBadge>
+                    )}
+                    {activeTab === "expiring" && (
+                      <StatusBadge tone={getUrgencyTone(expert.daysUntilExpiry)}>
+                        <Clock size={12} />
+                        {getDaysLabel(expert.daysUntilExpiry)}
+                      </StatusBadge>
+                    )}
+                    {activeTab === "expired" && (
+                      <StatusBadge tone="destructive">
+                        <XCircle size={12} />
+                        {getDaysLabel(expert.daysOverdue)}
+                      </StatusBadge>
+                    )}
+                    {activeTab === "suspended" && (
+                      <StatusBadge tone="destructive">
+                        <Ban size={12} />
+                        {t("suspended")}
+                      </StatusBadge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50 text-muted-foreground">
+                  <span>{activeTab === "suspended" ? t("suspended") : t("credentialsExpiry")}</span>
+                  {activeTab === "suspended" ? (
+                    <span className="text-foreground font-medium">
+                      {expert.suspendedAt ? formatDistanceToNow(new Date(expert.suspendedAt), { addSuffix: true, locale: locale === "fr" ? fr : undefined }) : t("na")}
+                    </span>
+                  ) : (
+                    <span className="text-foreground font-medium">{formatDate(expert.credentialsExpiry)}</span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-8 text-xs gap-1.5"
+                    onClick={() => onOpenExtend(expert)}
+                  >
+                    <CalendarDays size={13} className="text-primary" />
+                    {t("extendExpiry")}
+                  </Button>
+
+                  {(activeTab === "expiring" || activeTab === "expired") && (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="h-8 w-8"
+                      onClick={() => sendWarningMutation.mutate(expert.expertId || expert.id)}
+                      disabled={sendWarningMutation.isPending}
+                      title={t("sendWarning")}
+                    >
+                      <Mail size={14} className="text-muted-foreground hover:text-foreground" />
+                    </Button>
+                  )}
+
+                  <Button variant="ghost" size="icon-sm" className="h-8 w-8" asChild>
+                    <Link href={`/admin/dashboard/experts/${expert.expertId || expert.id}`}>
+                      <Eye size={14} />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </CardContent>
 
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border px-6 py-4">
+        <div className="flex items-center justify-between border-t border-border px-4 sm:px-6 py-4">
           <p className="text-xs text-muted-foreground">
             {pagination.page} / {pagination.totalPages} ({pagination.total})
           </p>
@@ -359,16 +479,18 @@ function ExpertTable({
               size="sm"
               onClick={() => onPageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
+              className="h-8 px-3"
             >
-              ←
+              &#8592;
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages}
+              className="h-8 px-3"
             >
-              →
+              &#8594;
             </Button>
           </div>
         </div>
@@ -434,7 +556,7 @@ function ExtendExpiryModal({
               <p className="font-semibold text-foreground">{expert.fullName}</p>
               <p className="text-muted-foreground">{expert.email}</p>
               {expert.barNumber && (
-                <p className="font-mono text-muted-foreground">Bar No: {expert.barNumber}</p>
+                <p className="font-mono text-muted-foreground">{t("barNumber")}: {expert.barNumber}</p>
               )}
             </div>
 
@@ -585,7 +707,7 @@ function AdvocateDetailDrawer({
               <div className="rounded-lg border border-border bg-card p-3 text-xs flex items-center justify-between">
                 <span className="text-muted-foreground">{t("daysUntilExpiry")}</span>
                 <StatusBadge tone={getUrgencyTone(expert.daysUntilExpiry)}>
-                  {expert.daysUntilExpiry} {locale === "fr" ? "jours" : locale === "rw" ? "iminsi" : "days"}
+                  {t("daysUnit", { count: expert.daysUntilExpiry })}
                 </StatusBadge>
               </div>
             )}
@@ -594,7 +716,7 @@ function AdvocateDetailDrawer({
               <div className="rounded-lg border border-border bg-card p-3 text-xs flex items-center justify-between">
                 <span className="text-muted-foreground">{t("daysOverdue")}</span>
                 <StatusBadge tone="destructive">
-                  {expert.daysOverdue} {locale === "fr" ? "jours" : locale === "rw" ? "iminsi" : "days"}
+                  {t("daysUnit", { count: expert.daysOverdue })}
                 </StatusBadge>
               </div>
             )}
@@ -603,14 +725,14 @@ function AdvocateDetailDrawer({
           {/* Location & Specialties */}
           {expert.officeAddress && (
             <div className="space-y-1.5 text-xs">
-              <span className="text-muted-foreground font-semibold">Location</span>
+              <span className="text-muted-foreground font-semibold">{t("location")}</span>
               <p className="text-foreground">{expert.officeAddress}</p>
             </div>
           )}
 
           {expert.specialties?.length > 0 && (
             <div className="space-y-2 text-xs">
-              <span className="text-muted-foreground font-semibold">Specialties</span>
+              <span className="text-muted-foreground font-semibold">{t("specialties")}</span>
               <div className="flex flex-wrap gap-1.5">
                 {expert.specialties.map((spec) => (
                   <span

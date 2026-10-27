@@ -737,7 +737,12 @@
       "nightlyScanActive": "02:00 UTC Active",
       "statusActive": "Active & Compliant",
       "rbaVerifiedNotice": "Accredited member of the Rwanda Bar Association (Urugaga rw'Abavoka mu Rwanda).",
-      "viewProfile": "View Full Profile"
+      "viewProfile": "View Full Profile",
+      "status": "Status",
+      "location": "Location",
+      "specialties": "Specialties",
+      "daysLeft": "{count} days left",
+      "daysUnit": "{count} days"
     },
     "reviews": {
       "title": "Reviews Management",

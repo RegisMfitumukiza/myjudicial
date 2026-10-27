@@ -603,7 +603,12 @@
       "nightlyScanActive": "02:00 UTC Actif",
       "statusActive": "Actif et conforme",
       "rbaVerifiedNotice": "Membre accrédité de l'Ordre des Avocats du Rwanda (Barreau du Rwanda).",
-      "viewProfile": "Voir le profil complet"
+      "viewProfile": "Voir le profil complet",
+      "status": "Statut",
+      "location": "Emplacement",
+      "specialties": "Spécialités",
+      "daysLeft": "{count} j restants",
+      "daysUnit": "{count} jours"
     },
     "reviews": {
       "title": "Gestion des avis",

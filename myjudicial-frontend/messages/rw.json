@@ -603,7 +603,12 @@
       "nightlyScanActive": "02:00 UTC Birakora",
       "statusActive": "Arakora kandi yujuje ibisabwa",
       "rbaVerifiedNotice": "Umunyamuryango wemejwe mu Rugaga rw'Abavoka mu Rwanda.",
-      "viewProfile": "Reba umwirondoro wose"
+      "viewProfile": "Reba umwirondoro wose",
+      "status": "Imimerere",
+      "location": "Aho aherereye",
+      "specialties": "Ubumenyi bwihariye",
+      "daysLeft": "Iminsi {count} isigaye",
+      "daysUnit": "Iminsi {count}"
     },
     "reviews": {
       "title": "Kuyoboza Ivyerekezo",

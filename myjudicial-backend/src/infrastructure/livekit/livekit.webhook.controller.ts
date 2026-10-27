@@ -150,6 +150,13 @@ export const LiveKitWebhookController = {
           const minEscrowSec = await AdminSettingService.get("minEscrowDurationSeconds");
           const paymentMode = await AdminSettingService.get("paymentMode");
 
+          // NOTE [Consultation Lifecycle & Escrow Settlement Policy]:
+          // For VIDEO consultations, when LiveKit emits room_finished and duration >= minEscrowSec,
+          // the platform automatically transitions the session to completion and releases escrow funds.
+          // By contrast, asynchronous modes (PHONE, IN_PERSON, EMAIL) require the expert to explicitly
+          // invoke `markConsultationDelivered`, starting a 24h client dispute window before auto-release.
+          // Any modification to unify these flows (e.g. requiring explicit delivery summary for VIDEO)
+          // must be coordinated across both product policy and escrow ledger operations.
           if (durationSec >= minEscrowSec) {
             if (paymentMode === "PAYMENT_REQUIRED" && booking.payment) {
               // Paid mode: complete and release escrow payout

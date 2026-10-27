@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/shared/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
 import type { CaseAnalysis } from "@/features/ai/types";
@@ -85,15 +86,29 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
     );
   }
 
-  const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status);
+  const nowMs = Date.now();
+  const startMs = new Date(booking.scheduledStart).getTime();
+  const endMs = new Date(booking.scheduledEnd).getTime();
+  const isTooEarly = nowMs < startMs - JOINABLE_EARLY_WINDOW_MS;
+  const isPastWindow = nowMs > endMs + OVERTIME_GRACE_WINDOW_MS;
+  const isEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
+  const isEligibleStatus = ["CONFIRMED", "ACTIVE"].includes(booking.status);
+  const canJoin = isEligibleStatus && !isTooEarly && !isPastWindow && !isEnded;
 
   if (!canJoin) {
+    let reasonText = t("notReady", { status: booking.status });
+    if (isEnded || isPastWindow) {
+      reasonText = t("windowEndedDesc");
+    } else if (isTooEarly) {
+      reasonText = t("tooEarlyDesc");
+    }
+
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-white dark:bg-black px-6">
         <AlertCircle className="h-10 w-10 text-amber-500 mb-4" />
         <p className="text-amber-600 dark:text-amber-400 font-medium">{t("cannotJoin")}</p>
         <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 mb-6 text-center max-w-md">
-          {t("notReady", { status: booking.status })}
+          {reasonText}
         </p>
         <Button asChild variant="outline" className="border-brand-border/20 text-xs">
           <Link href={BACK_HREF}>{t("backToMeetings")}</Link>

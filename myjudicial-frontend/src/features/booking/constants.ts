@@ -54,3 +54,12 @@ export const TIMEZONE_OPTIONS = [
   { value: "Asia/Shanghai", label: "CST (UTC+8)", offset: "+08:00" },
   { value: "Asia/Tokyo", label: "JST (UTC+9)", offset: "+09:00" },
 ] as const;
+
+/** 15 minutes before scheduled start time */
+export const JOINABLE_EARLY_WINDOW_MS = 15 * 60 * 1000;
+
+/** 30 minutes overtime grace after scheduled end time */
+export const OVERTIME_GRACE_WINDOW_MS = 30 * 60 * 1000;
+
+/** 7 days maximum retention window for unsummarized sessions in dashboard spotlight */
+export const SPOTLIGHT_MAX_AWAITING_MS = 7 * 24 * 60 * 60 * 1000;

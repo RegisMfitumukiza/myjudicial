@@ -2059,7 +2059,9 @@
       "inPersonNotice": "This is an in-person appointment scheduled at the advocate's office. A video room is not required.",
       "viewOfficeDetails": "View Office Location & Details",
       "phoneNotice": "This is a telephone consultation with your advocate. A video room is not required.",
-      "documentNotice": "This is a document review deliverable. A video room is not required."
+      "documentNotice": "This is a document review deliverable. A video room is not required.",
+      "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
+      "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
     },
     "consultationDetail": {
       "toasts": {
@@ -2224,7 +2226,8 @@
       "expertRemoved": "Expert removed from saved list",
       "failedToRemove": "Failed to remove expert",
       "removeTooltip": "Remove from saved"
-    }
+    },
+    "sessionEnded": "Session Ended"
   },
   "clientDashboard_documents": {},
   "clientDashboard_home": {
@@ -7264,7 +7267,9 @@
     "analyze": "Analyze",
     "clientNotes": "Client Notes",
     "analyzingCase": "Analyzing case with AI...",
-    "analyzeError": "Could not analyze case notes. Please try again."
+    "analyzeError": "Could not analyze case notes. Please try again.",
+    "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
+    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
   },
   "expertDashboard_consultation-join": {
     "failedToLoad": "Failed to load booking",
@@ -7287,7 +7292,9 @@
     "ready": "Ready",
     "notFound": "Not Found",
     "joinConsultation": "Join Consultation",
-    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client."
+    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
+    "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
+    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
   },
   "onboarding": {
     "nav": {
@@ -7563,7 +7570,8 @@
       "deliverySummaryPlaceholder": "e.g. Called client on 078..., discussed property dispute and provided initial guidance...",
       "confirmMarkDelivered": "Confirm & Notify Client",
       "deliveryLocked": "Delivery available after session starts",
-      "deliveryLockedTooltip": "Consultation can only be marked delivered after the scheduled start time."
+      "deliveryLockedTooltip": "Consultation can only be marked delivered after the scheduled start time.",
+      "sessionEnded": "Session Ended"
     },
     "details": {
       "withClient": "with {name}",

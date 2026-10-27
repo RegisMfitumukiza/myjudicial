@@ -34,11 +34,9 @@ import { useGetBookings, useGetChatConversations, useGetFiles } from "@/api/gene
 import { useQuery } from "@tanstack/react-query";
 import { getSavedExperts } from "@/lib/api/saved-experts";
 import { downloadICS } from "@/features/booking/lib/ics";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS, SPOTLIGHT_MAX_AWAITING_MS } from "@/features/booking/constants";
 import { useTranslations, useLocale } from "next-intl";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
-
-const JOINABLE_WINDOW_MS = 15 * 60 * 1000; // Can join 15 min before scheduled start
-const SPOTLIGHT_MAX_AWAITING_MS = 48 * 60 * 60 * 1000; // 48 hours: retire stale unsummarized sessions to Recents
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -268,15 +266,18 @@ export default function ClientHomePage() {
   }, [locale]);
 
   // ─── Time-Aware Consultation Lifecycle ───
-  // 1. Live session: explicitly ACTIVE, or CONFIRMED within [-15m before start, scheduledEnd]
+  // 1. Live session: explicitly ACTIVE (within overtime grace) or CONFIRMED within [-15m before start, scheduledEnd + 30m grace]
   const liveSession = useMemo(() => {
     return (
       bookings.find((b) => {
-        if (b.status === "ACTIVE") return true;
+        if ((b as any).actualEndTime) return false;
+        const s = new Date(b.scheduledStart).getTime();
+        const e = new Date(b.scheduledEnd).getTime();
+        if (b.status === "ACTIVE") {
+          return nowTime <= e + OVERTIME_GRACE_WINDOW_MS;
+        }
         if (b.status === "CONFIRMED") {
-          const s = new Date(b.scheduledStart).getTime();
-          const e = new Date(b.scheduledEnd).getTime();
-          return nowTime >= s - JOINABLE_WINDOW_MS && nowTime <= e;
+          return nowTime >= s - JOINABLE_EARLY_WINDOW_MS && nowTime <= e + OVERTIME_GRACE_WINDOW_MS;
         }
         return false;
       }) || null
@@ -288,7 +289,7 @@ export default function ClientHomePage() {
     const future = bookings.filter((b) => {
       if (b.status !== "CONFIRMED") return false;
       const s = new Date(b.scheduledStart).getTime();
-      return nowTime < s - JOINABLE_WINDOW_MS;
+      return nowTime < s - JOINABLE_EARLY_WINDOW_MS;
     });
     if (future.length === 0) return null;
     return [...future].sort(
@@ -298,19 +299,22 @@ export default function ClientHomePage() {
     )[0];
   }, [bookings, nowTime]);
 
-  // 3. Consultation ended awaiting summary: CONFIRMED and scheduledEnd < nowTime <= scheduledEnd + 48h
+  // 3. Consultation ended awaiting summary: CONFIRMED/ACTIVE past window or with actualEndTime, but not COMPLETED/CANCELLED
   const awaitingSummarySession = useMemo(() => {
     const pastUnclosed = bookings.filter((b) => {
-      if (b.status !== "CONFIRMED") return false;
-      const e = new Date(b.scheduledEnd).getTime();
-      const elapsed = nowTime - e;
+      if (b.status !== "CONFIRMED" && b.status !== "ACTIVE") return false;
+      const endTimestamp = (b as any).actualEndTime
+        ? new Date((b as any).actualEndTime).getTime()
+        : new Date(b.scheduledEnd).getTime();
+      const elapsed = nowTime - endTimestamp;
       return elapsed > 0 && elapsed <= SPOTLIGHT_MAX_AWAITING_MS;
     });
     if (pastUnclosed.length === 0) return null;
-    return [...pastUnclosed].sort(
-      (a, b) =>
-        new Date(b.scheduledEnd).getTime() - new Date(a.scheduledEnd).getTime()
-    )[0];
+    return [...pastUnclosed].sort((a, b) => {
+      const endA = (a as any).actualEndTime ? new Date((a as any).actualEndTime).getTime() : new Date(a.scheduledEnd).getTime();
+      const endB = (b as any).actualEndTime ? new Date((b as any).actualEndTime).getTime() : new Date(b.scheduledEnd).getTime();
+      return endB - endA;
+    })[0];
   }, [bookings, nowTime]);
 
   // Active Escrow Deposit: Booking in progress or awaiting summary with locked escrow
@@ -474,7 +478,6 @@ export default function ClientHomePage() {
     const elapsedMs = Math.max(0, nowTime - endTime);
     const elapsedMin = Math.floor(elapsedMs / (60 * 1000));
     const elapsedHours = Math.floor(elapsedMs / (60 * 60 * 1000));
-    const elapsedDays = Math.floor(elapsedMs / (24 * 60 * 60 * 1000));
 
     if (elapsedMin < 5) {
       return t("endedJustNow");
@@ -482,24 +485,23 @@ export default function ClientHomePage() {
     if (elapsedMin < 60) {
       return t("endedMinutesAgo", { count: elapsedMin });
     }
-    if (elapsedHours < 24) {
-      const endDate = new Date(endIso);
-      const nowDate = new Date(nowTime);
-      const isSameDay =
-        endDate.getFullYear() === nowDate.getFullYear() &&
-        endDate.getMonth() === nowDate.getMonth() &&
-        endDate.getDate() === nowDate.getDate();
 
-      if (isSameDay) {
-        return t("endedHoursAgo", { count: elapsedHours });
-      }
+    const endDate = new Date(endIso);
+    const nowDate = new Date(nowTime);
+
+    // Compute calendar day difference using local midnight
+    const startOfNow = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate()).getTime();
+    const startOfEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()).getTime();
+    const calendarDays = Math.round((startOfNow - startOfEnd) / (24 * 60 * 60 * 1000));
+
+    if (calendarDays === 0) {
+      return t("endedHoursAgo", { count: Math.max(1, elapsedHours) });
+    }
+    if (calendarDays === 1) {
       return t("endedYesterdayAt", { time: formatTime(endIso) });
     }
-    if (elapsedDays === 1) {
-      return t("endedYesterdayAt", { time: formatTime(endIso) });
-    }
-    if (elapsedDays < 7) {
-      return t("endedDaysAgo", { count: elapsedDays });
+    if (calendarDays < 7) {
+      return t("endedDaysAgo", { count: calendarDays });
     }
     return t("endedOnDate", { date: formatDate(endIso) });
   }
@@ -526,7 +528,7 @@ export default function ClientHomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-w-0">
-      {/* ─── Command Center Welcome Header with Local CAT Timezone ─── */}
+      {/* â”€â”€â”€ Command Center Welcome Header with Local CAT Timezone â”€â”€â”€ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-brand-border/15 dark:border-white/10">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark dark:text-white break-words">
@@ -534,7 +536,7 @@ export default function ClientHomePage() {
           </h1>
           <div className="flex flex-wrap items-center gap-2 mt-1 text-[13px] text-brand-dark/60 dark:text-white/60">
             <span>{t("manageConsultationsDesc")}</span>
-            <span className="hidden sm:inline text-brand-dark/30 dark:text-white/30">•</span>
+            <span className="hidden sm:inline text-brand-dark/30 dark:text-white/30">â€¢</span>
             <span className="inline-flex items-center gap-1.5 font-medium text-brand-dark/80 dark:text-white/80">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span>{t("kigaliTimeLabel")}: {kigaliTime}</span>
@@ -552,7 +554,7 @@ export default function ClientHomePage() {
               />
               <span>{t("allCaughtUp")}</span>
               <span className="text-emerald-600/70 dark:text-emerald-400/70">
-                • {t("noPendingActions")}
+                â€¢ {t("noPendingActions")}
               </span>
             </div>
           ) : (
@@ -563,14 +565,14 @@ export default function ClientHomePage() {
               />
               <span>{t("actionsRequired")}</span>
               <span className="text-amber-600/70 dark:text-amber-400/70">
-                • {t("pendingActionsCount", { count: pendingActionCount })}
+                â€¢ {t("pendingActionsCount", { count: pendingActionCount })}
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* ─── Action Alerts (Pending Payment / Review) ─── */}
+      {/* â”€â”€â”€ Action Alerts (Pending Payment / Review) â”€â”€â”€ */}
       {(pendingPayment || pendingReview) && (
         <div className="mb-6 sm:mb-8 space-y-3">
           {pendingPayment && (
@@ -643,11 +645,11 @@ export default function ClientHomePage() {
         </div>
       )}
 
-      {/* ─── Main 2-Column Command Center Grid ─── */}
+      {/* â”€â”€â”€ Main 2-Column Command Center Grid â”€â”€â”€ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* ── LEFT COLUMN: Primary Workspace (Span 8) ── */}
+        {/* â”€â”€ LEFT COLUMN: Primary Workspace (Span 8) â”€â”€ */}
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
-          {/* ── Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) ── */}
+          {/* â”€â”€ Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) â”€â”€ */}
           {isLoading ? (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-black">
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
@@ -680,7 +682,7 @@ export default function ClientHomePage() {
                       })}
                     </p>
                     <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
-                      {formatTime(liveSession.scheduledStart)} —{" "}
+                      {formatTime(liveSession.scheduledStart)} â€”{" "}
                       {formatTime(liveSession.scheduledEnd)}
                     </p>
                   </div>
@@ -765,7 +767,7 @@ export default function ClientHomePage() {
                           size={14}
                           className="text-brand-dark/40 dark:text-white/40"
                         />
-                        {formatTime(upcomingSession.scheduledStart)} —{" "}
+                        {formatTime(upcomingSession.scheduledStart)} â€”{" "}
                         {formatTime(upcomingSession.scheduledEnd)}
                       </span>
                     </div>
@@ -876,7 +878,7 @@ export default function ClientHomePage() {
                       </p>
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-amber-900 dark:bg-amber-900/50 dark:text-amber-200 shadow-sm shrink-0">
                         <Clock size={11} className="shrink-0 text-amber-700 dark:text-amber-300" />
-                        <span>{formatEndedTime(awaitingSummarySession.scheduledEnd)}</span>
+                        <span>{formatEndedTime((awaitingSummarySession as any).actualEndTime || awaitingSummarySession.scheduledEnd)}</span>
                       </span>
                     </div>
                     <p className="text-[13px] text-brand-dark/70 dark:text-white/70 mt-0.5">
@@ -934,9 +936,9 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* ── Middle Section: Returning vs New Clients ── */}
+          {/* â”€â”€ Middle Section: Returning vs New Clients â”€â”€ */}
           {isLoading ? (
-            /* Skeleton placeholder — same height as the counsel card */
+            /* Skeleton placeholder â€” same height as the counsel card */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black animate-pulse">
               <div className="h-4 w-36 bg-brand-dark/10 dark:bg-white/10 rounded mb-2" />
               <div className="h-3 w-52 bg-brand-dark/5 dark:bg-white/5 rounded mb-5" />
@@ -1092,7 +1094,7 @@ export default function ClientHomePage() {
                 </div>
               )}
 
-              {/* Show More / Show Less toggle — only if there are more than COUNSEL_VISIBLE */}
+              {/* Show More / Show Less toggle â€” only if there are more than COUNSEL_VISIBLE */}
               {myLegalCounsel.length > COUNSEL_VISIBLE && (
                 <div className="mt-3 pt-3 border-t border-brand-border/10 dark:border-white/10 text-center">
                   <button
@@ -1174,7 +1176,7 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* ── Personal Workspace Quick Access with LIVE Dynamic Counters ── */}
+          {/* â”€â”€ Personal Workspace Quick Access with LIVE Dynamic Counters â”€â”€ */}
           <div className="space-y-3">
             <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
               {t("workspaceQuickAccess")}
@@ -1266,7 +1268,7 @@ export default function ClientHomePage() {
             </div>
           </div>
 
-          {/* ── Returning Client Multi-Matter Quick Jump ── */}
+          {/* â”€â”€ Returning Client Multi-Matter Quick Jump â”€â”€ */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-4 sm:p-5 shadow-sm dark:border-white/10 dark:bg-black">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
@@ -1306,7 +1308,7 @@ export default function ClientHomePage() {
             </div>
           </div>
 
-          {/* ── Recent Consultations List ── */}
+          {/* â”€â”€ Recent Consultations List â”€â”€ */}
           {recentConsultations.length > 0 && (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">
@@ -1369,7 +1371,7 @@ export default function ClientHomePage() {
           )}
         </div>
 
-        {/* ── RIGHT COLUMN: Sidebar Overview & Trust (Span 4) ── */}
+        {/* â”€â”€ RIGHT COLUMN: Sidebar Overview & Trust (Span 4) â”€â”€ */}
         <div className="lg:col-span-4 space-y-5 min-w-0">
           {/* Latest from Counsel (Upwork / Airbnb Style Message Preview) */}
           {latestCounselMessage && (

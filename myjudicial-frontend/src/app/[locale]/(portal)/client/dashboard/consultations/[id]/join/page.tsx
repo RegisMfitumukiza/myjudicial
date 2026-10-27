@@ -6,6 +6,7 @@ import { ArrowLeft, Video, Mic, MicOff, VideoOff, Loader2, AlertCircle, CheckCir
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { useTranslations, useLocale } from "next-intl";
 
 export default function JoinConsultationPage({ params }: { params: Promise<{ id: string }> }) {
@@ -75,15 +76,29 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
   }
 
   // Check if booking is ready for consultation
-  const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status);
+  const nowMs = Date.now();
+  const startMs = new Date(booking.scheduledStart).getTime();
+  const endMs = new Date(booking.scheduledEnd).getTime();
+  const isTooEarly = nowMs < startMs - JOINABLE_EARLY_WINDOW_MS;
+  const isPastWindow = nowMs > endMs + OVERTIME_GRACE_WINDOW_MS;
+  const isEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
+  const isEligibleStatus = ["CONFIRMED", "ACTIVE"].includes(booking.status);
+  const canJoin = isEligibleStatus && !isTooEarly && !isPastWindow && !isEnded;
   
   if (!canJoin) {
+    let reasonText = t("notReadyStatus", { status: booking.status });
+    if (isEnded || isPastWindow) {
+      reasonText = t("windowEndedDesc");
+    } else if (isTooEarly) {
+      reasonText = t("tooEarlyDesc");
+    }
+
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-white dark:bg-black px-6">
         <AlertCircle className="h-10 w-10 text-amber-500 mb-4" />
         <p className="text-amber-600 dark:text-amber-400 font-medium">{t("cannotJoin")}</p>
         <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50 mb-6 text-center max-w-md">
-          {t("notReadyStatus", { status: booking.status })}
+          {reasonText}
         </p>
         <Button asChild variant="outline" className="border-brand-border/20 text-xs">
           <Link href={`/client/dashboard/consultations/${id}`}>{t("viewBookingDetails")}</Link>

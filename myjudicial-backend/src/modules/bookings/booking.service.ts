@@ -977,6 +977,24 @@ export const BookingService = {
       throw new ValidationError("Booking is not ready for consultation");
     }
 
+    if (booking.actualEndTime) {
+      throw new ValidationError("The consultation has already ended.");
+    }
+
+    const now = new Date();
+    const JOINABLE_EARLY_WINDOW_MS = 15 * 60 * 1000; // 15 mins before start
+    const OVERTIME_GRACE_WINDOW_MS = 30 * 60 * 1000; // 30 mins after scheduled end
+    const earliestJoin = new Date(new Date(booking.scheduledStart).getTime() - JOINABLE_EARLY_WINDOW_MS);
+    const latestJoin = new Date(new Date(booking.scheduledEnd).getTime() + OVERTIME_GRACE_WINDOW_MS);
+
+    if (now < earliestJoin) {
+      throw new ValidationError("The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.");
+    }
+
+    if (now > latestJoin) {
+      throw new ValidationError("The consultation window has ended. This session is no longer joinable.");
+    }
+
     const isVideoMeeting = !booking.service?.deliveryMode || booking.service.deliveryMode === "VIDEO";
     if (!isVideoMeeting) {
       throw new ValidationError("Video consultation room is not available for this delivery mode");

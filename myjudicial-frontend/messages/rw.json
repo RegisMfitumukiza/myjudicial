@@ -3356,7 +3356,9 @@
     "analyze": "Gusesengura",
     "clientNotes": "Inyandiko z'umukiriya",
     "analyzingCase": "AI irimo gusesengura ikibazo...",
-    "analyzeError": "Ntibyashobotse gusesengura inyandiko z'ikibazo. Ongera ugerageze."
+    "analyzeError": "Ntibyashobotse gusesengura inyandiko z'ikibazo. Ongera ugerageze.",
+    "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
+    "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe."
   },
   "signup": {
     "header": {
@@ -4195,7 +4197,9 @@
       "inPersonNotice": "Iyi ni gahunda yo kubonana imbonankubone mu biro by'umwunganizi. Icyumba cya videwo ntigikenewe.",
       "viewOfficeDetails": "Kureba aho ibiro biherereye n'ibisobanuro",
       "phoneNotice": "Iyi ni inama kuri terefone n'umwunganizi wawe. Icyumba cya videwo ntigikenewe.",
-      "documentNotice": "Uru ni umusaruro wo gusuzuma inyandiko. Icyumba cya videwo ntigikenewe."
+      "documentNotice": "Uru ni umusaruro wo gusuzuma inyandiko. Icyumba cya videwo ntigikenewe.",
+      "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
+      "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe."
     },
     "consultationDetail": {
       "toasts": {
@@ -4360,7 +4364,8 @@
       "expertRemoved": "Inzobere yakuwe ku rutonde",
       "failedToRemove": "Byanze gukura inzobere",
       "removeTooltip": "Kuraho mu bitabitswe"
-    }
+    },
+    "sessionEnded": "Ikiganiro Cyarangiye"
   },
   "clientDashboard_documents": {},
   "clientDashboard_home": {
@@ -7464,7 +7469,9 @@
     "ready": "Ready",
     "notFound": "Not Found",
     "joinConsultation": "Join Consultation",
-    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client."
+    "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
+    "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
+    "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe."
   },
   "specialties": {
     "FAMILY_LAW": "Amategeko y'umuryango",
@@ -7561,7 +7568,8 @@
       "deliverySummaryPlaceholder": "urug. Nahamagaye umukiriya kuri 078..., twaganiriye ku kibazo cy'ubutaka ndetse muha inama z'ibanze...",
       "confirmMarkDelivered": "Emeza kandi Umumenyeshe",
       "deliveryLocked": "Kumenyesha ko byakozwe biboneka inama imaze gutangira",
-      "deliveryLockedTooltip": "Inama ishobora gusa kumenyeshwa ko yarangiye igihe cyayo cyo gutangira kigeze."
+      "deliveryLockedTooltip": "Inama ishobora gusa kumenyeshwa ko yarangiye igihe cyayo cyo gutangira kigeze.",
+      "sessionEnded": "Ikiganiro Cyarangiye"
     },
     "details": {
       "withClient": "hamwe na {name}",

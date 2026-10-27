@@ -34,9 +34,10 @@ export const startEscrowTimeoutCron = (): void => {
           actualStartTime: null,
           deliveredAt: null,
           pendingRescheduleStart: null,
-          service: {
-            deliveryMode: "VIDEO",
-          },
+          OR: [
+            { service: { deliveryMode: "VIDEO" } },
+            { service: { deliveryMode: { notIn: ["PHONE", "IN_PERSON", "EMAIL"] } } },
+          ],
         },
         select: { id: true, citizenId: true, expertId: true, scheduledEnd: true },
       });

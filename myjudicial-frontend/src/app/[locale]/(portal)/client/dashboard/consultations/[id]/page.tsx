@@ -18,6 +18,7 @@ import { useConfirmConsultationCompletion, useReportConsultationIssue } from "@/
 import { RescheduleModal } from "@/features/booking/components/reschedule-modal";
 import { ReschedulePendingBanner } from "@/features/booking/components/reschedule-pending-banner";
 import { downloadICS } from "@/features/booking/lib/ics";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { apiFetch } from "@/lib/api/client";
 import { getChatConversationsByBookingBookingId } from "@/api/generated";
 import type { Booking } from "@/api/generated";
@@ -225,9 +226,16 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const isPaymentPending = booking.status === "PENDING" && booking.paymentStatus === "PENDING";
   const isPaymentFailed = booking.status === "PENDING" && booking.paymentStatus === "FAILED";
   const canRetry = isPaymentPending || isPaymentFailed;
-  const JOINABLE_WINDOW_MS = 15 * 60 * 1000;
-  const startsInMs = new Date(booking.scheduledStart).getTime() - Date.now();
-  const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking.status === "ACTIVE" || startsInMs <= JOINABLE_WINDOW_MS);
+  const nowMs = Date.now();
+  const startMs = new Date(booking.scheduledStart).getTime();
+  const endMs = new Date(booking.scheduledEnd).getTime();
+  const isTooEarly = nowMs < (startMs - JOINABLE_EARLY_WINDOW_MS);
+  const isPastWindow = nowMs > (endMs + OVERTIME_GRACE_WINDOW_MS);
+  const isSessionEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
+  const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) &&
+    !isTooEarly &&
+    !isPastWindow &&
+    !isSessionEnded;
   const canReview = booking.status === "COMPLETED" && !booking.review;
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canDownloadReceipt = booking.paymentStatus === "PAID";
@@ -242,7 +250,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const isDocument = deliveryMode === "EMAIL";
   const officeAddress = (booking as BookingWithService).expert?.officeAddress || (booking as BookingWithService).expert?.city || null;
 
-  // ── Cancellation policy logic ──
+  // â”€â”€ Cancellation policy logic â”€â”€
   const msUntilStart = new Date(booking.scheduledStart).getTime() - Date.now();
   const hoursUntilStart = msUntilStart / (1000 * 60 * 60);
   const msSinceCreated = Date.now() - new Date(booking.createdAt).getTime();
@@ -650,7 +658,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 <Clock className="h-4 w-4 text-brand-dark/50 dark:text-white/50 shrink-0" />
                 <div>
                   <p className="text-[13px] font-medium text-brand-dark dark:text-white">
-                    {formatTime(booking.scheduledStart, locale)} — {formatTime(booking.scheduledEnd, locale)}
+                    {formatTime(booking.scheduledStart, locale)} â€” {formatTime(booking.scheduledEnd, locale)}
                   </p>
                   <p className="text-[11px] text-brand-dark/50 dark:text-white/50">
                     {t("durationLabel", { duration: t("minutesSuffix", { count: formatDurationMin(booking.scheduledStart, booking.scheduledEnd) }) })}
@@ -702,7 +710,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                 <p className="mt-2 text-[12px] text-brand-dark/50 dark:text-white/50">{(booking as BookingWithService).service?.description}</p>
               )}
               <p className="mt-2.5 text-[13px] font-semibold text-brand-dark dark:text-white">
-                RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
+                RWF {booking.service?.flatFee?.toLocaleString() ?? "â€”"}
               </p>
             </div>
           </div>
@@ -813,7 +821,11 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               disabled={!canJoin}
             >
               <Video size={15} />
-              {canJoin ? t("joinConsultation") : t("notYetTime")}
+              {canJoin
+                ? t("joinConsultation")
+                : (isPastWindow || isSessionEnded)
+                ? t("sessionEnded")
+                : t("notYetTime")}
             </Button>
           )}
           {canMessage && (

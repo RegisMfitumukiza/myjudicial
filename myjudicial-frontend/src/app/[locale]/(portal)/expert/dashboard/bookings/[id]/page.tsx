@@ -22,6 +22,7 @@ import { useMarkConsultationDelivered } from "@/features/booking/hooks/useDelive
 import { RescheduleModal } from "@/features/booking/components/reschedule-modal";
 import { ReschedulePendingBanner } from "@/features/booking/components/reschedule-pending-banner";
 import { downloadICS } from "@/features/booking/lib/ics";
+import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { getChatConversationsByBookingBookingId } from "@/api/generated";
 import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { usePostChatMessages } from "@/api/generated";
@@ -207,17 +208,19 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
     );
   }
 
-  const JOINABLE_EARLY_WINDOW_MS = 15 * 60 * 1000; // 15 mins before start
-  const OVERTIME_GRACE_WINDOW_MS = 30 * 60 * 1000; // 30 mins after scheduled end
   const canDecline = booking.status === "PENDING";
   const nowMs = Date.now();
   const startMs = new Date(booking.scheduledStart).getTime();
   const endMs = new Date(booking.scheduledEnd).getTime();
   const startsInMs = startMs - nowMs;
+  const isTooEarly = nowMs < (startMs - JOINABLE_EARLY_WINDOW_MS);
+  const isPastWindow = nowMs > (endMs + OVERTIME_GRACE_WINDOW_MS);
+  const isEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
   // Session is joinable from 15 mins prior until 30 mins after scheduled end
   const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) &&
-    nowMs >= (startMs - JOINABLE_EARLY_WINDOW_MS) &&
-    nowMs <= (endMs + OVERTIME_GRACE_WINDOW_MS);
+    !isTooEarly &&
+    !isPastWindow &&
+    !isEnded;
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
   const isEmailMode = ((booking as any).service?.deliveryMode === "EMAIL");
@@ -476,7 +479,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <div className="h-px bg-border" />
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  {formatTime(booking.scheduledStart)} — {formatTime(booking.scheduledEnd)}
+                  {formatTime(booking.scheduledStart)} â€” {formatTime(booking.scheduledEnd)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {t("details.duration", { duration: formatDuration(booking.scheduledStart, booking.scheduledEnd) })}
@@ -544,7 +547,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{(booking.service as any).description}</p>
             )}
             <p className="text-sm font-medium text-foreground mt-1.5">
-              RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
+              RWF {booking.service?.flatFee?.toLocaleString() ?? "â€”"}
             </p>
             {((booking as any).service?.deliveryMode === "IN_PERSON") && (booking as any).expert?.officeAddress && (
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1 border-t border-border pt-2">
@@ -649,7 +652,11 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
               onClick={() => router.push(`/expert/dashboard/consultations/${booking.id}/join`)}
             >
               <Video size={15} />
-              {canJoin ? t("actions.joinCall") : t("actions.notYetTime")}
+              {canJoin
+                ? t("actions.joinCall")
+                : (isPastWindow || isEnded)
+                ? t("actions.sessionEnded")
+                : t("actions.notYetTime")}
             </Button>
           )}
           {["CONFIRMED", "ACTIVE"].includes(booking.status) && (booking as any).service?.deliveryMode === "PHONE" && (

@@ -91,6 +91,13 @@ export default function ReviewsPage() {
 
   const isLoading = profileLoading || summaryQ.isLoading || reviewsQ.isLoading || distributionQ.isLoading;
 
+  const satisfactionRate = useMemo(() => {
+    if (!summary || summary.totalReviews === 0) return 100;
+    const fourStar = distribution ? Number(distribution["4"] || 0) : 0;
+    const fiveStar = distribution ? Number(distribution["5"] || 0) : 0;
+    return Math.round(((fourStar + fiveStar) / summary.totalReviews) * 100);
+  }, [summary, distribution]);
+
   const refreshReviews = () => {
     queryClient.invalidateQueries({ queryKey: ["getExpertsExpertIdReviews", expertId] });
   };
@@ -168,13 +175,6 @@ export default function ReviewsPage() {
   const maxDistribution = distribution
     ? Math.max(distribution["1"], distribution["2"], distribution["3"], distribution["4"], distribution["5"], 1)
     : 1;
-
-  const satisfactionRate = useMemo(() => {
-    if (!summary || summary.totalReviews === 0) return 100;
-    const fourStar = distribution ? Number(distribution["4"] || 0) : 0;
-    const fiveStar = distribution ? Number(distribution["5"] || 0) : 0;
-    return Math.round(((fourStar + fiveStar) / summary.totalReviews) * 100);
-  }, [summary, distribution]);
 
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">

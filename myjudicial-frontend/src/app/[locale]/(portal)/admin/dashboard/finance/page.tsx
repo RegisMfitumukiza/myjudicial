@@ -21,7 +21,11 @@ import {
   User,
   ArrowRight,
   CreditCard,
+  Copy,
+  Check,
+  CheckCircle2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { usePaymentMode } from "@/features/settings/hooks/usePaymentMode";
@@ -62,7 +66,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Link } from "@/i18n/routing";
 
 type PaymentStatus = "PENDING" | "AUTHORIZED" | "PAID" | "FAILED" | "REFUNDED";
-type EscrowStatus = "HELD_IN_ESCROW" | "DISBURSED_TO_EXPERT" | "REFUNDED";
+type EscrowStatus = "PENDING" | "LOCKED" | "HELD_IN_ESCROW" | "DISBURSED_TO_EXPERT" | "REFUNDED";
 
 interface FinanceStats {
   revenue: {
@@ -261,10 +265,185 @@ const PAYMENT_STATUS_TONE: Record<PaymentStatus, StatusTone> = {
 };
 
 const ESCROW_STATUS_TONE: Record<EscrowStatus, StatusTone> = {
+  PENDING: "pending",
+  LOCKED: "pending",
   HELD_IN_ESCROW: "pending",
   DISBURSED_TO_EXPERT: "success",
   REFUNDED: "neutral",
 };
+
+
+function detectCarrier(raw?: string | null): "MTN" | "AIRTEL" | null {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (/^(250)?7[89]/.test(digits) || /^07[89]/.test(digits)) return "MTN";
+  if (/^(250)?7[23]/.test(digits) || /^07[23]/.test(digits)) return "AIRTEL";
+  return null;
+}
+
+function CarrierBadge({ phone }: { phone?: string | null }) {
+  const carrier = detectCarrier(phone);
+  if (!carrier) return null;
+  return (
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider ${
+        carrier === "MTN"
+          ? "bg-amber-400/20 text-amber-800 dark:text-amber-300 border border-amber-400/30"
+          : "bg-red-500/20 text-red-700 dark:text-red-300 border border-red-500/30"
+      }`}
+    >
+      {carrier}
+    </span>
+  );
+}
+
+function CopyChip({
+  value,
+  displayValue,
+  label,
+  className = "",
+}: {
+  value: string;
+  displayValue?: string;
+  label?: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!value) return;
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    toast.success(label ? `${label} copied` : "Copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className={`group inline-flex items-center gap-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded px-1.5 py-0.5 hover:bg-muted/80 max-w-full ${className}`}
+      title={`Copy ${label || "value"}: ${value}`}
+    >
+      <span className="truncate">{displayValue || value}</span>
+      {copied ? (
+        <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+      ) : (
+        <Copy className="h-3 w-3 opacity-40 group-hover:opacity-100 transition-opacity shrink-0" />
+      )}
+    </button>
+  );
+}
+
+function EscrowLifecycleStepper({
+  status,
+  paidAt,
+  settledAt,
+  payoutSentAt,
+  currency = "RWF",
+  amount,
+  expertPayout,
+  t,
+  formatDate,
+}: {
+  status: EscrowStatus | PaymentStatus;
+  paidAt?: string | null;
+  settledAt?: string | null;
+  payoutSentAt?: string | null;
+  currency?: string;
+  amount: number;
+  expertPayout: number;
+  t: any;
+  formatDate: (d?: string | null) => string;
+}) {
+  const isPaid = Boolean(paidAt || status === "PAID" || status === "LOCKED" || status === "HELD_IN_ESCROW" || status === "DISBURSED_TO_EXPERT");
+  const isEscrowLocked = Boolean(status === "LOCKED" || status === "HELD_IN_ESCROW" || status === "DISBURSED_TO_EXPERT");
+  const isConsultationDone = Boolean(settledAt || status === "DISBURSED_TO_EXPERT");
+  const isDisbursed = Boolean(status === "DISBURSED_TO_EXPERT" || payoutSentAt);
+  const isRefunded = status === "REFUNDED";
+
+  const steps = [
+    {
+      id: 1,
+      title: t("step1Title"),
+      subtitle: paidAt ? formatDate(paidAt) : t("step1Pending"),
+      state: isPaid ? "completed" : "current",
+      desc: t("step1Desc", { amount: `${currency} ${amount.toLocaleString()}` }),
+    },
+    {
+      id: 2,
+      title: t("step2Title"),
+      subtitle: isEscrowLocked ? t("step2Locked") : t("step2Pending"),
+      state: isRefunded ? "refunded" : isEscrowLocked ? (isConsultationDone ? "completed" : "current") : "upcoming",
+      desc: t("step2Desc"),
+    },
+    {
+      id: 3,
+      title: t("step3Title"),
+      subtitle: isConsultationDone ? (settledAt ? formatDate(settledAt) : t("step3Done")) : t("step3Awaiting"),
+      state: isRefunded ? "refunded" : isConsultationDone ? "completed" : isEscrowLocked ? "current" : "upcoming",
+      desc: t("step3Desc"),
+    },
+    {
+      id: 4,
+      title: isRefunded ? t("step4RefundedTitle") : t("step4Title"),
+      subtitle: isRefunded ? t("step4RefundedSub") : isDisbursed ? formatDate(payoutSentAt || settledAt) : t("step4Pending"),
+      state: isRefunded ? "neutral" : isDisbursed ? "completed" : "upcoming",
+      desc: isRefunded ? t("step4RefundedDesc") : t("step4Desc", { payout: `${currency} ${expertPayout.toLocaleString()}` }),
+    },
+  ];
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          {t("lifecycleTitle")}
+        </p>
+        <span className="text-[11px] font-medium text-muted-foreground">
+          {isRefunded ? t("refunded") : isDisbursed ? t("disbursedToExpert") : t("fundsInEscrow")}
+        </span>
+      </div>
+
+      <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+        {steps.map((s) => {
+          const isDone = s.state === "completed";
+          const isCurrent = s.state === "current";
+          const isRef = s.state === "refunded";
+          return (
+            <div key={s.id} className="relative">
+              <div
+                className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold border transition-colors ${
+                  isDone
+                    ? "bg-emerald-500 border-emerald-600 text-white"
+                    : isCurrent
+                    ? "bg-primary border-primary text-primary-foreground ring-2 ring-primary/20 animate-pulse"
+                    : isRef
+                    ? "bg-amber-500 border-amber-600 text-white"
+                    : "bg-muted border-border text-muted-foreground"
+                }`}
+              >
+                {isDone ? "✓" : s.id}
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className={`text-xs font-semibold ${isCurrent ? "text-foreground" : isDone ? "text-foreground" : "text-muted-foreground"}`}>
+                    {s.title}
+                  </p>
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    {s.subtitle}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-tight">
+                  {s.desc}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function FinancePage() {
   const t = useTranslations("admin.finance");
@@ -289,6 +468,7 @@ export default function FinancePage() {
   const [escrowSearch, setEscrowSearch] = useState("");
   const [escrowStatusFilter, setEscrowStatusFilter] = useState<EscrowStatus | "ALL">("ALL");
   const [selectedEscrow, setSelectedEscrow] = useState<EscrowLedgerItem | null>(null);
+  const [isExportingEscrowCsv, setIsExportingEscrowCsv] = useState(false);
 
   // Failed Settlements State
   const [failedPage, setFailedPage] = useState(1);
@@ -305,6 +485,8 @@ export default function FinancePage() {
   };
 
   const ESCROW_STATUS_LABELS: Record<EscrowStatus, string> = {
+    PENDING: t("statusPending"),
+    LOCKED: t("statusLocked"),
     HELD_IN_ESCROW: t("heldInEscrow"),
     DISBURSED_TO_EXPERT: t("disbursedToExpert"),
     REFUNDED: t("refunded"),
@@ -318,7 +500,7 @@ export default function FinancePage() {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString?: string | null) => {
     if (!dateString) return "—";
     try {
       return new Date(dateString).toLocaleDateString(locale, {
@@ -495,6 +677,68 @@ export default function FinancePage() {
       setIsExportingCsv(false);
     }
   };
+
+  const handleExportEscrowCsv = async () => {
+    setIsExportingEscrowCsv(true);
+    try {
+      const res = await fetchEscrow({
+        limit: 1000,
+        search: escrowSearch.trim() || undefined,
+        status: escrowStatusFilter !== "ALL" ? escrowStatusFilter : undefined,
+      });
+
+      const items = res.data.ledgers;
+      if (!items || items.length === 0) return;
+
+      const headers = [
+        "Room ID",
+        "Booking ID",
+        "Citizen Name",
+        "Citizen Email",
+        "Expert Name",
+        "Lawyer Wallet",
+        "Total Fee (RWF)",
+        "Status",
+        "Created At",
+        "Settled At",
+      ];
+
+      const csvRows = [
+        headers.join(","),
+        ...items.map((e) =>
+          [
+            `"${e.roomId}"`,
+            `"${e.bookingId}"`,
+            `"${e.citizen.firstName} ${e.citizen.lastName}"`,
+            `"${e.citizen.email}"`,
+            `"${e.expert.displayName}"`,
+            `"${e.lawyerWalletPhone || ""}"`,
+            e.totalFee,
+            e.status,
+            `"${e.createdAt}"`,
+            `"${e.settledAt ?? ""}"`,
+          ].join(",")
+        ),
+      ];
+
+      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `myjudicial_escrow_export_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(t("exportSuccess"));
+    } catch (err) {
+      console.error("Failed to export escrow CSV", err);
+      toast.error(t("exportError"));
+    } finally {
+      setIsExportingEscrowCsv(false);
+    }
+  };
+
 
   if (loadingStats) {
     return (
@@ -697,7 +941,59 @@ export default function FinancePage() {
                   />
                 ) : (
                   <>
-                    <div className="overflow-x-auto">
+                    {/* Mobile / Small Devices Card Stack (< 1024px) */}
+                    <div className="divide-y divide-border lg:hidden">
+                      {payments.length === 0 ? (
+                        <div className="p-6">
+                          <EmptyState icon={DollarSign} title={t("noPayments")} />
+                        </div>
+                      ) : (
+                        payments.map((payment) => (
+                          <div
+                            key={payment.id}
+                            className="p-4 space-y-3 cursor-pointer hover:bg-muted/40 transition-colors"
+                            onClick={() => setSelectedPayment(payment)}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="font-semibold text-sm text-foreground">
+                                  {payment.citizen.firstName} {payment.citizen.lastName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  to <strong className="text-foreground font-medium">{payment.expert.displayName}</strong>
+                                </p>
+                              </div>
+                              <StatusBadge tone={PAYMENT_STATUS_TONE[payment.status]}>
+                                {PAYMENT_STATUS_LABELS[payment.status]}
+                              </StatusBadge>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs pt-1 border-t border-border/60">
+                              <div>
+                                <span className="text-muted-foreground">{t("amount")}: </span>
+                                <span className="font-bold text-foreground">
+                                  {formatCurrency(payment.amount, payment.currency)}
+                                </span>
+                              </div>
+                              <div className="font-mono text-muted-foreground text-[11px]">
+                                {formatDate(payment.paidAt || payment.createdAt)}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+                              <CopyChip value={payment.txRef} displayValue={`${payment.txRef.slice(0, 16)}...`} label="TxRef" />
+                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                                <Eye className="h-3.5 w-3.5" />
+                                {t("paymentDetails")}
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Full Table (>= 1024px) */}
+                    <div className="hidden lg:block overflow-x-auto">
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -730,11 +1026,21 @@ export default function FinancePage() {
                                 onClick={() => setSelectedPayment(payment)}
                               >
                                 <td className="px-6 py-4">
-                                  <div>
-                                    <p className="font-mono text-xs font-medium text-foreground">{payment.txRef}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {payment.providerTransactionId || "—"}
-                                    </p>
+                                  <div className="space-y-0.5">
+                                    <CopyChip value={payment.txRef} label="Transaction Ref" />
+                                    <div>
+                                      {payment.providerTransactionId ? (
+                                        <CopyChip
+                                          value={payment.providerTransactionId}
+                                          label="Gateway ID"
+                                          className="text-[11px]"
+                                        />
+                                      ) : (
+                                        <span className="text-[11px] text-muted-foreground italic">
+                                          {t("pendingGateway")}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4">
@@ -856,11 +1162,24 @@ export default function FinancePage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                        <SelectItem value="LOCKED">{t("statusLocked")}</SelectItem>
                         <SelectItem value="HELD_IN_ESCROW">{t("heldInEscrow")}</SelectItem>
+                        <SelectItem value="PENDING">{t("statusPending")}</SelectItem>
                         <SelectItem value="DISBURSED_TO_EXPERT">{t("disbursedToExpert")}</SelectItem>
                         <SelectItem value="REFUNDED">{t("refunded")}</SelectItem>
                       </SelectContent>
                     </Select>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportEscrowCsv}
+                      disabled={isExportingEscrowCsv || ledgers.length === 0}
+                      className="h-9 gap-1.5 text-xs"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      {isExportingEscrowCsv ? t("loading") : t("exportEscrowCsv")}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -876,7 +1195,66 @@ export default function FinancePage() {
                   />
                 ) : (
                   <>
-                    <div className="overflow-x-auto">
+                    {/* Mobile / Small Devices Card Stack (< 1024px) */}
+                    <div className="divide-y divide-border lg:hidden">
+                      {ledgers.length === 0 ? (
+                        <div className="p-6">
+                          <EmptyState icon={Lock} title={t("noEscrow")} />
+                        </div>
+                      ) : (
+                        ledgers.map((ledger) => (
+                          <div
+                            key={ledger.id}
+                            className="p-4 space-y-3 cursor-pointer hover:bg-muted/40 transition-colors"
+                            onClick={() => setSelectedEscrow(ledger)}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="font-semibold text-sm text-foreground">
+                                  {ledger.citizen.firstName} {ledger.citizen.lastName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  with <strong className="text-foreground font-medium">{ledger.expert.displayName}</strong>
+                                </p>
+                              </div>
+                              <StatusBadge tone={ESCROW_STATUS_TONE[ledger.status]}>
+                                {ESCROW_STATUS_LABELS[ledger.status]}
+                              </StatusBadge>
+                            </div>
+
+                            <div className="flex items-center justify-between text-xs pt-1 border-t border-border/60">
+                              <div>
+                                <span className="text-muted-foreground">{t("amount")}: </span>
+                                <span className="font-bold text-foreground">
+                                  {formatCurrency(ledger.totalFee)}
+                                </span>
+                              </div>
+                              <div className="text-[11px]">
+                                {ledger.settledAt ? (
+                                  <span className="font-mono text-muted-foreground">{formatDate(ledger.settledAt)}</span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">
+                                    <Clock className="h-2.5 w-2.5" />
+                                    {t("awaitingConsultation")}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 pt-1 text-xs">
+                              <CopyChip value={ledger.roomId} displayValue={`${ledger.roomId.slice(0, 14)}...`} label="Room ID" />
+                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                                <Eye className="h-3.5 w-3.5" />
+                                {t("paymentDetails")}
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Full Table (>= 1024px) */}
+                    <div className="hidden lg:block overflow-x-auto">
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -909,19 +1287,28 @@ export default function FinancePage() {
                                 onClick={() => setSelectedEscrow(ledger)}
                               >
                                 <td className="px-6 py-4">
-                                  <p className="font-mono text-xs font-medium text-foreground">
-                                    {ledger.roomId.length > 12 ? `${ledger.roomId.slice(0, 10)}...` : ledger.roomId}
-                                  </p>
+                                  <CopyChip
+                                    value={ledger.roomId}
+                                    displayValue={ledger.roomId.length > 12 ? `${ledger.roomId.slice(0, 10)}...` : ledger.roomId}
+                                    label="Room ID"
+                                  />
                                 </td>
                                 <td className="px-6 py-4">
-                                  <Link
-                                    href={`/admin/dashboard/bookings?search=${ledger.bookingId}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="font-mono text-xs text-primary hover:underline inline-flex items-center gap-1"
-                                  >
-                                    {ledger.bookingId.slice(0, 8)}...
-                                    <ExternalLink className="h-3 w-3" />
-                                  </Link>
+                                  <div className="flex items-center gap-1.5">
+                                    <CopyChip
+                                      value={ledger.bookingId}
+                                      displayValue={`${ledger.bookingId.slice(0, 8)}...`}
+                                      label="Booking ID"
+                                    />
+                                    <Link
+                                      href={`/admin/dashboard/bookings?search=${ledger.bookingId}`}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="text-primary hover:text-primary/80 transition-colors"
+                                      title={t("viewBooking")}
+                                    >
+                                      <ExternalLink className="h-3 w-3" />
+                                    </Link>
+                                  </div>
                                 </td>
                                 <td className="px-6 py-4">
                                   <div>
@@ -935,9 +1322,14 @@ export default function FinancePage() {
                                   <p className="font-medium text-foreground">{ledger.expert.displayName}</p>
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className="font-mono text-xs text-muted-foreground">
-                                    {ledger.lawyerWalletPhone || "—"}
-                                  </span>
+                                  {ledger.lawyerWalletPhone ? (
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <CopyChip value={ledger.lawyerWalletPhone} label="Lawyer Wallet" />
+                                      <CarrierBadge phone={ledger.lawyerWalletPhone} />
+                                    </div>
+                                  ) : (
+                                    <span className="font-mono text-xs text-muted-foreground italic">—</span>
+                                  )}
                                 </td>
                                 <td className="px-6 py-4">
                                   <p className="font-semibold text-foreground">{formatCurrency(ledger.totalFee)}</p>
@@ -948,7 +1340,14 @@ export default function FinancePage() {
                                   </StatusBadge>
                                 </td>
                                 <td className="px-6 py-4">
-                                  <span className="text-xs text-muted-foreground">{formatDate(ledger.settledAt)}</span>
+                                  {ledger.settledAt ? (
+                                    <span className="text-xs text-muted-foreground font-mono">{formatDate(ledger.settledAt)}</span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-medium">
+                                      <Clock className="h-2.5 w-2.5" />
+                                      {t("awaitingConsultation")}
+                                    </span>
+                                  )}
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                   <Button
@@ -1060,11 +1459,22 @@ export default function FinancePage() {
                             failedPayments.map((payment) => (
                               <tr key={payment.id} className="transition-colors hover:bg-muted/50">
                                 <td className="px-6 py-4">
-                                  <div>
-                                    <p className="font-medium text-foreground">
-                                      {payment.bookingId.substring(0, 8)}...
-                                    </p>
-                                    <p className="font-mono text-xs text-muted-foreground">{payment.txRef}</p>
+                                  <div className="space-y-0.5">
+                                    <div className="flex items-center gap-1">
+                                      <CopyChip
+                                        value={payment.bookingId}
+                                        displayValue={`${payment.bookingId.slice(0, 8)}...`}
+                                        label="Booking ID"
+                                      />
+                                      <Link
+                                        href={`/admin/dashboard/bookings?search=${payment.bookingId}`}
+                                        className="text-primary hover:text-primary/80 transition-colors"
+                                        title={t("viewBooking")}
+                                      >
+                                        <ExternalLink className="h-3 w-3" />
+                                      </Link>
+                                    </div>
+                                    <CopyChip value={payment.txRef} label="TxRef" className="text-[11px]" />
                                   </div>
                                 </td>
                                 <td className="px-6 py-4">
@@ -1167,22 +1577,38 @@ export default function FinancePage() {
         <SheetContent side="right" className="sm:max-w-md overflow-y-auto p-0">
           {selectedPayment && (
             <div className="space-y-6 p-6">
-              <SheetHeader className="p-0 border-b border-border pb-4">
-                <div className="flex items-center justify-between">
+              <SheetHeader className="p-0 border-b border-border pb-4 pr-10">
+                <div className="flex items-center justify-between gap-2">
                   <StatusBadge tone={PAYMENT_STATUS_TONE[selectedPayment.status]}>
                     {PAYMENT_STATUS_LABELS[selectedPayment.status]}
                   </StatusBadge>
-                  <span className="text-xs text-muted-foreground font-mono">
+                  <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
                     {formatDate(selectedPayment.createdAt)}
                   </span>
                 </div>
-                <SheetTitle className="text-lg font-bold mt-2">
-                  {selectedPayment.txRef}
-                </SheetTitle>
+                <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <SheetTitle className="text-base font-bold font-mono tracking-tight break-all">
+                    {selectedPayment.txRef}
+                  </SheetTitle>
+                  <CopyChip value={selectedPayment.txRef} label="Transaction Ref" />
+                </div>
                 <SheetDescription className="text-xs">
                   {t("paymentDetails")}
                 </SheetDescription>
               </SheetHeader>
+
+              {/* Escrow Settlement Lifecycle Stepper */}
+              <EscrowLifecycleStepper
+                status={selectedPayment.status}
+                paidAt={selectedPayment.paidAt}
+                payoutSentAt={selectedPayment.payoutSentAt}
+                amount={selectedPayment.amount}
+                expertPayout={selectedPayment.expertPayout}
+                currency={selectedPayment.currency}
+                t={t}
+                formatDate={formatDate}
+              />
 
               {/* Financial Breakdown */}
               <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
@@ -1269,17 +1695,24 @@ export default function FinancePage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {t("auditTraceability")}
                 </p>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t("gatewayRef")}:</span>
-                  <span className="font-mono text-foreground font-medium">
-                    {selectedPayment.providerTransactionId || "—"}
-                  </span>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-muted-foreground shrink-0">{t("gatewayRef")}:</span>
+                  {selectedPayment.providerTransactionId ? (
+                    <CopyChip value={selectedPayment.providerTransactionId} label="Gateway Ref" />
+                  ) : (
+                    <span className="text-muted-foreground italic text-[11px]">{t("pendingGateway")}</span>
+                  )}
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t("payoutRef")}:</span>
-                  <span className="font-mono text-foreground font-medium">
-                    {selectedPayment.providerPayoutRef || "—"}
-                  </span>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-muted-foreground shrink-0">{t("payoutRef")}:</span>
+                  {selectedPayment.providerPayoutRef ? (
+                    <CopyChip value={selectedPayment.providerPayoutRef} label="Payout Ref" />
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      <Lock className="h-2.5 w-2.5" />
+                      {t("heldInEscrowPill")}
+                    </span>
+                  )}
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{t("paidAt")}:</span>
@@ -1287,17 +1720,24 @@ export default function FinancePage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{t("payoutSent")}:</span>
-                  <span className="text-foreground">{formatDate(selectedPayment.payoutSentAt)}</span>
+                  {selectedPayment.payoutSentAt ? (
+                    <span className="text-foreground">{formatDate(selectedPayment.payoutSentAt)}</span>
+                  ) : (
+                    <span className="text-muted-foreground italic text-[11px]">{t("awaitingSessionRelease")}</span>
+                  )}
                 </div>
                 <div className="pt-2 border-t border-border flex justify-between items-center">
                   <span className="text-muted-foreground">{t("booking")}:</span>
-                  <Link
-                    href={`/admin/dashboard/bookings?search=${selectedPayment.bookingId}`}
-                    className="font-mono text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    {selectedPayment.bookingId.slice(0, 8)}...
-                    <ExternalLink className="h-3 w-3" />
-                  </Link>
+                  <div className="flex items-center gap-1.5">
+                    <CopyChip value={selectedPayment.bookingId} displayValue={`${selectedPayment.bookingId.slice(0, 8)}...`} label="Booking ID" />
+                    <Link
+                      href={`/admin/dashboard/bookings?search=${selectedPayment.bookingId}`}
+                      className="text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
+                      title={t("viewBooking")}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1310,22 +1750,38 @@ export default function FinancePage() {
         <SheetContent side="right" className="sm:max-w-md overflow-y-auto p-0">
           {selectedEscrow && (
             <div className="space-y-6 p-6">
-              <SheetHeader className="p-0 border-b border-border pb-4">
-                <div className="flex items-center justify-between">
+              <SheetHeader className="p-0 border-b border-border pb-4 pr-10">
+                <div className="flex items-center justify-between gap-2">
                   <StatusBadge tone={ESCROW_STATUS_TONE[selectedEscrow.status]}>
                     {ESCROW_STATUS_LABELS[selectedEscrow.status]}
                   </StatusBadge>
-                  <span className="text-xs text-muted-foreground font-mono">
+                  <span className="text-xs text-muted-foreground font-mono flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
                     {formatDate(selectedEscrow.createdAt)}
                   </span>
                 </div>
-                <SheetTitle className="text-lg font-bold mt-2 font-mono">
-                  {t("roomLabel")}: {selectedEscrow.roomId}
-                </SheetTitle>
+                <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <SheetTitle className="text-base font-bold font-mono tracking-tight break-all">
+                    {t("roomLabel")}: {selectedEscrow.roomId}
+                  </SheetTitle>
+                  <CopyChip value={selectedEscrow.roomId} label="Room ID" />
+                </div>
                 <SheetDescription className="text-xs">
                   {t("escrowLedger")}
                 </SheetDescription>
               </SheetHeader>
+
+              {/* Escrow Settlement Lifecycle Stepper */}
+              <EscrowLifecycleStepper
+                status={selectedEscrow.status}
+                paidAt={selectedEscrow.createdAt}
+                settledAt={selectedEscrow.settledAt}
+                amount={selectedEscrow.totalFee}
+                expertPayout={Number((selectedEscrow.totalFee * 0.85).toFixed(0))}
+                currency="RWF"
+                t={t}
+                formatDate={formatDate}
+              />
 
               {/* Escrow Custody Details */}
               <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
@@ -1340,13 +1796,25 @@ export default function FinancePage() {
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-muted-foreground">{t("lawyerWallet")}:</span>
-                  <span className="font-mono font-medium text-foreground">
-                    {selectedEscrow.lawyerWalletPhone || "—"}
-                  </span>
+                  {selectedEscrow.lawyerWalletPhone ? (
+                    <div className="flex items-center gap-1.5">
+                      <CopyChip value={selectedEscrow.lawyerWalletPhone} label="Lawyer Wallet" />
+                      <CarrierBadge phone={selectedEscrow.lawyerWalletPhone} />
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground italic text-[11px]">—</span>
+                  )}
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-muted-foreground">{t("settledAt")}:</span>
-                  <span className="text-foreground">{formatDate(selectedEscrow.settledAt)}</span>
+                  {selectedEscrow.settledAt ? (
+                    <span className="text-foreground font-medium">{formatDate(selectedEscrow.settledAt)}</span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                      <Clock className="h-2.5 w-2.5" />
+                      {t("awaitingConsultationConclusion")}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1388,13 +1856,16 @@ export default function FinancePage() {
               {/* Booking Shortcut */}
               <div className="rounded-xl border border-border p-3.5 flex justify-between items-center text-xs">
                 <span className="text-muted-foreground">{t("booking")}:</span>
-                <Link
-                  href={`/admin/dashboard/bookings?search=${selectedEscrow.bookingId}`}
-                  className="font-mono text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  {selectedEscrow.bookingId}
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
+                <div className="flex items-center gap-1.5">
+                  <CopyChip value={selectedEscrow.bookingId} displayValue={`${selectedEscrow.bookingId.slice(0, 10)}...`} label="Booking ID" />
+                  <Link
+                    href={`/admin/dashboard/bookings?search=${selectedEscrow.bookingId}`}
+                    className="font-mono text-primary hover:underline inline-flex items-center gap-1 text-xs"
+                    title={t("viewBooking")}
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                </div>
               </div>
             </div>
           )}

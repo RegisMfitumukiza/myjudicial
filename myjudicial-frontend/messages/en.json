@@ -334,7 +334,8 @@
       "expiryAfterIssue": "Expiry date must be after the issue date.",
       "optional": "optional",
       "failedToLoadDocument": "Unable to load document preview",
-      "noBarCertificateOnFile": "No Bar Certificate on file"
+      "noBarCertificateOnFile": "No Bar Certificate on file",
+      "draft": "Draft"
     },
     "users": {
       "title": "User Management",
@@ -1297,7 +1298,8 @@
       "cancellationReason": "Cancellation Reason",
       "txRef": "Transaction Ref",
       "allConsultations": "Consultations",
-      "joinedOn": "Member since"
+      "joinedOn": "Member since",
+      "pagination": "Page {page} of {pages}"
     }
   },
   "ai": {

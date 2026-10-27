@@ -521,7 +521,9 @@ export default function AdminClientsPage() {
             <TableSkeleton rows={8} columns={7} />
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* Desktop & Tablet Table (>= md: 768px) */}
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/20">
@@ -656,14 +658,118 @@ export default function AdminClientsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card Stack (< md: 768px) */}
+          <div className="block md:hidden divide-y divide-border">
+            {clients.length === 0 ? (
+              <div className="px-4 py-12 text-center">
+                <EmptyState
+                  icon={Users}
+                  title={t("noClients")}
+                  description={t("noClientsDesc")}
+                />
+              </div>
+            ) : (
+              clients.map((client) => (
+                <div
+                  key={client.id}
+                  className="p-4 space-y-3 cursor-pointer hover:bg-muted/30 transition-colors"
+                  onClick={() => setDetailClientId(client.id)}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <UserAvatar
+                        src={client.avatarUrl}
+                        name={client.fullName}
+                        size="sm"
+                        className="h-10 w-10 text-xs shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground text-sm truncate">{client.fullName}</p>
+                        <p className="text-xs text-muted-foreground truncate">{client.email}</p>
+                        {client.phone && (
+                          <p className="text-[11px] text-muted-foreground truncate">{client.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                    <StatusBadge tone={getStatusTone(client.accountStatus)}>
+                      {t(client.accountStatus.toLowerCase() as any)}
+                    </StatusBadge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/50 text-xs">
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block mb-0.5">
+                        {t("bookings")}
+                      </span>
+                      <span className="font-bold text-foreground text-sm">{client.totalBookings}</span>
+                      <span className="text-[11px] text-muted-foreground ml-1">
+                        ({client.completedBookings} {t("completedBookings").toLowerCase()})
+                      </span>
+                    </div>
+                    <div className="rounded-lg bg-muted/40 p-2.5">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block mb-0.5">
+                        {t("spent")}
+                      </span>
+                      <span className="font-bold text-foreground text-sm">
+                        {formatCurrency(client.totalSpent, client.currency)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                    <span>{t("joined")}: {formatDate(client.createdAt)}</span>
+                    <span>{t("lastBooking")}: {client.lastBookingAt ? formatDate(client.lastBookingAt) : "—"}</span>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-2 pt-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 h-9 text-xs gap-1.5"
+                      onClick={() => setDetailClientId(client.id)}
+                    >
+                      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                      {t("viewDetails")}
+                    </Button>
+                    <Button
+                      variant={client.accountStatus === "ACTIVE" ? "outline" : "default"}
+                      size="sm"
+                      className={`h-9 px-3 text-xs gap-1.5 ${
+                        client.accountStatus === "ACTIVE"
+                          ? "text-destructive hover:bg-destructive/10 border-destructive/30"
+                          : "bg-emerald-600 text-white hover:bg-emerald-700"
+                      }`}
+                      onClick={() => handleOpenStatusModal(client)}
+                    >
+                      {client.accountStatus === "ACTIVE" ? (
+                        <>
+                          <Ban className="h-3.5 w-3.5" />
+                          <span>{t("suspend")}</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          <span>{t("activate")}</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          </>
         )}
 
         {/* Pagination Footer */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4 text-sm">
             <span className="text-muted-foreground text-xs sm:text-sm">
-              {pagination.total} {t("totalClients").toLowerCase()} · Page {page} of{" "}
-              {pagination.totalPages}
+              {pagination.total} {t("totalClients").toLowerCase()} · {t("pagination", { page, pages: pagination.totalPages })}
             </span>
             <div className="flex items-center gap-2">
               <Button

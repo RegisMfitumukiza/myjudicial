@@ -189,7 +189,7 @@ export default function ExpertsPage() {
       case "PENDING_VERIFICATION": return t("pendingReview");
       case "REJECTED":             return t("reject");
       case "SUSPENDED":            return t("suspended");
-      default:                     return "Draft";
+      default:                     return t("draft");
     }
   };
 
@@ -348,7 +348,8 @@ export default function ExpertsPage() {
 
       {/* Table */}
       <Card>
-        <div className="overflow-x-auto">
+        {/* Desktop & Tablet Table (>= md: 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
@@ -505,6 +506,129 @@ export default function ExpertsPage() {
           </table>
         </div>
 
+        {/* Mobile Card Stack (< md: 768px) */}
+        <div className="block md:hidden divide-y divide-border">
+          {isLoading && (
+            <div className="py-12 text-center">
+              <LoadingSpinner />
+            </div>
+          )}
+          {!isLoading && experts.length === 0 && (
+            <EmptyState
+              icon={Inbox}
+              title={t("noExperts")}
+              description=""
+            />
+          )}
+          {experts.map((expert) => {
+            const allSpecialties = Array.from(
+              new Set(
+                [
+                  expert.primarySpecialty,
+                  ...(Array.isArray(expert.specialties) ? expert.specialties : []),
+                ].filter((s): s is LegalSpecialty => Boolean(s))
+              )
+            );
+
+            return (
+              <div key={expert.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <ExpertAvatar
+                      src={expert.profileImageUrl}
+                      name={expert.fullName}
+                      size="sm"
+                      className="h-10 w-10 text-xs shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-sm truncate">{expert.fullName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{expert.email}</p>
+                      {expert.barNumber && (
+                        <p className="text-[11px] font-mono text-muted-foreground mt-0.5">Bar #{expert.barNumber}</p>
+                      )}
+                    </div>
+                  </div>
+                  <StatusBadge tone={expertStatusTone(expert.expertStatus)}>
+                    {expertStatusLabel(expert.expertStatus)}
+                  </StatusBadge>
+                </div>
+
+                {allSpecialties.length > 0 && (
+                  <div className="flex flex-wrap gap-1 items-center pt-1">
+                    {allSpecialties.slice(0, 3).map((s) => (
+                      <span
+                        key={s}
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                          s === expert.primarySpecialty
+                            ? "bg-primary/10 border border-primary/20 text-primary"
+                            : "bg-muted border border-border text-muted-foreground"
+                        }`}
+                      >
+                        {formatSpecialty(s)}
+                      </span>
+                    ))}
+                    {allSpecialties.length > 3 && (
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        +{allSpecialties.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
+                  <div className="flex items-center gap-1.5">
+                    {expert.avgRating != null ? (
+                      <span className="flex items-center gap-1 font-semibold text-foreground">
+                        <Star size={13} className="text-yellow-500 fill-yellow-500" />
+                        <span>{expert.avgRating.toFixed(1)}</span>
+                      </span>
+                    ) : (
+                      <span>&mdash;</span>
+                    )}
+                  </div>
+                  <span>
+                    {t("joined")}: {new Date(expert.createdAt).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  {expert.accountStatus === "SUSPENDED" ? (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => activateMutation.mutate(expert.id)}
+                      disabled={activateMutation.isPending}
+                      className="flex-1 h-9 text-xs gap-1.5 bg-green-600 text-white hover:bg-green-700"
+                    >
+                      <CheckCheck size={14} /> {t("activate")}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => { setSelectedExpert(expert); setShowSuspendModal(true); }}
+                      disabled={suspendMutation.isPending}
+                      className="flex-1 h-9 text-xs gap-1.5"
+                    >
+                      <Ban size={14} /> {t("suspend")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="flex-1 h-9 text-xs gap-1.5"
+                  >
+                    <Link href={`/admin/dashboard/experts/${expert.id}`}>
+                      <Eye size={14} /> {t("view")}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
@@ -565,7 +689,7 @@ export default function ExpertsPage() {
               variant="outline"
               onClick={() => { setShowSuspendModal(false); setSuspendReason(""); setSelectedExpert(null); }}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               variant="destructive"

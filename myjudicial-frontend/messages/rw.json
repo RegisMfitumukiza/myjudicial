@@ -200,7 +200,8 @@
       "expiryAfterIssue": "Itariki yo kurangiriraho igomba kuza nyuma y'itariki cyatangiweho.",
       "optional": "birashoboka",
       "failedToLoadDocument": "Ntabwo byashobotse gufungura inyandiko",
-      "noBarCertificateOnFile": "Nta cyemezo cy'Urugaga rw'Abavoka kirimo"
+      "noBarCertificateOnFile": "Nta cyemezo cy'Urugaga rw'Abavoka kirimo",
+      "draft": "Agateganyo"
     },
     "users": {
       "title": "Kuyoboza abakoresha",
@@ -1163,7 +1164,8 @@
       "cancellationReason": "Impamvu yo guhagarika",
       "txRef": "Nomero y'ubwishyu",
       "allConsultations": "Kugisha inama",
-      "joinedOn": "Yinjiye kuva"
+      "joinedOn": "Yinjiye kuva",
+      "pagination": "Ipaji {page} kuri {pages}"
     }
   },
   "ai": {

@@ -200,7 +200,8 @@
       "expiryAfterIssue": "La date d'expiration doit être postérieure à la date de délivrance.",
       "optional": "facultatif",
       "failedToLoadDocument": "Impossible de charger l'aperçu du document",
-      "noBarCertificateOnFile": "Aucun certificat du Barreau dans le dossier"
+      "noBarCertificateOnFile": "Aucun certificat du Barreau dans le dossier",
+      "draft": "Brouillon"
     },
     "users": {
       "title": "Gestion des utilisateurs",
@@ -1163,7 +1164,8 @@
       "cancellationReason": "Raison de l'annulation",
       "txRef": "Réf. Transaction",
       "allConsultations": "Consultations",
-      "joinedOn": "Membre depuis"
+      "joinedOn": "Membre depuis",
+      "pagination": "Page {page} sur {pages}"
     }
   },
   "ai": {

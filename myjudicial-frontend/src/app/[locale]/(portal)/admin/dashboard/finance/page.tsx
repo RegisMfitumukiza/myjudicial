@@ -997,15 +997,15 @@ export default function FinancePage() {
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            <th className="px-6 py-4">{t("transaction")}</th>
-                            <th className="px-6 py-4">{t("citizen")}</th>
-                            <th className="px-6 py-4">{t("expert")}</th>
-                            <th className="px-6 py-4">{t("amount")}</th>
-                            <th className="px-6 py-4">{t("platformFee")}</th>
-                            <th className="px-6 py-4">{t("expertPayout")}</th>
-                            <th className="px-6 py-4">{t("status")}</th>
-                            <th className="px-6 py-4">{t("paidAt")}</th>
-                            <th className="px-6 py-4 text-right"></th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("transaction")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("citizen")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("expert")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("amount")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">{t("platformFee")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">{t("expertPayout")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("status")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden 2xl:table-cell">{t("paidAt")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 text-right"></th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -1025,8 +1025,8 @@ export default function FinancePage() {
                                 className="group transition-colors hover:bg-muted/50 cursor-pointer"
                                 onClick={() => setSelectedPayment(payment)}
                               >
-                                <td className="px-6 py-4">
-                                  <div className="space-y-0.5">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <div className="space-y-0.5 min-w-0">
                                     <CopyChip value={payment.txRef} label="Transaction Ref" />
                                     <div>
                                       {payment.providerTransactionId ? (
@@ -1043,41 +1043,41 @@ export default function FinancePage() {
                                     </div>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <div>
-                                    <p className="font-medium text-foreground">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <div className="min-w-0">
+                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none">
                                       {payment.citizen.firstName} {payment.citizen.lastName}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">{payment.citizen.email}</p>
+                                    <p className="text-xs text-muted-foreground truncate max-w-[140px] xl:max-w-none">{payment.citizen.email}</p>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <p className="font-medium text-foreground">{payment.expert.displayName}</p>
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none">{payment.expert.displayName}</p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap">
                                   <p className="font-semibold text-foreground">
                                     {formatCurrency(payment.amount, payment.currency)}
                                   </p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap hidden xl:table-cell">
                                   <p className="text-muted-foreground">
                                     {formatCurrency(payment.platformFee, payment.currency)}
                                   </p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap hidden xl:table-cell">
                                   <p className="text-muted-foreground">
                                     {formatCurrency(payment.expertPayout, payment.currency)}
                                   </p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5">
                                   <StatusBadge tone={PAYMENT_STATUS_TONE[payment.status]}>
                                     {PAYMENT_STATUS_LABELS[payment.status]}
                                   </StatusBadge>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap hidden 2xl:table-cell">
                                   <span className="text-xs text-muted-foreground">{formatDate(payment.paidAt)}</span>
                                 </td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-3 xl:px-5 py-3.5 text-right">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1258,15 +1258,15 @@ export default function FinancePage() {
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            <th className="px-6 py-4">{t("roomId")}</th>
-                            <th className="px-6 py-4">{t("booking")}</th>
-                            <th className="px-6 py-4">{t("citizen")}</th>
-                            <th className="px-6 py-4">{t("expert")}</th>
-                            <th className="px-6 py-4">{t("lawyerWallet")}</th>
-                            <th className="px-6 py-4">{t("amount")}</th>
-                            <th className="px-6 py-4">{t("status")}</th>
-                            <th className="px-6 py-4">{t("settledAt")}</th>
-                            <th className="px-6 py-4 text-right"></th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden 2xl:table-cell">{t("roomId")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">{t("booking")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("citizen")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("expert")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">{t("lawyerWallet")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("amount")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("status")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden 2xl:table-cell">{t("settledAt")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 text-right"></th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -1286,14 +1286,14 @@ export default function FinancePage() {
                                 className="group transition-colors hover:bg-muted/50 cursor-pointer"
                                 onClick={() => setSelectedEscrow(ledger)}
                               >
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 hidden 2xl:table-cell">
                                   <CopyChip
                                     value={ledger.roomId}
                                     displayValue={ledger.roomId.length > 12 ? `${ledger.roomId.slice(0, 10)}...` : ledger.roomId}
                                     label="Room ID"
                                   />
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">
                                   <div className="flex items-center gap-1.5">
                                     <CopyChip
                                       value={ledger.bookingId}
@@ -1310,18 +1310,18 @@ export default function FinancePage() {
                                     </Link>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <div>
-                                    <p className="font-medium text-foreground">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <div className="min-w-0">
+                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none">
                                       {ledger.citizen.firstName} {ledger.citizen.lastName}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">{ledger.citizen.email}</p>
+                                    <p className="text-xs text-muted-foreground truncate max-w-[140px] xl:max-w-none">{ledger.citizen.email}</p>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <p className="font-medium text-foreground">{ledger.expert.displayName}</p>
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none">{ledger.expert.displayName}</p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">
                                   {ledger.lawyerWalletPhone ? (
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       <CopyChip value={ledger.lawyerWalletPhone} label="Lawyer Wallet" />
@@ -1331,15 +1331,15 @@ export default function FinancePage() {
                                     <span className="font-mono text-xs text-muted-foreground italic">—</span>
                                   )}
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap">
                                   <p className="font-semibold text-foreground">{formatCurrency(ledger.totalFee)}</p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5">
                                   <StatusBadge tone={ESCROW_STATUS_TONE[ledger.status]}>
                                     {ESCROW_STATUS_LABELS[ledger.status]}
                                   </StatusBadge>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap hidden 2xl:table-cell">
                                   {ledger.settledAt ? (
                                     <span className="text-xs text-muted-foreground font-mono">{formatDate(ledger.settledAt)}</span>
                                   ) : (
@@ -1349,7 +1349,7 @@ export default function FinancePage() {
                                     </span>
                                   )}
                                 </td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-3 xl:px-5 py-3.5 text-right">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1431,17 +1431,96 @@ export default function FinancePage() {
                   />
                 ) : (
                   <>
-                    <div className="overflow-x-auto">
+                    {/* Mobile / Small Devices Card Stack (< 1024px) */}
+                    <div className="divide-y divide-border lg:hidden">
+                      {failedPayments.length === 0 ? (
+                        <div className="p-6">
+                          <EmptyState
+                            icon={RefreshCw}
+                            title={t("noFailed")}
+                            description={t("allProcessed")}
+                          />
+                        </div>
+                      ) : (
+                        failedPayments.map((payment) => (
+                          <div key={payment.id} className="p-4 space-y-3">
+                            {/* Header: Names + Payout */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-sm text-foreground">
+                                  {payment.citizen.firstName} {payment.citizen.lastName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  to <strong className="text-foreground font-medium">{payment.expert.displayName}</strong>
+                                </p>
+                              </div>
+                              <div className="shrink-0 text-right">
+                                <p className="font-bold text-sm text-foreground">
+                                  {formatCurrency(payment.expertPayout)}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">{t("expertPayout")}</p>
+                              </div>
+                            </div>
+
+                            {/* MoMo / Wallet info */}
+                            <div className="text-xs pt-1 border-t border-border/60">
+                              {payment.expert.payoutPhone || payment.expert.momoNumber ? (
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-mono text-foreground font-medium">
+                                    {payment.expert.payoutPhone || payment.expert.momoNumber}
+                                  </span>
+                                  {payment.expert.isPayoutFallback ? (
+                                    <span className="inline-flex items-center rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                      {t("fallback")}
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                      {payment.expert.payoutProvider || "MTN"}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
+                                  <AlertCircle className="h-3.5 w-3.5" />
+                                  {t("noMoMo")}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Booking + Last Attempt + Retry */}
+                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                              <div className="min-w-0 space-y-0.5">
+                                <CopyChip value={payment.txRef} displayValue={`${payment.txRef.slice(0, 16)}...`} label="TxRef" />
+                                <p className="text-[10px] text-muted-foreground font-mono pl-1">{formatDate(payment.updatedAt)}</p>
+                              </div>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleRetryPayout(payment)}
+                                disabled={(!payment.expert.payoutPhone && !payment.expert.momoNumber) || retryMutation.isPending}
+                                className="h-8 text-xs shrink-0"
+                              >
+                                <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${retryMutation.isPending ? "animate-spin" : ""}`} />
+                                {t("retryPayout")}
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Desktop Full Table (>= 1024px) */}
+                    <div className="hidden lg:block overflow-x-auto">
                       <table className="w-full text-left text-sm">
                         <thead>
                           <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            <th className="px-6 py-4">{t("booking")}</th>
-                            <th className="px-6 py-4">{t("expert")}</th>
-                            <th className="px-6 py-4">{t("citizen")}</th>
-                            <th className="px-6 py-4">{t("expertPayout")}</th>
-                            <th className="px-6 py-4">{t("momoNumber")}</th>
-                            <th className="px-6 py-4">{t("lastAttempt")}</th>
-                            <th className="px-6 py-4 text-right"></th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("booking")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("expert")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("citizen")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("expertPayout")}</th>
+                            <th className="px-3 xl:px-5 py-3.5">{t("momoNumber")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">{t("lastAttempt")}</th>
+                            <th className="px-3 xl:px-5 py-3.5 text-right"></th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -1458,8 +1537,8 @@ export default function FinancePage() {
                           ) : (
                             failedPayments.map((payment) => (
                               <tr key={payment.id} className="transition-colors hover:bg-muted/50">
-                                <td className="px-6 py-4">
-                                  <div className="space-y-0.5">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <div className="space-y-0.5 min-w-0">
                                     <div className="flex items-center gap-1">
                                       <CopyChip
                                         value={payment.bookingId}
@@ -1477,25 +1556,25 @@ export default function FinancePage() {
                                     <CopyChip value={payment.txRef} label="TxRef" className="text-[11px]" />
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <p className="font-medium text-foreground">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none">
                                     {payment.expert.displayName}
                                   </p>
                                 </td>
-                                <td className="px-6 py-4">
-                                  <div>
-                                    <p className="text-foreground">
+                                <td className="px-3 xl:px-5 py-3.5">
+                                  <div className="min-w-0">
+                                    <p className="text-foreground truncate max-w-[130px] xl:max-w-none">
                                       {payment.citizen.firstName} {payment.citizen.lastName}
                                     </p>
-                                    <p className="text-xs text-muted-foreground">{payment.citizen.email}</p>
+                                    <p className="text-xs text-muted-foreground truncate max-w-[130px] xl:max-w-none">{payment.citizen.email}</p>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap">
                                   <p className="font-semibold text-foreground">
                                     {formatCurrency(payment.expertPayout)}
                                   </p>
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5">
                                   {payment.expert.payoutPhone || payment.expert.momoNumber ? (
                                     <div className="flex items-center gap-1.5 flex-wrap">
                                       <span className="font-mono text-xs text-foreground font-medium">
@@ -1518,10 +1597,10 @@ export default function FinancePage() {
                                     </span>
                                   )}
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap hidden xl:table-cell">
                                   <span className="text-xs text-muted-foreground">{formatDate(payment.updatedAt)}</span>
                                 </td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-3 xl:px-5 py-3.5 text-right">
                                   <Button
                                     variant="default"
                                     size="sm"

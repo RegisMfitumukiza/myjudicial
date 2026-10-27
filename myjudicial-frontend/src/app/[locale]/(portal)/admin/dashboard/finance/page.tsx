@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState, useEffect, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   DollarSign,
   TrendingUp,
@@ -63,10 +64,12 @@ import {
   SheetDescription,
 } from "@/shared/components/ui/sheet";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
 
 type PaymentStatus = "PENDING" | "AUTHORIZED" | "PAID" | "FAILED" | "REFUNDED";
 type EscrowStatus = "PENDING" | "LOCKED" | "HELD_IN_ESCROW" | "DISBURSED_TO_EXPERT" | "REFUNDED";
+type FinanceTab = "payments" | "escrow" | "failed";
+const VALID_TABS: FinanceTab[] = ["payments", "escrow", "failed"];
 
 interface FinanceStats {
   revenue: {
@@ -445,14 +448,61 @@ function EscrowLifecycleStepper({
   );
 }
 
-export default function FinancePage() {
+function FinancePageContent() {
   const t = useTranslations("admin.finance");
   const locale = useLocale();
   const queryClient = useQueryClient();
   const { isBookingFirst } = usePaymentMode();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
+
+  const urlTab = searchParams.get("tab") as FinanceTab | null;
+  const initialTab: FinanceTab =
+    urlTab && VALID_TABS.includes(urlTab)
+      ? urlTab
+      : "payments";
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"payments" | "escrow" | "failed">("payments");
+  const [activeTab, setActiveTab] = useState<FinanceTab>(initialTab);
+
+  // Sync state when URL tab changes or restore from localStorage on direct visit
+  useEffect(() => {
+    if (urlTab && VALID_TABS.includes(urlTab)) {
+      setActiveTab(urlTab);
+    } else {
+      try {
+        const savedTab = localStorage.getItem("admin_finance_tab") as FinanceTab | null;
+        if (savedTab && VALID_TABS.includes(savedTab) && savedTab !== "payments") {
+          setActiveTab(savedTab);
+          const params = new URLSearchParams(searchParams.toString());
+          params.set("tab", savedTab);
+          const qs = params.toString();
+          router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+        }
+      } catch {}
+    }
+  }, [urlTab, pathname, router, searchParams]);
+
+  const handleTabChange = (newTab: string) => {
+    const validTab = (VALID_TABS.includes(newTab as FinanceTab) ? newTab : "payments") as FinanceTab;
+    setActiveTab(validTab);
+    try {
+      localStorage.setItem("admin_finance_tab", validTab);
+    } catch {}
+
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (validTab === "payments") {
+        params.delete("tab");
+      } else {
+        params.set("tab", validTab);
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
+  };
 
   // Payments Tab State
   const [paymentsPage, setPaymentsPage] = useState(1);
@@ -810,9 +860,7 @@ export default function FinancePage() {
       {/* Tabs */}
       <Tabs
         value={activeTab}
-        onValueChange={(v) => {
-          setActiveTab(v as "payments" | "escrow" | "failed");
-        }}
+        onValueChange={handleTabChange}
       >
         <TabsList variant="line" className="w-full justify-start overflow-x-auto scrollbar-none border-b border-border">
           <TabsTrigger value="payments">{t("allPayments")}</TabsTrigger>
@@ -2020,5 +2068,19 @@ export default function FinancePage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function FinancePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+          <LoadingSpinner />
+        </div>
+      }
+    >
+      <FinancePageContent />
+    </Suspense>
   );
 }

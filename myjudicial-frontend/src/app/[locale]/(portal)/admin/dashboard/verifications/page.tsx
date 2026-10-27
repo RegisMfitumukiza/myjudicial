@@ -165,7 +165,8 @@ export default function AdminVerificationsPage() {
       ) : (
         <Card>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* Desktop & Tablet Table (>= md: 768px) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/50 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -244,6 +245,77 @@ export default function AdminVerificationsPage() {
                 })}
               </tbody>
             </table>
+            </div>
+
+            {/* Mobile Card Stack (< md: 768px) */}
+            <div className="block md:hidden divide-y divide-border">
+              {records.map((record) => {
+                const allReady = allRequiredDocsSubmitted(record);
+                const missing = getMissingRequiredDocs(record);
+                const submittedCount = [
+                  record.identityDocumentObjectKey,
+                  record.barCertificateObjectKey,
+                  ...record.additionalDocumentKeys,
+                ].filter(Boolean).length;
+
+                return (
+                  <div key={record.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <ExpertAvatar
+                          src={record.expert.profileImageUrl}
+                          name={record.expert.displayName}
+                          size="sm"
+                          className="h-10 w-10 shrink-0 text-xs"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground text-sm truncate">
+                            {record.expert.displayName}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {record.expert.user.email}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground/80 truncate">
+                            {record.expert.primarySpecialty.replace(/_/g, " ")}
+                          </p>
+                        </div>
+                      </div>
+                      <StatusBadge tone={STATUS_TONE[record.status] ?? "neutral"}>
+                        {STATUS_LABEL[record.status] ?? record.status}
+                      </StatusBadge>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
+                      <div>
+                        {allReady ? (
+                          <span className="inline-flex items-center gap-1 font-medium text-primary text-[11px]">
+                            <CheckCircle size={12} /> {submittedCount} {t("submitted").toLowerCase()}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 font-medium text-warning text-[11px]">
+                            <AlertTriangle size={12} /> {tExp("missing")}: {missing.join(", ")}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-muted-foreground">
+                        {new Date(record.createdAt).toLocaleDateString(locale, {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    <div className="pt-1">
+                      <Button variant="outline" size="sm" className="w-full h-9 text-xs gap-1.5" asChild>
+                        <Link href={`/admin/dashboard/experts/${record.expert.user?.id || record.expert.id}`}>
+                          <Eye size={13} /> {t("review")}
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

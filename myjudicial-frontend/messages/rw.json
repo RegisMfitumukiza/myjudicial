@@ -623,7 +623,13 @@
       "noReviews": "Nta vyerekezo vabonetse.",
       "loading": "Birimo gukora ivyerekezo...",
       "failedToLoad": "Kubura gukora ivyerekezo",
-      "unknownError": "Hariho ikibazo kitazwi"
+      "unknownError": "Hariho ikibazo kitazwi",
+      "published": "Byasohotse",
+      "flagged": "Byatanzweho raporo",
+      "removed": "Byasibwe",
+      "advocate": "Umwunganizi",
+      "moderateSuccess": "Imimerere yo kugenzura ivuguruwe neza",
+      "moderateFailed": "Kuvugurura imimerere yo kugenzura byanze"
     },
     "finance": {
       "title": "Amahera n'Iwishyura",
@@ -5621,7 +5627,9 @@
     "yesterday": "Yesterday",
     "daysAgo": "{days} days ago",
     "weeksAgo": "{weeks} weeks ago",
-    "monitorSubtitle": "Gukurikirana ibitekerezo by'inzobere muri Rwanda hose"
+    "monitorSubtitle": "Gukurikirana ibitekerezo by'inzobere muri Rwanda hose",
+    "satisfactionRate": "Ijanisha ryo kunyurwa",
+    "satisfactionSubtext": "Amanota ya 4★ & 5★"
   },
   "expertDashboard_schedulesettings": {
     "settingsUpdatedSuccess": "Schedule settings updated successfully",

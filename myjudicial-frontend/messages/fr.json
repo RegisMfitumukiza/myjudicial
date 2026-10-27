@@ -623,7 +623,13 @@
       "noReviews": "Aucun avis trouvé.",
       "loading": "Chargement des avis...",
       "failedToLoad": "Échec du chargement des avis",
-      "unknownError": "Une erreur inconnue s'est produite"
+      "unknownError": "Une erreur inconnue s'est produite",
+      "published": "Publié",
+      "flagged": "Signalé",
+      "removed": "Supprimé",
+      "advocate": "Avocat",
+      "moderateSuccess": "Statut de modération de l'avis mis à jour avec succès",
+      "moderateFailed": "Échec de la mise à jour de la modération de l'avis"
     },
     "finance": {
       "title": "Finance et paiements",
@@ -5621,7 +5627,9 @@
     "yesterday": "Yesterday",
     "daysAgo": "{days} days ago",
     "weeksAgo": "{weeks} weeks ago",
-    "monitorSubtitle": "Surveiller les avis d'experts à travers le Rwanda"
+    "monitorSubtitle": "Surveiller les avis d'experts à travers le Rwanda",
+    "satisfactionRate": "Taux de satisfaction",
+    "satisfactionSubtext": "Avis 4★ & 5★"
   },
   "expertDashboard_schedulesettings": {
     "settingsUpdatedSuccess": "Schedule settings updated successfully",

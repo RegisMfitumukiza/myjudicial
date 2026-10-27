@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Star, ChevronDown, TrendingUp, MessageSquare, Calendar, Filter, Reply, Send, Trash2, Pencil, X, Check, Loader2 } from "lucide-react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -169,6 +169,13 @@ export default function ReviewsPage() {
     ? Math.max(distribution["1"], distribution["2"], distribution["3"], distribution["4"], distribution["5"], 1)
     : 1;
 
+  const satisfactionRate = useMemo(() => {
+    if (!summary || summary.totalReviews === 0) return 100;
+    const fourStar = distribution ? Number(distribution["4"] || 0) : 0;
+    const fiveStar = distribution ? Number(distribution["5"] || 0) : 0;
+    return Math.round(((fourStar + fiveStar) / summary.totalReviews) * 100);
+  }, [summary, distribution]);
+
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
       <PageHeader
@@ -225,11 +232,11 @@ export default function ReviewsPage() {
               <TrendingUp className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-lg font-semibold tabular-nums text-foreground">+12%</p>
-              <p className="text-xs text-muted-foreground">{t("vsLastMonth")}</p>
+              <p className="text-lg font-semibold tabular-nums text-foreground">{satisfactionRate}%</p>
+              <p className="text-xs text-muted-foreground">{t("satisfactionSubtext")}</p>
             </div>
           </div>
-          <p className="mt-3 text-sm font-medium text-muted-foreground">{t("ratingImprovement")}</p>
+          <p className="mt-3 text-sm font-medium text-muted-foreground">{t("satisfactionRate")}</p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">

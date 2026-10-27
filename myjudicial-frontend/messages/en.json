@@ -757,7 +757,13 @@
       "noReviews": "No reviews found.",
       "loading": "Loading reviews...",
       "failedToLoad": "Failed to load reviews",
-      "unknownError": "Unknown error occurred"
+      "unknownError": "Unknown error occurred",
+      "published": "Published",
+      "flagged": "Flagged",
+      "removed": "Removed",
+      "advocate": "Advocate",
+      "moderateSuccess": "Review moderation status updated successfully",
+      "moderateFailed": "Failed to update review moderation status"
     },
     "finance": {
       "title": "Finance & Payments",
@@ -3620,7 +3626,9 @@
     "yesterday": "Yesterday",
     "daysAgo": "{days} days ago",
     "weeksAgo": "{weeks} weeks ago",
-    "monitorSubtitle": "Monitor expert reviews from across Rwanda"
+    "monitorSubtitle": "Monitor expert reviews from across Rwanda",
+    "satisfactionRate": "Satisfaction Rate",
+    "satisfactionSubtext": "4★ & 5★ reviews"
   },
   "expertDashboard_schedulesettings": {
     "settingsUpdatedSuccess": "Schedule settings updated successfully",

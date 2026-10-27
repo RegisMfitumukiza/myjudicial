@@ -7,10 +7,18 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
+  CheckCircle2,
+  Calendar,
+  User,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
+import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { ExpertAvatar, UserAvatar } from "@/shared/components/expert-avatar";
@@ -31,12 +39,19 @@ import {
   ErrorState,
 } from "@/shared/components/dashboard";
 
-type ReviewStatus = "ALL" | "APPROVED" | "PENDING" | "HIDDEN";
+type ReviewStatus = "ALL" | "PUBLISHED" | "PENDING" | "FLAGGED" | "HIDDEN";
 
 interface ReviewStats {
   totalReviews: number;
   averageRating: number | null;
   pendingReports: number;
+  byStatus?: {
+    published: number;
+    pending: number;
+    hidden: number;
+    flagged: number;
+    removed: number;
+  };
 }
 
 interface Review {
@@ -46,15 +61,19 @@ interface Review {
   expertAvatarUrl?: string | null;
   clientAvatarUrl?: string | null;
   rating: number;
-  comment: string;
+  comment?: string | null;
   createdAt: string;
   status: string;
+  isFlagged?: boolean;
 }
 
 const STATUS_TONE: Record<string, "success" | "pending" | "destructive" | "neutral"> = {
+  PUBLISHED: "success",
   APPROVED: "success",
   PENDING: "pending",
-  HIDDEN: "destructive",
+  FLAGGED: "destructive",
+  HIDDEN: "neutral",
+  REMOVED: "destructive",
 };
 
 export default function ReviewsPage() {
@@ -65,9 +84,12 @@ export default function ReviewsPage() {
   const [statusFilter, setStatusFilter] = useState<ReviewStatus>("ALL");
 
   const STATUS_LABEL: Record<string, string> = {
-    APPROVED: t("approved"),
+    PUBLISHED: t("published"),
+    APPROVED: t("published"),
     PENDING: t("pending"),
+    FLAGGED: t("flagged"),
     HIDDEN: t("hidden"),
+    REMOVED: t("removed"),
   };
 
   const formatDate = (dateString: string) => {
@@ -102,11 +124,15 @@ export default function ReviewsPage() {
   });
 
   const moderateMutation = useMutation({
-    mutationFn: ({ id, action }: { id: string; action: "APPROVE" | "HIDE" }) =>
-      apiFetch(`/admin/reviews/${id}/moderate`, { method: "PATCH", body: { action } }),
+    mutationFn: ({ id, status }: { id: string; status: "PUBLISHED" | "HIDDEN" }) =>
+      apiFetch(`/admin/reviews/${id}/moderate`, { method: "PATCH", body: { status } }),
     onSuccess: () => {
+      toast.success(t("moderateSuccess"));
       queryClient.invalidateQueries({ queryKey: ["admin-reviews"] });
       queryClient.invalidateQueries({ queryKey: ["admin-reviews-stats"] });
+    },
+    onError: () => {
+      toast.error(t("moderateFailed"));
     },
   });
 
@@ -178,31 +204,42 @@ export default function ReviewsPage() {
         </div>
       )}
 
+      {/* Filter Toolbar */}
       <Card>
-        <CardContent>
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => {
-              setStatusFilter(v as ReviewStatus);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder={t("allStatus")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">{t("allStatus")}</SelectItem>
-              <SelectItem value="APPROVED">{t("approved")}</SelectItem>
-              <SelectItem value="PENDING">{t("pending")}</SelectItem>
-              <SelectItem value="HIDDEN">{t("hidden")}</SelectItem>
-            </SelectContent>
-          </Select>
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Filter size={15} className="text-muted-foreground shrink-0" />
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => {
+                  setStatusFilter(v as ReviewStatus);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-full sm:w-[220px]">
+                  <SelectValue placeholder={t("allStatus")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">{t("allStatus")}</SelectItem>
+                  <SelectItem value="PUBLISHED">{t("published")}</SelectItem>
+                  <SelectItem value="PENDING">{t("pending")}</SelectItem>
+                  <SelectItem value="FLAGGED">{t("flagged")}</SelectItem>
+                  <SelectItem value="HIDDEN">{t("hidden")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {pagination ? `${reviews.length} / ${pagination.total} ${t("title").toLowerCase()}` : ""}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          {/* Desktop & Tablet Table (>= md: 768px) */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -228,25 +265,25 @@ export default function ReviewsPage() {
                   reviews.map((review) => (
                     <tr key={review.id} className="transition-colors hover:bg-muted/50">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                           <ExpertAvatar
                             src={review.expertAvatarUrl}
                             name={review.expertName ?? "Expert"}
                             size="xs"
                             className="h-8 w-8 text-xs shrink-0"
                           />
-                          <p className="font-medium text-foreground">{review.expertName ?? "Expert"}</p>
+                          <p className="font-semibold text-foreground text-sm">{review.expertName ?? "Expert"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                           <UserAvatar
                             src={review.clientAvatarUrl}
                             name={review.clientName ?? "Client"}
                             size="xs"
                             className="h-8 w-8 text-xs shrink-0"
                           />
-                          <p className="font-medium text-foreground">{review.clientName ?? "Client"}</p>
+                          <p className="font-medium text-foreground text-sm">{review.clientName ?? "Client"}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -258,16 +295,16 @@ export default function ReviewsPage() {
                               className={s <= Number(review.rating || 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}
                             />
                           ))}
-                          <span className="ml-1 text-xs text-muted-foreground">{review.rating}</span>
+                          <span className="ml-1 text-xs font-bold text-foreground">{review.rating}.0</span>
                         </div>
                         {review.comment && (
-                          <p className="mt-1 max-w-xs truncate text-xs text-muted-foreground" title={review.comment}>
-                            {review.comment}
+                          <p className="mt-1.5 max-w-sm text-xs text-muted-foreground line-clamp-2" title={review.comment}>
+                            &ldquo;{review.comment}&rdquo;
                           </p>
                         )}
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-foreground">{formatDate(review.createdAt)}</span>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-foreground text-xs">{formatDate(review.createdAt)}</span>
                       </td>
                       <td className="px-6 py-4">
                         <StatusBadge tone={STATUS_TONE[review.status] ?? "neutral"}>
@@ -276,14 +313,15 @@ export default function ReviewsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {review.status !== "APPROVED" && (
+                          {review.status !== "PUBLISHED" && review.status !== "APPROVED" && (
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => moderateMutation.mutate({ id: review.id, action: "APPROVE" })}
+                              className="h-8 text-xs gap-1.5 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                              onClick={() => moderateMutation.mutate({ id: review.id, status: "PUBLISHED" })}
                               disabled={moderateMutation.isPending}
                             >
-                              <Eye size={14} />
+                              <Eye size={13} />
                               {t("approve")}
                             </Button>
                           )}
@@ -291,10 +329,11 @@ export default function ReviewsPage() {
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => moderateMutation.mutate({ id: review.id, action: "HIDE" })}
+                              className="h-8 text-xs gap-1.5"
+                              onClick={() => moderateMutation.mutate({ id: review.id, status: "HIDDEN" })}
                               disabled={moderateMutation.isPending}
                             >
-                              <EyeOff size={14} />
+                              <EyeOff size={13} />
                               {t("hide")}
                             </Button>
                           )}
@@ -306,28 +345,116 @@ export default function ReviewsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card Stack (< md: 768px) */}
+          <div className="block md:hidden divide-y divide-border">
+            {reviews.length === 0 ? (
+              <EmptyState
+                icon={MessageSquare}
+                title={t("noReviews")}
+              />
+            ) : (
+              reviews.map((review) => (
+                <div key={review.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <ExpertAvatar
+                        src={review.expertAvatarUrl}
+                        name={review.expertName ?? "Expert"}
+                        size="xs"
+                        className="h-9 w-9 text-xs shrink-0"
+                      />
+                      <div>
+                        <p className="font-semibold text-foreground text-sm">{review.expertName ?? "Expert"}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                          <User size={12} className="shrink-0" />
+                          <span>{review.clientName ?? "Client"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <StatusBadge tone={STATUS_TONE[review.status] ?? "neutral"}>
+                      {STATUS_LABEL[review.status] ?? review.status}
+                    </StatusBadge>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          size={13}
+                          className={s <= Number(review.rating || 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}
+                        />
+                      ))}
+                      <span className="ml-1 font-bold text-foreground">{review.rating}.0</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar size={12} />
+                      <span>{formatDate(review.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  {review.comment && (
+                    <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground leading-relaxed italic border border-border/50">
+                      &ldquo;{review.comment}&rdquo;
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 pt-1">
+                    {review.status !== "PUBLISHED" && review.status !== "APPROVED" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 h-9 text-xs gap-1.5 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/40"
+                        onClick={() => moderateMutation.mutate({ id: review.id, status: "PUBLISHED" })}
+                        disabled={moderateMutation.isPending}
+                      >
+                        <Eye size={13} />
+                        {t("approve")}
+                      </Button>
+                    )}
+                    {review.status !== "HIDDEN" && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="flex-1 h-9 text-xs gap-1.5"
+                        onClick={() => moderateMutation.mutate({ id: review.id, status: "HIDDEN" })}
+                        disabled={moderateMutation.isPending}
+                      >
+                        <EyeOff size={13} />
+                        {t("hide")}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
+
         {pagination && pagination.totalPages > 1 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 sm:px-6 py-4">
-            <p className="text-sm text-muted-foreground">
-              {pagination.page} / {pagination.totalPages} ({(pagination.total ?? 0).toLocaleString(locale)})
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              {pagination.page} / {pagination.totalPages} ({(pagination.total ?? 0).toLocaleString(locale)} {t("title").toLowerCase()})
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
+                className="h-8 px-3 gap-1 text-xs"
                 onClick={() => setPage(page - 1)}
                 disabled={page === 1}
               >
-                ←
+                <ChevronLeft size={14} />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                className="h-8 px-3 gap-1 text-xs"
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
               >
-                →
+                <ChevronRight size={14} />
               </Button>
             </div>
           </div>

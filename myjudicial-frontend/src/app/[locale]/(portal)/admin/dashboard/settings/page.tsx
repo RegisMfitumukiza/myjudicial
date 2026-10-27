@@ -118,8 +118,7 @@ function SettingsContent() {
               className="flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all shrink-0"
             >
               <Cog size={14} className="shrink-0" />
-              <span className="hidden min-[480px]:inline">{t("tabGeneral")}</span>
-              <span className="min-[480px]:hidden">Platform</span>
+              <span>{t("tabGeneral")}</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -127,8 +126,7 @@ function SettingsContent() {
               className="flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all shrink-0"
             >
               <Info size={14} className="shrink-0" />
-              <span className="hidden min-[480px]:inline">{t("tabAbout")}</span>
-              <span className="min-[480px]:hidden">About</span>
+              <span>{t("tabAbout")}</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -136,8 +134,7 @@ function SettingsContent() {
               className="flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all shrink-0"
             >
               <Briefcase size={14} className="shrink-0" />
-              <span className="hidden min-[480px]:inline">{t("tabCareers")}</span>
-              <span className="min-[480px]:hidden">Careers</span>
+              <span>{t("tabCareers")}</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -145,8 +142,7 @@ function SettingsContent() {
               className="flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all shrink-0"
             >
               <ShieldCheck size={14} className="shrink-0" />
-              <span className="hidden min-[480px]:inline">{t("tabLegal")}</span>
-              <span className="min-[480px]:hidden">Legal</span>
+              <span>{t("tabLegal")}</span>
             </TabsTrigger>
           </TabsList>
         </div>

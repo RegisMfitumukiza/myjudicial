@@ -26,7 +26,6 @@ import {
   Info,
   Minimize2,
   PictureInPicture2,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoomConnection, MAX_REJOIN_ATTEMPTS } from "../hooks/useRoomConnection";

@@ -10,7 +10,6 @@ import {
   AlertCircle,
   CheckCircle,
   Lock,
-  Plus,
 } from "lucide-react";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
@@ -118,9 +117,9 @@ export function InRoomDocumentsPanel({
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 4000);
       await fetchDocuments();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("File upload failed:", err);
-      setUploadError(err?.message || "Failed to upload document");
+      setUploadError(err instanceof Error ? err.message : "Failed to upload document");
     } finally {
       setIsUploading(false);
       setUploadProgress(null);

@@ -4,13 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Send,
   Loader2,
-  Paperclip,
   X,
   FileText,
   Download,
   AlertCircle,
   Clock,
-  Check,
 } from "lucide-react";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { useAuth } from "@/providers/auth-provider";
@@ -82,10 +80,10 @@ export function InRoomChatPanel({
         if (!cancelled && res?.data?.id) {
           setConversationId(res.data.id);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
           console.error("Failed to resolve conversation for booking:", err);
-          setError(err?.message || "Failed to load chat conversation");
+          setError(err instanceof Error ? err.message : "Failed to load chat conversation");
         }
       } finally {
         if (!cancelled) {
@@ -112,6 +110,7 @@ export function InRoomChatPanel({
         const sorted = [...res.data.messages].reverse();
         setMessages(sorted);
         // Mark read
+        onUnreadChange?.(0);
         apiFetch("/chat/messages/read", {
           method: "POST",
           body: { conversationId },
@@ -120,7 +119,7 @@ export function InRoomChatPanel({
     } catch (err) {
       console.error("Failed to fetch messages:", err);
     }
-  }, [conversationId]);
+  }, [conversationId, onUnreadChange]);
 
   useEffect(() => {
     if (conversationId) {
@@ -197,7 +196,7 @@ export function InRoomChatPanel({
       setMessages((prev) =>
         prev.map((m) => (m.id === tempId ? { ...res.data, status: "SENT" } : m))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to send message:", err);
       setMessages((prev) =>
         prev.map((m) => (m.id === tempId ? { ...m, status: "FAILED" } : m))

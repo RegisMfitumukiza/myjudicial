@@ -7,10 +7,7 @@ import {
   User,
   Shield,
   FileText,
-  Sparkles,
   X,
-  MapPin,
-  CheckCircle,
 } from "lucide-react";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { useTranslations, useLocale } from "next-intl";

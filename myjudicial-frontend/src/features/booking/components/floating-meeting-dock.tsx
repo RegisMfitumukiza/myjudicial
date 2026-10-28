@@ -9,9 +9,7 @@ import {
   Maximize2,
   PhoneOff,
   PictureInPicture2,
-  Clock,
   Loader2,
-  Shield,
 } from "lucide-react";
 import { useActiveConsultation } from "../context/active-consultation-context";
 import { usePathname, useRouter } from "@/i18n/routing";

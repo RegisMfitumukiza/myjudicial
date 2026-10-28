@@ -194,14 +194,9 @@ export function ActiveConsultationProvider({
       durationTimerRef.current = setInterval(() => {
         setCallDurationSeconds((prev) => prev + 1);
       }, 1000);
-    } else {
-      if (durationTimerRef.current) {
-        clearInterval(durationTimerRef.current);
-        durationTimerRef.current = null;
-      }
-      if (status === "idle") {
-        setCallDurationSeconds(0);
-      }
+    } else if (durationTimerRef.current) {
+      clearInterval(durationTimerRef.current);
+      durationTimerRef.current = null;
     }
     return () => {
       if (durationTimerRef.current) {
@@ -266,6 +261,8 @@ export function ActiveConsultationProvider({
   }, [room]);
 
   // Join Call
+  const joinCallRef = useRef<((bookingId: string) => Promise<void>) | null>(null);
+
   const joinCall = useCallback(
     async (bookingId: string) => {
       // If already connected to this same booking, just un-minimize
@@ -294,7 +291,7 @@ export function ActiveConsultationProvider({
           rejoinCountRef.current += 1;
           setRejoinAttempt(rejoinCountRef.current);
           rejoinTimerRef.current = setTimeout(() => {
-            void joinCall(bookingId).catch(() => {});
+            void joinCallRef.current?.(bookingId).catch(() => {});
           }, REJOIN_DELAY_MS);
         } else {
           setError("connectionLost");
@@ -349,6 +346,10 @@ export function ActiveConsultationProvider({
     },
     [activeBookingId, getLocalTracks, joinConsultation, status, updateParticipants]
   );
+
+  useEffect(() => {
+    joinCallRef.current = joinCall;
+  }, [joinCall]);
 
   // Leave Call
   const leaveCall = useCallback(() => {

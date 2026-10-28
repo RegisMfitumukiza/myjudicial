@@ -181,16 +181,19 @@ describe("Video Consultation Flow — Lifecycle, Privacy, and Device Guard Tests
     ];
 
     it("ensures all required room keys exist in EN, FR, and RW", () => {
+      const enRoom = en["expertDashboard_consultation-room"] as Record<string, string>;
+      const frRoom = fr["expertDashboard_consultation-room"] as Record<string, string>;
+      const rwRoom = rw["expertDashboard_consultation-room"] as Record<string, string>;
       for (const key of requiredRoomKeys) {
-        expect((en as any)["expertDashboard_consultation-room"][key], `EN missing ${key}`).toBeDefined();
-        expect((fr as any)["expertDashboard_consultation-room"][key], `FR missing ${key}`).toBeDefined();
-        expect((rw as any)["expertDashboard_consultation-room"][key], `RW missing ${key}`).toBeDefined();
+        expect(enRoom[key], `EN missing ${key}`).toBeDefined();
+        expect(frRoom[key], `FR missing ${key}`).toBeDefined();
+        expect(rwRoom[key], `RW missing ${key}`).toBeDefined();
       }
     });
 
     it("verifies French and Kinyarwanda have authentic translations rather than English fallbacks", () => {
-      const frRoom = (fr as any)["expertDashboard_consultation-room"];
-      const rwRoom = (rw as any)["expertDashboard_consultation-room"];
+      const frRoom = fr["expertDashboard_consultation-room"] as Record<string, string>;
+      const rwRoom = rw["expertDashboard_consultation-room"] as Record<string, string>;
 
       expect(frRoom.connectingToConsultation).toBe("Connexion à la consultation...");
       expect(frRoom.leaveConfirmTitle).toBe("Quitter la consultation ?");
@@ -262,16 +265,19 @@ describe("Video Consultation Flow — Lifecycle, Privacy, and Device Guard Tests
     ];
 
     it("ensures all collaboration and multitasking keys exist in EN, FR, and RW", () => {
+      const enRoom = en["expertDashboard_consultation-room"] as Record<string, string>;
+      const frRoom = fr["expertDashboard_consultation-room"] as Record<string, string>;
+      const rwRoom = rw["expertDashboard_consultation-room"] as Record<string, string>;
       for (const key of requiredCollaborationKeys) {
-        expect((en as any)["expertDashboard_consultation-room"][key], `EN missing ${key}`).toBeDefined();
-        expect((fr as any)["expertDashboard_consultation-room"][key], `FR missing ${key}`).toBeDefined();
-        expect((rw as any)["expertDashboard_consultation-room"][key], `RW missing ${key}`).toBeDefined();
+        expect(enRoom[key], `EN missing ${key}`).toBeDefined();
+        expect(frRoom[key], `FR missing ${key}`).toBeDefined();
+        expect(rwRoom[key], `RW missing ${key}`).toBeDefined();
       }
     });
 
     it("verifies authentic translations for in-room collaboration in FR and RW", () => {
-      const frRoom = (fr as any)["expertDashboard_consultation-room"];
-      const rwRoom = (rw as any)["expertDashboard_consultation-room"];
+      const frRoom = fr["expertDashboard_consultation-room"] as Record<string, string>;
+      const rwRoom = rw["expertDashboard_consultation-room"] as Record<string, string>;
 
       expect(frRoom.inRoomChatTitle).toBe("Chat de Consultation");
       expect(frRoom.inRoomDocumentsTitle).toBe("Documents de la Consultation");
@@ -338,8 +344,8 @@ describe("Video Consultation Flow — Lifecycle, Privacy, and Device Guard Tests
 
     it("preserves ACTIVE consultation and escrow lock during navigation and minimization", () => {
       // Invariant: navigating to dashboard or minimizing call must NEVER mutate booking status to COMPLETED or refund escrow
-      let bookingStatus = "ACTIVE";
-      let escrowHeld = true;
+      const bookingStatus = "ACTIVE";
+      const escrowHeld = true;
 
       // Simulate route navigation to /client/dashboard/documents
       const onNavigateAway = () => {

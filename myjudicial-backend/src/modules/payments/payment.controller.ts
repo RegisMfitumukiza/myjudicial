@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import crypto from "crypto";
-import { EscrowService } from "./escrow.service.js";
+import { EscrowService, normalizeAndClassifyAzamWebhook } from "./escrow.service.js";
 import { AzamPayService } from "./azam.service.js";
 import { logger } from "../../shared/utils/logger.js";
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
@@ -9,37 +9,43 @@ import { PaymentRepository } from "./payment.repository.js";
 import { BookingRepository } from "../bookings/booking.repository.js";
 
 /**
- * Verifies the shared secret token passed by AzamPay on the webhook callback URL
- * (`?token=<secret>`) or via an `X-Webhook-Token` / `X-Callback-Token` header.
+ * Checks the webhook verification token if one was provided on the URL (`?token=...`)
+ * or header (`X-Webhook-Token` / `X-Callback-Token`).
  *
- * Uses `crypto.timingSafeEqual` to prevent timing oracle attacks.
+ * Returns:
+ *  - `"VALID"`: Token was provided and matches `AZAMPAY_WEBHOOK_TOKEN`.
+ *  - `"MISSING"`: No token was provided in the request (or no secret configured in `.env`).
+ *                 In this case, the controller falls back to Zero-Trust Active Verification
+ *                 by querying AzamPay's authenticated v2 Status API before settling!
+ *  - `"INVALID"`: A token was provided, but it does NOT match `AZAMPAY_WEBHOOK_TOKEN`.
  */
-const verifyWebhookToken = (req: Request): boolean => {
-  const secret = process.env.AZAMPAY_WEBHOOK_TOKEN || process.env.AZAMPAY_WEBHOOK_SECRET;
-  if (!secret) {
-    logger.error("AZAMPAY_WEBHOOK_TOKEN not configured — rejecting webhook");
-    return false;
-  }
+const checkWebhookToken = (req: Request): "VALID" | "MISSING" | "INVALID" => {
+  const secret = (
+    process.env.AZAMPAY_WEBHOOK_TOKEN ||
+    process.env.AZAMPAY_WEBHOOK_SECRET ||
+    ""
+  ).trim();
 
-  const provided =
+  const provided = (
     (typeof req.query.token === "string" ? req.query.token : undefined) ||
     (req.headers["x-webhook-token"] as string | undefined) ||
     (req.headers["x-callback-token"] as string | undefined) ||
-    (req.headers["x-azampay-signature"] as string | undefined);
+    (req.headers["x-azampay-signature"] as string | undefined) ||
+    ""
+  ).trim();
 
-  if (!provided) {
-    logger.warn("AzamPay webhook missing verification token");
-    return false;
+  if (!secret || !provided) {
+    return "MISSING";
   }
 
   const expectedBuf = Buffer.from(secret, "utf8");
   const providedBuf = Buffer.from(provided, "utf8");
 
   if (expectedBuf.length !== providedBuf.length) {
-    return false;
+    return "INVALID";
   }
 
-  return crypto.timingSafeEqual(expectedBuf, providedBuf);
+  return crypto.timingSafeEqual(expectedBuf, providedBuf) ? "VALID" : "INVALID";
 };
 
 /**
@@ -63,8 +69,10 @@ const parseWebhookBody = (body: unknown): Record<string, any> | null => {
 };
 
 const unifiedWebhookHandler = asyncHandler(async (req: Request, res: Response) => {
-  if (!verifyWebhookToken(req)) {
-    logger.warn("Invalid AzamPay webhook token", { ip: req.ip });
+  const tokenState = checkWebhookToken(req);
+
+  if (tokenState === "INVALID") {
+    logger.warn("Invalid AzamPay webhook token provided", { ip: req.ip });
     return res.status(401).json({
       success: false,
       message: "Unauthorized webhook request",
@@ -80,9 +88,42 @@ const unifiedWebhookHandler = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  logger.info("AzamPay unified webhook received", { payload });
+  logger.info("AzamPay unified webhook received", {
+    tokenState,
+    payload,
+  });
 
   try {
+    // If AzamPay called the clean URL (`https://api.myjudicial.com/api/v1/payments/webhook`)
+    // without `?token=...`, we never blindly trust the unauthenticated payload — instead we
+    // verify the transaction directly against AzamPay's authenticated v2 Status API!
+    if (tokenState === "MISSING") {
+      const classified = await normalizeAndClassifyAzamWebhook(payload);
+      const targetRef = classified.referenceId || classified.externalReferenceId || "";
+
+      if (classified.category === "PAYOUT" && classified.referenceId) {
+        const verified = await EscrowService.reconcilePayoutTransfer(classified.referenceId);
+        return res.status(200).json({
+          received: true,
+          verifiedViaApi: true,
+          category: "PAYOUT",
+          outcome: verified.outcome,
+          processed: verified.reconciled,
+        });
+      }
+
+      if (classified.category === "PAYMENT" && targetRef) {
+        const verified = await EscrowService.reconcileBookingPayment(targetRef);
+        return res.status(200).json({
+          received: true,
+          verifiedViaApi: true,
+          category: "PAYMENT",
+          outcome: verified.paymentStatus,
+          processed: verified.reconciled,
+        });
+      }
+    }
+
     const result = await EscrowService.handleUnifiedWebhook(payload);
     return res.status(200).json({
       received: true,

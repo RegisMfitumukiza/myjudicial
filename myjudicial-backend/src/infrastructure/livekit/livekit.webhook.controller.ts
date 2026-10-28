@@ -6,6 +6,7 @@ import { BookingRepository } from "../../modules/bookings/booking.repository.js"
 import { BookingService } from "../../modules/bookings/booking.service.js";
 import { EscrowLedgerRepository } from "../../modules/payments/escrow.repository.js";
 import { AdminSettingService } from "../../modules/settings/admin-setting.service.js";
+import { NotificationRepository } from "../../modules/notifications/notification.repository.js";
 import { prisma } from "../database/prisma.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
 
@@ -148,28 +149,45 @@ export const LiveKitWebhookController = {
           });
 
           const minEscrowSec = await AdminSettingService.get("minEscrowDurationSeconds");
-          const paymentMode = await AdminSettingService.get("paymentMode");
 
-          // NOTE [Consultation Lifecycle & Escrow Settlement Policy]:
-          // For VIDEO consultations, when LiveKit emits room_finished and duration >= minEscrowSec,
-          // the platform automatically transitions the session to completion and releases escrow funds.
-          // By contrast, asynchronous modes (PHONE, IN_PERSON, EMAIL) require the expert to explicitly
-          // invoke `markConsultationDelivered`, starting a 24h client dispute window before auto-release.
-          // Any modification to unify these flows (e.g. requiring explicit delivery summary for VIDEO)
-          // must be coordinated across both product policy and escrow ledger operations.
+          // NOTE [Consultation Lifecycle & Escrow Settlement Policy (OD-02: Unified Delivery Confirmation)]:
+          // In accordance with OD-02, video consultations require explicit delivery confirmation
+          // across all consultation modes. When a video room concludes with duration >= minEscrowSec,
+          // escrow funds are NOT instantly captured or released. Instead, the session transitions to
+          // "Awaiting Delivery" where the expert must record consultation notes (via markConsultationDelivered).
+          // This initiates the standard 24-hour client review and dispute protection window before auto-release.
           if (durationSec >= minEscrowSec) {
-            if (paymentMode === "PAYMENT_REQUIRED" && booking.payment) {
-              // Paid mode: complete and release escrow payout
-              await EscrowService.releaseEscrow(bookingId);
-              logger.info("Escrow released after consultation", { bookingId, durationSec, minEscrowSec });
-            } else {
-              // Booking-first mode: complete booking directly
-              await BookingRepository.update(bookingId, {
-                status: "COMPLETED",
-                completedAt: now,
-              });
-              logger.info("Booking marked COMPLETED after consultation (booking-first)", { bookingId, durationSec });
+            logger.info("Video consultation finished with valid duration; awaiting expert delivery confirmation", {
+              bookingId,
+              durationSec,
+              minEscrowSec,
+            });
+
+            // In-app notification to Expert to submit delivery notes
+            const expertUserId = (booking.expert as any)?.user?.id;
+            const expertEmail = (booking.expert as any)?.user?.email;
+            if (expertUserId) {
+              try {
+                await NotificationRepository.create({
+                  userId: expertUserId,
+                  event: "BOOKING_CONFIRMED",
+                  recipient: expertEmail || "",
+                  subject: "Video consultation completed — please record delivery",
+                  body: `Your video consultation for ${booking.service?.name} has concluded (${durationMin} min). Please submit your delivery notes on the dashboard to initiate the 24-hour review window and release escrow funds.`,
+                });
+              } catch (notifErr) {
+                logger.error("Failed to notify expert of session completion", { bookingId, notifErr });
+              }
             }
+
+            await writeAuditLog({
+              actorId: booking.citizenId,
+              action: "UPDATE",
+              resource: "BOOKING",
+              resourceId: bookingId,
+              description: `Video room concluded (${durationSec}s). Escrow securely retained in custody. Awaiting expert delivery confirmation and 24h review window.`,
+              metadata: { durationSec, durationMin, minEscrowSec },
+            });
           } else {
             // Shorter than configured minimum -> Call interrupted or dropped early.
             // Do NOT cancel the booking immediately; keep escrow locked and allow reconnection or mutual reschedule.

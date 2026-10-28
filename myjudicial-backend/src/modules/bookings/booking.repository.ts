@@ -236,6 +236,11 @@ export const BookingRepository = {
       autoReleaseAt?: Date | null;
       issueReportedAt?: Date | null;
       issueReason?: string | null;
+      hasRecording?: boolean;
+      recordingObjectKey?: string | null;
+      recordingDurationSec?: number | null;
+      recordingStartedAt?: Date | null;
+      recordingEndedAt?: Date | null;
     },
     tx?: any
   ) => {

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import { authenticate, requireCitizen, requireAdmin } from "../../shared/middleware/authenticate.js";
 import { validate, validateQuery } from "../../shared/middleware/validate.js";
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
@@ -158,6 +159,26 @@ router.post(
   authenticate,
   validate(reportIssueSchema),
   asyncHandler(BookingController.reportConsultationIssue)
+);
+
+const recordingUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 100 * 1024 * 1024, files: 1 },
+}).single("recording");
+
+// OD-01: Upload consultation video recording evidence
+router.post(
+  "/:id/recording/evidence",
+  authenticate,
+  recordingUpload,
+  asyncHandler(BookingController.uploadRecordingEvidence)
+);
+
+// OD-01: Get consultation video recording evidence metadata & signed download URL
+router.get(
+  "/:id/recording",
+  authenticate,
+  asyncHandler(BookingController.getRecordingEvidence)
 );
 
 export default router;

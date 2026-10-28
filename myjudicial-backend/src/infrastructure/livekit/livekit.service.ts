@@ -72,7 +72,7 @@ export const LiveKitService = {
       // Experts can mute participants; citizens cannot
       canPublishSources: undefined,
       hidden: false,
-      recorder: false,
+      recorder: true, // OD-01: Enabled for consultation evidence recording
       roomAdmin: isExpert,
     });
 

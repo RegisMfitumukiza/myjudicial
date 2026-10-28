@@ -37,7 +37,8 @@ import { NotificationRepository } from "../notifications/notification.repository
 import { ScheduleSettingsRepository } from "../experts/schedule-settings/schedule-settings.repository.js";
 import { OverridesRepository } from "../experts/availability-overrides/overrides.repository.js";
 import type { TimeBlock } from "../experts/availability/time-blocks.types.js";
-import { resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
+import { v4 as uuid } from "uuid";
+import { resolveStorageUrl, uploadObject, getDefaultBucketName, getSignedDownloadUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 
 
 // Fallback buffer time if settings not configured (Phase 1 compatibility)
@@ -1882,5 +1883,108 @@ export const BookingService = {
 
     logger.info("Consultation issue reported by citizen", { bookingId, reason: dto.reason });
     return BookingRepository.findById(bookingId);
+  },
+
+  /**
+   * OD-01: Upload and archive consultation video recording evidence
+   */
+  uploadRecordingEvidence: async (
+    bookingId: string,
+    userId: string,
+    role: string,
+    file: Express.Multer.File,
+    dto: { durationSec?: number }
+  ) => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new NotFoundError(getErrorMessage("BOOKING_NOT_FOUND"));
+
+    const isParticipant =
+      booking.citizenId === userId ||
+      (booking as any).expert?.user?.id === userId ||
+      role === "ADMIN";
+    if (!isParticipant) {
+      throw new AuthorizationError("Only consultation participants or an admin can upload recording evidence");
+    }
+
+    const objectKey = `consultation_evidence/${bookingId}/${uuid()}.webm`;
+    await uploadObject({
+      key: objectKey,
+      body: file.buffer,
+      contentType: file.mimetype || "video/webm",
+      metadata: { bookingId, uploadedBy: userId },
+    });
+
+    // Create Document record
+    await prisma.document.create({
+      data: {
+        ownerId: userId,
+        ownerType: role === "EXPERT" ? "EXPERT" : "USER",
+        bookingId: booking.id,
+        bucketName: getDefaultBucketName(),
+        objectKey,
+        fileName: `consultation_${bookingId}_evidence.webm`,
+        mimeType: file.mimetype || "video/webm",
+        fileSize: file.size,
+        category: "consultation-recording",
+        sensitivity: "CONFIDENTIAL",
+        isVault: false,
+        uploadedById: userId,
+      },
+    });
+
+    const durationSec = dto.durationSec ? Number(dto.durationSec) : undefined;
+
+    const updated = await BookingRepository.update(bookingId, {
+      hasRecording: true,
+      recordingObjectKey: objectKey,
+      recordingDurationSec: durationSec,
+      recordingEndedAt: new Date(),
+    });
+
+    await writeAuditLog({
+      actorId: userId,
+      action: "CREATE",
+      resource: "BOOKING",
+      resourceId: bookingId,
+      description: `Consultation video evidence recorded and archived (${file.size} bytes).`,
+      metadata: { objectKey, durationSec, fileSize: file.size },
+    });
+
+    return updated;
+  },
+
+  /**
+   * OD-01: Get consultation recording evidence metadata and signed URL
+   */
+  getRecordingEvidence: async (bookingId: string, userId: string, role: string) => {
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) throw new NotFoundError(getErrorMessage("BOOKING_NOT_FOUND"));
+
+    const isParticipant =
+      booking.citizenId === userId ||
+      (booking as any).expert?.user?.id === userId ||
+      role === "ADMIN";
+    if (!isParticipant) {
+      throw new AuthorizationError("Only consultation participants or an admin can access recording evidence");
+    }
+
+    if (!booking.hasRecording || !booking.recordingObjectKey) {
+      return { hasRecording: false };
+    }
+
+    let downloadUrl: string | null = null;
+    try {
+      const signed = await getSignedDownloadUrl(booking.recordingObjectKey, 3600);
+      downloadUrl = signed.url;
+    } catch (err) {
+      logger.warn("Failed to generate signed download URL for recording", { bookingId, err });
+    }
+
+    return {
+      hasRecording: true,
+      downloadUrl,
+      durationSec: booking.recordingDurationSec,
+      recordedAt: booking.recordingEndedAt,
+    };
   },
 };

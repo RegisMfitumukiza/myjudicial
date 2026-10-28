@@ -18,10 +18,14 @@ import {
   Monitor,
   MonitorOff,
   Clock,
+  Disc,
+  Shield,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoomConnection, MAX_REJOIN_ATTEMPTS } from "../hooks/useRoomConnection";
 import { useTranslations } from "next-intl";
+import { apiFetch } from "@/lib/api/client";
 
 // How long to wait (ms) before showing the "other participant hasn't joined" message
 const WAITING_TIMEOUT_MS = 3 * 60 * 1000;
@@ -150,7 +154,149 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
   }, [room, status]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── OD-01: Dispute evidence video recording ───────────────────────────────
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [isUploadingRecording, setIsUploadingRecording] = useState(false);
+  const [recordingSaved, setRecordingSaved] = useState(false);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
+  const recordingStartRef = useRef<number | null>(null);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopRecording = useCallback(() => {
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (err) {
+        console.error("Error stopping MediaRecorder:", err);
+      }
+    }
+    setIsRecording(false);
+  }, []);
+
+  const startRecording = useCallback(() => {
+    if (typeof window === "undefined" || typeof MediaRecorder === "undefined") {
+      console.warn("MediaRecorder is not supported in this browser environment.");
+      return;
+    }
+
+    try {
+      const stream = new MediaStream();
+      if (localVideoTrack?.mediaStreamTrack) {
+        stream.addTrack(localVideoTrack.mediaStreamTrack);
+      }
+      if (localAudioTrack?.mediaStreamTrack) {
+        stream.addTrack(localAudioTrack.mediaStreamTrack);
+      }
+
+      remoteParticipants.forEach((p) => {
+        p.trackPublications.forEach((pub) => {
+          if (pub.track?.mediaStreamTrack) {
+            if (pub.track.kind === Track.Kind.Audio) {
+              stream.addTrack(pub.track.mediaStreamTrack);
+            } else if (stream.getVideoTracks().length === 0 && pub.track.kind === Track.Kind.Video) {
+              stream.addTrack(pub.track.mediaStreamTrack);
+            }
+          }
+        });
+      });
+
+      if (stream.getTracks().length === 0) {
+        console.warn("No active tracks available to record.");
+        return;
+      }
+
+      let mimeType = "";
+      if (MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus")) {
+        mimeType = "video/webm;codecs=vp8,opus";
+      } else if (MediaRecorder.isTypeSupported("video/webm")) {
+        mimeType = "video/webm";
+      } else if (MediaRecorder.isTypeSupported("video/mp4")) {
+        mimeType = "video/mp4";
+      }
+
+      const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+      const recorder = new MediaRecorder(stream, options);
+      recordedChunksRef.current = [];
+
+      recorder.ondataavailable = (event: BlobEvent) => {
+        if (event.data && event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const durationSec = recordingStartRef.current
+          ? Math.round((Date.now() - recordingStartRef.current) / 1000)
+          : 0;
+        const chunks = recordedChunksRef.current;
+        if (chunks.length === 0) return;
+
+        const blobType = mimeType || recorder.mimeType || "video/webm";
+        const blob = new Blob(chunks, { type: blobType });
+
+        setIsUploadingRecording(true);
+        try {
+          const formData = new FormData();
+          const ext = blobType.includes("mp4") ? "mp4" : "webm";
+          formData.append("recording", blob, `evidence-${bookingId}-${Date.now()}.${ext}`);
+          formData.append("durationSec", String(durationSec));
+
+          await apiFetch(`/api/v1/bookings/${bookingId}/recording/evidence`, {
+            method: "POST",
+            body: formData,
+          });
+          setRecordingSaved(true);
+          setTimeout(() => setRecordingSaved(false), 5000);
+        } catch (err) {
+          console.error("Failed to upload consultation recording evidence:", err);
+        } finally {
+          setIsUploadingRecording(false);
+        }
+      };
+
+      recorder.start(1000);
+      mediaRecorderRef.current = recorder;
+      recordingStartRef.current = Date.now();
+      setIsRecording(true);
+      setRecordingSeconds(0);
+
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error("Failed to start MediaRecorder:", err);
+    }
+  }, [localVideoTrack, localAudioTrack, remoteParticipants, bookingId]);
+
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        try {
+          mediaRecorderRef.current.stop();
+        } catch {
+          // Ignore unmount stop errors
+        }
+      }
+    };
+  }, []);
+
   const handleLeave = () => {
+    if (isRecording) {
+      stopRecording();
+    }
     leave();
     onLeave();
   };
@@ -266,12 +412,46 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         </div>
       )}
 
-      {/* ── F-12: Connection quality indicator (ring for dark-bg contrast) ── */}
-      {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
-        <div className="absolute inset-x-0 top-4 z-10 flex justify-end px-6">
-          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white backdrop-blur-sm ring-1 ring-white/10">
+      {/* ── OD-01: Recording / Status / Connection Quality Indicators ───── */}
+      <div className="absolute inset-x-0 top-4 z-10 flex items-center justify-between px-6 pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {isRecording && (
+            <div className="flex items-center gap-2 rounded-full bg-red-950/85 border border-red-500/40 px-3 py-1.5 text-white backdrop-blur-sm shadow-md animate-pulse">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+              <span className="text-[12px] font-medium tracking-wide text-red-100">
+                REC {Math.floor(recordingSeconds / 60).toString().padStart(2, "0")}:{(recordingSeconds % 60).toString().padStart(2, "0")}
+              </span>
+            </div>
+          )}
+          {isUploadingRecording && (
+            <div className="flex items-center gap-2 rounded-full bg-blue-950/85 border border-blue-500/30 px-3 py-1.5 text-white backdrop-blur-sm">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-400" />
+              <span className="text-[12px] text-blue-200">{t("uploadingEvidence")}</span>
+            </div>
+          )}
+          {recordingSaved && (
+            <div className="flex items-center gap-2 rounded-full bg-emerald-950/85 border border-emerald-500/30 px-3 py-1.5 text-white backdrop-blur-sm">
+              <Check className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="text-[12px] text-emerald-200">{t("recordingEvidenceSaved")}</span>
+            </div>
+          )}
+        </div>
+
+        {/* F-12: Connection quality indicator (ring for dark-bg contrast) */}
+        {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
+          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white backdrop-blur-sm ring-1 ring-white/10 pointer-events-auto">
             <span className={`h-2 w-2 rounded-full ${quality.dot}`} />
             <p className="text-[12px]">{quality.label}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── OD-01: Dispute Evidence Banner ─────────────────────────────────── */}
+      {isRecording && (
+        <div className="absolute inset-x-0 top-14 z-10 flex justify-center px-4 pointer-events-none">
+          <div className="flex items-center gap-2 rounded-full bg-black/85 px-4 py-1.5 text-white/90 text-[12px] shadow-lg ring-1 ring-white/15 backdrop-blur-md">
+            <Shield className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span>{t("recordingEvidenceActive")}</span>
           </div>
         </div>
       )}
@@ -435,6 +615,23 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
               aria-pressed={isScreenSharing}
             >
               {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
+            </Button>
+
+            {/* OD-01: Dispute Evidence Recording */}
+            <Button
+              onClick={isRecording ? stopRecording : startRecording}
+              size="lg"
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full transition-all ${
+                isRecording
+                  ? "bg-red-600 hover:bg-red-500 ring-2 ring-red-400"
+                  : "bg-gray-700 hover:bg-gray-600 text-white"
+              }`}
+              title={isRecording ? t("stopRecordingLabel") : t("startRecordingLabel")}
+              aria-label={isRecording ? t("stopRecordingLabel") : t("startRecordingLabel")}
+              aria-pressed={isRecording}
+              disabled={isUploadingRecording}
+            >
+              {isRecording ? <Disc className="animate-spin text-white" size={20} /> : <Disc size={20} />}
             </Button>
 
             {/* Leave — F-11: opens confirmation instead of immediate leave */}

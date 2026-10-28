@@ -3359,7 +3359,7 @@
     "analyzeError": "Ntibyashobotse gusesengura inyandiko z'ikibazo. Ongera ugerageze.",
     "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
     "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe.",
-    "privacyNotice": "Iyi nama ikorwa binyuze mu guhuza gufitanye ibanga. Ntiyegeranyijwe. Ikoranabuhanga ni ryose hagati yawe n'umukiriya wawe.",
+    "privacyNotice": "Ibimenyetso byo gukemura impaka: Iyi nama irimo gufata amashusho nk'ibimenyetso mu gihe cy'impaka. Amashusho abikwa mu ibanga rikomeye ricunzwe kandi asuzumwa gusa n'abashinzwe kubahiriza amategeko igihe hari ikibazo cyatanzwe.",
     "deviceUnavailable": "Nta kamera cyangwa mikoro ibonetse",
     "deviceUnavailableDesc": "Huza kamera na mikoro ku bikoresho byawe, hanyuma subiramo urupapuro.",
     "deviceError": "Ntibishoboka kwinjira ku bikoresho",
@@ -4205,7 +4205,7 @@
       "documentNotice": "Uru ni umusaruro wo gusuzuma inyandiko. Icyumba cya videwo ntigikenewe.",
       "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
       "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe.",
-      "privacyNotice": "Iyi nama ikorwa binyuze mu guhuza gufitanye ibanga. Ntiyegeranyijwe. Ikoranabuhanga ni ryose hagati yawe n'inzobere yawe.",
+      "privacyNotice": "Ibimenyetso byo gukemura impaka: Iyi nama irimo gufata amashusho nk'ibimenyetso mu gihe cy'impaka. Amashusho abikwa mu ibanga rikomeye ricunzwe kandi asuzumwa gusa n'abashinzwe kubahiriza amategeko igihe hari ikibazo cyatanzwe.",
       "deviceUnavailable": "Nta kamera cyangwa mikoro ibonetse",
       "deviceUnavailableDesc": "Huza kamera na mikoro ku bikoresho byawe, hanyuma subiramo urupapuro.",
       "deviceError": "Ntibishoboka kwinjira ku bikoresho",
@@ -4222,6 +4222,9 @@
         "failedToLoad": "Failed to load booking",
         "bookingNotFound": "Booking not found"
       },
+      "evidenceArchivedTitle": "Ibimenyetso byo gukemura impaka byabitswe",
+      "evidenceArchivedDesc": "Amashusho y'ibanga y'inama yabitswe mu mutekano mu ibanga rikomeye ricunzwe ku bw'iyubahirizwa ry'amategeko no gukemura impaka.",
+      "evidenceArchivedBadge": "Ibimenyetso bicunzwe",
       "backToMyBookings": "Back to My Bookings",
       "consultationFallback": "Consultation",
       "legalExpertFallback": "Legal Expert",
@@ -5143,7 +5146,12 @@
     "waitingLongExpert": "Umukiriya wawe ntarinjiye",
     "waitingLongClient": "Inzobere yawe ntarinjiye",
     "waitingLongDesc": "Icyumba kizafungwa bikurikirana nta munyamuryango wundi winjira. Urashobora kuva hano ukagaruka ku makuru y'indangishwa.",
-    "screenShareError": "Ntibishoboka gusangira ikiragiro. Reba uburenganzira bwa porogirama."
+    "screenShareError": "Ntibishoboka gusangira ikiragiro. Reba uburenganzira bwa porogirama.",
+    "startRecordingLabel": "Tangira gufata amashusho y'ibimenyetso",
+    "stopRecordingLabel": "Hagarika gufata amashusho",
+    "recordingEvidenceActive": "Gufata amashusho y'ibimenyetso by'impaka birakora",
+    "recordingEvidenceSaved": "Ibimenyetso by'inama byabitswe mu mutekano",
+    "uploadingEvidence": "Gushyingura ibimenyetso..."
   },
   "expertDashboard_consultations": {
     "title": "Consultations",
@@ -7491,7 +7499,7 @@
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
     "windowEndedDesc": "Igihe cyo kugisha inama cyarangiye. Ntabwo mushobora kongera kwinjira muri iki kiganiro.",
     "tooEarlyDesc": "Icyumba cyo kugisha inama ntikirafungurwa. Mushobora kwinjira iminota 15 mbere y'igihe cyagenwe.",
-    "privacyNotice": "Iyi nama ikorwa binyuze mu guhuza gufitanye ibanga. Ntiyegeranyijwe. Ikoranabuhanga ni ryose hagati yawe n'umukiriya wawe.",
+    "privacyNotice": "Ibimenyetso byo gukemura impaka: Iyi nama irimo gufata amashusho nk'ibimenyetso mu gihe cy'impaka. Amashusho abikwa mu ibanga rikomeye ricunzwe kandi asuzumwa gusa n'abashinzwe kubahiriza amategeko igihe hari ikibazo cyatanzwe.",
     "deviceUnavailable": "Nta kamera cyangwa mikoro ibonetse",
     "deviceUnavailableDesc": "Huza kamera na mikoro ku bikoresho byawe, hanyuma subiramo urupapuro.",
     "deviceError": "Ntibishoboka kwinjira ku bikoresho",
@@ -7622,7 +7630,10 @@
       "clientReportedIssue": "Umukiriya Yatanze Ikibazo",
       "clientReportedIssueDesc": "Umukiriya yatanze ikibazo: « {reason} ». Kohereza amafaranga byahagaritswe. Ushobora kumuvugisha mu butumwa cyangwa mukongera guhindura igihe ku buntu.",
       "actionRequiredDeliveryTitle": "Ikiganiro cyarangiye — Hakenewe igikorwa",
-      "actionRequiredDeliveryDesc": "Igihe cyagenwe kuri iyi nama cyarangiye. Kugira ngo iyi nama irangire kandi amafaranga ya escrow arekurwe kuri Mobile Money yawe, andika incamake y'ibyavuzwe hanyuma wemeze ko byatanzwe."
+      "actionRequiredDeliveryDesc": "Igihe cyagenwe kuri iyi nama cyarangiye. Kugira ngo iyi nama irangire kandi amafaranga ya escrow arekurwe kuri Mobile Money yawe, andika incamake y'ibyavuzwe hanyuma wemeze ko byatanzwe.",
+      "evidenceArchivedTitle": "Ibimenyetso byo gukemura impaka byabitswe",
+      "evidenceArchivedDesc": "Amashusho y'ibanga y'inama yabitswe mu mutekano mu ibanga rikomeye ricunzwe ku bw'iyubahirizwa ry'amategeko no gukemura impaka.",
+      "evidenceArchivedBadge": "Ibimenyetso bicunzwe"
     },
     "ai": {
       "clientNotes": "Inyandiko z'umukiriya",

@@ -559,4 +559,60 @@ export const BookingController = {
       next(error);
     }
   },
+
+  /**
+   * POST /bookings/:id/recording/evidence
+   * Upload video consultation evidence blob
+   */
+  uploadRecordingEvidence: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params as { id: string };
+      const userId = req.user?.id;
+      const role = req.user?.role;
+
+      if (!userId || !role) {
+        throw new AuthorizationError("UNAUTHORIZED");
+      }
+
+      if (!req.file) {
+        throw new ValidationError("No recording file provided");
+      }
+
+      const durationSec = req.body.durationSec ? Number(req.body.durationSec) : undefined;
+      const booking = await BookingService.uploadRecordingEvidence(id, userId, role, req.file, { durationSec });
+
+      res.status(200).json({
+        success: true,
+        data: booking,
+        message: "Consultation recording evidence archived successfully.",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * GET /bookings/:id/recording
+   * Retrieve consultation recording evidence download URL
+   */
+  getRecordingEvidence: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params as { id: string };
+      const userId = req.user?.id;
+      const role = req.user?.role;
+
+      if (!userId || !role) {
+        throw new AuthorizationError("UNAUTHORIZED");
+      }
+
+      const result = await BookingService.getRecordingEvidence(id, userId, role);
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -2062,7 +2062,7 @@
       "documentNotice": "This is a document review deliverable. A video room is not required.",
       "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
       "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
-      "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your advocate.",
+      "privacyNotice": "Dispute Protection Evidence: This consultation includes confidential session recording as evidence in the event of a dispute. Recordings are stored in encrypted custody and reviewed only by authorized compliance officers if an issue is reported.",
       "deviceUnavailable": "No camera or microphone found",
       "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
       "deviceError": "Could not access devices",
@@ -2079,6 +2079,9 @@
         "failedToLoad": "Failed to load booking",
         "bookingNotFound": "Booking not found"
       },
+      "evidenceArchivedTitle": "Dispute Protection Evidence Archived",
+      "evidenceArchivedDesc": "Confidential consultation session recording is securely archived in encrypted custody for compliance and dispute resolution.",
+      "evidenceArchivedBadge": "Encrypted Evidence",
       "backToMyBookings": "Back to My Bookings",
       "consultationFallback": "Consultation",
       "legalExpertFallback": "Legal Expert",
@@ -3135,7 +3138,12 @@
     "waitingLongExpert": "Your client has not joined yet",
     "waitingLongClient": "Your advocate has not joined yet",
     "waitingLongDesc": "The room will close automatically if no one else joins. You can leave and return to the booking details.",
-    "screenShareError": "Could not share screen. Please check browser permissions."
+    "screenShareError": "Could not share screen. Please check browser permissions.",
+    "startRecordingLabel": "Start recording evidence",
+    "stopRecordingLabel": "Stop recording",
+    "recordingEvidenceActive": "Confidential Dispute Evidence Recording Active",
+    "recordingEvidenceSaved": "Consultation evidence archived securely",
+    "uploadingEvidence": "Archiving evidence..."
   },
   "expertDashboard_consultations": {
     "title": "Consultations",
@@ -7284,7 +7292,7 @@
     "analyzeError": "Could not analyze case notes. Please try again.",
     "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
     "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
-    "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your client.",
+    "privacyNotice": "Dispute Protection Evidence: This consultation includes confidential session recording as evidence in the event of a dispute. Recordings are stored in encrypted custody and reviewed only by authorized compliance officers if an issue is reported.",
     "deviceUnavailable": "No camera or microphone found",
     "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
     "deviceError": "Could not access devices",
@@ -7314,7 +7322,7 @@
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
     "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
     "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
-    "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your client.",
+    "privacyNotice": "Dispute Protection Evidence: This consultation includes confidential session recording as evidence in the event of a dispute. Recordings are stored in encrypted custody and reviewed only by authorized compliance officers if an issue is reported.",
     "deviceUnavailable": "No camera or microphone found",
     "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
     "deviceError": "Could not access devices",
@@ -7624,7 +7632,10 @@
       "clientReportedIssue": "Client Reported an Issue",
       "clientReportedIssueDesc": "Client reported: \"{reason}\". Escrow auto-release is paused. You can message the client to clarify or offer a free reschedule.",
       "actionRequiredDeliveryTitle": "Consultation Concluded — Action Required",
-      "actionRequiredDeliveryDesc": "The scheduled window for this consultation has ended. To finalize the session and initiate escrow disbursement to your Mobile Money account, please record your consultation summary and mark as delivered."
+      "actionRequiredDeliveryDesc": "The scheduled window for this consultation has ended. To finalize the session and initiate escrow disbursement to your Mobile Money account, please record your consultation summary and mark as delivered.",
+      "evidenceArchivedTitle": "Dispute Protection Evidence Archived",
+      "evidenceArchivedDesc": "Confidential consultation session recording is securely archived in encrypted custody for compliance and dispute resolution.",
+      "evidenceArchivedBadge": "Encrypted Evidence"
     },
     "ai": {
       "clientNotes": "Client Notes",

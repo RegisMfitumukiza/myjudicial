@@ -19,6 +19,11 @@ const IDEMPOTENT_DDL_STATEMENTS: string[] = [
   `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "issueReportedAt" TIMESTAMP(3)`,
   `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "issueReason" TEXT`,
   `CREATE INDEX IF NOT EXISTS "bookings_autoReleaseAt_idx" ON "bookings"("autoReleaseAt")`,
+  `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "hasRecording" BOOLEAN DEFAULT false`,
+  `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "recordingObjectKey" TEXT`,
+  `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "recordingDurationSec" INTEGER`,
+  `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "recordingStartedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "bookings" ADD COLUMN IF NOT EXISTS "recordingEndedAt" TIMESTAMP(3)`,
 
   // 2. Document category column (20261013140000)
   `ALTER TABLE "documents" ADD COLUMN IF NOT EXISTS "category" TEXT`,

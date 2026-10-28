@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays, Loader2,
   ArrowLeft, Video, XCircle, CheckCircle, Check, MessageSquare, User, CalendarClock, Clock,
-  FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send, AlertCircle,
+  FileText, CreditCard, Briefcase, MapPin, Phone, Brain, Sparkles, Send, AlertCircle, Shield,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -786,6 +786,29 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
             </Button>
           )}
         </div>
+
+        {/* OD-01: Dispute Protection Evidence Banner */}
+        {(booking as any).hasRecording && (
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                <Shield size={22} />
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-emerald-950 dark:text-emerald-100">
+                  {t("details.evidenceArchivedTitle")}
+                </p>
+                <p className="text-[12px] text-emerald-800/80 dark:text-emerald-300/70 leading-relaxed mt-0.5">
+                  {t("details.evidenceArchivedDesc")}
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex self-start sm:self-center items-center gap-1.5 rounded-full bg-emerald-500/20 px-3.5 py-1 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">
+              <Check size={13} />
+              {t("details.evidenceArchivedBadge")}
+            </span>
+          </div>
+        )}
 
         {/* Case Documents */}
         <div id="case-documents-section" className="mt-6">

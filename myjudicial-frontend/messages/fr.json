@@ -3359,7 +3359,7 @@
     "analyzeError": "Impossible d'analyser les notes du dossier. Veuillez réessayer.",
     "windowEndedDesc": "Le créneau de consultation est terminé. Cette session n'est plus accessible.",
     "tooEarlyDesc": "La salle de consultation n'est pas encore ouverte. Vous pouvez la rejoindre jusqu'à 15 minutes avant l'heure prévue.",
-    "privacyNotice": "Cette consultation est conduite via une connexion chiffrée. Elle n'est pas enregistrée. La session est privée entre vous et votre client.",
+    "privacyNotice": "Preuve de protection des litiges : Cette consultation comprend un enregistrement confidentiel de la session comme preuve en cas de litige. Les enregistrements sont conservés sous garde chiffrée et examinés uniquement par les agents de conformité autorisés si un problème est signalé.",
     "deviceUnavailable": "Aucune caméra ou microphone trouvé",
     "deviceUnavailableDesc": "Connectez une caméra et un microphone à votre appareil, puis actualisez cette page.",
     "deviceError": "Impossible d'accéder aux périphériques",
@@ -4205,7 +4205,7 @@
       "documentNotice": "Il s'agit d'un livrable d'examen de documents. La salle vidéo n'est pas requise.",
       "windowEndedDesc": "Le créneau de consultation est terminé. Cette session n'est plus accessible.",
       "tooEarlyDesc": "La salle de consultation n'est pas encore ouverte. Vous pouvez la rejoindre jusqu'à 15 minutes avant l'heure prévue.",
-      "privacyNotice": "Cette consultation est conduite via une connexion chiffrée. Elle n'est pas enregistrée. La session est privée entre vous et votre avocat.",
+      "privacyNotice": "Preuve de protection des litiges : Cette consultation comprend un enregistrement confidentiel de la session comme preuve en cas de litige. Les enregistrements sont conservés sous garde chiffrée et examinés uniquement par les agents de conformité autorisés si un problème est signalé.",
       "deviceUnavailable": "Aucune caméra ou microphone trouvé",
       "deviceUnavailableDesc": "Connectez une caméra et un microphone à votre appareil, puis actualisez cette page.",
       "deviceError": "Impossible d'accéder aux périphériques",
@@ -4222,6 +4222,9 @@
         "failedToLoad": "Failed to load booking",
         "bookingNotFound": "Booking not found"
       },
+      "evidenceArchivedTitle": "Preuve de protection des litiges archivée",
+      "evidenceArchivedDesc": "L'enregistrement confidentiel de la session de consultation est archivé en toute sécurité sous garde chiffrée pour la conformité et la résolution des litiges.",
+      "evidenceArchivedBadge": "Preuve chiffrée",
       "backToMyBookings": "Back to My Bookings",
       "consultationFallback": "Consultation",
       "legalExpertFallback": "Legal Expert",
@@ -5143,7 +5146,12 @@
     "waitingLongExpert": "Votre client n'a pas encore rejoint",
     "waitingLongClient": "Votre avocat n'a pas encore rejoint",
     "waitingLongDesc": "La salle se fermera automatiquement si personne d'autre ne rejoint. Vous pouvez quitter et revenir aux détails de la réservation.",
-    "screenShareError": "Impossible de partager l'écran. Veuillez vérifier les autorisations du navigateur."
+    "screenShareError": "Impossible de partager l'écran. Veuillez vérifier les autorisations du navigateur.",
+    "startRecordingLabel": "Démarrer l'enregistrement de preuve",
+    "stopRecordingLabel": "Arrêter l'enregistrement",
+    "recordingEvidenceActive": "Enregistrement confidentiel de preuve actif",
+    "recordingEvidenceSaved": "Preuve de consultation archivée en toute sécurité",
+    "uploadingEvidence": "Archivage de la preuve en cours..."
   },
   "expertDashboard_consultations": {
     "title": "Consultations",
@@ -7491,7 +7499,7 @@
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
     "windowEndedDesc": "Le créneau de consultation est terminé. Cette session n'est plus accessible.",
     "tooEarlyDesc": "La salle de consultation n'est pas encore ouverte. Vous pouvez la rejoindre jusqu'à 15 minutes avant l'heure prévue.",
-    "privacyNotice": "Cette consultation est conduite via une connexion chiffrée. Elle n'est pas enregistrée. La session est privée entre vous et votre client.",
+    "privacyNotice": "Preuve de protection des litiges : Cette consultation comprend un enregistrement confidentiel de la session comme preuve en cas de litige. Les enregistrements sont conservés sous garde chiffrée et examinés uniquement par les agents de conformité autorisés si un problème est signalé.",
     "deviceUnavailable": "Aucune caméra ou microphone trouvé",
     "deviceUnavailableDesc": "Connectez une caméra et un microphone à votre appareil, puis actualisez cette page.",
     "deviceError": "Impossible d'accéder aux périphériques",
@@ -7622,7 +7630,10 @@
       "clientReportedIssue": "Le client a signalé un problème",
       "clientReportedIssueDesc": "Le client a signalé : « {reason} ». Le déblocage automatique est suspendu. Vous pouvez échanger par message ou proposer un report gratuit.",
       "actionRequiredDeliveryTitle": "Consultation conclue — Action requise",
-      "actionRequiredDeliveryDesc": "Le créneau prévu pour cette consultation est terminé. Pour finaliser la session et déclencher le déblocage du séquestre vers votre compte Mobile Money, veuillez enregistrer votre résumé et marquer comme livré."
+      "actionRequiredDeliveryDesc": "Le créneau prévu pour cette consultation est terminé. Pour finaliser la session et déclencher le déblocage du séquestre vers votre compte Mobile Money, veuillez enregistrer votre résumé et marquer comme livré.",
+      "evidenceArchivedTitle": "Preuve de protection des litiges archivée",
+      "evidenceArchivedDesc": "L'enregistrement confidentiel de la session de consultation est archivé en toute sécurité sous garde chiffrée pour la conformité et la résolution des litiges.",
+      "evidenceArchivedBadge": "Preuve chiffrée"
     },
     "ai": {
       "clientNotes": "Notes du client",

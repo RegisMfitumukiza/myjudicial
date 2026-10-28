@@ -143,6 +143,21 @@ export const EMAIL_SUBJECTS = {
     fr: "Nouvel expert inscrit sur MyJudicial",
     rw: "Inzobere nshya yiyandikishije kuri MyJudicial",
   },
+  EXPERT_SUSPENDED: {
+    en: (reason: string) => `Your MyJudicial account has been suspended`,
+    fr: (reason: string) => `Votre compte MyJudicial a été suspendu`,
+    rw: (reason: string) => `Konti yawe ya MyJudicial ihagaritswe`,
+  },
+  EXPERT_ACTIVATED: {
+    en: "Your MyJudicial account has been reactivated",
+    fr: "Votre compte MyJudicial a été réactivé",
+    rw: "Konti yawe ya MyJudicial yongeye gukorwa",
+  },
+  COMPLIANCE_WARNING: {
+    en: "Compliance Notice — Action Required",
+    fr: "Avis de conformité — Action requise",
+    rw: "Ubutumwa bw'ibikurikizwa — Igikorwa gikenewe",
+  },
 } as const;
 
 /**
@@ -857,6 +872,92 @@ export const EMAIL_CONTENT = {
   },
 
   // Consultation issue reported by citizen (sent to expert & admin)
+  EXPERT_SUSPENDED: {
+    title: {
+      en: "Account Suspension Notice",
+      fr: "Avis de suspension de compte",
+      rw: "Itangazo ryo guhagarika konti",
+    },
+    intro: {
+      en: (name: string) => `Dear ${name},`,
+      fr: (name: string) => `Cher(e) ${name},`,
+      rw: (name: string) => `Mukundwa ${name},`,
+    },
+    body: {
+      en: "Your MyJudicial expert account has been temporarily suspended by an administrator. You are currently unable to receive new bookings or access your dashboard until the suspension is lifted.",
+      fr: "Votre compte d'expert MyJudicial a été temporairement suspendu par un administrateur. Vous ne pouvez actuellement pas recevoir de nouvelles réservations ni accéder à votre tableau de bord jusqu'à la levée de la suspension.",
+      rw: "Konti yawe y'inzobere kuri MyJudicial ihagaritswe by'agateganyo n'umuyobozi. Ntibishoboka ko uhabwa gahunda nshya cyangwa kwinjira mu tabulo ryawe kugeza igihe ihagarikwa rirangiye.",
+    },
+    reasonLabel: {
+      en: "Reason for suspension",
+      fr: "Motif de suspension",
+      rw: "Impamvu yo guhagarika",
+    },
+    contactSupport: {
+      en: "If you believe this action was made in error, please contact our support team.",
+      fr: "Si vous pensez que cette action a été effectuée par erreur, veuillez contacter notre équipe d'assistance.",
+      rw: "Niba utekereza ko ibi byakozwe nabi, tugire ngo utuganire na teams yacu y'inkunga.",
+    },
+    viewAccountButton: {
+      en: "Contact Support",
+      fr: "Contacter l'assistance",
+      rw: "Vugana n'inkunga",
+    },
+  },
+  EXPERT_ACTIVATED: {
+    title: {
+      en: "Account Reactivated",
+      fr: "Compte réactivé",
+      rw: "Konti yongeye gukorwa",
+    },
+    intro: {
+      en: (name: string) => `Dear ${name},`,
+      fr: (name: string) => `Cher(e) ${name},`,
+      rw: (name: string) => `Mukundwa ${name},`,
+    },
+    body: {
+      en: "Great news! Your MyJudicial expert account has been reactivated. You can now log in, accept new bookings, and resume your practice on the platform.",
+      fr: "Bonne nouvelle ! Votre compte d'expert MyJudicial a été réactivé. Vous pouvez désormais vous connecter, accepter de nouvelles réservations et reprendre votre activité sur la plateforme.",
+      rw: "Amakuru meza! Konti yawe y'inzobere kuri MyJudicial yongeye gukorwa. Ubu ushobora kwinjira, kwakira gahunda nshya, no gukomeza akazi kawe kuri sitasiyo.",
+    },
+    dashboardButton: {
+      en: "Go to Dashboard",
+      fr: "Aller au tableau de bord",
+      rw: "Jya ku tabulo",
+    },
+  },
+  COMPLIANCE_WARNING: {
+    title: {
+      en: "Compliance Notice — Action Required",
+      fr: "Avis de conformité — Action requise",
+      rw: "Ubutumwa bw'ibikurikizwa — Igikorwa gikenewe",
+    },
+    intro: {
+      en: (name: string) => `Dear ${name},`,
+      fr: (name: string) => `Cher(e) ${name},`,
+      rw: (name: string) => `Mukundwa ${name},`,
+    },
+    body: {
+      en: "Our compliance team has reviewed your expert profile and identified items that require your attention. Please take action promptly to avoid any disruption to your account.",
+      fr: "Notre équipe de conformité a examiné votre profil d'expert et a identifié des éléments nécessitant votre attention. Veuillez agir rapidement pour éviter toute interruption de votre compte.",
+      rw: "Itsinda ryacu ry'ibikurikizwa ryasuzumye umwirondoro wawe w'inzobere kandi ryasanze ibintu bisaba gukorwaho. Shyira ibikorwa mu bikorwa vuba kugirango wirinde ikaye mu konti yawe.",
+    },
+    credentialLabel: {
+      en: "Credentials expiry",
+      fr: "Expiration des accréditations",
+      rw: "Irangira ry'ibyangombwa",
+    },
+    expiryNotice: {
+      en: (date: string) => `Your Bar Association certificate or credentials expire on ${date}. Please renew and upload updated documents before this date.`,
+      fr: (date: string) => `Votre certificat d'association du barreau ou vos accréditations expirent le ${date}. Veuillez renouveler et télécharger les documents mis à jour avant cette date.`,
+      rw: (date: string) => `Impamyabumenyi yawe y'umuryango w'abanyamategeko cyangwa ibyangombwa byawe birangira ku ${date}. Ugire ngo urishe no koherezayo inyandiko zivuguruwe mbere y'iki gihe.`,
+    },
+    updateProfileButton: {
+      en: "Update Profile Documents",
+      fr: "Mettre à jour les documents du profil",
+      rw: "Vugurura inyandiko z'umwirondoro",
+    },
+  },
   CONSULTATION_ISSUE_REPORTED: {
     title: {
       en: "Consultation Issue Reported",

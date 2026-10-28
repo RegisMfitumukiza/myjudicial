@@ -1,9 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { X, Download, Share2, Eye, ZoomIn, ZoomOut, RotateCw, MessageSquare, Clock } from "lucide-react";
-import { DocumentAnnotations } from "./DocumentAnnotations";
-import { DocumentVersions } from "./DocumentVersions";
+import {
+  X,
+  Download,
+  Eye,
+  ZoomIn,
+  ZoomOut,
+  RotateCw,
+  FileText,
+  File as FileGenericIcon,
+} from "lucide-react";
 
 interface DocumentPreviewProps {
   file: {
@@ -13,116 +20,44 @@ interface DocumentPreviewProps {
     mimeType: string;
     createdAt: string;
   };
+  /** Called by parent to obtain a blob URL for download/preview */
+  onDownload: (fileId: string, fileName: string) => void | Promise<void>;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function DocumentPreview({ file, isOpen, onClose }: DocumentPreviewProps) {
+export function DocumentPreview({ file, isOpen, onClose, onDownload }: DocumentPreviewProps) {
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
-  const [activeTab, setActiveTab] = useState<"preview" | "comments" | "versions">("preview");
 
   if (!isOpen) return null;
 
   const isPDF = file.mimeType === "application/pdf";
   const isImage = file.mimeType.startsWith("image/");
-  const isWord = file.mimeType.includes("wordprocessingml");
+  const isWord =
+    file.mimeType.includes("wordprocessingml") ||
+    file.mimeType === "application/msword";
 
-  // Mock data for annotations and versions
-  const mockAnnotations = [
-    {
-      id: "1",
-      content: "This clause needs review - the termination notice period seems too short",
-      author: "John Doe",
-      authorRole: "CLIENT" as const,
-      createdAt: "2026-07-06T10:30:00Z",
-      resolved: false
-    },
-    {
-      id: "2", 
-      content: "Standard 30-day notice is typical for employment contracts in Rwanda",
-      author: "Sarah Uwimana",
-      authorRole: "EXPERT" as const,
-      createdAt: "2026-07-06T11:15:00Z",
-      resolved: true
-    }
-  ];
-
-  const mockVersions = [
-    {
-      id: "v1",
-      version: "1.0",
-      fileName: file.originalName,
-      fileSize: file.fileSize,
-      createdAt: file.createdAt,
-      createdBy: "John Doe",
-      createdByRole: "CLIENT" as const,
-      changeDescription: "Initial upload",
-      isCurrentVersion: true
-    }
-  ];
-
-  const handleDownload = () => {
-    // Implement download functionality
-    console.log("Download file:", file.id);
-  };
-
-  const handleShare = () => {
-    // Implement share functionality
-    console.log("Share file:", file.id);
-  };
+  const handleDownload = () => void onDownload(file.id, file.originalName);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="relative h-[90vh] w-[90vw] max-w-6xl rounded-lg bg-white shadow-2xl dark:bg-gray-900">
+      <div className="relative h-[90vh] w-[90vw] max-w-5xl rounded-lg bg-white shadow-2xl dark:bg-gray-900">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{file.originalName}</h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              {file.originalName}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {(file.fileSize / (1024 * 1024)).toFixed(1)} MB • {new Date(file.createdAt).toLocaleDateString()}
+              {(file.fileSize / (1024 * 1024)).toFixed(1)} MB &bull;{" "}
+              {new Date(file.createdAt).toLocaleDateString()}
             </p>
           </div>
 
           {/* Toolbar */}
-          <div className="flex items-center gap-2">
-            {/* Tab Navigation */}
-            <div className="flex rounded-lg border border-gray-300 dark:border-gray-600">
-              <button
-                onClick={() => setActiveTab("preview")}
-                className={`px-3 py-1 text-sm font-medium ${
-                  activeTab === "preview" 
-                    ? "bg-blue-600 text-white" 
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                }`}
-              >
-                Preview
-              </button>
-              <button
-                onClick={() => setActiveTab("comments")}
-                className={`px-3 py-1 text-sm font-medium ${
-                  activeTab === "comments" 
-                    ? "bg-blue-600 text-white" 
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                }`}
-              >
-                <MessageSquare className="mr-1 inline h-3 w-3" />
-                Comments
-              </button>
-              <button
-                onClick={() => setActiveTab("versions")}
-                className={`px-3 py-1 text-sm font-medium ${
-                  activeTab === "versions" 
-                    ? "bg-blue-600 text-white" 
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                }`}
-              >
-                <Clock className="mr-1 inline h-3 w-3" />
-                Versions
-              </button>
-            </div>
-
-            {activeTab === "preview" && (isPDF || isImage) && (
+          <div className="flex items-center gap-2 ml-4">
+            {(isPDF || isImage) && (
               <>
                 <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
                 <button
@@ -132,9 +67,9 @@ export function DocumentPreview({ file, isOpen, onClose }: DocumentPreviewProps)
                 >
                   <ZoomOut className="h-4 w-4" />
                 </button>
-                
-                <span className="text-sm text-gray-600 dark:text-gray-400">{zoom}%</span>
-                
+                <span className="text-sm text-gray-600 dark:text-gray-400 w-10 text-center">
+                  {zoom}%
+                </span>
                 <button
                   onClick={() => setZoom(Math.min(200, zoom + 25))}
                   className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -142,7 +77,6 @@ export function DocumentPreview({ file, isOpen, onClose }: DocumentPreviewProps)
                 >
                   <ZoomIn className="h-4 w-4" />
                 </button>
-                
                 <button
                   onClick={() => setRotation((rotation + 90) % 360)}
                   className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -150,25 +84,17 @@ export function DocumentPreview({ file, isOpen, onClose }: DocumentPreviewProps)
                 >
                   <RotateCw className="h-4 w-4" />
                 </button>
+                <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
               </>
             )}
 
-            <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
-
             <button
               onClick={handleDownload}
-              className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
               title="Download"
             >
               <Download className="h-4 w-4" />
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-              title="Share"
-            >
-              <Share2 className="h-4 w-4" />
+              Download
             </button>
 
             <button
@@ -181,172 +107,160 @@ export function DocumentPreview({ file, isOpen, onClose }: DocumentPreviewProps)
         </div>
 
         {/* Content */}
-        <div className="flex h-[calc(100%-4rem)] overflow-hidden">
+        <div className="flex h-[calc(100%-4.5rem)] overflow-hidden">
           {/* Main Content Area */}
-          <div className="flex-1 overflow-auto">
-            {activeTab === "preview" && (
-              <div className="p-4">
-                {/* Document Preview Content */}
-                {isPDF ? (
-                  <div className="flex h-full items-center justify-center">
-                    <div 
-                      className="border border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"
-                      style={{ 
-                        transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-                        transformOrigin: 'center center'
-                      }}
-                    >
-                      <div className="flex h-96 w-72 items-center justify-center text-gray-500">
-                        <div className="text-center">
-                          <Eye className="mx-auto mb-2 h-12 w-12" />
-                          <p className="text-sm">PDF Preview</p>
-                          <p className="text-xs">Click download to view full document</p>
-                        </div>
-                      </div>
-                    </div>
+          <div className="flex-1 overflow-auto p-4">
+            {isPDF ? (
+              <div className="flex h-full flex-col items-center justify-center gap-4 text-gray-500">
+                <div
+                  className="flex items-center justify-center border border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800 rounded-lg"
+                  style={{
+                    transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
+                    transformOrigin: "center center",
+                    minHeight: "24rem",
+                    width: "18rem",
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-2 p-8">
+                    <Eye className="h-12 w-12 text-gray-400" />
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      PDF document
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                      In-browser PDF rendering is not available. Download to
+                      view the full document.
+                    </p>
                   </div>
-                ) : isImage ? (
-                  <div className="flex h-full items-center justify-center">
-                    <img
-                      src={`/api/placeholder-image?name=${encodeURIComponent(file.originalName)}`}
-                      alt={file.originalName}
-                      className="max-h-full max-w-full object-contain"
-                      style={{ 
-                        transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-                        transformOrigin: 'center center'
-                      }}
-                    />
-                  </div>
-                ) : isWord ? (
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <FileText className="mx-auto mb-4 h-16 w-16" />
-                      <p className="text-lg font-medium">Microsoft Word Document</p>
-                      <p className="mt-2 text-sm">Click download to view the document</p>
-                      <button
-                        onClick={handleDownload}
-                        className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                      >
-                        Download to View
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <Eye className="mx-auto mb-4 h-16 w-16" />
-                      <p className="text-lg font-medium">Preview Not Available</p>
-                      <p className="mt-2 text-sm">This file type cannot be previewed</p>
-                      <button
-                        onClick={handleDownload}
-                        className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                      >
-                        Download File
-                      </button>
-                    </div>
-                  </div>
-                )}
+                </div>
+                <button
+                  onClick={handleDownload}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Download PDF
+                </button>
               </div>
-            )}
-
-            {activeTab === "comments" && (
-              <DocumentAnnotations
-                fileId={file.id}
-                annotations={mockAnnotations}
-                onAddAnnotation={(content) => console.log("Add annotation:", content)}
-                onUpdateAnnotation={(id, content) => console.log("Update annotation:", id, content)}
-                onDeleteAnnotation={(id) => console.log("Delete annotation:", id)}
-                onResolveAnnotation={(id) => console.log("Resolve annotation:", id)}
-              />
-            )}
-
-            {activeTab === "versions" && (
-              <DocumentVersions
-                fileId={file.id}
-                versions={mockVersions}
-                onDownloadVersion={(id) => console.log("Download version:", id)}
-                onPreviewVersion={(id) => console.log("Preview version:", id)}
-                onRestoreVersion={(id) => console.log("Restore version:", id)}
-                onUploadNewVersion={(file, desc) => console.log("Upload new version:", file.name, desc)}
-              />
+            ) : isImage ? (
+              <div className="flex h-full items-center justify-center">
+                {/* Images must be served via the authenticated /files/:id/stream endpoint.
+                    The parent is responsible for calling onDownload which opens the blob URL.
+                    We show a placeholder with a download CTA here — do NOT use a fake image URL. */}
+                <div className="flex flex-col items-center gap-4 text-gray-500">
+                  <div
+                    className="flex items-center justify-center border border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800 rounded-lg"
+                    style={{
+                      transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
+                      transformOrigin: "center center",
+                      minHeight: "16rem",
+                      width: "16rem",
+                    }}
+                  >
+                    <Eye className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-500 text-center max-w-xs">
+                    Image files open via a secure download. Click below to open
+                    the image.
+                  </p>
+                  <button
+                    onClick={handleDownload}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Open Image
+                  </button>
+                </div>
+              </div>
+            ) : isWord ? (
+              <div className="flex h-full flex-col items-center justify-center gap-4 text-gray-500">
+                <FileText className="h-16 w-16 text-blue-500" />
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                  Microsoft Word Document
+                </p>
+                <p className="text-sm text-center text-gray-500 max-w-xs">
+                  Word documents cannot be previewed in the browser. Download
+                  to open in Microsoft Word or a compatible application.
+                </p>
+                <button
+                  onClick={handleDownload}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Download to View
+                </button>
+              </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-4 text-gray-500">
+                <FileGenericIcon className="h-16 w-16 text-gray-400" />
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                  Preview Not Available
+                </p>
+                <p className="text-sm text-center text-gray-500 max-w-xs">
+                  This file type cannot be previewed directly. Download the
+                  file to open it with a compatible application.
+                </p>
+                <button
+                  onClick={handleDownload}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                >
+                  Download File
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Sidebar - Only show for preview tab */}
-          {activeTab === "preview" && (
-            <div className="w-80 border-l border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100">File Information</h4>
-              
-              <div className="mt-4 space-y-3">
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">File Name</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{file.originalName}</p>
-                </div>
-                
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Size</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">
-                    {(file.fileSize / (1024 * 1024)).toFixed(2)} MB
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Type</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">{file.mimeType}</p>
-                </div>
-                
-                <div>
-                  <p className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Uploaded</p>
-                  <p className="text-sm text-gray-900 dark:text-gray-100">
-                    {new Date(file.createdAt).toLocaleString()}
-                  </p>
-                </div>
+          {/* Sidebar — File Information */}
+          <div className="w-64 shrink-0 border-l border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 overflow-y-auto">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100">
+              File Information
+            </h4>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  File Name
+                </p>
+                <p className="mt-0.5 text-sm text-gray-900 dark:text-gray-100 break-words">
+                  {file.originalName}
+                </p>
               </div>
 
-              {/* Actions */}
-              <div className="mt-6 space-y-3">
-                <button
-                  onClick={handleDownload}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                  Download Original
-                </button>
-                
-                <button
-                  onClick={handleShare}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  Share with Lawyer
-                </button>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Size
+                </p>
+                <p className="mt-0.5 text-sm text-gray-900 dark:text-gray-100">
+                  {(file.fileSize / (1024 * 1024)).toFixed(2)} MB
+                </p>
               </div>
 
-              {/* Quick Stats */}
-              <div className="mt-6">
-                <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">Activity</h5>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500 dark:text-gray-400">Comments</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{mockAnnotations.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500 dark:text-gray-400">Versions</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{mockVersions.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500 dark:text-gray-400">Last Modified</span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {new Date(file.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Type
+                </p>
+                <p className="mt-0.5 text-sm text-gray-900 dark:text-gray-100 break-words">
+                  {file.mimeType}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Uploaded
+                </p>
+                <p className="mt-0.5 text-sm text-gray-900 dark:text-gray-100">
+                  {new Date(file.createdAt).toLocaleString()}
+                </p>
               </div>
             </div>
-          )}
+
+            {/* Actions */}
+            <div className="mt-6">
+              <button
+                onClick={handleDownload}
+                className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Download Original
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-// Import missing FileText component
-import { FileText } from "lucide-react";

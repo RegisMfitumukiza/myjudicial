@@ -3,6 +3,8 @@ import { prisma } from "../../../infrastructure/database/prisma.js";
 import { NotFoundError, ValidationError } from "../../../shared/errors/index.js";
 import { UserStatus, Role } from "../../../generated/prisma/client.js";
 import { resolveStorageUrl } from "../../../infrastructure/storage/oci-object-storage.service.js";
+import { sendComplianceWarningEmail } from "../../../infrastructure/email/email.service.js";
+import { logger } from "../../../shared/utils/logger.js";
 
 
 interface PaginationOptions {
@@ -448,8 +450,17 @@ export const AdminComplianceService = {
       throw new NotFoundError(getErrorMessage('EXPERT_NOT_FOUND'));
     }
 
-    // TODO: Integrate with email service (Brevo/Listmonk)
-    // For now, just log the action
+    // Send compliance warning email via Brevo
+    const expertName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+    const language = (user.preferredLanguage as 'en' | 'fr' | 'rw') ?? 'en';
+    sendComplianceWarningEmail(
+      user.email,
+      expertName,
+      user.expertProfile.credentialsExpiry ?? null,
+      language
+    ).catch((err) => {
+      logger.error("Failed to send compliance warning email", { userId, err });
+    });
 
     // Create audit log
     await prisma.auditLog.create({

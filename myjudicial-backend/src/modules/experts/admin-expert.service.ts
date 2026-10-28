@@ -5,7 +5,11 @@ import { UserStatus, Role, LegalSpecialty } from "../../generated/prisma/client.
 import type { Prisma } from "../../generated/prisma/client.js";
 import { getSignedDownloadUrl, resolveStorageUrl } from "../../infrastructure/storage/oci-object-storage.service.js";
 import { logger } from "../../shared/utils/logger.js";
-import { sendVerificationResetToDraftEmail } from "../../infrastructure/email/email.service.js";
+import {
+  sendVerificationResetToDraftEmail,
+  sendExpertSuspensionEmail,
+  sendExpertActivationEmail,
+} from "../../infrastructure/email/email.service.js";
 import type { SetCredentialDatesDto } from "./admin-expert.schemas.js";
 
 
@@ -439,8 +443,15 @@ export const AdminExpertService = {
       }),
     ]);
 
-    // TODO: Send notification if notifyExpert is true
-    // This would integrate with Brevo notification system
+    // Send suspension notification email if requested
+    if (notifyExpert) {
+      const expertName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+      const language = (user.preferredLanguage as 'en' | 'fr' | 'rw') ?? 'en';
+      // Fire-and-forget: email failure must not roll back the suspension
+      sendExpertSuspensionEmail(user.email, expertName, reason, language).catch((err) => {
+        logger.error("Failed to send suspension email to expert", { expertId: userId, err });
+      });
+    }
 
     return {
       id: updatedUser.id,
@@ -495,6 +506,13 @@ export const AdminExpertService = {
         },
       }),
     ]);
+
+    // Notify the expert that their account has been reactivated
+    const expertName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+    const language = (user.preferredLanguage as 'en' | 'fr' | 'rw') ?? 'en';
+    sendExpertActivationEmail(user.email, expertName, language).catch((err) => {
+      logger.error("Failed to send activation email to expert", { expertId: userId, err });
+    });
 
     return {
       id: updatedUser.id,

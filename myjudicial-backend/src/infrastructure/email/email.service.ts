@@ -1616,6 +1616,105 @@ export const sendConsultationIssueReportedEmail = async (
   });
 };
 
+/**
+ * Notify an expert that their account has been suspended by an admin.
+ */
+export const sendExpertSuspensionEmail = async (
+  to: string,
+  expertName: string,
+  reason: string,
+  language: Language = 'en'
+): Promise<void> => {
+  const t = (key: string) => getEmailContent('EXPERT_SUSPENDED', key, language);
+  const supportUrl = buildUrl('/contact');
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(getEmailContent('EXPERT_SUSPENDED', 'intro', language, expertName)),
+      paragraph(t('body')),
+      alertBox(`<strong>${t('reasonLabel')}:</strong> ${reason}`, "warning"),
+      paragraph(t('contactSupport'), { size: "13px", color: "#64748b" }),
+      button(t('viewAccountButton'), supportUrl),
+    )}
+  `, { previewText: `Your MyJudicial account has been suspended` });
+
+  await sendEmail({
+    to: [{ email: to, name: expertName }],
+    subject: getEmailSubject('EXPERT_SUSPENDED', language, reason),
+    template: "EXPERT_SUSPENDED",
+    htmlContent: html,
+  });
+};
+
+/**
+ * Notify an expert that their previously suspended account has been reactivated.
+ */
+export const sendExpertActivationEmail = async (
+  to: string,
+  expertName: string,
+  language: Language = 'en'
+): Promise<void> => {
+  const t = (key: string) => getEmailContent('EXPERT_ACTIVATED', key, language);
+  const dashboardUrl = buildUrl('/expert/dashboard');
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(getEmailContent('EXPERT_ACTIVATED', 'intro', language, expertName)),
+      paragraph(t('body')),
+      button(t('dashboardButton'), dashboardUrl),
+    )}
+  `, { previewText: `Your MyJudicial account has been reactivated` });
+
+  await sendEmail({
+    to: [{ email: to, name: expertName }],
+    subject: getEmailSubject('EXPERT_ACTIVATED', language),
+    template: "EXPERT_ACTIVATED",
+    htmlContent: html,
+  });
+};
+
+/**
+ * Send a compliance warning email to an expert whose credentials are expiring
+ * or who has a compliance issue requiring attention.
+ */
+export const sendComplianceWarningEmail = async (
+  to: string,
+  expertName: string,
+  credentialsExpiry: Date | null,
+  language: Language = 'en'
+): Promise<void> => {
+  const t = (key: string) => getEmailContent('COMPLIANCE_WARNING', key, language);
+  const profileUrl = buildUrl('/expert/dashboard/verification');
+
+  const expirySection = credentialsExpiry
+    ? alertBox(
+        getEmailContent('COMPLIANCE_WARNING', 'expiryNotice', language,
+          credentialsExpiry.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+        ),
+        "warning"
+      )
+    : '';
+
+  const html = emailLayout(`
+    ${contentBlock(
+      heading(t('title')),
+      paragraph(getEmailContent('COMPLIANCE_WARNING', 'intro', language, expertName)),
+      paragraph(t('body')),
+      expirySection,
+      button(t('updateProfileButton'), profileUrl),
+    )}
+  `, { previewText: `Action required: Compliance notice for your MyJudicial account` });
+
+  await sendEmail({
+    to: [{ email: to, name: expertName }],
+    subject: getEmailSubject('COMPLIANCE_WARNING', language),
+    template: "COMPLIANCE_WARNING",
+    htmlContent: html,
+  });
+};
+
 
 
 

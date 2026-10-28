@@ -142,4 +142,31 @@ export const AdminFinanceController = {
       next(error);
     }
   },
+
+  /**
+   * GET /api/v1/admin/finance/azampay-balance
+   * Get live AzamPay Disbursement float balance (§3.2)
+   */
+  async getAzamPayBalance(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const balance = await AdminFinanceService.getAzamPayBalance();
+      res.json({ success: true, data: balance });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * POST /api/v1/admin/finance/reconcile/:id
+   * Actively reconcile a booking's payment and payout status with AzamPay v2
+   */
+  async reconcileBookingFinance(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = getByIdParamsSchema.parse(req.params);
+      const result = await AdminFinanceService.reconcilePayment(id);
+      res.json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

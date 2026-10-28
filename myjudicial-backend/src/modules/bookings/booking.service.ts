@@ -199,6 +199,10 @@ async function assertWithinAvailability(expertId: string, scheduledStart: Date, 
   }
 }
 
+// In-memory throttle map for active AzamPay status polling during getBookingById
+const lastBookingReconcilePollAt = new Map<string, number>();
+const RECONCILE_POLL_COOLDOWN_MS = 5000;
+
 export const BookingService = {
   /**
    * List all bookings for a user with pagination
@@ -220,10 +224,13 @@ export const BookingService = {
   },
 
   /**
-   * Get a single booking by ID
+   * Get a single booking by ID.
+   * When a booking is still awaiting payment (`paymentStatus === "PENDING"` with a `paymentReferenceId`),
+   * throttles an active AzamPay v2 status check (once every 5s) so `MomoPaymentTracker` resolves
+   * immediately even if the upstream webhook is delayed.
    */
   getBookingById: async (bookingId: string, userId: string) => {
-    const booking = await BookingRepository.findById(bookingId);
+    let booking = await BookingRepository.findById(bookingId);
 
     if (!booking) {
       return null;
@@ -237,6 +244,24 @@ export const BookingService = {
       (booking as any).expert?.user?.id === userId;
     if (!isOwner) {
       throw new AuthorizationError(getErrorMessage('UNAUTHORIZED'));
+    }
+
+    if (
+      booking.status === "PENDING" &&
+      booking.paymentStatus === "PENDING" &&
+      booking.paymentReferenceId
+    ) {
+      const now = Date.now();
+      const ageMs = now - new Date(booking.updatedAt || booking.createdAt).getTime();
+      const lastPolled = lastBookingReconcilePollAt.get(bookingId) || 0;
+
+      if (ageMs >= 4000 && now - lastPolled >= RECONCILE_POLL_COOLDOWN_MS) {
+        lastBookingReconcilePollAt.set(bookingId, now);
+        const reconciled = await EscrowService.reconcileBookingPayment(bookingId);
+        if (reconciled.reconciled) {
+          booking = (await BookingRepository.findById(bookingId)) ?? booking;
+        }
+      }
     }
 
     return booking;
@@ -350,6 +375,7 @@ export const BookingService = {
     // provider transaction reference so the payment webhook can resolve this
     // booking. Skipped entirely in booking-first mode.
     let transactionId: string | null = null;
+    let initResult: Awaited<ReturnType<typeof AzamPayService.initializeMnoPayment>> | null = null;
 
     if (paymentRequired) {
       try {
@@ -369,6 +395,7 @@ export const BookingService = {
           citizenName,
         });
         transactionId = result.transactionId;
+        initResult = result;
       } catch (err) {
         // If payment initialization fails (e.g. invalid credentials), cancel the stuck booking
         await BookingRepository.update(booking.id, { 
@@ -382,16 +409,30 @@ export const BookingService = {
         bookingId: booking.id,
         amount: service.flatFee,
         transactionId,
+        transactionStatus: initResult?.transactionStatus,
       });
     }
 
     // 7b. Persist the provider transaction reference so the payment webhook
     // (which looks bookings up by paymentReferenceId) can find this booking.
-    const updatedBooking = transactionId
+    let updatedBooking = transactionId
       ? await BookingRepository.update(booking.id, {
           paymentReferenceId: transactionId,
         })
       : booking;
+
+    // 7c. Per Rwanda_API_v2_Guide.md §2.2, Airtel Rwanda executes synchronously through GTBank
+    // and returns `transactionStatus: "success"` (`ACSC`) directly from POST /api/v2/rw/payments.
+    // If settled synchronously, lock escrow and confirm the booking immediately!
+    if (transactionId && initResult?.transactionStatus === "SUCCESS") {
+      await EscrowService.lockFunds(
+        booking.id,
+        transactionId,
+        initResult.pgReferenceId || transactionId,
+        dto.paymentMNO || "AIRTEL"
+      );
+      updatedBooking = (await BookingRepository.findById(booking.id)) ?? updatedBooking;
+    }
 
     // 8. Audit log
     await writeAuditLog({
@@ -585,6 +626,13 @@ export const BookingService = {
           // we are keeping it here to ensure consistency unless we build a full async saga.
           await AzamPayService.initiateRefund(payment.providerTransactionId, refundAmount, {
             citizenPhone: (freshBooking as any).citizen?.phone,
+            citizenName: [
+              (freshBooking as any).citizen?.firstName,
+              (freshBooking as any).citizen?.lastName,
+            ]
+              .filter(Boolean)
+              .join(" ") || "MyJudicial Client",
+            bookingId,
             currency: payment.currency,
             reason: cancellationReason,
           });
@@ -1144,6 +1192,13 @@ export const BookingService = {
       // External API call outside transaction
       await AzamPayService.initiateRefund(payment.providerTransactionId, refundAmount, {
         citizenPhone: (booking as any).citizen?.phone,
+        citizenName: [
+          (booking as any).citizen?.firstName,
+          (booking as any).citizen?.lastName,
+        ]
+          .filter(Boolean)
+          .join(" ") || "MyJudicial Client",
+        bookingId,
         currency: payment.currency,
         reason,
       });
@@ -1297,7 +1352,7 @@ export const BookingService = {
       throw new ValidationError("Service fee is invalid");
     }
 
-    const { transactionId } = await AzamPayService.initializeMnoPayment({
+    const retryResult = await AzamPayService.initializeMnoPayment({
       bookingId: booking.id,
       amount,
       currency: service.currency || "RWF",
@@ -1306,14 +1361,26 @@ export const BookingService = {
       citizenEmail: citizen.email,
       citizenName,
     });
+    const { transactionId } = retryResult;
 
     // Update booking with new payment reference and reset status
-    const updatedBooking = await BookingRepository.update(booking.id, {
+    let updatedBooking = await BookingRepository.update(booking.id, {
       paymentReferenceId: transactionId,
       status: "PENDING",
       paymentStatus: "PENDING",
       cancellationReason: undefined,
     });
+
+    // If Airtel settled synchronously, lock escrow immediately
+    if (retryResult.transactionStatus === "SUCCESS") {
+      await EscrowService.lockFunds(
+        booking.id,
+        transactionId,
+        retryResult.pgReferenceId || transactionId,
+        dto.paymentMNO || "AIRTEL"
+      );
+      updatedBooking = (await BookingRepository.findById(booking.id)) ?? updatedBooking;
+    }
 
     logger.info("Payment retried for booking", {
       bookingId: booking.id,

@@ -3,6 +3,7 @@ import { NotFoundError, ValidationError } from "../../shared/errors/index.js";
 import { EscrowStatus, PaymentStatus } from "../../generated/prisma/client.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { EscrowService } from "./escrow.service.js";
+import { AzamPayService } from "./azam.service.js";
 import { resolveExpertPayoutPhone } from "./payout.helper.js";
 
 interface PaymentFilters {
@@ -614,6 +615,38 @@ export const AdminFinanceService = {
       createdAt: ledger.createdAt,
       settledAt: ledger.settledAt,
       booking: ledger.booking,
+    };
+  },
+
+  /**
+   * Query live AzamPay Disbursement float balance (§3.2 GET /api/v2/rw/balance)
+   */
+  async getAzamPayBalance() {
+    const result = await AzamPayService.getDisbursementBalance();
+    return {
+      balance: result.data?.balance ?? 0,
+      currency: result.data?.currency ?? "RWF",
+      availableAccounts: result.data?.availableAccounts ?? [],
+      message: result.message,
+    };
+  },
+
+  /**
+   * Actively reconcile a booking's collection and/or payout transfer against AzamPay v2
+   */
+  async reconcilePayment(bookingId: string) {
+    const paymentReconciliation = await EscrowService.reconcileBookingPayment(bookingId);
+    const payment = await prisma.payment.findUnique({ where: { bookingId } });
+    let payoutReconciliation = null;
+
+    if (payment?.providerPayoutRef) {
+      payoutReconciliation = await EscrowService.reconcilePayoutTransfer(payment.providerPayoutRef);
+    }
+
+    return {
+      bookingId,
+      paymentReconciliation,
+      payoutReconciliation,
     };
   },
 };

@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { prisma } from "../database/prisma.js";
 import { logger } from "../../shared/utils/logger.js";
 import { AdminSettingService } from "../../modules/settings/admin-setting.service.js";
+import { EscrowService } from "../../modules/payments/escrow.service.js";
 
 const EXPIRY_MINUTES = 30;
 
@@ -9,12 +10,12 @@ const EXPIRY_MINUTES = 30;
  * Booking Expiry Cron — runs every 5 minutes.
  *
  * Finds PENDING bookings whose payment has not been confirmed within
- * EXPIRY_MINUTES of creation, marks them as CANCELLED, and frees the
- * reserved time slots so other clients can book them.
+ * EXPIRY_MINUTES of creation.
  *
- * Only applies in payment-required mode. In booking-first mode PENDING means
- * "awaiting the expert's response" (not "awaiting payment"), so the sweep is
- * skipped entirely.
+ * IMPORTANT: Before expiring any booking that has a `paymentReferenceId`,
+ * actively queries AzamPay v2 (`EscrowService.reconcileBookingPayment`) to verify
+ * whether the citizen actually paid while a webhook was delayed. Only bookings
+ * that remain unpaid after live reconciliation are marked CANCELLED.
  */
 export const startBookingExpiryCron = (): void => {
   cron.schedule("*/5 * * * *", async () => {
@@ -31,27 +32,53 @@ export const startBookingExpiryCron = (): void => {
     });
 
     let expiredCount = 0;
+    let recoveredCount = 0;
     try {
-      const result = await prisma.booking.updateMany({
+      const staleCandidates = await prisma.booking.findMany({
         where: {
           status: "PENDING",
-          paymentStatus: "PENDING",
+          paymentStatus: { in: ["PENDING", "FAILED"] },
           createdAt: { lt: cutoff },
         },
-        data: {
-          status: "CANCELLED",
-          cancellationReason: `Payment not received within ${EXPIRY_MINUTES} minutes — booking expired`,
+        select: {
+          id: true,
+          paymentStatus: true,
+          paymentReferenceId: true,
         },
+        take: 50,
       });
-      expiredCount = result.count;
+
+      for (const candidate of staleCandidates) {
+        if (candidate.paymentStatus === "PENDING" && candidate.paymentReferenceId) {
+          const reconciled = await EscrowService.reconcileBookingPayment(candidate.id);
+          if (reconciled.paymentStatus === "PAID") {
+            recoveredCount++;
+            continue;
+          }
+        }
+
+        const res = await prisma.booking.updateMany({
+          where: {
+            id: candidate.id,
+            status: "PENDING",
+            paymentStatus: { in: ["PENDING", "FAILED"] },
+          },
+          data: {
+            status: "CANCELLED",
+            cancellationReason: `Payment not received within ${EXPIRY_MINUTES} minutes — booking expired`,
+          },
+        });
+        expiredCount += res.count;
+      }
     } catch (err) {
       logger.error("Booking expiry cron: DB update failed", { err });
       return;
     }
 
-    if (expiredCount > 0) {
-      logger.info("Booking expiry cron: expired stale PENDING bookings", {
-        count: expiredCount,
+    if (expiredCount > 0 || recoveredCount > 0) {
+      logger.info("Booking expiry cron: processed stale PENDING bookings", {
+        expiredCount,
+        recoveredCount,
       });
     } else {
       logger.info("Booking expiry cron: no expired bookings found");

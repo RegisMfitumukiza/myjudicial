@@ -50,6 +50,48 @@ export const PaymentRepository = {
     });
   },
 
+  findByPayoutRef: async (providerPayoutRef: string, tx?: any) => {
+    const db = tx || prisma;
+    return db.payment.findFirst({
+      where: { providerPayoutRef },
+      include: {
+        booking: {
+          include: {
+            citizen: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+            expert: {
+              select: {
+                id: true,
+                displayName: true,
+                momoNumber: true,
+                user: {
+                  select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    preferredLanguage: true,
+                  },
+                },
+              },
+            },
+            service: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  },
+
   updateByBookingId: async (
     bookingId: string,
     data: Prisma.PaymentUpdateInput,

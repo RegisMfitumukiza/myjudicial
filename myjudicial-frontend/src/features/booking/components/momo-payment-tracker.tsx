@@ -110,15 +110,43 @@ export function MomoPaymentTracker({
     }
   }, [booking]);
 
-  // Countdown timer for USSD approval window
+  // Countdown timer for USSD approval window + live AzamPay v2 status verification
   useEffect(() => {
     if (status !== "WAITING") return;
 
+    const verifyWithGateway = async (isFinalCheck: boolean) => {
+      try {
+        const res = await apiFetch<{
+          success: boolean;
+          data?: { paymentStatus?: string; reconciled?: boolean };
+        }>(`/payments/${bookingId}/verify`, { method: "POST" });
+
+        if (res?.data?.paymentStatus === "PAID") {
+          setStatus("CONFIRMED");
+          return;
+        }
+        if (res?.data?.paymentStatus === "FAILED") {
+          setStatus("FAILED");
+          return;
+        }
+        if (isFinalCheck) {
+          setStatus("EXPIRED");
+        }
+      } catch {
+        if (isFinalCheck) {
+          setStatus("EXPIRED");
+        }
+      }
+    };
+
     const timer = setInterval(() => {
       setSecondsRemaining((prev) => {
+        if (prev === 15) {
+          void verifyWithGateway(false);
+        }
         if (prev <= 1) {
           clearInterval(timer);
-          setStatus("EXPIRED");
+          void verifyWithGateway(true);
           return 0;
         }
         return prev - 1;
@@ -126,7 +154,7 @@ export function MomoPaymentTracker({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [status]);
+  }, [status, bookingId]);
 
   // Handle retry payment push
   const handleRetryPayment = async (phoneToUse?: string, mnoToUse?: string) => {

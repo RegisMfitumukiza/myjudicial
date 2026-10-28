@@ -12,6 +12,7 @@ import { startEscrowTimeoutCron } from "../../infrastructure/cron/escrow-timeout
 import { startAuditLogCleanupCron } from "../../infrastructure/cron/audit-log-cleanup.cron.js";
 import { startPayoutRetryCron } from "../../infrastructure/cron/payout-retry.cron.js";
 import { startConsultationAutoReleaseCron } from "../../infrastructure/cron/consultation-auto-release.cron.js";
+import { startAzamPayReconciliationCron } from "../../infrastructure/cron/azampay-reconciliation.cron.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 
@@ -41,6 +42,7 @@ async function startServer() {
     startAuditLogCleanupCron();
     startPayoutRetryCron();
     startConsultationAutoReleaseCron();
+    startAzamPayReconciliationCron();
     logger.info("Background jobs started");
   } catch (error) {
     logger.error("Failed to start server", { error });

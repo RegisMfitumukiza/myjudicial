@@ -1,389 +1,247 @@
-// src/modules/payment/payment.controller.ts
-import { Request, Response, NextFunction } from "express";
-import { EscrowService } from "./escrow.service.js";
-import { prisma } from "../../infrastructure/database/prisma.js";
-import { logger } from "../../shared/utils/logger.js";
+import { Request, Response } from "express";
 import crypto from "crypto";
+import { EscrowService } from "./escrow.service.js";
+import { AzamPayService } from "./azam.service.js";
+import { logger } from "../../shared/utils/logger.js";
+import { asyncHandler } from "../../shared/utils/asyncHandler.js";
+import { NotFoundError, AuthorizationError, ValidationError } from "../../shared/errors/index.js";
+import { PaymentRepository } from "./payment.repository.js";
+import { BookingRepository } from "../bookings/booking.repository.js";
 
-const toBuffer = (body: unknown): Buffer => {
-  if (Buffer.isBuffer(body)) return body;
-  if (typeof body === "string") return Buffer.from(body);
-  return Buffer.from(JSON.stringify(body ?? {}));
+/**
+ * Verifies the shared secret token passed by AzamPay on the webhook callback URL
+ * (`?token=<secret>`) or via an `X-Webhook-Token` / `X-Callback-Token` header.
+ *
+ * Uses `crypto.timingSafeEqual` to prevent timing oracle attacks.
+ */
+const verifyWebhookToken = (req: Request): boolean => {
+  const secret = process.env.AZAMPAY_WEBHOOK_TOKEN || process.env.AZAMPAY_WEBHOOK_SECRET;
+  if (!secret) {
+    logger.error("AZAMPAY_WEBHOOK_TOKEN not configured — rejecting webhook");
+    return false;
+  }
+
+  const provided =
+    (typeof req.query.token === "string" ? req.query.token : undefined) ||
+    (req.headers["x-webhook-token"] as string | undefined) ||
+    (req.headers["x-callback-token"] as string | undefined) ||
+    (req.headers["x-azampay-signature"] as string | undefined);
+
+  if (!provided) {
+    logger.warn("AzamPay webhook missing verification token");
+    return false;
+  }
+
+  const expectedBuf = Buffer.from(secret, "utf8");
+  const providedBuf = Buffer.from(provided, "utf8");
+
+  if (expectedBuf.length !== providedBuf.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuf, providedBuf);
 };
 
 /**
- * Verifies the webhook URL token query parameter against AZAMPAY_WEBHOOK_TOKEN.
- *
- * AzamPay officially confirmed they send raw JSON payloads with NO signature
- * header (confirmed via email, Oct 2026). As the industry-standard fallback for
- * providers that do not sign webhook bodies, we embed a long random secret token
- * directly in the webhook URL we register with AzamPay:
- *
- *   POST https://api.myjudicial.com/api/v1/payments/webhook?token=<AZAMPAY_WEBHOOK_TOKEN>
- *
- * Since only AzamPay knows the URL (we gave it to them), an attacker who doesn't
- * know the token cannot spoof a fake payment success notification.
- *
- * Fails closed: if AZAMPAY_WEBHOOK_TOKEN is not configured, ALL webhook requests
- * are rejected, preventing the endpoint from being wide-open on a misconfigured
- * server.
+ * Safely parses raw JSON buffer, string, or pre-parsed object body.
  */
-const verifyWebhookToken = (tokenQuery?: string): boolean => {
-  const secret = process.env.AZAMPAY_WEBHOOK_TOKEN;
-  if (!secret) {
-    // Token env var not set — reject everything to avoid running unsecured
-    logger.error("AZAMPAY_WEBHOOK_TOKEN is not configured — rejecting all webhook calls");
-    return false;
-  }
-  if (!tokenQuery) return false;
-  // Timing-safe comparison to prevent timing attacks
+const parseWebhookBody = (body: unknown): Record<string, any> | null => {
   try {
-    const secretBuf = Buffer.from(secret);
-    const tokenBuf = Buffer.from(tokenQuery);
-    if (secretBuf.length !== tokenBuf.length) return false;
-    return crypto.timingSafeEqual(secretBuf, tokenBuf);
+    if (Buffer.isBuffer(body)) {
+      return JSON.parse(body.toString("utf8"));
+    }
+    if (typeof body === "string") {
+      return JSON.parse(body);
+    }
+    if (body && typeof body === "object") {
+      return body as Record<string, any>;
+    }
+    return null;
   } catch {
-    return false;
+    return null;
   }
 };
+
+const unifiedWebhookHandler = asyncHandler(async (req: Request, res: Response) => {
+  if (!verifyWebhookToken(req)) {
+    logger.warn("Invalid AzamPay webhook token", { ip: req.ip });
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized webhook request",
+    });
+  }
+
+  const payload = parseWebhookBody(req.body);
+  if (!payload) {
+    logger.error("Failed to parse AzamPay webhook body");
+    return res.status(400).json({
+      success: false,
+      message: "Invalid JSON payload",
+    });
+  }
+
+  logger.info("AzamPay unified webhook received", { payload });
+
+  try {
+    const result = await EscrowService.handleUnifiedWebhook(payload);
+    return res.status(200).json({
+      received: true,
+      ...(result
+        ? {
+            category: result.category,
+            outcome: result.outcome,
+            processed: result.processed,
+          }
+        : {}),
+    });
+  } catch (error) {
+    // Never return 5xx to AzamPay after receiving a valid payload; log for reconciliation cron
+    logger.error("Error processing AzamPay unified webhook", { error, payload });
+    return res.status(200).json({ received: true });
+  }
+});
 
 export const PaymentController = {
   /**
    * POST /api/v1/payments/webhook
-   * Azam Pay calls this when citizen completes MoMo payment.
+   * (Also aliased at POST /api/v1/payments/payout-webhook)
    *
-   * Security: AzamPay confirmed they send no signature header (raw JSON only).
-   * We use a secret URL token (AZAMPAY_WEBHOOK_TOKEN) embedded in the webhook
-   * URL we registered with AzamPay. Only AzamPay knows this URL.
+   * Single Unified AzamPay Callback Endpoint.
    */
-  handleWebhook: async (req: Request, res: Response): Promise<void> => {
-    // Verify URL token (primary security for no-signature providers)
-    const urlToken = req.query.token as string | undefined;
-    if (!verifyWebhookToken(urlToken)) {
-      logger.warn("Azam Pay webhook rejected — invalid or missing URL token", {
-        ip: req.ip,
-        hasToken: !!urlToken,
-      });
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    const rawBody = toBuffer(req.body);
-
-    let payload: any;
-    try {
-      payload = JSON.parse(rawBody.toString());
-    } catch {
-      logger.error("Failed to parse Azam Pay webhook body");
-      res.status(400).json({ error: "Invalid JSON" });
-      return;
-    }
-
-    logger.info("Azam Pay webhook received", {
-      type: payload.type,
-      success: payload.success,
-      status: payload.data?.transactionStatus || payload.transactionstatus,
-      externalId: payload.data?.merchantReferenceId || payload.utilityref || payload.externalId,
-    });
-
-    // Normalize Rwanda callback format (both v2 and v1) to what EscrowService expects:
-    // Rwanda v2: { type: "payment.callback", data: { transactionStatus, merchantReferenceId, providerReferenceId } }
-    // Rwanda v1: { transactionstatus, utilityref, reference, message }
-    // Legacy:    { transactionstatus, externalId, reference }
-    const normalized = {
-      transactionstatus: payload.data?.transactionStatus || payload.transactionstatus,
-      externalId: payload.data?.merchantReferenceId || payload.utilityref || payload.externalId,
-      reference: payload.data?.providerReferenceId || payload.reference || payload.transid,
-      message: payload.message || payload.data?.message,
-    };
-
-    try {
-      await EscrowService.handlePaymentWebhook(normalized);
-    } catch (error) {
-      logger.error("Azam Pay webhook processing error", { error });
-    }
-
-    res.status(200).json({ received: true, success: true });
-  },
-
-  /**
-   * GET /api/v1/payments/callback
-   * Azam Pay redirects the citizen's browser here after a checkout attempt.
-   * Resolves the real outcome from our own records rather than trusting the
-   * redirect query string, since we don't control what Azam Pay puts there.
-   */
-  handleCallback: async (req: Request, res: Response): Promise<void> => {
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const reference = (req.query.reference ??
-      req.query.tx_ref ??
-      req.query.externalId ??
-      req.query.transactionId) as string | undefined;
-
-    if (!reference) {
-      res.redirect(`${frontendUrl}/client/dashboard/consultations`);
-      return;
-    }
-
-    try {
-      const outcome = await EscrowService.resolvePaymentOutcome(reference);
-
-      if (outcome === "PAID") {
-        res.redirect(`${frontendUrl}/bookings/success?ref=${encodeURIComponent(reference)}`);
-        return;
-      }
-
-      if (outcome === "FAILED") {
-        res.redirect(`${frontendUrl}/bookings/failed?ref=${encodeURIComponent(reference)}`);
-        return;
-      }
-
-      // Outcome not yet determined (still PENDING, or webhook hasn't arrived) —
-      // send the citizen to their dashboard where live booking status is visible.
-      res.redirect(`${frontendUrl}/client/dashboard/consultations`);
-    } catch (error) {
-      logger.error("Payment callback lookup failed", { reference, error });
-      res.redirect(`${frontendUrl}/client/dashboard/consultations`);
-    }
-  },
+  handleWebhook: unifiedWebhookHandler,
 
   /**
    * POST /api/v1/payments/payout-webhook
-   * Azam Pay calls this when an expert payout transfer completes.
-   * Protected by the same URL token as the payment webhook.
+   * Backward-compatible alias that delegates to the unified webhook handler.
    */
-  handlePayoutWebhook: async (req: Request, res: Response): Promise<void> => {
-    const urlToken = req.query.token as string | undefined;
-    if (!verifyWebhookToken(urlToken)) {
-      logger.warn("Azam Pay payout webhook rejected — invalid or missing URL token", {
-        ip: req.ip,
-        hasToken: !!urlToken,
-      });
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+  handlePayoutWebhook: unifiedWebhookHandler,
+
+  /**
+   * GET /api/v1/payments/callback
+   *
+   * Browser redirect endpoint after checkout.
+   * Resolves the outcome from our database — and if the booking is still `PENDING`,
+   * actively queries AzamPay v2 (`GET /api/v2/rw/payments/references/{referenceId}`)
+   * before redirecting so delayed webhooks never strand the user!
+   */
+  paymentCallback: asyncHandler(async (req: Request, res: Response) => {
+    const rawRef =
+      req.query.reference ??
+      req.query.referenceId ??
+      req.query.tx_ref ??
+      req.query.externalId ??
+      req.query.transactionId;
+    const reference = typeof rawRef === "string" ? rawRef.trim() : "";
+
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+
+    if (!reference) {
+      logger.info("Payment callback hit without reference param", { query: req.query });
+      return res.redirect(`${frontendUrl}/client/dashboard/consultations`);
     }
 
-    let payload: any;
-    try {
-      payload = JSON.parse(toBuffer(req.body).toString());
-    } catch {
-      payload = req.body;
+    const outcome = await EscrowService.resolvePaymentOutcome(reference);
+    logger.info("Payment callback resolved outcome", { reference, outcome });
+
+    const encodedRef = encodeURIComponent(reference);
+    if (outcome === "PAID") {
+      return res.redirect(`${frontendUrl}/bookings/success?ref=${encodedRef}`);
+    }
+    if (outcome === "FAILED") {
+      return res.redirect(`${frontendUrl}/bookings/failed?ref=${encodedRef}`);
+    }
+    return res.redirect(`${frontendUrl}/client/dashboard/consultations`);
+  }),
+
+  /**
+   * GET /api/v1/payments/lookup-account/:accountNumber
+   *
+   * Resolves a Rwandan mobile money MSISDN via AzamPay Checkout API v2 (§2.1)
+   * (`GET /api/v2/rw/accounts/{accountNumber}`) to return the account holder's KYC name
+   * and MNO provider (`MTN` or `AIRTEL`).
+   */
+  lookupAccount: asyncHandler(async (req: Request, res: Response) => {
+    const accountNumber = String(req.params.accountNumber || "").trim();
+    const digits = accountNumber.replace(/\D/g, "");
+    if (digits.length < 9 || digits.length > 20) {
+      throw new ValidationError("Account number must be between 9 and 20 digits");
     }
 
-    logger.info("Azam Pay payout webhook received", { payload });
+    const result = await AzamPayService.lookupPaymentAccount(digits);
+    return res.status(200).json({
+      success: result.success,
+      data: result.data ?? null,
+      message: result.message,
+    });
+  }),
 
-    res.status(200).json({ received: true });
-  },
+  /**
+   * POST /api/v1/payments/:bookingId/verify
+   *
+   * Actively polls AzamPay v2 (`GET /api/v2/rw/payments/references/{referenceId}`)
+   * for a booking's payment status and reconciles our database state immediately.
+   * Useful when a webhook is delayed while the client is waiting on `MomoPaymentTracker`.
+   */
+  verifyBookingPayment: asyncHandler(async (req: Request, res: Response) => {
+    const bookingId = req.params.bookingId as string;
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
+
+    const booking = await BookingRepository.findById(bookingId);
+    if (!booking) {
+      throw new NotFoundError("Booking not found");
+    }
+
+    const isCitizen = booking.citizenId === userId;
+    const isExpert = (booking as any).expert?.user?.id === userId;
+    const isAdmin = userRole === "ADMIN";
+
+    if (!isCitizen && !isExpert && !isAdmin) {
+      throw new AuthorizationError("Unauthorized to verify payment for this booking");
+    }
+
+    const reconciliation = await EscrowService.reconcileBookingPayment(bookingId);
+
+    return res.status(200).json({
+      success: true,
+      data: reconciliation,
+    });
+  }),
 
   /**
    * GET /api/v1/payments/:bookingId
-   * Get payment details for a specific booking
+   * Get payment details for a booking (actively reconciles with AzamPay v2 if still PENDING).
    */
-  getPaymentByBooking: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const { bookingId } = req.params as { bookingId: string };
-      const userId = req.user?.id;
+  getPaymentDetails: asyncHandler(async (req: Request, res: Response) => {
+    const bookingId = req.params.bookingId as string;
+    const userId = req.user!.id;
+    const userRole = req.user!.role;
 
-      const payment = await prisma.payment.findUnique({
-        where: { bookingId },
-        include: {
-          booking: {
-            include: {
-              service: {
-                select: {
-                  id: true,
-                  name: true,
-                  flatFee: true,
-                  currency: true,
-                  durationMin: true,
-                  category: true,
-                  deliveryMode: true,
-                },
-              },
-              citizen: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  phone: true,
-                },
-              },
-              expert: {
-                select: {
-                  id: true,
-                  displayName: true,
-                  momoNumber: true,
-                  user: {
-                    select: {
-                      id: true,
-                      email: true,
-                      phone: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
+    let payment = await PaymentRepository.findByBookingIdWithDetails(bookingId);
 
-      if (!payment) {
-        res.status(404).json({
-          success: false,
-          message: "Payment not found",
-        });
-        return;
-      }
-
-      // Only citizen or expert of this booking can view
-      const isCitizen = payment.booking.citizenId === userId;
-      const isExpert = (payment.booking.expert as any)?.user?.id === userId;
-
-      if (!isCitizen && !isExpert) {
-        res.status(403).json({
-          success: false,
-          message: "Unauthorized to view this payment",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: payment,
-      });
-    } catch (error) {
-      next(error);
+    // If no payment record exists yet, check if the booking is PENDING and can be reconciled live
+    if (!payment) {
+      await EscrowService.reconcileBookingPayment(bookingId);
+      payment = await PaymentRepository.findByBookingIdWithDetails(bookingId);
     }
-  },
 
-  /**
-   * Get printable receipt data for a booking
-   */
-  getReceipt: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    try {
-      const { bookingId } = req.params as { bookingId: string };
-      const userId = req.user?.id;
-
-      const payment = await prisma.payment.findUnique({
-        where: { bookingId },
-        include: {
-          booking: {
-            include: {
-              service: {
-                select: {
-                  id: true,
-                  name: true,
-                  flatFee: true,
-                  currency: true,
-                  durationMin: true,
-                  category: true,
-                  deliveryMode: true,
-                },
-              },
-              citizen: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  phone: true,
-                },
-              },
-              expert: {
-                select: {
-                  id: true,
-                  displayName: true,
-                  momoNumber: true,
-                  user: {
-                    select: {
-                      id: true,
-                      email: true,
-                      phone: true,
-                    },
-                  },
-                },
-              },
-              escrowLedger: {
-                select: {
-                  id: true,
-                  status: true,
-                  settledAt: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      if (!payment) {
-        res.status(404).json({
-          success: false,
-          message: "Payment not found",
-        });
-        return;
-      }
-
-      const isCitizen = payment.booking.citizenId === userId;
-      const isExpert = (payment.booking.expert as any)?.user?.id === userId;
-
-      if (!isCitizen && !isExpert) {
-        res.status(403).json({
-          success: false,
-          message: "Unauthorized to view this receipt",
-        });
-        return;
-      }
-
-      const receipt = {
-        receiptNo: `REC-${payment.txRef}`,
-        transactionRef: payment.txRef,
-        providerTransactionId: payment.providerTransactionId,
-        status: payment.status,
-        paidAt: payment.paidAt,
-        createdAt: payment.createdAt,
-        amount: payment.amount,
-        currency: payment.currency,
-        platformFee: payment.platformFee,
-        expertPayout: payment.expertPayout,
-        booking: {
-          id: payment.booking.id,
-          status: payment.booking.status,
-          scheduledStart: payment.booking.scheduledStart,
-          scheduledEnd: payment.booking.scheduledEnd,
-          completedAt: payment.booking.completedAt,
-          actualDurationMin: payment.booking.actualDurationMin,
-        },
-        service: payment.booking.service,
-        citizen: {
-          name: `${payment.booking.citizen.firstName} ${payment.booking.citizen.lastName}`,
-          email: payment.booking.citizen.email,
-        },
-        expert: {
-          name: payment.booking.expert.displayName,
-          email: payment.booking.expert.user.email,
-        },
-        escrow: payment.booking.escrowLedger
-          ? {
-              status: payment.booking.escrowLedger.status,
-              settledAt: payment.booking.escrowLedger.settledAt,
-            }
-          : null,
-      };
-
-      res.status(200).json({
-        success: true,
-        data: receipt,
-      });
-    } catch (error) {
-      next(error);
+    if (!payment) {
+      throw new NotFoundError("Payment not found");
     }
-  },
+
+    const isOwner =
+      payment.booking.citizenId === userId ||
+      payment.booking.expertId === userId ||
+      (payment.booking as any).expert?.user?.id === userId ||
+      userRole === "ADMIN";
+
+    if (!isOwner) {
+      throw new AuthorizationError("Unauthorized to view this payment");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: payment,
+    });
+  }),
 };

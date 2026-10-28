@@ -1,37 +1,54 @@
-// src/modules/payment/payment.routes.ts
+// src/modules/payments/payment.routes.ts
 import { Router } from "express";
 import { PaymentController } from "./payment.controller.js";
 import { authenticate } from "../../shared/middleware/authenticate.js";
 
 const router = Router();
 
-// ─── Public routes — Azam Pay calls these directly ──────────────────────────
-router.post(
-  "/payments/webhook",
-  PaymentController.handleWebhook
-);
+/**
+ * Single Unified AzamPay Webhook Callback (Public — verified via AZAMPAY_WEBHOOK_TOKEN).
+ * Handles all AzamPay Rwanda v2 callbacks:
+ *  - Collections / Checkout (`BM-...`)
+ *  - Expert Disbursement Payouts (`PO-...`)
+ *  - Citizen Refund Transfers (`RF-...`)
+ */
+router.post("/payments/webhook", PaymentController.handleWebhook);
 
-router.post(
-  "/payments/payout-webhook",
-  PaymentController.handlePayoutWebhook
-);
+/**
+ * Backward-compatible alias that routes to the same unified webhook handler.
+ */
+router.post("/payments/payout-webhook", PaymentController.handlePayoutWebhook);
 
+/**
+ * Browser redirect callback after checkout.
+ */
+router.get("/payments/callback", PaymentController.paymentCallback);
+
+/**
+ * Authenticated v2 Account Lookup (§2.1 `GET /api/v2/rw/accounts/{accountNumber}`).
+ */
 router.get(
-  "/payments/callback",
-  PaymentController.handleCallback
+  "/payments/lookup-account/:accountNumber",
+  authenticate,
+  PaymentController.lookupAccount
 );
 
-// ─── Protected routes — require auth ────────────────────────────────────────
+/**
+ * Authenticated live payment status verification & reconciliation (§2.4).
+ */
+router.post(
+  "/payments/:bookingId/verify",
+  authenticate,
+  PaymentController.verifyBookingPayment
+);
+
+/**
+ * Authenticated payment details by bookingId.
+ */
 router.get(
   "/payments/:bookingId",
   authenticate,
-  PaymentController.getPaymentByBooking
-);
-
-router.get(
-  "/payments/:bookingId/receipt",
-  authenticate,
-  PaymentController.getReceipt
+  PaymentController.getPaymentDetails
 );
 
 export default router;

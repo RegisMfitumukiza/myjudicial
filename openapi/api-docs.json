@@ -15289,17 +15289,17 @@
         "tags": [
           "Payments"
         ],
-        "summary": "Azam Pay MNO checkout webhook",
-        "description": "**Called by Azam Pay**, not by the client app. Receives the MNO checkout callback after a citizen completes a Mobile Money payment. When `transactionstatus` is `success`/`SUCCESS`, looks up the booking by `Booking.paymentReferenceId === externalId` and calls `EscrowService.lockFunds` to confirm it. On failure, marks `Booking.paymentStatus = FAILED` (if still PENDING) so `GET /payments/callback` can resolve a definitive outcome. Always returns `200 { received: true }` once the signature check passes.\n\n**Security:** requires the `x-azampay-signature` header — HMAC-SHA256 of the raw request body using `AZAMPAY_WEBHOOK_SECRET`. This is MyJudicial's own verification scheme; confirm Azam Pay's actual webhook signing mechanism against their dashboard/docs before going live.",
+        "summary": "AzamPay Unified Callback Webhook (Collections, Payouts & Refunds)",
+        "description": "**Called by AzamPay**, not by the client app. AzamPay configures a single callback URL per merchant account (`POST /api/v1/payments/webhook?token=<AZAMPAY_WEBHOOK_TOKEN>`). This unified handler classifies incoming callbacks by `referenceId` prefix (`BM-` for citizen MoMo collections, `PO-` for expert payout disbursements, `RF-` for citizen refund disbursements) or payload type, and routes them to:\n- **Collection (`BM-...`)**: `EscrowService.handlePaymentWebhook` (`ACSC`/`success` locks escrow & confirms booking; `RJCT`/`failure` marks `FAILED`).\n- **Expert Payout (`PO-...`)**: `EscrowService.handlePayoutWebhook` (`success` confirms `DISBURSED_TO_EXPERT`; `failure` re-queues for automated retry with a fresh `referenceId`).\n- **Refund (`RF-...`)**: `EscrowService.handleRefundWebhook`.\n\n**Security:** verified via `?token=<AZAMPAY_WEBHOOK_TOKEN>` query parameter or `X-Webhook-Token` header using `crypto.timingSafeEqual`.",
         "parameters": [
           {
-            "name": "x-azampay-signature",
-            "in": "header",
-            "required": true,
+            "name": "token",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string"
             },
-            "description": "HMAC-SHA256(rawBody, AZAMPAY_WEBHOOK_SECRET), hex-encoded"
+            "description": "Shared webhook verification token matching AZAMPAY_WEBHOOK_TOKEN"
           }
         ],
         "requestBody": {
@@ -15314,7 +15314,7 @@
         },
         "responses": {
           "200": {
-            "description": "Webhook received (always, regardless of transactionstatus)",
+            "description": "Webhook received and routed",
             "content": {
               "application/json": {
                 "schema": {
@@ -15334,7 +15334,7 @@
             }
           },
           "401": {
-            "description": "Missing or invalid x-azampay-signature",
+            "description": "Missing or invalid webhook token",
             "content": {
               "application/json": {
                 "schema": {
@@ -15351,22 +15351,22 @@
         "tags": [
           "Payments"
         ],
-        "summary": "Azam Pay payout transfer webhook (unimplemented stub)",
-        "description": "**Not yet implemented.** Signature-verified the same way as `/payments/webhook`, but `PaymentController.handlePayoutWebhook` does not process the request body yet — it always responds `200 { received: true }` once the signature check passes. Intended to stamp `payoutSentAt` on the matching `Payment` record once Azam Pay's payout webhook payload is confirmed.",
+        "summary": "AzamPay payout webhook alias (delegates to unified /payments/webhook)",
+        "description": "Backward-compatible alias that delegates to the unified `POST /payments/webhook` handler.",
         "parameters": [
           {
-            "name": "x-azampay-signature",
-            "in": "header",
-            "required": true,
+            "name": "token",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string"
             },
-            "description": "HMAC-SHA256(rawBody, AZAMPAY_WEBHOOK_SECRET), hex-encoded"
+            "description": "Shared webhook verification token matching AZAMPAY_WEBHOOK_TOKEN"
           }
         ],
         "responses": {
           "200": {
-            "description": "Acknowledged (no-op — request body is not processed)",
+            "description": "Webhook received and routed",
             "content": {
               "application/json": {
                 "schema": {
@@ -15376,7 +15376,7 @@
             }
           },
           "401": {
-            "description": "Missing or invalid x-azampay-signature",
+            "description": "Missing or invalid webhook token",
             "content": {
               "application/json": {
                 "schema": {

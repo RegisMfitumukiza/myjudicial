@@ -140,6 +140,18 @@ jobs:
               echo "BACKEND_TAG=${{ github.sha }}" >> .env
             fi
 
+            # Ensure AzamPay Rwanda v2 production flags are enabled in VPS .env
+            if grep -q '^AZAMPAY_ENV=' .env; then
+              sed -i "s|^AZAMPAY_ENV=.*|AZAMPAY_ENV=production|" .env
+            else
+              echo "AZAMPAY_ENV=production" >> .env
+            fi
+            if grep -q '^AZAMPAY_DISBURSEMENT_ENABLED=' .env; then
+              sed -i "s|^AZAMPAY_DISBURSEMENT_ENABLED=.*|AZAMPAY_DISBURSEMENT_ENABLED=true|" .env
+            else
+              echo "AZAMPAY_DISBURSEMENT_ENABLED=true" >> .env
+            fi
+
             # Prefer registry image; fall back to building on the VPS while
             # Docker Hub login is not yet configured there.
             # Retry pulls - the VPS's international route is lossy

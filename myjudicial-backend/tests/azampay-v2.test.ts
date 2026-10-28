@@ -1,3 +1,4 @@
+import "./api/helpers/env.js";
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -191,6 +192,9 @@ describe("AzamPayService Live HTTP v2 Protocol & Error Handling (§1, §2, §3, 
     process.env.AZAMPAY_CLIENT_ID = "019d61d7-f9b7-72f1-be76-6f0f0bdcb29e";
     process.env.AZAMPAY_CLIENT_SECRET = "test-secret-xyz";
     process.env.AZAMPAY_API_KEY = "test-api-key-123";
+    delete process.env.AZAMPAY_AUTH_URL;
+    delete process.env.AZAMPAY_CHECKOUT_URL;
+    delete process.env.AZAMPAY_DISBURSEMENT_URL;
     delete process.env.AZAMPAY_SIMULATE_SANDBOX;
   });
 

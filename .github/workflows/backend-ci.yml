@@ -141,6 +141,7 @@ jobs:
             fi
 
             # Ensure AzamPay Rwanda v2 production flags are enabled in VPS .env
+            sed -i '/^AZAMPAY_\(API_KEY\|WEBHOOK_TOKEN\|WEBHOOK_SECRET\|SOURCE_\|DEST_\)=/d' .env || true
             if grep -q '^AZAMPAY_ENV=' .env; then
               sed -i "s|^AZAMPAY_ENV=.*|AZAMPAY_ENV=production|" .env
             else

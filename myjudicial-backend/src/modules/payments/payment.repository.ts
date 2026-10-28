@@ -50,6 +50,16 @@ export const PaymentRepository = {
     });
   },
 
+  findByProviderTransactionId: async (providerTransactionId: string, tx?: any) => {
+    const db = tx || prisma;
+    return db.payment.findFirst({
+      where: { providerTransactionId },
+      include: {
+        booking: true,
+      },
+    });
+  },
+
   findByPayoutRef: async (providerPayoutRef: string, tx?: any) => {
     const db = tx || prisma;
     return db.payment.findFirst({

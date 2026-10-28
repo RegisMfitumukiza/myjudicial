@@ -19,7 +19,7 @@ import { detectMomoProvider } from "./payout.helper.js";
  *     - GET  /api/v2/rw/payments/references/{referenceId}
  *  3. Disbursement API v2 (Transfers — Payouts & Refunds across 14 Rwandan institutions):
  *     - Test: https://api-disbursement-test-rw.azampay.co.tz
- *     - Prod: https://api-disbursement.azampay.co.rw
+ *     - Prod: https://disbursement.azampay.co.rw
  *     - GET  /api/v2/rw/accounts/{accountNumber}
  *     - GET  /api/v2/rw/balance
  *     - POST /api/v2/rw/transfers
@@ -82,7 +82,9 @@ export interface AzamPayV2Envelope<T = any> {
 
 export interface AzamPayAccountLookupData {
   accountNumber: string;
-  fullName: string;
+  fullName?: string;
+  accountName?: string;
+  bankName?: string;
   provider?: string;
   currency?: string;
 }
@@ -183,32 +185,49 @@ export interface AzamPayDisbursementResult {
 }
 
 // ── Environment & Base URLs (§0, §1, §2, §3) ─────────────────────────────────
-const isProduction = process.env.NODE_ENV === "production";
+/**
+ * Determines whether AzamPay should target Production (`*.azampay.co.rw`)
+ * or Sandbox/Test (`*-test-rw.azampay.co.tz`).
+ *
+ * Priority:
+ *  1. Explicit `AZAMPAY_ENV` ("production" vs "sandbox" / "test")
+ *  2. Fallback to `NODE_ENV === "production"`
+ */
+export const isAzamPayProduction = (): boolean => {
+  const azamEnv = (process.env.AZAMPAY_ENV || "").trim().toLowerCase();
+  if (azamEnv === "production" || azamEnv === "prod" || azamEnv === "live") {
+    return true;
+  }
+  if (azamEnv === "sandbox" || azamEnv === "test") {
+    return false;
+  }
+  return process.env.NODE_ENV === "production";
+};
 
-const AUTH_BASE_URL =
+export const getAuthBaseUrl = (): string =>
   process.env.AZAMPAY_AUTH_URL ||
-  (isProduction
+  (isAzamPayProduction()
     ? "https://authenticator.azampay.co.rw"
     : "https://authenticator-sandbox.azampay.co.tz");
 
-const CHECKOUT_BASE_URL =
+export const getCheckoutBaseUrl = (): string =>
   process.env.AZAMPAY_BASE_URL ||
   process.env.AZAMPAY_CHECKOUT_URL ||
-  (isProduction
+  (isAzamPayProduction()
     ? "https://checkout.azampay.co.rw"
     : "https://checkout-test-rw.azampay.co.tz");
 
-const DISBURSEMENT_BASE_URL =
+export const getDisbursementBaseUrl = (): string =>
   process.env.AZAMPAY_DISBURSEMENT_URL ||
-  (isProduction
-    ? "https://api-disbursement.azampay.co.rw"
+  (isAzamPayProduction()
+    ? "https://disbursement.azampay.co.rw"
     : "https://api-disbursement-test-rw.azampay.co.tz");
 
 const getCredentials = () => {
-  const appName = process.env.AZAMPAY_APP_NAME || "";
-  const clientId = process.env.AZAMPAY_CLIENT_ID || "";
-  const clientSecret = process.env.AZAMPAY_CLIENT_SECRET || "";
-  const apiKey = process.env.AZAMPAY_API_KEY || clientId;
+  const appName = (process.env.AZAMPAY_APP_NAME || "").trim();
+  const clientId = (process.env.AZAMPAY_CLIENT_ID || "").trim();
+  const clientSecret = (process.env.AZAMPAY_CLIENT_SECRET || "").trim();
+  const apiKey = (process.env.AZAMPAY_API_KEY || clientId).trim();
 
   return { appName, clientId, clientSecret, apiKey };
 };
@@ -226,7 +245,7 @@ const shouldSimulateLocally = (): boolean => {
   }
   const { appName, clientId, clientSecret } = getCredentials();
   const hasCredentials = Boolean(appName && clientId && clientSecret);
-  if (!hasCredentials && !isProduction) {
+  if (!hasCredentials && !isAzamPayProduction()) {
     return true;
   }
   return false;
@@ -374,7 +393,7 @@ export const AzamPayService = {
       );
     }
 
-    const response = await fetch(`${AUTH_BASE_URL}/AppRegistration/GenerateToken`, {
+    const response = await fetch(`${getAuthBaseUrl()}/AppRegistration/GenerateToken`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ appName, clientId, clientSecret }),
@@ -393,7 +412,15 @@ export const AzamPayService = {
       throw new Error(`AzamPay authentication locked (423): ${errMsg}`);
     }
 
-    if (!response.ok || !body?.success || !body?.data?.accessToken?.token) {
+    const rawAccessToken = body?.data?.accessToken;
+    const token: string | undefined =
+      typeof rawAccessToken === "string"
+        ? rawAccessToken
+        : typeof rawAccessToken?.token === "string"
+        ? rawAccessToken.token
+        : undefined;
+
+    if (!response.ok || !body?.success || !token) {
       cachedToken = null;
       logger.error("AzamPay token request failed", {
         status: response.status,
@@ -404,8 +431,10 @@ export const AzamPayService = {
       );
     }
 
-    const token: string = body.data.accessToken.token;
-    const expireStr: string | undefined = body.data.accessToken.expire;
+    const expireStr: string | undefined =
+      typeof rawAccessToken === "object" && rawAccessToken?.expire
+        ? rawAccessToken.expire
+        : body?.data?.expire;
     const parsedExpire = expireStr ? new Date(expireStr).getTime() : NaN;
     const expiresAt = Number.isFinite(parsedExpire) ? parsedExpire : Date.now() + 55 * 60_000;
 
@@ -487,13 +516,20 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${CHECKOUT_BASE_URL}/api/v2/rw/accounts/${encodeURIComponent(formatted)}`;
+    const url = `${getCheckoutBaseUrl()}/api/v2/rw/accounts/${encodeURIComponent(formatted)}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayAccountLookupData>(url, {
       method: "GET",
     });
 
     if (!body) {
       throw new Error(`AzamPay checkout account lookup failed with HTTP ${httpStatus}`);
+    }
+
+    if (body.data) {
+      body.data.fullName = body.data.fullName || body.data.accountName || "";
+      if (body.data.provider) {
+        body.data.provider = body.data.provider.toUpperCase();
+      }
     }
 
     return body;
@@ -552,7 +588,7 @@ export const AzamPayService = {
     };
 
     try {
-      const url = `${CHECKOUT_BASE_URL}/api/v2/rw/payments`;
+      const url = `${getCheckoutBaseUrl()}/api/v2/rw/payments`;
       const { httpStatus, ok, body } = await AzamPayService.requestV2<AzamPayPaymentStatusData>(url, {
         method: "POST",
         body: payload,
@@ -642,7 +678,7 @@ export const AzamPayService = {
     }
 
     const query = provider ? `?provider=${encodeURIComponent(provider)}` : "";
-    const url = `${CHECKOUT_BASE_URL}/api/v2/rw/payments/${encodeURIComponent(pgReferenceId)}${query}`;
+    const url = `${getCheckoutBaseUrl()}/api/v2/rw/payments/${encodeURIComponent(pgReferenceId)}${query}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayPaymentStatusData>(url, {
       method: "GET",
     });
@@ -673,7 +709,7 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${CHECKOUT_BASE_URL}/api/v2/rw/payments/references/${encodeURIComponent(referenceId)}`;
+    const url = `${getCheckoutBaseUrl()}/api/v2/rw/payments/references/${encodeURIComponent(referenceId)}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayPaymentStatusData>(url, {
       method: "GET",
     });
@@ -709,13 +745,20 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/accounts/${encodeURIComponent(formatted)}`;
+    const url = `${getDisbursementBaseUrl()}/api/v2/rw/accounts/${encodeURIComponent(formatted)}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayAccountLookupData>(url, {
       method: "GET",
     });
 
     if (!body) {
       throw new Error(`AzamPay disbursement account lookup failed with HTTP ${httpStatus}`);
+    }
+
+    if (body.data) {
+      body.data.fullName = body.data.fullName || body.data.accountName || "";
+      if (body.data.provider) {
+        body.data.provider = body.data.provider.toUpperCase();
+      }
     }
 
     return body;
@@ -746,7 +789,7 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/balance`;
+    const url = `${getDisbursementBaseUrl()}/api/v2/rw/balance`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayBalanceData>(url, {
       method: "GET",
     });
@@ -823,7 +866,7 @@ export const AzamPayService = {
     };
 
     try {
-      const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers`;
+      const url = `${getDisbursementBaseUrl()}/api/v2/rw/transfers`;
       const { httpStatus, ok, body } = await AzamPayService.requestV2<AzamPayTransferStatusData>(
         url,
         {
@@ -958,7 +1001,7 @@ export const AzamPayService = {
     };
 
     try {
-      const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers`;
+      const url = `${getDisbursementBaseUrl()}/api/v2/rw/transfers`;
       const { httpStatus, ok, body } = await AzamPayService.requestV2<AzamPayTransferStatusData>(
         url,
         {
@@ -1024,7 +1067,7 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers/${encodeURIComponent(pgReferenceId)}`;
+    const url = `${getDisbursementBaseUrl()}/api/v2/rw/transfers/${encodeURIComponent(pgReferenceId)}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayTransferStatusData>(url, {
       method: "GET",
     });
@@ -1055,7 +1098,7 @@ export const AzamPayService = {
       };
     }
 
-    const url = `${DISBURSEMENT_BASE_URL}/api/v2/rw/transfers/references/${encodeURIComponent(referenceId)}`;
+    const url = `${getDisbursementBaseUrl()}/api/v2/rw/transfers/references/${encodeURIComponent(referenceId)}`;
     const { httpStatus, body } = await AzamPayService.requestV2<AzamPayTransferStatusData>(url, {
       method: "GET",
     });

@@ -9,6 +9,10 @@ import {
   resolveDisbursementInstitution,
   interpretV2Outcome,
   VALID_DISBURSEMENT_INSTITUTIONS,
+  isAzamPayProduction,
+  getAuthBaseUrl,
+  getCheckoutBaseUrl,
+  getDisbursementBaseUrl,
 } from "../src/modules/payments/azam.service.js";
 import { normalizeAndClassifyAzamWebhook } from "../src/modules/payments/escrow.service.js";
 
@@ -424,5 +428,40 @@ describe("AzamPayService Live HTTP v2 Protocol & Error Handling (§1, §2, §3, 
     assert.equal(payout.pgReferenceId, "019d9af8-1b7e-7be4-b42a-ffdd0ec00e0f");
     assert.equal(payout.transactionStatus, "pending");
     assert.equal(payout.status, "PENDING");
+  });
+
+  it("supports both production string accessToken shape and sandbox nested accessToken.token shape, and resolves AZAMPAY_ENV URLs", async () => {
+    process.env.AZAMPAY_ENV = "production";
+    assert.equal(isAzamPayProduction(), true);
+    assert.equal(getAuthBaseUrl(), "https://authenticator.azampay.co.rw");
+    assert.equal(getCheckoutBaseUrl(), "https://checkout.azampay.co.rw");
+    assert.equal(getDisbursementBaseUrl(), "https://disbursement.azampay.co.rw");
+
+    process.env.AZAMPAY_ENV = "sandbox";
+    assert.equal(isAzamPayProduction(), false);
+    assert.equal(getAuthBaseUrl(), "https://authenticator-sandbox.azampay.co.tz");
+    assert.equal(getCheckoutBaseUrl(), "https://checkout-test-rw.azampay.co.tz");
+    assert.equal(getDisbursementBaseUrl(), "https://api-disbursement-test-rw.azampay.co.tz");
+
+    // Verify direct string accessToken shape returned by live https://authenticator.azampay.co.rw
+    globalThis.fetch = (async () => {
+      return new Response(
+        JSON.stringify({
+          data: {
+            accessToken: "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.live-prod-token",
+            expire: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+            validFrom: new Date().toISOString(),
+          },
+          message: "Token generated successfully",
+          messageCode: 0,
+          statusCode: 200,
+          success: true,
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }) as any;
+
+    const token = await AzamPayService.authenticate(true);
+    assert.equal(token, "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.live-prod-token");
   });
 });

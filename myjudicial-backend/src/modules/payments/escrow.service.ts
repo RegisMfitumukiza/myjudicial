@@ -665,8 +665,19 @@ export const EscrowService = {
       data: { providerStatusCode },
     });
 
-    // Resolve booking by paymentReferenceId (BM-...) or fallback by booking UUID (externalReferenceId)
+    // Resolve booking by:
+    // 1. Our merchant referenceId (BM-... on Booking.paymentReferenceId)
+    // 2. AzamPay's pgReferenceId (019d... on Payment.providerTransactionId)
+    // 3. Booking UUID (externalReferenceId / additionalProperties.bookingId)
     let booking = externalId ? await BookingRepository.findByPaymentReference(externalId) : null;
+    if (!booking && reference) {
+      const paymentByPgRef = await PaymentRepository.findByProviderTransactionId(reference).catch(
+        () => null
+      );
+      if (paymentByPgRef?.bookingId) {
+        booking = await BookingRepository.findById(paymentByPgRef.bookingId);
+      }
+    }
     if (!booking && externalReferenceId) {
       booking = await BookingRepository.findById(externalReferenceId);
     }
@@ -973,8 +984,28 @@ export const EscrowService = {
     }
 
     try {
-      const envelope = await AzamPayService.getPaymentStatusByRef(booking.paymentReferenceId);
-      const outcome = interpretV2Outcome(envelope);
+      // 1. Primary lookup by our merchant referenceId (§2.4 GET /api/v2/rw/payments/references/{referenceId})
+      let envelope = await AzamPayService.getPaymentStatusByRef(booking.paymentReferenceId);
+      let outcome = interpretV2Outcome(envelope);
+
+      // 2. Fallback lookup by AzamPay's pgReferenceId (§2.3 GET /api/v2/rw/payments/{pgReferenceId})
+      // if we stored pgReferenceId on the pending Payment record and reference lookup is still pending/404
+      if (outcome === "PENDING" || envelope.statusCode === 404) {
+        const existingPayment = await PaymentRepository.findByBookingId(booking.id).catch(
+          () => null
+        );
+        const savedPgRef = existingPayment?.providerTransactionId;
+        if (savedPgRef && savedPgRef !== booking.paymentReferenceId) {
+          const pgEnvelope = await AzamPayService.getPaymentStatusByPgRef(savedPgRef).catch(
+            () => null
+          );
+          if (pgEnvelope && interpretV2Outcome(pgEnvelope) !== "PENDING") {
+            envelope = pgEnvelope;
+            outcome = interpretV2Outcome(pgEnvelope);
+          }
+        }
+      }
+
       const pgReferenceId = envelope.data?.pgReferenceId;
       const providerStatusCode = envelope.data?.providerStatusCode;
 

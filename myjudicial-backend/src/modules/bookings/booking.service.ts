@@ -413,13 +413,38 @@ export const BookingService = {
       });
     }
 
-    // 7b. Persist the provider transaction reference so the payment webhook
-    // (which looks bookings up by paymentReferenceId) can find this booking.
+    // 7b. Persist the merchant reference (BM-...) on Booking and AzamPay's pgReferenceId
+    // on a PENDING Payment record so both our merchant referenceId and AzamPay's pgReferenceId
+    // are immediately linked to this booking before any webhook or status poll runs.
     let updatedBooking = transactionId
       ? await BookingRepository.update(booking.id, {
           paymentReferenceId: transactionId,
         })
       : booking;
+
+    if (transactionId && initResult?.pgReferenceId) {
+      const amount = Number(service.flatFee);
+      const feePercent = await AdminSettingService.get("platformFeePercent");
+      const commission = feePercent / 100;
+      const platformFee = amount * commission;
+      const expertPayout = amount * (1 - commission);
+
+      await PaymentRepository.create({
+        bookingId: booking.id,
+        amount,
+        currency: service.currency || "RWF",
+        platformFee,
+        expertPayout,
+        txRef: transactionId,
+        providerTransactionId: initResult.pgReferenceId,
+        status: "PENDING",
+      }).catch((err) => {
+        logger.warn("Non-fatal: could not pre-create pending payment record with pgReferenceId", {
+          bookingId: booking.id,
+          err,
+        });
+      });
+    }
 
     // 7c. Per Rwanda_API_v2_Guide.md §2.2, Airtel Rwanda executes synchronously through GTBank
     // and returns `transactionStatus: "success"` (`ACSC`) directly from POST /api/v2/rw/payments.
@@ -1363,13 +1388,25 @@ export const BookingService = {
     });
     const { transactionId } = retryResult;
 
-    // Update booking with new payment reference and reset status
+    // Update booking with new merchant payment reference (BM-...) and reset status
     let updatedBooking = await BookingRepository.update(booking.id, {
       paymentReferenceId: transactionId,
       status: "PENDING",
       paymentStatus: "PENDING",
       cancellationReason: undefined,
     });
+
+    // Update or create the PENDING Payment record with the new merchant txRef and AzamPay pgReferenceId
+    if (retryResult.pgReferenceId) {
+      const existingPayment = await PaymentRepository.findByBookingId(booking.id);
+      if (existingPayment) {
+        await PaymentRepository.updateByBookingId(booking.id, {
+          txRef: transactionId,
+          providerTransactionId: retryResult.pgReferenceId,
+          status: "PENDING",
+        }).catch(() => {});
+      }
+    }
 
     // If Airtel settled synchronously, lock escrow immediately
     if (retryResult.transactionStatus === "SUCCESS") {

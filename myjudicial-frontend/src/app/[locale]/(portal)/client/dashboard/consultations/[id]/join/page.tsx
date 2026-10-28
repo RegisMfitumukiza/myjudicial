@@ -43,7 +43,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
 
   // Check device permissions (only for video delivery mode)
   useEffect(() => {
-    if (!booking) return;
+    if (!booking || isAlreadyActive || joined) return;
     const deliveryMode = (booking as any).service?.deliveryMode ?? "VIDEO";
     if (deliveryMode !== "VIDEO") return;
 
@@ -89,7 +89,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
       previewStreamRef.current?.getTracks().forEach(track => track.stop());
       previewStreamRef.current = null;
     };
-  }, [booking]);
+  }, [booking, isAlreadyActive, joined]);
 
   // Stop preview stream when the room is joined (room opens its own stream)
   useEffect(() => {

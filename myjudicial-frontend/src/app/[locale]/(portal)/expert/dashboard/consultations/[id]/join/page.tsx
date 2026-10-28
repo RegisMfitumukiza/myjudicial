@@ -66,7 +66,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
 
   // F-09: Gate device check on booking load and VIDEO delivery mode only
   useEffect(() => {
-    if (!booking) return;
+    if (!booking || isAlreadyActive || joined) return;
     const deliveryMode = (booking as any).service?.deliveryMode ?? "VIDEO";
     if (deliveryMode !== "VIDEO") {
       setDeviceCheck("skipped");
@@ -107,7 +107,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
       previewStreamRef.current?.getTracks().forEach((track) => track.stop());
       previewStreamRef.current = null;
     };
-  }, [booking]);
+  }, [booking, isAlreadyActive, joined]);
 
   // Stop preview when joining room (room opens its own stream)
   useEffect(() => {

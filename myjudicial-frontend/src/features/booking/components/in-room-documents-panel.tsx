@@ -30,7 +30,7 @@ interface ConsultationFile {
   bookingId?: string | null;
 }
 
-const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 
 function formatSize(bytes: number): string {
   if (!bytes || bytes < 0) return "0 B";
@@ -56,29 +56,38 @@ export function InRoomDocumentsPanel({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Fetch documents attached to this consultation
+  // Fetch documents attached to this booking/consultation
   const fetchDocuments = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await apiFetch<{ data: ConsultationFile[] }>(
-        "/files/consultation-files?limit=100"
+        `/files/by-booking/${bookingId}?page=1&limit=50`
       );
       if (res?.data && Array.isArray(res.data)) {
-        // Filter files associated with this booking, or display all consultation files available to the user
-        const bookingFiles = res.data.filter(
-          (f) => !f.bookingId || f.bookingId === bookingId
-        );
-        setFiles(bookingFiles.length > 0 ? bookingFiles : res.data);
+        setFiles(res.data);
       }
-    } catch (err) {
-      console.error("Failed to fetch consultation files:", err);
+    } catch {
+      try {
+        const fallback = await apiFetch<{ data: ConsultationFile[] }>(
+          "/files/consultation-files?limit=100"
+        );
+        if (fallback?.data && Array.isArray(fallback.data)) {
+          setFiles(
+            fallback.data.filter(
+              (f) => !f.bookingId || f.bookingId === bookingId
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Failed to fetch consultation files:", err);
+      }
     } finally {
       setIsLoading(false);
     }
   }, [bookingId]);
 
   useEffect(() => {
-    fetchDocuments();
+    void fetchDocuments();
   }, [fetchDocuments]);
 
   // Handle file upload
@@ -87,11 +96,7 @@ export function InRoomDocumentsPanel({
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setUploadError(
-        t("fileTooLarge", {
-          defaultValue: "File size exceeds 20MB limit.",
-        })
-      );
+      setUploadError(t("fileTooLarge"));
       return;
     }
 
@@ -100,11 +105,22 @@ export function InRoomDocumentsPanel({
     setUploadProgress(10);
 
     try {
+      const metadataPayload = {
+        fileName: file.name,
+        mimeType: file.type || "application/octet-stream",
+        category: "case-attachment",
+        sensitivity: "CONFIDENTIAL",
+        bookingId,
+      };
+
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("metadata", JSON.stringify(metadataPayload));
+      formData.append("fileName", file.name);
+      formData.append("mimeType", file.type || "application/octet-stream");
       formData.append("bookingId", bookingId);
       formData.append("sensitivity", "CONFIDENTIAL");
-      formData.append("category", "consultation-document");
+      formData.append("category", "case-attachment");
 
       setUploadProgress(40);
 

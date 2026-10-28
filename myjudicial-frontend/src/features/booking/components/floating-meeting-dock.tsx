@@ -129,7 +129,7 @@ export function FloatingMeetingDock() {
 
       {/* Floating Mini Dock */}
       <div
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 w-72 sm:w-80 overflow-hidden rounded-2xl border border-white/15 bg-gray-950/95 shadow-2xl backdrop-blur-xl transition-all animate-in fade-in slide-in-from-bottom-4 duration-200"
+        className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-40 w-[calc(100vw-1.5rem)] max-w-[18rem] sm:max-w-[20rem] overflow-hidden rounded-2xl border border-white/15 bg-gray-950/95 shadow-2xl backdrop-blur-xl transition-all animate-in fade-in slide-in-from-bottom-4 duration-200"
         role="region"
         aria-label="Active Consultation Floating Window"
       >
@@ -145,7 +145,7 @@ export function FloatingMeetingDock() {
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 text-white/50 p-4 text-center">
               <Loader2 className="h-6 w-6 animate-spin text-white/40" />
-              <p className="text-xs">{t("waitingForParticipant", { defaultValue: "Consultation in progress..." })}</p>
+              <p className="text-xs">{t("waitingForParticipant")}</p>
             </div>
           )}
 
@@ -168,10 +168,10 @@ export function FloatingMeetingDock() {
               size="sm"
               onClick={handleReturnToCall}
               className="h-9 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold gap-1.5 shadow-lg"
-              title={t("maximizeCall", { defaultValue: "Return to meeting" })}
+              title={t("returnToMeeting")}
             >
               <Maximize2 size={14} />
-              <span>{t("returnToMeeting", { defaultValue: "Return" })}</span>
+              <span>{t("returnToMeeting")}</span>
             </Button>
             {typeof document !== "undefined" && document.pictureInPictureEnabled && (
               <Button
@@ -179,7 +179,7 @@ export function FloatingMeetingDock() {
                 variant="outline"
                 onClick={handleTogglePiP}
                 className="h-9 w-9 p-0 rounded-xl border-white/20 text-white bg-black/60 hover:bg-black/90 shadow-lg"
-                title={t("pipLabel", { defaultValue: "Picture in Picture" })}
+                title={t("pipLabel")}
               >
                 <PictureInPicture2 size={14} />
               </Button>

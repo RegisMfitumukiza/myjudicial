@@ -118,6 +118,8 @@ export function ActiveConsultationProvider({
   const [callDurationSeconds, setCallDurationSeconds] = useState(0);
   const [isMinimized, setIsMinimized] = useState(false);
 
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [screenShareError, setScreenShareError] = useState(false);
 
@@ -144,10 +146,6 @@ export function ActiveConsultationProvider({
   const recordingStartRef = useRef<number | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Derive mute state directly from local tracks
-  const isAudioEnabled = localAudioTrack ? !localAudioTrack.isMuted : true;
-  const isVideoEnabled = localVideoTrack ? !localVideoTrack.isMuted : true;
-
   const updateParticipants = useCallback((r: Room | null) => {
     if (!r) {
       setRemoteParticipants([]);
@@ -169,13 +167,31 @@ export function ActiveConsultationProvider({
     };
   }, []);
 
-  // Track attachment callback
+  // Track attachment callback — supports both initial subscription and re-mounting after minimization
   const setVideoRef = useCallback(
     (sid: string, el: HTMLVideoElement | null) => {
       videoRefs.current[sid] = el;
-      if (el && pendingVideoTracks.current[sid]) {
+      if (!el) return;
+
+      if (pendingVideoTracks.current[sid]) {
         pendingVideoTracks.current[sid].attach(el);
         delete pendingVideoTracks.current[sid];
+        return;
+      }
+
+      // If returning from minimized view, re-attach already-subscribed remote video track
+      const currentRoom = roomRef.current;
+      if (currentRoom) {
+        for (const p of currentRoom.remoteParticipants.values()) {
+          if (p.sid === sid) {
+            p.trackPublications.forEach((pub) => {
+              if (pub.track && pub.track.kind === Track.Kind.Video) {
+                pub.track.attach(el);
+              }
+            });
+            break;
+          }
+        }
       }
     },
     []
@@ -184,6 +200,18 @@ export function ActiveConsultationProvider({
   const setAudioRef = useCallback(
     (sid: string, el: HTMLAudioElement | null) => {
       audioRefs.current[sid] = el;
+      if (el && roomRef.current) {
+        for (const p of roomRef.current.remoteParticipants.values()) {
+          if (p.sid === sid) {
+            p.trackPublications.forEach((pub) => {
+              if (pub.track && pub.track.kind === Track.Kind.Audio) {
+                pub.track.attach(el);
+              }
+            });
+            break;
+          }
+        }
+      }
     },
     []
   );
@@ -233,12 +261,13 @@ export function ActiveConsultationProvider({
           pendingVideoTracks.current[participant.sid] = track;
         }
       } else if (track.kind === Track.Kind.Audio) {
+        // Always attach remote audio to the persistent layout-level sink so audio never drops across routes
+        if (remoteAudioSinkRef.current) {
+          track.attach(remoteAudioSinkRef.current);
+        }
         const el = audioRefs.current[participant.sid];
         if (el) {
           track.attach(el);
-        } else if (remoteAudioSinkRef.current) {
-          // Attach to persistent audio sink so audio plays during navigation
-          track.attach(remoteAudioSinkRef.current);
         }
       }
     };
@@ -311,6 +340,20 @@ export function ActiveConsultationProvider({
         r.on(RoomEvent.ParticipantDisconnected, () => updateParticipants(r));
         r.on(RoomEvent.TrackSubscribed, () => updateParticipants(r));
         r.on(RoomEvent.TrackUnsubscribed, () => updateParticipants(r));
+        r.on(RoomEvent.TrackMuted, (pub, participant) => {
+          if (participant === r.localParticipant) {
+            if (pub.kind === Track.Kind.Audio) setIsAudioEnabled(false);
+            if (pub.kind === Track.Kind.Video) setIsVideoEnabled(false);
+          }
+          updateParticipants(r);
+        });
+        r.on(RoomEvent.TrackUnmuted, (pub, participant) => {
+          if (participant === r.localParticipant) {
+            if (pub.kind === Track.Kind.Audio) setIsAudioEnabled(true);
+            if (pub.kind === Track.Kind.Video) setIsVideoEnabled(true);
+          }
+          updateParticipants(r);
+        });
         r.on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
           if (participant && participant !== r.localParticipant) return;
           setConnectionQuality(quality);
@@ -321,6 +364,28 @@ export function ActiveConsultationProvider({
         r.on(RoomEvent.Disconnected, (reason) => {
           if (reason === DisconnectReason.CLIENT_INITIATED) return;
           if (gen !== generationRef.current) return;
+
+          if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
+            setError("duplicateIdentity");
+            setStatus("error");
+            return;
+          }
+          if (reason === DisconnectReason.ROOM_DELETED) {
+            setError("roomDeleted");
+            setStatus("error");
+            return;
+          }
+          if (reason === DisconnectReason.SERVER_SHUTDOWN) {
+            setError("serverShutdown");
+            setStatus("error");
+            return;
+          }
+          if (reason === DisconnectReason.PARTICIPANT_REMOVED) {
+            setError("participantRemoved");
+            setStatus("error");
+            return;
+          }
+
           console.warn("Room disconnected, reconnecting:", reason);
           attemptNext();
         });
@@ -334,6 +399,8 @@ export function ActiveConsultationProvider({
         const { videoTrack, audioTrack } = getLocalTracks(r);
         setLocalVideoTrack(videoTrack);
         setLocalAudioTrack(audioTrack);
+        setIsVideoEnabled(videoTrack ? !videoTrack.isMuted : true);
+        setIsAudioEnabled(audioTrack ? !audioTrack.isMuted : true);
         setStatus("connected");
         setRejoinAttempt(0);
         rejoinCountRef.current = 0;
@@ -381,6 +448,8 @@ export function ActiveConsultationProvider({
     setRoom(null);
     setLocalVideoTrack(null);
     setLocalAudioTrack(null);
+    setIsAudioEnabled(true);
+    setIsVideoEnabled(true);
     setRemoteParticipants([]);
     setStatus("idle");
     setActiveBookingId(null);
@@ -395,8 +464,10 @@ export function ActiveConsultationProvider({
     if (!localAudioTrack) return;
     if (isAudioEnabled) {
       await localAudioTrack.mute();
+      setIsAudioEnabled(false);
     } else {
       await localAudioTrack.unmute();
+      setIsAudioEnabled(true);
     }
   }, [isAudioEnabled, localAudioTrack]);
 
@@ -405,8 +476,10 @@ export function ActiveConsultationProvider({
     if (!localVideoTrack) return;
     if (isVideoEnabled) {
       await localVideoTrack.mute();
+      setIsVideoEnabled(false);
     } else {
       await localVideoTrack.unmute();
+      setIsVideoEnabled(true);
     }
   }, [isVideoEnabled, localVideoTrack]);
 

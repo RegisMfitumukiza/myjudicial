@@ -108,9 +108,17 @@ export const ConversationService = {
       throw new AuthorizationError("Access denied to this booking's conversation");
     }
 
-    const conversation = await ConversationRepository.findByBookingId(bookingId);
+    let conversation = await ConversationRepository.findByBookingId(bookingId);
     if (!conversation) {
-      throw new NotFoundError("No conversation exists yet for this booking");
+      // If booking is confirmed or active, auto-create the conversation idempotently
+      // so in-room consultation chat and messaging deep-links never fail with 404
+      if (booking.status === "CONFIRMED" || booking.status === "ACTIVE") {
+        await ConversationService.createConversation(bookingId, userId);
+        conversation = await ConversationRepository.findByBookingId(bookingId);
+      }
+      if (!conversation) {
+        throw new NotFoundError("No conversation exists yet for this booking");
+      }
     }
 
     return conversation;

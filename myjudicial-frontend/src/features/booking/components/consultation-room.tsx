@@ -21,11 +21,21 @@ import {
   Disc,
   Shield,
   Check,
+  MessageSquare,
+  FileText,
+  Info,
+  Minimize2,
+  PictureInPicture2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoomConnection, MAX_REJOIN_ATTEMPTS } from "../hooks/useRoomConnection";
 import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api/client";
+import { InRoomChatPanel } from "./in-room-chat-panel";
+import { InRoomDocumentsPanel } from "./in-room-documents-panel";
+import { InRoomDetailsPanel } from "./in-room-details-panel";
+import { useRouter } from "@/i18n/routing";
 
 // How long to wait (ms) before showing the "other participant hasn't joined" message
 const WAITING_TIMEOUT_MS = 3 * 60 * 1000;
@@ -39,6 +49,7 @@ interface ConsultationRoomProps {
 export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: ConsultationRoomProps) {
   // Use shared neutral namespace (same keys, avoids coupling to expert dashboard NS)
   const t = useTranslations("expertDashboard_consultation-room");
+  const router = useRouter();
 
   const {
     status,
@@ -53,12 +64,15 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
   } = useRoomConnection(bookingId);
 
   // ── F-06: Derive mute state from actual track publications ───────────────
-  // This prevents desync after reconnect (local state was never reset).
   const isAudioEnabled = localAudioTrack ? !localAudioTrack.isMuted : true;
   const isVideoEnabled = localVideoTrack ? !localVideoTrack.isMuted : true;
 
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [screenShareError, setScreenShareError] = useState(false);
+
+  // ── In-Room Collaboration Panels ──────────────────────────────────────────
+  const [activePanel, setActivePanel] = useState<"chat" | "documents" | "details" | null>(null);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
 
   // ── F-11: Leave confirmation dialog ──────────────────────────────────────
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -99,13 +113,10 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
   }, [localVideoTrack]);
 
   // ── F-05: Track subscription race fix ────────────────────────────────────
-  // Keep a pending map for tracks that arrive before their <video> ref is mounted.
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
   const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
   const pendingVideoTracks = useRef<Record<string, RemoteTrack>>({});
 
-  // Callback-ref for video elements: attaches pending tracks as soon as the
-  // DOM node is available, eliminating the race between TrackSubscribed and mount.
   const setVideoRef = useCallback((sid: string, el: HTMLVideoElement | null) => {
     videoRefs.current[sid] = el;
     if (el && pendingVideoTracks.current[sid]) {
@@ -123,7 +134,6 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         if (el) {
           track.attach(el);
         } else {
-          // Element not mounted yet — store for callback-ref to attach
           pendingVideoTracks.current[participant.sid] = track;
         }
       } else if (track.kind === Track.Kind.Audio) {
@@ -153,7 +163,30 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     return () => window.removeEventListener("pointerdown", onGesture);
   }, [room, status]);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Picture-in-Picture trigger ────────────────────────────────────────────
+  const handleTogglePiP = async () => {
+    const remoteSid = remoteParticipants[0]?.sid;
+    const remoteEl = remoteSid ? videoRefs.current[remoteSid] : null;
+    const targetVideo = remoteEl || localVideoRef.current;
+    if (!targetVideo) return;
+
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        await targetVideo.requestPictureInPicture();
+      }
+    } catch (err) {
+      console.warn("Picture-in-Picture error:", err);
+    }
+  };
+
+  // ── Minimize meeting (multitask) ──────────────────────────────────────────
+  const handleMinimize = () => {
+    const targetUrl = isExpert ? "/expert/dashboard" : "/client/dashboard";
+    router.push(targetUrl);
+  };
+
   // ── OD-01: Dispute evidence video recording ───────────────────────────────
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -286,9 +319,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         try {
           mediaRecorderRef.current.stop();
-        } catch {
-          // Ignore unmount stop errors
-        }
+        } catch {}
       }
     };
   }, []);
@@ -308,7 +339,6 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     } else {
       await localAudioTrack.unmute();
     }
-    // No local state to set — isAudioEnabled derives from track.isMuted
   };
 
   const handleVideoToggle = async () => {
@@ -412,8 +442,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         </div>
       )}
 
-      {/* ── OD-01: Recording / Status / Connection Quality Indicators ───── */}
-      <div className="absolute inset-x-0 top-4 z-10 flex items-center justify-between px-6 pointer-events-none">
+      {/* ── Top Bar Status & Recording Indicators ─────────────────────────── */}
+      <div className="absolute inset-x-0 top-4 z-10 flex items-center justify-between px-4 sm:px-6 pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto">
           {isRecording && (
             <div className="flex items-center gap-2 rounded-full bg-red-950/85 border border-red-500/40 px-3 py-1.5 text-white backdrop-blur-sm shadow-md animate-pulse">
@@ -437,16 +467,18 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
           )}
         </div>
 
-        {/* F-12: Connection quality indicator (ring for dark-bg contrast) */}
-        {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
-          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white backdrop-blur-sm ring-1 ring-white/10 pointer-events-auto">
-            <span className={`h-2 w-2 rounded-full ${quality.dot}`} />
-            <p className="text-[12px]">{quality.label}</p>
-          </div>
-        )}
+        {/* F-12: Connection quality indicator */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
+            <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white backdrop-blur-sm ring-1 ring-white/10">
+              <span className={`h-2 w-2 rounded-full ${quality.dot}`} />
+              <p className="text-[12px]">{quality.label}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── OD-01: Dispute Evidence Banner ─────────────────────────────────── */}
+      {/* ── Evidence Banner ────────────────────────────────────────────────── */}
       {isRecording && (
         <div className="absolute inset-x-0 top-14 z-10 flex justify-center px-4 pointer-events-none">
           <div className="flex items-center gap-2 rounded-full bg-black/85 px-4 py-1.5 text-white/90 text-[12px] shadow-lg ring-1 ring-white/15 backdrop-blur-md">
@@ -456,7 +488,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         </div>
       )}
 
-      {/* ── F-10: Screen share error toast ────────────────────────────────── */}
+      {/* ── Screen Share Error Toast ───────────────────────────────────────── */}
       {screenShareError && (
         <div className="absolute inset-x-0 top-14 z-10 flex justify-center px-4">
           <div className="flex items-center gap-2 rounded-full bg-red-700/90 px-4 py-2 text-white shadow-lg ring-1 ring-white/20">
@@ -466,127 +498,157 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         </div>
       )}
 
-      {/* ── Video grid ────────────────────────────────────────────────────── */}
-      <div className="flex-1 grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 auto-rows-fr gap-2 sm:gap-3 p-2 sm:p-4 min-h-0">
+      {/* ── Main Center Area: Video Grid + Collaboration Side Panel ────────── */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
 
-        {/* Remote participants */}
-        {remoteParticipants.map((participant) => (
-          <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
+        {/* Video Grid Container */}
+        <div className={`flex-1 grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 auto-rows-fr gap-2 sm:gap-3 p-2 sm:p-4 min-h-0 transition-all duration-300 ${activePanel ? "hidden sm:grid" : "grid"}`}>
+
+          {/* Remote participants */}
+          {remoteParticipants.map((participant) => (
+            <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
+              <video
+                ref={(el) => setVideoRef(participant.sid, el)}
+                autoPlay
+                playsInline
+                className="h-full w-full object-cover"
+              />
+              <audio
+                ref={(el) => { audioRefs.current[participant.sid] = el; }}
+                autoPlay
+              />
+              <div className="absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-sm">
+                <p className="text-[12px] font-semibold text-white">
+                  {participant.name || t("participant")}
+                </p>
+              </div>
+            </div>
+          ))}
+
+          {/* Local participant */}
+          <div className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
             <video
-              ref={(el) => setVideoRef(participant.sid, el)}
+              ref={localVideoRef}
               autoPlay
               playsInline
-              className="h-full w-full object-cover"
+              muted
+              className={`h-full w-full object-cover ${!isVideoEnabled ? "hidden" : ""}`}
             />
-            <audio
-              ref={(el) => { audioRefs.current[participant.sid] = el; }}
-              autoPlay
-            />
+            {!isVideoEnabled && (
+              <div className="flex h-full items-center justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark">
+                  <VideoOff size={36} className="text-white" />
+                </div>
+              </div>
+            )}
             <div className="absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-sm">
-              <p className="text-[12px] font-semibold text-white">
-                {participant.name || t("participant")}
-              </p>
+              <p className="text-[12px] font-semibold text-white">{t("you")}</p>
             </div>
           </div>
-        ))}
 
-        {/* Local participant */}
-        <div className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
-          <video
-            ref={localVideoRef}
-            autoPlay
-            playsInline
-            muted
-            className={`h-full w-full object-cover ${!isVideoEnabled ? "hidden" : ""}`}
-          />
-          {!isVideoEnabled && (
-            <div className="flex h-full items-center justify-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark">
-                <VideoOff size={36} className="text-white" />
+          {/* Waiting state with timeout messaging */}
+          {remoteParticipants.length === 0 && (
+            <div className="flex items-center justify-center rounded-xl bg-gray-900 h-full w-full min-h-0">
+              <div className="text-center px-6">
+                {waitingTooLong ? (
+                  <>
+                    <Clock className="h-10 w-10 text-amber-400 mx-auto mb-3" />
+                    <p className="text-white/80 text-[14px] font-semibold mb-2">
+                      {isExpert ? t("waitingLongExpert") : t("waitingLongClient")}
+                    </p>
+                    <p className="text-white/50 text-[12px] mb-4 max-w-xs leading-relaxed">
+                      {t("waitingLongDesc")}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-white/20 text-white/80 hover:bg-white/10 text-[12px]"
+                      onClick={() => setShowLeaveConfirm(true)}
+                    >
+                      {t("returnToBooking")}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Loader2 className="h-10 w-10 animate-spin text-white/30 mx-auto mb-3" />
+                    <p className="text-white/70 text-[14px]">
+                      {isExpert ? t("waitingForClient") : t("waitingForExpert")}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           )}
-          <div className="absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-sm">
-            <p className="text-[12px] font-semibold text-white">{t("you")}</p>
-          </div>
         </div>
 
-        {/* ── F-07: Waiting state with timeout messaging ─────────────────── */}
-        {remoteParticipants.length === 0 && (
-          <div className="flex items-center justify-center rounded-xl bg-gray-900 h-full w-full min-h-0">
-            <div className="text-center px-6">
-              {waitingTooLong ? (
-                <>
-                  <Clock className="h-10 w-10 text-amber-400 mx-auto mb-3" />
-                  <p className="text-white/80 text-[14px] font-semibold mb-2">
-                    {isExpert ? t("waitingLongExpert") : t("waitingLongClient")}
-                  </p>
-                  <p className="text-white/50 text-[12px] mb-4 max-w-xs leading-relaxed">
-                    {t("waitingLongDesc")}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-white/20 text-white/80 hover:bg-white/10 text-[12px]"
-                    onClick={() => setShowLeaveConfirm(true)}
-                  >
-                    {t("returnToBooking")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Loader2 className="h-10 w-10 animate-spin text-white/30 mx-auto mb-3" />
-                  <p className="text-white/70 text-[14px]">
-                    {isExpert ? t("waitingForClient") : t("waitingForExpert")}
-                  </p>
-                </>
-              )}
-            </div>
+        {/* ── Option B: Collaboration Side Panel ───────────────────────────── */}
+        {activePanel && (
+          <div className="w-full sm:w-80 lg:w-96 shrink-0 h-full z-20 flex flex-col bg-gray-950 animate-in slide-in-from-right duration-200">
+            {activePanel === "chat" && (
+              <InRoomChatPanel
+                bookingId={bookingId}
+                onClose={() => setActivePanel(null)}
+                onUnreadChange={setUnreadChatCount}
+              />
+            )}
+            {activePanel === "documents" && (
+              <InRoomDocumentsPanel
+                bookingId={bookingId}
+                onClose={() => setActivePanel(null)}
+              />
+            )}
+            {activePanel === "details" && (
+              <InRoomDetailsPanel
+                bookingId={bookingId}
+                isExpert={isExpert}
+                onClose={() => setActivePanel(null)}
+              />
+            )}
           </div>
         )}
       </div>
 
-      {/* ── Controls ──────────────────────────────────────────────────────── */}
-      <div className="border-t border-white/10 bg-black/80 px-4 py-3 sm:px-6 sm:py-4 pb-6 sm:pb-4 backdrop-blur-md shrink-0">
-        <div className="mx-auto flex max-w-4xl items-center justify-center sm:justify-between">
+      {/* ── Controls Dock ──────────────────────────────────────────────────── */}
+      <div className="border-t border-white/10 bg-black/85 px-3 py-2.5 sm:px-6 sm:py-3.5 pb-5 sm:pb-3.5 backdrop-blur-md shrink-0">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2">
 
-          {/* Left — room info (hidden on mobile, visible on tablet/desktop) */}
-          <div className="hidden sm:block min-w-0">
+          {/* Left: Consultation info & active participants */}
+          <div className="hidden md:block min-w-0">
             <p className="text-[11px] text-white/50 truncate">{t("consultationInProgress")}</p>
             <p className="text-[13px] font-semibold text-white">{t("participantsCount", { count: remoteParticipants.length + 1 })}</p>
           </div>
 
-          {/* Center — call controls (centered for clean thumb reach) */}
-          <div className="flex items-center justify-center gap-2.5 sm:gap-3">
+          {/* Center: Core Audio/Video/Share/Record Controls */}
+          <div className="flex items-center justify-center gap-2 sm:gap-2.5">
             {/* Mute */}
             <Button
               onClick={handleMuteToggle}
               size="lg"
-              className={`h-12 w-12 rounded-full ${
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
                 isAudioEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
               aria-label={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
               aria-pressed={!isAudioEnabled}
             >
-              {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
+              {isAudioEnabled ? <Mic size={19} /> : <MicOff size={19} />}
             </Button>
 
             {/* Camera */}
             <Button
               onClick={handleVideoToggle}
               size="lg"
-              className={`h-12 w-12 rounded-full ${
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
                 isVideoEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
               aria-label={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
               aria-pressed={!isVideoEnabled}
             >
-              {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+              {isVideoEnabled ? <Video size={19} /> : <VideoOff size={19} />}
             </Button>
 
-            {/* Screen share — strictly desktop/tablet */}
+            {/* Screen share (desktop/tablet only) */}
             <Button
               onClick={async () => {
                 if (!room) return;
@@ -602,26 +664,25 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                 } catch (err) {
                   console.error("Failed to toggle screen share:", err);
                   setScreenShareError(true);
-                  // Auto-clear toast after 4s
                   setTimeout(() => setScreenShareError(false), 4000);
                 }
               }}
               size="lg"
-              className={`h-12 w-12 rounded-full hidden sm:flex ${
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full hidden sm:flex ${
                 isScreenSharing ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
               }`}
               title={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
               aria-label={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
               aria-pressed={isScreenSharing}
             >
-              {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
+              {isScreenSharing ? <MonitorOff size={19} /> : <Monitor size={19} />}
             </Button>
 
             {/* OD-01: Dispute Evidence Recording */}
             <Button
               onClick={isRecording ? stopRecording : startRecording}
               size="lg"
-              className={`h-12 w-12 rounded-full transition-all ${
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full transition-all ${
                 isRecording
                   ? "bg-red-600 hover:bg-red-500 ring-2 ring-red-400"
                   : "bg-gray-700 hover:bg-gray-600 text-white"
@@ -631,23 +692,102 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
               aria-pressed={isRecording}
               disabled={isUploadingRecording}
             >
-              {isRecording ? <Disc className="animate-spin text-white" size={20} /> : <Disc size={20} />}
+              {isRecording ? <Disc className="animate-spin text-white" size={19} /> : <Disc size={19} />}
             </Button>
 
-            {/* Leave — F-11: opens confirmation instead of immediate leave */}
+            {/* Leave */}
             <Button
               onClick={() => setShowLeaveConfirm(true)}
               size="lg"
-              className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-500"
+              className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-red-600 hover:bg-red-500"
               title={t("leaveLabel")}
               aria-label={t("leaveLabel")}
             >
-              <PhoneOff size={20} />
+              <PhoneOff size={19} />
             </Button>
           </div>
 
-          {/* Right — spacer (hidden on mobile) */}
-          <div className="hidden sm:block w-16 sm:w-24" />
+          {/* Right: Collaboration Panels & Multitasking Toggles */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Chat Toggle Button */}
+            <div className="relative">
+              <Button
+                onClick={() => {
+                  setActivePanel((prev) => (prev === "chat" ? null : "chat"));
+                  setUnreadChatCount(0);
+                }}
+                size="sm"
+                className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl p-0 transition-all ${
+                  activePanel === "chat"
+                    ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-400"
+                    : "bg-gray-800 text-white/80 hover:bg-gray-700 hover:text-white"
+                }`}
+                title={t("inRoomChatToggle", { defaultValue: "Consultation Chat" })}
+                aria-label={t("inRoomChatToggle", { defaultValue: "Consultation Chat" })}
+              >
+                <MessageSquare size={17} />
+              </Button>
+              {unreadChatCount > 0 && activePanel !== "chat" && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white shadow">
+                  {unreadChatCount > 9 ? "9+" : unreadChatCount}
+                </span>
+              )}
+            </div>
+
+            {/* Documents Toggle Button */}
+            <Button
+              onClick={() => setActivePanel((prev) => (prev === "documents" ? null : "documents"))}
+              size="sm"
+              className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl p-0 transition-all ${
+                activePanel === "documents"
+                  ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-400"
+                  : "bg-gray-800 text-white/80 hover:bg-gray-700 hover:text-white"
+              }`}
+              title={t("inRoomDocsToggle", { defaultValue: "Shared Documents" })}
+              aria-label={t("inRoomDocsToggle", { defaultValue: "Shared Documents" })}
+            >
+              <FileText size={17} />
+            </Button>
+
+            {/* Details Toggle Button */}
+            <Button
+              onClick={() => setActivePanel((prev) => (prev === "details" ? null : "details"))}
+              size="sm"
+              className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl p-0 transition-all ${
+                activePanel === "details"
+                  ? "bg-blue-600 text-white shadow-md ring-2 ring-blue-400"
+                  : "bg-gray-800 text-white/80 hover:bg-gray-700 hover:text-white"
+              }`}
+              title={t("inRoomDetailsToggle", { defaultValue: "Session Details" })}
+              aria-label={t("inRoomDetailsToggle", { defaultValue: "Session Details" })}
+            >
+              <Info size={17} />
+            </Button>
+
+            {/* PiP (Picture in Picture) Button */}
+            {typeof document !== "undefined" && document.pictureInPictureEnabled && (
+              <Button
+                onClick={handleTogglePiP}
+                size="sm"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl p-0 bg-gray-800 text-white/80 hover:bg-gray-700 hover:text-white hidden sm:flex"
+                title={t("pipLabel", { defaultValue: "Picture-in-Picture" })}
+                aria-label={t("pipLabel", { defaultValue: "Picture-in-Picture" })}
+              >
+                <PictureInPicture2 size={17} />
+              </Button>
+            )}
+
+            {/* Minimize / Multitask Button */}
+            <Button
+              onClick={handleMinimize}
+              size="sm"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl p-0 bg-gray-800 text-white/80 hover:bg-gray-700 hover:text-white hidden sm:flex"
+              title={t("minimizeCall", { defaultValue: "Minimize call (browse portal)" })}
+              aria-label={t("minimizeCall", { defaultValue: "Minimize call (browse portal)" })}
+            >
+              <Minimize2 size={17} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

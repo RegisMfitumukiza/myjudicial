@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/shared/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
+import { useActiveConsultation } from "@/features/booking/context/active-consultation-context";
 import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { useCaseAnalysis } from "@/features/ai/hooks/use-case-analysis";
 import { AiAnalysisCard } from "@/features/ai/components/ai-analysis-card";
@@ -21,11 +22,26 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
   const t = useTranslations("expertDashboard_join");
   const locale = useLocale();
 
-  const [deviceCheck, setDeviceCheck] = useState<"checking" | "success" | "error" | "skipped">("checking");
+  const { activeBookingId, status: activeStatus, setIsMinimized } = useActiveConsultation();
+  const isAlreadyActive =
+    activeBookingId === id &&
+    (activeStatus === "connected" || activeStatus === "connecting");
+
+  const [deviceCheck, setDeviceCheck] = useState<"checking" | "success" | "error" | "skipped">(
+    isAlreadyActive ? "success" : "checking"
+  );
   const [deviceError, setDeviceError] = useState<"" | "permissionDenied" | "deviceUnavailable" | "error">("");
-  const [hasCamera, setHasCamera] = useState(false);
-  const [hasMic, setHasMic] = useState(false);
-  const [joined, setJoined] = useState(false);
+  const [hasCamera, setHasCamera] = useState(isAlreadyActive);
+  const [hasMic, setHasMic] = useState(isAlreadyActive);
+  const [joined, setJoined] = useState(isAlreadyActive);
+
+  // When returning to this page for an already active meeting, ensure un-minimized
+  useEffect(() => {
+    if (isAlreadyActive) {
+      setIsMinimized(false);
+      setJoined(true);
+    }
+  }, [isAlreadyActive, setIsMinimized]);
 
   const previewStreamRef = useRef<MediaStream | null>(null);
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);

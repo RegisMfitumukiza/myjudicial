@@ -7,6 +7,8 @@ import { usePathname } from "@/i18n/routing";
 import { UserRole } from "@/features/auth/types";
 import type { PublicUser } from "@/features/auth/types";
 import { useNotificationsRealtime } from "@/features/notifications/hooks/use-notifications-realtime";
+import { ActiveConsultationProvider } from "@/features/booking/context/active-consultation-context";
+import { FloatingMeetingDock } from "@/features/booking/components/floating-meeting-dock";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,6 +20,8 @@ interface DashboardLayoutProps {
  * 
  * - ADMIN & EXPERT: Professional sidebar layout (productivity-focused)
  * - CITIZEN: Consumer top-nav layout (like Airbnb/Amazon)
+ * - Both support persistent ActiveConsultationProvider and FloatingMeetingDock
+ *   for seamless multitasking during live video consultations.
  */
 export function DashboardLayout({ children, user: propUser }: DashboardLayoutProps) {
   const { user: authUser } = useAuth();
@@ -40,33 +44,50 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
   const role = (rawUser.role as UserRole) || inferredRole;
   const user: PublicUser = { ...rawUser, role };
 
+  const isJoinRoute =
+    pathname?.includes("/consultations/") && pathname?.endsWith("/join");
+
   // Citizens get consumer-style layout (top nav)
   if (user.role === UserRole.CITIZEN) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-        <ConsumerHeader user={user} pathname={pathname} />
-        <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 min-w-0">
-          {children}
-        </main>
-      </div>
+      <ActiveConsultationProvider>
+        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+          {!isJoinRoute && <ConsumerHeader user={user} pathname={pathname} />}
+          <main
+            className={
+              isJoinRoute
+                ? "flex-1 w-full h-full min-w-0"
+                : "flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 min-w-0"
+            }
+          >
+            {children}
+          </main>
+          <FloatingMeetingDock />
+        </div>
+      </ActiveConsultationProvider>
     );
   }
 
   // Admins & Experts get professional sidebar layout
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
-      <AppSidebar user={user} pathname={pathname} />
+    <ActiveConsultationProvider>
+      <div className="flex h-screen overflow-hidden bg-background">
+        {/* Sidebar (hidden on full-screen join route, visible everywhere else) */}
+        {!isJoinRoute && <AppSidebar user={user} pathname={pathname} />}
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        {/* Clear fixed mobile header on screens < 1024px, zero top offset on desktop */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 pt-16 lg:pt-0">
-          <div className="w-full min-w-0 min-h-full">
-            {children}
-          </div>
-        </main>
+        {/* Main content */}
+        <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+          {/* Clear fixed mobile header on screens < 1024px if not on join route */}
+          <main
+            className={`flex-1 overflow-y-auto overflow-x-hidden min-w-0 ${
+              !isJoinRoute ? "pt-16 lg:pt-0" : ""
+            }`}
+          >
+            <div className="w-full min-w-0 min-h-full">{children}</div>
+          </main>
+        </div>
+        <FloatingMeetingDock />
       </div>
-    </div>
+    </ActiveConsultationProvider>
   );
 }

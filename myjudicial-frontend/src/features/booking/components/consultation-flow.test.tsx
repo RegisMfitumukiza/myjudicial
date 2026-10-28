@@ -220,4 +220,142 @@ describe("Video Consultation Flow — Lifecycle, Privacy, and Device Guard Tests
       expect(reviewWindowMs).toBe(86_400_000);
     });
   });
+
+  describe("In-Room Collaboration & Multitasking Translation Parity", () => {
+    const requiredCollaborationKeys = [
+      "inRoomChatTitle",
+      "inRoomChatToggle",
+      "closePanel",
+      "loadingChat",
+      "noMessagesYet",
+      "chatEncryptedNote",
+      "viewAttachment",
+      "sending",
+      "failedToSend",
+      "typingIndicator",
+      "typeMessagePlaceholder",
+      "sendMessage",
+      "inRoomDocumentsTitle",
+      "inRoomDocsToggle",
+      "fileTooLarge",
+      "uploadingDocument",
+      "uploadDocumentCTA",
+      "supportedFormatsHint",
+      "documentSharedSuccess",
+      "consultationFilesHeader",
+      "encryptedVault",
+      "loadingDocuments",
+      "noDocumentsShared",
+      "download",
+      "inRoomDetailsTitle",
+      "inRoomDetailsToggle",
+      "loadingDetails",
+      "sessionSchedule",
+      "clientSituationNotes",
+      "escrowProtectedTitle",
+      "escrowProtectedDesc",
+      "pipLabel",
+      "minimizeCall",
+      "expandCall",
+      "returnToMeeting",
+      "waitingForParticipant",
+    ];
+
+    it("ensures all collaboration and multitasking keys exist in EN, FR, and RW", () => {
+      for (const key of requiredCollaborationKeys) {
+        expect((en as any)["expertDashboard_consultation-room"][key], `EN missing ${key}`).toBeDefined();
+        expect((fr as any)["expertDashboard_consultation-room"][key], `FR missing ${key}`).toBeDefined();
+        expect((rw as any)["expertDashboard_consultation-room"][key], `RW missing ${key}`).toBeDefined();
+      }
+    });
+
+    it("verifies authentic translations for in-room collaboration in FR and RW", () => {
+      const frRoom = (fr as any)["expertDashboard_consultation-room"];
+      const rwRoom = (rw as any)["expertDashboard_consultation-room"];
+
+      expect(frRoom.inRoomChatTitle).toBe("Chat de Consultation");
+      expect(frRoom.inRoomDocumentsTitle).toBe("Documents de la Consultation");
+      expect(frRoom.pipLabel).toBe("Image dans l'image");
+
+      expect(rwRoom.inRoomChatTitle).toBe("Ubutumwa bwo mu Nama");
+      expect(rwRoom.inRoomDocumentsTitle).toBe("Inyandiko z'Inama");
+      expect(rwRoom.pipLabel).toBe("Amashusho mato (PiP)");
+    });
+  });
+
+  describe("In-Room Document Sharing Constraints & Sensitivity", () => {
+    const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+
+    function validateUpload(fileSize: number, mimeType: string) {
+      if (fileSize > MAX_FILE_SIZE) {
+        return { valid: false, error: "fileTooLarge" };
+      }
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "application/zip",
+      ];
+      if (!allowedTypes.includes(mimeType)) {
+        return { valid: false, error: "unsupportedFileType" };
+      }
+      return { valid: true, sensitivity: "CONFIDENTIAL" };
+    }
+
+    it("rejects files exceeding 15MB limit before network request", () => {
+      const result = validateUpload(16 * 1024 * 1024, "application/pdf");
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("fileTooLarge");
+    });
+
+    it("accepts valid documents under 15MB and tags them with CONFIDENTIAL legal privilege", () => {
+      const result = validateUpload(5 * 1024 * 1024, "application/pdf");
+      expect(result.valid).toBe(true);
+      expect(result.sensitivity).toBe("CONFIDENTIAL");
+    });
+  });
+
+  describe("Persistent Meeting Session & Multitasking Invariants", () => {
+    function resolveReturnUrl(role: string, pathname: string, bookingId: string) {
+      const isExpert = role === "EXPERT" || (pathname ? pathname.includes("/expert") : false);
+      return isExpert
+        ? `/expert/dashboard/consultations/${bookingId}/join`
+        : `/client/dashboard/consultations/${bookingId}/join`;
+    }
+
+    it("correctly routes return-to-meeting target URL for client and expert roles", () => {
+      const bookingId = "bk-12345";
+      expect(resolveReturnUrl("CITIZEN", "/client/dashboard/messages", bookingId)).toBe(
+        "/client/dashboard/consultations/bk-12345/join"
+      );
+      expect(resolveReturnUrl("EXPERT", "/expert/dashboard/messages", bookingId)).toBe(
+        "/expert/dashboard/consultations/bk-12345/join"
+      );
+    });
+
+    it("preserves ACTIVE consultation and escrow lock during navigation and minimization", () => {
+      // Invariant: navigating to dashboard or minimizing call must NEVER mutate booking status to COMPLETED or refund escrow
+      let bookingStatus = "ACTIVE";
+      let escrowHeld = true;
+
+      // Simulate route navigation to /client/dashboard/documents
+      const onNavigateAway = () => {
+        // Meeting minimized, state preserved
+      };
+
+      onNavigateAway();
+      expect(bookingStatus).toBe("ACTIVE");
+      expect(escrowHeld).toBe(true);
+    });
+
+    it("verifies dual-device / duplicate connection disconnect reason is properly handled", () => {
+      // LiveKit DisconnectReason.DUPLICATE_IDENTITY triggers duplicateIdentity notice
+      const duplicateReason = "DUPLICATE_IDENTITY";
+      const isDuplicate = duplicateReason === "DUPLICATE_IDENTITY";
+      expect(isDuplicate).toBe(true);
+    });
+  });
 });

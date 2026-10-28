@@ -223,16 +223,18 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
     );
   }
 
-  const canCancel = ["PENDING", "CONFIRMED"].includes(booking.status);
-  const isPaymentPending = booking.status === "PENDING" && booking.paymentStatus === "PENDING";
-  const isPaymentFailed = booking.status === "PENDING" && booking.paymentStatus === "FAILED";
-  const canRetry = isPaymentPending || isPaymentFailed;
   const nowMs = Date.now();
   const startMs = new Date(booking.scheduledStart).getTime();
   const endMs = new Date(booking.scheduledEnd).getTime();
   const isTooEarly = nowMs < (startMs - JOINABLE_EARLY_WINDOW_MS);
   const isPastWindow = nowMs > (endMs + OVERTIME_GRACE_WINDOW_MS);
   const isSessionEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
+  const isScheduledInPast = nowMs >= startMs;
+
+  const canCancel = ["PENDING", "CONFIRMED"].includes(booking.status) && !isScheduledInPast;
+  const isPaymentPending = booking.status === "PENDING" && booking.paymentStatus === "PENDING";
+  const isPaymentFailed = booking.status === "PENDING" && booking.paymentStatus === "FAILED";
+  const canRetry = isPaymentPending || isPaymentFailed;
   const canJoin = ["CONFIRMED", "ACTIVE"].includes(booking.status) &&
     !isTooEarly &&
     !isPastWindow &&
@@ -240,7 +242,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const canReview = booking.status === "COMPLETED" && !booking.review;
   const canMessage = ["CONFIRMED", "ACTIVE", "COMPLETED"].includes(booking.status);
   const canDownloadReceipt = booking.paymentStatus === "PAID";
-  const canReschedule = ["PENDING", "CONFIRMED", "ACTIVE"].includes(booking.status) && booking.status !== "COMPLETED";
+  const canReschedule = ["PENDING", "CONFIRMED"].includes(booking.status) && !isScheduledInPast;
   const currentOrder = STATUS_ORDER[booking.status] ?? 0;
   const isCancelledOrRefunded = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
@@ -251,19 +253,19 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const isDocument = deliveryMode === "EMAIL";
   const officeAddress = (booking as BookingWithService).expert?.officeAddress || (booking as BookingWithService).expert?.city || null;
 
-  // â”€â”€ Cancellation policy logic â”€â”€
-  const msUntilStart = new Date(booking.scheduledStart).getTime() - Date.now();
+  // ── Cancellation policy logic ──
+  const msUntilStart = startMs - nowMs;
   const hoursUntilStart = msUntilStart / (1000 * 60 * 60);
-  const msSinceCreated = Date.now() - new Date(booking.createdAt).getTime();
+  const msSinceCreated = nowMs - new Date(booking.createdAt).getTime();
   const GRACE_PERIOD_MS = 60 * 60 * 1000; // 60 minutes buyer's remorse
   const isWithinGrace = msSinceCreated < GRACE_PERIOD_MS;
   const isFreeCancellation = hoursUntilStart > 24;
-  const isGracePeriod = !isFreeCancellation && isWithinGrace;
-  const isLateCancellation = !isFreeCancellation && !isWithinGrace;
+  const isGracePeriod = !isFreeCancellation && isWithinGrace && hoursUntilStart > 0;
+  const isLateCancellation = !isFreeCancellation && !isWithinGrace && hoursUntilStart > 0;
   const totalPaid = Number(booking.service?.flatFee ?? 0);
   const refundAmount = isLateCancellation ? Math.round(totalPaid * 0.5) : totalPaid;
   const expertCompensation = isLateCancellation ? Math.round(totalPaid * 0.5) : 0;
-  const freeCancellationDeadline = new Date(new Date(booking.scheduledStart).getTime() - 24 * 60 * 60 * 1000);
+  const freeCancellationDeadline = new Date(startMs - 24 * 60 * 60 * 1000);
 
   function handleCancel() {
     if (!cancelReason.trim() || cancelReason.trim().length < 5) return;
@@ -401,6 +403,25 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
                     {isRetrying ? t("retrying") : t("retryPayment")}
                   </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Session Concluded - Awaiting Expert Delivery Summary */}
+        {isPastWindow && !booking.deliveredAt && booking.status !== "COMPLETED" && (
+          <div className="mb-6 rounded-2xl border border-blue-500/30 bg-blue-50/60 p-6 dark:border-blue-500/20 dark:bg-blue-950/20 shadow-xs">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                <Clock size={22} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[15px] font-bold text-blue-950 dark:text-blue-100">
+                  {t("sessionConcludedAwaitingDeliveryTitle")}
+                </h3>
+                <p className="mt-1 text-[13px] text-blue-900/80 dark:text-blue-200/80 leading-relaxed">
+                  {t("sessionConcludedAwaitingDeliveryDesc")}
+                </p>
               </div>
             </div>
           </div>

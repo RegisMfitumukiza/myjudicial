@@ -179,10 +179,14 @@ function BookingsPageContent() {
     return result;
   }, [bookings]);
 
-  // If user has not explicitly chosen a tab and there are pending requests, auto-spotlight them
+  // Only auto-spotlight pending on first visit if there is NO explicit URL tab AND NO saved user preference
   useEffect(() => {
     const hasExplicitTab = Boolean(searchParams.get("tab"));
-    if (!hasExplicitTab && grouped.pending.length > 0) {
+    let hasSavedTab = false;
+    try {
+      hasSavedTab = Boolean(localStorage.getItem("expert_bookings_active_tab"));
+    } catch {}
+    if (!hasExplicitTab && !hasSavedTab && grouped.pending.length > 0) {
       setActiveTab("pending");
     }
   }, [grouped.pending.length, searchParams]);

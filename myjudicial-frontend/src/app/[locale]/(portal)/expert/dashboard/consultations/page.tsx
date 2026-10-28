@@ -18,11 +18,14 @@ import {
 } from "@/shared/components/dashboard";
 
 type Tab = "upcoming" | "past" | "cancelled";
+type DisplayStatus = "Upcoming" | "Completed" | "Cancelled" | "Awaiting Delivery" | "In Review";
 
-const STATUS_TONE: Record<"Upcoming" | "Completed" | "Cancelled", StatusTone> = {
+const STATUS_TONE: Record<DisplayStatus, StatusTone> = {
   Upcoming: "active",
   Completed: "success",
   Cancelled: "destructive",
+  "Awaiting Delivery": "pending",
+  "In Review": "active",
 };
 
 const TAB_ICON: Record<Tab, React.ElementType> = {
@@ -37,9 +40,15 @@ const TABS: { key: Tab; labelKey: string }[] = [
   { key: "cancelled", labelKey: "tabCancelled" },
 ];
 
-function displayStatus(status: Booking["status"]): "Upcoming" | "Completed" | "Cancelled" {
-  if (status === "COMPLETED") return "Completed";
-  if (status === "CANCELLED" || status === "REFUNDED") return "Cancelled";
+function getDisplayStatus(b: Booking): DisplayStatus {
+  if (b.status === "COMPLETED") return "Completed";
+  if (b.status === "CANCELLED" || b.status === "REFUNDED") return "Cancelled";
+  const nowMs = Date.now();
+  const endMs = new Date(b.scheduledEnd).getTime();
+  if (endMs < nowMs) {
+    if (b.deliveredAt) return "In Review";
+    return "Awaiting Delivery";
+  }
   return "Upcoming";
 }
 
@@ -52,10 +61,19 @@ export default function ConsultationsPage() {
 
   const grouped = useMemo(() => {
     const result: Record<Tab, Booking[]> = { upcoming: [], past: [], cancelled: [] };
+    const nowMs = Date.now();
     for (const b of bookings) {
-      if (b.status === "PENDING" || b.status === "CONFIRMED" || b.status === "ACTIVE") result.upcoming.push(b);
-      else if (b.status === "COMPLETED") result.past.push(b);
-      else result.cancelled.push(b);
+      if (b.status === "CANCELLED" || b.status === "REFUNDED") {
+        result.cancelled.push(b);
+        continue;
+      }
+      const endMs = new Date(b.scheduledEnd).getTime();
+      const isPast = b.status === "COMPLETED" || endMs < nowMs;
+      if (isPast) {
+        result.past.push(b);
+      } else {
+        result.upcoming.push(b);
+      }
     }
     return result;
   }, [bookings]);
@@ -101,11 +119,13 @@ export default function ConsultationsPage() {
           {items.map((c) => {
             const clientName = c.citizen ? `${c.citizen.firstName} ${c.citizen.lastName}` : t("clientFallback");
             const initials = clientName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-            const statusRaw = displayStatus(c.status);
-            const statusMap: Record<"Upcoming" | "Completed" | "Cancelled", string> = {
+            const statusRaw = getDisplayStatus(c);
+            const statusMap: Record<DisplayStatus, string> = {
               Upcoming: t("statusUpcoming"),
               Completed: t("statusCompleted"),
               Cancelled: t("statusCancelled"),
+              "Awaiting Delivery": t("statusAwaitingDelivery"),
+              "In Review": t("statusInReview"),
             };
             const status = statusMap[statusRaw];
             const scheduled = new Date(c.scheduledStart);
@@ -164,9 +184,9 @@ export default function ConsultationsPage() {
                       }
                       if (isPastWindow && !c.deliveredAt && (c.status === "CONFIRMED" || c.status === "ACTIVE")) {
                         return (
-                          <Button size="xs" variant="outline" className="text-emerald-700 border-emerald-600/30 hover:bg-emerald-50 dark:text-emerald-300" asChild>
+                          <Button size="xs" className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-xs" asChild>
                             <Link href={`/expert/dashboard/bookings/${c.id}`}>
-                              {t("viewDetails")}
+                              {t("markDeliveredShort")}
                             </Link>
                           </Button>
                         );

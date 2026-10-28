@@ -32,6 +32,40 @@ describe("Video Consultation Flow — Lifecycle, Privacy, and Device Guard Tests
       const isPastWindowExpired = pastGrace > SCHEDULED_END + OVERTIME_GRACE_WINDOW_MS;
       expect(isPastWindowExpired).toBe(true);
     });
+
+    it("locks cancellation and prevents 50% late cancellation refund once scheduled start has elapsed", () => {
+      const nowMs = SCHEDULED_START + 3 * 24 * 60 * 60 * 1000; // 3 days past scheduled start
+      const msUntilStart = SCHEDULED_START - nowMs;
+      const hoursUntilStart = msUntilStart / (1000 * 60 * 60);
+
+      // Invariant 1: Can only cancel strictly BEFORE session starts
+      const isScheduledInPast = nowMs >= SCHEDULED_START;
+      const canCancel = ["PENDING", "CONFIRMED"].includes("CONFIRMED") && !isScheduledInPast;
+      expect(canCancel).toBe(false);
+
+      // Invariant 2: Late cancellation 50% refund must never trigger for negative elapsed time
+      const isFreeCancellation = hoursUntilStart > 24;
+      const isWithinGrace = false;
+      const isLateCancellation = !isFreeCancellation && !isWithinGrace && hoursUntilStart > 0;
+      expect(isLateCancellation).toBe(false);
+    });
+
+    it("classifies past consultations by scheduledEnd rather than leaving them in upcoming", () => {
+      const nowMs = Date.now();
+      const pastBooking = {
+        id: "b-past-1",
+        status: "CONFIRMED",
+        scheduledStart: new Date(nowMs - 72 * 60 * 60 * 1000).toISOString(),
+        scheduledEnd: new Date(nowMs - 71 * 60 * 60 * 1000).toISOString(),
+        deliveredAt: null,
+      };
+
+      const isPast = pastBooking.status === "COMPLETED" || new Date(pastBooking.scheduledEnd).getTime() < nowMs;
+      expect(isPast).toBe(true);
+
+      const isUpcoming = !isPast && (pastBooking.status === "CONFIRMED" || pastBooking.status === "ACTIVE");
+      expect(isUpcoming).toBe(false);
+    });
   });
 
   describe("Device Check Error State Classification", () => {

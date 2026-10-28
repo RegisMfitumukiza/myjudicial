@@ -19,28 +19,32 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function ConsultationsPage() {
   const t = useTranslations("clientDashboard.consultations");
-  const TABS: {
-    key: string;
-    label: string;
-    statuses?: BookingStatus[];
-  }[] = [
+  const TABS = [
     { key: "all", label: t("tabs.all") },
-    { key: "upcoming", label: t("tabs.upcoming"), statuses: ["CONFIRMED", "ACTIVE"] },
-    { key: "pending", label: t("tabs.pending"), statuses: ["PENDING"] },
-    { key: "past", label: t("tabs.past"), statuses: ["COMPLETED"] },
-    { key: "cancelled", label: t("tabs.cancelled"), statuses: ["CANCELLED", "REFUNDED"] },
+    { key: "upcoming", label: t("tabs.upcoming") },
+    { key: "pending", label: t("tabs.pending") },
+    { key: "past", label: t("tabs.past") },
+    { key: "cancelled", label: t("tabs.cancelled") },
   ];
 
   const [activeTab, setActiveTab] = useState<string>("all");
   const { bookings, isLoading, error } = useBookings();
 
+  const nowMs = Date.now();
   const filtered = activeTab === "all"
     ? bookings
     : bookings.filter((b) => {
-        const tabConfig = TABS.find((tab) => tab.key === activeTab);
-        const statuses = tabConfig?.statuses;
-        if (!statuses) return false;
-        return statuses.includes(b.status);
+        const isCancelled = b.status === "CANCELLED" || b.status === "REFUNDED";
+        if (activeTab === "cancelled") return isCancelled;
+        if (isCancelled) return false;
+
+        if (activeTab === "pending") return b.status === "PENDING";
+
+        const isPast = b.status === "COMPLETED" || new Date(b.scheduledEnd).getTime() < nowMs;
+        if (activeTab === "past") return isPast;
+        if (activeTab === "upcoming") return !isPast && (b.status === "CONFIRMED" || b.status === "ACTIVE");
+
+        return false;
       });
 
   const locale = useLocale();

@@ -467,11 +467,11 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
       )}
 
       {/* ── Video grid ────────────────────────────────────────────────────── */}
-      <div className="flex-1 grid grid-cols-1 gap-2 p-2 sm:p-4 lg:grid-cols-2 min-h-0">
+      <div className="flex-1 grid grid-cols-1 grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 auto-rows-fr gap-2 sm:gap-3 p-2 sm:p-4 min-h-0">
 
         {/* Remote participants */}
         {remoteParticipants.map((participant) => (
-          <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900">
+          <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
             <video
               ref={(el) => setVideoRef(participant.sid, el)}
               autoPlay
@@ -491,7 +491,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         ))}
 
         {/* Local participant */}
-        <div className="relative overflow-hidden rounded-xl bg-gray-900">
+        <div className="relative overflow-hidden rounded-xl bg-gray-900 h-full w-full min-h-0">
           <video
             ref={localVideoRef}
             autoPlay
@@ -513,7 +513,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
 
         {/* ── F-07: Waiting state with timeout messaging ─────────────────── */}
         {remoteParticipants.length === 0 && (
-          <div className="flex items-center justify-center rounded-xl bg-gray-900">
+          <div className="flex items-center justify-center rounded-xl bg-gray-900 h-full w-full min-h-0">
             <div className="text-center px-6">
               {waitingTooLong ? (
                 <>
@@ -547,22 +547,22 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
       </div>
 
       {/* ── Controls ──────────────────────────────────────────────────────── */}
-      <div className="border-t border-white/10 bg-black/60 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur-sm shrink-0">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
+      <div className="border-t border-white/10 bg-black/80 px-4 py-3 sm:px-6 sm:py-4 pb-6 sm:pb-4 backdrop-blur-md shrink-0">
+        <div className="mx-auto flex max-w-4xl items-center justify-center sm:justify-between">
 
-          {/* Left — room info */}
-          <div className="min-w-0">
+          {/* Left — room info (hidden on mobile, visible on tablet/desktop) */}
+          <div className="hidden sm:block min-w-0">
             <p className="text-[11px] text-white/50 truncate">{t("consultationInProgress")}</p>
             <p className="text-[13px] font-semibold text-white">{t("participantsCount", { count: remoteParticipants.length + 1 })}</p>
           </div>
 
-          {/* Center — call controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Center — call controls (centered for clean thumb reach) */}
+          <div className="flex items-center justify-center gap-2.5 sm:gap-3">
             {/* Mute */}
             <Button
               onClick={handleMuteToggle}
               size="lg"
-              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
+              className={`h-12 w-12 rounded-full ${
                 isAudioEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
@@ -576,7 +576,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
             <Button
               onClick={handleVideoToggle}
               size="lg"
-              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
+              className={`h-12 w-12 rounded-full ${
                 isVideoEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
@@ -586,7 +586,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
               {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
             </Button>
 
-            {/* Screen share */}
+            {/* Screen share — strictly desktop/tablet */}
             <Button
               onClick={async () => {
                 if (!room) return;
@@ -607,7 +607,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                 }
               }}
               size="lg"
-              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full hidden sm:flex ${
+              className={`h-12 w-12 rounded-full hidden sm:flex ${
                 isScreenSharing ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
               }`}
               title={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
@@ -621,7 +621,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
             <Button
               onClick={isRecording ? stopRecording : startRecording}
               size="lg"
-              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full transition-all ${
+              className={`h-12 w-12 rounded-full transition-all ${
                 isRecording
                   ? "bg-red-600 hover:bg-red-500 ring-2 ring-red-400"
                   : "bg-gray-700 hover:bg-gray-600 text-white"
@@ -638,7 +638,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
             <Button
               onClick={() => setShowLeaveConfirm(true)}
               size="lg"
-              className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-red-600 hover:bg-red-500"
+              className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-500"
               title={t("leaveLabel")}
               aria-label={t("leaveLabel")}
             >
@@ -646,8 +646,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
             </Button>
           </div>
 
-          {/* Right — spacer / future features */}
-          <div className="w-16 sm:w-24" />
+          {/* Right — spacer (hidden on mobile) */}
+          <div className="hidden sm:block w-16 sm:w-24" />
         </div>
       </div>
     </div>

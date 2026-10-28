@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { ArrowLeft, Video, Mic, MicOff, VideoOff, Loader2, AlertCircle, CheckCircle, MapPin, Phone, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,15 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
   const { booking, isLoading, error } = useBooking(id);
   const t = useTranslations("clientDashboard.join");
   const locale = useLocale();
-  
+
   const [deviceCheck, setDeviceCheck] = useState<"checking" | "success" | "error">("checking");
+  const [deviceError, setDeviceError] = useState<"" | "permissionDenied" | "deviceUnavailable" | "error">("");
   const [hasCamera, setHasCamera] = useState(false);
   const [hasMic, setHasMic] = useState(false);
   const [joined, setJoined] = useState(false);
+
+  const previewStreamRef = useRef<MediaStream | null>(null);
+  const previewVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Check device permissions (only for video delivery mode)
   useEffect(() => {
@@ -29,9 +33,17 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
 
     async function checkDevices() {
       try {
-        // Request camera and microphone permissions
+        // Request camera and microphone permissions and keep stream for preview
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        
+
+        // Attach stream to ref for cleanup later
+        previewStreamRef.current = stream;
+
+        // Attach to video element if already mounted
+        if (previewVideoRef.current) {
+          previewVideoRef.current.srcObject = stream;
+        }
+
         // Check available devices
         const devices = await navigator.mediaDevices.enumerateDevices();
         const cameras = devices.filter(d => d.kind === "videoinput");
@@ -40,17 +52,36 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
         setHasCamera(cameras.length > 0);
         setHasMic(mics.length > 0);
         setDeviceCheck("success");
-
-        // Stop the test stream
-        stream.getTracks().forEach(track => track.stop());
-      } catch (err) {
+      } catch (err: any) {
         console.error("Device check failed:", err);
+        const name: string = err?.name ?? "";
+        if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+          setDeviceError("permissionDenied");
+        } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+          setDeviceError("deviceUnavailable");
+        } else {
+          setDeviceError("error");
+        }
         setDeviceCheck("error");
       }
     }
 
     checkDevices();
+
+    return () => {
+      // Cleanup preview stream on unmount
+      previewStreamRef.current?.getTracks().forEach(track => track.stop());
+      previewStreamRef.current = null;
+    };
   }, [booking]);
+
+  // Stop preview stream when the room is joined (room opens its own stream)
+  useEffect(() => {
+    if (joined) {
+      previewStreamRef.current?.getTracks().forEach(track => track.stop());
+      previewStreamRef.current = null;
+    }
+  }, [joined]);
 
   if (isLoading) {
     return (
@@ -84,7 +115,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
   const isEnded = Boolean((booking as any).actualEndTime || (booking as any).completedAt);
   const isEligibleStatus = ["CONFIRMED", "ACTIVE"].includes(booking.status);
   const canJoin = isEligibleStatus && !isTooEarly && !isPastWindow && !isEnded;
-  
+
   if (!canJoin) {
     let reasonText = t("notReadyStatus", { status: booking.status });
     if (isEnded || isPastWindow) {
@@ -204,17 +235,43 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
               </div>
             ) : deviceCheck === "error" ? (
               <div className="space-y-4">
-                <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-900/10 p-4 border border-red-200 dark:border-red-900/30">
-                  <AlertCircle size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-[13px] font-semibold text-red-800 dark:text-red-300 mb-1">
-                      {t("deviceDenied")}
-                    </p>
-                    <p className="text-[12px] text-red-700 dark:text-red-400">
-                      {t("deviceDeniedDesc")}
-                    </p>
+                {deviceError === "permissionDenied" ? (
+                  <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-900/10 p-4 border border-red-200 dark:border-red-900/30">
+                    <AlertCircle size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-[13px] font-semibold text-red-800 dark:text-red-300 mb-1">
+                        {t("deviceDenied")}
+                      </p>
+                      <p className="text-[12px] text-red-700 dark:text-red-400">
+                        {t("deviceDeniedDesc")}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : deviceError === "deviceUnavailable" ? (
+                  <div className="flex items-start gap-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 p-4 border border-amber-200 dark:border-amber-900/30">
+                    <AlertCircle size={18} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                        {t("deviceUnavailable")}
+                      </p>
+                      <p className="text-[12px] text-amber-700 dark:text-amber-400">
+                        {t("deviceUnavailableDesc")}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-900/10 p-4 border border-red-200 dark:border-red-900/30">
+                    <AlertCircle size={18} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-[13px] font-semibold text-red-800 dark:text-red-300 mb-1">
+                        {t("deviceError")}
+                      </p>
+                      <p className="text-[12px] text-red-700 dark:text-red-400">
+                        {t("deviceErrorDesc")}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <Button
                   onClick={() => window.location.reload()}
                   variant="outline"
@@ -225,24 +282,37 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-lg border border-brand-border/20 p-3 dark:border-white/20">
-                  <div className="flex items-center gap-2">
-                    <Video size={16} className="text-brand-dark/60 dark:text-white/60" />
-                    <span className="text-[13px] text-brand-dark dark:text-white">{t("camera")}</span>
+                {/* Camera row with live preview */}
+                <div className="rounded-lg border border-brand-border/20 p-3 dark:border-white/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Video size={16} className="text-brand-dark/60 dark:text-white/60" />
+                      <span className="text-[13px] text-brand-dark dark:text-white">{t("camera")}</span>
+                    </div>
+                    {hasCamera ? (
+                      <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                        <CheckCircle size={14} />
+                        <span className="text-[12px] font-semibold">{t("ready")}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                        <AlertCircle size={14} />
+                        <span className="text-[12px] font-semibold">{t("notFound")}</span>
+                      </div>
+                    )}
                   </div>
-                  {hasCamera ? (
-                    <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                      <CheckCircle size={14} />
-                      <span className="text-[12px] font-semibold">{t("ready")}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                      <AlertCircle size={14} />
-                      <span className="text-[12px] font-semibold">{t("notFound")}</span>
-                    </div>
+                  {hasCamera && (
+                    <video
+                      ref={previewVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full rounded-lg aspect-video object-cover bg-black mb-1"
+                    />
                   )}
                 </div>
 
+                {/* Microphone row */}
                 <div className="flex items-center justify-between rounded-lg border border-brand-border/20 p-3 dark:border-white/20">
                   <div className="flex items-center gap-2">
                     <Mic size={16} className="text-brand-dark/60 dark:text-white/60" />
@@ -274,10 +344,10 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
             {t("joinConsultation")}
           </Button>
 
-          {/* Info */}
+          {/* Privacy Notice (replaces false recording claim) */}
           <div className="mt-4 rounded-xl bg-brand-dark/5 p-4 text-center dark:bg-white/5">
             <p className="text-[11px] text-brand-dark/60 dark:text-white/60">
-              {t("recordingNotice")}
+              {t("privacyNotice")}
             </p>
           </div>
         </div>

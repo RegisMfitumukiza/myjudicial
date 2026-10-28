@@ -2061,7 +2061,12 @@
       "phoneNotice": "This is a telephone consultation with your advocate. A video room is not required.",
       "documentNotice": "This is a document review deliverable. A video room is not required.",
       "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
-      "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
+      "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
+      "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your advocate.",
+      "deviceUnavailable": "No camera or microphone found",
+      "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
+      "deviceError": "Could not access devices",
+      "deviceErrorDesc": "An unexpected error occurred. Please refresh the page and try again."
     },
     "consultationDetail": {
       "toasts": {
@@ -3121,7 +3126,16 @@
     "videoOnLabel": "Turn on camera",
     "shareScreenLabel": "Share screen",
     "stopScreenShareLabel": "Stop sharing",
-    "leaveLabel": "Leave call"
+    "leaveLabel": "Leave call",
+    "leaveConfirmTitle": "Leave the consultation?",
+    "leaveConfirmDesc": "You will be disconnected from the session. The consultation room remains open for the other participant.",
+    "leaveConfirmCancel": "Stay in call",
+    "leaveConfirmLeave": "Leave call",
+    "returnToBooking": "Return to booking details",
+    "waitingLongExpert": "Your client has not joined yet",
+    "waitingLongClient": "Your advocate has not joined yet",
+    "waitingLongDesc": "The room will close automatically if no one else joins. You can leave and return to the booking details.",
+    "screenShareError": "Could not share screen. Please check browser permissions."
   },
   "expertDashboard_consultations": {
     "title": "Consultations",
@@ -7269,7 +7283,12 @@
     "analyzingCase": "Analyzing case with AI...",
     "analyzeError": "Could not analyze case notes. Please try again.",
     "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
-    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
+    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
+    "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your client.",
+    "deviceUnavailable": "No camera or microphone found",
+    "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
+    "deviceError": "Could not access devices",
+    "deviceErrorDesc": "An unexpected error occurred. Please refresh the page and try again."
   },
   "expertDashboard_consultation-join": {
     "failedToLoad": "Failed to load booking",
@@ -7294,7 +7313,12 @@
     "joinConsultation": "Join Consultation",
     "recordingNotice": "By joining, you agree that the consultation will be recorded for quality assurance. The recording will only be accessible to you and your client.",
     "windowEndedDesc": "The consultation window has ended. This session is no longer joinable.",
-    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time."
+    "tooEarlyDesc": "The consultation room is not open yet. You can join up to 15 minutes before the scheduled time.",
+    "privacyNotice": "This consultation is conducted over an encrypted connection. It is not recorded. The session is private between you and your client.",
+    "deviceUnavailable": "No camera or microphone found",
+    "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
+    "deviceError": "Could not access devices",
+    "deviceErrorDesc": "An unexpected error occurred. Please refresh the page and try again."
   },
   "onboarding": {
     "nav": {

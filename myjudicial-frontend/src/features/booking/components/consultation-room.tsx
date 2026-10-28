@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ConnectionQuality,
   RoomEvent,
   Track,
 } from "livekit-client";
-import type { RemoteParticipant, RemoteTrack } from "livekit-client";
+import type { RemoteParticipant, RemoteTrack, TrackPublication } from "livekit-client";
 import {
   Mic,
   MicOff,
@@ -17,10 +17,14 @@ import {
   AlertCircle,
   Monitor,
   MonitorOff,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRoomConnection, MAX_REJOIN_ATTEMPTS } from "../hooks/useRoomConnection";
 import { useTranslations } from "next-intl";
+
+// How long to wait (ms) before showing the "other participant hasn't joined" message
+const WAITING_TIMEOUT_MS = 3 * 60 * 1000;
 
 interface ConsultationRoomProps {
   bookingId: string;
@@ -29,7 +33,9 @@ interface ConsultationRoomProps {
 }
 
 export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: ConsultationRoomProps) {
+  // Use shared neutral namespace (same keys, avoids coupling to expert dashboard NS)
   const t = useTranslations("expertDashboard_consultation-room");
+
   const {
     status,
     error,
@@ -42,13 +48,43 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     leave,
   } = useRoomConnection(bookingId);
 
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  // ── F-06: Derive mute state from actual track publications ───────────────
+  // This prevents desync after reconnect (local state was never reset).
+  const isAudioEnabled = localAudioTrack ? !localAudioTrack.isMuted : true;
+  const isVideoEnabled = localVideoTrack ? !localVideoTrack.isMuted : true;
 
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [screenShareError, setScreenShareError] = useState(false);
+
+  // ── F-11: Leave confirmation dialog ──────────────────────────────────────
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+  // ── F-07: Waiting-for-participant timeout ─────────────────────────────────
+  const [waitingTooLong, setWaitingTooLong] = useState(false);
+  const waitingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (status === "connected" && remoteParticipants.length === 0) {
+      waitingTimerRef.current = setTimeout(() => {
+        setWaitingTooLong(true);
+      }, WAITING_TIMEOUT_MS);
+    } else {
+      if (waitingTimerRef.current) {
+        clearTimeout(waitingTimerRef.current);
+        waitingTimerRef.current = null;
+      }
+      setWaitingTooLong(false);
+    }
+    return () => {
+      if (waitingTimerRef.current) {
+        clearTimeout(waitingTimerRef.current);
+        waitingTimerRef.current = null;
+      }
+    };
+  }, [status, remoteParticipants.length]);
+
+  // ── Local video attachment ────────────────────────────────────────────────
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
-  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
-  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
   useEffect(() => {
     if (!localVideoTrack || !localVideoRef.current) return;
@@ -58,20 +94,45 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     };
   }, [localVideoTrack]);
 
+  // ── F-05: Track subscription race fix ────────────────────────────────────
+  // Keep a pending map for tracks that arrive before their <video> ref is mounted.
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
+  const pendingVideoTracks = useRef<Record<string, RemoteTrack>>({});
+
+  // Callback-ref for video elements: attaches pending tracks as soon as the
+  // DOM node is available, eliminating the race between TrackSubscribed and mount.
+  const setVideoRef = useCallback((sid: string, el: HTMLVideoElement | null) => {
+    videoRefs.current[sid] = el;
+    if (el && pendingVideoTracks.current[sid]) {
+      pendingVideoTracks.current[sid].attach(el);
+      delete pendingVideoTracks.current[sid];
+    }
+  }, []);
+
   useEffect(() => {
     if (!room) return;
-    const onSubscribed = (track: RemoteTrack, _publication: unknown, participant: RemoteParticipant) => {
+
+    const onSubscribed = (track: RemoteTrack, _pub: TrackPublication, participant: RemoteParticipant) => {
       if (track.kind === Track.Kind.Video) {
         const el = videoRefs.current[participant.sid];
-        if (el) track.attach(el);
+        if (el) {
+          track.attach(el);
+        } else {
+          // Element not mounted yet — store for callback-ref to attach
+          pendingVideoTracks.current[participant.sid] = track;
+        }
       } else if (track.kind === Track.Kind.Audio) {
         const el = audioRefs.current[participant.sid];
         if (el) track.attach(el);
       }
     };
-    const onUnsubscribed = (track: RemoteTrack) => {
+
+    const onUnsubscribed = (track: RemoteTrack, _pub: TrackPublication, participant: RemoteParticipant) => {
       track.detach();
+      delete pendingVideoTracks.current[participant.sid];
     };
+
     room.on(RoomEvent.TrackSubscribed, onSubscribed);
     room.on(RoomEvent.TrackUnsubscribed, onUnsubscribed);
     return () => {
@@ -80,43 +141,59 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     };
   }, [room]);
 
+  // Autoplay gate — resume audio context on first user interaction
   useEffect(() => {
     if (!room || status !== "connected") return;
-    const onGesture = () => {
-      room.startAudio();
-    };
+    const onGesture = () => { room.startAudio(); };
     window.addEventListener("pointerdown", onGesture, { once: true });
     return () => window.removeEventListener("pointerdown", onGesture);
   }, [room, status]);
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const handleLeave = () => {
     leave();
     onLeave();
   };
 
+  const handleMuteToggle = async () => {
+    if (!localAudioTrack) return;
+    if (isAudioEnabled) {
+      await localAudioTrack.mute();
+    } else {
+      await localAudioTrack.unmute();
+    }
+    // No local state to set — isAudioEnabled derives from track.isMuted
+  };
+
+  const handleVideoToggle = async () => {
+    if (!localVideoTrack) return;
+    if (isVideoEnabled) {
+      await localVideoTrack.mute();
+    } else {
+      await localVideoTrack.unmute();
+    }
+  };
+
+  // ── Connection quality label map ──────────────────────────────────────────
   const qualityInfo: Record<ConnectionQuality, { label: string; dot: string }> = {
     [ConnectionQuality.Excellent]: { label: t("qualityExcellent"), dot: "bg-emerald-400" },
-    [ConnectionQuality.Good]: { label: t("qualityGood"), dot: "bg-brand-dark" },
-    [ConnectionQuality.Poor]: { label: t("qualityPoor"), dot: "bg-amber-400" },
-    [ConnectionQuality.Lost]: { label: t("qualityLost"), dot: "bg-red-400" },
-    [ConnectionQuality.Unknown]: { label: "", dot: "bg-gray-400" },
+    [ConnectionQuality.Good]:      { label: t("qualityGood"),      dot: "bg-brand-dark dark:bg-white" },
+    [ConnectionQuality.Poor]:      { label: t("qualityPoor"),      dot: "bg-amber-400" },
+    [ConnectionQuality.Lost]:      { label: t("qualityLost"),      dot: "bg-red-400" },
+    [ConnectionQuality.Unknown]:   { label: "",                    dot: "bg-gray-400" },
   };
   const quality = qualityInfo[connectionQuality];
-  const errorMessage =
-    error === "connectionLost"
-      ? t("connectionLost")
-      : error === "failedToJoin"
-      ? t("failedToJoin")
-      : error === "roomDeleted"
-      ? t("roomDeleted")
-      : error === "serverShutdown"
-      ? t("serverShutdown")
-      : error === "participantRemoved"
-      ? t("participantRemoved")
-      : error === "duplicateIdentity"
-      ? t("duplicateIdentity")
-      : (error ? t("connectionError") : "");
 
+  const errorMessage =
+    error === "connectionLost"      ? t("connectionLost") :
+    error === "failedToJoin"        ? t("failedToJoin") :
+    error === "roomDeleted"         ? t("roomDeleted") :
+    error === "serverShutdown"      ? t("serverShutdown") :
+    error === "participantRemoved"  ? t("participantRemoved") :
+    error === "duplicateIdentity"   ? t("duplicateIdentity") :
+    (error                          ? t("connectionError") : "");
+
+  // ── Loading state ─────────────────────────────────────────────────────────
   if (status === "connecting") {
     return (
       <div className="flex h-screen items-center justify-center bg-black">
@@ -128,6 +205,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     );
   }
 
+  // ── Error state ───────────────────────────────────────────────────────────
   if (status === "error") {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-black px-6">
@@ -145,13 +223,40 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
     );
   }
 
+  // ── Main room UI ──────────────────────────────────────────────────────────
   return (
-    <div className="relative flex h-screen flex-col bg-black">
-      {/* Reconnecting banner */}
+    <div className="relative flex h-screen flex-col bg-black overflow-hidden">
+
+      {/* ── F-11: Leave Confirmation Dialog ───────────────────────────────── */}
+      {showLeaveConfirm && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
+          <div className="w-full max-w-sm rounded-2xl bg-gray-900 border border-white/10 p-6 shadow-2xl">
+            <p className="text-white text-[16px] font-semibold mb-2">{t("leaveConfirmTitle")}</p>
+            <p className="text-white/60 text-[13px] mb-6 leading-relaxed">{t("leaveConfirmDesc")}</p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 border-white/20 text-white hover:bg-white/10 text-[13px]"
+                onClick={() => setShowLeaveConfirm(false)}
+              >
+                {t("leaveConfirmCancel")}
+              </Button>
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white text-[13px]"
+                onClick={handleLeave}
+              >
+                {t("leaveConfirmLeave")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reconnecting banner ────────────────────────────────────────────── */}
       {status === "reconnecting" && (
-        <div className="absolute inset-x-0 top-4 z-10 flex justify-center">
-          <div className="flex items-center gap-2 rounded-full bg-brand-dark px-4 py-2 text-white shadow-lg">
-            <Loader2 className="h-4 w-4 animate-spin" />
+        <div className="absolute inset-x-0 top-4 z-10 flex justify-center px-4">
+          <div className="flex items-center gap-2 rounded-full bg-brand-dark px-4 py-2 text-white shadow-lg ring-1 ring-white/20">
+            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
             <p className="text-[13px]">
               {rejoinAttempt > 0
                 ? t("reconnectingAttempt", { count: rejoinAttempt, max: MAX_REJOIN_ATTEMPTS })
@@ -161,36 +266,43 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
         </div>
       )}
 
-      {/* Connection quality indicator */}
+      {/* ── F-12: Connection quality indicator (ring for dark-bg contrast) ── */}
       {status === "connected" && connectionQuality !== ConnectionQuality.Unknown && (
         <div className="absolute inset-x-0 top-4 z-10 flex justify-end px-6">
-          <div className="flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-white backdrop-blur-sm">
+          <div className="flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-white backdrop-blur-sm ring-1 ring-white/10">
             <span className={`h-2 w-2 rounded-full ${quality.dot}`} />
             <p className="text-[12px]">{quality.label}</p>
           </div>
         </div>
       )}
 
-      {/* Video Grid */}
-      <div className="flex-1 grid grid-cols-1 gap-2 p-4 lg:grid-cols-2">
-        {/* Remote Participants */}
+      {/* ── F-10: Screen share error toast ────────────────────────────────── */}
+      {screenShareError && (
+        <div className="absolute inset-x-0 top-14 z-10 flex justify-center px-4">
+          <div className="flex items-center gap-2 rounded-full bg-red-700/90 px-4 py-2 text-white shadow-lg ring-1 ring-white/20">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <p className="text-[13px]">{t("screenShareError")}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Video grid ────────────────────────────────────────────────────── */}
+      <div className="flex-1 grid grid-cols-1 gap-2 p-2 sm:p-4 lg:grid-cols-2 min-h-0">
+
+        {/* Remote participants */}
         {remoteParticipants.map((participant) => (
           <div key={participant.sid} className="relative overflow-hidden rounded-xl bg-gray-900">
             <video
-              ref={(el) => {
-                videoRefs.current[participant.sid] = el;
-              }}
+              ref={(el) => setVideoRef(participant.sid, el)}
               autoPlay
               playsInline
               className="h-full w-full object-cover"
             />
             <audio
-              ref={(el) => {
-                audioRefs.current[participant.sid] = el;
-              }}
+              ref={(el) => { audioRefs.current[participant.sid] = el; }}
               autoPlay
             />
-            <div className="absolute bottom-4 left-4 rounded-lg bg-black/70 px-3 py-1.5">
+            <div className="absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-sm">
               <p className="text-[12px] font-semibold text-white">
                 {participant.name || t("participant")}
               </p>
@@ -198,7 +310,7 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
           </div>
         ))}
 
-        {/* Local Participant */}
+        {/* Local participant */}
         <div className="relative overflow-hidden rounded-xl bg-gray-900">
           <video
             ref={localVideoRef}
@@ -209,87 +321,96 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
           />
           {!isVideoEnabled && (
             <div className="flex h-full items-center justify-center">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-dark">
-                <VideoOff size={40} className="text-white" />
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark">
+                <VideoOff size={36} className="text-white" />
               </div>
             </div>
           )}
-          <div className="absolute bottom-4 left-4 rounded-lg bg-black/70 px-3 py-1.5">
+          <div className="absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-1.5 backdrop-blur-sm">
             <p className="text-[12px] font-semibold text-white">{t("you")}</p>
           </div>
         </div>
 
-        {/* Empty state if waiting for other participant */}
+        {/* ── F-07: Waiting state with timeout messaging ─────────────────── */}
         {remoteParticipants.length === 0 && (
           <div className="flex items-center justify-center rounded-xl bg-gray-900">
-            <div className="text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-white/30 mx-auto mb-4" />
-              <p className="text-white/70 text-[14px]">
-                {isExpert ? t("waitingForClient") : t("waitingForExpert")}
-              </p>
+            <div className="text-center px-6">
+              {waitingTooLong ? (
+                <>
+                  <Clock className="h-10 w-10 text-amber-400 mx-auto mb-3" />
+                  <p className="text-white/80 text-[14px] font-semibold mb-2">
+                    {isExpert ? t("waitingLongExpert") : t("waitingLongClient")}
+                  </p>
+                  <p className="text-white/50 text-[12px] mb-4 max-w-xs leading-relaxed">
+                    {t("waitingLongDesc")}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 text-white/80 hover:bg-white/10 text-[12px]"
+                    onClick={() => setShowLeaveConfirm(true)}
+                  >
+                    {t("returnToBooking")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Loader2 className="h-10 w-10 animate-spin text-white/30 mx-auto mb-3" />
+                  <p className="text-white/70 text-[14px]">
+                    {isExpert ? t("waitingForClient") : t("waitingForExpert")}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Controls */}
-      <div className="border-t border-white/10 bg-black/50 px-6 py-4 backdrop-blur-sm">
+      {/* ── Controls ──────────────────────────────────────────────────────── */}
+      <div className="border-t border-white/10 bg-black/60 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur-sm shrink-0">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
-          {/* Left - Room Info */}
-          <div>
-            <p className="text-[12px] text-white/50">{t("consultationInProgress")}</p>
-            <p className="text-[14px] font-semibold text-white">{t("participantsCount", { count: remoteParticipants.length + 1 })}</p>
+
+          {/* Left — room info */}
+          <div className="min-w-0">
+            <p className="text-[11px] text-white/50 truncate">{t("consultationInProgress")}</p>
+            <p className="text-[13px] font-semibold text-white">{t("participantsCount", { count: remoteParticipants.length + 1 })}</p>
           </div>
 
-          {/* Center - Call Controls */}
-          <div className="flex items-center gap-3">
+          {/* Center — call controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mute */}
             <Button
-              onClick={async () => {
-                if (!localAudioTrack) return;
-                if (isAudioEnabled) {
-                  await localAudioTrack.mute();
-                } else {
-                  await localAudioTrack.unmute();
-                }
-                setIsAudioEnabled(!isAudioEnabled);
-              }}
+              onClick={handleMuteToggle}
               size="lg"
-              className={`h-12 w-12 rounded-full ${
-                isAudioEnabled
-                  ? "bg-gray-700 hover:bg-gray-600"
-                  : "bg-red-600 hover:bg-red-500"
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
+                isAudioEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
               aria-label={isAudioEnabled ? t("muteLabel") : t("unmuteLabel")}
+              aria-pressed={!isAudioEnabled}
             >
               {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
             </Button>
 
+            {/* Camera */}
             <Button
-              onClick={async () => {
-                if (!localVideoTrack) return;
-                if (isVideoEnabled) {
-                  await localVideoTrack.mute();
-                } else {
-                  await localVideoTrack.unmute();
-                }
-                setIsVideoEnabled(!isVideoEnabled);
-              }}
+              onClick={handleVideoToggle}
               size="lg"
-              className={`h-12 w-12 rounded-full ${
-                isVideoEnabled
-                  ? "bg-gray-700 hover:bg-gray-600"
-                  : "bg-red-600 hover:bg-red-500"
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full ${
+                isVideoEnabled ? "bg-gray-700 hover:bg-gray-600" : "bg-red-600 hover:bg-red-500"
               }`}
               title={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
               aria-label={isVideoEnabled ? t("videoOffLabel") : t("videoOnLabel")}
+              aria-pressed={!isVideoEnabled}
             >
               {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
             </Button>
 
+            {/* Screen share */}
             <Button
               onClick={async () => {
                 if (!room) return;
+                setScreenShareError(false);
                 try {
                   if (isScreenSharing) {
                     await room.localParticipant.setScreenShareEnabled(false);
@@ -300,24 +421,27 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
                   }
                 } catch (err) {
                   console.error("Failed to toggle screen share:", err);
+                  setScreenShareError(true);
+                  // Auto-clear toast after 4s
+                  setTimeout(() => setScreenShareError(false), 4000);
                 }
               }}
               size="lg"
-              className={`h-12 w-12 rounded-full ${
-                isScreenSharing
-                  ? "bg-blue-600 hover:bg-blue-500"
-                  : "bg-gray-700 hover:bg-gray-600"
+              className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full hidden sm:flex ${
+                isScreenSharing ? "bg-blue-600 hover:bg-blue-500" : "bg-gray-700 hover:bg-gray-600"
               }`}
               title={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
               aria-label={isScreenSharing ? t("stopScreenShareLabel") : t("shareScreenLabel")}
+              aria-pressed={isScreenSharing}
             >
               {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
             </Button>
 
+            {/* Leave — F-11: opens confirmation instead of immediate leave */}
             <Button
-              onClick={handleLeave}
+              onClick={() => setShowLeaveConfirm(true)}
               size="lg"
-              className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-500"
+              className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-red-600 hover:bg-red-500"
               title={t("leaveLabel")}
               aria-label={t("leaveLabel")}
             >
@@ -325,8 +449,8 @@ export function ConsultationRoom({ bookingId, onLeave, isExpert = false }: Consu
             </Button>
           </div>
 
-          {/* Right - Placeholder for future features */}
-          <div className="w-24" />
+          {/* Right — spacer / future features */}
+          <div className="w-16 sm:w-24" />
         </div>
       </div>
     </div>

@@ -7,8 +7,8 @@ import { redis } from "./dist/infrastructure/redis/redis.client.js";
 
 const USER_CACHE_PREFIX = "user:";
 const testUserId = "test-user-123";
-const token1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlVzZXIgQSIsImlhdCI6MTUxNjIzOTAyMn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-const token2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlVzZXIgQiIsImlhdCI6MTUxNjIzOTEyMn0.different_signature_here_xyz123abc";
+const token1 = "mock-sample-jwt-token-user-a-1234567890";
+const token2 = "mock-sample-jwt-token-user-b-0987654321";
 
 async function testCacheIsolation() {
   console.log("🧪 Testing Cache Isolation Between Tokens\n");

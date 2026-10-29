@@ -452,7 +452,7 @@ describe("AzamPayService Live HTTP v2 Protocol & Error Handling (§1, §2, §3, 
       return new Response(
         JSON.stringify({
           data: {
-            accessToken: "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.live-prod-token",
+            accessToken: "mock-direct-string-access-token-rwanda-v2",
             expire: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
             validFrom: new Date().toISOString(),
           },
@@ -466,6 +466,6 @@ describe("AzamPayService Live HTTP v2 Protocol & Error Handling (§1, §2, §3, 
     }) as any;
 
     const token = await AzamPayService.authenticate(true);
-    assert.equal(token, "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.live-prod-token");
+    assert.equal(token, "mock-direct-string-access-token-rwanda-v2");
   });
 });

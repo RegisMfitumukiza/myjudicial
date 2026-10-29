@@ -17,13 +17,20 @@ BEGIN
         SELECT tablename 
         FROM pg_tables 
         WHERE schemaname = 'public'
+          AND tablename NOT IN ('spatial_ref_sys', 'geometry_columns', 'geography_columns')
     ) LOOP
-        EXECUTE 'ALTER TABLE public.' || quote_ident(r.tablename) || ' ENABLE ROW LEVEL SECURITY;';
+        BEGIN
+            EXECUTE 'ALTER TABLE public.' || quote_ident(r.tablename) || ' ENABLE ROW LEVEL SECURITY;';
+        EXCEPTION WHEN insufficient_privilege THEN
+            -- Skip system/extension tables where the current user is not the owner
+            RAISE NOTICE 'Skipping % (system/extension table)', r.tablename;
+        END;
     END LOOP;
 END $$;
 
--- Verify that all tables now have RLS enabled (rowsecurity = true)
+-- Verify that all your application tables have RLS enabled (rowsecurity = true)
 SELECT tablename, rowsecurity 
 FROM pg_tables 
 WHERE schemaname = 'public' 
+  AND tablename NOT IN ('spatial_ref_sys', 'geometry_columns', 'geography_columns')
 ORDER BY tablename;

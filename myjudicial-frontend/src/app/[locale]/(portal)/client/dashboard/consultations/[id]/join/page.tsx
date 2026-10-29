@@ -242,9 +242,31 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
             </h2>
 
             {deviceCheck === "checking" ? (
-              <div className="flex items-center gap-3 text-[13px] text-brand-dark/60 dark:text-white/60">
-                <Loader2 size={16} className="animate-spin" />
-                <span>{t("checkingDevices")}</span>
+              <div
+                className="space-y-4 animate-pulse motion-reduce:animate-none"
+                role="status"
+                aria-busy="true"
+                aria-label={t("checkingDevices")}
+              >
+                <div className="rounded-xl border border-brand-border/20 p-4 space-y-3 dark:border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded bg-muted" />
+                      <div className="h-4 w-20 rounded bg-muted" />
+                    </div>
+                    <div className="h-4 w-16 rounded bg-muted" />
+                  </div>
+                  <div className="h-32 w-full rounded-lg bg-muted/60" />
+                </div>
+                <div className="rounded-xl border border-brand-border/20 p-4 space-y-2 dark:border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded bg-muted" />
+                      <div className="h-4 w-24 rounded bg-muted" />
+                    </div>
+                    <div className="h-4 w-16 rounded bg-muted" />
+                  </div>
+                </div>
               </div>
             ) : deviceCheck === "error" ? (
               <div className="space-y-4">

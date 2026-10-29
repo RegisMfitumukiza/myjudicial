@@ -245,9 +245,20 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
               )}
 
               {analyzeMutation.isPending && (
-                <div className="flex items-center gap-2 py-4 text-[13px] text-brand-dark/50 dark:text-white/50">
-                  <Loader2 size={14} className="animate-spin" />
-                  {t("analyzingCase")}
+                <div
+                  className="rounded-xl border border-border bg-card p-4 space-y-3 animate-pulse motion-reduce:animate-none"
+                  role="status"
+                  aria-busy="true"
+                  aria-label={t("analyzingCase")}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="h-4 w-32 rounded bg-muted" />
+                    <div className="h-5 w-20 rounded-full bg-muted" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3.5 w-full rounded bg-muted" />
+                    <div className="h-3.5 w-4/5 rounded bg-muted" />
+                  </div>
                 </div>
               )}
 
@@ -265,9 +276,31 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
             <h2 className="text-[16px] font-bold text-brand-dark dark:text-white mb-4">{t("deviceCheck")}</h2>
 
             {deviceCheck === "checking" ? (
-              <div className="flex items-center gap-3 text-[13px] text-brand-dark/60 dark:text-white/60">
-                <Loader2 size={16} className="animate-spin" />
-                <span>{t("checkingDevices")}</span>
+              <div
+                className="space-y-4 animate-pulse motion-reduce:animate-none"
+                role="status"
+                aria-busy="true"
+                aria-label={t("checkingDevices")}
+              >
+                <div className="rounded-xl border border-brand-border/20 p-4 space-y-3 dark:border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded bg-muted" />
+                      <div className="h-4 w-20 rounded bg-muted" />
+                    </div>
+                    <div className="h-4 w-16 rounded bg-muted" />
+                  </div>
+                  <div className="h-32 w-full rounded-lg bg-muted/60" />
+                </div>
+                <div className="rounded-xl border border-brand-border/20 p-4 space-y-2 dark:border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded bg-muted" />
+                      <div className="h-4 w-24 rounded bg-muted" />
+                    </div>
+                    <div className="h-4 w-16 rounded bg-muted" />
+                  </div>
+                </div>
               </div>
             ) : deviceCheck === "error" ? (
               <div className="space-y-4">

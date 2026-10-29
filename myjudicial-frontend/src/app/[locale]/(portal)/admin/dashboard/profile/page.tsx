@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ArrowUpRight,
   Bell,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { usePatchAuthMe, UpdateMeDtoPreferredLanguage } from "@/api/generated";
@@ -319,7 +320,7 @@ export default function AdminProfilePage() {
                 className="mt-5 w-full sm:w-auto"
               >
                 {savingProfile ? (
-                  <span className="animate-spin">↻</span>
+                  <Loader2 size={15} className="animate-spin" />
                 ) : (
                   <Save size={15} />
                 )}
@@ -473,7 +474,7 @@ export default function AdminProfilePage() {
                     className="w-full sm:w-auto"
                   >
                     {savingNotifs ? (
-                      <span className="animate-spin">↻</span>
+                      <Loader2 size={15} className="animate-spin" />
                     ) : (
                       <Save size={15} />
                     )}

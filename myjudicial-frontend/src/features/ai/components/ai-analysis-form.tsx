@@ -185,12 +185,31 @@ export function AiAnalysisForm({
         {/* Results Panel */}
         <div className="lg:col-span-3">
           {isPending ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 p-8 text-center">
-              <Loader2 className="mb-3 h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-              <p className="text-sm font-medium text-foreground">{processingLabel}</p>
+            <div
+              className="rounded-xl border border-border bg-card p-6 shadow-xs space-y-4 animate-pulse motion-reduce:animate-none"
+              role="status"
+              aria-busy="true"
+              aria-label={processingLabel}
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary motion-reduce:animate-none" />
+                  <p className="text-sm font-semibold text-foreground">{processingLabel}</p>
+                </div>
+                <div className="h-5 w-20 rounded-full bg-muted" />
+              </div>
               {processingHint && (
-                <p className="mt-1 text-xs text-muted-foreground">{processingHint}</p>
+                <p className="text-xs text-muted-foreground">{processingHint}</p>
               )}
+              <div className="space-y-3 pt-2">
+                <div className="h-4 w-3/4 rounded bg-muted" />
+                <div className="h-4 w-full rounded bg-muted" />
+                <div className="h-4 w-5/6 rounded bg-muted" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                <div className="h-20 rounded-xl bg-muted/60" />
+                <div className="h-20 rounded-xl bg-muted/60" />
+              </div>
             </div>
           ) : !hasResults && !error ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 p-8 text-center">

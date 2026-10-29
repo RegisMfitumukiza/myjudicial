@@ -42,7 +42,7 @@ import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
-import { DetailPageSkeleton, LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -322,7 +322,23 @@ function DocumentViewer({
         {/* Content */}
         <div className="flex flex-1 items-center justify-center overflow-auto p-4 bg-muted/10">
           {loading && (
-            <LoadingSpinner label={t("loading")} />
+            <div
+              className="w-full max-w-2xl h-[450px] animate-pulse motion-reduce:animate-none rounded-lg bg-card border border-border p-6 flex flex-col justify-between"
+              role="status"
+              aria-busy="true"
+              aria-label={t("loading")}
+            >
+              <div className="space-y-4">
+                <div className="h-6 w-1/3 rounded bg-muted" />
+                <div className="h-4 w-full rounded bg-muted" />
+                <div className="h-4 w-5/6 rounded bg-muted" />
+                <div className="h-4 w-4/6 rounded bg-muted" />
+              </div>
+              <div className="space-y-3">
+                <div className="h-4 w-full rounded bg-muted" />
+                <div className="h-4 w-2/3 rounded bg-muted" />
+              </div>
+            </div>
           )}
           {error && (
             <div className="text-center p-6">

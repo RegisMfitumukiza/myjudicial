@@ -43,18 +43,44 @@ export function AvailabilityPreview({ expertId, timezone, onBookClick }: Availab
 
   if (isLoading && searchDate === 0) {
     return (
-      <div className="flex items-center gap-2 text-brand-dark/50 dark:text-white/50">
-        <Loader2 size={14} className="animate-spin" />
-        <span className="text-[13px]">{t("checkingAvailability")}</span>
+      <div
+        className="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-3 rounded-xl border border-brand-border/20 bg-brand-dark/5 p-3 sm:p-3.5 dark:border-white/20 dark:bg-white/5 animate-pulse motion-reduce:animate-none"
+        role="status"
+        aria-busy="true"
+        aria-label={t("checkingAvailability")}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 dark:bg-white/10" />
+          <div className="space-y-1.5 min-w-0">
+            <div className="h-3 w-24 rounded bg-brand-dark/10 dark:bg-white/10" />
+            <div className="h-4 w-36 rounded bg-brand-dark/10 dark:bg-white/10" />
+          </div>
+        </div>
+        {onBookClick && (
+          <div className="h-8 w-24 rounded-lg bg-brand-dark/10 dark:bg-white/10 shrink-0" />
+        )}
       </div>
     );
   }
 
   if (!nextSlot && searchDate < 14) {
     return (
-      <div className="flex items-center gap-2 text-brand-dark/50 dark:text-white/50">
-        <Loader2 size={14} className="animate-spin" />
-        <span className="text-[13px]">{t("scanningNext14Days", { searchDate })}</span>
+      <div
+        className="flex flex-col min-[380px]:flex-row min-[380px]:items-center justify-between gap-3 rounded-xl border border-brand-border/20 bg-brand-dark/5 p-3 sm:p-3.5 dark:border-white/20 dark:bg-white/5 animate-pulse motion-reduce:animate-none"
+        role="status"
+        aria-busy="true"
+        aria-label={t("scanningNext14Days", { searchDate })}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-dark/10 dark:bg-white/10" />
+          <div className="space-y-1.5 min-w-0">
+            <div className="h-3 w-28 rounded bg-brand-dark/10 dark:bg-white/10" />
+            <div className="h-4 w-40 rounded bg-brand-dark/10 dark:bg-white/10" />
+          </div>
+        </div>
+        {onBookClick && (
+          <div className="h-8 w-24 rounded-lg bg-brand-dark/10 dark:bg-white/10 shrink-0" />
+        )}
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { SearchPageClient } from '@/features/search/components/search-page-client';
-import { useTranslations } from 'next-intl';
+import { SearchPageSkeleton } from './loading';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -33,17 +33,8 @@ export const metadata: Metadata = {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<SearchPageFallback />}>
+    <Suspense fallback={<SearchPageSkeleton />}>
       <SearchPageClient />
     </Suspense>
-  );
-}
-
-function SearchPageFallback() {
-  const t = useTranslations('search');
-  return (
-    <div className="flex h-screen w-full items-center justify-center text-sm text-muted-foreground">
-      {t('loadingSearch')}
-    </div>
   );
 }

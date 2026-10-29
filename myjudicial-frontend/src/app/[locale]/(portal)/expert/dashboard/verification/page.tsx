@@ -738,7 +738,11 @@ export default function VerificationPage() {
         <div className="space-y-6 xl:col-span-8 min-w-0">
           {/* Status Banner */}
           {isLoading ? (
-            <SkeletonCard className="h-28" />
+            <div className="space-y-6">
+              <SkeletonCard className="h-28" />
+              <SkeletonCard className="h-64" />
+              <SkeletonCard className="h-44" />
+            </div>
           ) : (
             <div
               className={cn(
@@ -1266,7 +1270,11 @@ export default function VerificationPage() {
         {/* ── Sidebar Column (Progress, Guidance & Trust) ── */}
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1 xl:col-span-4 min-w-0 content-start">
           {/* Verification Timeline Stepper */}
-          {!isLoading && <VerificationTimeline status={status} />}
+          {isLoading ? (
+            <SkeletonCard className="h-72" />
+          ) : (
+            <VerificationTimeline status={status} />
+          )}
 
           {/* What Verification Unlocks Card */}
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">

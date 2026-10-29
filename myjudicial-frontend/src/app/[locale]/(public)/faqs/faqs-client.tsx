@@ -779,15 +779,45 @@ function FaqsContent() {
   );
 }
 
+export function FaqsSkeleton() {
+  return (
+    <div className="min-h-screen bg-background" role="status" aria-busy="true" aria-label="Loading frequently asked questions">
+      {/* Hero Skeleton */}
+      <section className="border-b border-border bg-gradient-to-b from-muted/50 to-background py-14 sm:py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <div className="mx-auto h-9 w-64 rounded-xl bg-muted animate-pulse motion-reduce:animate-none mb-4" />
+          <div className="mx-auto h-4 w-96 max-w-full rounded-md bg-muted animate-pulse motion-reduce:animate-none mb-8" />
+          <div className="mx-auto h-12 max-w-xl rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+        </div>
+      </section>
+
+      {/* Categories & Accordions Skeleton */}
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 space-y-8">
+          <div className="flex flex-wrap justify-center gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-9 w-28 rounded-full bg-muted animate-pulse motion-reduce:animate-none" />
+            ))}
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-xl border border-border bg-card p-4 sm:p-5">
+                <div className="flex items-center justify-between">
+                  <div className="h-4 w-3/4 rounded bg-muted animate-pulse motion-reduce:animate-none" />
+                  <div className="h-4 w-4 rounded-full bg-muted animate-pulse motion-reduce:animate-none" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function FaqsClient() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center p-8">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-dark border-t-transparent dark:border-white" />
-        </div>
-      }
-    >
+    <Suspense fallback={<FaqsSkeleton />}>
       <FaqsContent />
     </Suspense>
   );

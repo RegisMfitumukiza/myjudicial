@@ -91,11 +91,23 @@ function FailedContent() {
   );
 }
 
+function FailedSkeleton() {
+  return (
+    <div className="mx-auto max-w-md px-4 py-16 text-center animate-pulse motion-reduce:animate-none" role="status" aria-busy="true">
+      <div className="mx-auto mb-6 h-20 w-20 rounded-2xl bg-muted" />
+      <div className="mx-auto h-7 w-48 rounded-lg bg-muted mb-3" />
+      <div className="mx-auto h-4 w-72 rounded bg-muted mb-6" />
+      <div className="h-28 rounded-2xl border border-border bg-card p-5 mb-8" />
+      <div className="h-11 rounded-xl bg-muted" />
+    </div>
+  );
+}
+
 export default function BookingFailedPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PublicNav />
-      <Suspense fallback={null}>
+      <Suspense fallback={<FailedSkeleton />}>
         <FailedContent />
       </Suspense>
     </div>

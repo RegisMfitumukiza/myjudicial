@@ -261,9 +261,24 @@ export function InRoomDocumentsPanel({
         </div>
 
         {isLoading ? (
-          <div className="flex h-32 flex-col items-center justify-center gap-2 text-white/50">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span className="text-xs">{t("loadingDocuments", { defaultValue: "Loading documents..." })}</span>
+          <div
+            className="space-y-2 p-1 animate-pulse motion-reduce:animate-none"
+            role="status"
+            aria-busy="true"
+            aria-label={t("loadingDocuments", { defaultValue: "Loading documents..." })}
+          >
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between rounded-xl border border-white/10 bg-gray-900/40 p-3">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="h-5 w-5 rounded bg-white/10 shrink-0" />
+                  <div className="space-y-1.5 flex-1">
+                    <div className="h-3.5 w-3/4 rounded bg-white/10" />
+                    <div className="h-2.5 w-1/3 rounded bg-white/10" />
+                  </div>
+                </div>
+                <div className="h-7 w-16 rounded-lg bg-white/10 shrink-0 ml-2" />
+              </div>
+            ))}
           </div>
         ) : files.length === 0 ? (
           <div className="flex h-32 flex-col items-center justify-center gap-2 text-center text-white/40">

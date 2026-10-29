@@ -996,15 +996,59 @@ function ContactClientContent() {
   );
 }
 
+export function ContactSkeleton() {
+  return (
+    <div className="min-h-screen bg-background" role="status" aria-busy="true" aria-label="Loading contact details">
+      {/* Hero Skeleton */}
+      <section className="border-b border-border bg-gradient-to-b from-muted/50 to-background py-14 sm:py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <div className="mx-auto h-9 w-64 rounded-xl bg-muted animate-pulse motion-reduce:animate-none mb-4" />
+          <div className="mx-auto h-4 w-96 max-w-full rounded-md bg-muted animate-pulse motion-reduce:animate-none" />
+        </div>
+      </section>
+
+      {/* Cards and Form Skeleton */}
+      <section className="py-12 sm:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-6 space-y-3">
+                <div className="h-10 w-10 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+                <div className="h-4 w-28 rounded bg-muted animate-pulse motion-reduce:animate-none" />
+                <div className="h-3 w-40 rounded bg-muted animate-pulse motion-reduce:animate-none" />
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="h-10 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+                <div className="h-10 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+              </div>
+              <div className="h-10 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+              <div className="h-32 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+              <div className="h-11 w-36 rounded-xl bg-muted animate-pulse motion-reduce:animate-none" />
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-4">
+              <div className="h-5 w-32 rounded bg-muted animate-pulse motion-reduce:animate-none mb-2" />
+              <div className="space-y-2">
+                <div className="h-3 w-full rounded bg-muted animate-pulse motion-reduce:animate-none" />
+                <div className="h-3 w-5/6 rounded bg-muted animate-pulse motion-reduce:animate-none" />
+                <div className="h-3 w-4/6 rounded bg-muted animate-pulse motion-reduce:animate-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function ContactClient() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      }
-    >
+    <Suspense fallback={<ContactSkeleton />}>
       <ContactClientContent />
     </Suspense>
   );

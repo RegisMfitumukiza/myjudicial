@@ -1088,9 +1088,22 @@ export default function DocumentsPage() {
           {/* Modal Preview Body */}
           <div className="flex-1 overflow-auto rounded-lg border border-border bg-muted/20 min-h-[300px] max-h-[550px] flex items-center justify-center p-3">
             {previewLoading ? (
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 size={28} className="animate-spin text-primary" />
-                <span className="text-xs text-muted-foreground">{t("loading")}</span>
+              <div
+                className="w-full h-[400px] animate-pulse motion-reduce:animate-none rounded-lg bg-card p-6 flex flex-col justify-between"
+                role="status"
+                aria-busy="true"
+                aria-label={t("loading")}
+              >
+                <div className="space-y-4">
+                  <div className="h-6 w-1/3 rounded bg-muted" />
+                  <div className="h-4 w-full rounded bg-muted" />
+                  <div className="h-4 w-5/6 rounded bg-muted" />
+                  <div className="h-4 w-4/6 rounded bg-muted" />
+                </div>
+                <div className="space-y-3">
+                  <div className="h-4 w-full rounded bg-muted" />
+                  <div className="h-4 w-2/3 rounded bg-muted" />
+                </div>
               </div>
             ) : previewUrl ? (
               previewDoc?.mimeType?.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif)$/i.test(previewDoc?.fileName || "") ? (

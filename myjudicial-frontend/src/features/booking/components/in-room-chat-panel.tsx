@@ -246,9 +246,32 @@ export function InRoomChatPanel({
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
         {isLoading ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-white/50">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-xs">{t("loadingChat", { defaultValue: "Connecting to secure chat..." })}</span>
+          <div
+            className="space-y-3 p-1 animate-pulse motion-reduce:animate-none"
+            role="status"
+            aria-busy="true"
+            aria-label={t("loadingChat", { defaultValue: "Connecting to secure chat..." })}
+          >
+            <div className="flex items-start gap-2.5">
+              <div className="h-7 w-7 rounded-full bg-white/10 shrink-0" />
+              <div className="space-y-1.5 flex-1 max-w-[75%]">
+                <div className="h-3 w-20 rounded bg-white/10" />
+                <div className="h-9 w-full rounded-2xl rounded-tl-sm bg-white/10" />
+              </div>
+            </div>
+            <div className="flex items-start justify-end gap-2.5">
+              <div className="space-y-1.5 flex-1 max-w-[70%] flex flex-col items-end">
+                <div className="h-3 w-16 rounded bg-white/10" />
+                <div className="h-8 w-full rounded-2xl rounded-tr-sm bg-white/15" />
+              </div>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <div className="h-7 w-7 rounded-full bg-white/10 shrink-0" />
+              <div className="space-y-1.5 flex-1 max-w-[60%]">
+                <div className="h-3 w-24 rounded bg-white/10" />
+                <div className="h-12 w-full rounded-2xl rounded-tl-sm bg-white/10" />
+              </div>
+            </div>
           </div>
         ) : error ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">

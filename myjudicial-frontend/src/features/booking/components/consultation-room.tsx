@@ -303,12 +303,34 @@ export function ConsultationRoom({
   // ── Loading state ─────────────────────────────────────────────────────────
   if (status === "idle" || status === "connecting") {
     return (
-      <div className="flex h-[100dvh] items-center justify-center bg-black">
-        <div className="text-center px-4">
-          <Loader2 className="h-12 w-12 animate-spin text-white/50 mx-auto mb-4" />
-          <p className="text-white/70 text-[14px]">
-            {t("connectingToConsultation")}
-          </p>
+      <div
+        className="relative flex h-[100dvh] w-full flex-col bg-black overflow-hidden select-none"
+        role="status"
+        aria-busy="true"
+        aria-label={t("connectingToConsultation")}
+      >
+        {/* Top Bar Skeleton */}
+        <div className="absolute inset-x-0 top-3 z-20 flex items-center justify-between px-4 sm:px-6">
+          <div className="h-7 w-24 rounded-full bg-white/10 animate-pulse motion-reduce:animate-none" />
+          <div className="h-7 w-28 rounded-full bg-white/10 animate-pulse motion-reduce:animate-none" />
+        </div>
+
+        {/* Center Stage Skeleton */}
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+          <div className="relative w-full max-w-4xl aspect-video rounded-2xl border border-white/10 bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
+            <div className="h-20 w-20 rounded-full bg-white/10 animate-pulse motion-reduce:animate-none mb-4 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-white/40 motion-reduce:animate-none" />
+            </div>
+            <p className="text-white/80 text-[14px] font-medium">{t("connectingToConsultation")}</p>
+            <p className="text-white/40 text-[12px] mt-1">{t("connectingDesc", { defaultValue: "Establishing secure end-to-end encrypted connection..." })}</p>
+          </div>
+        </div>
+
+        {/* Bottom Dock Skeleton */}
+        <div className="h-20 border-t border-white/10 bg-black/80 px-4 flex items-center justify-center gap-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-11 w-11 rounded-full bg-white/10 animate-pulse motion-reduce:animate-none" />
+          ))}
         </div>
       </div>
     );

@@ -30,9 +30,14 @@ import {
   getLocalizedServiceDescription,
 } from "@/shared/utils/service-localization";
 
-function LawyerProfileSkeleton() {
+export function LawyerProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-brand-canvas dark:bg-background">
+    <div
+      className="min-h-screen bg-brand-canvas dark:bg-background"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading lawyer profile"
+    >
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6 lg:px-6 lg:py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-8">

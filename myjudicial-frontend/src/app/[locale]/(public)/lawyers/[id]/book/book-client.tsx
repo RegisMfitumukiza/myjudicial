@@ -43,30 +43,35 @@ function formatDateToParam(year: number, month: number, day: number) {
 }
 
 /* ── Skeleton loader matching the booking page two-column layout ── */
-function BookingSkeleton() {
+export function BookingSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6">
+    <div
+      className="mx-auto max-w-6xl px-3 min-[360px]:px-4 py-6 sm:py-8 sm:px-6"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading booking details"
+    >
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-2">
-                <div className="h-6 w-6 animate-pulse rounded-full bg-muted" />
-                <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+                <div className="h-6 w-6 animate-pulse motion-reduce:animate-none rounded-full bg-muted" />
+                <div className="h-4 w-32 animate-pulse motion-reduce:animate-none rounded bg-muted" />
               </div>
               <div className="space-y-3">
-                <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
-                <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-3/4 animate-pulse motion-reduce:animate-none rounded bg-muted" />
+                <div className="h-4 w-1/2 animate-pulse motion-reduce:animate-none rounded bg-muted" />
                 {i === 2 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="h-20 animate-pulse rounded-xl bg-muted" />
-                    <div className="h-20 animate-pulse rounded-xl bg-muted" />
+                    <div className="h-20 animate-pulse motion-reduce:animate-none rounded-xl bg-muted" />
+                    <div className="h-20 animate-pulse motion-reduce:animate-none rounded-xl bg-muted" />
                   </div>
                 )}
                 {i === 3 && (
                   <div className="grid grid-cols-7 gap-1 min-[340px]:gap-1.5">
                     {Array.from({ length: 14 }).map((_, j) => (
-                      <div key={j} className="h-8 min-[340px]:h-9 animate-pulse rounded-lg bg-muted" />
+                      <div key={j} className="h-8 min-[340px]:h-9 animate-pulse motion-reduce:animate-none rounded-lg bg-muted" />
                     ))}
                   </div>
                 )}
@@ -76,11 +81,11 @@ function BookingSkeleton() {
         </div>
         <div className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-4 min-[360px]:p-6 shadow-sm">
-            <div className="h-5 w-40 animate-pulse rounded bg-muted mb-4" />
+            <div className="h-5 w-40 animate-pulse motion-reduce:animate-none rounded bg-muted mb-4" />
             <div className="space-y-3">
-              <div className="h-4 w-full animate-pulse rounded bg-muted" />
-              <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
-              <div className="h-11 w-full animate-pulse rounded-lg bg-muted mt-4" />
+              <div className="h-4 w-full animate-pulse motion-reduce:animate-none rounded bg-muted" />
+              <div className="h-4 w-2/3 animate-pulse motion-reduce:animate-none rounded bg-muted" />
+              <div className="h-11 w-full animate-pulse motion-reduce:animate-none rounded-lg bg-muted mt-4" />
             </div>
           </div>
         </div>

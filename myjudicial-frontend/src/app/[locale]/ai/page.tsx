@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { AiWorkspace } from '@/features/ai/components/ai-workspace';
-import { useTranslations } from 'next-intl';
+import { AiWorkspaceSkeleton } from './loading';
 
 export const metadata: Metadata = {
   title: 'AI Legal Assistant | MyJudicial',
@@ -33,17 +33,8 @@ export const metadata: Metadata = {
 
 export default function AiPage() {
   return (
-    <Suspense fallback={<AiPageFallback />}>
+    <Suspense fallback={<AiWorkspaceSkeleton />}>
       <AiWorkspace />
     </Suspense>
-  );
-}
-
-function AiPageFallback() {
-  const t = useTranslations('common');
-  return (
-    <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-      {t('loading')}
-    </div>
   );
 }

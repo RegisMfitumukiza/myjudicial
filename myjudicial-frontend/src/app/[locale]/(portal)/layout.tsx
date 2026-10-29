@@ -22,6 +22,12 @@ export default function PortalLayout({
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
+      // If the browser is temporarily offline (e.g. laptop lid opened and Wi-Fi is reconnecting),
+      // do not prematurely bounce to sign-in. Wait for connection restoration.
+      if (typeof navigator !== "undefined" && !navigator.onLine) {
+        return;
+      }
+
       const isAdminRoute = pathname.includes("/admin");
       const returnUrl = encodeURIComponent(pathname);
       router.replace(isAdminRoute ? `/sign-in?admin=1&callbackUrl=${returnUrl}` : `/sign-in?callbackUrl=${returnUrl}`);
@@ -47,6 +53,18 @@ export default function PortalLayout({
       return;
     }
   }, [status, session, pathname, router]);
+
+  // When connection comes back online after sleep, re-verify session if it was temporarily unauthenticated
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleOnline = () => {
+      if (status === "unauthenticated") {
+        window.location.reload();
+      }
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [status]);
 
   // Show loading state while checking authentication
   if (status === "loading") {

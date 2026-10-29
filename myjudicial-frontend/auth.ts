@@ -40,7 +40,9 @@ async function fetchBackend<T>(path: string, body: unknown): Promise<T> {
   if (!response.ok) {
     const message = payload?.message ?? payload?.error?.message ?? "Authentication failed";
     console.error(`[auth] Backend ${path} responded ${response.status}: ${message}`);
-    throw new Error(message);
+    const err = new Error(message) as Error & { status?: number };
+    err.status = response.status;
+    throw err;
   }
 
   return (payload ?? {}) as T;
@@ -295,9 +297,14 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             token.tokenExpiresAt = Date.now() + (refreshRes.data.expiresIn ?? 3600) * 1000;
             delete token.error;
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("[auth] Background token refresh failed:", error);
-          token.error = "RefreshAccessTokenError";
+          // Only mark session as expired if the backend explicitly rejected the token (400, 401, 403).
+          // Do NOT mark as expired on network errors (e.g. waking laptop from sleep while Wi-Fi reconnects).
+          const status = error?.status;
+          if (status === 400 || status === 401 || status === 403) {
+            token.error = "RefreshAccessTokenError";
+          }
         }
       }
       

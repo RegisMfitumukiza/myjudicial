@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
-import { signIn as authSignIn, signOut } from "next-auth/react";
+import { signIn as authSignIn, signOut, useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -98,6 +98,23 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
   const [rememberMe, setRememberMe] = useState(true);
   const [adminRememberMe, setAdminRememberMe] = useState(false);
   const isHydratedRef = useRef(false);
+
+  const { data: session, status: sessionStatus } = useSession();
+
+  // If already authenticated, redirect to callbackUrl or role dashboard immediately
+  useEffect(() => {
+    if (sessionStatus === "authenticated" && session?.user && !(session as any)?.error) {
+      if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") && !callbackUrl.startsWith("/\\")) {
+        const hasLocale = new RegExp(`^/(en|fr|rw)(/|$)`).test(callbackUrl);
+        router.replace(hasLocale ? callbackUrl : `/${locale}${callbackUrl}`);
+      } else {
+        const role = (session.user as any)?.role;
+        if (role === "ADMIN") router.replace("/admin/dashboard");
+        else if (role === "EXPERT") router.replace("/expert/dashboard");
+        else router.replace("/client/dashboard");
+      }
+    }
+  }, [sessionStatus, session, callbackUrl, router, locale]);
 
   // If user requests admin mode while on main host, immediately forward to admin portal
   // BEFORE they fill credentials so they never suffer double submission or theme reset.

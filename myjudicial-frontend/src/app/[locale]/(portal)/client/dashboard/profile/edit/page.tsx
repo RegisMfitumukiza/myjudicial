@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/shared/components/ui/button";
@@ -13,16 +13,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
+import { RWANDA_AUTH_DISTRICTS, RWANDA_AUTH_SECTORS } from "@/features/search/locations-data";
+import { MapPin } from "lucide-react";
 
 type ProfileFormData = {
   firstName: string;
   lastName: string;
   phone?: string;
 };
+
 export default function EditProfilePage() {
   const t = useTranslations("clientDashboard.profileEdit");
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
+  const [selectedSector, setSelectedSector] = useState<string>("");
+
+  const availableSectors = useMemo(() => {
+    if (!selectedDistrict) return [];
+    return RWANDA_AUTH_SECTORS.filter((s) => s.parentName.toLowerCase() === selectedDistrict.toLowerCase());
+  }, [selectedDistrict]);
 
   // Profile update schema - matching backend UpdateMeDto
   const profileSchema = z.object({
@@ -42,6 +52,7 @@ export default function EditProfilePage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -61,6 +72,11 @@ export default function EditProfilePage() {
           firstName = first || "";
           lastName = rest.join(" ") || "";
         }
+
+        const initialDistrict = userData.clientDistrict?.name || userData.onboarding?.citizen?.district || "";
+        const initialSector = userData.clientSector?.name || "";
+        if (initialDistrict) setSelectedDistrict(initialDistrict);
+        if (initialSector) setSelectedSector(initialSector);
         
         return {
           firstName,
@@ -95,7 +111,10 @@ export default function EditProfilePage() {
           .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
           .join(" "),
+        clientDistrictId: selectedDistrict || null,
+        clientSectorId: selectedSector || null,
       };
+
       await apiFetch("/auth/me", {
         method: "PATCH",
         body: normalisedData,
@@ -211,6 +230,69 @@ export default function EditProfilePage() {
             </Card>
           </section>
 
+          {/* Location Preferences Section */}
+          <section>
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-brand-dark dark:text-white" />
+                Location Preferences
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Set your home or work location to easily find legal advocates near you across Rwanda
+              </p>
+            </div>
+
+            <Card className="p-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                {/* District Selector */}
+                <div className="space-y-2">
+                  <Label htmlFor="district" className="text-sm font-medium">
+                    District
+                  </Label>
+                  <select
+                    id="district"
+                    value={selectedDistrict}
+                    onChange={(e) => {
+                      setSelectedDistrict(e.target.value);
+                      setSelectedSector("");
+                    }}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <option value="">Select your district...</option>
+                    {RWANDA_AUTH_DISTRICTS.map((d) => (
+                      <option key={d.code} value={d.name}>
+                        {d.name} ({d.parentName})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sector Selector */}
+                <div className="space-y-2">
+                  <Label htmlFor="sector" className="text-sm font-medium">
+                    Sector (Optional)
+                  </Label>
+                  <select
+                    id="sector"
+                    value={selectedSector}
+                    onChange={(e) => setSelectedSector(e.target.value)}
+                    disabled={!selectedDistrict}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">
+                      {selectedDistrict ? "Select your sector..." : "Choose a district first"}
+                    </option>
+                    {availableSectors.map((s) => (
+                      <option key={s.code} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </Card>
+          </section>
+
           {/* Action Buttons */}
           <div className="flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
             <Button
@@ -223,7 +305,7 @@ export default function EditProfilePage() {
 
             <Button
               type="submit"
-              disabled={!isDirty || isSubmitting}
+              disabled={isSubmitting}
               className="bg-brand-dark hover:bg-brand-dark/90"
             >
               {isSubmitting ? t("actions.saving") : t("actions.saveChanges")}

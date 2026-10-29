@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ExternalLink,
   Lock,
+  MapPin,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { ProfilePhotoCard } from "@/shared/components/photo-upload";
@@ -373,6 +374,41 @@ export default function ProfilePage() {
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {t("rwandaJurisdiction")} (Central Africa Time · UTC+2)
                     </p>
+                  </div>
+                </div>
+
+                {/* Preferred Location / Near Me */}
+                <div className="space-y-1.5 sm:col-span-2 border-t border-brand-border/10 dark:border-white/10 pt-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      Preferred Location
+                    </label>
+                    <Link
+                      href="/client/dashboard/profile/edit"
+                      className="text-[11px] font-semibold text-brand-dark/70 dark:text-white/70 hover:underline"
+                    >
+                      {user?.clientDistrict?.name || (user as any)?.onboarding?.citizen?.district ? "Change" : "Set Location"} &rarr;
+                    </Link>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={14} className="text-brand-dark/60 dark:text-white/60 shrink-0" />
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {user?.clientDistrict?.name
+                          ? `${user?.clientSector?.name ? `${user.clientSector.name}, ` : ""}${user.clientDistrict.name} District, Rwanda`
+                          : (user as any)?.onboarding?.citizen?.district
+                          ? `${(user as any).onboarding.citizen.district} District, Rwanda`
+                          : "Not specified (Nationwide discovery)"}
+                      </p>
+                    </div>
+                    {(user?.clientDistrict?.name || (user as any)?.onboarding?.citizen?.district) && (
+                      <Link
+                        href={`/search?q=${encodeURIComponent(user?.clientDistrict?.name || (user as any)?.onboarding?.citizen?.district)}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                      >
+                        Find Experts Near Me &rarr;
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

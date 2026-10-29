@@ -29,4 +29,9 @@ export type PublicUser = {
     id: string;
     status: string;
   } | null;
+  clientDistrict?: { id: string; name: string } | null;
+  clientSector?: { id: string; name: string } | null;
+  clientDistrictId?: string | null;
+  clientSectorId?: string | null;
+  onboarding?: any;
 };

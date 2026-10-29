@@ -20,6 +20,12 @@ export interface ExpertProfile {
   status: ExpertStatus;
   credentialsExpiry: string | null;
   profileImageObjectKey: string | null;
+  officeAddress?: string | null;
+  city?: string | null;
+  country?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  sectorId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

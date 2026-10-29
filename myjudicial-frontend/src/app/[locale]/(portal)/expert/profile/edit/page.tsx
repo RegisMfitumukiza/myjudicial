@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,12 @@ import { ProfilePhotoUpload } from "@/features/experts/components/ProfilePhotoUp
 import { FreeLocationInput } from "@/shared/components/location/FreeLocationInput";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useExpertPhotoUrl,
   useInvalidateProfilePhoto,
+  useExpertProfile,
+  EXPERT_PROFILE_QUERY_KEY,
 } from "@/features/experts/hooks/useExpertProfile";
 
 interface LocationData {
@@ -25,8 +28,25 @@ interface LocationData {
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [location, setLocation] = useState<LocationData | null>(null);
+
+  // Fetch current profile to pre-populate office address and coordinates
+  const { data: profile } = useExpertProfile();
+
+  useEffect(() => {
+    if (profile && !location) {
+      if (profile.latitude != null && profile.longitude != null) {
+        setLocation({
+          latitude: profile.latitude,
+          longitude: profile.longitude,
+          address: profile.officeAddress || `${profile.city || "Kigali"}, Rwanda`,
+        });
+      }
+    }
+  }, [profile, location]);
 
   // Fetch the signed photo URL from the backend (not from stale session)
   const { data: currentPhotoUrl } = useExpertPhotoUrl();
@@ -67,6 +87,35 @@ export default function EditProfilePage() {
         error instanceof Error ? error.message : "Failed to remove photo. Please try again."
       );
       throw error;
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const body: Record<string, unknown> = {};
+
+      if (location) {
+        body.officeAddress = location.address;
+        body.latitude = location.latitude;
+        body.longitude = location.longitude;
+      }
+
+      await apiFetch("/experts/profile/me", {
+        method: "PATCH",
+        body,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: EXPERT_PROFILE_QUERY_KEY });
+      toast.success("Profile updated successfully!");
+      router.push("/expert/dashboard");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save profile changes. Please try again."
+      );
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -127,7 +176,7 @@ export default function EditProfilePage() {
                 Office Location
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Help clients find you by providing your office location
+                Help clients find you by providing your verified office location
               </p>
             </div>
 
@@ -137,7 +186,7 @@ export default function EditProfilePage() {
               {location && (
                 <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/20">
                   <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                    Location Updated
+                    Location Set
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-300 mt-1">
                     📍 {location.address}
@@ -152,18 +201,16 @@ export default function EditProfilePage() {
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
-            <Button variant="outline" onClick={() => router.push("/expert/dashboard")}>
+            <Button variant="outline" onClick={() => router.push("/expert/dashboard")} disabled={isSaving}>
               Cancel
             </Button>
 
             <Button
-              onClick={() => {
-                toast.success("Profile updated successfully!");
-                router.push("/expert/dashboard");
-              }}
-              className="bg-green-600 hover:bg-green-700"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="bg-green-600 hover:bg-green-700 text-white"
             >
-              Save Changes
+              {isSaving ? "Saving Changes..." : "Save Changes"}
             </Button>
           </div>
 

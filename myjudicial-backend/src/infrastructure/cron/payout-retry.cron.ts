@@ -4,6 +4,7 @@ import { logger } from "../../shared/utils/logger.js";
 import { EscrowService } from "../../modules/payments/escrow.service.js";
 import { resolveExpertPayoutPhone } from "../../modules/payments/payout.helper.js";
 import { PaymentStatus } from "../../generated/prisma/client.js";
+import { QueueService } from "../queue/queue.service.js";
 
 const MAX_AUTO_RETRIES = 3;
 const MIN_AGE_MINUTES = 5;
@@ -19,7 +20,8 @@ const MIN_AGE_MINUTES = 5;
  */
 export const startPayoutRetryCron = (): void => {
   cron.schedule("*/15 * * * *", async () => {
-    const cutoff = new Date(Date.now() - MIN_AGE_MINUTES * 60 * 1000);
+    await QueueService.withDistributedLock("cron:payout-retry", 840, async () => {
+      const cutoff = new Date(Date.now() - MIN_AGE_MINUTES * 60 * 1000);
 
     logger.info("Payout retry cron: checking for stalled expert payouts", {
       cutoff: cutoff.toISOString(),
@@ -153,9 +155,10 @@ export const startPayoutRetryCron = (): void => {
           });
         }
       }
-    } catch (err) {
-      logger.error("Payout retry cron: query execution failed", { err });
-    }
+      } catch (err) {
+        logger.error("Payout retry cron: query execution failed", { err });
+      }
+    });
   });
 
   logger.info("Payout retry cron scheduled — runs every 15 minutes");

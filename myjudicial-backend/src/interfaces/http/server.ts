@@ -1,9 +1,10 @@
 import "dotenv/config";
 
 import app from "../../app.js";
-import { prisma } from "../../infrastructure/database/prisma.js";
+import { prisma, closeDatabasePool } from "../../infrastructure/database/prisma.js";
 import { ensureDatabaseSchema } from "../../infrastructure/database/schema-sync.js";
 import { connectRedis } from "../../infrastructure/redis/redis.client.js";
+import { QueueService } from "../../infrastructure/queue/queue.service.js";
 import { logger } from "../../shared/utils/logger.js";
 import { startComplianceCron } from "../../infrastructure/cron/compliance.cron.js";
 import { startBookingReminderCron } from "../../infrastructure/cron/booking-reminder.cron.js";
@@ -43,7 +44,8 @@ async function startServer() {
     startPayoutRetryCron();
     startConsultationAutoReleaseCron();
     startAzamPayReconciliationCron();
-    logger.info("Background jobs started");
+    QueueService.startWorkerLoop();
+    logger.info("Background jobs and Redis queue worker started");
   } catch (error) {
     logger.error("Failed to start server", { error });
     process.exit(1);
@@ -53,13 +55,15 @@ async function startServer() {
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   logger.info("SIGTERM received — shutting down gracefully");
-  await prisma.$disconnect();
+  QueueService.stopWorkerLoop();
+  await closeDatabasePool();
   process.exit(0);
 });
 
 process.on("SIGINT", async () => {
   logger.info("SIGINT received — shutting down gracefully");
-  await prisma.$disconnect();
+  QueueService.stopWorkerLoop();
+  await closeDatabasePool();
   process.exit(0);
 });
 

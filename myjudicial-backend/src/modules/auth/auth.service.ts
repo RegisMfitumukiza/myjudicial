@@ -27,6 +27,7 @@ import {
 import { FileStorageRepository } from "../file-storage/repositories/file-storage.repository.js";
 import { logger } from "../../shared/utils/logger.js";
 import { AdminSettingService } from "../settings/admin-setting.service.js";
+import { LocationService } from "../locations/location.service.js";
 import {
   ConflictError,
   AuthenticationError,
@@ -406,6 +407,17 @@ export const AuthService = {
       "sendOtpEmail"
     );
     if (sent.error) throw new ServiceUnavailableError(`Email delivery failed: ${sent.error.message}`);
+
+    // If user has a Rwandan phone number and an SMS gateway is configured,
+    // also dispatch OTP over SMS non-blockingly for multi-channel reliability.
+    if (user.phone) {
+      CustomOtpService.sendOtpSms(user.phone, otp, userLanguage, user.id).catch((smsErr) => {
+        logger.warn("Non-blocking SMS OTP delivery failed", {
+          userId: user.id,
+          error: smsErr instanceof Error ? smsErr.message : String(smsErr),
+        });
+      });
+    }
     
     logger.info("Custom OTP generated and sent", {
       email: dto.email,
@@ -444,11 +456,26 @@ export const AuthService = {
     };
     const preferredLanguage = dto.citizen?.language ? langMap[dto.citizen.language] : undefined;
 
+    // Resolve clientDistrictId from onboarding intake if present
+    const rawDistrict = dto.citizen?.district || (dto as any).district;
+    let clientDistrictId: string | undefined = undefined;
+    if (rawDistrict && typeof rawDistrict === "string") {
+      try {
+        const resolved = await LocationService.resolveLocation(rawDistrict);
+        if (resolved) {
+          clientDistrictId = resolved.id;
+        }
+      } catch (err) {
+        logger.warn("Could not resolve district during onboarding save", { rawDistrict, err });
+      }
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: {
         onboarding: dto as unknown as Prisma.InputJsonValue,
         ...(preferredLanguage && { preferredLanguage }),
+        ...(clientDistrictId && { clientDistrictId }),
       },
     });
 
@@ -833,12 +860,31 @@ export const AuthService = {
     lastName?: string;
     phone?: string;
     preferredLanguage?: string;
+    clientDistrictId?: string | null;
+    clientSectorId?: string | null;
   }, ipAddress?: string) => {
+    // Resolve location division names to UUIDs if not already UUIDs
+    let districtId = data.clientDistrictId;
+    let sectorId = data.clientSectorId;
+    const isUuid = (val?: string | null) =>
+      val ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val) : false;
+
+    if (districtId && !isUuid(districtId)) {
+      const resolved = await LocationService.resolveLocation(districtId);
+      districtId = resolved ? resolved.id : null;
+    }
+    if (sectorId && !isUuid(sectorId)) {
+      const resolved = await LocationService.resolveLocation(sectorId);
+      sectorId = resolved ? resolved.id : null;
+    }
+
     // Normalise names to Title Case before persisting
     const normalisedData = {
       ...data,
       ...(data.firstName !== undefined && { firstName: toTitleCase(data.firstName) }),
       ...(data.lastName !== undefined && { lastName: toTitleCase(data.lastName) }),
+      ...(data.clientDistrictId !== undefined && { clientDistrictId: districtId }),
+      ...(data.clientSectorId !== undefined && { clientSectorId: sectorId }),
     };
     // Update PostgreSQL record
     const updatedUser = await AuthRepository.updateUser(userId, normalisedData);

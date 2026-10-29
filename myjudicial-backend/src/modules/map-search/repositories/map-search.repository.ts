@@ -339,6 +339,13 @@ export const MapSearchRepository = {
     latitude: number,
     longitude: number
   ): Promise<void> => {
+    // Only verified experts should have visible map markers
+    const profile = await prisma.expertProfile.findUnique({
+      where: { id: expertId },
+      select: { status: true },
+    });
+    const isVisible = profile?.status === "VERIFIED";
+
     await prisma.$executeRaw`
       INSERT INTO map_markers ("id", "expertId", latitude, longitude, location, "isVisible", "createdAt", "updatedAt")
       VALUES (
@@ -347,7 +354,7 @@ export const MapSearchRepository = {
         ${latitude},
         ${longitude},
         ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
-        true,
+        ${isVisible},
         NOW(),
         NOW()
       )
@@ -356,6 +363,7 @@ export const MapSearchRepository = {
           latitude  = EXCLUDED.latitude,
           longitude = EXCLUDED.longitude,
           location  = ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+          "isVisible" = ${isVisible},
           "updatedAt" = NOW()
     `;
   },

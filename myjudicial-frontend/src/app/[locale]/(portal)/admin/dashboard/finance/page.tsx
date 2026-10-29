@@ -1004,11 +1004,11 @@ function FinancePageContent() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="font-semibold text-sm text-foreground">
+                                <p className="font-semibold text-sm text-foreground capitalize">
                                   {payment.citizen.firstName} {payment.citizen.lastName}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  to <strong className="text-foreground font-medium">{payment.expert.displayName}</strong>
+                                  to <strong className="text-foreground font-medium capitalize">{payment.expert.displayName}</strong>
                                 </p>
                               </div>
                               <StatusBadge tone={PAYMENT_STATUS_TONE[payment.status]}>
@@ -1093,14 +1093,14 @@ function FinancePageContent() {
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5">
                                   <div className="min-w-0">
-                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none">
+                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none capitalize">
                                       {payment.citizen.firstName} {payment.citizen.lastName}
                                     </p>
                                     <p className="text-xs text-muted-foreground truncate max-w-[140px] xl:max-w-none">{payment.citizen.email}</p>
                                   </div>
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5">
-                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none">{payment.expert.displayName}</p>
+                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none capitalize">{payment.expert.displayName}</p>
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5 whitespace-nowrap">
                                   <p className="font-semibold text-foreground">
@@ -1258,11 +1258,11 @@ function FinancePageContent() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="font-semibold text-sm text-foreground">
+                                <p className="font-semibold text-sm text-foreground capitalize">
                                   {ledger.citizen.firstName} {ledger.citizen.lastName}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  with <strong className="text-foreground font-medium">{ledger.expert.displayName}</strong>
+                                  with <strong className="text-foreground font-medium capitalize">{ledger.expert.displayName}</strong>
                                 </p>
                               </div>
                               <StatusBadge tone={ESCROW_STATUS_TONE[ledger.status]}>
@@ -1360,14 +1360,14 @@ function FinancePageContent() {
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5">
                                   <div className="min-w-0">
-                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none">
+                                    <p className="font-medium text-foreground truncate max-w-[140px] xl:max-w-none capitalize">
                                       {ledger.citizen.firstName} {ledger.citizen.lastName}
                                     </p>
                                     <p className="text-xs text-muted-foreground truncate max-w-[140px] xl:max-w-none">{ledger.citizen.email}</p>
                                   </div>
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5">
-                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none">{ledger.expert.displayName}</p>
+                                  <p className="font-medium text-foreground truncate max-w-[120px] xl:max-w-none capitalize">{ledger.expert.displayName}</p>
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5 hidden xl:table-cell">
                                   {ledger.lawyerWalletPhone ? (
@@ -1495,11 +1495,11 @@ function FinancePageContent() {
                             {/* Header: Names + Payout */}
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <p className="font-semibold text-sm text-foreground">
+                                <p className="font-semibold text-sm text-foreground capitalize">
                                   {payment.citizen.firstName} {payment.citizen.lastName}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  to <strong className="text-foreground font-medium">{payment.expert.displayName}</strong>
+                                  to <strong className="text-foreground font-medium capitalize">{payment.expert.displayName}</strong>
                                 </p>
                               </div>
                               <div className="shrink-0 text-right">
@@ -1611,7 +1611,7 @@ function FinancePageContent() {
                                 </td>
                                 <td className="px-3 xl:px-5 py-3.5">
                                   <div className="min-w-0">
-                                    <p className="text-foreground truncate max-w-[130px] xl:max-w-none">
+                                    <p className="text-foreground truncate max-w-[130px] xl:max-w-none capitalize">
                                       {payment.citizen.firstName} {payment.citizen.lastName}
                                     </p>
                                     <p className="text-xs text-muted-foreground truncate max-w-[130px] xl:max-w-none">{payment.citizen.email}</p>
@@ -1769,7 +1769,7 @@ function FinancePageContent() {
                     <User className="h-3.5 w-3.5 text-primary" />
                     {t("clientContact")}
                   </p>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground capitalize">
                     {selectedPayment.citizen.firstName} {selectedPayment.citizen.lastName}
                   </p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -1783,7 +1783,7 @@ function FinancePageContent() {
                     <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                     {t("expertContact")}
                   </p>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground capitalize">
                     {selectedPayment.expert.displayName}
                   </p>
                   {selectedPayment.expert.contactPhone && (
@@ -1952,7 +1952,7 @@ function FinancePageContent() {
                     <User className="h-3.5 w-3.5 text-primary" />
                     {t("citizen")}
                   </p>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground capitalize">
                     {selectedEscrow.citizen.firstName} {selectedEscrow.citizen.lastName}
                   </p>
                   <p className="text-xs text-muted-foreground">{selectedEscrow.citizen.email}</p>
@@ -1963,7 +1963,7 @@ function FinancePageContent() {
                     <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                     {t("expert")}
                   </p>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-foreground capitalize">
                     {selectedEscrow.expert.displayName}
                   </p>
                   {selectedEscrow.expert.contactPhone && (

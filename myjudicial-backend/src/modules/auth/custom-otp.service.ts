@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { redisSet, redisGet, redisDel } from "../../infrastructure/redis/redis.client.js";
 import { sendOtpEmail } from "../../infrastructure/email/email.service.js";
+import { SmsService } from "../../infrastructure/sms/sms.service.js";
 import { logger } from "../../shared/utils/logger.js";
 
 /**
@@ -121,6 +122,24 @@ export const CustomOtpService = {
     logger.info("Sending OTP email via centralized service", { email, language });
 
     await sendOtpEmail(email, otp, undefined, undefined, language);
+  },
+
+  /**
+   * Send OTP via SMS using the centralized Rwandan SMS gateway service
+   * (Pindo / Africa's Talking / Twilio / MNO Webhook).
+   * Non-blocking fallback if SMS gateway is not configured.
+   */
+  sendOtpSms: async (
+    phone: string,
+    otp: string,
+    language: 'en' | 'fr' | 'rw' = 'en',
+    userId?: string
+  ): Promise<boolean> => {
+    if (!phone || !SmsService.isConfigured()) {
+      return false;
+    }
+    const result = await SmsService.sendOtpSms(phone, otp, language, userId);
+    return result.sent;
   },
 
   /**

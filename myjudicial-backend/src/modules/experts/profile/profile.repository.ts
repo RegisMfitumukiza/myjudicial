@@ -20,6 +20,7 @@ const profileSelect = {
   country: true,
   latitude: true,
   longitude: true,
+  sectorId: true,
   baseConsultationFee: true,
   currency: true,
   credentialsExpiry: true,
@@ -97,6 +98,7 @@ export const ProfileRepository = {
           country: dto.country,
           latitude: dto.latitude,
           longitude: dto.longitude,
+          sectorId: dto.sectorId ?? null,
           baseConsultationFee: dto.baseConsultationFee,
           currency: dto.currency,
           momoNumber: dto.momoNumber ?? null,
@@ -105,24 +107,34 @@ export const ProfileRepository = {
         select: profileSelect,
       });
 
-      // Always create a map marker so the expert becomes searchable once verified —
-      // the onboarding wizard doesn't currently collect coordinates, so default to
-      // Kigali city center (same default GET /experts already uses for search origin)
-      // rather than silently skipping marker creation.
-      const markerLat = dto.latitude ?? -1.9441;
-      const markerLng = dto.longitude ?? 30.0619;
-      await tx.$executeRaw`
-        INSERT INTO map_markers (id, "expertId", latitude, longitude, location, "isVisible", "updatedAt")
-        VALUES (
-          gen_random_uuid(),
-          ${profile.id},
-          ${markerLat},
-          ${markerLng},
-          ST_SetSRID(ST_MakePoint(${markerLng}, ${markerLat}), 4326),
-          false,
-          NOW()
-        )
-      `;
+      // Create a map marker ONLY when valid coordinates are explicitly provided.
+      // Never silently fall back to downtown Kigali coordinates.
+      if (
+        dto.latitude !== undefined &&
+        dto.latitude !== null &&
+        dto.longitude !== undefined &&
+        dto.longitude !== null
+      ) {
+        const markerLat = Number(dto.latitude);
+        const markerLng = Number(dto.longitude);
+        await tx.$executeRaw`
+          INSERT INTO map_markers (id, "expertId", latitude, longitude, location, "isVisible", "updatedAt")
+          VALUES (
+            gen_random_uuid(),
+            ${profile.id},
+            ${markerLat},
+            ${markerLng},
+            ST_SetSRID(ST_MakePoint(${markerLng}, ${markerLat}), 4326),
+            false,
+            NOW()
+          )
+          ON CONFLICT ("expertId") DO UPDATE SET
+            latitude = ${markerLat},
+            longitude = ${markerLng},
+            location = ST_SetSRID(ST_MakePoint(${markerLng}, ${markerLat}), 4326),
+            "updatedAt" = NOW()
+        `;
+      }
 
       return profile;
     }, {
@@ -148,6 +160,7 @@ export const ProfileRepository = {
           ...(dto.country && { country: dto.country }),
           ...(dto.latitude !== undefined && { latitude: dto.latitude }),
           ...(dto.longitude !== undefined && { longitude: dto.longitude }),
+          ...(dto.sectorId !== undefined && { sectorId: dto.sectorId }),
           ...(dto.baseConsultationFee !== undefined && { baseConsultationFee: dto.baseConsultationFee }),
           ...(dto.currency && { currency: dto.currency }),
           ...(dto.momoNumber !== undefined && { momoNumber: dto.momoNumber }),

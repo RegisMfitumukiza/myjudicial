@@ -32,9 +32,10 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { logger } from "../../shared/utils/logger.js";
-import { StorageProviderError } from "../../shared/errors/index.js";
+import { StorageProviderError, FileUploadError } from "../../shared/errors/index.js";
 import fs from "fs";
 import path from "path";
+import net from "net";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -390,24 +391,244 @@ export const headObject = async (
   }
 };
 
-// ─── Architecture Hook — Malware Scanning ─────────────────────────────────────
+// ─── Multi-Engine Malware & Payload Integrity Scanner ────────────────────────
+
+// Constructed at runtime so host OS antivirus does not quarantine the source file
+const EICAR_SIGNATURE = [
+  "X5O!P%@AP[4\\PZX54(P^)7CC)7}$",
+  "EICAR-STANDARD-ANTIVIRUS-",
+  "TEST-FILE!$H+H*",
+].join("");
+
+export interface MalwareScanVerdict {
+  clean: boolean;
+  threat?: string;
+  engine: "signature" | "clamav" | "webhook";
+}
 
 /**
- * Extension point for future malware scanning integration.
- *
- * Intended integrations:
- *   - ClamAV (local container)
- *   - OCI Malware Scanning service
- *   - Third-party AV APIs (VirusTotal, etc.)
- *
- * When a scanner is configured, call this AFTER upload, BEFORE persisting
- * the document metadata. If scanning fails/rejects, delete the uploaded
- * object and throw FileUploadError.
- *
- * @param _key     Object key in OCI
- * @param _bucket  Bucket name
+ * Layer 1: Synchronous signature & disguised-executable inspection.
+ * Detects EICAR antivirus test strings, disguised Windows PE/MZ executables,
+ * Linux ELF binaries, Mach-O binaries, and embedded server-side web shells.
  */
-export const scanForMalware = async (_key: string, _bucket?: string): Promise<void> => {
-  // TODO(security): wire in ClamAV / OCI Malware Scanning
-  logger.debug("OCI: malware scan — scanner not configured, skipping", { key: _key });
+export const inspectBufferForMalware = (buffer: Buffer): MalwareScanVerdict => {
+  if (!buffer || buffer.length === 0) {
+    return { clean: true, engine: "signature" };
+  }
+
+  // Inspect first 64KB as text for known malware / webshell signatures
+  const sampleText = buffer.subarray(0, Math.min(buffer.length, 65536)).toString("latin1");
+
+  if (sampleText.includes(EICAR_SIGNATURE)) {
+    return { clean: false, threat: "EICAR-Test-Signature", engine: "signature" };
+  }
+
+  if (sampleText.includes("<?php") || sampleText.includes("<%@ Page Language=")) {
+    return { clean: false, threat: "WebShell.Script.Embedded", engine: "signature" };
+  }
+
+  // Check magic bytes for disguised native executables
+  if (buffer.length >= 4) {
+    // ELF binary: 0x7F 'E' 'L' 'F'
+    if (
+      buffer[0] === 0x7f &&
+      buffer[1] === 0x45 &&
+      buffer[2] === 0x4c &&
+      buffer[3] === 0x46
+    ) {
+      return { clean: false, threat: "Executable.Linux.ELF", engine: "signature" };
+    }
+
+    // Windows MZ / PE executable: 'M' 'Z' (0x4D 0x5A) with PE header pointer
+    if (buffer[0] === 0x4d && buffer[1] === 0x5a && buffer.length >= 64) {
+      const peOffset = buffer.readUInt32LE(60);
+      if (
+        peOffset > 0 &&
+        peOffset + 4 <= buffer.length &&
+        buffer[peOffset] === 0x50 &&
+        buffer[peOffset + 1] === 0x45 &&
+        buffer[peOffset + 2] === 0x00 &&
+        buffer[peOffset + 3] === 0x00
+      ) {
+        return { clean: false, threat: "Executable.Win32.PE", engine: "signature" };
+      }
+    }
+  }
+
+  return { clean: true, engine: "signature" };
+};
+
+/**
+ * Layer 2: ClamAV daemon TCP INSTREAM protocol scanner.
+ * Enabled when CLAMAV_HOST is configured in environment variables.
+ */
+const scanWithClamAvTcp = (buffer: Buffer, host: string, port: number): Promise<MalwareScanVerdict> => {
+  return new Promise((resolve, reject) => {
+    const socket = new net.Socket();
+    let responseData = "";
+
+    socket.setTimeout(15000);
+
+    socket.connect(port, host, () => {
+      // Send zINSTREAM\0 command
+      socket.write(Buffer.from("zINSTREAM\0", "ascii"));
+
+      // Stream buffer in 8KB chunks prefixed by 4-byte big-endian length
+      const chunkSize = 8192;
+      for (let offset = 0; offset < buffer.length; offset += chunkSize) {
+        const chunk = buffer.subarray(offset, Math.min(offset + chunkSize, buffer.length));
+        const lenBuf = Buffer.alloc(4);
+        lenBuf.writeUInt32BE(chunk.length, 0);
+        socket.write(lenBuf);
+        socket.write(chunk);
+      }
+
+      // Terminate stream with 4 zero bytes
+      const endBuf = Buffer.alloc(4, 0);
+      socket.write(endBuf);
+    });
+
+    socket.on("data", (chunk) => {
+      responseData += chunk.toString("utf8");
+    });
+
+    socket.on("end", () => {
+      const trimmed = responseData.replace(/\0/g, "").trim();
+      if (trimmed.endsWith("OK")) {
+        resolve({ clean: true, engine: "clamav" });
+      } else if (trimmed.includes("FOUND")) {
+        const match = trimmed.match(/stream:\s*(.+?)\s*FOUND/i);
+        resolve({
+          clean: false,
+          threat: match?.[1] ?? "ClamAV.Malware.Found",
+          engine: "clamav",
+        });
+      } else {
+        reject(new Error(`Unexpected ClamAV response: ${trimmed}`));
+      }
+    });
+
+    socket.on("timeout", () => {
+      socket.destroy();
+      reject(new Error("ClamAV scan socket timed out"));
+    });
+
+    socket.on("error", (err) => {
+      reject(err);
+    });
+  });
+};
+
+/**
+ * Reads an uploaded object's bytes for malware inspection.
+ */
+const readObjectBufferForScan = async (key: string, bucket: string): Promise<Buffer | null> => {
+  if (!isOciConfigured()) {
+    const localPath = getLocalFilePath(bucket, key);
+    if (!fs.existsSync(localPath)) return null;
+    return fs.readFileSync(localPath);
+  }
+
+  try {
+    const client = getClient();
+    const res = await client.send(
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Range: "bytes=0-1048575", // First 1MB for fast scanning
+      })
+    );
+    if (!res.Body) return null;
+    const byteArray = await res.Body.transformToByteArray();
+    return Buffer.from(byteArray);
+  } catch (err) {
+    logger.warn("OCI: Could not read object bytes for malware scan", {
+      key,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return null;
+  }
+};
+
+/**
+ * Multi-layer malware scan executed after object upload and before database metadata commit.
+ * Automatically purges the object and throws FileUploadError if a threat is detected.
+ */
+export const scanForMalware = async (key: string, bucket?: string): Promise<void> => {
+  const b = bucket ?? getOciConfig().bucket;
+  const buffer = await readObjectBufferForScan(key, b);
+
+  if (buffer) {
+    // 1. Built-in signature & executable header inspection
+    const sigVerdict = inspectBufferForMalware(buffer);
+    if (!sigVerdict.clean) {
+      logger.error("Security Alert: Malware/Executable signature detected in upload — purging object", {
+        key,
+        bucket: b,
+        threat: sigVerdict.threat,
+        engine: sigVerdict.engine,
+      });
+      await deleteObject(key, b).catch(() => {});
+      throw new FileUploadError(`Upload rejected by security scanner (${sigVerdict.threat})`);
+    }
+
+    // 2. ClamAV TCP Daemon (if configured via CLAMAV_HOST)
+    const clamHost = (process.env.CLAMAV_HOST ?? "").trim();
+    const clamPort = parseInt(process.env.CLAMAV_PORT ?? "3310", 10);
+    if (clamHost) {
+      try {
+        const clamVerdict = await scanWithClamAvTcp(buffer, clamHost, clamPort);
+        if (!clamVerdict.clean) {
+          logger.error("Security Alert: ClamAV detected malware in upload — purging object", {
+            key,
+            bucket: b,
+            threat: clamVerdict.threat,
+          });
+          await deleteObject(key, b).catch(() => {});
+          throw new FileUploadError(`Upload rejected by antivirus scanner (${clamVerdict.threat})`);
+        }
+      } catch (err) {
+        if (err instanceof FileUploadError) throw err;
+        logger.warn("ClamAV daemon unreachable; signature inspection passed", {
+          key,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+
+  // 3. External Cloud Malware Webhook (if configured via MALWARE_SCAN_WEBHOOK_URL)
+  const webhookUrl = (process.env.MALWARE_SCAN_WEBHOOK_URL ?? "").trim();
+  if (webhookUrl) {
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(process.env.MALWARE_SCAN_API_KEY
+            ? { Authorization: `Bearer ${process.env.MALWARE_SCAN_API_KEY}` }
+            : {}),
+        },
+        body: JSON.stringify({ key, bucket: b }),
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as { clean?: boolean; threat?: string };
+        if (data.clean === false) {
+          await deleteObject(key, b).catch(() => {});
+          throw new FileUploadError(
+            `Upload rejected by cloud malware scanner (${data.threat ?? "Malicious content"})`
+          );
+        }
+      }
+    } catch (err) {
+      if (err instanceof FileUploadError) throw err;
+      logger.warn("External malware webhook scan failed; continuing with signature check", {
+        key,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  logger.debug("OCI: malware scan passed", { key, bucket: b });
 };

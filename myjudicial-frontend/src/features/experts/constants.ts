@@ -1,3 +1,5 @@
+import { RWANDA_AUTH_DISTRICTS } from "../search/locations-data";
+
 export const SPOKEN_LANGUAGES = [
   "Kinyarwanda",
   "English",
@@ -5,18 +7,4 @@ export const SPOKEN_LANGUAGES = [
   "Swahili",
 ] as const;
 
-export const RWANDA_DISTRICTS = [
-  "Gasabo",
-  "Kicukiro",
-  "Nyarugenge",
-  "Bugesera",
-  "Gatsibo",
-  "Huye",
-  "Karongi",
-  "Musanze",
-  "Nyagatare",
-  "Rubavu",
-  "Rusizi",
-  "Rwamagana",
-] as const;
-
+export const RWANDA_DISTRICTS = RWANDA_AUTH_DISTRICTS.map((d) => d.name);

@@ -151,6 +151,11 @@ model User {
   contentPageRevisions     ContentPageRevision[]
   legalConsents            UserLegalConsent[]
 
+  clientDistrictId         String?                   @map("client_district_id")
+  clientDistrict           AdministrativeDivision?   @relation("UserClientDistrict", fields: [clientDistrictId], references: [id])
+  clientSectorId           String?                   @map("client_sector_id")
+  clientSector             AdministrativeDivision?   @relation("UserClientSector", fields: [clientSectorId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -262,6 +267,8 @@ model ExpertProfile {
   education             ExpertEducation[]
   certifications        ExpertCertification[]
   momoNumber            String?
+  sectorId              String?                 @map("sector_id")
+  sector                AdministrativeDivision? @relation("ExpertOfficeSector", fields: [sectorId], references: [id])
   mapMarker             MapMarker?
   referralCode          ReferralCode?
   quotations            Quotation[]
@@ -411,6 +418,7 @@ model Booking {
   @@index([status])
   @@index([scheduledStart])
   @@index([autoReleaseAt])
+  @@index([expertId, scheduledStart, scheduledEnd, status])
   @@map("bookings")
 }
 
@@ -438,6 +446,7 @@ model Payment {
 
   @@index([bookingId])
   @@index([status])
+  @@index([status, createdAt(sort: Desc)])
   @@index([txRef])
   @@map("payments")
 }
@@ -595,6 +604,7 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@index([actorId])
+  @@index([actorId, createdAt(sort: Desc)])
   @@index([resource])
   @@index([resourceId])
   @@index([createdAt])
@@ -1338,4 +1348,39 @@ model Specialty {
   updatedAt   DateTime @updatedAt
 
   @@map("specialties")
+}
+
+enum AdminDivisionLevel {
+  PROVINCE
+  DISTRICT
+  SECTOR
+  CELL
+  VILLAGE
+}
+
+model AdministrativeDivision {
+  id             String             @id @default(uuid())
+  code           String             @unique
+  name           String
+  normalizedName String             @map("normalized_name")
+  level          AdminDivisionLevel
+  parentId       String?            @map("parent_id")
+  parent         AdministrativeDivision? @relation("DivisionHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children       AdministrativeDivision[] @relation("DivisionHierarchy")
+
+  latitude       Decimal            @db.Decimal(9, 6)
+  longitude      Decimal            @db.Decimal(9, 6)
+  aliases        String[]           @default([])
+
+  expertProfiles ExpertProfile[]    @relation("ExpertOfficeSector")
+  usersAsDistrict User[]            @relation("UserClientDistrict")
+  usersAsSector   User[]            @relation("UserClientSector")
+
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  @@index([parentId])
+  @@index([level])
+  @@index([normalizedName])
+  @@map("administrative_divisions")
 }

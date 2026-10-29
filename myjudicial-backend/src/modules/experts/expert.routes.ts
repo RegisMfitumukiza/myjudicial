@@ -71,6 +71,7 @@ import { LandingService } from "./landing/landing.service.js";
 
 // Search functionality (reuse map-search service)
 import { MapSearchService } from "../map-search/services/map-search.service.js";
+import { LocationService } from "../locations/location.service.js";
 import { sendPaginated, sendSuccess } from "../../shared/utils/response.js";
 import { NotFoundError } from "../../shared/errors/index.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
@@ -122,10 +123,33 @@ router.get("/", asyncHandler(async (req, res, next) => {
       today === "true" ||
       today === "1";
 
+    let resolvedLat = lat ? parseFloat(lat as string) : undefined;
+    let resolvedLng = lng ? parseFloat(lng as string) : undefined;
+    let resolvedRadius = radius ? parseFloat(radius as string) : undefined;
+    let textSearch = search ? String(search).trim() : undefined;
+
+    // Resolve geographic searches (e.g. Kimironko, Gatsata, Kanombe, Huye, Musanze) before text searching
+    if (textSearch) {
+      const geoDivision = await LocationService.resolveLocation(textSearch);
+      if (geoDivision) {
+        resolvedLat = geoDivision.latitude;
+        resolvedLng = geoDivision.longitude;
+        resolvedRadius = resolvedRadius ?? (geoDivision.level === "SECTOR" ? 15 : geoDivision.level === "DISTRICT" ? 30 : 60);
+        // Clear text search query so we don't string-filter out experts in the resolved area
+        textSearch = undefined;
+      } else if (!resolvedLat || !resolvedLng) {
+        // Query is an ordinary keyword search (not a place) and no coordinates provided:
+        // Do NOT impose a 50km local Kigali circle! Search all Rwanda (500km)
+        resolvedLat = -1.9441;
+        resolvedLng = 30.0619;
+        resolvedRadius = 500;
+      }
+    }
+
     const dto = {
-      latitude: lat ? parseFloat(lat as string) : -1.9441,
-      longitude: lng ? parseFloat(lng as string) : 30.0619,
-      radiusKm: radius ? parseFloat(radius as string) : 50,
+      latitude: resolvedLat ?? -1.9441,
+      longitude: resolvedLng ?? 30.0619,
+      radiusKm: resolvedRadius ?? 50,
       page: parseInt(page as string, 10),
       limit: parseInt(limit as string, 10),
       sort: (sort as string || "NEAREST") as "NEAREST" | "RECOMMENDED" | "HIGHEST_RATED" | "MOST_EXPERIENCED" | "MOST_REVIEWED" | "AVAILABLE_NOW",
@@ -137,7 +161,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
         availability: isAvailableToday ? ("AVAILABLE_TODAY" as const) : undefined,
         instantConsult: instantConsult === "true" || instantConsult === "1" ? true : undefined,
       },
-      search: search as string | undefined,
+      search: textSearch,
     };
 
     const { experts, pagination } = await MapSearchService.searchNearby(dto);

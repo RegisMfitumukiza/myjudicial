@@ -11,6 +11,7 @@ import {
   Home, Briefcase, ShieldCheck, Users, Globe, Building2,
   Video, Phone, UserCheck, Star, Sparkles,
 } from "lucide-react";
+import { RWANDA_AUTH_DISTRICTS } from "@/features/search/locations-data";
 
 /* ─────────────────────────────────────── types ── */
 type Role = "CITIZEN" | "EXPERT";
@@ -27,13 +28,7 @@ const PRACTICE_AREAS = [
   { id: "other",      icon: FileText },
 ] as const;
 
-const RWANDA_DISTRICTS = [
-  "Gasabo", "Kicukiro", "Nyarugenge",
-  "Bugesera", "Gatsibo", "Kayonza", "Kirehe", "Ngoma", "Nyagatare", "Rwamagana",
-  "Burera", "Gakenke", "Gicumbi", "Musanze", "Rulindo",
-  "Gisagara", "Huye", "Kamonyi", "Muhanga", "Nyamagabe", "Nyanza", "Nyaruguru", "Ruhango",
-  "Karongi", "Ngororero", "Nyabihu", "Nyamasheke", "Rubavu", "Rusizi", "Rutsiro", "Rucibishu",
-];
+const RWANDA_DISTRICTS = RWANDA_AUTH_DISTRICTS.map((d) => d.name);
 
 const EXPERT_TITLES = [
   "advocate",

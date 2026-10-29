@@ -758,7 +758,22 @@ export default function ExpertProfilePage() {
                           </div>
                         </FieldRowWithIcon>
                         <FieldRow icon={Languages} label={t("languagesField")} value={profile.languages?.join(", ") || "—"} />
-                        <FieldRow icon={MapPin} label={t("officeAddressField")} value={profile.officeAddress || "—"} />
+                        <FieldRowWithIcon icon={MapPin} label={t("officeAddressField")}>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                            <span className="text-sm font-medium">{profile.officeAddress || "—"}</span>
+                            {profile.latitude != null && profile.longitude != null ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                                📍 {profile.latitude.toFixed(4)}, {profile.longitude.toFixed(4)}
+                              </span>
+                            ) : null}
+                            <Link
+                              href="/expert/profile/edit#location"
+                              className="text-xs text-blue-600 hover:underline dark:text-blue-400 font-medium sm:ml-auto"
+                            >
+                              Edit Map Pin &rarr;
+                            </Link>
+                          </div>
+                        </FieldRowWithIcon>
                         <FieldRowWithIcon icon={Globe} label={t("locationField")} value={[profile.city, profile.country].filter(Boolean).join(", ") || "—"} />
                         <FieldRow icon={DollarSign} label={t("consultationFeeField")} value={profile.baseConsultationFee != null ? `${profile.baseConsultationFee.toLocaleString()} ${profile.currency}` : "—"} />
                       </div>

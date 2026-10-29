@@ -3,62 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Search, SlidersHorizontal, Map as MapIcon, List, X, MapPin, Scale, User } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-const RWANDA_DISTRICTS = [
-  // Kigali Districts
-  { name: "Nyarugenge", province: "Kigali" },
-  { name: "Gasabo", province: "Kigali" },
-  { name: "Kicukiro", province: "Kigali" },
-  // Kigali — Nyarugenge neighborhoods
-  { name: "Nyamirambo", province: "Nyarugenge, Kigali" },
-  { name: "Muhima", province: "Nyarugenge, Kigali" },
-  { name: "Gitega", province: "Nyarugenge, Kigali" },
-  { name: "Biryogo", province: "Nyarugenge, Kigali" },
-  // Kigali — Gasabo neighborhoods
-  { name: "Gishushu", province: "Gasabo, Kigali" },
-  { name: "Kimironko", province: "Gasabo, Kigali" },
-  { name: "Remera", province: "Gasabo, Kigali" },
-  { name: "Kacyiru", province: "Gasabo, Kigali" },
-  { name: "Gisozi", province: "Gasabo, Kigali" },
-  { name: "Kibagabaga", province: "Gasabo, Kigali" },
-  { name: "Ndera", province: "Gasabo, Kigali" },
-  // Kigali — Kicukiro neighborhoods
-  { name: "Niboye", province: "Kicukiro, Kigali" },
-  { name: "Kagarama", province: "Kicukiro, Kigali" },
-  { name: "Gatenga", province: "Kicukiro, Kigali" },
-  { name: "Kanombe", province: "Kicukiro, Kigali" },
-  { name: "Masaka", province: "Kicukiro, Kigali" },
-  // Northern Province
-  { name: "Musanze", province: "Northern Province" },
-  { name: "Gicumbi", province: "Northern Province" },
-  { name: "Rulindo", province: "Northern Province" },
-  { name: "Gakenke", province: "Northern Province" },
-  { name: "Burera", province: "Northern Province" },
-  // Southern Province
-  { name: "Huye", province: "Southern Province" },
-  { name: "Muhanga", province: "Southern Province" },
-  { name: "Nyanza", province: "Southern Province" },
-  { name: "Ruhango", province: "Southern Province" },
-  { name: "Gisagara", province: "Southern Province" },
-  { name: "Nyaruguru", province: "Southern Province" },
-  { name: "Nyamagabe", province: "Southern Province" },
-  // Western Province
-  { name: "Rubavu", province: "Western Province" },
-  { name: "Rusizi", province: "Western Province" },
-  { name: "Karongi", province: "Western Province" },
-  { name: "Nyabihu", province: "Western Province" },
-  { name: "Ngororero", province: "Western Province" },
-  { name: "Rutsiro", province: "Western Province" },
-  { name: "Nyamasheke", province: "Western Province" },
-  // Eastern Province
-  { name: "Rwamagana", province: "Eastern Province" },
-  { name: "Nyagatare", province: "Eastern Province" },
-  { name: "Bugesera", province: "Eastern Province" },
-  { name: "Kayonza", province: "Eastern Province" },
-  { name: "Kirehe", province: "Eastern Province" },
-  { name: "Ngoma", province: "Eastern Province" },
-  { name: "Gatsibo", province: "Eastern Province" },
-];
+import { ALL_RWANDA_LOCATIONS } from "../locations-data";
 
 type SearchTopBarProps = {
   searchQuery: string;
@@ -202,11 +147,42 @@ export function SearchTopBar({
 
   const matchingDistricts = useMemo(() => {
     if (!trimmed) return [];
-    return RWANDA_DISTRICTS.filter(
-      (d) =>
-        d.name.toLowerCase().includes(trimmed) ||
-        d.province.toLowerCase().includes(trimmed)
-    ).slice(0, 3);
+    // Prioritize exact matches first, then prefix/substring matches
+    const matches: Array<{ name: string; province: string; priority: number }> = [];
+
+    for (const loc of ALL_RWANDA_LOCATIONS) {
+      const lowerName = loc.name.toLowerCase();
+      const lowerParent = loc.parentName.toLowerCase();
+      const hasAliasMatch = loc.aliases?.some((a) => a.toLowerCase().includes(trimmed));
+
+      let priority = -1;
+      if (lowerName === trimmed) {
+        priority = 0; // exact match
+      } else if (lowerName.startsWith(trimmed)) {
+        priority = 1; // prefix match
+      } else if (lowerName.includes(trimmed)) {
+        priority = 2; // substring in name
+      } else if (hasAliasMatch) {
+        priority = 3; // alias match
+      } else if (lowerParent.includes(trimmed)) {
+        priority = 4; // parent match
+      }
+
+      if (priority >= 0) {
+        const province =
+          loc.level === "SECTOR"
+            ? `${loc.parentName} District`
+            : loc.level === "DISTRICT"
+            ? loc.parentName
+            : "Rwanda";
+        matches.push({ name: loc.name, province, priority });
+      }
+    }
+
+    return matches
+      .sort((a, b) => a.priority - b.priority)
+      .slice(0, 4)
+      .map(({ name, province }) => ({ name, province }));
   }, [trimmed]);
 
   const matchingSpecialties = useMemo(() => {

@@ -4,6 +4,7 @@ import { logger } from "../../shared/utils/logger.js";
 import { EscrowService } from "../../modules/payments/escrow.service.js";
 import { AdminSettingService } from "../../modules/settings/admin-setting.service.js";
 import { PaymentStatus } from "../../generated/prisma/client.js";
+import { QueueService } from "../queue/queue.service.js";
 
 /**
  * AzamPay Rwanda v2 Active Status Reconciliation Cron — runs every 2 minutes.
@@ -21,7 +22,8 @@ import { PaymentStatus } from "../../generated/prisma/client.js";
  */
 export const startAzamPayReconciliationCron = (): void => {
   cron.schedule("*/2 * * * *", async () => {
-    try {
+    await QueueService.withDistributedLock("cron:azampay-reconciliation", 110, async () => {
+      try {
       const paymentMode = await AdminSettingService.get("paymentMode");
       if (paymentMode === "BOOKING_FIRST") {
         return;
@@ -104,9 +106,10 @@ export const startAzamPayReconciliationCron = (): void => {
 
         await EscrowService.reconcilePayoutTransfer(p.providerPayoutRef);
       }
-    } catch (err) {
-      logger.error("AzamPay reconciliation cron: cycle failed", { err });
-    }
+      } catch (err) {
+        logger.error("AzamPay reconciliation cron: cycle failed", { err });
+      }
+    });
   });
 
   logger.info("AzamPay reconciliation cron scheduled — runs every 2 minutes");

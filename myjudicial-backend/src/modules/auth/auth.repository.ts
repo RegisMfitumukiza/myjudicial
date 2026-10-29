@@ -90,6 +90,11 @@ export const AuthRepository = {
         phone: true,
         role: true,
         status: true,
+        preferredLanguage: true,
+        clientDistrictId: true,
+        clientSectorId: true,
+        clientDistrict: { select: { id: true, code: true, name: true } },
+        clientSector: { select: { id: true, code: true, name: true } },
         expertProfile: {
           select: { id: true, status: true },
         },
@@ -126,6 +131,8 @@ export const AuthRepository = {
     lastName?: string;
     phone?: string;
     preferredLanguage?: string;
+    clientDistrictId?: string | null;
+    clientSectorId?: string | null;
   }) => {
     return prisma.user.update({
       where: { id: userId },
@@ -139,6 +146,10 @@ export const AuthRepository = {
         role: true,
         preferredLanguage: true,
         status: true,
+        clientDistrictId: true,
+        clientSectorId: true,
+        clientDistrict: { select: { id: true, code: true, name: true } },
+        clientSector: { select: { id: true, code: true, name: true } },
       },
     });
   },

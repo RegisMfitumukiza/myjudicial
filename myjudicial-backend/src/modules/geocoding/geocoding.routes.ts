@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../shared/middleware/authenticate.js";
+import { apiLimiter } from "../../shared/middleware/rateLimiting.js";
 import { validate, validateQuery } from "../../shared/middleware/validate.js";
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
 import { GeocodingService } from "../../infrastructure/geocoding/geocoding.service.js";
@@ -28,7 +29,7 @@ const reverseGeocodeSchema = z.object({
 // GET /geocoding/suggestions?query=kigali
 router.get(
   "/suggestions",
-  authenticate,
+  apiLimiter,
   validateQuery(addressSuggestionsSchema),
   asyncHandler(async (req, res) => {
     const { query } = req.query as { query: string };
@@ -45,7 +46,7 @@ router.get(
 // POST /geocoding/validate
 router.post(
   "/validate",
-  authenticate,
+  apiLimiter,
   validate(validateAddressSchema),
   asyncHandler(async (req, res) => {
     const { address } = req.body;
@@ -62,7 +63,7 @@ router.post(
 // POST /geocoding/place-details
 router.post(
   "/place-details",
-  authenticate,
+  apiLimiter,
   validate(placeDetailsSchema),
   asyncHandler(async (req, res) => {
     const { placeId } = req.body;
@@ -105,7 +106,7 @@ router.get(
 // POST /geocoding/reverse-geocode - Reverse geocode coordinates to address
 router.post(
   "/reverse-geocode",
-  authenticate,
+  apiLimiter,
   validate(reverseGeocodeSchema),
   asyncHandler(async (req, res) => {
     const { lat, lng } = req.body;

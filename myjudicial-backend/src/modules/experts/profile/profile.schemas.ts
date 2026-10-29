@@ -26,6 +26,7 @@ export const createProfileSchema = z.object({
   country: z.string().max(100).default("Rwanda"),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
+  sectorId: z.string().optional(),
   // Enhanced location fields
   placeId: z.string().optional(), // Google Places ID for reference
   formattedAddress: z.string().max(400).optional(), // Standardized address from geocoding

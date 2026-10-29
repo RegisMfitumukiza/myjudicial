@@ -4,6 +4,7 @@ import { ServicesService } from "../services/services.service.js";
 import { writeAuditLog } from "../../../shared/utils/audit.js";
 import { ConflictError, NotFoundError, AuthorizationError } from "../../../shared/errors/index.js";
 import { GeocodingService } from "../../../infrastructure/geocoding/geocoding.service.js";
+import { LocationService } from "../../locations/location.service.js";
 import { getSignedDownloadUrl } from "../../../infrastructure/storage/oci-object-storage.service.js";
 import { logger } from "../../../shared/utils/logger.js";
 import type { CreateProfileDto, UpdateProfileDto } from "./profile.schemas.js";
@@ -26,6 +27,25 @@ export const ProfileService = {
 
     // Auto-geocode if address provided but coordinates missing
     let enhancedDto = { ...dto };
+
+    // Resolve sector if provided
+    if (enhancedDto.sectorId) {
+      try {
+        const sector = await LocationService.resolveLocation(enhancedDto.sectorId);
+        if (sector) {
+          if (!enhancedDto.latitude || !enhancedDto.longitude) {
+            enhancedDto.latitude = sector.latitude;
+            enhancedDto.longitude = sector.longitude;
+          }
+          if (!enhancedDto.city && sector.parentName) {
+            enhancedDto.city = sector.parentName;
+          }
+        }
+      } catch (err) {
+        logger.warn("Failed resolving sectorId during profile creation", { sectorId: enhancedDto.sectorId, err });
+      }
+    }
+
     if (dto.officeAddress && (!dto.latitude || !dto.longitude)) {
       try {
         const geocodeResult = await GeocodingService.validateAddress(dto.officeAddress);
@@ -157,8 +177,60 @@ export const ProfileService = {
     }
 
     let enhancedDto = { ...dto };
-    if (enhancedDto.latitude && enhancedDto.longitude && (!enhancedDto.city || enhancedDto.city.trim() === "" || enhancedDto.city.toLowerCase() === "rwanda" || enhancedDto.city.toLowerCase() === "kigali")) {
-      enhancedDto.city = GeocodingService.detectDistrict(Number(enhancedDto.latitude), Number(enhancedDto.longitude));
+
+    // 1. Resolve sector if updated
+    if (enhancedDto.sectorId) {
+      try {
+        const sector = await LocationService.resolveLocation(enhancedDto.sectorId);
+        if (sector) {
+          if (!enhancedDto.latitude || !enhancedDto.longitude) {
+            enhancedDto.latitude = sector.latitude;
+            enhancedDto.longitude = sector.longitude;
+          }
+          if (!enhancedDto.city && sector.parentName) {
+            enhancedDto.city = sector.parentName;
+          }
+        }
+      } catch (err) {
+        logger.warn("Failed resolving sectorId during profile update", { sectorId: enhancedDto.sectorId, err });
+      }
+    }
+
+    // 2. Re-geocode if officeAddress was modified without providing explicit coordinates
+    if (
+      dto.officeAddress &&
+      dto.officeAddress.trim() !== (profile.officeAddress || "").trim() &&
+      (!dto.latitude || !dto.longitude)
+    ) {
+      try {
+        const geocodeResult = await GeocodingService.validateAddress(dto.officeAddress);
+        if (geocodeResult.isValid && geocodeResult.coordinates) {
+          enhancedDto.latitude = geocodeResult.coordinates.lat;
+          enhancedDto.longitude = geocodeResult.coordinates.lng;
+          logger.info("Re-geocoded updated officeAddress", {
+            userId,
+            address: dto.officeAddress,
+            coords: geocodeResult.coordinates,
+          });
+        }
+      } catch (err) {
+        logger.warn("Failed re-geocoding updated office address", { userId, address: dto.officeAddress, err });
+      }
+    }
+
+    // 3. Auto-detect district if coordinates exist but city is missing or generic
+    if (
+      enhancedDto.latitude &&
+      enhancedDto.longitude &&
+      (!enhancedDto.city ||
+        enhancedDto.city.trim() === "" ||
+        enhancedDto.city.toLowerCase() === "rwanda" ||
+        enhancedDto.city.toLowerCase() === "kigali")
+    ) {
+      enhancedDto.city = GeocodingService.detectDistrict(
+        Number(enhancedDto.latitude),
+        Number(enhancedDto.longitude)
+      );
     }
 
     const updated = await ProfileRepository.update(profile.id, enhancedDto);

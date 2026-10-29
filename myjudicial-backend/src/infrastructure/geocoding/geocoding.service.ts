@@ -1,4 +1,10 @@
 import { logger } from "../../shared/utils/logger.js";
+import { LocationService } from "../../modules/locations/location.service.js";
+import {
+  RWANDA_DISTRICTS,
+  RWANDA_SECTORS,
+  RWANDA_PROVINCES,
+} from "../data/rwanda-administrative-data.js";
 
 interface LocationResult {
   isValid: boolean;
@@ -86,6 +92,17 @@ const RWANDA_LOCATIONS = {
 
 export class GeocodingService {
   /**
+   * Validate whether a lat/lng coordinate pair falls within Rwanda's territorial bounding box.
+   * Rwanda bounding box: Latitude [-2.90, -1.00], Longitude [28.80, 30.95].
+   */
+  static isValidRwandaCoordinate(lat: number, lng: number): boolean {
+    if (typeof lat !== "number" || typeof lng !== "number" || isNaN(lat) || isNaN(lng)) {
+      return false;
+    }
+    return lat >= -2.90 && lat <= -1.00 && lng >= 28.80 && lng <= 30.95;
+  }
+
+  /**
    * Determine the closest Rwandan district from latitude and longitude.
    * Compares coordinates against the centers of all 30 official districts.
    */
@@ -93,15 +110,13 @@ export class GeocodingService {
     let closestDistrict = "Nyarugenge";
     let minDistanceSq = Infinity;
 
-    for (const province of Object.values(RWANDA_LOCATIONS.provinces)) {
-      for (const [districtName, district] of Object.entries(province.districts)) {
-        const dLat = lat - district.center[0];
-        const dLng = lng - district.center[1];
-        const distSq = dLat * dLat + dLng * dLng;
-        if (distSq < minDistanceSq) {
-          minDistanceSq = distSq;
-          closestDistrict = districtName;
-        }
+    for (const district of RWANDA_DISTRICTS) {
+      const dLat = lat - district.latitude;
+      const dLng = lng - district.longitude;
+      const distSq = dLat * dLat + dLng * dLng;
+      if (distSq < minDistanceSq) {
+        minDistanceSq = distSq;
+        closestDistrict = district.name;
       }
     }
 
@@ -160,32 +175,32 @@ export class GeocodingService {
     const suggestions: AddressSuggestion[] = [];
     const lowerQuery = query.toLowerCase();
 
-    // 1. Search through verified Rwanda provinces, districts, and sectors
-    Object.entries(RWANDA_LOCATIONS.provinces).forEach(([provinceName, province]) => {
-      Object.entries(province.districts).forEach(([districtName, district]) => {
-        // Match district names
-        if (districtName.toLowerCase().includes(lowerQuery)) {
-          suggestions.push({
-            placeId: `district_${districtName}`,
-            description: `${districtName} District, ${provinceName}, Rwanda`,
-            mainText: `${districtName} District`,
-            secondaryText: `${provinceName}, Rwanda`,
-          });
-        }
-
-        // Match sector names
-        district.sectors.forEach((sector) => {
-          if (sector.toLowerCase().includes(lowerQuery)) {
-            suggestions.push({
-              placeId: `sector_${sector}_${districtName}`,
-              description: `${sector}, ${districtName} District, Rwanda`,
-              mainText: sector,
-              secondaryText: `${districtName} District, ${provinceName}`,
-            });
-          }
+    // 1. Search through verified Rwanda provinces, districts, and sectors using unified LocationService
+    const matchedDivisions = await LocationService.search(query, 8);
+    for (const div of matchedDivisions) {
+      if (div.level === "SECTOR") {
+        suggestions.push({
+          placeId: `sector_${div.name}_${div.parentName || ""}`,
+          description: div.canonicalName,
+          mainText: div.name,
+          secondaryText: `${div.parentName || ""} District, Rwanda`,
         });
-      });
-    });
+      } else if (div.level === "DISTRICT") {
+        suggestions.push({
+          placeId: `district_${div.name}`,
+          description: div.canonicalName,
+          mainText: `${div.name} District`,
+          secondaryText: `${div.parentName || "Rwanda"}`,
+        });
+      } else {
+        suggestions.push({
+          placeId: `province_${div.name}`,
+          description: div.canonicalName,
+          mainText: div.name,
+          secondaryText: "Rwanda",
+        });
+      }
+    }
 
     // 2. Match verified landmarks and commercial towers across Kigali & provinces
     const landmarks = GeocodingService.getLandmarks();
@@ -276,19 +291,17 @@ export class GeocodingService {
       // 2. Verified District
       if (placeId.startsWith("district_")) {
         const districtName = placeId.replace("district_", "");
-        for (const [provinceName, province] of Object.entries(RWANDA_LOCATIONS.provinces)) {
-          const district = (province.districts as Record<string, any>)[districtName];
-          if (district) {
-            return {
-              isValid: true,
-              coordinates: {
-                lat: district.center[0],
-                lng: district.center[1],
-              },
-              formattedAddress: `${districtName} District, ${provinceName}, Rwanda`,
-              placeId,
-            };
-          }
+        const resolved = await LocationService.resolveLocation(districtName);
+        if (resolved) {
+          return {
+            isValid: true,
+            coordinates: {
+              lat: resolved.latitude,
+              lng: resolved.longitude,
+            },
+            formattedAddress: resolved.canonicalName,
+            placeId,
+          };
         }
       }
 
@@ -297,19 +310,17 @@ export class GeocodingService {
         const parts = placeId.split("_");
         const sectorName = parts[1];
         const districtName = parts[2];
-        for (const [provinceName, province] of Object.entries(RWANDA_LOCATIONS.provinces)) {
-          const district = (province.districts as Record<string, any>)[districtName];
-          if (district) {
-            return {
-              isValid: true,
-              coordinates: {
-                lat: district.center[0],
-                lng: district.center[1],
-              },
-              formattedAddress: `${sectorName}, ${districtName} District, ${provinceName}, Rwanda`,
-              placeId,
-            };
-          }
+        const resolved = await LocationService.resolveLocation(sectorName);
+        if (resolved) {
+          return {
+            isValid: true,
+            coordinates: {
+              lat: resolved.latitude,
+              lng: resolved.longitude,
+            },
+            formattedAddress: resolved.canonicalName || `${sectorName}, ${districtName} District, Rwanda`,
+            placeId,
+          };
         }
       }
 
@@ -336,16 +347,8 @@ export class GeocodingService {
           };
         }
 
-        // Fallback to Kigali center
-        return {
-          isValid: true,
-          coordinates: {
-            lat: -1.9441,
-            lng: 30.0619,
-          },
-          formattedAddress: `${rawName}, Kigali, Rwanda`,
-          placeId,
-        };
+        // Return invalid rather than fabricating downtown Kigali coordinates
+        return { isValid: false };
       }
 
       return { isValid: false };

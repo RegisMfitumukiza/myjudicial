@@ -94,6 +94,8 @@ export const updateMeSchema = z.object({
   lastName: fullName.optional().describe("Updated last name"),
   phone: phone.describe("Updated phone number in international format"),
   preferredLanguage: z.enum(["en", "fr", "rw"]).optional().describe("Preferred interface language"),
+  clientDistrictId: z.string().optional().nullable().describe("Preferred client district ID"),
+  clientSectorId: z.string().optional().nullable().describe("Preferred client sector ID"),
 });
 
 /** PUT /auth/me/notification-preferences */

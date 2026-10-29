@@ -1,3 +1,4 @@
+import "./api/helpers/env.js";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { sanitizePgConnectionString } from "../src/infrastructure/database/prisma.js";

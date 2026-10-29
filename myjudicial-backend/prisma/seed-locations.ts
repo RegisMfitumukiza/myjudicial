@@ -2,7 +2,8 @@
  * Idempotent Seed for Rwanda Administrative Divisions
  * Populates 5 Provinces, 30 Districts, and 416 Sectors.
  */
-import { prisma } from "../src/infrastructure/database/prisma.js";
+import { prisma, closeDatabasePool } from "../src/infrastructure/database/prisma.js";
+import { ensureDatabaseSchema } from "../src/infrastructure/database/schema-sync.js";
 import {
   RWANDA_PROVINCES,
   RWANDA_DISTRICTS,
@@ -105,11 +106,12 @@ export async function seedAdministrativeDivisions() {
 
 // Allow direct CLI invocation: tsx prisma/seed-locations.ts
 if (process.argv[1]?.endsWith("seed-locations.ts")) {
-  seedAdministrativeDivisions()
+  ensureDatabaseSchema()
+    .then(() => seedAdministrativeDivisions())
     .catch((err) => {
       logger.error("Failed seeding locations", { err });
       console.error(err);
       process.exit(1);
     })
-    .finally(() => prisma.$disconnect());
+    .finally(() => closeDatabasePool());
 }

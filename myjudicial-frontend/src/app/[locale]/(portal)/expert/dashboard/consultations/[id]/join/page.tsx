@@ -4,6 +4,7 @@ import { use, useState, useEffect, useCallback, useRef } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { ArrowLeft, Video, Mic, VideoOff, Loader2, AlertCircle, CheckCircle, Brain, Sparkles } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
 import { Button } from "@/shared/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { ConsultationRoom } from "@/features/booking/components/consultation-room";
@@ -118,11 +119,7 @@ export default function ExpertJoinConsultationPage({ params }: { params: Promise
   }, [joined]);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !booking) {

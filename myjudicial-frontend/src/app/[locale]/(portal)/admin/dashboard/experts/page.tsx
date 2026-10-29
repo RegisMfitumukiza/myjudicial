@@ -23,7 +23,7 @@ import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSkeleton, TableSectionSkeleton } from "@/shared/components/dashboard/loading";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -265,11 +265,7 @@ export default function ExpertsPage() {
   // ── Render ──
 
   if (isLoading && !data) {
-    return (
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <TableSkeleton statsCount={4} columns={6} rows={6} />;
   }
 
   if (error && !data) {
@@ -364,8 +360,8 @@ export default function ExpertsPage() {
             <tbody className="divide-y divide-border">
               {isLoading && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center">
-                    <LoadingSpinner />
+                  <td colSpan={6} className="p-0">
+                    <TableSectionSkeleton rows={5} columns={6} showHeader={false} className="border-0 rounded-none shadow-none" />
                   </td>
                 </tr>
               )}
@@ -509,9 +505,7 @@ export default function ExpertsPage() {
         {/* Mobile Card Stack (< md: 768px) */}
         <div className="block md:hidden divide-y divide-border">
           {isLoading && (
-            <div className="py-12 text-center">
-              <LoadingSpinner />
-            </div>
+            <TableSectionSkeleton rows={4} columns={6} showHeader={false} className="border-0 rounded-none shadow-none" />
           )}
           {!isLoading && experts.length === 0 && (
             <EmptyState

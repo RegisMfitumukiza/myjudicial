@@ -32,7 +32,7 @@ import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSectionSkeleton, CardGridSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -628,7 +628,7 @@ export default function DocumentsPage() {
       </Card>
 
       {/* Main Content Area */}
-      {isLoading && <LoadingSpinner label={t("loading")} />}
+      {isLoading && <TableSectionSkeleton rows={6} columns={6} />}
 
       {isError && !isLoading && (
         <ErrorState
@@ -827,7 +827,7 @@ export default function DocumentsPage() {
       )}
 
       {/* Dossiers Grouped by Person View */}
-      {viewMode === "dossiers" && dossiersLoading && <LoadingSpinner label={t("loading")} />}
+      {viewMode === "dossiers" && dossiersLoading && <CardGridSkeleton count={6} columns={2} />}
 
       {viewMode === "dossiers" && dossiersError && !dossiersLoading && (
         <ErrorState

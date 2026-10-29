@@ -35,7 +35,7 @@ import {
   StatCard,
   StatusBadge,
   EmptyState,
-  LoadingSpinner,
+  TableSkeleton,
   ErrorState,
 } from "@/shared/components/dashboard";
 
@@ -150,12 +150,8 @@ export default function ReviewsPage() {
       }
     : undefined;
 
-  if (statsLoading || reviewsLoading) {
-    return (
-      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-        <LoadingSpinner label={t("loading")} />
-      </div>
-    );
+  if ((statsLoading && !statsData) || (reviewsLoading && !reviewsResponse)) {
+    return <TableSkeleton statsCount={4} columns={5} rows={5} />;
   }
 
   if (reviewsError) {

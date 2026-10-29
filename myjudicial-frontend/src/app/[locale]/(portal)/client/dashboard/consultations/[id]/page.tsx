@@ -26,6 +26,7 @@ import type { Booking } from "@/api/generated";
 import type { ServiceNested } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
+import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
 
 type BookingWithService = Booking & {
   expert?: {
@@ -203,11 +204,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   }
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !booking) {

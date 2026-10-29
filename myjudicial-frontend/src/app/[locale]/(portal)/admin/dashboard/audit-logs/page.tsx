@@ -33,7 +33,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSkeleton, TableSectionSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -441,11 +441,7 @@ export default function AuditLogsPage() {
   );
 
   if (loadingStats && loadingLogs) {
-    return (
-      <div className="space-y-6 p-3 sm:p-6 lg:p-8 min-w-0">
-        <LoadingSpinner label={t("loading")} />
-      </div>
-    );
+    return <TableSkeleton statsCount={4} columns={7} rows={6} />;
   }
 
   if (error) {
@@ -813,6 +809,10 @@ export default function AuditLogsPage() {
           </div>
         </div>
 
+        {loadingLogs && logs.length === 0 ? (
+          <TableSectionSkeleton rows={6} columns={7} className="border-0 rounded-none shadow-none" />
+        ) : (
+        <>
         {/* Desktop & Tablet Table View (shown when viewMode is 'table', on md: 768px and up) */}
         <div className={`${viewMode === "table" ? "hidden md:block" : "hidden"} overflow-x-auto scrollbar-thin`}>
           <table className="w-full text-left text-sm border-collapse">
@@ -983,6 +983,8 @@ export default function AuditLogsPage() {
             ))
           )}
         </div>
+        </>
+        )}
 
         {/* Responsive Pagination Controls */}
         {pagination && pagination.totalPages > 1 && (

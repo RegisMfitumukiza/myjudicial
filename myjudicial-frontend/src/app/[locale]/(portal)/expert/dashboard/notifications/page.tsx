@@ -22,7 +22,7 @@ import {
   PageHeader,
   EmptyState,
   ErrorState,
-  LoadingSpinner,
+  SkeletonList,
 } from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
       />
 
       {isLoading ? (
-        <LoadingSpinner />
+        <SkeletonList count={4} itemClassName="h-20 rounded-xl" />
       ) : error ? (
         <ErrorState
           title={t("failedToLoad")}

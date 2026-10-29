@@ -9,7 +9,7 @@ import { usePostFilesUpload } from "@/api/generated";
 import { apiFetch, apiFetchBlob } from "@/lib/api/client";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSectionSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -155,7 +155,7 @@ export function CaseDocumentsCard({
 
       <div className="px-5 py-4">
         {isLoading ? (
-          <LoadingSpinner label={t("loadingCaseDocuments")} />
+          <TableSectionSkeleton rows={3} columns={5} className="border-0 shadow-none rounded-none" />
         ) : isError ? (
           <ErrorState
             title={t("failedToLoadCaseDocuments")}

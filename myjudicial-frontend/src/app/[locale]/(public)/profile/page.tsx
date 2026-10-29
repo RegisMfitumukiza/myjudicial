@@ -27,8 +27,13 @@ export default function ProfileRedirectPage() {
   }, [session, status, router]);
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
+    <div
+      className="flex min-h-[60vh] flex-col items-center justify-center"
+      role="status"
+      aria-busy="true"
+      aria-label="Redirecting to profile"
+    >
+      <div className="h-8 w-8 animate-spin motion-reduce:animate-none rounded-full border-3 border-primary border-t-transparent" />
       <p className="mt-4 text-sm text-muted-foreground">Redirecting to profile...</p>
     </div>
   );

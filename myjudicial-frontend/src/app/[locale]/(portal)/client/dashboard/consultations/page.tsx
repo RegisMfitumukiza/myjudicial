@@ -6,6 +6,7 @@ import { CalendarDays, Clock, Loader2, AlertCircle, ArrowRight, MapPin, Phone, V
 import { useBookings } from "@/features/booking/hooks/useBookings";
 import type { Booking, BookingStatus } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 
 
 const STATUS_STYLES: Record<string, string> = {
@@ -86,9 +87,7 @@ export default function ConsultationsPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
-          </div>
+          <SkeletonList count={4} itemClassName="h-28 rounded-xl" />
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-24">
             <AlertCircle className="h-10 w-10 text-brand-dark/30 dark:text-white/30 mb-4" />

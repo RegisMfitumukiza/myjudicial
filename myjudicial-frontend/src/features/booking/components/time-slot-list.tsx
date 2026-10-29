@@ -1,8 +1,9 @@
 "use client";
 
 import { format } from "date-fns";
-import { Clock, Loader2, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface TimeSlot {
   start: string;
@@ -44,8 +45,15 @@ export function TimeSlotList({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-brand-dark/50 dark:text-white/50" />
+      <div
+        className={layout === "grid" ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "grid grid-cols-3 gap-2 sm:grid-cols-1"}
+        role="status"
+        aria-busy="true"
+        aria-label="Loading available time slots"
+      >
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-full rounded-lg" />
+        ))}
       </div>
     );
   }

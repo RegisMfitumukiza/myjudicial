@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { StatusBadge, LoadingSpinner, ErrorState, type StatusTone } from "@/shared/components/dashboard";
+import { StatusBadge, DetailPageSkeleton, ErrorState, type StatusTone } from "@/shared/components/dashboard";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { toast } from "sonner";
 import { useCancelBooking } from "@/features/booking/hooks/useCancelBooking";
@@ -185,11 +185,7 @@ export default function ExpertBookingDetailPage({ params }: { params: Promise<{ 
   }
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !booking) {

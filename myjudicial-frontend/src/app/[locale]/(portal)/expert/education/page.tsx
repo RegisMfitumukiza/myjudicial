@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, GraduationCap, Loader2, Pencil, Trash2 } from "lucide-react";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -151,9 +152,7 @@ export default function EducationPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
+        <SkeletonList count={3} itemClassName="h-24 rounded-xl" />
       )}
 
       {/* Empty State */}

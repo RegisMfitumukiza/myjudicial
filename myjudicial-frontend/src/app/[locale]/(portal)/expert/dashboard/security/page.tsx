@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/api/client";
 import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { PageHeader, LoadingSpinner, EmptyState } from "@/shared/components/dashboard";
+import { PageHeader, SkeletonList, EmptyState } from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -208,7 +208,7 @@ export default function ExpertSecurityPage() {
           {t("activeSessionsDesc")}
         </p>
         {loadingSessions ? (
-          <LoadingSpinner />
+          <SkeletonList count={2} itemClassName="h-16 rounded-xl" />
         ) : sessionsError ? (
           <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
             <AlertTriangle size={18} className="mr-2" />

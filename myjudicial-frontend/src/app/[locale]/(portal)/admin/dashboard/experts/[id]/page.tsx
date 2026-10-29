@@ -42,7 +42,8 @@ import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { DetailPageSkeleton, LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
@@ -473,7 +474,7 @@ function EmbeddedDocumentPreview({
 
       {/* Embedded Document Viewport */}
       <div className="flex-1 flex items-center justify-center p-3 overflow-auto bg-muted/30 min-h-[300px]">
-        {loading && <LoadingSpinner label={t("loading")} />}
+        {loading && <Skeleton className="h-[280px] w-full rounded-lg" />}
         {error && (
           <div className="text-center p-4">
             <AlertTriangle size={32} className="mx-auto mb-2 text-amber-500" />
@@ -734,11 +735,7 @@ export default function ExpertDetailPage() {
   }, [initialExpiry, confirmedExpiryDate]);
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-        <LoadingSpinner label={t("loading")} />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !expert) {

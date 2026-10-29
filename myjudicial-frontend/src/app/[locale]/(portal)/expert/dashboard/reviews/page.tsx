@@ -19,6 +19,7 @@ import {
   SkeletonCard,
   ErrorState,
 } from "@/shared/components/dashboard";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { getErrorMessage } from "@/lib/utils";
 
 const SORT_OPTIONS = [
@@ -202,8 +203,10 @@ export default function ReviewsPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           {summaryQ.isLoading || !summary ? (
-            <div className="flex h-full items-center justify-center">
-              <Loader2 size={20} className="animate-spin text-muted-foreground" />
+            <div className="space-y-3">
+              <Skeleton className="h-8 w-16 mx-auto rounded" />
+              <Skeleton className="h-4 w-28 mx-auto rounded" />
+              <Skeleton className="h-3 w-36 mx-auto rounded" />
             </div>
           ) : (
             <div className="text-center">
@@ -259,8 +262,13 @@ export default function ReviewsPage() {
 
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
           {distributionQ.isLoading || !distribution ? (
-            <div className="flex h-full items-center justify-center">
-              <Loader2 size={20} className="animate-spin text-muted-foreground" />
+            <div className="space-y-3">
+              <Skeleton className="h-5 w-32 rounded" />
+              <div className="space-y-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} className="h-3 w-full rounded" />
+                ))}
+              </div>
             </div>
           ) : (
             <>

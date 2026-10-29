@@ -9,6 +9,7 @@ import { ConsultationRoom } from "@/features/booking/components/consultation-roo
 import { useActiveConsultation } from "@/features/booking/context/active-consultation-context";
 import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS } from "@/features/booking/constants";
 import { useTranslations, useLocale } from "next-intl";
+import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
 
 export default function JoinConsultationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -100,11 +101,7 @@ export default function JoinConsultationPage({ params }: { params: Promise<{ id:
   }, [joined]);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !booking) {

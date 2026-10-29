@@ -26,7 +26,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -117,11 +117,7 @@ export default function AdminBookingDetailPage({ params }: { params: Promise<{ i
   });
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-6 lg:p-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <DetailPageSkeleton />;
   }
 
   if (error || !booking) {

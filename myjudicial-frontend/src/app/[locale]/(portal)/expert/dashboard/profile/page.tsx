@@ -35,7 +35,7 @@ import {
   StatusBadge,
   EmptyState,
   ErrorState,
-  LoadingSpinner,
+  SkeletonList,
 } from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -865,7 +865,7 @@ export default function ExpertProfilePage() {
             <h3 className="mb-4 text-base font-bold text-foreground">{t("notifsTitle")}</h3>
             <p className="mb-4 text-sm text-muted-foreground">{t("notifsDesc")}</p>
             {loadingNotifs ? (
-              <LoadingSpinner />
+              <SkeletonList count={2} itemClassName="h-14 rounded-lg" />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 min-[360px]:px-4 py-3">

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { PageHeader, FormSectionSkeleton } from "@/shared/components/dashboard";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
@@ -85,7 +85,8 @@ function SettingsContent() {
     return (
       <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 max-w-7xl mx-auto min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
-        <LoadingSpinner />
+        <FormSectionSkeleton fields={6} />
+        <FormSectionSkeleton fields={4} />
       </div>
     );
   }
@@ -182,7 +183,7 @@ export default function SettingsPage() {
     <Suspense
       fallback={
         <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 max-w-7xl mx-auto min-w-0">
-          <LoadingSpinner />
+          <FormSectionSkeleton fields={6} />
         </div>
       }
     >

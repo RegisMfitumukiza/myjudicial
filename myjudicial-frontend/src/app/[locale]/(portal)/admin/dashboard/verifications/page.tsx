@@ -25,7 +25,7 @@ import {
   StatCard,
   StatusBadge,
   EmptyState,
-  LoadingSpinner,
+  TableSkeleton,
 } from "@/shared/components/dashboard";
 import {
   useGetAdminVerificationQueue,
@@ -103,11 +103,7 @@ export default function AdminVerificationsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <LoadingSpinner label={t("pendingReview")} />
-      </div>
-    );
+    return <TableSkeleton statsCount={4} columns={5} rows={5} />;
   }
 
   return (

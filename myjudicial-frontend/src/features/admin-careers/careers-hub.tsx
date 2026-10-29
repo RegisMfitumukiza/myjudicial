@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { LoadingSpinner } from "@/shared/components/dashboard";
+import { FormSectionSkeleton } from "@/shared/components/dashboard";
 import { getErrorMessage } from "@/lib/utils";
 import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api";
 import {
@@ -512,7 +512,7 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <FormSectionSkeleton fields={6} />;
   }
 
   const liveRolesCount = draftRoles.filter((r) => r.published !== false).length;

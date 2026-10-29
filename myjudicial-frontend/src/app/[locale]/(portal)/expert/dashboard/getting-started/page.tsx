@@ -7,7 +7,7 @@ import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
-import { ErrorState, LoadingSpinner, PageHeader } from "@/shared/components/dashboard";
+import { ErrorState, SkeletonList, PageHeader } from "@/shared/components/dashboard";
 
 interface OnboardingStep {
   id: string;
@@ -62,7 +62,7 @@ export default function GettingStartedPage() {
 
       <div className="mt-8">
         {isLoading ? (
-          <LoadingSpinner />
+          <SkeletonList count={4} itemClassName="h-20 rounded-xl" />
         ) : error ? (
           <ErrorState message={t("failedToLoad")} />
         ) : progress ? (

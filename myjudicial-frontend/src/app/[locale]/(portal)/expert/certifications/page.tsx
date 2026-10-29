@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Award, Loader2, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { CardGridSkeleton } from "@/shared/components/dashboard/loading";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -141,9 +142,7 @@ export default function CertificationsPage() {
       )}
 
       {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
+        <CardGridSkeleton count={3} columns={3} />
       )}
 
       {!isLoading && !error && certifications?.length === 0 && (

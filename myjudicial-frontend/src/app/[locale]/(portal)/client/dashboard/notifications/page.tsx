@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { apiFetchEnvelope as customFetch } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 
 type NotificationEvent =
   | "OTP_SENT" | "BOOKING_CONFIRMED" | "BOOKING_CANCELLED" | "BOOKING_REMINDER"
@@ -140,8 +141,8 @@ export default function NotificationsPage() {
       <Card className="flex-1">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-24">
-              <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
+            <div className="p-4">
+              <SkeletonList count={4} itemClassName="h-20 rounded-xl" />
             </div>
           ) : isError ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">

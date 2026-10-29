@@ -37,7 +37,7 @@ import {
 } from "@/shared/components/ui/select";
 import { Link } from "@/i18n/routing";
 import {
-  LoadingSpinner,
+  SkeletonList,
   ErrorState,
   PageHeader,
 } from "@/shared/components/dashboard";
@@ -323,8 +323,8 @@ export default function AvailabilityCalendarPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center p-8">
-        <LoadingSpinner />
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <SkeletonList count={7} itemClassName="h-16 rounded-xl" />
       </div>
     );
   }

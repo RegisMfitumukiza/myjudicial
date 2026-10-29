@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations } from "next-intl";
-import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { PageHeader, SkeletonList } from "@/shared/components/dashboard";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -418,7 +418,7 @@ export default function SpecialtiesPage() {
           </div>
 
           {loading ? (
-            <LoadingSpinner />
+            <SkeletonList count={6} itemClassName="h-16 rounded-xl" />
           ) : specialties.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
@@ -568,7 +568,7 @@ export default function SpecialtiesPage() {
 
           {/* Categories List */}
           {servicesLoading ? (
-            <LoadingSpinner />
+            <SkeletonList count={4} itemClassName="h-24 rounded-xl" />
           ) : serviceCategories.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">

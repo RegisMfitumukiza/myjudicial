@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import { DashboardLayout } from "@/shared/layouts";
+import { PortalShellSkeleton } from "@/shared/components/dashboard";
 import { useAuth } from "@/providers/auth-provider";
 import { UserRole, UserStatus, type PublicUser } from "@/features/auth/types";
 
@@ -66,20 +67,13 @@ export default function PortalLayout({
     return () => window.removeEventListener("online", handleOnline);
   }, [status]);
 
-  // Show loading state while checking authentication
+  // Show structural shell skeleton while checking authentication
   if (status === "loading") {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-black">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-dark border-t-transparent dark:border-white mx-auto" />
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <PortalShellSkeleton />;
   }
 
   if (status === "unauthenticated") {
-    return null; // Will redirect
+    return <PortalShellSkeleton />; // Keep layout stable during redirect
   }
 
   // Use NextAuth session as primary source of truth for user data
@@ -113,14 +107,7 @@ export default function PortalLayout({
   } : null);
 
   if (!user) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-black">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-dark border-t-transparent dark:border-white mx-auto" />
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading user data...</p>
-        </div>
-      </div>
-    );
+    return <PortalShellSkeleton />;
   }
 
   return <DashboardLayout user={user}>{children}</DashboardLayout>;

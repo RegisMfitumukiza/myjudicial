@@ -22,7 +22,7 @@ import {
   updateScheduleSettings,
   type UpdateScheduleSettingsDto,
 } from "@/api/schedule-settings";
-import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { PageHeader, FormSectionSkeleton } from "@/shared/components/dashboard";
 import { ScheduleNavigationTabs } from "@/features/experts/components/schedule-navigation-tabs";
 import { getErrorMessage, cn } from "@/lib/utils";
 
@@ -146,9 +146,7 @@ export default function ScheduleSettingsPage() {
       <ScheduleNavigationTabs />
 
       {isLoading ? (
-        <div className="flex h-64 items-center justify-center">
-          <LoadingSpinner />
-        </div>
+        <FormSectionSkeleton fields={4} />
       ) : error ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />

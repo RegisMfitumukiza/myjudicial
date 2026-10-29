@@ -9,7 +9,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/shared/components/ui/button";
 import { useGetBookings } from "@/api/generated";
 import type { Booking } from "@/api/generated";
-import { PageHeader, LoadingSpinner, ErrorState } from "@/shared/components/dashboard";
+import { PageHeader, CalendarSkeleton, ErrorState } from "@/shared/components/dashboard";
 
 type ViewMode = "week" | "month";
 
@@ -105,8 +105,9 @@ export default function CalendarPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <LoadingSpinner label={t("loadingCalendar")} />
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+        <PageHeader title={t("title")} description={t("subtitle")} />
+        <CalendarSkeleton />
       </div>
     );
   }

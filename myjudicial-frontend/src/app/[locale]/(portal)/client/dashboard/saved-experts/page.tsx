@@ -6,6 +6,7 @@ import { Loader2, Bookmark, ArrowLeft, Star, MapPin, Trash2 } from "lucide-react
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { getLocalizedSpecialty } from "@/shared/constants/specialties";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 import {
   getSavedExperts,
   removeSavedExpert,
@@ -66,11 +67,7 @@ export default function SavedExpertsPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900" />
-          ))}
-        </div>
+        <SkeletonList count={3} itemClassName="h-28 rounded-2xl" />
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
           {t("failedToLoad")}

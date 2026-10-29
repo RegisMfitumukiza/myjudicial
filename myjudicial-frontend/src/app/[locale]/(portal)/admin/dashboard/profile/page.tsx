@@ -22,7 +22,7 @@ import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { FormSectionSkeleton, SkeletonList } from "@/shared/components/dashboard/loading";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -199,8 +199,8 @@ export default function AdminProfilePage() {
 
   if (!user) {
     return (
-      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-        <LoadingSpinner label={t("loadingProfile")} />
+      <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0 max-w-4xl">
+        <FormSectionSkeleton fields={4} />
       </div>
     );
   }
@@ -427,7 +427,7 @@ export default function AdminProfilePage() {
             </CardHeader>
             <CardContent>
               {loadingNotifs ? (
-                <LoadingSpinner />
+                <SkeletonList count={2} itemClassName="h-14 rounded-lg" />
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 sm:px-4 sm:py-3">

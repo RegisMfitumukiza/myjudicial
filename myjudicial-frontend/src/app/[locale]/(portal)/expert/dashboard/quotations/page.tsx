@@ -11,7 +11,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {
   ErrorState,
-  LoadingSpinner,
+  TableSectionSkeleton,
   PageHeader,
   StatusBadge,
   type StatusTone,
@@ -85,7 +85,7 @@ export default function QuotationsPage() {
     return (
       <div className="p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t("title")} description={t("subtitle")} />
-        <LoadingSpinner label={t("loadingQuotations")} className="mt-12" />
+        <TableSectionSkeleton rows={5} columns={5} className="mt-6" />
       </div>
     );
   }

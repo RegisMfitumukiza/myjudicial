@@ -37,6 +37,7 @@ import { downloadICS } from "@/features/booking/lib/ics";
 import { JOINABLE_EARLY_WINDOW_MS, OVERTIME_GRACE_WINDOW_MS, SPOTLIGHT_MAX_AWAITING_MS } from "@/features/booking/constants";
 import { useTranslations, useLocale } from "next-intl";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
+import { SkeletonCard } from "@/shared/components/dashboard/loading";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING:   "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -651,9 +652,7 @@ export default function ClientHomePage() {
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
           {/* â”€â”€ Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) â”€â”€ */}
           {isLoading ? (
-            <div className="rounded-2xl border border-brand-border/20 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-black">
-              <Loader2 className="mx-auto h-6 w-6 animate-spin text-brand-dark/30 dark:text-white/30" />
-            </div>
+            <SkeletonCard className="rounded-2xl p-6" />
           ) : liveSession ? (
             /* CASE 1: Live Now / Ready to Join */
             <div className="rounded-2xl border-2 border-green-500/50 bg-green-50/70 p-5 sm:p-6 shadow-md dark:border-green-500/40 dark:bg-green-950/30">

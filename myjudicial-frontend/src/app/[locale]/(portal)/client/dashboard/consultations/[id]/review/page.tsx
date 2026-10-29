@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useBooking } from "@/features/booking/hooks/useBooking";
 import { usePostBookingsBookingIdReview } from "@/api/generated";
 import { useTranslations } from "next-intl";
+import { FormSectionSkeleton } from "@/shared/components/dashboard/loading";
 
 export default function LeaveReviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -22,8 +23,8 @@ export default function LeaveReviewPage({ params }: { params: Promise<{ id: stri
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center bg-white dark:bg-black">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-dark/50 dark:text-white/50" />
+      <div className="mx-auto max-w-xl p-6">
+        <FormSectionSkeleton fields={2} />
       </div>
     );
   }

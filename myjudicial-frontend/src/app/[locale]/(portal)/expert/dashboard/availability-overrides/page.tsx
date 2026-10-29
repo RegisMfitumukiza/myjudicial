@@ -53,7 +53,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { PageHeader, LoadingSpinner } from "@/shared/components/dashboard";
+import { PageHeader, CalendarSkeleton } from "@/shared/components/dashboard";
 import { ScheduleNavigationTabs } from "@/features/experts/components/schedule-navigation-tabs";
 import { getErrorMessage, cn } from "@/lib/utils";
 import {
@@ -224,7 +224,7 @@ export default function AvailabilityOverridesPage() {
       )}
 
       {/* Initial Loading State */}
-      {isLoading && !overridesResponse && <LoadingSpinner />}
+      {isLoading && !overridesResponse && <CalendarSkeleton />}
 
       {/* Full-Width Expansive Calendar Card */}
       {(!isLoading || overridesResponse) && !error && (

@@ -69,7 +69,8 @@ import {
   PageHeader,
   StatCard,
   EmptyState,
-  LoadingSpinner,
+  TableSkeleton,
+  TableSectionSkeleton,
   ErrorState,
   StatusBadge,
 } from "@/shared/components/dashboard";
@@ -187,7 +188,7 @@ function ExpertTable({
   locale: string;
 }) {
   if (isLoading) {
-    return <LoadingSpinner label={t("loading")} />;
+    return <TableSectionSkeleton rows={5} columns={5} className="border-0 rounded-none shadow-none" />;
   }
 
   const formatDate = (dateString: string | null) => {
@@ -848,11 +849,7 @@ export default function CompliancePage() {
   const stats = statsData?.data;
 
   if (loadingStats) {
-    return (
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <LoadingSpinner label={t("loading")} />
-      </div>
-    );
+    return <TableSkeleton statsCount={4} columns={5} rows={5} />;
   }
 
   if (statsError) {

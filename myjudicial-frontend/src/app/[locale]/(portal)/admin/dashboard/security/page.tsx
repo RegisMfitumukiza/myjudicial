@@ -7,7 +7,7 @@ import { apiFetch } from "@/lib/api/client";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -42,11 +42,7 @@ function AccountActivityTable({ userId, t, locale }: { userId: string; t: (key: 
   }, [userId]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    );
+    return <SkeletonList count={3} itemClassName="h-14 rounded-lg" />;
   }
 
   if (logs.length === 0) {
@@ -266,7 +262,7 @@ export default function AdminSecurityPage() {
         </CardHeader>
         <CardContent>
           {loadingSessions ? (
-            <LoadingSpinner />
+            <SkeletonList count={2} itemClassName="h-16 rounded-lg" />
           ) : sessionsError ? (
             <div className="flex items-center justify-center rounded-lg border border-dashed border-border py-8 text-sm text-muted-foreground">
               <AlertTriangle size={18} className="mr-2" />

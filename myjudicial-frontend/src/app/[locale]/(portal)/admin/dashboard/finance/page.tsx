@@ -34,7 +34,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { TableSkeleton, TableSectionSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -791,11 +791,7 @@ function FinancePageContent() {
 
 
   if (loadingStats) {
-    return (
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <LoadingSpinner label={t("loading")} />
-      </div>
-    );
+    return <TableSkeleton statsCount={4} columns={6} rows={6} />;
   }
 
   return (
@@ -981,7 +977,7 @@ function FinancePageContent() {
               {/* Payments Table */}
               <Card>
                 {loadingPayments ? (
-                  <LoadingSpinner label={t("loading")} />
+                  <TableSectionSkeleton rows={5} columns={6} className="border-0 rounded-none shadow-none" />
                 ) : paymentsError ? (
                   <ErrorState
                     title={t("failedToLoad")}
@@ -1235,7 +1231,7 @@ function FinancePageContent() {
               {/* Escrow Table */}
               <Card>
                 {loadingEscrow ? (
-                  <LoadingSpinner label={t("loading")} />
+                  <TableSectionSkeleton rows={5} columns={6} className="border-0 rounded-none shadow-none" />
                 ) : escrowError ? (
                   <ErrorState
                     title={t("failedToLoad")}
@@ -1471,7 +1467,7 @@ function FinancePageContent() {
 
               <Card>
                 {loadingFailed ? (
-                  <LoadingSpinner label={t("loading")} />
+                  <TableSectionSkeleton rows={5} columns={6} className="border-0 rounded-none shadow-none" />
                 ) : failedError ? (
                   <ErrorState
                     title={t("failedToLoadSettlements")}
@@ -2073,13 +2069,7 @@ function FinancePageContent() {
 
 export default function FinancePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-          <LoadingSpinner />
-        </div>
-      }
-    >
+    <Suspense fallback={<TableSkeleton statsCount={4} columns={6} rows={6} />}>
       <FinancePageContent />
     </Suspense>
   );

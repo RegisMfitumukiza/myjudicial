@@ -16,7 +16,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
 import { Button } from "@/shared/components/ui/button";
-import { ErrorState, LoadingSpinner, PageHeader } from "@/shared/components/dashboard";
+import { ErrorState, SkeletonCard, PageHeader } from "@/shared/components/dashboard";
 
 interface ReferralData {
   data: {
@@ -82,7 +82,7 @@ export default function JoinPage() {
 
       <div className="mt-6">
         {isLoading ? (
-          <LoadingSpinner />
+          <SkeletonCard className="h-32" />
         ) : error ? (
           <ErrorState message="Failed to load referral info. Please try again." />
         ) : referral ? (

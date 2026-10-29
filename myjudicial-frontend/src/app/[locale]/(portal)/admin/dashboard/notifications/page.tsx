@@ -34,7 +34,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
 import { StatusBadge, type StatusTone } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { SkeletonCard, SkeletonList, TableSectionSkeleton } from "@/shared/components/dashboard/loading";
 import { ErrorState } from "@/shared/components/dashboard/error-state";
 import { EmptyState } from "@/shared/components/dashboard/empty-state";
 import { Button } from "@/shared/components/ui/button";
@@ -363,7 +363,11 @@ export default function NotificationsPage() {
       />
 
       {loadingStats ? (
-        <LoadingSpinner />
+        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       ) : stats ? (
         <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <StatCard
@@ -483,7 +487,7 @@ export default function NotificationsPage() {
 
           {/* Inbox List */}
           {loadingInbox ? (
-            <LoadingSpinner />
+            <SkeletonList count={4} itemClassName="h-24 rounded-xl" />
           ) : inboxError ? (
             <ErrorState
               title={tClient("failedToLoad")}
@@ -811,7 +815,7 @@ export default function NotificationsPage() {
 
             <Card>
               {loadingLogs ? (
-                <LoadingSpinner />
+                <TableSectionSkeleton rows={5} columns={5} className="border-0 rounded-none shadow-none" />
               ) : error ? (
                 <ErrorState
                   title={t("failedToLoadLogs")}

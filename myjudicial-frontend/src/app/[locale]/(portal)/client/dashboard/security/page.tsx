@@ -23,7 +23,7 @@ import { apiFetch } from "@/lib/api/client";
 import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
-import { PageHeader, LoadingSpinner, EmptyState } from "@/shared/components/dashboard";
+import { PageHeader, SkeletonList, EmptyState } from "@/shared/components/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -307,7 +307,7 @@ export default function ClientSecurityPage() {
         </div>
 
         {loadingSessions ? (
-          <LoadingSpinner />
+          <SkeletonList count={2} itemClassName="h-16 rounded-xl" />
         ) : hasSessionsError ? (
           <div className="flex items-center justify-center rounded-xl border border-dashed border-brand-border/30 py-8 text-sm text-brand-dark/60 dark:text-white/60">
             <AlertTriangle size={18} className="mr-2 text-amber-500" />

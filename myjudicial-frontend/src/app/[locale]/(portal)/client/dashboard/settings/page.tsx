@@ -22,6 +22,7 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api/client";
+import { SkeletonList } from "@/shared/components/dashboard/loading";
 
 interface NotificationPrefs {
   email: boolean;
@@ -134,8 +135,8 @@ export default function SettingsPage() {
           </div>
 
           {prefsLoading ? (
-            <div className="flex items-center justify-center py-6 border-t border-brand-border/10 dark:border-white/10">
-              <Loader2 size={20} className="animate-spin text-brand-dark/40 dark:text-white/40" />
+            <div className="pt-4 border-t border-brand-border/10 dark:border-white/10">
+              <SkeletonList count={3} itemClassName="h-14 rounded-xl" />
             </div>
           ) : (
             <div className="divide-y divide-brand-border/10 dark:divide-white/10 border-t border-brand-border/10 dark:border-white/10">

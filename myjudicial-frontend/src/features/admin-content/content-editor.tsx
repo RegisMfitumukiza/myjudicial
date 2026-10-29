@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { StatusBadge } from "@/shared/components/dashboard/status-badge";
-import { LoadingSpinner } from "@/shared/components/dashboard/loading";
+import { FormSectionSkeleton, SkeletonList } from "@/shared/components/dashboard/loading";
 import { getErrorMessage } from "@/lib/utils";
 import {
   CONTENT_LOCALES,
@@ -541,7 +541,7 @@ function PageEditor({
         </CardHeader>
         <CardContent className="space-y-2">
           {revisionsLoading ? (
-            <LoadingSpinner />
+            <SkeletonList count={3} itemClassName="h-14 rounded-lg" />
           ) : revisions.length === 0 ? (
             <p className="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
               {t("revisionsEmpty")}
@@ -762,8 +762,8 @@ export function ContentEditor({
 
   if (loading) {
     return (
-      <div className={embedded ? "w-full py-8" : "space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 max-w-7xl mx-auto min-w-0"}>
-        <LoadingSpinner />
+      <div className={embedded ? "w-full py-4" : "space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 max-w-7xl mx-auto min-w-0"}>
+        <FormSectionSkeleton fields={4} />
       </div>
     );
   }

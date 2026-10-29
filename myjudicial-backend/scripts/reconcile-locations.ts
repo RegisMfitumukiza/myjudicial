@@ -7,7 +7,7 @@
  * 3. Audits suspicious default Kigali (-1.9441, 30.0619) coordinates on non-Kigali experts
  * 4. User.clientDistrictId from User.onboarding JSON
  */
-import { prisma } from "../src/infrastructure/database/prisma.js";
+import { prisma, closeDatabasePool } from "../src/infrastructure/database/prisma.js";
 import { LocationService } from "../src/modules/locations/location.service.js";
 import { logger } from "../src/shared/utils/logger.js";
 
@@ -137,5 +137,5 @@ if (process.argv[1]?.endsWith("reconcile-locations.ts")) {
       console.error(err);
       process.exit(1);
     })
-    .finally(() => prisma.$disconnect());
+    .finally(() => closeDatabasePool());
 }

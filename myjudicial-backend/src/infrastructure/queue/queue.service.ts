@@ -59,7 +59,7 @@ export const QueueService = {
     const key = `${LOCK_PREFIX}${lockName}`;
     const token = crypto.randomUUID();
 
-    if (redis.isOpen && process.env.NODE_ENV !== "test") {
+    if (redis.isOpen) {
       try {
         const result = await redis.set(key, token, {
           NX: true,
@@ -90,7 +90,7 @@ export const QueueService = {
   releaseLock: async (lockName: string, token: string): Promise<boolean> => {
     const key = `${LOCK_PREFIX}${lockName}`;
 
-    if (redis.isOpen && process.env.NODE_ENV !== "test") {
+    if (redis.isOpen) {
       try {
         const result = await redis.eval(RELEASE_LOCK_LUA, {
           keys: [key],
@@ -163,7 +163,7 @@ export const QueueService = {
     const serialized = JSON.stringify(job);
     const pendingKey = `${QUEUE_PREFIX}${queueName}:pending`;
 
-    if (redis.isOpen && process.env.NODE_ENV !== "test") {
+    if (redis.isOpen) {
       try {
         await redis.rPush(pendingKey, serialized);
         setImmediate(() => {
@@ -203,7 +203,7 @@ export const QueueService = {
     while (true) {
       let job: QueueJob<any> | null = null;
 
-      if (redis.isOpen && process.env.NODE_ENV !== "test") {
+      if (redis.isOpen) {
         try {
           const raw = await redis.lPop(pendingKey);
           if (raw) {
@@ -240,7 +240,7 @@ export const QueueService = {
           const backoffMs = Math.min(30000, 500 * Math.pow(2, job.attempts - 1));
           const retryJob = { ...job };
           setTimeout(async () => {
-            if (redis.isOpen && process.env.NODE_ENV !== "test") {
+            if (redis.isOpen) {
               await redis.rPush(pendingKey, JSON.stringify(retryJob)).catch(() => {});
             } else {
               const list = localQueues.get(queueName) ?? [];
@@ -254,7 +254,7 @@ export const QueueService = {
           logger.error(`Job exhausted retries; moving to DLQ (${job.queue}#${job.id})`, {
             error: job.lastError,
           });
-          if (redis.isOpen && process.env.NODE_ENV !== "test") {
+          if (redis.isOpen) {
             await redis.rPush(dlqKey, JSON.stringify(job)).catch(() => {});
           } else {
             const dlq = localDlq.get(queueName) ?? [];
@@ -302,7 +302,7 @@ export const QueueService = {
    */
   getDeadLetterJobs: async (queueName: string): Promise<QueueJob<any>[]> => {
     const dlqKey = `${QUEUE_PREFIX}${queueName}:dlq`;
-    if (redis.isOpen && process.env.NODE_ENV !== "test") {
+    if (redis.isOpen) {
       const items = await redis.lRange(dlqKey, 0, -1);
       return items.map((raw) => JSON.parse(raw));
     }

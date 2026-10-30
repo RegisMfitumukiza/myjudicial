@@ -111,21 +111,21 @@ export function LegalEditor({ settings, onSaved }: LegalEditorProps) {
         <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex flex-wrap items-center gap-1.5">
             <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-              <Link href="/terms" target="_blank" rel="noopener noreferrer">
+              <Link href="/terms" prefetch={false} target="_blank" rel="noopener noreferrer">
                 <Scale className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
                 Terms
                 <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-              <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+              <Link href="/privacy" prefetch={false} target="_blank" rel="noopener noreferrer">
                 <Shield className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
                 Privacy
                 <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
               </Link>
             </Button>
             <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-              <Link href="/cookies" target="_blank" rel="noopener noreferrer">
+              <Link href="/cookies" prefetch={false} target="_blank" rel="noopener noreferrer">
                 <Lock className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
                 Cookies
                 <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />

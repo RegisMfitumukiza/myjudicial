@@ -156,7 +156,7 @@ export function AboutEditor({ settings, onSaved }: AboutEditorProps) {
 
         <div className="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
           <Button variant="outline" size="sm" asChild className="h-8 text-xs flex-1 sm:flex-initial">
-            <Link href="/about" target="_blank" rel="noopener noreferrer">
+            <Link href="/about" prefetch={false} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
               {t("viewLivePage")}
             </Link>

@@ -22,7 +22,7 @@ const RE_ADMIN_PATH = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?admin(\\/|$)`);
 const RE_AUTH_PAGE = new RegExp(`^\\/(?:(?:${LOCALES})\\/)?(sign-in|sign-up|post-auth)(\\/|$)`);
 // Public informational & policy pages valid across both main and admin portals
 const RE_PUBLIC_ALLOWED = new RegExp(
-  `^\\/(?:(?:${LOCALES})\\/)?(terms|privacy|cookies|help|contact|faqs)(\\/|$)`
+  `^\\/(?:(?:${LOCALES})\\/)?(terms|privacy|cookies|help|contact|faqs|about|careers)(\\/|$)`
 );
 
 function requestHost(request: NextRequest): string {
@@ -79,7 +79,7 @@ function withSecurityHeaders(
     );
     response.headers.set(
       "access-control-allow-headers",
-      "Content-Type, Authorization, RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Url, x-request-id"
+      "Content-Type, Authorization, RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch, Next-Url, x-request-id"
     );
     response.headers.set("access-control-max-age", "86400");
   }
@@ -163,8 +163,10 @@ export function middleware(request: NextRequest) {
         // do not send a cross-origin redirect which Next.js RSC client cannot mount.
         const isRsc =
           request.nextUrl.searchParams.has("_rsc") ||
+          request.url.includes("_rsc=") ||
           request.headers.get("rsc") === "1" ||
-          request.headers.get("next-router-prefetch") === "1";
+          request.headers.get("next-router-prefetch") === "1" ||
+          Boolean(request.headers.get("next-router-segment-prefetch"));
 
         if (isRsc) {
           return withSecurityHeaders(new NextResponse(null, { status: 204 }), requestId, origin);

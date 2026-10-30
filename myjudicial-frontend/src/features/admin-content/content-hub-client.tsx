@@ -261,33 +261,33 @@ export function ContentHubClient() {
         {/* Quick Public Previews */}
         <div className="flex flex-wrap items-center gap-1.5 shrink-0">
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/terms" target="_blank" rel="noopener noreferrer">
+            <Link href="/terms" prefetch={false} target="_blank" rel="noopener noreferrer">
               <Scale className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
               Terms
               <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+            <Link href="/privacy" prefetch={false} target="_blank" rel="noopener noreferrer">
               <Shield className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
               Privacy
               <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/about" target="_blank" rel="noopener noreferrer">
+            <Link href="/about" prefetch={false} target="_blank" rel="noopener noreferrer">
               About
               <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/careers" target="_blank" rel="noopener noreferrer">
+            <Link href="/careers" prefetch={false} target="_blank" rel="noopener noreferrer">
               Careers
               <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/faqs" target="_blank" rel="noopener noreferrer">
+            <Link href="/faqs" prefetch={false} target="_blank" rel="noopener noreferrer">
               FAQs
               <ExternalLink className="ml-1 h-3 w-3 text-muted-foreground" />
             </Link>
@@ -587,17 +587,17 @@ export function ContentHubClient() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" asChild className="h-7 text-xs">
-                    <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                    <Link href="/terms" prefetch={false} target="_blank" rel="noopener noreferrer">
                       Terms &rarr;
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" asChild className="h-7 text-xs">
-                    <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                    <Link href="/privacy" prefetch={false} target="_blank" rel="noopener noreferrer">
                       Privacy &rarr;
                     </Link>
                   </Button>
                   <Button variant="outline" size="sm" asChild className="h-7 text-xs">
-                    <Link href="/cookies" target="_blank" rel="noopener noreferrer">
+                    <Link href="/cookies" prefetch={false} target="_blank" rel="noopener noreferrer">
                       Cookies &rarr;
                     </Link>
                   </Button>

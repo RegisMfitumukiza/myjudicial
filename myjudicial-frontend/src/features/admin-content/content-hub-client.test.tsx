@@ -15,7 +15,7 @@ const mockRouter = { replace: vi.fn(), push: vi.fn() };
 vi.mock("@/i18n/routing", () => ({
   useRouter: () => mockRouter,
   usePathname: () => "/admin/dashboard/content",
-  Link: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a>,
+  Link: ({ children, href, prefetch: _prefetch, ...props }: any) => <a href={href} {...props}>{children}</a>,
 }));
 
 // Mock sonner

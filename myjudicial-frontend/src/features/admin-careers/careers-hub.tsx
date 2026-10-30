@@ -561,7 +561,7 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
 
         <div className="flex items-center gap-2 shrink-0">
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-            <Link href="/careers" target="_blank" rel="noopener noreferrer">
+            <Link href="/careers" prefetch={false} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
               {tSettings("viewLivePage")}
             </Link>

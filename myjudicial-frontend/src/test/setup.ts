@@ -4,7 +4,7 @@ import { vi } from "vitest";
 
 vi.mock("next-intl/navigation", () => ({
   createNavigation: () => ({
-    Link: ({ href, children, ...rest }: any) =>
+    Link: ({ href, children, prefetch: _prefetch, ...rest }: any) =>
       React.createElement("a", { href, ...rest }, children),
     redirect: vi.fn(),
     usePathname: () => "/en",

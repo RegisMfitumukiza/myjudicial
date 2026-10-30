@@ -42,7 +42,7 @@ import SettingsPage from "./page";
 
 function renderSettings() {
   return render(
-    <IntlProvider locale="en" messages={enMessages}>
+    <IntlProvider locale="en" messages={enMessages as any}>
       <SettingsPage />
     </IntlProvider>
   );

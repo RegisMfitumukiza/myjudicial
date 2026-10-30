@@ -50,7 +50,7 @@ import { ContentHubClient } from "./content-hub-client";
 
 function renderHub() {
   return render(
-    <IntlProvider locale="en" messages={enMessages}>
+    <IntlProvider locale="en" messages={enMessages as any}>
       <ContentHubClient />
     </IntlProvider>
   );

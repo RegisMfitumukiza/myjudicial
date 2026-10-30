@@ -68,6 +68,7 @@ export function ContentHubClient() {
   const [settings, setSettings] = useState<SettingsData>(DEFAULTS);
   const [savingFaqs, setSavingFaqs] = useState(false);
   const [faqDraft, setFaqDraft] = useState<SupplementalFaqItem[]>([]);
+  const [faqFilterCategory, setFaqFilterCategory] = useState<string>("all");
   const [govDraft, setGovDraft] = useState({
     legalEffectiveDate: "",
     dpoContactEmail: "",
@@ -117,14 +118,14 @@ export function ContentHubClient() {
     ]);
   };
 
-  const handleUpdateFaq = (index: number, field: keyof SupplementalFaqItem, value: string) => {
-    const updated = copyDeep(faqDraft);
-    updated[index] = { ...updated[index], [field]: value };
-    setFaqDraft(updated);
+  const handleUpdateFaq = (id: string, field: keyof SupplementalFaqItem, value: string) => {
+    setFaqDraft((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, [field]: value } : f))
+    );
   };
 
-  const handleRemoveFaq = (index: number) => {
-    setFaqDraft(faqDraft.filter((_, i) => i !== index));
+  const handleRemoveFaq = (id: string) => {
+    setFaqDraft((prev) => prev.filter((f) => f.id !== id));
   };
 
   const handleSaveFaqs = async () => {
@@ -310,15 +311,44 @@ export function ContentHubClient() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
+              {/* Category Filter Pills */}
+              {faqDraft.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-border/60">
+                  {[
+                    { id: "all", label: `All FAQs (${faqDraft.length})` },
+                    { id: "general", label: "General" },
+                    { id: "clients", label: "Clients & Bookings" },
+                    { id: "experts", label: "Advocates & Experts" },
+                    { id: "billing", label: "Payments & Escrow" },
+                    { id: "security", label: "Security & Compliance" },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setFaqFilterCategory(cat.id)}
+                      className={`text-[11px] px-2.5 py-1 rounded-md transition-all font-medium ${
+                        faqFilterCategory === cat.id
+                          ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+                          : "bg-muted/70 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {faqDraft.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
                   {tSettings("noFaqs")}
                 </div>
               ) : (
-                faqDraft.map((faq, idx) => (
+                faqDraft
+                  .filter((f) => faqFilterCategory === "all" || (f.category || "general") === faqFilterCategory)
+                  .map((faq) => (
                   <div
-                    key={faq.id || idx}
+                    key={faq.id}
                     className="p-3.5 sm:p-4 rounded-xl border border-border bg-muted/20 space-y-3"
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -329,7 +359,7 @@ export function ContentHubClient() {
                           </Label>
                           <Input
                             value={faq.question}
-                            onChange={(e) => handleUpdateFaq(idx, "question", e.target.value)}
+                            onChange={(e) => handleUpdateFaq(faq.id, "question", e.target.value)}
                             placeholder="e.g. Can non-citizens register on MyJudicial?"
                             className="h-9 text-xs"
                           />
@@ -340,7 +370,7 @@ export function ContentHubClient() {
                           </Label>
                           <Select
                             value={faq.category || "general"}
-                            onValueChange={(cat) => handleUpdateFaq(idx, "category", cat)}
+                            onValueChange={(cat) => handleUpdateFaq(faq.id, "category", cat)}
                           >
                             <SelectTrigger className="h-9 text-xs">
                               <SelectValue />
@@ -359,7 +389,7 @@ export function ContentHubClient() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveFaq(idx)}
+                        onClick={() => handleRemoveFaq(faq.id)}
                         className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0 mt-5"
                         title={tSettings("removeFaq")}
                       >
@@ -374,7 +404,7 @@ export function ContentHubClient() {
                       <Textarea
                         rows={2}
                         value={faq.answer}
-                        onChange={(e) => handleUpdateFaq(idx, "answer", e.target.value)}
+                        onChange={(e) => handleUpdateFaq(faq.id, "answer", e.target.value)}
                         placeholder="e.g. Yes, anyone residing in Rwanda or internationally seeking legal services in Rwanda can register."
                         className="text-xs"
                       />
@@ -470,6 +500,31 @@ export function ContentHubClient() {
                   }
                   placeholder="MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation."
                 />
+              </div>
+
+              {/* Direct Statutory Policy Audit Links */}
+              <div className="pt-3 border-t border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>Governed by Rwanda Law No. 058/2021 on Personal Data Protection & Privacy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild className="h-7 text-xs">
+                    <Link href="/terms" target="_blank" rel="noopener noreferrer">
+                      Terms &rarr;
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild className="h-7 text-xs">
+                    <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+                      Privacy &rarr;
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild className="h-7 text-xs">
+                    <Link href="/cookies" target="_blank" rel="noopener noreferrer">
+                      Cookies &rarr;
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

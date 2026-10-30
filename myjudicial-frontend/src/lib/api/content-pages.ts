@@ -178,6 +178,16 @@ export async function fetchAdminContentPage(
   return res.data.page;
 }
 
+export async function fetchContentBlueprint(
+  slug: ContentPageSlug,
+  locale: ContentLocale
+): Promise<{ title: string; blocks: ContentBlock[] } | null> {
+  const res = await apiFetch<ApiEnvelope<{ blueprint: { title: string; blocks: ContentBlock[] } | null }>>(
+    `/admin/content/${slug}/blueprint?locale=${locale}`
+  );
+  return res.data.blueprint;
+}
+
 export interface UpsertContentPageInput {
   slug: ContentPageSlug;
   locale: ContentLocale;

@@ -11,6 +11,7 @@ import {
   Loader2,
   Plus,
   Save,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -50,6 +51,7 @@ import {
   copyContentPage,
   deleteContentPage,
   fetchAdminContentPages,
+  fetchContentBlueprint,
   fetchContentPageRevisions,
   fetchContentSchema,
   restoreContentPageRevision,
@@ -400,6 +402,32 @@ function PageEditor({
     }
   };
 
+  const [loadingBlueprint, setLoadingBlueprint] = useState(false);
+
+  const handleLoadBlueprint = async () => {
+    if (draft.blocks.length > 0 && !window.confirm("Loading the blueprint will replace your current blocks in this draft. Continue?")) {
+      return;
+    }
+    setLoadingBlueprint(true);
+    try {
+      const blueprint = await fetchContentBlueprint(slug, locale);
+      if (blueprint) {
+        setDraft((d) => ({
+          ...d,
+          title: blueprint.title || d.title,
+          blocks: blueprint.blocks || [],
+        }));
+        toast.success(`Loaded standard ${slug} blueprint with ${blueprint.blocks.length} sections! Click Save Draft or Publish.`);
+      } else {
+        toast.error("No blueprint found for this page.");
+      }
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to load blueprint"));
+    } finally {
+      setLoadingBlueprint(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!page) return;
     if (!window.confirm(t("deleteConfirm"))) return;
@@ -420,12 +448,29 @@ function PageEditor({
   return (
     <div className="space-y-6">
       {!page && (
-        <Alert>
-          <FileText className="h-4 w-4" />
-          <AlertDescription>
-            <p className="font-medium">{t("neverWrittenTitle")}</p>
-            <p className="text-xs text-muted-foreground">{t("neverWrittenBody")}</p>
-          </AlertDescription>
+        <Alert className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5">
+            <FileText className="h-4 w-4 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium">{t("neverWrittenTitle")}</p>
+              <p className="text-xs text-muted-foreground">{t("neverWrittenBody")}</p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            disabled={loadingBlueprint}
+            onClick={handleLoadBlueprint}
+            className="shrink-0 text-xs h-8 font-semibold shadow-xs"
+          >
+            {loadingBlueprint ? (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            Load Standard Blueprint
+          </Button>
         </Alert>
       )}
 
@@ -630,6 +675,19 @@ function PageEditor({
       </Card>
 
       <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant="outline"
+          onClick={handleLoadBlueprint}
+          disabled={saving || loadingBlueprint}
+          title="Load official standard blueprint for this page"
+        >
+          {loadingBlueprint ? (
+            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
+          )}
+          Load Blueprint
+        </Button>
         {locale !== "en" && (
           <Button variant="outline" onClick={handleCopyFromEnglish} disabled={saving}>
             <Copy className="mr-1.5 h-3.5 w-3.5" /> {t("copyFromEnglish")}

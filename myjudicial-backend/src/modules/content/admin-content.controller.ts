@@ -56,6 +56,21 @@ export const AdminContentController = {
     }
   },
 
+  async getBlueprint(req: Request, res: Response, next: NextFunction) {
+    try {
+      const slug = req.params.slug as (typeof CONTENT_PAGE_SLUGS)[number];
+      const locale = toContentLocale(req.query.locale);
+      const blueprint = ContentService.getBlueprint(slug, locale);
+      if (!blueprint) {
+        res.status(404).json({ success: false, error: "Blueprint not found" });
+        return;
+      }
+      res.json({ success: true, data: { blueprint } });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async upsert(req: Request, res: Response, next: NextFunction) {
     try {
       const body = upsertContentPageSchema.parse(req.body);

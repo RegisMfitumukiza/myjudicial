@@ -2,6 +2,7 @@ import { prisma } from "../../infrastructure/database/prisma.js";
 import { NotFoundError } from "../../shared/errors/AppError.js";
 import { writeAuditLog } from "../../shared/utils/audit.js";
 import type { UpsertContentPageInput } from "./content.schemas.js";
+import { CONTENT_PAGES_SEED } from "./content.blueprints.js";
 import {
   CONTENT_LOCALES,
   type ContentLocale,
@@ -193,6 +194,13 @@ export const ContentService = {
   async getForAdmin(slug: ContentPageSlug, locale: ContentLocale) {
     const row = await prisma.contentPage.findUnique({ where: { slug_locale: { slug, locale } } });
     return row ? toRecord(row) : null;
+  },
+
+  getBlueprint(slug: ContentPageSlug, locale: ContentLocale) {
+    const match = CONTENT_PAGES_SEED.find((r) => r.slug === slug && r.locale === locale);
+    if (match) return match;
+    const fallbackEn = CONTENT_PAGES_SEED.find((r) => r.slug === slug && r.locale === "en");
+    return fallbackEn ?? null;
   },
 
   async upsert(input: UpsertContentPageInput, adminId: string, ipAddress?: string) {

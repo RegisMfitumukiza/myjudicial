@@ -143,7 +143,7 @@ function FaqsContent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedCategory]);
 
-  // All structured items: 16 core trilingual + dynamic CMS supplemental items
+  // All structured items: dynamic CMS published items, or fallback to the 16 core trilingual defaults
   const ALL_ITEMS = useMemo(() => {
     const core = Array.from({ length: 16 }, (_, i) => {
       const itemKey = `item${i + 1}` as const;
@@ -156,6 +156,26 @@ function FaqsContent() {
       };
     });
 
+    if (!supplementalFaqs || supplementalFaqs.length === 0) {
+      return core;
+    }
+
+    // When the admin has populated the full FAQ set in CMS (item IDs starting with "item" or "faq-"),
+    // CMS takes full ownership of the FAQ list so admins can delete, edit, or reorder items.
+    const hasPopulatedCore = supplementalFaqs.some(
+      (f) => f.id.startsWith("item") || f.id.startsWith("faq-")
+    );
+
+    if (hasPopulatedCore) {
+      return supplementalFaqs.map((faq) => ({
+        id: faq.id,
+        category: normalizeFaqCategory(faq.category),
+        q: faq.question,
+        a: faq.answer,
+      }));
+    }
+
+    // Pure supplemental items (e.g. sup-1, sup-2) appended to core
     const supplemental = supplementalFaqs.map((faq) => ({
       id: faq.id,
       category: normalizeFaqCategory(faq.category),

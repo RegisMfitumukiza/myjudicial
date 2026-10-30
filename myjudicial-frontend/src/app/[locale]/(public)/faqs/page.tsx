@@ -77,10 +77,17 @@ export default async function FaqsPage({
     },
   }));
 
+  const hasPopulatedCore = (settings?.supplementalFaqs ?? []).some(
+    (f) => f.id.startsWith("item") || f.id.startsWith("faq-")
+  );
+  const mainEntity = hasPopulatedCore
+    ? supplementalFaqs
+    : [...coreFaqs, ...supplementalFaqs];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [...coreFaqs, ...supplementalFaqs],
+    mainEntity,
   };
 
   return (

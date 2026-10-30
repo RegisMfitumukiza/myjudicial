@@ -88,6 +88,186 @@ export const DEFAULT_SOCIAL: SocialLinks = {
   whatsapp: "",
 };
 
+export const DEFAULT_FAQS: SupplementalFaqItem[] = [
+  {
+    id: "faq-1",
+    category: "clients",
+    question: "How do I choose and book a verified advocate on MyJudicial?",
+    answer: "Browse our directory by practice area, language, or location, or describe your situation to our AI Legal Assistant for instant triage. Select an advocate, pick an available calendar slot, and confirm your booking with escrow protection.",
+  },
+  {
+    id: "faq-2",
+    category: "clients",
+    question: "What languages do advocates on MyJudicial consult in?",
+    answer: "All advocates are fluent in at least two of Rwanda's official legal languages. You can filter and consult in Kinyarwanda, English, or French to ensure complete clarity and comfort.",
+  },
+  {
+    id: "faq-3",
+    category: "clients",
+    question: "I live in the Rwandan diaspora. Can I consult an advocate about land, succession, or business?",
+    answer: "Yes. You can pay with international credit or debit cards, schedule consultations across international time zones, and meet via our encrypted in-browser video room to review land certificates (UPI), business contracts, or succession files.",
+  },
+  {
+    id: "faq-4",
+    category: "clients",
+    question: "Do I need to download Zoom, Teams, or an app to join the video consultation?",
+    answer: "No. Our consultation room runs 100% inside your web browser using LiveKit WebRTC. You do not need to download or install any external software on your computer or phone.",
+  },
+  {
+    id: "faq-5",
+    category: "clients",
+    question: "Can the advocate represent me in court after our online consultation?",
+    answer: "Yes. Online consultations serve as an initial diagnostic session. If your case requires litigation, your advocate can issue an official retainer agreement (convention d'honoraires) and power of attorney (procuration) to represent you before Rwandan courts via the IECMS.",
+  },
+  {
+    id: "faq-6",
+    category: "experts",
+    question: "How and when do advocates receive consultation payouts?",
+    answer: "Payouts are automated and guaranteed. Once you conclude the consultation and submit the session brief, the escrow balance is released immediately to your registered MTN Mobile Money, Airtel Money, or Rwandan commercial bank account.",
+  },
+  {
+    id: "faq-7",
+    category: "experts",
+    question: "Do advocates retain full autonomy over their consultation rates and schedule?",
+    answer: "Yes. In accordance with Rwanda Bar Association standards, advocates independently set their consultation fees and configure their available hours. MyJudicial does not fix prices or impose mandatory tariffs.",
+  },
+  {
+    id: "faq-8",
+    category: "experts",
+    question: "How is my Rwanda Bar Association (RBA) accreditation vetted?",
+    answer: "Every advocate is verified against the official Rwanda Bar Association Roll, practicing certificate, and National ID before their profile is published. Only advocates in active good standing are admitted.",
+  },
+  {
+    id: "faq-9",
+    category: "experts",
+    question: "What happens if a client fails to attend the scheduled consultation?",
+    answer: "Your professional time is protected. If a client fails to attend without cancelling at least 24 hours in advance, the consultation fee held in escrow is disbursed to the advocate in accordance with platform cancellation policy.",
+  },
+  {
+    id: "faq-10",
+    category: "billing",
+    question: "How does the regulated escrow system protect my money?",
+    answer: "When you book a consultation, your payment is held safely in a regulated escrow custody account. The advocate is only paid after the consultation has concluded satisfactorily. If a session is cancelled or the advocate does not attend, your funds are refunded.",
+  },
+  {
+    id: "faq-11",
+    category: "billing",
+    question: "Which payment methods are accepted on MyJudicial?",
+    answer: "We accept MTN Mobile Money and Airtel Money for local payments, as well as Visa and Mastercard debit and credit cards for domestic and international clients.",
+  },
+  {
+    id: "faq-12",
+    category: "billing",
+    question: "Are there any hidden fees, platform surcharges, or extra invoices?",
+    answer: "No. The consultation fee displayed on the advocate's profile is the total, final amount. There are no hidden booking fees, subscription traps, or unexpected charges.",
+  },
+  {
+    id: "faq-13",
+    category: "billing",
+    question: "What is the refund and cancellation policy?",
+    answer: "Clients can reschedule or cancel a consultation for a full refund up to 24 hours before the scheduled time. If an advocate fails to join a session, the client receives a 100% immediate escrow refund.",
+  },
+  {
+    id: "faq-14",
+    category: "security",
+    question: "Are all lawyers on MyJudicial accredited by the Rwanda Bar Association?",
+    answer: "Yes. Every single legal expert on MyJudicial is an accredited advocate cross-checked against the official Rwanda Bar Association Roll. We do not allow unverified third parties to offer legal counsel.",
+  },
+  {
+    id: "faq-15",
+    category: "security",
+    question: "Is my consultation recorded by the platform?",
+    answer: "No. We never record video or audio consultations. All sessions use peer-to-peer encrypted WebRTC to preserve strict legal professional secrecy and attorney-client privilege.",
+  },
+  {
+    id: "faq-16",
+    category: "security",
+    question: "How does MyJudicial comply with Rwandan Data Protection Law No. 058/2021?",
+    answer: "All client data, uploaded evidence, and intake documents are encrypted and stored in compliance with Law No. 058/2021 relating to the protection of personal data. Only your chosen advocate has confidential access to your case documents.",
+  },
+];
+
+export const DEFAULT_CAREERS_ROLES: CareerRoleItem[] = [
+  {
+    id: "role-legal-ops",
+    title: "Bilingual Legal Operations Specialist",
+    department: "Legal Operations",
+    location: "Kigali, Rwanda",
+    type: "Full-time",
+    applyUrl: "mailto:careers@myjudicial.com?subject=Application%20-%20Legal%20Operations%20Specialist",
+    summary: "Support advocate onboarding, IECMS case documentation verification, and trilingual client intake triage.",
+    responsibilities: [
+      "Review and verify advocate credentials against the Rwanda Bar Association roll",
+      "Assist clients and advocates with consultation scheduling and case briefs",
+      "Coordinate with the dispute resolution and escrow team for session verifications",
+      "Maintain knowledge base resources in Kinyarwanda, English, and French",
+    ],
+    requirements: [
+      "Bachelor's degree in Law (LLB) from an accredited university",
+      "Fluency in Kinyarwanda, English, and French",
+      "2+ years experience in legal practice or legal administration in Rwanda",
+      "Strong understanding of Rwanda legal frameworks and court procedures",
+    ],
+    niceToHave: [
+      "Experience with the Integrated Electronic Case Management System (IECMS)",
+      "Customer-facing tech platform experience",
+    ],
+    published: true,
+  },
+  {
+    id: "role-fullstack-fintech",
+    title: "Senior Full-Stack Engineer (Escrow & Payments)",
+    department: "Engineering",
+    location: "Kigali, Rwanda / Remote",
+    type: "Full-time",
+    applyUrl: "mailto:careers@myjudicial.com?subject=Application%20-%20Senior%20Full-Stack%20Engineer",
+    summary: "Architect and scale our real-time escrow ledger, MTN Mobile Money / Airtel Money integrations, and WebRTC video consultation infrastructure.",
+    responsibilities: [
+      "Develop secure, auditable payment and escrow release services",
+      "Optimize real-time WebRTC consultation infrastructure using LiveKit",
+      "Ensure 99.9% uptime for core booking and consultation flows",
+      "Implement bank-grade security and encryption standards",
+    ],
+    requirements: [
+      "5+ years professional experience with TypeScript, Next.js, and Node.js",
+      "Hands-on experience with mobile money APIs or regulated payment gateways",
+      "Solid understanding of PostgreSQL, ACID transactions, and distributed locks",
+      "Passionate about clean code, automated testing, and security best practices",
+    ],
+    niceToHave: [
+      "Experience with WebRTC or LiveKit",
+      "Knowledge of East African fintech infrastructure",
+    ],
+    published: true,
+  },
+  {
+    id: "role-compliance-officer",
+    title: "Advocate Accreditation & Compliance Lead",
+    department: "Compliance & Ethics",
+    location: "Kigali, Rwanda",
+    type: "Full-time",
+    applyUrl: "mailto:careers@myjudicial.com?subject=Application%20-%20Compliance%20Lead",
+    summary: "Lead platform compliance with Rwanda Bar Association ethical rules, Law No. 058/2021 on Personal Data Protection, and statutory escrow regulations.",
+    responsibilities: [
+      "Maintain rigorous vetting protocols for all legal advocates joining the platform",
+      "Serve as primary liaison with the Rwanda Bar Association and regulatory bodies",
+      "Supervise data privacy compliance under Rwanda Law No. 058/2021",
+      "Audit dispute resolution procedures and client confidentiality protocols",
+    ],
+    requirements: [
+      "Active or former member of the Rwanda Bar Association with clean disciplinary record",
+      "In-depth knowledge of Rwandan professional ethics (déontologie)",
+      "Experience in data protection and privacy regulatory compliance",
+      "Demonstrated integrity and commitment to access to justice",
+    ],
+    niceToHave: [
+      "Certified Information Privacy Professional (CIPP) or equivalent",
+      "Master of Laws (LLM) in Commercial Law, Dispute Resolution, or Tech Law",
+    ],
+    published: true,
+  },
+];
+
 export const DEFAULTS: SettingsData = {
   platformName: "MyJudicial",
   maintenanceMode: false,

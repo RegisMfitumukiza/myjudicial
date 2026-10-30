@@ -15,6 +15,7 @@ import {
   Scale,
   Shield,
   ShieldCheck,
+  Sparkles,
   Trash2,
   WifiOff,
 } from "lucide-react";
@@ -38,7 +39,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 
 import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api";
-import { DEFAULTS, normalizeSettings, type SettingsData, type SupplementalFaqItem } from "@/features/settings/settings";
+import { DEFAULTS, DEFAULT_FAQS, normalizeSettings, type SettingsData, type SupplementalFaqItem } from "@/features/settings/settings";
 import { ContentEditor } from "./content-editor";
 import { CareersHub } from "@/features/admin-careers/careers-hub";
 
@@ -366,7 +367,18 @@ export function ContentHubClient() {
                   {tSettings("supplementalFaqsDesc")}
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFaqDraft(JSON.parse(JSON.stringify(DEFAULT_FAQS)))}
+                  className="text-xs h-8"
+                  title="Populate all 16 standard platform FAQs"
+                >
+                  <Sparkles className="h-3.5 w-3.5 mr-1 text-primary" />
+                  {faqDraft.length === 0 ? "Populate Standard FAQs" : "Reset Standard FAQs"}
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -417,8 +429,40 @@ export function ContentHubClient() {
               )}
 
               {faqDraft.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
-                  {tSettings("noFaqs")}
+                <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-3">
+                  <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <HelpCircle className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      No custom FAQs published yet
+                    </p>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                      The public site is currently displaying the 16 standard platform FAQs. You can populate them below to edit, delete, or reorganize them, or create a new custom FAQ from scratch.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      onClick={() => setFaqDraft(JSON.parse(JSON.stringify(DEFAULT_FAQS)))}
+                      className="h-8 text-xs font-semibold shadow-xs"
+                    >
+                      <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                      Populate 16 Standard FAQs
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddFaq}
+                      className="h-8 text-xs"
+                    >
+                      <Plus className="mr-1.5 h-3.5 w-3.5" />
+                      Add Custom FAQ
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 faqDraft

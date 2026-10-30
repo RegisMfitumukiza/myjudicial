@@ -37,6 +37,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api";
 import {
   DEFAULTS,
+  DEFAULT_CAREERS_ROLES,
   normalizeSettings,
   type CareerRoleItem,
   type CareersHiringStatus,
@@ -800,7 +801,17 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDraftRoles(JSON.parse(JSON.stringify(DEFAULT_CAREERS_ROLES)))}
+            className="h-8 text-xs font-medium"
+            title="Populate standard legal-tech job openings"
+          >
+            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
+            {draftRoles.length === 0 ? "Populate Standard Roles" : "Reset Standard Roles"}
+          </Button>
           <Button variant="outline" size="sm" onClick={addRole} className="h-8 text-xs font-medium">
             <Plus className="mr-1.5 h-3.5 w-3.5" /> {t("addRole")}
           </Button>
@@ -812,9 +823,19 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
         <div className="rounded-xl border border-dashed border-border p-10 text-center space-y-3">
           <Briefcase className="h-8 w-8 text-muted-foreground mx-auto opacity-50" />
           <p className="text-xs text-muted-foreground">{t("noRoles")}</p>
-          <Button variant="secondary" size="sm" onClick={addRole} className="text-xs">
-            <Plus className="mr-1.5 h-3.5 w-3.5" /> Create First Role
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setDraftRoles(JSON.parse(JSON.stringify(DEFAULT_CAREERS_ROLES)))}
+              className="text-xs font-semibold shadow-xs"
+            >
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Populate Standard Roles
+            </Button>
+            <Button variant="outline" size="sm" onClick={addRole} className="text-xs">
+              <Plus className="mr-1.5 h-3.5 w-3.5" /> Create Custom Role
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="space-y-3 pb-8">

@@ -35,6 +35,7 @@ function SelectTrigger({
   className,
   size = "default",
   children,
+  onPointerDown,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: "sm" | "default"
@@ -47,6 +48,14 @@ function SelectTrigger({
         "flex w-full items-center justify-between gap-1.5 whitespace-nowrap rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm outline-none transition-colors select-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/30 data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=sm]:rounded-md [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:h-4 [&_svg:not([class*='size-'])]:w-4",
         className
       )}
+      onPointerDown={(event) => {
+        // If the dropdown is currently open, prevent default so Radix doesn't immediately re-open it
+        // when DismissableLayer closes on pointer down.
+        if (event.currentTarget.getAttribute("data-state") === "open") {
+          event.preventDefault();
+        }
+        onPointerDown?.(event);
+      }}
       {...props}
     >
       {children}

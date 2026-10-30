@@ -6,5 +6,5 @@ export default async function AdminCareersPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/dashboard/settings?tab=careers`);
+  redirect(`/${locale}/admin/dashboard/content?tab=careers`);
 }

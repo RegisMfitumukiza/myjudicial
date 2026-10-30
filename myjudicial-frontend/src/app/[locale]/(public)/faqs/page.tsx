@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getContentPageSeo } from "@/features/public-content/page-metadata";
+import { PublicContentPage } from "@/features/public-content/public-content-renderer";
 import FaqsClient from "./faqs-client";
 import { fetchPublicPlatformSettings } from "@/features/public-content/server";
 
@@ -88,7 +89,11 @@ export default async function FaqsPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <FaqsClient />
+      <PublicContentPage
+        slug="HELP"
+        locale={locale}
+        fallback={<FaqsClient />}
+      />
     </>
   );
 }

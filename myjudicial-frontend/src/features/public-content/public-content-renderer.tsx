@@ -250,8 +250,8 @@ export async function PublicContentPageView({
 
       {/* Content */}
       <section className="bg-background pb-16 pt-8 sm:pb-24 sm:pt-12">
-        <div className="mx-auto max-w-3xl px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
-          <div className="prose prose-slate max-w-none dark:prose-invert">
+        <div className="mx-auto max-w-4xl px-3 min-[360px]:px-4 sm:px-6 lg:px-8">
+          <div className="w-full">
             <ContentBlocks
               blocks={firstBlockIsHero ? page.blocks.slice(1) : page.blocks}
               settings={settings}

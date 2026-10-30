@@ -14,7 +14,6 @@ import {
 } from "./content.types.js";
 import {
   uploadObject,
-  getSignedDownloadUrl,
   getDefaultBucketName,
 } from "../../infrastructure/storage/oci-object-storage.service.js";
 import { ValidationError } from "../../shared/errors/index.js";
@@ -138,7 +137,9 @@ export const AdminContentController = {
         bucket: getDefaultBucketName(),
       });
 
-      const { url } = await getSignedDownloadUrl(objectKey, 31536000); // 1-year valid URL
+      const base = (process.env.BASE_URL ?? "http://localhost:4000").replace(/\/+$/, "");
+      const prefix = (process.env.API_PREFIX ?? "/api/v1").replace(/\/+$/, "");
+      const url = `${base}${prefix}/content/media/${objectKey}`;
 
       res.status(201).json({
         success: true,

@@ -15,6 +15,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { useAuth } from "@/providers/auth-provider";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
@@ -281,6 +282,14 @@ export default function UsersPage() {
       <PageHeader
         title={t("title")}
         description={t("subtitle")}
+        actions={
+          <Button variant="outline" size="sm" asChild className="h-8 text-xs font-medium">
+            <Link href="/admin/dashboard/clients">
+              <Users className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+              Client Booking CRM &rarr;
+            </Link>
+          </Button>
+        }
       />
 
       {/* Stats Cards */}

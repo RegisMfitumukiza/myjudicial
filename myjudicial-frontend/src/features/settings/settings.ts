@@ -68,6 +68,8 @@ export interface SettingsData {
   // Brand & Public Identity
   platformTagline: string;
   copyrightNotice: string;
+  brandLogoUrl?: string;
+  brandFaviconUrl?: string;
   // Maintenance & Broadcast Notices
   maintenanceNotice: string;
   // Legal & Regulatory Disclaimers
@@ -174,6 +176,8 @@ export const DEFAULTS: SettingsData = {
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
+  brandLogoUrl: "",
+  brandFaviconUrl: "",
   maintenanceNotice: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
   minAdvanceBookingHours: 2,
@@ -257,6 +261,8 @@ export function normalizeSettings(raw: Partial<SettingsData> | null | undefined)
     seoKeywords: asString(r.seoKeywords, DEFAULTS.seoKeywords),
     platformTagline: asString(r.platformTagline, DEFAULTS.platformTagline),
     copyrightNotice: asString(r.copyrightNotice, DEFAULTS.copyrightNotice),
+    brandLogoUrl: asString(r.brandLogoUrl, ""),
+    brandFaviconUrl: asString(r.brandFaviconUrl, ""),
     maintenanceNotice: asString(r.maintenanceNotice, DEFAULTS.maintenanceNotice),
     legalDisclaimer: asString(r.legalDisclaimer, DEFAULTS.legalDisclaimer),
     minAdvanceBookingHours: asNumber(r.minAdvanceBookingHours, DEFAULTS.minAdvanceBookingHours),

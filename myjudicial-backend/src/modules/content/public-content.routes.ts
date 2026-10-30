@@ -10,6 +10,11 @@ import {
   sendCareerApplicationEmail,
   sendContactInquiryEmail,
 } from "../../infrastructure/email/email.service.js";
+import {
+  downloadObject,
+  getDefaultBucketName,
+} from "../../infrastructure/storage/oci-object-storage.service.js";
+import { logger } from "../../shared/utils/logger.js";
 import { antiBotGuard } from "../../shared/middleware/antiBot.js";
 import { publicFormLimiter } from "../../shared/middleware/rateLimiting.js";
 
@@ -186,6 +191,41 @@ router.post("/contact/inquiry", publicFormLimiter, antiBotGuard, async (req, res
     });
   } catch (error) {
     next(error);
+  }
+});
+
+/**
+ * Public, permanent delivery of CMS media assets.
+ * `GET /content/media/{*key}`
+ */
+router.get("/media/{*key}", async (req, res, next) => {
+  try {
+    const rawKey = req.params.key;
+    const key = (Array.isArray(rawKey) ? rawKey.join("/") : String(rawKey || ""))
+      .replace(/^\/+/, "")
+      .trim();
+    if (!key || key.includes("..")) {
+      res.status(400).json({ success: false, error: "Invalid media key" });
+      return;
+    }
+
+    const bucket = getDefaultBucketName();
+    const buffer = await downloadObject(key, bucket);
+
+    let mimeType = "application/octet-stream";
+    const ext = key.split(".").pop()?.toLowerCase();
+    if (ext === "png") mimeType = "image/png";
+    else if (ext === "jpg" || ext === "jpeg") mimeType = "image/jpeg";
+    else if (ext === "webp") mimeType = "image/webp";
+    else if (ext === "gif") mimeType = "image/gif";
+    else if (ext === "svg") mimeType = "image/svg+xml";
+
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.send(buffer);
+  } catch (error) {
+    logger.warn("Content media retrieval failed", { error: (error as Error).message });
+    res.status(404).json({ success: false, error: "Media not found" });
   }
 });
 

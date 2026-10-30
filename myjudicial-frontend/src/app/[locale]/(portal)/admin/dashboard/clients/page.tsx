@@ -33,6 +33,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api/client";
 import { toast } from "sonner";
 import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 import { PageHeader } from "@/shared/components/dashboard/page-header";
 import { StatCard } from "@/shared/components/dashboard/stat-card";
@@ -405,7 +406,18 @@ export default function AdminClientsPage() {
   if (error && !loadingClients) {
     return (
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader title={t("title")} description={t("subtitle")} />
+        <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <Button variant="outline" size="sm" asChild className="h-8 text-xs font-medium">
+            <Link href="/admin/dashboard/users">
+              <UserCheck className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+              All User Accounts &rarr;
+            </Link>
+          </Button>
+        }
+      />
         <ErrorState
           title={t("failedToLoad")}
           message={error instanceof Error ? error.message : t("unknownError")}
@@ -416,7 +428,18 @@ export default function AdminClientsPage() {
 
   return (
     <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
-      <PageHeader title={t("title")} description={t("subtitle")} />
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <Button variant="outline" size="sm" asChild className="h-8 text-xs font-medium">
+            <Link href="/admin/dashboard/users">
+              <UserCheck className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+              All User Accounts &rarr;
+            </Link>
+          </Button>
+        }
+      />
 
       {/* KPI Stats Cards */}
       {stats && (

@@ -12,7 +12,6 @@ const STATIC_ROUTES = [
   '/faqs',
   '/pricing',
   '/contact',
-  '/help',
   '/partners',
   '/careers',
   '/ai',

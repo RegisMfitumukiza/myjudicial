@@ -313,7 +313,7 @@ export function LegalEditor({ settings, onSaved }: LegalEditorProps) {
           </p>
         </div>
 
-        <ContentEditor embedded allowedSlugs={["TERMS", "PRIVACY", "COOKIES"]} />
+        <ContentEditor embedded />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { JsonLd } from '@/shared/components/seo/JsonLd';
 import { contactPageJsonLd } from '@/features/public-content/json-ld';
 import { fetchPublicPlatformSettings } from '@/features/public-content/server';
 import { getContentPageSeo } from '@/features/public-content/page-metadata';
+import { PublicContentPage } from '@/features/public-content/public-content-renderer';
 import ContactClient from './contact-client';
 
 export async function generateMetadata({
@@ -74,7 +75,11 @@ export default async function ContactPage({
           })}
         />
       ) : null}
-      <ContactClient />
+      <PublicContentPage
+        slug="CONTACT"
+        locale={locale}
+        fallback={<ContactClient />}
+      />
     </>
   );
 }

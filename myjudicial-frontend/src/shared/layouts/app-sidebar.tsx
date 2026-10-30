@@ -32,7 +32,8 @@ import {
   Palette,
   ShieldCheck,
   FileCheck,
-ClipboardList,
+  FileText,
+  ClipboardList,
 FolderOpen,
 Scale,
 ChevronsUpDown,
@@ -88,6 +89,12 @@ const ROLE_NAVIGATION: Record<UserRole, NavGroup[]> = {
       groupKey: "finance",
       items: [
         { href: "/admin/dashboard/finance", icon: DollarSign, labelKey: "finance" },
+      ],
+    },
+    {
+      groupKey: "content",
+      items: [
+        { href: "/admin/dashboard/content", icon: FileText, labelKey: "pageContent" },
       ],
     },
     {

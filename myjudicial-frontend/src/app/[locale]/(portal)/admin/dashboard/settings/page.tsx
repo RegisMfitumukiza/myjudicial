@@ -2,10 +2,11 @@
 
 import { Suspense, useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { useRouter, usePathname } from "@/i18n/routing";
+import { useRouter, usePathname, Link } from "@/i18n/routing";
 import {
   Briefcase,
   Cog,
+  FileText,
   Info,
   RefreshCw,
   ShieldCheck,
@@ -161,16 +162,43 @@ function SettingsContent() {
 
         {/* ── Tab 2: About Platform Editorial ── */}
         <TabsContent value="about" className="w-full space-y-6 outline-none">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <span>Editorial content can now be fully authored with multi-locale revisions in the dedicated Content & CMS Hub.</span>
+            </div>
+            <Button variant="outline" size="sm" asChild className="h-7 text-xs shrink-0 font-medium">
+              <Link href="/admin/dashboard/content?tab=pages">Open Content Hub &rarr;</Link>
+            </Button>
+          </div>
           <AboutEditor settings={settings} onSaved={applySaved} />
         </TabsContent>
 
         {/* ── Tab 3: Careers Hub (Single Source of Truth) ── */}
         <TabsContent value="careers" className="w-full space-y-6 outline-none">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <span>Careers roles and recruitment posture can also be accessed directly from the Content & CMS Hub.</span>
+            </div>
+            <Button variant="outline" size="sm" asChild className="h-7 text-xs shrink-0 font-medium">
+              <Link href="/admin/dashboard/content?tab=careers">Open Careers Hub &rarr;</Link>
+            </Button>
+          </div>
           <CareersHub initialSettings={settings} onSaved={applySaved} />
         </TabsContent>
 
         {/* ── Tab 4: Legal & Regulatory Policies ── */}
         <TabsContent value="legal" className="w-full space-y-6 outline-none">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <span>Regulatory legal documents and public FAQs are managed with full multi-locale revision control in the Content & CMS Hub.</span>
+            </div>
+            <Button variant="outline" size="sm" asChild className="h-7 text-xs shrink-0 font-medium">
+              <Link href="/admin/dashboard/content">Open Content Hub &rarr;</Link>
+            </Button>
+          </div>
           <LegalEditor settings={settings} onSaved={applySaved} />
         </TabsContent>
       </Tabs>

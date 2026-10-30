@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getContentPageSeo } from '@/features/public-content/page-metadata';
+import { PublicContentPage } from '@/features/public-content/public-content-renderer';
 import AboutClient from './about-client';
 
 export async function generateMetadata({
@@ -46,6 +47,17 @@ export async function generateMetadata({
   };
 }
 
-export default function AboutPage() {
-  return <AboutClient />;
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return (
+    <PublicContentPage
+      slug="ABOUT"
+      locale={locale}
+      fallback={<AboutClient />}
+    />
+  );
 }

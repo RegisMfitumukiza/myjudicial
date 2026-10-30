@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "@/i18n/routing";
 import {
   AlertTriangle,
   Check,
@@ -773,22 +775,43 @@ function PageEditor({
 export interface ContentEditorProps {
   embedded?: boolean;
   allowedSlugs?: ContentPageSlug[];
+  defaultSlug?: ContentPageSlug;
 }
 
 export function ContentEditor({
   embedded = false,
   allowedSlugs,
+  defaultSlug,
 }: ContentEditorProps = {}) {
   const t = useTranslations("adminContent");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const activeSlugs = allowedSlugs ?? SLUG_ORDER;
+  const slugFromQuery = searchParams?.get("slug")?.toUpperCase() as ContentPageSlug | undefined;
+  const initialSlug =
+    slugFromQuery && activeSlugs.includes(slugFromQuery)
+      ? slugFromQuery
+      : defaultSlug && activeSlugs.includes(defaultSlug)
+      ? defaultSlug
+      : activeSlugs[0] ?? "ABOUT";
+
   const [loading, setLoading] = useState(true);
-  const [slug, setSlug] = useState<ContentPageSlug>(() =>
-    activeSlugs.includes("PRIVACY") ? "PRIVACY" : activeSlugs[0] ?? "TERMS"
-  );
+  const [slug, setSlug] = useState<ContentPageSlug>(initialSlug);
   const [locale, setLocale] = useState<ContentLocale>("en");
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [allowedBlocks, setAllowedBlocks] = useState<Record<string, readonly ContentBlockType[]>>({});
+
+  const handleSelectSlug = (s: ContentPageSlug) => {
+    setSlug(s);
+    if (!embedded && searchParams) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("slug", s.toLowerCase());
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -841,7 +864,7 @@ export function ContentEditor({
             <button
               key={s}
               type="button"
-              onClick={() => setSlug(s)}
+              onClick={() => handleSelectSlug(s)}
               aria-current={active ? "page" : undefined}
               className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
                 active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"

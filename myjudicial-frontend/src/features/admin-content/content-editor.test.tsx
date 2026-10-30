@@ -30,6 +30,16 @@ vi.mock("@/lib/api/content-pages", async () => {
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/i18n/routing", () => ({
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  usePathname: () => "/admin/dashboard/content",
+  Link: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a>,
+}));
+
 import * as contentApi from "@/lib/api/content-pages";
 import { toast } from "sonner";
 import { ContentEditor } from "./content-editor";
@@ -104,10 +114,10 @@ const setupApi = (pages: ContentPage[] = []) => {
   api.deleteContentPage.mockResolvedValue(true);
 };
 
-const renderEditor = () =>
+const renderEditor = (defaultSlug: contentApi.ContentPageSlug = "PRIVACY") =>
   render(
     <IntlProvider locale="en" messages={messages}>
-      <ContentEditor />
+      <ContentEditor defaultSlug={defaultSlug} />
     </IntlProvider>
   );
 

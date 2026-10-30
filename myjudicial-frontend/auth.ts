@@ -316,12 +316,15 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       }
       // Ensure session data matches token completely
       const userId = (token.id || token.sub) as string | undefined;
+      if (!userId) {
+        return session;
+      }
       if (session.user && userId) {
         session.user.id = String(userId);
         session.user.email = String(token.email || session.user.email);
         session.user.name = String(token.name || session.user.name);
         if (token.role && String(token.role) !== "undefined") {
-          session.user.role = String(token.role);
+          session.user.role = String(token.role).trim().toUpperCase();
         }
         session.user.firstName = String(token.firstName || "");
         session.user.lastName = String(token.lastName || "");

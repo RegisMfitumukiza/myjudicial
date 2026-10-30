@@ -36,12 +36,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (userData && session?.user) {
         const sessionUserId = (session.user as any).id;
         const sessionUserRole = (session.user as any).role;
+
+        const normSessionUserId = sessionUserId ? String(sessionUserId).trim() : null;
+        const normBackendUserId = userData?.id ? String(userData.id).trim() : null;
+        const normSessionRole = sessionUserRole ? String(sessionUserRole).trim().toUpperCase() : null;
+        const normBackendRole = userData?.role ? String(userData.role).trim().toUpperCase() : null;
+
+        // Only evaluate mismatch if BOTH sides have resolved user identifiers and roles.
+        // Never trigger mismatch sign-out on undefined/transient/hydrating states.
+        const hasIdMismatch = Boolean(
+          normSessionUserId && normBackendUserId && normSessionUserId !== normBackendUserId
+        );
+        const hasRoleMismatch = Boolean(
+          normSessionRole && normBackendRole && normSessionRole !== normBackendRole
+        );
         
-        // If user ID or role doesn't match, we have stale session data
-        if (userData.id !== sessionUserId || userData.role !== sessionUserRole) {
+        if (hasIdMismatch || hasRoleMismatch) {
           console.error("CRITICAL: Session/backend user mismatch detected!", {
-            backendUser: { id: userData.id, role: userData.role },
-            sessionUser: { id: sessionUserId, role: sessionUserRole }
+            backendUser: { id: normBackendUserId, role: normBackendRole },
+            sessionUser: { id: normSessionUserId, role: normSessionRole }
           });
           
           // Force immediate logout to prevent cross-user data leaks
@@ -56,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // Force sign out and redirect to appropriate login
           const targetUrl = getSignOutRedirectUrl({
-            role: (session?.user as any)?.role ?? userData?.role,
+            role: normSessionRole ?? normBackendRole,
           });
           await handleAppSignOut({ callbackUrl: targetUrl });
           

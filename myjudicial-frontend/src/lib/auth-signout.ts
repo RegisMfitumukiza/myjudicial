@@ -24,7 +24,7 @@ export function isCurrentContextAdmin(options?: {
   role?: string | null;
   pathname?: string | null;
 }): boolean {
-  if (options?.role === "ADMIN") return true;
+  if (options?.role?.toUpperCase() === "ADMIN") return true;
   if (options?.pathname?.includes("/admin")) return true;
   if (typeof window !== "undefined") {
     if (window.location.pathname.includes("/admin")) return true;

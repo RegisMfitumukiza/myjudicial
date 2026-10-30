@@ -35,7 +35,14 @@ export function DashboardLayout({ children, user: propUser }: DashboardLayoutPro
 
   if (!rawUser) return null;
 
-  const inferredRole = pathname?.includes("/admin")
+  const isBrowser = typeof window !== "undefined";
+  const host = isBrowser ? window.location.hostname.toLowerCase() : "";
+  const adminHost = (process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com")
+    .replace(/^https?:\/\//, "")
+    .toLowerCase();
+  const isAdminHost = host.startsWith("admin.") || host === adminHost;
+
+  const inferredRole = (isAdminHost || pathname?.includes("/admin"))
     ? UserRole.ADMIN
     : pathname?.includes("/expert")
       ? UserRole.EXPERT

@@ -240,9 +240,9 @@ export function Header() {
             <div className="pt-2 mt-1 border-t border-border space-y-1">
               <Link
                 href={
-                  session.user.role === "EXPERT"
+                  session.user.role?.toUpperCase() === "EXPERT"
                     ? "/expert/dashboard"
-                    : session.user.role === "ADMIN"
+                    : session.user.role?.toUpperCase() === "ADMIN"
                     ? "/admin/dashboard"
                     : "/client/dashboard"
                 }

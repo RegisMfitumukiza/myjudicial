@@ -43,6 +43,11 @@ export default async function SignInPage({
   const { locale } = await params;
   const { callbackUrl, admin } = await searchParams;
 
+  const headerList = await headers();
+  const host = (headerList.get("x-forwarded-host")?.split(",")[0] ?? headerList.get("host") ?? "").toLowerCase().replace(/:\d+$/, "");
+  const adminHost = (process.env.ADMIN_PORTAL_HOST ?? process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com").toLowerCase().replace(/^https?:\/\//, "");
+  const isAdminPortal = host === adminHost || host.startsWith("admin.") || admin === "1";
+
   // If already authenticated with a valid session, redirect immediately!
   const session = await auth();
   if (session?.user?.id && !(session as any)?.error) {
@@ -51,20 +56,25 @@ export default async function SignInPage({
       redirect(hasLocalePrefix ? callbackUrl : `/${locale}${callbackUrl}`);
     }
 
-    const role = (session.user as any)?.role;
-    if (role === "ADMIN") {
-      redirect(`/${locale}/admin/dashboard`);
-    } else if (role === "EXPERT") {
-      redirect(`/${locale}/expert/dashboard`);
+    const rawRole = (session.user as any)?.role;
+    const normRole = rawRole ? String(rawRole).trim().toUpperCase() : undefined;
+
+    if (isAdminPortal) {
+      if (normRole === "ADMIN" || !normRole) {
+        redirect(`/${locale}/admin/dashboard`);
+      } else {
+        redirect(`https://www.myjudicial.com/${locale}/${normRole === "EXPERT" ? "expert" : "client"}/dashboard`);
+      }
     } else {
-      redirect(`/${locale}/client/dashboard`);
+      if (normRole === "ADMIN") {
+        redirect(`https://${adminHost}/${locale}/admin/dashboard`);
+      } else if (normRole === "EXPERT") {
+        redirect(`/${locale}/expert/dashboard`);
+      } else {
+        redirect(`/${locale}/client/dashboard`);
+      }
     }
   }
-
-  const headerList = await headers();
-  const host = (headerList.get("x-forwarded-host")?.split(",")[0] ?? headerList.get("host") ?? "").toLowerCase().replace(/:\d+$/, "");
-  const adminHost = (process.env.ADMIN_PORTAL_HOST ?? process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com").toLowerCase();
-  const isAdminPortal = host === adminHost || admin === "1";
 
   return (
     <AuthShell>

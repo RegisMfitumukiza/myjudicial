@@ -108,13 +108,29 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
         const hasLocale = new RegExp(`^/(en|fr|rw)(/|$)`).test(callbackUrl);
         router.replace(hasLocale ? callbackUrl : `/${locale}${callbackUrl}`);
       } else {
-        const role = (session.user as any)?.role;
-        if (role === "ADMIN") router.replace("/admin/dashboard");
-        else if (role === "EXPERT") router.replace("/expert/dashboard");
-        else router.replace("/client/dashboard");
+        const rawRole = (session.user as any)?.role;
+        const normRole = rawRole ? String(rawRole).trim().toUpperCase() : undefined;
+        const currentHost = typeof window !== "undefined" ? window.location.hostname.toLowerCase() : "";
+        const isOnAdminPortal = defaultAdminMode || currentHost.startsWith("admin.") || currentHost === ADMIN_PORTAL_HOST;
+
+        if (isOnAdminPortal) {
+          if (normRole === "ADMIN" || !normRole) {
+            router.replace("/admin/dashboard");
+          } else {
+            window.location.href = `https://www.myjudicial.com/${locale}/${normRole === "EXPERT" ? "expert" : "client"}/dashboard`;
+          }
+        } else {
+          if (normRole === "ADMIN") {
+            window.location.href = `https://${ADMIN_PORTAL_HOST}/${locale}/admin/dashboard`;
+          } else if (normRole === "EXPERT") {
+            router.replace("/expert/dashboard");
+          } else {
+            router.replace("/client/dashboard");
+          }
+        }
       }
     }
-  }, [sessionStatus, session, callbackUrl, router, locale]);
+  }, [sessionStatus, session, callbackUrl, router, locale, defaultAdminMode]);
 
   // If user requests admin mode while on main host, immediately forward to admin portal
   // BEFORE they fill credentials so they never suffer double submission or theme reset.

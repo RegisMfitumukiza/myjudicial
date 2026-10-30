@@ -13,7 +13,7 @@ import {
 import { useTranslations } from "next-intl";
 
 function getDashboardHref(role?: string): string {
-  switch (role) {
+  switch (role?.toUpperCase()) {
     case "ADMIN": return "/admin/dashboard";
     case "EXPERT": return "/expert/dashboard";
     default: return "/client/dashboard";

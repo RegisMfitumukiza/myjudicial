@@ -44,6 +44,10 @@ describe("auth-signout utility", () => {
       expect(isCurrentContextAdmin({ role: "ADMIN" })).toBe(true);
     });
 
+    it("returns true when role is lowercase admin (case-insensitive)", () => {
+      expect(isCurrentContextAdmin({ role: "admin" })).toBe(true);
+    });
+
     it("returns true when pathname includes /admin", () => {
       expect(isCurrentContextAdmin({ pathname: "/en/admin/dashboard" })).toBe(true);
       expect(isCurrentContextAdmin({ pathname: "/admin/settings" })).toBe(true);

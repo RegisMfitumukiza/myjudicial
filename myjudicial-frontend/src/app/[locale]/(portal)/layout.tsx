@@ -22,6 +22,13 @@ export default function PortalLayout({
   useEffect(() => {
     if (status === "loading") return;
 
+    const isBrowser = typeof window !== "undefined";
+    const host = isBrowser ? window.location.hostname.toLowerCase() : "";
+    const adminHost = (process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com")
+      .replace(/^https?:\/\//, "")
+      .toLowerCase();
+    const isAdminHost = host.startsWith("admin.") || host === adminHost;
+
     if (status === "unauthenticated") {
       // If the browser is temporarily offline (e.g. laptop lid opened and Wi-Fi is reconnecting),
       // do not prematurely bounce to sign-in. Wait for connection restoration.
@@ -29,31 +36,57 @@ export default function PortalLayout({
         return;
       }
 
-      const isAdminRoute = pathname.includes("/admin");
+      const isAdminRoute = isAdminHost || pathname.includes("/admin");
       const returnUrl = encodeURIComponent(pathname);
       router.replace(isAdminRoute ? `/sign-in?admin=1&callbackUrl=${returnUrl}` : `/sign-in?callbackUrl=${returnUrl}`);
       return;
     }
 
+    const rawRole = (session?.user as any)?.role || (authUser as any)?.role;
+    const normRole = rawRole ? String(rawRole).trim().toUpperCase() : undefined;
+
+    // Strict boundary enforcement for admin host:
+    if (isAdminHost) {
+      if (pathname.includes("/admin/")) {
+        // Only administrators are allowed inside /admin/*
+        if (normRole && normRole !== "ADMIN") {
+          // Hard external redirect to main site — never soft router.replace to client/expert on admin host!
+          const target = normRole === "EXPERT" ? "/expert/dashboard" : "/client/dashboard";
+          window.location.href = `https://www.myjudicial.com${target}`;
+          return;
+        }
+      } else {
+        // If user somehow lands on non-admin routes on the admin host (e.g. /client/dashboard or /expert/dashboard):
+        if (normRole === "ADMIN" || !normRole) {
+          router.replace("/admin/dashboard");
+          return;
+        } else {
+          window.location.href = `https://www.myjudicial.com${pathname}`;
+          return;
+        }
+      }
+      return;
+    }
+
+    // Role guards for non-admin hosts (myjudicial.com):
     // Role guard: non-admin users must not access /admin/* routes.
-    const role = (session?.user as any)?.role as UserRole | undefined;
-    if (pathname.includes("/admin/") && role && role !== UserRole.ADMIN) {
-      router.replace(role === UserRole.EXPERT ? "/expert/dashboard" : "/client/dashboard");
+    if (pathname.includes("/admin/") && normRole && normRole !== "ADMIN") {
+      router.replace(normRole === "EXPERT" ? "/expert/dashboard" : "/client/dashboard");
       return;
     }
 
     // Role guard: non-expert users must not access /expert/* routes.
-    if (pathname.includes("/expert/") && role && role !== UserRole.EXPERT) {
-      router.replace(role === UserRole.ADMIN ? "/admin/dashboard" : "/client/dashboard");
+    if (pathname.includes("/expert/") && normRole && normRole !== "EXPERT") {
+      router.replace(normRole === "ADMIN" ? "/admin/dashboard" : "/client/dashboard");
       return;
     }
 
     // Role guard: non-citizen users must not access /client/* routes.
-    if (pathname.includes("/client/") && role && role !== UserRole.CITIZEN) {
-      router.replace(role === UserRole.ADMIN ? "/admin/dashboard" : "/expert/dashboard");
+    if (pathname.includes("/client/") && normRole && normRole !== "CITIZEN") {
+      router.replace(normRole === "ADMIN" ? "/admin/dashboard" : "/expert/dashboard");
       return;
     }
-  }, [status, session, pathname, router]);
+  }, [status, session, authUser, pathname, router]);
 
   // When connection comes back online after sleep, re-verify session if it was temporarily unauthenticated
   useEffect(() => {
@@ -79,14 +112,22 @@ export default function PortalLayout({
   // Use NextAuth session as primary source of truth for user data
   // This ensures role consistency during the authentication flow
   const sessionUser = session?.user;
-  const inferredRole = pathname.includes("/admin")
+  const isBrowser = typeof window !== "undefined";
+  const currentHost = isBrowser ? window.location.hostname.toLowerCase() : "";
+  const configuredAdminHost = (process.env.NEXT_PUBLIC_ADMIN_PORTAL_HOST ?? "admin.myjudicial.com")
+    .replace(/^https?:\/\//, "")
+    .toLowerCase();
+  const isOnAdminHost = currentHost.startsWith("admin.") || currentHost === configuredAdminHost;
+
+  const inferredRole = (isOnAdminHost || pathname.includes("/admin"))
     ? UserRole.ADMIN
     : pathname.includes("/expert")
       ? UserRole.EXPERT
       : UserRole.CITIZEN;
 
   const rawRole = (sessionUser as any)?.role || (authUser as any)?.role;
-  const effectiveRole = (rawRole as UserRole) || inferredRole;
+  const normRole = rawRole ? String(rawRole).trim().toUpperCase() : undefined;
+  const effectiveRole = (normRole as UserRole) || inferredRole;
 
   const user: PublicUser | null = authUser && !authLoading ? {
     ...authUser,

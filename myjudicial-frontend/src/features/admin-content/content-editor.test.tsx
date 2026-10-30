@@ -123,6 +123,9 @@ const renderEditor = (defaultSlug: contentApi.ContentPageSlug = "PRIVACY") =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  try {
+    localStorage.clear();
+  } catch {}
   setupApi();
   vi.spyOn(window, "confirm").mockReturnValue(true);
   // Radix Select scrolls its highlighted option into view; jsdom does not

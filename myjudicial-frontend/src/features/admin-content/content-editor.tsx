@@ -772,6 +772,48 @@ function PageEditor({
   );
 }
 
+const STORAGE_KEY_CONTENT_SLUG = "myjudicial_admin_content_slug";
+const STORAGE_KEY_CONTENT_LOCALE = "myjudicial_admin_content_locale";
+
+function getInitialContentSlug(
+  searchParam: string | null | undefined,
+  activeSlugs: readonly ContentPageSlug[],
+  defaultSlug?: ContentPageSlug
+): ContentPageSlug {
+  const paramUpper = searchParam?.toUpperCase() as ContentPageSlug | undefined;
+  if (paramUpper && activeSlugs.includes(paramUpper)) {
+    return paramUpper;
+  }
+  if (defaultSlug && activeSlugs.includes(defaultSlug)) {
+    return defaultSlug;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_CONTENT_SLUG)?.toUpperCase() as ContentPageSlug | undefined;
+      if (stored && activeSlugs.includes(stored)) {
+        return stored;
+      }
+    } catch {}
+  }
+  return activeSlugs[0] ?? "ABOUT";
+}
+
+function getInitialContentLocale(searchParam: string | null | undefined): ContentLocale {
+  const paramLower = searchParam?.toLowerCase() as ContentLocale | undefined;
+  if (paramLower && CONTENT_LOCALES.includes(paramLower)) {
+    return paramLower;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_CONTENT_LOCALE)?.toLowerCase() as ContentLocale | undefined;
+      if (stored && CONTENT_LOCALES.includes(stored)) {
+        return stored;
+      }
+    } catch {}
+  }
+  return "en";
+}
+
 export interface ContentEditorProps {
   embedded?: boolean;
   allowedSlugs?: ContentPageSlug[];
@@ -789,25 +831,86 @@ export function ContentEditor({
   const pathname = usePathname();
 
   const activeSlugs = allowedSlugs ?? SLUG_ORDER;
-  const slugFromQuery = searchParams?.get("slug")?.toUpperCase() as ContentPageSlug | undefined;
-  const initialSlug =
-    slugFromQuery && activeSlugs.includes(slugFromQuery)
-      ? slugFromQuery
-      : defaultSlug && activeSlugs.includes(defaultSlug)
-      ? defaultSlug
-      : activeSlugs[0] ?? "ABOUT";
+  const slugFromQuery = searchParams?.get("slug");
+  const localeFromQuery = searchParams?.get("locale");
 
   const [loading, setLoading] = useState(true);
-  const [slug, setSlug] = useState<ContentPageSlug>(initialSlug);
-  const [locale, setLocale] = useState<ContentLocale>("en");
+  const [slug, setSlug] = useState<ContentPageSlug>(() =>
+    getInitialContentSlug(slugFromQuery, activeSlugs, defaultSlug)
+  );
+  const [locale, setLocale] = useState<ContentLocale>(() =>
+    getInitialContentLocale(localeFromQuery)
+  );
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [allowedBlocks, setAllowedBlocks] = useState<Record<string, readonly ContentBlockType[]>>({});
 
+  // Synchronize slug and locale across refreshes, deep-links, and client navigation
+  useEffect(() => {
+    if (!embedded && searchParams) {
+      const sParam = searchParams.get("slug")?.toUpperCase() as ContentPageSlug | undefined;
+      const lParam = searchParams.get("locale")?.toLowerCase() as ContentLocale | undefined;
+
+      let changed = false;
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (sParam && activeSlugs.includes(sParam)) {
+        if (sParam !== slug) setSlug(sParam);
+        try {
+          localStorage.setItem(STORAGE_KEY_CONTENT_SLUG, sParam.toLowerCase());
+        } catch {}
+      } else if (!sParam) {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY_CONTENT_SLUG)?.toUpperCase() as ContentPageSlug | undefined;
+          const target = stored && activeSlugs.includes(stored) ? stored : slug;
+          if (target !== slug) setSlug(target);
+          params.set("slug", target.toLowerCase());
+          changed = true;
+        } catch {}
+      }
+
+      if (lParam && CONTENT_LOCALES.includes(lParam)) {
+        if (lParam !== locale) setLocale(lParam);
+        try {
+          localStorage.setItem(STORAGE_KEY_CONTENT_LOCALE, lParam);
+        } catch {}
+      } else if (!lParam) {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY_CONTENT_LOCALE)?.toLowerCase() as ContentLocale | undefined;
+          const target = stored && CONTENT_LOCALES.includes(stored) ? stored : locale;
+          if (target !== locale) setLocale(target);
+          params.set("locale", target);
+          changed = true;
+        } catch {}
+      }
+
+      if (changed) {
+        const qs = params.toString();
+        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      }
+    }
+  }, [embedded, searchParams, pathname, router, activeSlugs, slug, locale]);
+
   const handleSelectSlug = (s: ContentPageSlug) => {
     setSlug(s);
+    try {
+      localStorage.setItem(STORAGE_KEY_CONTENT_SLUG, s.toLowerCase());
+    } catch {}
     if (!embedded && searchParams) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("slug", s.toLowerCase());
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+  };
+
+  const handleSelectLocale = (l: ContentLocale) => {
+    setLocale(l);
+    try {
+      localStorage.setItem(STORAGE_KEY_CONTENT_LOCALE, l.toLowerCase());
+    } catch {}
+    if (!embedded && searchParams) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("locale", l.toLowerCase());
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     }
@@ -885,7 +988,7 @@ export function ContentEditor({
             <button
               key={l}
               type="button"
-              onClick={() => setLocale(l)}
+              onClick={() => handleSelectLocale(l)}
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
                 active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"

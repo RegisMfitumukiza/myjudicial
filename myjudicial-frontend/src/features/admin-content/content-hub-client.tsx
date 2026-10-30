@@ -45,6 +45,35 @@ import { CareersHub } from "@/features/admin-careers/careers-hub";
 const VALID_TABS = ["pages", "faqs", "careers", "governance"] as const;
 type ContentTab = (typeof VALID_TABS)[number];
 
+const STORAGE_KEY_CONTENT_TAB = "myjudicial_admin_content_tab";
+const STORAGE_KEY_FAQ_CAT = "myjudicial_admin_content_faq_category";
+
+function getInitialContentTab(param: string | null): ContentTab {
+  if (param && VALID_TABS.includes(param as ContentTab)) {
+    return param as ContentTab;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_CONTENT_TAB) as ContentTab | null;
+      if (stored && VALID_TABS.includes(stored)) {
+        return stored;
+      }
+    } catch {}
+  }
+  return "pages";
+}
+
+function getInitialFaqCategory(param: string | null): string {
+  if (param) return param;
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_FAQ_CAT);
+      if (stored) return stored;
+    } catch {}
+  }
+  return "all";
+}
+
 function copyDeep<T>(val: T[]): T[] {
   return JSON.parse(JSON.stringify(val)) as T[];
 }
@@ -58,23 +87,52 @@ export function ContentHubClient() {
   const [, startTransition] = useTransition();
 
   const tabParam = searchParams.get("tab") as ContentTab | null;
-  const activeTab: ContentTab =
-    tabParam && VALID_TABS.includes(tabParam)
-      ? tabParam
-      : "pages";
+  const [activeTab, setActiveTab] = useState<ContentTab>(() => getInitialContentTab(tabParam));
+
+  const faqCatParam = searchParams.get("faqCategory") || searchParams.get("category");
+  const [faqFilterCategory, setFaqFilterCategory] = useState<string>(() =>
+    getInitialFaqCategory(faqCatParam)
+  );
 
   const [loading, setLoading] = useState(true);
   const [backendUnreachable, setBackendUnreachable] = useState(false);
   const [settings, setSettings] = useState<SettingsData>(DEFAULTS);
   const [savingFaqs, setSavingFaqs] = useState(false);
   const [faqDraft, setFaqDraft] = useState<SupplementalFaqItem[]>([]);
-  const [faqFilterCategory, setFaqFilterCategory] = useState<string>("all");
   const [govDraft, setGovDraft] = useState({
     legalEffectiveDate: "",
     dpoContactEmail: "",
     legalDisclaimer: "",
   });
   const [savingGov, setSavingGov] = useState(false);
+
+  // Synchronize active tab across refreshes, deep-links, and client navigation
+  useEffect(() => {
+    if (tabParam && VALID_TABS.includes(tabParam)) {
+      setActiveTab(tabParam);
+      try {
+        localStorage.setItem(STORAGE_KEY_CONTENT_TAB, tabParam);
+      } catch {}
+    } else if (!tabParam) {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_CONTENT_TAB) as ContentTab | null;
+        const target = stored && VALID_TABS.includes(stored) ? stored : "pages";
+        setActiveTab(target);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", target);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      } catch {}
+    }
+  }, [tabParam, pathname, router, searchParams]);
+
+  useEffect(() => {
+    if (faqCatParam) {
+      setFaqFilterCategory(faqCatParam);
+      try {
+        localStorage.setItem(STORAGE_KEY_FAQ_CAT, faqCatParam);
+      } catch {}
+    }
+  }, [faqCatParam]);
 
   const loadData = () => {
     setLoading(true);
@@ -99,12 +157,31 @@ export function ContentHubClient() {
   }, []);
 
   const handleTabChange = (newTab: string) => {
+    const valid = VALID_TABS.includes(newTab as ContentTab) ? (newTab as ContentTab) : "pages";
+    setActiveTab(valid);
+    try {
+      localStorage.setItem(STORAGE_KEY_CONTENT_TAB, valid);
+    } catch {}
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (newTab === "pages") {
-        params.delete("tab");
+      params.set("tab", valid);
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    });
+  };
+
+  const handleFaqCategoryChange = (cat: string) => {
+    setFaqFilterCategory(cat);
+    try {
+      localStorage.setItem(STORAGE_KEY_FAQ_CAT, cat);
+    } catch {}
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (cat === "all") {
+        params.delete("faqCategory");
+        params.delete("category");
       } else {
-        params.set("tab", newTab);
+        params.set("faqCategory", cat);
       }
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -326,7 +403,7 @@ export function ContentHubClient() {
                     <button
                       key={cat.id}
                       type="button"
-                      onClick={() => setFaqFilterCategory(cat.id)}
+                      onClick={() => handleFaqCategoryChange(cat.id)}
                       className={`text-[11px] px-2.5 py-1 rounded-md transition-all font-medium ${
                         faqFilterCategory === cat.id
                           ? "bg-primary text-primary-foreground font-semibold shadow-2xs"

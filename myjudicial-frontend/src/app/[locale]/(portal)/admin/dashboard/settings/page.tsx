@@ -31,6 +31,22 @@ import { SocialMediaSection } from "@/features/settings/components/social-sectio
 
 const SYSTEM_TABS = ["operations", "brand", "contact", "seo"] as const;
 type SettingsTab = (typeof SYSTEM_TABS)[number];
+const STORAGE_KEY_SETTINGS_TAB = "myjudicial_admin_settings_tab";
+
+function getInitialSettingsTab(searchParam: string | null): SettingsTab {
+  if (searchParam && SYSTEM_TABS.includes(searchParam as SettingsTab)) {
+    return searchParam as SettingsTab;
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_SETTINGS_TAB) as SettingsTab | null;
+      if (stored && SYSTEM_TABS.includes(stored)) {
+        return stored;
+      }
+    } catch {}
+  }
+  return "operations";
+}
 
 function SettingsContent() {
   const t = useTranslations("admin.settings");
@@ -42,14 +58,30 @@ function SettingsContent() {
   const tabParam = searchParams.get("tab");
   const isLegacyTab = tabParam === "about" || tabParam === "careers" || tabParam === "legal" || tabParam === "content";
   
-  const activeTab: SettingsTab =
-    SYSTEM_TABS.includes(tabParam as SettingsTab)
-      ? (tabParam as SettingsTab)
-      : "operations";
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => getInitialSettingsTab(tabParam));
 
   const [loading, setLoading] = useState(true);
   const [backendUnreachable, setBackendUnreachable] = useState(false);
   const [settings, setSettings] = useState<SettingsData>(DEFAULTS);
+
+  // Synchronize active tab across refreshes, deep-links, and client navigation
+  useEffect(() => {
+    if (tabParam && SYSTEM_TABS.includes(tabParam as SettingsTab)) {
+      setActiveTab(tabParam as SettingsTab);
+      try {
+        localStorage.setItem(STORAGE_KEY_SETTINGS_TAB, tabParam);
+      } catch {}
+    } else if (!tabParam) {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_SETTINGS_TAB) as SettingsTab | null;
+        const target = stored && SYSTEM_TABS.includes(stored) ? stored : "operations";
+        setActiveTab(target);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", target);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      } catch {}
+    }
+  }, [tabParam, pathname, router, searchParams]);
 
   const loadSettings = () => {
     setLoading(true);
@@ -67,13 +99,14 @@ function SettingsContent() {
   const applySaved = (updated: SettingsData) => setSettings(normalizeSettings(updated));
 
   const handleTabChange = (newTab: string) => {
+    const valid = SYSTEM_TABS.includes(newTab as SettingsTab) ? (newTab as SettingsTab) : "operations";
+    setActiveTab(valid);
+    try {
+      localStorage.setItem(STORAGE_KEY_SETTINGS_TAB, valid);
+    } catch {}
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (newTab === "operations") {
-        params.delete("tab");
-      } else {
-        params.set("tab", newTab);
-      }
+      params.set("tab", valid);
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     });

@@ -1,5 +1,4 @@
 import { Fragment, type ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
 import { ChevronDown, Clock, Globe, Heart, Info, Lock, Mail, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Sparkles, Target, TriangleAlert, Users, Award } from "lucide-react";
 import type { ContentBlock } from "@/lib/api/content-pages";
 import type { PlatformPublicSettings } from "@/features/settings/hooks/useSocialLinks";
@@ -183,16 +182,14 @@ function MilestonesBlock({ block }: { block: Extract<ContentBlock, { type: "mile
   );
 }
 
-async function ContactCardBlock({
+function ContactCardBlock({
   settings,
-  locale,
+  t,
 }: {
   block: Extract<ContentBlock, { type: "contactCard" }>;
   settings: PlatformPublicSettings | null;
-  locale: string;
+  t: (key: string, values?: Record<string, any>) => string;
 }) {
-  const t = await getTranslations({ locale, namespace: "publicContent" });
-
   const rows: Array<{ icon: typeof Mail; label: string; href?: string; value: string }> = [];
   if (settings) {
     if (settings.supportEmail) {
@@ -257,15 +254,14 @@ async function ContactCardBlock({
   );
 }
 
-async function JobsBlock({
+function JobsBlock({
   settings,
-  locale,
+  t,
 }: {
   block: Extract<ContentBlock, { type: "jobs" }>;
   settings: PlatformPublicSettings | null;
-  locale: string;
+  t: (key: string, values?: Record<string, any>) => string;
 }) {
-  const t = await getTranslations({ locale, namespace: "publicContent" });
   const email = settings?.careersEmail || "support@myjudicial.com";
   const roles = (settings?.careersOpenRoles || []).filter((role) => role.published !== false);
 
@@ -358,15 +354,14 @@ async function JobsBlock({
   );
 }
 
-async function FaqBlock({
+function FaqBlock({
   settings,
-  locale,
+  t,
 }: {
   block: Extract<ContentBlock, { type: "faq" }>;
   settings: PlatformPublicSettings | null;
-  locale: string;
+  t: (key: string, values?: Record<string, any>) => string;
 }) {
-  const t = await getTranslations({ locale, namespace: "publicContent" });
   const faqs = settings?.supplementalFaqs || [];
 
   return (
@@ -497,13 +492,17 @@ export function ContentBlocks({
   blocks,
   settings,
   locale,
+  t,
   anchorIdsByBlockId,
 }: {
   blocks: ContentBlock[];
   settings: PlatformPublicSettings | null;
   locale: string;
+  t?: (key: string, values?: Record<string, any>) => string;
   anchorIdsByBlockId?: Record<string, string>;
 }) {
+  const translate = t ?? ((key: string) => key);
+
   return (
     <div className={sectionClass}>
       {blocks.map((block) => {
@@ -531,13 +530,13 @@ export function ContentBlocks({
             element = <MilestonesBlock block={block} />;
             break;
           case "contactCard":
-            element = <ContactCardBlock block={block} settings={settings} locale={locale} />;
+            element = <ContactCardBlock block={block} settings={settings} t={translate} />;
             break;
           case "jobs":
-            element = <JobsBlock block={block} settings={settings} locale={locale} />;
+            element = <JobsBlock block={block} settings={settings} t={translate} />;
             break;
           case "faq":
-            element = <FaqBlock block={block} settings={settings} locale={locale} />;
+            element = <FaqBlock block={block} settings={settings} t={translate} />;
             break;
           case "hero":
             element = <HeroBlock block={block} />;

@@ -200,6 +200,7 @@ export async function PublicContentPageView({
               blocks={page.blocks}
               settings={settings}
               locale={locale}
+              t={t}
               anchorIdsByBlockId={Object.fromEntries(headingBlocks.map((item) => [item.block.id, item.id]))}
             />
           )}
@@ -221,6 +222,7 @@ export async function PublicContentPageView({
               blocks={[page.blocks[0]]}
               settings={settings}
               locale={locale}
+              t={t}
             />
           </div>
         </section>
@@ -256,6 +258,7 @@ export async function PublicContentPageView({
               blocks={firstBlockIsHero ? page.blocks.slice(1) : page.blocks}
               settings={settings}
               locale={locale}
+              t={t}
             />
           </div>
         </div>

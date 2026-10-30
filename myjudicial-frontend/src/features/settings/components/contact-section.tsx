@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Mail } from "lucide-react";
+import { Mail, ExternalLink } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { SettingsSection } from "./settings-section";
@@ -88,9 +88,22 @@ export function ContactChannelsSection({ settings, onSaved }: Props) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="settings-whatsapp-number" className="text-xs font-semibold">
-            {t("whatsappNumber")}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="settings-whatsapp-number" className="text-xs font-semibold">
+              {t("whatsappNumber")}
+            </Label>
+            {draft.whatsappNumber ? (
+              <a
+                href={`https://wa.me/${draft.whatsappNumber.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-primary hover:underline inline-flex items-center gap-0.5 font-medium"
+              >
+                <ExternalLink size={9} />
+                Test Link
+              </a>
+            ) : null}
+          </div>
           <Input
             id="settings-whatsapp-number"
             value={draft.whatsappNumber}

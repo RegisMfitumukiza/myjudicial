@@ -117,6 +117,8 @@ export interface SettingsData {
   // Brand & Public Identity
   platformTagline: string;
   copyrightNotice: string;
+  brandLogoUrl: string;
+  brandFaviconUrl: string;
   // Maintenance & Broadcast Notices
   maintenanceNotice: string;
   // Legal & Regulatory Disclaimers
@@ -221,6 +223,8 @@ const DEFAULTS: SettingsData = {
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
+  brandLogoUrl: "",
+  brandFaviconUrl: "",
   maintenanceNotice: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
   minAdvanceBookingHours: 2,
@@ -271,6 +275,8 @@ const KEYS: Record<keyof SettingsData, string> = {
   seoKeywords: "seo_keywords",
   platformTagline: "platform_tagline",
   copyrightNotice: "copyright_notice",
+  brandLogoUrl: "brand_logo_url",
+  brandFaviconUrl: "brand_favicon_url",
   maintenanceNotice: "maintenance_notice",
   legalDisclaimer: "legal_disclaimer",
   minAdvanceBookingHours: "min_advance_booking_hours",
@@ -356,6 +362,8 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
     seoKeywords: (map.get(KEYS.seoKeywords) as string) ?? DEFAULTS.seoKeywords,
     platformTagline: (map.get(KEYS.platformTagline) as string) ?? DEFAULTS.platformTagline,
     copyrightNotice: (map.get(KEYS.copyrightNotice) as string) ?? DEFAULTS.copyrightNotice,
+    brandLogoUrl: (map.get(KEYS.brandLogoUrl) as string) ?? DEFAULTS.brandLogoUrl,
+    brandFaviconUrl: (map.get(KEYS.brandFaviconUrl) as string) ?? DEFAULTS.brandFaviconUrl,
     maintenanceNotice: (map.get(KEYS.maintenanceNotice) as string) ?? DEFAULTS.maintenanceNotice,
     legalDisclaimer: (map.get(KEYS.legalDisclaimer) as string) ?? DEFAULTS.legalDisclaimer,
     minAdvanceBookingHours: (map.get(KEYS.minAdvanceBookingHours) as number) ?? DEFAULTS.minAdvanceBookingHours,
@@ -424,6 +432,8 @@ export const AdminSettingService = {
     if (input.seoKeywords !== undefined) entries.push({ key: KEYS.seoKeywords, value: input.seoKeywords });
     if (input.platformTagline !== undefined) entries.push({ key: KEYS.platformTagline, value: input.platformTagline });
     if (input.copyrightNotice !== undefined) entries.push({ key: KEYS.copyrightNotice, value: input.copyrightNotice });
+    if (input.brandLogoUrl !== undefined) entries.push({ key: KEYS.brandLogoUrl, value: input.brandLogoUrl });
+    if (input.brandFaviconUrl !== undefined) entries.push({ key: KEYS.brandFaviconUrl, value: input.brandFaviconUrl });
     if (input.maintenanceNotice !== undefined) entries.push({ key: KEYS.maintenanceNotice, value: input.maintenanceNotice });
     if (input.legalDisclaimer !== undefined) entries.push({ key: KEYS.legalDisclaimer, value: input.legalDisclaimer });
     if (input.minAdvanceBookingHours !== undefined) entries.push({ key: KEYS.minAdvanceBookingHours, value: input.minAdvanceBookingHours });

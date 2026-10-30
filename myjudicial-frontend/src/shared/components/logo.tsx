@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/routing";
 import Image from "next/image";
+import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 
 interface LogoProps {
   className?: string;
@@ -28,6 +29,10 @@ export function Logo({
   onClick,
   hideTextOnSmall = false,
 }: LogoProps) {
+  const { settings } = usePlatformSettings();
+  const logoSrc = settings?.brandLogoUrl?.trim() || "/myjudicial-logo.png";
+  const platformName = settings?.platformName?.trim() || "MyJudicial";
+
   return (
     <Link
       href={href}
@@ -35,10 +40,11 @@ export function Logo({
       className={`inline-flex items-center gap-2 select-none group transition-opacity hover:opacity-90 ${className}`}
     >
       <Image
-        src="/myjudicial-logo.png"
-        alt="MyJudicial"
+        src={logoSrc}
+        alt={platformName}
         width={LOGO_WIDTH}
         height={LOGO_HEIGHT}
+        unoptimized
         style={{ width: "auto", height: `${iconSize}px` }}
         className={`shrink-0 object-contain transition-transform group-hover:scale-105 ${
           light ? "brightness-0 invert" : ""
@@ -54,7 +60,7 @@ export function Logo({
             light ? "text-white" : "text-foreground"
           }`}
         >
-          Myjudicial
+          {platformName}
         </span>
       )}
     </Link>

@@ -50,6 +50,8 @@ router.get(
         seoKeywords: s.seoKeywords,
         platformTagline: s.platformTagline,
         copyrightNotice: s.copyrightNotice,
+        brandLogoUrl: s.brandLogoUrl,
+        brandFaviconUrl: s.brandFaviconUrl,
         maintenanceNotice: s.maintenanceNotice,
         legalDisclaimer: s.legalDisclaimer,
         minAdvanceBookingHours: s.minAdvanceBookingHours,

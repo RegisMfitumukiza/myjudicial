@@ -139,21 +139,47 @@ export function BrandIdentitySection({ settings, onSaved }: Props) {
           <div className="grid gap-6 sm:grid-cols-2">
             {/* Platform Logo */}
             <div className="space-y-2 p-3.5 rounded-xl border border-border bg-muted/20">
-              <Label className="text-xs font-medium">Platform Logo</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Platform Logo</Label>
+                <span className="text-[10px] text-muted-foreground">Nav, Header, & Footer</span>
+              </div>
               {draft.brandLogoUrl ? (
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-28 rounded-lg border border-border bg-background p-1.5 flex items-center justify-center overflow-hidden">
-                    <img src={draft.brandLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-28 rounded-lg border border-border bg-background p-1.5 flex items-center justify-center overflow-hidden">
+                      <img src={draft.brandLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => set("brandLogoUrl", "")}
+                      className="text-xs text-destructive hover:bg-destructive/10 h-8"
+                    >
+                      Remove
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => set("brandLogoUrl", "")}
-                    className="text-xs text-destructive hover:bg-destructive/10"
-                  >
-                    Remove
-                  </Button>
+
+                  {/* Dual-Theme Contrast Checker */}
+                  <div className="rounded-lg border border-border/70 bg-background/50 p-2.5 space-y-1.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                      Theme Contrast Legibility
+                    </span>
+                    <div className="grid grid-cols-2 gap-2 text-center">
+                      <div className="rounded-md border border-slate-200 bg-white p-2 flex flex-col items-center justify-center gap-1">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase">Light Theme</span>
+                        <div className="h-7 w-full flex items-center justify-center">
+                          <img src={draft.brandLogoUrl} alt="Light theme" className="max-h-full max-w-full object-contain" />
+                        </div>
+                      </div>
+                      <div className="rounded-md border border-slate-800 bg-slate-950 p-2 flex flex-col items-center justify-center gap-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Dark Theme</span>
+                        <div className="h-7 w-full flex items-center justify-center">
+                          <img src={draft.brandLogoUrl} alt="Dark theme" className="max-h-full max-w-full object-contain" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : null}
 
@@ -192,21 +218,37 @@ export function BrandIdentitySection({ settings, onSaved }: Props) {
 
             {/* Platform Favicon */}
             <div className="space-y-2 p-3.5 rounded-xl border border-border bg-muted/20">
-              <Label className="text-xs font-medium">Platform Favicon</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Platform Favicon</Label>
+                <span className="text-[10px] text-muted-foreground">Browser Tab & Bookmarks</span>
+              </div>
               {draft.brandFaviconUrl ? (
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg border border-border bg-background p-1.5 flex items-center justify-center overflow-hidden">
-                    <img src={draft.brandFaviconUrl} alt="Favicon" className="max-h-full max-w-full object-contain" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg border border-border bg-background p-1.5 flex items-center justify-center overflow-hidden">
+                      <img src={draft.brandFaviconUrl} alt="Favicon" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => set("brandFaviconUrl", "")}
+                      className="text-xs text-destructive hover:bg-destructive/10 h-8"
+                    >
+                      Remove
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => set("brandFaviconUrl", "")}
-                    className="text-xs text-destructive hover:bg-destructive/10"
-                  >
-                    Remove
-                  </Button>
+
+                  {/* Browser Tab Emulator */}
+                  <div className="rounded-lg border border-border/70 bg-background/50 p-2.5 space-y-1">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                      Browser Tab Emulator
+                    </span>
+                    <div className="flex items-center gap-2 max-w-[240px] px-2.5 py-1.5 rounded-t-md border-t border-x border-border bg-card shadow-2xs text-xs font-medium text-foreground">
+                      <img src={draft.brandFaviconUrl} alt="Favicon Tab" className="h-3.5 w-3.5 object-contain rounded-xs shrink-0" />
+                      <span className="truncate text-[11px]">{settings.platformName || "MyJudicial"} | Legal</span>
+                    </div>
+                  </div>
                 </div>
               ) : null}
 

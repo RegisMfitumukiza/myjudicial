@@ -99,6 +99,8 @@ export interface PlatformPublicSettings {
   seoKeywords: string;
   platformTagline: string;
   copyrightNotice: string;
+  brandLogoUrl?: string;
+  brandFaviconUrl?: string;
   maintenanceNotice: string;
   legalDisclaimer: string;
   minAdvanceBookingHours: number;
@@ -205,6 +207,8 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformPublicSettings = {
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
+  brandLogoUrl: "",
+  brandFaviconUrl: "",
   maintenanceNotice: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
   minAdvanceBookingHours: 2,

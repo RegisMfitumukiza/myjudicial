@@ -100,6 +100,8 @@ export const updateSettingsSchema = z.object({
   // Brand & Public Identity
   platformTagline: z.string().trim().optional(),
   copyrightNotice: z.string().trim().optional(),
+  brandLogoUrl: z.string().trim().optional(),
+  brandFaviconUrl: z.string().trim().optional(),
   // Maintenance & Broadcast Notices
   maintenanceNotice: z.string().trim().optional(),
   // Legal & Regulatory Disclaimers

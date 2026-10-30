@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Cog } from "lucide-react";
+import { Cog, AlertTriangle, Coins, ShieldCheck, Clock } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,30 @@ import {
 import { SettingsSection } from "./settings-section";
 import { saveSettingsSection } from "../api";
 import type { SettingsData } from "../settings";
+
+function formatEscrowDuration(seconds: number): string {
+  if (!seconds || seconds <= 0) return "0s (immediate release)";
+  if (seconds < 60) return `${seconds} seconds`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSecs = seconds % 60;
+  if (minutes < 60) {
+    return remainingSecs > 0 ? `${minutes}m ${remainingSecs}s` : `${minutes} min${minutes > 1 ? "s" : ""}`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainingMins = minutes % 60;
+  if (hours < 24) {
+    return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours} hour${hours > 1 ? "s" : ""}`;
+  }
+  const days = (seconds / 86400).toFixed(1).replace(/\.0$/, "");
+  return `${days} days (${hours} hrs)`;
+}
+
+const ESCROW_PRESETS = [
+  { label: "5m", seconds: 300 },
+  { label: "15m", seconds: 900 },
+  { label: "1h", seconds: 3600 },
+  { label: "24h", seconds: 86400 },
+] as const;
 
 interface Props {
   settings: SettingsData;
@@ -102,7 +127,12 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="settings-platform-fee" className="text-xs font-semibold">{t("platformFee")}</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="settings-platform-fee" className="text-xs font-semibold">{t("platformFee")}</Label>
+            <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal text-muted-foreground">
+              Currency: RWF
+            </Badge>
+          </div>
           <Input
             id="settings-platform-fee"
             type="number"
@@ -112,11 +142,22 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
             onChange={(e) => set("platformFeePercent", Number(e.target.value))}
             className="w-full"
           />
-          <p className="text-[11px] text-muted-foreground">{t("platformFeeDesc")}</p>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+            <span>{t("platformFeeDesc")}</span>
+            <span className="font-medium text-foreground">
+              Sim: 50,000 RWF &rarr; Fee: {(50000 * draft.platformFeePercent / 100).toLocaleString()} RWF
+            </span>
+          </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="settings-min-escrow" className="text-xs font-semibold">{t("minEscrowDuration")}</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="settings-min-escrow" className="text-xs font-semibold">{t("minEscrowDuration")}</Label>
+            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-medium flex items-center gap-1">
+              <Clock size={10} />
+              {formatEscrowDuration(draft.minEscrowDurationSeconds)}
+            </Badge>
+          </div>
           <Input
             id="settings-min-escrow"
             type="number"
@@ -125,7 +166,26 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
             onChange={(e) => set("minEscrowDurationSeconds", Number(e.target.value))}
             className="w-full"
           />
-          <p className="text-[11px] text-muted-foreground">{t("minEscrowDurationDesc")}</p>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+            <span>{t("minEscrowDurationDesc")}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px]">Presets:</span>
+              {ESCROW_PRESETS.map((p) => (
+                <button
+                  key={p.seconds}
+                  type="button"
+                  onClick={() => set("minEscrowDurationSeconds", p.seconds)}
+                  className={`text-[10px] px-1 py-0.5 rounded border ${
+                    draft.minEscrowDurationSeconds === p.seconds
+                      ? "bg-primary/10 border-primary text-primary font-semibold"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
@@ -192,6 +252,18 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
               placeholder="e.g. Scheduled platform upgrade Sunday at 02:00 AM CAT. Video consultations remain operational."
             />
             <p className="text-[11px] text-muted-foreground">{t("maintenanceNoticeDesc")}</p>
+
+            {draft.maintenanceMode && (
+              <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+                <div>
+                  <span className="font-semibold block">Public Visitor Banner Preview:</span>
+                  <p className="mt-0.5 text-[11px] opacity-90 leading-relaxed">
+                    {draft.maintenanceNotice || "MyJudicial is currently undergoing scheduled platform maintenance. Some operations may be limited."}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

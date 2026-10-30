@@ -16,6 +16,7 @@ export async function generateMetadata({
   let dynamicTitle = t('title');
   let dynamicDescription = t('description');
   let dynamicKeywords: string[] = [];
+  let dynamicFavicon: string | null = null;
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -31,6 +32,7 @@ export async function generateMetadata({
         if (json?.data?.ogImageUrl) ogImage = json.data.ogImageUrl;
         if (json?.data?.seoTitle) dynamicTitle = json.data.seoTitle;
         if (json?.data?.seoDescription) dynamicDescription = json.data.seoDescription;
+        if (json?.data?.brandFaviconUrl) dynamicFavicon = json.data.brandFaviconUrl;
         if (json?.data?.seoKeywords) {
           dynamicKeywords = json.data.seoKeywords
             .split(',')
@@ -47,6 +49,7 @@ export async function generateMetadata({
     title: dynamicTitle,
     description: dynamicDescription,
     ...(dynamicKeywords.length > 0 ? { keywords: dynamicKeywords } : {}),
+    ...(dynamicFavicon ? { icons: { icon: [{ url: dynamicFavicon }] } } : {}),
     alternates: {
       canonical: `https://myjudicial.com/${locale}`,
       languages: {

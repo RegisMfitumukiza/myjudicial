@@ -3,12 +3,23 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Clock } from "lucide-react";
+import { Clock, ShieldCheck } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { Badge } from "@/shared/components/ui/badge";
 import { SettingsSection } from "./settings-section";
 import { saveSettingsSection } from "../api";
 import type { SettingsData } from "../settings";
+
+function formatHours(hours: number): string {
+  if (!hours || hours <= 0) return "0 hours (instant / no grace)";
+  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""}`;
+  const days = (hours / 24).toFixed(1).replace(/\.0$/, "");
+  return `${days} day${Number(days) > 1 ? "s" : ""} (${hours} hrs)`;
+}
+
+const ADVANCE_PRESETS = [1, 2, 6, 24];
+const CANCELLATION_PRESETS = [2, 12, 24, 48];
 
 interface Props {
   settings: SettingsData;
@@ -57,9 +68,15 @@ export function ConsultationRulesSection({ settings, onSaved }: Props) {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="settings-min-notice" className="text-xs font-semibold">
-            {t("minAdvanceBookingHours")}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="settings-min-notice" className="text-xs font-semibold">
+              {t("minAdvanceBookingHours")}
+            </Label>
+            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-medium flex items-center gap-1">
+              <Clock size={10} />
+              {formatHours(draft.minAdvanceBookingHours)}
+            </Badge>
+          </div>
           <Input
             id="settings-min-notice"
             type="number"
@@ -69,13 +86,38 @@ export function ConsultationRulesSection({ settings, onSaved }: Props) {
             onChange={(e) => set("minAdvanceBookingHours", Number(e.target.value))}
             className="w-full"
           />
-          <p className="text-[11px] text-muted-foreground">{t("minAdvanceBookingHoursDesc")}</p>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+            <span>{t("minAdvanceBookingHoursDesc")}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px]">Presets:</span>
+              {ADVANCE_PRESETS.map((hrs) => (
+                <button
+                  key={hrs}
+                  type="button"
+                  onClick={() => set("minAdvanceBookingHours", hrs)}
+                  className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                    draft.minAdvanceBookingHours === hrs
+                      ? "bg-primary/10 border-primary text-primary font-semibold"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  {hrs}h
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="settings-cancellation-grace" className="text-xs font-semibold">
-            {t("cancellationGraceHours")}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="settings-cancellation-grace" className="text-xs font-semibold">
+              {t("cancellationGraceHours")}
+            </Label>
+            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-medium flex items-center gap-1">
+              <ShieldCheck size={10} />
+              {formatHours(draft.cancellationGraceHours)}
+            </Badge>
+          </div>
           <Input
             id="settings-cancellation-grace"
             type="number"
@@ -85,7 +127,26 @@ export function ConsultationRulesSection({ settings, onSaved }: Props) {
             onChange={(e) => set("cancellationGraceHours", Number(e.target.value))}
             className="w-full"
           />
-          <p className="text-[11px] text-muted-foreground">{t("cancellationGraceHoursDesc")}</p>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+            <span>{t("cancellationGraceHoursDesc")}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px]">Presets:</span>
+              {CANCELLATION_PRESETS.map((hrs) => (
+                <button
+                  key={hrs}
+                  type="button"
+                  onClick={() => set("cancellationGraceHours", hrs)}
+                  className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                    draft.cancellationGraceHours === hrs
+                      ? "bg-primary/10 border-primary text-primary font-semibold"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  {hrs}h
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </SettingsSection>

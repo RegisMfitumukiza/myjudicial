@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Building2 } from "lucide-react";
+import { Building2, ExternalLink, MapPin } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { SettingsSection } from "./settings-section";
@@ -106,6 +106,26 @@ export function HeadquartersSection({ settings, onSaved }: Props) {
             onChange={(e) => set("officePoBox", e.target.value)}
             placeholder="P.O. Box 2848, Kigali"
           />
+        </div>
+
+        {/* Live Address Combination & Map Verification */}
+        <div className="sm:col-span-2 lg:col-span-4 rounded-lg border border-border/70 bg-muted/30 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div className="flex items-center gap-2 text-muted-foreground min-w-0">
+            <MapPin size={14} className="text-primary shrink-0" />
+            <span className="truncate">
+              <strong>Combined Legal Address:</strong>{" "}
+              {[draft.officeBuilding, draft.officeStreet, draft.officeDistrict, draft.officePoBox].filter(Boolean).join(", ") || "Kigali, Rwanda"}
+            </span>
+          </div>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([draft.officeBuilding, draft.officeDistrict].filter(Boolean).join(", ") || "Kigali, Rwanda")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-semibold shrink-0"
+          >
+            <ExternalLink size={12} />
+            Verify on Google Maps
+          </a>
         </div>
       </div>
     </SettingsSection>

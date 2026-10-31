@@ -299,10 +299,10 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           }
         } catch (error: any) {
           console.error("[auth] Background token refresh failed:", error);
-          // Only mark session as expired if the backend explicitly rejected the token (400, 401, 403).
-          // Do NOT mark as expired on network errors (e.g. waking laptop from sleep while Wi-Fi reconnects).
+          // Only mark session as expired if the backend explicitly rejected the token (400, 401, 403)
+          // or if the token is already past its expiration boundary.
           const status = error?.status;
-          if (status === 400 || status === 401 || status === 403) {
+          if (status === 400 || status === 401 || status === 403 || (tokenExpiresAt > 0 && Date.now() >= tokenExpiresAt)) {
             token.error = "RefreshAccessTokenError";
           }
         }

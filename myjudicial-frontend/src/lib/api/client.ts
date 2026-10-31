@@ -103,7 +103,7 @@ async function attachAuthHeaders(headers: Headers, token?: string): Promise<void
  * Returns the new access token or null if refresh failed.
  * Uses a singleton promise to prevent concurrent refresh attempts.
  */
-export async function refreshAccessToken(): Promise<string | null> {
+export async function refreshAccessToken(failedToken?: string): Promise<string | null> {
   // If already refreshing, wait for the existing promise
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
@@ -120,14 +120,22 @@ export async function refreshAccessToken(): Promise<string | null> {
       // when the token is expiring or expired, rotating the tokens safely in the HTTP cookie.
       if (typeof window !== "undefined") {
         const session = await getSession();
-        const nextAuthSession = session as { accessToken?: string; tokenExpiresAt?: number; error?: string } | null;
+        const nextAuthSession = session as { accessToken?: string; tokenExpiresAt?: number; error?: string; refreshToken?: string } | null;
 
         if (nextAuthSession?.error === "RefreshAccessTokenError") {
           console.warn("[apiClient] NextAuth session refresh failed permanently");
           return null;
         }
 
-        if (nextAuthSession?.accessToken) {
+        // Only reuse the session's access token if it is DIFFERENT from the one that just failed
+        // and its expiration timestamp is safely in the future.
+        const isFresh = Boolean(
+          nextAuthSession?.accessToken &&
+          nextAuthSession.accessToken !== failedToken &&
+          (!nextAuthSession.tokenExpiresAt || Date.now() < nextAuthSession.tokenExpiresAt - 30_000)
+        );
+
+        if (isFresh && nextAuthSession?.accessToken) {
           setCachedAuthToken(nextAuthSession.accessToken, nextAuthSession.tokenExpiresAt);
           return nextAuthSession.accessToken;
         }
@@ -175,8 +183,12 @@ export async function refreshAccessToken(): Promise<string | null> {
 
       const expiresAt = Date.now() + expiresIn * 1000;
       setCachedAuthToken(newAccessToken, expiresAt);
-      if (typeof window !== "undefined" && newRefreshToken) {
-        localStorage.setItem("refreshToken", newRefreshToken);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("accessToken", newAccessToken);
+        localStorage.setItem("tokenExpiresAt", String(expiresAt));
+        if (newRefreshToken) {
+          localStorage.setItem("refreshToken", newRefreshToken);
+        }
       }
 
       console.log("[apiClient] Token refreshed successfully via direct endpoint");
@@ -224,7 +236,7 @@ async function handleLogout() {
     // Ignore signOut errors
   }
 
-  // Redirect to sign-in with locale prefix and admin parameter if applicable
+  // Redirect to sign-in with locale prefix and force=1 so login form is guaranteed to show
   if (typeof window !== "undefined") {
     const pathname = window.location.pathname;
     const isAuthPage = /\/(sign-in|sign-up|post-auth|forgot-password|reset-password)(\/|$)/.test(pathname);
@@ -236,7 +248,7 @@ async function handleLogout() {
         pathname.includes("/admin") ||
         window.location.search.includes("admin=1") ||
         window.location.hostname.toLowerCase().startsWith("admin.");
-      window.location.href = isAdmin ? `/${locale}/sign-in?admin=1` : `/${locale}/sign-in`;
+      window.location.href = isAdmin ? `/${locale}/sign-in?admin=1&force=1` : `/${locale}/sign-in?force=1`;
     }
   }
 }
@@ -300,8 +312,9 @@ async function fetchWithRefresh<T>(
 
   console.log("Access token expired, attempting refresh...");
 
-  // Try to refresh the token
-  const newAccessToken = await refreshAccessToken();
+  // Try to refresh the token, passing the failed token to avoid reusing it
+  const failedToken = options.token || getCachedAuthToken() || undefined;
+  const newAccessToken = await refreshAccessToken(failedToken);
 
   if (!newAccessToken) {
     console.warn("[apiClient] Token refresh did not produce a new access token");
@@ -310,12 +323,10 @@ async function fetchWithRefresh<T>(
     // Do NOT log out if the device is currently offline or connection was interrupted
     const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
     if (isOnline && typeof window !== "undefined") {
-      const session = await getSession();
-      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      const currentPath = window.location.pathname;
       const isProtectedRoute = /\/(client|expert|admin)(\/|$)/.test(currentPath);
-      const isTerminal = (session as any)?.error === "RefreshAccessTokenError" || (!session && isProtectedRoute);
-      if (isTerminal) {
-        console.warn("[apiClient] Session permanently expired, logging out...");
+      if (isProtectedRoute) {
+        console.warn("[apiClient] Session permanently expired on protected route, logging out...");
         await handleLogout();
       }
     }
@@ -324,7 +335,19 @@ async function fetchWithRefresh<T>(
 
   // Retry the original request with the new token
   console.log("Retrying request with new token...");
-  return fetchWithRefresh(path, { ...options, token: newAccessToken }, true);
+  const retryResponse = await fetchWithRefresh(path, { ...options, token: newAccessToken }, true);
+  if (retryResponse.status === 401 && !options.skipLogoutOn401) {
+    const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+    if (isOnline && typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const isProtectedRoute = /\/(client|expert|admin)(\/|$)/.test(currentPath);
+      if (isProtectedRoute) {
+        console.warn("[apiClient] Retry with fresh token also failed with 401 on protected route, logging out...");
+        await handleLogout();
+      }
+    }
+  }
+  return retryResponse;
 }
 
 /** Safely parses response body as JSON. Returns undefined for 204 or empty/whitespace responses. */

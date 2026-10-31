@@ -103,7 +103,14 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
 
   // If already authenticated, redirect to callbackUrl or role dashboard immediately
   useEffect(() => {
-    if (sessionStatus === "authenticated" && session?.user && !(session as any)?.error) {
+    const isForceReauth = searchParams.get("force") === "1" || searchParams.get("reauth") === "1";
+    if (isForceReauth) return;
+
+    const tokenExpiresAt = (session as any)?.tokenExpiresAt as number | undefined;
+    const isTokenExpired = Boolean(tokenExpiresAt && Date.now() >= tokenExpiresAt);
+    const hasAccessToken = Boolean((session as any)?.accessToken);
+
+    if (sessionStatus === "authenticated" && session?.user && hasAccessToken && !isTokenExpired && !(session as any)?.error) {
       if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") && !callbackUrl.startsWith("/\\")) {
         const hasLocale = new RegExp(`^/(en|fr|rw)(/|$)`).test(callbackUrl);
         router.replace(hasLocale ? callbackUrl : `/${locale}${callbackUrl}`);
@@ -130,7 +137,7 @@ export function SignInForm({ defaultAdminMode = false }: SignInFormProps = {}) {
         }
       }
     }
-  }, [sessionStatus, session, callbackUrl, router, locale, defaultAdminMode]);
+  }, [sessionStatus, session, callbackUrl, router, locale, defaultAdminMode, searchParams]);
 
   // If user requests admin mode while on main host, immediately forward to admin portal
   // BEFORE they fill credentials so they never suffer double submission or theme reset.

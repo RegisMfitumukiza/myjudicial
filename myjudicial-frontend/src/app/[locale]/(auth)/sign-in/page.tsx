@@ -38,10 +38,11 @@ export default async function SignInPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ callbackUrl?: string; admin?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; admin?: string; force?: string; reauth?: string }>;
 }) {
   const { locale } = await params;
-  const { callbackUrl, admin } = await searchParams;
+  const { callbackUrl, admin, force, reauth } = await searchParams;
+  const isForceReauth = force === "1" || reauth === "1";
 
   const headerList = await headers();
   const host = (headerList.get("x-forwarded-host")?.split(",")[0] ?? headerList.get("host") ?? "").toLowerCase().replace(/:\d+$/, "");
@@ -50,7 +51,11 @@ export default async function SignInPage({
 
   // If already authenticated with a valid session, redirect immediately!
   const session = await auth();
-  if (session?.user?.id && !(session as any)?.error) {
+  const tokenExpiresAt = (session as any)?.tokenExpiresAt as number | undefined;
+  const isTokenExpired = Boolean(tokenExpiresAt && Date.now() >= tokenExpiresAt);
+  const hasAccessToken = Boolean((session as any)?.accessToken);
+
+  if (!isForceReauth && !isTokenExpired && hasAccessToken && session?.user?.id && !(session as any)?.error) {
     if (isSafeReturnPath(callbackUrl)) {
       const hasLocalePrefix = new RegExp(`^/(${routing.locales.join("|")})(/|$)`).test(callbackUrl);
       redirect(hasLocalePrefix ? callbackUrl : `/${locale}${callbackUrl}`);

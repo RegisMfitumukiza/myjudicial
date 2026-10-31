@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTimeOfDay, TIME_GREETING_KEY } from "@/shared/hooks/useTimeOfDay";
 import {
   Users, BadgeCheck, DollarSign, AlertCircle,
@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button";
 import { ExpertAvatar } from "@/shared/components/expert-avatar";
 import { formatRWF } from "@/lib/utils";
+import { handleAppSignOut } from "@/lib/auth-signout";
 
 function resolveValue(obj: any, path: string[]): number | null {
   let current = obj;
@@ -38,9 +39,21 @@ export default function AdminDashboardPage() {
   const locale = useLocale();
   const timeOfDay = useTimeOfDay();
   const greetingKey = TIME_GREETING_KEY[timeOfDay];
-  const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
-  const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
+  const { data: summaryRes, isLoading: summaryLoading, isError: summaryError, error: summaryErr, refetch: refetchSummary } = useGetAdminAnalyticsSummary();
+  const { data: revenueRes, isLoading: revenueLoading, isError: revenueError, error: revenueErr, refetch: refetchRevenue } = useGetAdminAnalyticsRevenue();
   const { data: verifRes } = useGetAdminVerificationQueue();
+
+  const isAuthError =
+    (summaryErr as any)?.status === 401 ||
+    (revenueErr as any)?.status === 401 ||
+    (summaryErr as any)?.code === "UNAUTHORIZED" ||
+    (revenueErr as any)?.code === "UNAUTHORIZED";
+
+  useEffect(() => {
+    if (isAuthError) {
+      handleAppSignOut({ role: "ADMIN", callbackUrl: `/${locale}/sign-in?admin=1&force=1` });
+    }
+  }, [isAuthError, locale]);
 
   const summary = summaryRes?.status === 200 ? summaryRes.data.data : null;
   const revenue = revenueRes?.status === 200 ? revenueRes.data.data : null;
@@ -89,6 +102,22 @@ export default function AdminDashboardPage() {
   }
 
   if (hasError) {
+    if (isAuthError) {
+      return (
+        <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
+          <PageHeader title={t(greetingKey)} description={t("subtitle")} />
+          <ErrorState
+            title="Session Expired"
+            message="Your administrator session has ended. Please sign in again."
+            retryLabel="Sign In as Admin"
+            onRetry={async () => {
+              await handleAppSignOut({ role: "ADMIN", callbackUrl: `/${locale}/sign-in?admin=1&force=1` });
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6 p-2.5 min-[360px]:p-4 pb-16 sm:p-6 sm:pb-8 lg:p-8 min-w-0">
         <PageHeader title={t(greetingKey)} description={t("subtitle")} />

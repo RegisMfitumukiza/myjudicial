@@ -151,5 +151,6 @@ export interface ContentPageRevisionRecord {
   openGraphImage: string | null;
   changeType: ContentPageChangeType;
   authorEmail: string | null;
+  authorName?: string | null;
   createdAt: string;
 }

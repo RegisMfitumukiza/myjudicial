@@ -8,6 +8,7 @@ import {
   Check,
   Copy,
   Eye,
+  FileSearch,
   FileText,
   History,
   Loader2,
@@ -60,6 +61,10 @@ import {
   saveContentPage,
 } from "@/lib/api/content-pages";
 import { BlockCard, newBlockId } from "./block-card";
+import { auditContentPage } from "./content-quality";
+import { ContentHealthBar } from "./content-health-bar";
+import { PreflightAuditDialog } from "./preflight-audit-dialog";
+import { RevisionDiffDialog } from "./revision-diff-dialog";
 
 /**
  * Admin editor for the public content pages.
@@ -216,7 +221,20 @@ function PageEditor({
   const [confirmPublish, setConfirmPublish] = useState(false);
   const [confirmRestoreId, setConfirmRestoreId] = useState<string | null>(null);
   const [restoring, setRestoring] = useState(false);
+  const [showPreflightDialog, setShowPreflightDialog] = useState(false);
+  const [isPublishingMode, setIsPublishingMode] = useState(false);
+  const [inspectingRevision, setInspectingRevision] = useState<ContentPageRevision | null>(null);
   const previewHref = `/${locale}/admin/dashboard/content/preview/${slug.toLowerCase()}`;
+
+  const enPageReference = useMemo(
+    () => allPages.find((p) => p.slug === slug && p.locale === "en") ?? null,
+    [allPages, slug]
+  );
+
+  const qualityReport = useMemo(
+    () => auditContentPage(draft, enPageReference, locale),
+    [draft, enPageReference, locale]
+  );
 
   const isDirty = useMemo(() => {
     if (!saved) return draft.title.trim() !== "" || draft.blocks.length > 0;
@@ -303,6 +321,28 @@ function PageEditor({
       setRestoring(false);
       setConfirmRestoreId(null);
     }
+  };
+
+  const handlePublishClick = () => {
+    if (!draft.title.trim()) {
+      toast.error(t("titleRequired"));
+      return;
+    }
+
+    if (qualityReport.criticalCount > 0) {
+      setIsPublishingMode(true);
+      setShowPreflightDialog(true);
+      toast.error("Publication blocked: Fix critical content issues before publishing.");
+      return;
+    }
+
+    if (qualityReport.warningCount > 0) {
+      setIsPublishingMode(true);
+      setShowPreflightDialog(true);
+      return;
+    }
+
+    setConfirmPublish(true);
   };
 
   const handleSave = async (status?: "draft" | "published") => {
@@ -483,6 +523,16 @@ function PageEditor({
         </Alert>
       )}
 
+      {/* Real-time Content Quality & Preflight Health Bar */}
+      <ContentHealthBar
+        report={qualityReport}
+        locale={locale}
+        onInspect={() => {
+          setIsPublishingMode(false);
+          setShowPreflightDialog(true);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-bold text-foreground">{t("detailsTitle")}</CardTitle>
@@ -594,38 +644,55 @@ function PageEditor({
               {t("revisionsEmpty")}
             </p>
           ) : (
-            revisions.map((revision) => (
-              <div
-                key={revision.id}
-                className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card p-3"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <StatusBadge
-                      tone={revision.status === "published" ? "success" : "neutral"}
-                    >
-                      {revision.status === "published" ? t("live") : t("draft")}
-                    </StatusBadge>
-                    <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {t(`change_${revision.changeType.toLowerCase()}` as never)}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    {formatRevisionTime(revision.createdAt, locale)}
-                    {revision.authorEmail ? ` · ${revision.authorEmail}` : ""}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0"
-                  onClick={() => setConfirmRestoreId(revision.id)}
-                  disabled={restoring}
+            revisions.map((revision) => {
+              const authorLabel = revision.authorName
+                ? `${revision.authorName} (${revision.authorEmail})`
+                : revision.authorEmail;
+
+              return (
+                <div
+                  key={revision.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card p-3"
                 >
-                  {t("restore")}
-                </Button>
-              </div>
-            ))
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <StatusBadge
+                        tone={revision.status === "published" ? "success" : "neutral"}
+                      >
+                        {revision.status === "published" ? t("live") : t("draft")}
+                      </StatusBadge>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t(`change_${revision.changeType.toLowerCase()}` as never)}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      {formatRevisionTime(revision.createdAt, locale)}
+                      {authorLabel ? ` · ${authorLabel}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-xs gap-1"
+                      onClick={() => setInspectingRevision(revision)}
+                    >
+                      <FileSearch className="h-3.5 w-3.5 text-primary" />
+                      <span>Diff & Inspect</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-xs"
+                      onClick={() => setConfirmRestoreId(revision.id)}
+                      disabled={restoring}
+                    >
+                      {t("restore")}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
           )}
         </CardContent>
       </Card>
@@ -699,7 +766,7 @@ function PageEditor({
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           {t("saveDraft")}
         </Button>
-        <Button variant="outline" onClick={() => setConfirmPublish(true)} disabled={saving}>
+        <Button variant="outline" onClick={handlePublishClick} disabled={saving}>
           {t("publish")}
         </Button>
         {page && (
@@ -768,6 +835,45 @@ function PageEditor({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Preflight Quality Audit Dialog */}
+      <PreflightAuditDialog
+        open={showPreflightDialog}
+        onOpenChange={(open) => {
+          setShowPreflightDialog(open);
+          if (!open) setIsPublishingMode(false);
+        }}
+        report={qualityReport}
+        isPublishingMode={isPublishingMode}
+        publishing={saving}
+        onPublishAnyway={() => {
+          setShowPreflightDialog(false);
+          setIsPublishingMode(false);
+          handleSave("published");
+        }}
+      />
+
+      {/* Snapshot Revision Diff & Recovery Dialog */}
+      <RevisionDiffDialog
+        open={inspectingRevision !== null}
+        onOpenChange={(open) => !open && setInspectingRevision(null)}
+        revision={inspectingRevision}
+        currentDraft={{
+          title: draft.title,
+          status: draft.status,
+          effectiveDate: draft.effectiveDate,
+          metaTitle: draft.metaTitle,
+          metaDescription: draft.metaDescription,
+          openGraphImage: draft.openGraphImage,
+          blocksCount: draft.blocks.length,
+        }}
+        onRestore={(revisionId) => {
+          setInspectingRevision(null);
+          handleRestore(revisionId);
+        }}
+        restoring={restoring}
+        locale={locale}
+      />
     </div>
   );
 }

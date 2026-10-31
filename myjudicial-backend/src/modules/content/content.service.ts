@@ -84,9 +84,13 @@ function toRevisionRecord(row: {
   metaDescription: string | null;
   openGraphImage: string | null;
   changeType: string;
-  author: { email: string } | null;
+  author: { email: string; firstName?: string; lastName?: string } | null;
   createdAt: Date;
 }): ContentPageRevisionRecord {
+  const authorName = row.author
+    ? `${row.author.firstName ?? ""} ${row.author.lastName ?? ""}`.trim() || null
+    : null;
+
   return {
     id: row.id,
     pageId: row.pageId,
@@ -100,6 +104,7 @@ function toRevisionRecord(row: {
     openGraphImage: row.openGraphImage,
     changeType: row.changeType as ContentPageChangeType,
     authorEmail: row.author?.email ?? null,
+    authorName,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -361,7 +366,7 @@ export const ContentService = {
       where: { pageId: page.id },
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { author: { select: { email: true } } },
+      include: { author: { select: { email: true, firstName: true, lastName: true } } },
     });
     return { pageId: page.id, revisions: rows.map(toRevisionRecord) };
   },

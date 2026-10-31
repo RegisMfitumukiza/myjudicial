@@ -8,6 +8,7 @@ import {
   ExternalLink,
   FileText,
   HelpCircle,
+  History,
   Loader2,
   Lock,
   Plus,
@@ -19,7 +20,8 @@ import {
   Trash2,
   WifiOff,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { getSession } from "next-auth/react";
 import { toast } from "sonner";
 
 import { PageHeader, FormSectionSkeleton } from "@/shared/components/dashboard";
@@ -42,6 +44,8 @@ import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api
 import { DEFAULTS, DEFAULT_FAQS, normalizeSettings, type SettingsData, type SupplementalFaqItem } from "@/features/settings/settings";
 import { ContentEditor } from "./content-editor";
 import { CareersHub } from "@/features/admin-careers/careers-hub";
+import { getFaqSnapshots, saveFaqSnapshot, type FaqSnapshot } from "./snapshots-history";
+import { FaqHistoryDialog } from "./faq-history-dialog";
 
 const VALID_TABS = ["pages", "faqs", "careers", "governance"] as const;
 type ContentTab = (typeof VALID_TABS)[number];
@@ -98,14 +102,21 @@ export function ContentHubClient() {
   const [loading, setLoading] = useState(true);
   const [backendUnreachable, setBackendUnreachable] = useState(false);
   const [settings, setSettings] = useState<SettingsData>(DEFAULTS);
+  const locale = useLocale();
   const [savingFaqs, setSavingFaqs] = useState(false);
   const [faqDraft, setFaqDraft] = useState<SupplementalFaqItem[]>([]);
+  const [faqSnapshots, setFaqSnapshots] = useState<FaqSnapshot[]>([]);
+  const [showFaqHistory, setShowFaqHistory] = useState(false);
   const [govDraft, setGovDraft] = useState({
     legalEffectiveDate: "",
     dpoContactEmail: "",
     legalDisclaimer: "",
   });
   const [savingGov, setSavingGov] = useState(false);
+
+  useEffect(() => {
+    setFaqSnapshots(getFaqSnapshots());
+  }, []);
 
   // Synchronize active tab across refreshes, deep-links, and client navigation
   useEffect(() => {
@@ -212,12 +223,30 @@ export function ContentHubClient() {
       const updated = await saveSettingsSection({ supplementalFaqs: faqDraft });
       setSettings(normalizeSettings(updated));
       setFaqDraft(copyDeep(updated.supplementalFaqs));
+      let author = "Admin";
+      if (typeof window !== "undefined") {
+        try {
+          const session = await getSession();
+          if (session?.user?.name) {
+            author = `${session.user.name} (${session.user.email ?? ""})`.trim();
+          } else if (session?.user?.email) {
+            author = session.user.email;
+          }
+        } catch {}
+      }
+      saveFaqSnapshot(faqDraft, author);
+      setFaqSnapshots(getFaqSnapshots());
       toast.success(tSettings("settingsSaved"));
     } catch {
       toast.error(tSettings("settingsUnavailable"));
     } finally {
       setSavingFaqs(false);
     }
+  };
+
+  const handleRestoreFaq = (snapshot: FaqSnapshot) => {
+    setFaqDraft(copyDeep(snapshot.faqs));
+    toast.success(`Restored ${snapshot.count} FAQs from snapshot. Click Save Changes to apply.`);
   };
 
   const handleSaveGovernance = async () => {
@@ -368,6 +397,17 @@ export function ContentHubClient() {
                 </CardDescription>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFaqHistory(true)}
+                  className="text-xs h-8 gap-1.5"
+                  title="View previously saved snapshots of public FAQs"
+                >
+                  <History className="h-3.5 w-3.5 text-primary" />
+                  <span>History ({faqSnapshots.length})</span>
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -651,6 +691,15 @@ export function ContentHubClient() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* FAQs Snapshot History & Recovery Dialog */}
+      <FaqHistoryDialog
+        open={showFaqHistory}
+        onOpenChange={setShowFaqHistory}
+        snapshots={faqSnapshots}
+        onRestore={handleRestoreFaq}
+        locale={locale}
+      />
     </div>
   );
 }

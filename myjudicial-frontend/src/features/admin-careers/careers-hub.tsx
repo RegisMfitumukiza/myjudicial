@@ -5,6 +5,7 @@ import {
   Briefcase,
   ChevronDown,
   ExternalLink,
+  History,
   Loader2,
   Mail,
   Plus,
@@ -15,7 +16,8 @@ import {
   WifiOff,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { getSession } from "next-auth/react";
 import { Link } from "@/i18n/routing";
 
 import { Button } from "@/shared/components/ui/button";
@@ -43,6 +45,12 @@ import {
   type CareersHiringStatus,
   type SettingsData,
 } from "@/features/settings/settings";
+import {
+  getCareersSnapshots,
+  saveCareersSnapshot,
+  type CareersSnapshot,
+} from "@/features/admin-content/snapshots-history";
+import { CareersHistoryDialog } from "./careers-history-dialog";
 
 /**
  * Consolidated Careers Hub.
@@ -376,6 +384,13 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
   const [draftReqPortfolio, setDraftReqPortfolio] = useState<boolean>(savedReqPortfolio);
   const [draftReqResume, setDraftReqResume] = useState<boolean>(savedReqResume);
   const [draftReqCoverNote, setDraftReqCoverNote] = useState<boolean>(savedReqCoverNote);
+  const locale = useLocale();
+  const [careersSnapshots, setCareersSnapshots] = useState<CareersSnapshot[]>([]);
+  const [showCareersHistory, setShowCareersHistory] = useState(false);
+
+  useEffect(() => {
+    setCareersSnapshots(getCareersSnapshots());
+  }, []);
 
   // Sync when initialSettings updates from parent
   useEffect(() => {
@@ -504,12 +519,31 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
       if (onSaved) {
         onSaved(updated);
       }
+      let author = "Admin";
+      if (typeof window !== "undefined") {
+        try {
+          const session = await getSession();
+          if (session?.user?.name) {
+            author = `${session.user.name} (${session.user.email ?? ""})`.trim();
+          } else if (session?.user?.email) {
+            author = session.user.email;
+          }
+        } catch {}
+      }
+      saveCareersSnapshot(draftRoles, draftHiringStatus, author);
+      setCareersSnapshots(getCareersSnapshots());
       toast.success(t("rolesSaved"));
     } catch (error) {
       toast.error(getErrorMessage(error, t("saveFailed")));
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleRestoreCareers = (snapshot: CareersSnapshot) => {
+    setDraftRoles(copyDeep(snapshot.roles));
+    setDraftHiringStatus(snapshot.hiringStatus);
+    toast.success(`Restored ${snapshot.roleCount} roles from snapshot. Click Save Changes to apply.`);
   };
 
   if (loading) {
@@ -561,6 +595,17 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCareersHistory(true)}
+            className="h-8 text-xs gap-1.5"
+            title="View saved history snapshots of careers positions"
+          >
+            <History className="h-3.5 w-3.5 text-primary" />
+            <span>History ({careersSnapshots.length})</span>
+          </Button>
           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
             <Link href="/careers" prefetch={false} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
@@ -851,6 +896,15 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
           ))}
         </div>
       )}
+
+      {/* Careers Snapshot History & Recovery Dialog */}
+      <CareersHistoryDialog
+        open={showCareersHistory}
+        onOpenChange={setShowCareersHistory}
+        snapshots={careersSnapshots}
+        onRestore={handleRestoreCareers}
+        locale={locale}
+      />
     </div>
   );
 }

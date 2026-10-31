@@ -3917,6 +3917,17 @@
         "hoursAgoPlural": "{count} hours ago",
         "daysAgo": "{count} day ago",
         "daysAgoPlural": "{count} days ago"
+      },
+      "allMarkedRead": "All notifications marked as read",
+      "markAsRead": "Mark as read",
+      "viewDetails": "View details",
+      "allCaughtUp": "All caught up!",
+      "allCaughtUpDesc": "You have no unread notifications right now.",
+      "actions": {
+        "viewConsultation": "View consultation",
+        "viewPayment": "View payment",
+        "viewMessage": "Open message",
+        "viewReview": "View review"
       }
     },
     "payments": {
@@ -5467,7 +5478,23 @@
     "justNow": "Just now",
     "minAgo": "{count} min ago",
     "hourAgo": "{count, plural, =1 {1 hour ago} other {# hours ago}}",
-    "dayAgo": "{count, plural, =1 {1 day ago} other {# days ago}}"
+    "dayAgo": "{count, plural, =1 {1 day ago} other {# days ago}}",
+    "allMarkedRead": "All notifications marked as read",
+    "markAsRead": "Mark as read",
+    "viewDetails": "View details",
+    "allCaughtUp": "All caught up!",
+    "noUnreadDesc": "You have no unread notifications right now.",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "actions": {
+      "viewConsultation": "View consultation",
+      "viewEarnings": "View earnings",
+      "viewMessage": "Open message",
+      "viewReview": "View review",
+      "viewCompliance": "View compliance"
+    }
   },
   "expertDashboard_overrides": {
     "overrideCreatedSuccess": "Override created successfully",

@@ -1743,14 +1743,25 @@
       "title": "Notifications",
       "subtitle": "Stay updated on your bookings and payments",
       "markAllRead": "Mark all as read",
+      "allMarkedRead": "All notifications marked as read",
+      "markAsRead": "Mark as read",
+      "viewDetails": "View details",
+      "allCaughtUp": "All caught up!",
+      "allCaughtUpDesc": "You have no unread notifications right now.",
       "tabs": {
-        "all": "all",
-        "unread": "unread"
+        "all": "All",
+        "unread": "Unread"
       },
       "failedToLoad": "Failed to load notifications",
       "noNotifications": "No notifications",
       "noUnreadDesc": "You have no unread notifications",
       "noNotificationsDesc": "You have no notifications yet",
+      "actions": {
+        "viewConsultation": "View consultation",
+        "viewPayment": "View payment",
+        "viewMessage": "Open message",
+        "viewReview": "View review"
+      },
       "events": {
         "OTP_SENT": "Verification code sent",
         "BOOKING_CONFIRMED": "Booking confirmed",
@@ -3436,10 +3447,26 @@
     "unreadCount": "You have {count} unread {count, plural, =1 {notification} other {notifications}}",
     "stayUpdated": "Stay updated with your practice",
     "markAllRead": "Mark all as read",
+    "allMarkedRead": "All notifications marked as read",
+    "markAsRead": "Mark as read",
+    "viewDetails": "View details",
+    "allCaughtUp": "All caught up!",
+    "noUnreadDesc": "You have no unread notifications right now.",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread"
+    },
     "failedToLoad": "Failed to load notifications",
     "tryAgainLater": "Please try again later",
     "noNotifications": "No notifications yet",
     "willSeeHere": "You will see notifications here when events occur",
+    "actions": {
+      "viewConsultation": "View consultation",
+      "viewEarnings": "View earnings",
+      "viewMessage": "Open message",
+      "viewReview": "View review",
+      "viewCompliance": "View compliance"
+    },
     "pageOf": "Page {page} of {totalPages} ({total} total)",
     "previous": "Previous",
     "next": "Next",

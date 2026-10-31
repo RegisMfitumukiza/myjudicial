@@ -511,32 +511,33 @@ export default function NotificationsPage() {
                     key={n.id}
                     className={`transition-colors ${
                       isUnread
-                        ? "border-primary/30 bg-primary/5 dark:bg-primary/10"
+                        ? "border-primary/30 bg-primary/5 dark:bg-primary/10 shadow-xs"
                         : "bg-card"
                     }`}
                   >
-                    <CardContent className="p-4 sm:p-5">
-                      <div className="flex items-start gap-4">
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    <CardContent className="p-3.5 sm:p-4 min-[640px]:p-5">
+                      <div className="flex items-start gap-3 min-[400px]:gap-3.5 sm:gap-4">
+                        <div className={`flex h-8 w-8 min-[380px]:h-9 min-[380px]:w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl ${
                           isUnread ? "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400" : "bg-muted text-muted-foreground"
                         }`}>
-                          <EventIcon size={20} />
+                          <EventIcon size={18} className="sm:h-5 sm:w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            {isUnread && (
-                              <span className="h-2 w-2 rounded-full bg-brand-blue shrink-0" />
-                            )}
-                            <h4 className={`text-sm ${isUnread ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`text-xs min-[360px]:text-sm sm:text-[15px] leading-snug break-words ${isUnread ? "font-bold text-foreground" : "font-medium text-muted-foreground"}`}>
                               {n.subject || "Notification"}
                             </h4>
+                            {isUnread && (
+                              <span className="h-2 w-2 rounded-full bg-brand-blue shrink-0 mt-1" />
+                            )}
                           </div>
                           {n.body && (
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                            <p className="mt-1 text-xs sm:text-[13px] text-muted-foreground leading-relaxed break-words whitespace-normal">
                               {n.body}
                             </p>
                           )}
-                          <p className="mt-2 text-[11px] text-muted-foreground">
+                          <p className="mt-2 text-[11px] text-muted-foreground/80 flex items-center gap-1">
+                            <Clock size={11} className="shrink-0" />
                             {formatDate(n.createdAt)}
                           </p>
                         </div>
@@ -544,9 +545,10 @@ export default function NotificationsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="shrink-0 text-xs text-muted-foreground hover:text-foreground"
+                            className="shrink-0 text-xs text-muted-foreground hover:text-foreground h-8 px-2"
                             onClick={() => markSingleReadMutation.mutate(n.id)}
                             disabled={markSingleReadMutation.isPending}
+                            title="Mark read"
                           >
                             <CheckCheck size={14} className="sm:mr-1" />
                             <span className="hidden sm:inline">Mark read</span>

@@ -39,6 +39,10 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
     setOpen(false);
     try {
       localStorage.setItem("mj_lang", code);
+      if (variant === "mobile") {
+        sessionStorage.setItem("mj_preserve_mobile_menu", "true");
+        window.dispatchEvent(new CustomEvent("mj_preserve_mobile_menu"));
+      }
     } catch {}
     const query = searchParams?.toString();
     const target = query ? `${pathname}?${query}` : pathname;

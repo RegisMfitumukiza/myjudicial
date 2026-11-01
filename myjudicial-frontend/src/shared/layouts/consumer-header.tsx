@@ -109,11 +109,43 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
     };
   }, [visible]);
 
+  // Preserve mobile menu open when switching languages
+  useEffect(() => {
+    const handlePreserve = () => {
+      try {
+        if (sessionStorage.getItem("mj_preserve_mobile_menu") === "true") {
+          setMobileMenuOpen(true);
+          setTimeout(() => {
+            try {
+              sessionStorage.removeItem("mj_preserve_mobile_menu");
+            } catch {}
+          }, 500);
+        }
+      } catch {}
+    };
+
+    handlePreserve();
+    window.addEventListener("mj_preserve_mobile_menu", handlePreserve);
+    return () => window.removeEventListener("mj_preserve_mobile_menu", handlePreserve);
+  }, []);
+
+  const closeMobileMenu = () => {
+    try {
+      sessionStorage.removeItem("mj_preserve_mobile_menu");
+    } catch {}
+    setMobileMenuOpen(false);
+  };
+
   // Close menus and restore visibility on route change (React recommended state adjustment during render)
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
-    setMobileMenuOpen(false);
+    const shouldPreserve =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("mj_preserve_mobile_menu") === "true";
+    if (!shouldPreserve) {
+      setMobileMenuOpen(false);
+    }
     setProfileOpen(false);
     setVisible(true);
   }
@@ -321,7 +353,12 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
             {/* Mobile/Tablet Menu Button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem("mj_preserve_mobile_menu");
+                } catch {}
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
               className="lg:hidden p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Toggle navigation menu"
             >
@@ -341,7 +378,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                       active
                         ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
@@ -360,7 +397,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
               })}
               <Link
                 href="/client/dashboard/documents"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                   isActive("/client/dashboard/documents")
                     ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
@@ -372,7 +409,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
               </Link>
               <Link
                 href="/client/dashboard/payments"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                   isActive("/client/dashboard/payments")
                     ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
@@ -384,7 +421,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
               </Link>
               <Link
                 href="/client/dashboard/reviews"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                   isActive("/client/dashboard/reviews")
                     ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"

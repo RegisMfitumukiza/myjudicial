@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatWorkingHours } from "@/lib/utils";
 
 const bodyTextClass =
   "text-xs min-[360px]:text-sm sm:text-base leading-relaxed text-muted-foreground break-words";
@@ -23,7 +23,8 @@ export interface PlatformSettingsContext {
  */
 export function interpolatePlatformTokens(
   text: string,
-  settings?: PlatformSettingsContext | null
+  settings?: PlatformSettingsContext | null,
+  locale: string = "en"
 ): string {
   if (!text) return "";
 
@@ -51,7 +52,7 @@ export function interpolatePlatformTokens(
   const supportEmail = settings?.supportEmail?.trim() || "support@myjudicial.com";
   const hotline = settings?.hotlinePhone?.trim() || "+250 788 312 456";
   const platformName = settings?.platformName?.trim() || "MyJudicial";
-  const hours = settings?.supportWorkingHours?.trim() || "Monday - Friday: 8:00 AM - 6:00 PM CAT";
+  const hours = formatWorkingHours(settings?.supportWorkingHours, locale);
 
   return text
     // 1. Explicit dynamic template tokens
@@ -86,9 +87,10 @@ export function interpolatePlatformTokens(
 
 export function renderTextWithLead(
   text: string,
-  settings?: PlatformSettingsContext | null
+  settings?: PlatformSettingsContext | null,
+  locale: string = "en"
 ): ReactNode {
-  const processed = interpolatePlatformTokens(text, settings);
+  const processed = interpolatePlatformTokens(text, settings, locale);
   const trimmed = processed.trim();
   if (!trimmed) return null;
 
@@ -164,13 +166,14 @@ export function renderTextWithLead(
 interface FormattedProseProps {
   body: string;
   settings?: PlatformSettingsContext | null;
+  locale?: string;
   className?: string;
 }
 
-export function FormattedProse({ body, settings, className }: FormattedProseProps) {
+export function FormattedProse({ body, settings, locale = "en", className }: FormattedProseProps) {
   if (!body || !body.trim()) return null;
 
-  const interpolated = interpolatePlatformTokens(body, settings);
+  const interpolated = interpolatePlatformTokens(body, settings, locale);
   const lines = interpolated.split("\n");
   const nodes: ReactNode[] = [];
 
@@ -187,7 +190,7 @@ export function FormattedProse({ body, settings, className }: FormattedProseProp
     keyCounter += 1;
     nodes.push(
       <p key={`p-${keyCounter}`} className={bodyTextClass}>
-        {renderTextWithLead(text, settings)}
+        {renderTextWithLead(text, settings, locale)}
       </p>
     );
   };
@@ -210,7 +213,7 @@ export function FormattedProse({ body, settings, className }: FormattedProseProp
                 {idx + 1}
               </span>
               <div className={cn(bodyTextClass, "flex-1 min-w-0")}>
-                {renderTextWithLead(item, settings)}
+                {renderTextWithLead(item, settings, locale)}
               </div>
             </li>
           ))}
@@ -223,7 +226,7 @@ export function FormattedProse({ body, settings, className }: FormattedProseProp
             <li key={idx} className="flex items-start gap-3">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70 dark:bg-primary" />
               <div className={cn(bodyTextClass, "flex-1 min-w-0")}>
-                {renderTextWithLead(item, settings)}
+                {renderTextWithLead(item, settings, locale)}
               </div>
             </li>
           ))}

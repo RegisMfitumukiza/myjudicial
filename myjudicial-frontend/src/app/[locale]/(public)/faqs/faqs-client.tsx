@@ -21,8 +21,9 @@ import {
   Phone,
   Clock,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePlatformSettings } from "@/lib/api/settings";
+import { formatWorkingHours } from "@/lib/utils";
 
 export type CategoryKey = "all" | "clients" | "advocates" | "escrow" | "trust";
 
@@ -74,6 +75,7 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 function FaqsContent() {
   const t = useTranslations("faqsPage");
+  const locale = useLocale();
   const { settings } = usePlatformSettings();
   const searchParams = useSearchParams();
 
@@ -82,7 +84,7 @@ function FaqsContent() {
   // Dynamic Support Contact details from CMS settings
   const activeEmail = settings?.supportEmail || "support@myjudicial.com";
   const activeHotline = settings?.hotlinePhone;
-  const activeHours = settings?.supportWorkingHours;
+  const activeHours = formatWorkingHours(settings?.supportWorkingHours, locale);
 
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);

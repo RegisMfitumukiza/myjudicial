@@ -477,12 +477,12 @@ export default function PaymentsPage() {
                   <table className="w-full text-left text-sm">
                     <thead className="bg-brand-dark/[0.02] text-xs font-semibold text-brand-dark/60 dark:bg-white/[0.02] dark:text-white/60 border-b border-brand-border/10 dark:border-white/10">
                       <tr>
-                        <th className="px-5 py-3.5">Service & Advocate</th>
-                        <th className="px-4 py-3.5">Amount</th>
-                        <th className="px-4 py-3.5">Date</th>
-                        <th className="px-4 py-3.5">Transaction Ref</th>
-                        <th className="px-4 py-3.5">Status</th>
-                        <th className="px-5 py-3.5 text-right">Actions</th>
+                        <th className="px-5 py-3.5">{t("table.serviceAdvocate")}</th>
+                        <th className="px-4 py-3.5">{t("table.amount")}</th>
+                        <th className="px-4 py-3.5">{t("table.date")}</th>
+                        <th className="px-4 py-3.5">{t("table.transactionRef")}</th>
+                        <th className="px-4 py-3.5">{t("table.status")}</th>
+                        <th className="px-5 py-3.5 text-right">{t("table.actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-brand-border/10 dark:divide-white/10">
@@ -533,7 +533,7 @@ export default function PaymentsPage() {
                                 <button
                                   onClick={() => copyTxRef(booking.payment!.txRef)}
                                   className="inline-flex items-center gap-1 font-mono text-[11px] text-brand-dark/60 hover:text-brand-dark dark:text-white/60 dark:hover:text-white"
-                                  title="Click to copy reference"
+                                  title={t("table.copyRefTitle")}
                                 >
                                   <Copy size={11} />
                                   <span className="truncate max-w-[130px]">{booking.payment.txRef}</span>
@@ -569,7 +569,7 @@ export default function PaymentsPage() {
                                 <Link
                                   href={`/client/dashboard/consultations/${booking.id}`}
                                   className="p-1.5 rounded-lg text-brand-dark/50 hover:bg-brand-dark/5 hover:text-brand-dark dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
-                                  title="View Consultation Matter"
+                                  title={t("table.viewMatterTitle")}
                                 >
                                   <ExternalLink size={15} />
                                 </Link>

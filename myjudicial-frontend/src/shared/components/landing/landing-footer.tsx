@@ -1,11 +1,12 @@
 "use client";
 
 import { Link } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Logo } from "@/shared/components/logo";
 import { MapPin, Mail, ShieldAlert } from "lucide-react";
 import { ContactEmailPopover } from "@/shared/components/contact-email-popover";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
+import { DEFAULTS } from "@/features/settings/settings";
 import { formatCopyright } from "@/lib/utils";
 
 /* ── Inline SVG icons (zero external deps) ─────────────────────────── */
@@ -65,9 +66,33 @@ const SOCIAL_ICON_MAP = {
 
 export default function LandingFooter() {
   const t = useTranslations("landing.footer");
+  const locale = useLocale();
   const { settings } = usePlatformSettings();
   const socialLinks = settings.socialLinks;
   const supportEmail = settings.supportEmail || t("supportEmail");
+
+  /* Fall back to localized translation when settings still hold the English default */
+  const isDefaultTagline =
+    !settings.platformTagline ||
+    settings.platformTagline.trim() === DEFAULTS.platformTagline.trim();
+  const displayTagline =
+    locale !== "en" && isDefaultTagline
+      ? t("tagline")
+      : settings.platformTagline || t("tagline");
+
+  const isDefaultDisclaimer =
+    !settings.legalDisclaimer ||
+    settings.legalDisclaimer.trim() === DEFAULTS.legalDisclaimer.trim();
+  const displayDisclaimer =
+    locale !== "en" && isDefaultDisclaimer
+      ? t("disclaimer")
+      : settings.legalDisclaimer || t("disclaimer");
+
+  const displayCopyright = formatCopyright(
+    settings.copyrightNotice,
+    t("copyright"),
+    locale
+  );
 
   /* ── 4 Industrial Deep-Sitemap Columns ────────────────────────── */
   const FOOTER_COLS = [
@@ -131,7 +156,7 @@ export default function LandingFooter() {
           <Logo iconSize={20} fontSize="text-[17px]" className="text-foreground" />
           
           <p className="text-sm font-semibold text-foreground leading-snug break-words">
-            {settings.platformTagline || t("tagline")}
+            {displayTagline}
           </p>
           
           <p className="text-xs text-muted-foreground leading-relaxed break-words">
@@ -162,7 +187,7 @@ export default function LandingFooter() {
           {/* Legal Ethics / Regulatory Notice */}
           <div className="mt-2 flex items-start gap-2 rounded-xl border border-border/60 bg-muted/20 p-2.5 min-[360px]:p-3 text-[11px] text-muted-foreground leading-relaxed">
             <ShieldAlert size={14} className="shrink-0 text-muted-foreground mt-0.5" />
-            <span className="break-words">{settings.legalDisclaimer || t("disclaimer")}</span>
+            <span className="break-words">{displayDisclaimer}</span>
           </div>
         </div>
       </div>
@@ -204,7 +229,7 @@ export default function LandingFooter() {
           
           {/* Dynamic Copyright */}
           <p className="text-xs text-muted-foreground order-2 md:order-1 break-words">
-            {formatCopyright(settings.copyrightNotice, t("copyright"))}
+            {displayCopyright}
           </p>
 
           {/* Social Icons Container with clearance for floating bot button */}

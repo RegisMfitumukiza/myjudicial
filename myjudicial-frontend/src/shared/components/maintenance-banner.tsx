@@ -1,10 +1,24 @@
 "use client";
 
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
+import { useLocale } from "next-intl";
 import { AlertTriangle } from "lucide-react";
+
+const DEFAULT_MAINTENANCE_NOTICES: Record<string, string> = {
+  fr: "Nous procédons actuellement à une maintenance de la plateforme. Certains services peuvent connaître des interruptions temporaires.",
+  rw: "Ubu turimo gukora isuzuma n'isanwa ry'urubuga. Serivisi zimwe na zimwe zirashobora guhagarara by'agateganyo.",
+  en: "We are currently conducting platform maintenance. Some services may experience temporary interruptions.",
+};
+
+const BADGE_LABELS: Record<string, string> = {
+  fr: "Maintenance",
+  rw: "Isuzuma",
+  en: "Maintenance",
+};
 
 export function MaintenanceBanner() {
   const { settings } = usePlatformSettings();
+  const locale = useLocale();
 
   if (!settings.maintenanceMode) {
     return null;
@@ -12,7 +26,10 @@ export function MaintenanceBanner() {
 
   const notice =
     settings.maintenanceNotice?.trim() ||
-    "We are currently conducting platform maintenance. Some services may experience temporary interruptions.";
+    DEFAULT_MAINTENANCE_NOTICES[locale] ||
+    DEFAULT_MAINTENANCE_NOTICES.en;
+
+  const badge = BADGE_LABELS[locale] || BADGE_LABELS.en;
 
   return (
     <aside
@@ -23,7 +40,7 @@ export function MaintenanceBanner() {
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 text-center font-medium">
         <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
         <span className="font-semibold uppercase tracking-wider text-[10px] bg-amber-500/20 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded">
-          Maintenance
+          {badge}
         </span>
         <span className="line-clamp-2 sm:line-clamp-1 break-words">{notice}</span>
       </div>

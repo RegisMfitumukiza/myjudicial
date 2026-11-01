@@ -1811,6 +1811,16 @@
         "REFUNDED": "Refunded",
         "NOT_REQUIRED": "Not Required"
       },
+      "table": {
+        "serviceAdvocate": "Service & Advocate",
+        "amount": "Amount",
+        "date": "Date",
+        "transactionRef": "Transaction Ref",
+        "status": "Status",
+        "actions": "Actions",
+        "copyRefTitle": "Click to copy reference",
+        "viewMatterTitle": "View Consultation Matter"
+      },
       "filters": {
         "ALL": "All",
         "PAID": "Paid",

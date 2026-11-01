@@ -3956,6 +3956,16 @@
         "REFUNDED": "Remboursé",
         "NOT_REQUIRED": "Non requis"
       },
+      "table": {
+        "serviceAdvocate": "Service & Avocat",
+        "amount": "Montant",
+        "date": "Date",
+        "transactionRef": "Réf. transaction",
+        "status": "Statut",
+        "actions": "Actions",
+        "copyRefTitle": "Cliquer pour copier la référence",
+        "viewMatterTitle": "Voir le dossier de consultation"
+      },
       "filters": {
         "ALL": "Tous",
         "PAID": "Payés",

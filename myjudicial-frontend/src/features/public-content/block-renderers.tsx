@@ -3,7 +3,7 @@ import { ChevronDown, Clock, Globe, Heart, Info, Lock, Mail, MapPin, MessageCirc
 import type { ContentBlock } from "@/lib/api/content-pages";
 import type { PlatformPublicSettings } from "@/features/settings/hooks/useSocialLinks";
 import { Alert } from "@/shared/components/ui/alert";
-import { cn } from "@/lib/utils";
+import { cn, formatWorkingHours } from "@/lib/utils";
 import { FormattedProse, renderTextWithLead } from "./formatted-prose";
 import { LegalTable } from "./legal-table";
 
@@ -24,15 +24,17 @@ const sectionClass = "space-y-8 sm:space-y-12";
 function ProseBlock({
   block,
   settings,
+  locale = "en",
 }: {
   block: Extract<ContentBlock, { type: "prose" }>;
   settings?: PlatformPublicSettings | null;
+  locale?: string;
 }) {
   return (
     <section>
       {block.heading ? <h2 className={sectionTitleClass}>{block.heading}</h2> : null}
       <div className={cn(block.heading ? blockGapClass : "")}>
-        <FormattedProse body={block.body} settings={settings} />
+        <FormattedProse body={block.body} settings={settings} locale={locale} />
       </div>
     </section>
   );
@@ -41,9 +43,11 @@ function ProseBlock({
 function BulletsBlock({
   block,
   settings,
+  locale = "en",
 }: {
   block: Extract<ContentBlock, { type: "bullets" }>;
   settings?: PlatformPublicSettings | null;
+  locale?: string;
 }) {
   return (
     <section>
@@ -53,7 +57,7 @@ function BulletsBlock({
           <li key={index} className="flex items-start gap-3">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70 dark:bg-primary" />
             <div className={cn(bodyTextClass, "flex-1 min-w-0")}>
-              {renderTextWithLead(item, settings)}
+              {renderTextWithLead(item, settings, locale)}
             </div>
           </li>
         ))}
@@ -65,9 +69,11 @@ function BulletsBlock({
 function StepsBlock({
   block,
   settings,
+  locale = "en",
 }: {
   block: Extract<ContentBlock, { type: "steps" }>;
   settings?: PlatformPublicSettings | null;
+  locale?: string;
 }) {
   return (
     <section>
@@ -79,7 +85,7 @@ function StepsBlock({
               {index + 1}
             </span>
             <div className={cn(bodyTextClass, "flex-1 min-w-0")}>
-              {renderTextWithLead(item, settings)}
+              {renderTextWithLead(item, settings, locale)}
             </div>
           </li>
         ))}
@@ -184,10 +190,12 @@ function MilestonesBlock({ block }: { block: Extract<ContentBlock, { type: "mile
 
 function ContactCardBlock({
   settings,
+  locale = "en",
   t,
 }: {
   block: Extract<ContentBlock, { type: "contactCard" }>;
   settings: PlatformPublicSettings | null;
+  locale?: string;
   t: (key: string, values?: Record<string, any>) => string;
 }) {
   const rows: Array<{ icon: typeof Mail; label: string; href?: string; value: string }> = [];
@@ -215,7 +223,8 @@ function ContactCardBlock({
       rows.push({ icon: MapPin, label: t("contactCard.poBox"), value: settings.officePoBox });
     }
     if (settings.supportWorkingHours) {
-      rows.push({ icon: Clock, label: t("contactCard.hours"), value: settings.supportWorkingHours });
+      const formattedHours = formatWorkingHours(settings.supportWorkingHours, locale);
+      rows.push({ icon: Clock, label: t("contactCard.hours"), value: formattedHours });
     }
     if (settings.dpoContactEmail) {
       rows.push({ icon: ShieldCheck, label: t("contactCard.dpo"), href: `mailto:${settings.dpoContactEmail}`, value: settings.dpoContactEmail });
@@ -509,13 +518,13 @@ export function ContentBlocks({
         let element: ReactNode = null;
         switch (block.type) {
           case "prose":
-            element = <ProseBlock block={block} settings={settings} />;
+            element = <ProseBlock block={block} settings={settings} locale={locale} />;
             break;
           case "bullets":
-            element = <BulletsBlock block={block} settings={settings} />;
+            element = <BulletsBlock block={block} settings={settings} locale={locale} />;
             break;
           case "steps":
-            element = <StepsBlock block={block} settings={settings} />;
+            element = <StepsBlock block={block} settings={settings} locale={locale} />;
             break;
           case "callout":
             element = <CalloutBlock block={block} />;
@@ -530,7 +539,7 @@ export function ContentBlocks({
             element = <MilestonesBlock block={block} />;
             break;
           case "contactCard":
-            element = <ContactCardBlock block={block} settings={settings} t={translate} />;
+            element = <ContactCardBlock block={block} settings={settings} locale={locale} t={translate} />;
             break;
           case "jobs":
             element = <JobsBlock block={block} settings={settings} t={translate} />;

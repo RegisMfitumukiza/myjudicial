@@ -58,11 +58,34 @@ export function formatRWF(amount?: number | null): string {
  * whether the input comes from database settings, code defaults, or translations.
  * Automatically keeps the current year up to date while preserving intentional
  * historic start year ranges (e.g. "2024–2026").
+ *
+ * When a locale is provided, translates "All rights reserved" into the locale's
+ * standard legal phrasing ("Tous droits réservés." for fr, "Uburenganzira bwose bwubahirizwa." for rw).
  */
-export function formatCopyright(notice?: string | null, fallback?: string): string {
+export function formatCopyright(
+  notice?: string | null,
+  fallback?: string,
+  locale?: string
+): string {
   const currentYear = new Date().getFullYear();
-  const text = (notice && notice.trim().length > 0 ? notice : fallback || "").trim();
-  if (!text) return `© ${currentYear} MyJudicial Ltd. All rights reserved.`;
+  const rawNotice = notice?.trim() || "";
+  const isDefaultNotice =
+    rawNotice === "© 2026 MyJudicial Ltd. All rights reserved." ||
+    rawNotice === `© ${currentYear} MyJudicial Ltd. All rights reserved.`;
+
+  // If the admin notice is just the English default and a localized fallback is given, prefer fallback
+  const text = (!rawNotice || (isDefaultNotice && fallback && locale && locale !== "en"))
+    ? (fallback || "").trim()
+    : rawNotice;
+
+  const defaultEntity =
+    locale === "fr"
+      ? "MyJudicial Ltd. Tous droits réservés."
+      : locale === "rw"
+      ? "MyJudicial Ltd. Uburenganzira bwose bwubahirizwa."
+      : "MyJudicial Ltd. All rights reserved.";
+
+  if (!text) return `© ${currentYear} ${defaultEntity}`;
 
   // Extract intentional start year if specified as a range e.g. 2022-2026 or 2022–
   let yearPrefix = String(currentYear);
@@ -74,9 +97,80 @@ export function formatCopyright(notice?: string | null, fallback?: string): stri
   // Strip all leading copyright symbols ('©', '(c)', '&copy;', standalone 'c', '\u00A9'),
   // separator bullets/pipes/hyphens, and any leading 4-digit years or year ranges.
   const tokenRegex = /^(?:\s*(?:©|\(c\)|&copy;|\bc\b|\u00A9)\s*|\s*\d{4}(?:\s*[-–—]\s*\d{4})?\s*|\s*[·•\-\|]\s*)+/gi;
-  const cleaned = text.replace(tokenRegex, "").trim();
+  let cleaned = text.replace(tokenRegex, "").trim();
 
-  const entity = cleaned || "MyJudicial Ltd. All rights reserved.";
+  // If locale is French or Kinyarwanda, ensure the rights reserved statement is localized
+  if (locale === "fr") {
+    cleaned = cleaned.replace(/All rights reserved\.?/gi, "Tous droits réservés.");
+  } else if (locale === "rw") {
+    cleaned = cleaned.replace(/All rights reserved\.?/gi, "Uburenganzira bwose bwubahirizwa.");
+  }
+
+  const entity = cleaned || defaultEntity;
   return `© ${yearPrefix} ${entity}`;
+}
+
+/**
+ * Standard operating hours localizer.
+ * Translates standard operating hours ("Monday – Friday: 8:00 AM – 6:00 PM CAT")
+ * into authentic French and Kinyarwanda strings, or adapts custom day names.
+ */
+export function formatWorkingHours(
+  rawHours?: string | null,
+  locale: string = "en",
+  fallback?: string
+): string {
+  const DEFAULT_HOURS_MAP: Record<string, string> = {
+    fr: "Lundi – Vendredi : 08h00 – 18h00 (CAT)",
+    rw: "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)",
+    en: "Monday – Friday: 8:00 AM – 6:00 PM CAT",
+  };
+
+  const trimmed = rawHours?.trim() || "";
+
+  // Standard platform default hours check
+  const isDefaultHours =
+    !trimmed ||
+    /^(?:Monday\s*[-–—]\s*Friday:\s*8:00\s*AM\s*[-–—]\s*6:00\s*PM\s*\(?CAT\)?)$/i.test(trimmed);
+
+  if (isDefaultHours) {
+    if (fallback && fallback.trim().length > 0) return fallback;
+    return DEFAULT_HOURS_MAP[locale] || DEFAULT_HOURS_MAP.en;
+  }
+
+  // If already custom hours, return raw for English
+  if (locale === "en" || !locale) return trimmed;
+
+  // Localize day tokens for French / Kinyarwanda
+  if (locale === "fr") {
+    return trimmed
+      .replace(/\bMonday\b/gi, "Lundi")
+      .replace(/\bTuesday\b/gi, "Mardi")
+      .replace(/\bWednesday\b/gi, "Mercredi")
+      .replace(/\bThursday\b/gi, "Jeudi")
+      .replace(/\bFriday\b/gi, "Vendredi")
+      .replace(/\bSaturday\b/gi, "Samedi")
+      .replace(/\bSunday\b/gi, "Dimanche")
+      .replace(/\bMon\b/gi, "Lun")
+      .replace(/\bTue\b/gi, "Mar")
+      .replace(/\bWed\b/gi, "Mer")
+      .replace(/\bThu\b/gi, "Jeu")
+      .replace(/\bFri\b/gi, "Ven")
+      .replace(/\bSat\b/gi, "Sam")
+      .replace(/\bSun\b/gi, "Dim");
+  }
+
+  if (locale === "rw") {
+    return trimmed
+      .replace(/\bMonday\b/gi, "Kuwa Mbere")
+      .replace(/\bTuesday\b/gi, "Kuwa Kabiri")
+      .replace(/\bWednesday\b/gi, "Kuwa Gatatu")
+      .replace(/\bThursday\b/gi, "Kuwa Kane")
+      .replace(/\bFriday\b/gi, "Kuwa Gatanu")
+      .replace(/\bSaturday\b/gi, "Kuwa Gatandatu")
+      .replace(/\bSunday\b/gi, "Ku Cyumweru");
+  }
+
+  return trimmed;
 }
 

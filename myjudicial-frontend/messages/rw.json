@@ -3956,6 +3956,16 @@
         "REFUNDED": "Byasubijwe",
         "NOT_REQUIRED": "Ntibikenewe"
       },
+      "table": {
+        "serviceAdvocate": "Serivisi & Umwavoka",
+        "amount": "Amafaranga",
+        "date": "Itariki",
+        "transactionRef": "Nimero y'Ihererekanya",
+        "status": "Imiterere",
+        "actions": "Ibikorwa",
+        "copyRefTitle": "Kanda hano ukoporore nimero",
+        "viewMatterTitle": "Reba dosiye y'ubujyanama"
+      },
       "filters": {
         "ALL": "Byose",
         "PAID": "Byishyuwe",

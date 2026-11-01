@@ -11,8 +11,9 @@ const OfficeMap = dynamic(
     loading: () => <div className="h-56 w-full animate-pulse rounded-2xl bg-muted/30" />,
   }
 );
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { formatWorkingHours } from "@/lib/utils";
 import {
   Mail,
   MapPin,
@@ -46,6 +47,7 @@ type DepartmentKey = "client" | "advocate" | "institutional" | "general";
 
 function ContactClientContent() {
   const t = useTranslations("contactPage");
+  const locale = useLocale();
   const { settings } = usePlatformSettings();
   const searchParams = useSearchParams();
 
@@ -56,7 +58,7 @@ function ContactClientContent() {
   const activeStreet = settings.officeStreet || "";
   const activeDistrict = settings.officeDistrict || t("office.district");
   const activePoBox = settings.officePoBox || t("office.poBox");
-  const activeHours = settings.supportWorkingHours || t("info.hours");
+  const activeHours = formatWorkingHours(settings.supportWorkingHours, locale, t("info.hours"));
 
   // Dynamic Map & WhatsApp URLs
   const mapSearchQuery = encodeURIComponent(

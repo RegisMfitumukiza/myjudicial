@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { cn, formatCopyright } from "@/lib/utils";
+import { cn, formatCopyright, formatWorkingHours } from "@/lib/utils";
 
 describe("cn", () => {
   it("joins truthy classes with spaces", () => {
@@ -74,6 +74,49 @@ describe("formatCopyright", () => {
   it("preserves intentional historic year ranges", () => {
     expect(formatCopyright(`© 2023-${currentYear} MyJudicial Ltd. All rights reserved.`)).toBe(
       `© 2023–${currentYear} MyJudicial Ltd. All rights reserved.`
+    );
+  });
+
+  it("localizes rights reserved statement for French and Kinyarwanda", () => {
+    expect(
+      formatCopyright("© 2026 MyJudicial Ltd. All rights reserved.", "MyJudicial, Inc. Tous droits réservés.", "fr")
+    ).toBe(`© ${currentYear} MyJudicial, Inc. Tous droits réservés.`);
+
+    expect(
+      formatCopyright("MyJudicial Ltd. All rights reserved.", undefined, "fr")
+    ).toBe(`© ${currentYear} MyJudicial Ltd. Tous droits réservés.`);
+
+    expect(
+      formatCopyright("MyJudicial Ltd. All rights reserved.", undefined, "rw")
+    ).toBe(`© ${currentYear} MyJudicial Ltd. Uburenganzira bwose bwubahirizwa.`);
+  });
+});
+
+describe("formatWorkingHours", () => {
+  it("formats standard operating hours for French, Kinyarwanda, and English", () => {
+    expect(formatWorkingHours("Monday – Friday: 8:00 AM – 6:00 PM CAT", "fr")).toBe(
+      "Lundi – Vendredi : 08h00 – 18h00 (CAT)"
+    );
+    expect(formatWorkingHours("Monday – Friday: 8:00 AM – 6:00 PM CAT", "rw")).toBe(
+      "Kuwa Mbere – Kuwa Gatanu: 8:00 – 18:00 (CAT)"
+    );
+    expect(formatWorkingHours("Monday – Friday: 8:00 AM – 6:00 PM CAT", "en")).toBe(
+      "Monday – Friday: 8:00 AM – 6:00 PM CAT"
+    );
+  });
+
+  it("uses provided fallback when default hours are present", () => {
+    expect(
+      formatWorkingHours("Monday – Friday: 8:00 AM – 6:00 PM CAT", "fr", "Lundi à Vendredi de 8h à 18h")
+    ).toBe("Lundi à Vendredi de 8h à 18h");
+  });
+
+  it("translates day names in custom hours for non-English locales", () => {
+    expect(formatWorkingHours("Monday - Saturday: 8:00 AM - 5:00 PM", "fr")).toBe(
+      "Lundi - Samedi: 8:00 AM - 5:00 PM"
+    );
+    expect(formatWorkingHours("Monday - Friday", "rw")).toBe(
+      "Kuwa Mbere - Kuwa Gatanu"
     );
   });
 });

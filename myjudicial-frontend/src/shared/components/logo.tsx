@@ -23,8 +23,8 @@ export function Logo({
   className = "",
   iconOnly = false,
   light = false,
-  iconSize = 24,
-  fontSize = "text-[14px]",
+  iconSize = 22,
+  fontSize = "text-[17px] sm:text-[18px]",
   href = "/",
   onClick,
   hideTextOnSmall = false,
@@ -55,7 +55,7 @@ export function Logo({
       {!iconOnly && (
         <span
           className={`font-bold tracking-tight whitespace-nowrap shrink-0 ${
-            hideTextOnSmall ? "hidden min-[400px]:inline" : ""
+            hideTextOnSmall ? "hidden min-[320px]:inline" : "inline"
           } ${fontSize} ${
             light ? "text-white" : "text-foreground"
           }`}

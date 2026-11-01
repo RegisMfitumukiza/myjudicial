@@ -78,29 +78,31 @@ function CaseMilestoneTracker({
   return (
     <div className="w-full pt-3 pb-1">
       <div className="relative">
-        {/* Background connecting track */}
-        <div className="absolute top-3.5 left-8 right-8 sm:left-12 sm:right-12 h-0.5 bg-brand-border/25 dark:bg-white/10 -translate-y-1/2 z-0" />
+        {/* Background connecting track: perfectly centered between circle 1 (12.5%) and circle 4 (87.5%) */}
+        <div className="absolute top-3.5 min-[380px]:top-4 left-[12.5%] right-[12.5%] h-0.5 bg-brand-border/25 dark:bg-white/10 -translate-y-1/2 z-0" />
 
         {/* Active filled progress track */}
-        <div
-          className={`absolute top-3.5 left-8 sm:left-12 h-0.5 -translate-y-1/2 z-0 transition-all duration-500 ${
-            variant === "awaiting"
-              ? "bg-gradient-to-r from-emerald-500 via-emerald-500 to-amber-500"
-              : variant === "live"
-              ? "bg-emerald-500"
-              : "bg-brand-dark dark:bg-white"
-          }`}
-          style={{
-            width:
-              currentStep === 1
-                ? "12%"
-                : currentStep === 2
-                ? "37%"
-                : currentStep === 3
-                ? "70%"
-                : "calc(100% - 32px)",
-          }}
-        />
+        <div className="absolute top-3.5 min-[380px]:top-4 left-[12.5%] right-[12.5%] h-0.5 -translate-y-1/2 z-0 overflow-hidden pointer-events-none">
+          <div
+            className={`h-full transition-all duration-500 ${
+              variant === "awaiting"
+                ? "bg-gradient-to-r from-emerald-500 via-emerald-500 to-amber-500"
+                : variant === "live"
+                ? "bg-emerald-500"
+                : "bg-brand-dark dark:bg-white"
+            }`}
+            style={{
+              width:
+                currentStep === 1
+                  ? "0%"
+                  : currentStep === 2
+                  ? "33.33%"
+                  : currentStep === 3
+                  ? "66.67%"
+                  : "100%",
+            }}
+          />
+        </div>
 
         {/* 4 Steps Columns */}
         <div className="grid grid-cols-4 gap-1 sm:gap-2 relative z-10">
@@ -111,11 +113,11 @@ function CaseMilestoneTracker({
             return (
               <div
                 key={s.step}
-                className="flex flex-col items-center text-center px-0.5 sm:px-1"
+                className="flex flex-col items-center text-center px-0.5 min-w-0"
               >
                 {/* Circle node */}
                 <div
-                  className={`h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all shadow-sm ring-4 ${
+                  className={`h-7 w-7 min-[380px]:h-8 min-[380px]:w-8 rounded-full flex items-center justify-center text-[10px] min-[380px]:text-[11px] font-bold transition-all shadow-sm ring-3 sm:ring-4 shrink-0 ${
                     isCompleted
                       ? "bg-emerald-600 text-white ring-emerald-50 dark:ring-emerald-950/40"
                       : isCurrent
@@ -136,7 +138,7 @@ function CaseMilestoneTracker({
 
                 {/* Title label: responsive, no truncate, wrapping smoothly */}
                 <span
-                  className={`mt-2 text-[11px] sm:text-[12px] leading-tight font-bold break-words whitespace-normal max-w-full ${
+                  className={`mt-2 text-[10px] min-[360px]:text-[11px] sm:text-[12px] leading-tight font-bold break-words whitespace-normal text-center max-w-full px-0.5 ${
                     isCompleted
                       ? "text-emerald-700 dark:text-emerald-400"
                       : isCurrent
@@ -529,7 +531,7 @@ export default function ClientHomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 min-w-0">
-      {/* â”€â”€â”€ Command Center Welcome Header with Local CAT Timezone â”€â”€â”€ */}
+      {/* ─── Command Center Welcome Header with Local CAT Timezone ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-brand-border/15 dark:border-white/10">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark dark:text-white break-words">
@@ -537,7 +539,7 @@ export default function ClientHomePage() {
           </h1>
           <div className="flex flex-wrap items-center gap-2 mt-1 text-[13px] text-brand-dark/60 dark:text-white/60">
             <span>{t("manageConsultationsDesc")}</span>
-            <span className="hidden sm:inline text-brand-dark/30 dark:text-white/30">â€¢</span>
+            <span className="hidden sm:inline text-brand-dark/30 dark:text-white/30" aria-hidden="true">&bull;</span>
             <span className="inline-flex items-center gap-1.5 font-medium text-brand-dark/80 dark:text-white/80">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span>{t("kigaliTimeLabel")}: {kigaliTime}</span>
@@ -546,34 +548,36 @@ export default function ClientHomePage() {
         </div>
 
         {/* Client Action Center Status Pill */}
-        <div className="shrink-0">
+        <div className="shrink-0 self-start sm:self-center">
           {pendingActionCount === 0 ? (
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3.5 py-1.5 text-[12px] font-semibold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <div className="inline-flex flex-wrap items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/80 px-3 py-1.5 min-[380px]:px-3.5 text-[11px] min-[380px]:text-[12px] font-semibold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-300">
               <CheckCircle2
-                size={15}
-                className="text-emerald-600 dark:text-emerald-400"
+                size={14}
+                className="text-emerald-600 dark:text-emerald-400 shrink-0"
               />
               <span>{t("allCaughtUp")}</span>
-              <span className="text-emerald-600/70 dark:text-emerald-400/70">
-                â€¢ {t("noPendingActions")}
+              <span className="text-emerald-600/70 dark:text-emerald-400/70 inline-flex items-center gap-1">
+                <span aria-hidden="true">&bull;</span>
+                <span>{t("noPendingActions")}</span>
               </span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50/80 px-3.5 py-1.5 text-[12px] font-semibold text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300">
+            <div className="inline-flex flex-wrap items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50/80 px-3 py-1.5 min-[380px]:px-3.5 text-[11px] min-[380px]:text-[12px] font-semibold text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-300">
               <AlertCircle
-                size={15}
-                className="text-amber-600 dark:text-amber-400"
+                size={14}
+                className="text-amber-600 dark:text-amber-400 shrink-0"
               />
               <span>{t("actionsRequired")}</span>
-              <span className="text-amber-600/70 dark:text-amber-400/70">
-                â€¢ {t("pendingActionsCount", { count: pendingActionCount })}
+              <span className="text-amber-600/70 dark:text-amber-400/70 inline-flex items-center gap-1">
+                <span aria-hidden="true">&bull;</span>
+                <span>{t("pendingActionsCount", { count: pendingActionCount })}</span>
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* â”€â”€â”€ Action Alerts (Pending Payment / Review) â”€â”€â”€ */}
+      {/* ─── Action Alerts (Pending Payment / Review) ─── */}
       {(pendingPayment || pendingReview) && (
         <div className="mb-6 sm:mb-8 space-y-3">
           {pendingPayment && (
@@ -588,13 +592,13 @@ export default function ClientHomePage() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-brand-dark dark:text-white truncate">
+                <p className="text-[13px] font-semibold text-brand-dark dark:text-white break-words">
                   {t("completePayment", {
                     serviceName:
                       pendingPayment.service?.name || t("consultation"),
                   })}
                 </p>
-                <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
+                <p className="text-[11px] text-brand-dark/60 dark:text-white/60 break-words mt-0.5">
                   {t("withExpertAmount", {
                     expertName:
                       pendingPayment.expert?.displayName || t("expert"),
@@ -622,13 +626,13 @@ export default function ClientHomePage() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-semibold text-brand-dark dark:text-white truncate">
+                <p className="text-[13px] font-semibold text-brand-dark dark:text-white break-words">
                   {t("leaveReview", {
                     expertName:
                       pendingReview.expert?.displayName || t("yourExpert"),
                   })}
                 </p>
-                <p className="text-[11px] text-brand-dark/50 dark:text-white/50 truncate">
+                <p className="text-[11px] text-brand-dark/60 dark:text-white/60 break-words mt-0.5">
                   {t("serviceCompletedDate", {
                     serviceName:
                       pendingReview.service?.name ||
@@ -646,11 +650,11 @@ export default function ClientHomePage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Main 2-Column Command Center Grid â”€â”€â”€ */}
+      {/* ─── Main 2-Column Command Center Grid ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* â”€â”€ LEFT COLUMN: Primary Workspace (Span 8) â”€â”€ */}
+        {/* ── LEFT COLUMN: Primary Workspace (Span 8) ── */}
         <div className="lg:col-span-8 space-y-6 sm:space-y-8 min-w-0">
-          {/* â”€â”€ Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) â”€â”€ */}
+          {/* ── Spotlight Consultation Card (Time-Aware Lifecycle + Milestone Tracker) ── */}
           {isLoading ? (
             <SkeletonCard className="rounded-2xl p-6" />
           ) : liveSession ? (
@@ -681,15 +685,15 @@ export default function ClientHomePage() {
                       })}
                     </p>
                     <p className="mt-1 text-[12px] text-brand-dark/50 dark:text-white/50">
-                      {formatTime(liveSession.scheduledStart)} â€”{" "}
+                      {formatTime(liveSession.scheduledStart)} &ndash;{" "}
                       {formatTime(liveSession.scheduledEnd)}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0 sm:self-center pt-2 sm:pt-0">
                   <Link
                     href={`/client/dashboard/consultations/${liveSession.id}/join`}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-3 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-[14px] font-bold text-white shadow-md hover:bg-green-700 transition-all dark:bg-green-500 dark:hover:bg-green-600 whitespace-nowrap"
                   >
                     <Video size={16} />
                     {t("joinNow")}
@@ -766,23 +770,23 @@ export default function ClientHomePage() {
                           size={14}
                           className="text-brand-dark/40 dark:text-white/40"
                         />
-                        {formatTime(upcomingSession.scheduledStart)} â€”{" "}
+                        {formatTime(upcomingSession.scheduledStart)} &ndash;{" "}
                         {formatTime(upcomingSession.scheduledEnd)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                <div className="flex flex-col min-[420px]:flex-row items-stretch min-[420px]:items-center gap-2 w-full sm:w-auto shrink-0 sm:self-center pt-2 sm:pt-0">
                   {/* 1-Click Calendar Sync Dropdown */}
-                  <div className="relative">
+                  <div className="relative flex-1 min-[420px]:flex-initial">
                     <button
                       onClick={() => setCalendarDropdownOpen(!calendarDropdownOpen)}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-3 py-2 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] transition-colors dark:border-white/15 dark:bg-black dark:text-white"
+                      className="w-full min-[420px]:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-3.5 py-2.5 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] transition-colors dark:border-white/15 dark:bg-black dark:text-white whitespace-nowrap"
                       title={t("addToCalendar")}
                     >
-                      <CalendarPlus size={14} />
-                      <span className="hidden sm:inline">{t("addToCalendar")}</span>
+                      <CalendarPlus size={14} className="shrink-0" />
+                      <span>{t("addToCalendar")}</span>
                     </button>
                     {calendarDropdownOpen && (
                       <>
@@ -830,7 +834,7 @@ export default function ClientHomePage() {
 
                   <Link
                     href={`/client/dashboard/consultations/${upcomingSession.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2 text-[13px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white"
+                    className="flex-1 min-[420px]:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-brand-dark/[0.04] px-4 py-2.5 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.08] transition-colors dark:border-white/15 dark:bg-white/[0.04] dark:text-white whitespace-nowrap"
                   >
                     {t("notYetTime")}
                   </Link>
@@ -893,7 +897,7 @@ export default function ClientHomePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 sm:self-center">
+                <div className="flex flex-col min-[420px]:flex-row items-stretch min-[420px]:items-center gap-2 w-full sm:w-auto shrink-0 sm:self-center pt-2 sm:pt-0">
                   <Link
                     href={`/client/dashboard/messages?conversationId=${
                       conversations.find((c) =>
@@ -903,14 +907,14 @@ export default function ClientHomePage() {
                         )
                       )?.id || ""
                     }`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300/80 bg-white px-3 py-2 text-[12px] font-semibold text-amber-900 shadow-sm hover:bg-amber-50 transition-colors dark:border-amber-700 dark:bg-black dark:text-amber-200 dark:hover:bg-amber-950/40"
+                    className="flex-1 min-[420px]:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-300/80 bg-white px-3.5 py-2.5 text-[12px] font-semibold text-amber-900 shadow-sm hover:bg-amber-50 transition-colors dark:border-amber-700 dark:bg-black dark:text-amber-200 dark:hover:bg-amber-950/40 whitespace-nowrap"
                   >
-                    <MessageSquare size={13} />
+                    <MessageSquare size={13} className="shrink-0" />
                     <span>{t("messageAdvocateDirect")}</span>
                   </Link>
                   <Link
                     href={`/client/dashboard/consultations/${awaitingSummarySession.id}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-900 px-4 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-amber-800 transition-colors dark:bg-amber-400 dark:text-black dark:hover:bg-amber-300"
+                    className="flex-1 min-[420px]:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-900 px-4 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-amber-800 transition-colors dark:bg-amber-400 dark:text-black dark:hover:bg-amber-300 whitespace-nowrap"
                   >
                     {t("viewSummary")}
                   </Link>
@@ -935,9 +939,9 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* â”€â”€ Middle Section: Returning vs New Clients â”€â”€ */}
+          {/* ── Middle Section: Returning vs New Clients ── */}
           {isLoading ? (
-            /* Skeleton placeholder â€” same height as the counsel card */
+            /* Skeleton placeholder — same height as the counsel card */
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black animate-pulse">
               <div className="h-4 w-36 bg-brand-dark/10 dark:bg-white/10 rounded mb-2" />
               <div className="h-3 w-52 bg-brand-dark/5 dark:bg-white/5 rounded mb-5" />
@@ -983,23 +987,23 @@ export default function ClientHomePage() {
 
               {/* Adaptive Layout: Rich horizontal card when exactly 1 counsel, balanced grid when 2+ */}
               {myLegalCounsel.length === 1 ? (
-                <div className="rounded-xl border border-brand-border/15 p-5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
+                <div className="rounded-xl border border-brand-border/15 p-4 sm:p-5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 text-[16px] font-bold text-brand-dark dark:text-white shadow-sm">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 text-[15px] sm:text-[16px] font-bold text-brand-dark dark:text-white shadow-sm">
                         {myLegalCounsel[0].name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
                           .slice(0, 2)}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-[15px] font-bold text-brand-dark dark:text-white">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center gap-1 min-[480px]:gap-2">
+                          <p className="text-[15px] font-bold text-brand-dark dark:text-white break-words">
                             {myLegalCounsel[0].name}
                           </p>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
-                            <BadgeCheck size={12} className="text-blue-600 dark:text-blue-400" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 shrink-0 w-fit whitespace-nowrap">
+                            <BadgeCheck size={12} className="text-blue-600 dark:text-blue-400 shrink-0" />
                             <span>{t("verifiedBarCounsel")}</span>
                           </span>
                         </div>
@@ -1014,24 +1018,24 @@ export default function ClientHomePage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-col min-[400px]:flex-row items-stretch min-[400px]:items-center gap-2 w-full sm:w-auto shrink-0 pt-2 sm:pt-0">
                       <Link
                         href={
                           myLegalCounsel[0].conversationId
                             ? `/client/dashboard/messages?conversationId=${myLegalCounsel[0].conversationId}`
                             : "/client/dashboard/messages"
                         }
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-4 py-2 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
+                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-4 py-2.5 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors whitespace-nowrap"
                       >
-                        <MessageSquare size={14} />
-                        {t("messageAdvocate")}
+                        <MessageSquare size={14} className="shrink-0" />
+                        <span>{t("messageAdvocate")}</span>
                       </Link>
                       <Link
                         href={`/lawyers/${myLegalCounsel[0].id}`}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2.5 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity whitespace-nowrap"
                       >
-                        <CalendarCheck2 size={14} />
-                        {t("bookAgain")}
+                        <CalendarCheck2 size={14} className="shrink-0" />
+                        <span>{t("bookAgain")}</span>
                       </Link>
                     </div>
                   </div>
@@ -1075,17 +1079,17 @@ export default function ClientHomePage() {
                               ? `/client/dashboard/messages?conversationId=${counsel.conversationId}`
                               : "/client/dashboard/messages"
                           }
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-1.5 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-2 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors whitespace-nowrap min-w-0"
                         >
-                          <MessageSquare size={13} />
-                          {t("messageAdvocate")}
+                          <MessageSquare size={13} className="shrink-0" />
+                          <span className="truncate">{t("messageAdvocate")}</span>
                         </Link>
                         <Link
                           href={`/lawyers/${counsel.id}`}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-1.5 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-2 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity whitespace-nowrap min-w-0"
                         >
-                          <CalendarCheck2 size={13} />
-                          {t("bookAgain")}
+                          <CalendarCheck2 size={13} className="shrink-0" />
+                          <span className="truncate">{t("bookAgain")}</span>
                         </Link>
                       </div>
                     </div>
@@ -1093,7 +1097,7 @@ export default function ClientHomePage() {
                 </div>
               )}
 
-              {/* Show More / Show Less toggle â€” only if there are more than COUNSEL_VISIBLE */}
+              {/* Show More / Show Less toggle ── only if there are more than COUNSEL_VISIBLE */}
               {myLegalCounsel.length > COUNSEL_VISIBLE && (
                 <div className="mt-3 pt-3 border-t border-brand-border/10 dark:border-white/10 text-center">
                   <button
@@ -1175,7 +1179,7 @@ export default function ClientHomePage() {
             </div>
           )}
 
-          {/* â”€â”€ Personal Workspace Quick Access with LIVE Dynamic Counters â”€â”€ */}
+          {/* ── Personal Workspace Quick Access with LIVE Dynamic Counters ── */}
           <div className="space-y-3">
             <h3 className="text-[15px] font-bold text-brand-dark dark:text-white">
               {t("workspaceQuickAccess")}
@@ -1267,7 +1271,7 @@ export default function ClientHomePage() {
             </div>
           </div>
 
-          {/* â”€â”€ Returning Client Multi-Matter Quick Jump â”€â”€ */}
+          {/* ── Returning Client Multi-Matter Quick Jump ── */}
           <div className="rounded-2xl border border-brand-border/20 bg-white p-4 sm:p-5 shadow-sm dark:border-white/10 dark:bg-black">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
@@ -1298,16 +1302,16 @@ export default function ClientHomePage() {
                 <Link
                   key={item.specialty}
                   href={`/search?specialty=${item.specialty}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-border/20 bg-brand-dark/[0.02] px-3 py-1.5 text-[12px] font-medium text-brand-dark hover:border-brand-dark/40 hover:bg-brand-dark/[0.05] transition-colors dark:border-white/10 dark:bg-white/[0.02] dark:text-white dark:hover:border-white/30"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-brand-border/20 bg-brand-dark/[0.02] px-3 py-1.5 text-[12px] font-medium text-brand-dark hover:border-brand-dark/40 hover:bg-brand-dark/[0.05] transition-colors dark:border-white/10 dark:bg-white/[0.02] dark:text-white dark:hover:border-white/30 whitespace-nowrap shrink-0"
                 >
                   <span>{t(item.key as Parameters<typeof t>[0])}</span>
-                  <ArrowRight size={11} className="opacity-40" />
+                  <ArrowRight size={11} className="opacity-40 shrink-0" />
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* â”€â”€ Recent Consultations List â”€â”€ */}
+          {/* ─── Recent Consultations List ─── */}
           {recentConsultations.length > 0 && (
             <div className="rounded-2xl border border-brand-border/20 bg-white p-5 sm:p-6 shadow-sm dark:border-white/10 dark:bg-black">
               <div className="flex items-center justify-between mb-4">
@@ -1332,8 +1336,8 @@ export default function ClientHomePage() {
                       <FileText size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[14px] font-semibold text-brand-dark dark:text-white truncate">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <p className="text-[13px] sm:text-[14px] font-semibold text-brand-dark dark:text-white break-words">
                           {b.service?.name || t("consultationCapitalized")}
                         </p>
                         {b.status === "CONFIRMED" && nowTime > new Date(b.scheduledEnd).getTime() ? (
@@ -1352,7 +1356,7 @@ export default function ClientHomePage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[12px] text-brand-dark/50 dark:text-white/50 truncate">
+                      <p className="text-[12px] text-brand-dark/50 dark:text-white/50 break-words mt-0.5">
                         {t("expertDate", {
                           expertName: b.expert?.displayName || t("expert"),
                           date: formatDate(b.scheduledStart),
@@ -1370,7 +1374,7 @@ export default function ClientHomePage() {
           )}
         </div>
 
-        {/* â”€â”€ RIGHT COLUMN: Sidebar Overview & Trust (Span 4) â”€â”€ */}
+        {/* ── RIGHT COLUMN: Sidebar Overview & Trust (Span 4) ── */}
         <div className="lg:col-span-4 space-y-5 min-w-0">
           {/* Latest from Counsel (Upwork / Airbnb Style Message Preview) */}
           {latestCounselMessage && (
@@ -1393,11 +1397,11 @@ export default function ClientHomePage() {
                 </Link>
               </div>
               <div className="rounded-xl border border-brand-border/15 p-3.5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
-                <div className="flex items-center justify-between">
-                  <p className="text-[13px] font-bold text-brand-dark dark:text-white truncate">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <p className="text-[13px] font-bold text-brand-dark dark:text-white break-words">
                     {latestCounselMessage.name}
                   </p>
-                  <span className="text-[10px] text-brand-dark/40 dark:text-white/40">
+                  <span className="text-[10px] text-brand-dark/40 dark:text-white/40 shrink-0">
                     {formatDate(latestCounselMessage.time)}
                   </span>
                 </div>
@@ -1420,13 +1424,13 @@ export default function ClientHomePage() {
           {/* Active Escrow Financial Shield (Or General Platform Protection) */}
           {activeEscrowBooking ? (
             <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-50 to-emerald-100/30 p-5 shadow-sm dark:border-emerald-700/50 dark:from-emerald-950/40 dark:to-emerald-900/20">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 min-w-0">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <ShieldCheck
                     size={18}
                     className="text-emerald-700 dark:text-emerald-400 shrink-0"
                   />
-                  <h3 className="text-[13px] sm:text-[14px] font-bold text-emerald-950 dark:text-emerald-200 truncate">
+                  <h3 className="text-[13px] sm:text-[14px] font-bold text-emerald-950 dark:text-emerald-200 break-words">
                     {t("activeEscrowShieldTitle")}
                   </h3>
                 </div>
@@ -1448,22 +1452,22 @@ export default function ClientHomePage() {
                 </p>
               </div>
 
-              <div className="mt-3.5 flex items-center justify-between text-[11px] font-semibold text-emerald-900/80 dark:text-emerald-300/80">
+              <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold text-emerald-900/80 dark:text-emerald-300/80">
                 <Link
                   href="/client/dashboard/payments"
-                  className="inline-flex items-center gap-1 text-emerald-800 hover:underline dark:text-emerald-300"
+                  className="inline-flex items-center gap-1 text-emerald-800 hover:underline dark:text-emerald-300 whitespace-nowrap"
                 >
                   <span>{t("viewEscrowReceipt")}</span>
-                  <ArrowRight size={11} />
+                  <ArrowRight size={11} className="shrink-0" />
                 </Link>
                 <a
                   href="https://barreaudurwanda.org.rw"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-emerald-800/70 hover:underline dark:text-emerald-300/70"
+                  className="inline-flex items-center gap-1 text-emerald-800/70 hover:underline dark:text-emerald-300/70 whitespace-nowrap"
                 >
                   <span>{t("verifyBarRoll")}</span>
-                  <ExternalLink size={10} />
+                  <ExternalLink size={10} className="shrink-0" />
                 </a>
               </div>
             </div>

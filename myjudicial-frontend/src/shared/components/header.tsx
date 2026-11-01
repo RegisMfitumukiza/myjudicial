@@ -131,7 +131,7 @@ export function Header() {
 
         {/* Logo */}
         <div className="flex items-center justify-start shrink-0 mr-1 sm:mr-3 lg:mr-6 min-w-0">
-          <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" hideTextOnSmall />
+          <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" />
         </div>
 
         {/* Primary Nav Links */}

@@ -1112,7 +1112,7 @@ export default function SignUpPage() {
       <header className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="mx-auto flex max-w-[1400px] h-14 sm:h-16 items-center justify-between gap-2 px-3 min-[360px]:px-4 sm:px-6">
           <div className="flex items-center justify-start shrink-0 mr-2 sm:mr-4">
-            <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" hideTextOnSmall />
+            <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" className="text-brand-dark dark:text-white" />
           </div>
           <div className="flex items-center justify-end gap-1.5 sm:gap-2">
             <LanguageSwitcher variant="compact" />

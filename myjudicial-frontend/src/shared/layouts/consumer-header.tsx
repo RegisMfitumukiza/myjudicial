@@ -164,7 +164,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
         <div className="flex h-14 items-center justify-between sm:h-16">
           {/* Logo */}
           <div className="flex shrink-0 items-center">
-            <Logo href="/client/dashboard" iconSize={18} fontSize="text-[14px]" />
+            <Logo href="/client/dashboard" iconSize={22} fontSize="text-[17px] sm:text-[18px]" />
           </div>
 
           {/* Desktop Navigation */}

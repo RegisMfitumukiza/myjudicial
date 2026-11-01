@@ -164,11 +164,11 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
         <div className="flex h-14 items-center justify-between sm:h-16">
           {/* Logo */}
           <div className="flex shrink-0 items-center">
-            <Logo href="/client/dashboard" iconSize={22} fontSize="text-[17px] sm:text-[18px]" />
+            <Logo href="/client/dashboard" iconSize={22} fontSize="text-[17px] sm:text-[18px]" hideTextOnSmall />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 mx-4">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 mx-2 xl:mx-4">
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -176,16 +176,16 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 xl:gap-2 rounded-lg px-2.5 py-1.5 xl:px-3 xl:py-2 text-xs xl:text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                     active
                       ? "text-brand-dark dark:text-white bg-gray-100 dark:bg-gray-800"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-900"
                   }`}
                 >
-                  {Icon && <Icon size={16} />}
-                  {item.label}
+                  {Icon && <Icon size={15} className="shrink-0" />}
+                  <span>{item.label}</span>
                   {item.href === "/client/dashboard/messages" && chatUnreadCount > 0 && (
-                    <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-blue px-1 text-[10px] font-bold text-white">
+                    <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-blue px-1 text-[10px] font-bold text-white shrink-0">
                       {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                     </span>
                   )}
@@ -319,19 +319,20 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile/Tablet Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="lg:hidden p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile/Tablet Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="lg:hidden py-3 border-t border-gray-200 dark:border-gray-800">
             <nav className="space-y-0.5">
               {navigation.map((item) => {
                 const Icon = item.icon;

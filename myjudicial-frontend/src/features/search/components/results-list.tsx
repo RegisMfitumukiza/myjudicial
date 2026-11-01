@@ -100,7 +100,7 @@ export function ResultsList({
 
       {/* Results Header */}
       <div className="mb-2 flex items-center justify-between px-1">
-        <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+        <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider font-sans">
           {t("resultsCount", { count: lawyers.length })}
         </p>
       </div>

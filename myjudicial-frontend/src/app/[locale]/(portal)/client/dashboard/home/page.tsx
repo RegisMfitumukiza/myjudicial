@@ -1551,7 +1551,7 @@ export default function ClientHomePage() {
             <div className="flex flex-col gap-2">
               <ContactEmailPopover
                 email="support@myjudicial.com"
-                className="w-full justify-center"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border/25 bg-brand-dark/[0.02] py-2 px-3 text-[12px] font-semibold text-brand-dark/80 hover:bg-brand-dark/[0.06] hover:text-brand-dark transition-colors dark:border-white/15 dark:bg-white/[0.02] dark:text-white/80 dark:hover:bg-white/[0.06] dark:hover:text-white font-sans"
               />
               <Link
                 href="/faqs"

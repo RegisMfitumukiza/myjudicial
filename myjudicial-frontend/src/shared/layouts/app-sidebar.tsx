@@ -407,7 +407,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
           >
             <Menu size={20} />
           </button>
-          <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" />
+          <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" hideTextOnSmall />
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
@@ -453,7 +453,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
           {/* Mobile drawer header (always expanded with close button) */}
           <div className="flex w-full items-center justify-between lg:hidden min-w-0 gap-2">
             <div className="flex items-center min-w-0 overflow-hidden">
-              <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" />
+              <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" hideTextOnSmall />
             </div>
             <button
               onClick={closeMobile}
@@ -479,7 +479,7 @@ export function AppSidebar({ user, pathname }: AppSidebarProps) {
               </div>
             ) : (
               <div className="flex w-full items-center justify-between min-w-0 gap-2">
-                <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" />
+                <Logo iconSize={22} fontSize="text-[17px] sm:text-[18px]" href={base} className="min-w-0" hideTextOnSmall />
                 <button
                   onClick={() => setCollapsed(true)}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground shrink-0"

@@ -27,7 +27,7 @@ export function Logo({
   fontSize = "text-[17px] sm:text-[18px]",
   href = "/",
   onClick,
-  hideTextOnSmall = false,
+  hideTextOnSmall = true,
 }: LogoProps) {
   const { settings } = usePlatformSettings();
   const logoSrc = settings?.brandLogoUrl?.trim() || "/myjudicial-logo.png";
@@ -55,7 +55,7 @@ export function Logo({
       {!iconOnly && (
         <span
           className={`font-bold tracking-tight whitespace-nowrap shrink-0 ${
-            hideTextOnSmall ? "hidden min-[320px]:inline" : "inline"
+            hideTextOnSmall ? "hidden sm:inline" : "inline"
           } ${fontSize} ${
             light ? "text-white" : "text-foreground"
           }`}

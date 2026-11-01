@@ -70,7 +70,7 @@ export function ContactEmailPopover({
             e.preventDefault();
             setIsOpen((prev) => !prev);
           }}
-          className={cn("cursor-pointer inline-flex items-center gap-2 transition-colors", className)}
+          className={cn("cursor-pointer inline-flex items-center gap-2 font-sans transition-colors", className)}
           title={t("title")}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
@@ -80,7 +80,7 @@ export function ContactEmailPopover({
           ) : (
             <>
               {showIcon && <Mail size={iconSize} className={iconClassName} aria-hidden="true" />}
-              <span className="break-all">{email}</span>
+              <span className="break-all font-sans">{email}</span>
             </>
           )}
         </a>
@@ -89,11 +89,11 @@ export function ContactEmailPopover({
         align={align}
         side={side}
         sideOffset={sideOffset}
-        className="w-80 p-2 shadow-xl border border-border bg-card rounded-2xl text-foreground z-50"
+        className="w-80 p-2 shadow-xl border border-border bg-card rounded-2xl text-foreground z-50 font-sans"
       >
         {/* Header / Email display & quick copy */}
         <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-muted/40 border border-border/50">
-          <span className="font-mono text-xs font-semibold text-foreground truncate select-all">
+          <span className="font-sans text-xs font-semibold text-foreground truncate select-all">
             {email}
           </span>
           <button

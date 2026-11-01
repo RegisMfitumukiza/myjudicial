@@ -3368,7 +3368,8 @@
     "deviceUnavailable": "Aucune caméra ou microphone trouvé",
     "deviceUnavailableDesc": "Connectez une caméra et un microphone à votre appareil, puis actualisez cette page.",
     "deviceError": "Impossible d'accéder aux périphériques",
-    "deviceErrorDesc": "Une erreur inattendue s'est produite. Veuillez actualiser la page et réessayer."
+    "deviceErrorDesc": "Une erreur inattendue s'est produite. Veuillez actualiser la page et réessayer.",
+    "backToBookings": "Retour aux réservations"
   },
   "signup": {
     "header": {
@@ -4366,7 +4367,8 @@
         "printButton": "Imprimer / Enregistrer en PDF",
         "footer": "MyJudicial — Marketplace juridique professionnelle",
         "footerGenerated": "Ce reçu a été généré automatiquement."
-      }
+      },
+      "sessionEnded": "Session terminée"
     },
     "reviews": {
       "backToDashboard": "Tableau de bord",
@@ -7678,7 +7680,10 @@
       "deliveryLocked": "Livraison disponible après le début de la session",
       "deliveryLockedTooltip": "La consultation ne peut être marquée comme terminée qu'après l'heure de début prévue.",
       "sessionEnded": "Session terminée",
-      "markDeliveredShort": "Marquer comme livré"
+      "markDeliveredShort": "Marquer comme livré",
+      "proposeReschedule": "Proposer une reprogrammation",
+      "deliveryLockedDisputeTooltip": "La finalisation et la livraison sont temporairement verrouillées tant que ce litige est en cours d'examen.",
+      "deliveryLockedDispute": "Livraison verrouillée (Litige)"
     },
     "details": {
       "withClient": "avec {name}",
@@ -7740,6 +7745,13 @@
       "noChatFound": "Aucune conversation trouvée pour cette réservation. Utilisez 'Envoyer un message au client' pour en démarrer une.",
       "loadError": "Échec du chargement des réservations. Veuillez réessayer.",
       "bookingNotFound": "Réservation introuvable"
+    },
+    "dispute": {
+      "activeTitle": "Action requise : Plainte du client en cours d'examen",
+      "badge": "Litige ouvert",
+      "explanation": "Le client a signalé un problème concernant la consultation. Le paiement est temporairement suspendu pendant que la conformité effectue un examen administratif.",
+      "clientReasonLabel": "Motif du client :",
+      "reportedAt": "Signalé le"
     }
   },
   "expertDashboard_settings": {

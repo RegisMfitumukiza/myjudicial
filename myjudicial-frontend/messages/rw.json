@@ -3368,7 +3368,8 @@
     "deviceUnavailable": "Nta kamera cyangwa mikoro ibonetse",
     "deviceUnavailableDesc": "Huza kamera na mikoro ku bikoresho byawe, hanyuma subiramo urupapuro.",
     "deviceError": "Ntibishoboka kwinjira ku bikoresho",
-    "deviceErrorDesc": "Habaye ikosa ridateganijwe. Subiramo urupapuro ugerageze nanone."
+    "deviceErrorDesc": "Habaye ikosa ridateganijwe. Subiramo urupapuro ugerageze nanone.",
+    "backToBookings": "Subira kuri gahunda"
   },
   "signup": {
     "header": {
@@ -4366,7 +4367,8 @@
         "printButton": "Sohora / Bika nk'PDF",
         "footer": "MyJudicial — Isoko ry'Amategeko ry'Inzobere",
         "footerGenerated": "Iyi resiti yakozwe ku buryo bwikora."
-      }
+      },
+      "sessionEnded": "Inama yarangiye"
     },
     "reviews": {
       "backToDashboard": "Imbaho",
@@ -7678,7 +7680,10 @@
       "deliveryLocked": "Kumenyesha ko byakozwe biboneka inama imaze gutangira",
       "deliveryLockedTooltip": "Inama ishobora gusa kumenyeshwa ko yarangiye igihe cyayo cyo gutangira kigeze.",
       "sessionEnded": "Ikiganiro Cyarangiye",
-      "markDeliveredShort": "Emeza ko byatanzwe"
+      "markDeliveredShort": "Emeza ko byatanzwe",
+      "proposeReschedule": "Saba guhindura igihe",
+      "deliveryLockedDisputeTooltip": "Gusoza no gutanga inyandiko birafunzwe by'agateganyo mu gihe iki kibazo kigisuzumwa.",
+      "deliveryLockedDispute": "Gutanga byafunzwe (Impaka)"
     },
     "details": {
       "withClient": "hamwe na {name}",
@@ -7740,6 +7745,13 @@
       "noChatFound": "Nta biganiro bibonetse kuri iyi gahunda. Kanda 'Ohereza ubutumwa umukiriya' kugira ngo utangire.",
       "loadError": "Gufungura gahunda byanze. Ongera ugerageze.",
       "bookingNotFound": "Gahunda ntibonetse"
+    },
+    "dispute": {
+      "activeTitle": "Igikorwa kirakenewe: Ikibazo cy'umukiriya kirasuzumwa",
+      "badge": "Impaka zarafunguwe",
+      "explanation": "Umukiriya yatanze ikibazo ku itangwa ry'inama. Kwishyurwa byahagaritswe by'agateganyo mu gihe abashinzwe kubahiriza amategeko barimo gusuzuma dosiye.",
+      "clientReasonLabel": "Impamvu y'umukiriya:",
+      "reportedAt": "Byatanzwe ku wa"
     }
   },
   "expertDashboard_settings": {

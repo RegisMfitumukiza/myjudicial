@@ -2222,7 +2222,8 @@
         "printButton": "Print / Save as PDF",
         "footer": "MyJudicial — Professional Legal Marketplace",
         "footerGenerated": "This receipt was generated automatically."
-      }
+      },
+      "sessionEnded": "Session Ended"
     },
     "reviews": {
       "backToDashboard": "Dashboard",
@@ -7369,7 +7370,8 @@
     "deviceUnavailable": "No camera or microphone found",
     "deviceUnavailableDesc": "Connect a camera and microphone to your device, then refresh this page.",
     "deviceError": "Could not access devices",
-    "deviceErrorDesc": "An unexpected error occurred. Please refresh the page and try again."
+    "deviceErrorDesc": "An unexpected error occurred. Please refresh the page and try again.",
+    "backToBookings": "Back to Bookings"
   },
   "expertDashboard_consultation-join": {
     "failedToLoad": "Failed to load booking",
@@ -7680,7 +7682,10 @@
       "deliveryLocked": "Delivery available after session starts",
       "deliveryLockedTooltip": "Consultation can only be marked delivered after the scheduled start time.",
       "sessionEnded": "Session Ended",
-      "markDeliveredShort": "Mark Delivered"
+      "markDeliveredShort": "Mark Delivered",
+      "proposeReschedule": "Propose Reschedule",
+      "deliveryLockedDisputeTooltip": "Completion and delivery are temporarily locked while this booking is in dispute review.",
+      "deliveryLockedDispute": "Delivery Locked (Dispute)"
     },
     "details": {
       "withClient": "with {name}",
@@ -7742,6 +7747,13 @@
       "noChatFound": "No conversation found for this booking. Use 'Message Client' to start one.",
       "loadError": "Failed to load bookings. Please try again.",
       "bookingNotFound": "Booking not found"
+    },
+    "dispute": {
+      "activeTitle": "Action Required: Client Grievance Under Review",
+      "badge": "Dispute Open",
+      "explanation": "The client has reported an issue regarding consultation delivery. Payout is temporarily suspended while compliance conducts an administrative roll review.",
+      "clientReasonLabel": "Client Grievance:",
+      "reportedAt": "Reported on"
     }
   },
   "expertDashboard_settings": {

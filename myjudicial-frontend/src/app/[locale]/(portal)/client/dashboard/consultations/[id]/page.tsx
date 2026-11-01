@@ -27,6 +27,11 @@ import type { ServiceNested } from "@/api/generated";
 import { useTranslations, useLocale } from "next-intl";
 import { CaseDocumentsCard } from "@/features/documents/components/case-documents-card";
 import { DetailPageSkeleton } from "@/shared/components/dashboard/loading";
+import {
+  getLocalizedServiceName,
+  getLocalizedServiceCategory,
+  getLocalizedServiceDescription,
+} from "@/shared/utils/service-localization";
 
 type BookingWithService = Booking & {
   expert?: {
@@ -104,6 +109,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations("clientDashboard.consultationDetail");
+  const tProfile = useTranslations("public.expertProfile");
   const locale = useLocale();
   const { booking, isLoading, error } = useBooking(id);
   const countdown = useCountdown(booking?.autoReleaseAt);
@@ -182,7 +188,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   <p>${r.receiptNo} &bull; ${new Date(r.paidAt ?? r.createdAt).toLocaleDateString(dateLocale, { day: "2-digit", month: "short", year: "numeric" })}</p>
 </div>
 <table>
-  <tr><td>${t("receipt.colConsultation")}</td><td>${r.service?.name ?? "N/A"}</td></tr>
+  <tr><td>${t("receipt.colConsultation")}</td><td>${(r.service ? getLocalizedServiceName(r.service, tProfile) : null) || r.service?.name || "N/A"}</td></tr>
   <tr><td>${t("receipt.colExpert")}</td><td>${r.expert.name}</td></tr>
   <tr><td>${t("receipt.colDate")}</td><td>${new Date(r.booking.scheduledStart).toLocaleDateString(dateLocale, { day: "2-digit", month: "short", year: "numeric" })} ${new Date(r.booking.scheduledStart).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}</td></tr>
   <tr><td>${t("receipt.colDuration")}</td><td>${r.booking.actualDurationMin ?? r.service?.durationMin ?? "N/A"} min</td></tr>
@@ -249,6 +255,17 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
   const isPhone = deliveryMode === "PHONE";
   const isDocument = deliveryMode === "EMAIL";
   const officeAddress = (booking as BookingWithService).expert?.officeAddress || (booking as BookingWithService).expert?.city || null;
+  const serviceObj = (booking as BookingWithService).service;
+  const expertDisplayName = (booking as BookingWithService).expert?.displayName ?? "";
+  const localizedServiceName = serviceObj
+    ? (getLocalizedServiceName(serviceObj, tProfile) || serviceObj.name)
+    : t("consultationFallback");
+  const localizedServiceCategory = serviceObj?.category
+    ? (getLocalizedServiceCategory(serviceObj.category, tProfile) || serviceObj.category)
+    : null;
+  const localizedServiceDescription = serviceObj?.description
+    ? getLocalizedServiceDescription(serviceObj.description, expertDisplayName, tProfile)
+    : undefined;
 
   // ── Cancellation policy logic ──
   const msUntilStart = startMs - nowMs;
@@ -303,7 +320,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-[22px] font-bold text-brand-dark dark:text-white">
-              {booking.service?.name ?? t("consultationFallback")}
+              {localizedServiceName}
             </h1>
             <p className="mt-1 text-[13px] text-brand-dark/50 dark:text-white/50">
               {t("withExpert", { expertName: booking.expert?.displayName ?? t("legalExpertFallback") })}
@@ -711,22 +728,22 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           <div className="rounded-2xl border border-brand-border/20 bg-white p-5 shadow-md dark:border-white/20 dark:bg-black">
             <h2 className="text-[13px] font-bold uppercase tracking-widest text-brand-dark/50 dark:text-white/50 mb-3">{t("sections.service")}</h2>
             <div>
-              <p className="text-[15px] font-bold text-brand-dark dark:text-white">{(booking as BookingWithService).service?.name ?? t("consultationFallback")}</p>
+              <p className="text-[15px] font-bold text-brand-dark dark:text-white">{localizedServiceName}</p>
               
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 <span className="inline-flex items-center gap-1 rounded-md bg-brand-dark/10 px-2 py-0.5 text-[11px] font-semibold text-brand-dark dark:bg-white/10 dark:text-white">
                   {isInPerson ? <MapPin size={11} /> : isPhone ? <Phone size={11} /> : isDocument ? <FileText size={11} /> : <Video size={11} />}
                   {isInPerson ? t("modeInPerson") : isPhone ? t("modePhone") : isDocument ? t("modeDocument") : t("modeVideo")}
                 </span>
-                {(booking as BookingWithService).service?.category && (
+                {localizedServiceCategory && (
                   <span className="rounded-md bg-brand-dark/5 px-2 py-0.5 text-[11px] font-medium text-brand-dark/60 dark:bg-white/5 dark:text-white/60">
-                    {(booking as BookingWithService).service!.category!.replace(/_/g, " ")}
+                    {localizedServiceCategory}
                   </span>
                 )}
               </div>
 
-              {(booking as BookingWithService).service?.description && (
-                <p className="mt-2 text-[12px] text-brand-dark/50 dark:text-white/50">{(booking as BookingWithService).service?.description}</p>
+              {localizedServiceDescription && (
+                <p className="mt-2 text-[12px] text-brand-dark/50 dark:text-white/50">{localizedServiceDescription}</p>
               )}
               <p className="mt-2.5 text-[13px] font-semibold text-brand-dark dark:text-white">
                 RWF {booking.service?.flatFee?.toLocaleString() ?? "—"}
@@ -911,7 +928,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
               onClick={() => downloadICS({
                 id: booking.id,
                 expertName: booking.expert?.displayName ?? "Expert",
-                serviceName: booking.service?.name ?? t("consultationFallback"),
+                serviceName: localizedServiceName,
                 start: booking.scheduledStart,
                 end: booking.scheduledEnd,
                 description: booking.citizenNotes ?? undefined,
@@ -1049,7 +1066,7 @@ export default function ConsultationDetailPage({ params }: { params: Promise<{ i
           <RescheduleModal
             bookingId={booking.id}
             expertId={booking.expertId}
-            serviceName={booking.service?.name}
+            serviceName={localizedServiceName}
             currentStart={booking.scheduledStart}
             currentEnd={booking.scheduledEnd}
             durationMin={booking.service?.durationMin ?? 60}

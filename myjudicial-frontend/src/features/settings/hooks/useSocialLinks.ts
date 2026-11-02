@@ -98,11 +98,33 @@ export interface PlatformPublicSettings {
   seoDescription: string;
   seoKeywords: string;
   platformTagline: string;
+  platformTaglineFr?: string;
+  platformTaglineRw?: string;
   copyrightNotice: string;
   brandLogoUrl?: string;
   brandFaviconUrl?: string;
   maintenanceNotice: string;
+  maintenanceNoticeFr?: string;
+  maintenanceNoticeRw?: string;
   legalDisclaimer: string;
+  legalDisclaimerFr?: string;
+  legalDisclaimerRw?: string;
+  aboutVisionFr?: string;
+  aboutVisionRw?: string;
+  aboutMissionFr?: string;
+  aboutMissionRw?: string;
+  aboutStoryFr?: string;
+  aboutStoryRw?: string;
+  aboutHeroBadgeFr?: string;
+  aboutHeroBadgeRw?: string;
+  aboutHeroTitleFr?: string;
+  aboutHeroTitleRw?: string;
+  aboutHeroSubtitleFr?: string;
+  aboutHeroSubtitleRw?: string;
+  careersHeroTitleFr?: string;
+  careersHeroTitleRw?: string;
+  careersHeroSubtitleFr?: string;
+  careersHeroSubtitleRw?: string;
   minAdvanceBookingHours: number;
   cancellationGraceHours: number;
 }
@@ -206,11 +228,33 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformPublicSettings = {
   seoDescription: "Browse verified lawyers, compare fixed fees, and book legal consultations instantly. Rwanda's premier legal marketplace.",
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
+  platformTaglineFr: "",
+  platformTaglineRw: "",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
   brandLogoUrl: "",
   brandFaviconUrl: "",
   maintenanceNotice: "",
+  maintenanceNoticeFr: "",
+  maintenanceNoticeRw: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
+  legalDisclaimerFr: "",
+  legalDisclaimerRw: "",
+  aboutVisionFr: "",
+  aboutVisionRw: "",
+  aboutMissionFr: "",
+  aboutMissionRw: "",
+  aboutStoryFr: "",
+  aboutStoryRw: "",
+  aboutHeroBadgeFr: "",
+  aboutHeroBadgeRw: "",
+  aboutHeroTitleFr: "",
+  aboutHeroTitleRw: "",
+  aboutHeroSubtitleFr: "",
+  aboutHeroSubtitleRw: "",
+  careersHeroTitleFr: "",
+  careersHeroTitleRw: "",
+  careersHeroSubtitleFr: "",
+  careersHeroSubtitleRw: "",
   minAdvanceBookingHours: 2,
   cancellationGraceHours: 24,
 };

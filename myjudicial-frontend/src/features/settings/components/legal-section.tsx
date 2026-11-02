@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { HelpCircle, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { HelpCircle, Plus, ShieldCheck, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -17,6 +17,7 @@ import {
 } from "@/shared/components/ui/select";
 import { SettingsSection } from "./settings-section";
 import { saveSettingsSection } from "../api";
+import { translateText } from "@/lib/api/ai";
 import type { SettingsData, SupplementalFaqItem } from "../settings";
 
 interface Props {
@@ -30,10 +31,15 @@ function copyDeep<T>(value: T[]): T[] {
 
 export function LegalSection({ settings, onSaved }: Props) {
   const t = useTranslations("admin.settings");
+  const [disclaimerTab, setDisclaimerTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingDisclaimer, setTranslatingDisclaimer] = useState(false);
+
   const [saved, setSaved] = useState({
     legalEffectiveDate: settings.legalEffectiveDate,
     dpoContactEmail: settings.dpoContactEmail,
     legalDisclaimer: settings.legalDisclaimer,
+    legalDisclaimerFr: settings.legalDisclaimerFr || "",
+    legalDisclaimerRw: settings.legalDisclaimerRw || "",
     supplementalFaqs: copyDeep(settings.supplementalFaqs),
   });
   const [draft, setDraft] = useState(saved);
@@ -43,12 +49,39 @@ export function LegalSection({ settings, onSaved }: Props) {
     draft.legalEffectiveDate !== saved.legalEffectiveDate ||
     draft.dpoContactEmail !== saved.dpoContactEmail ||
     draft.legalDisclaimer !== saved.legalDisclaimer ||
+    draft.legalDisclaimerFr !== saved.legalDisclaimerFr ||
+    draft.legalDisclaimerRw !== saved.legalDisclaimerRw ||
     JSON.stringify(draft.supplementalFaqs) !== JSON.stringify(saved.supplementalFaqs);
 
   const set = <K extends keyof typeof draft>(key: K, value: (typeof draft)[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
   const setFaqs = (faqs: SupplementalFaqItem[]) => set("supplementalFaqs", faqs);
+
+  const handleAutoTranslateDisclaimer = async () => {
+    const textToTranslate = draft.legalDisclaimer?.trim();
+    if (!textToTranslate) {
+      toast.error("Please enter an English disclaimer first");
+      return;
+    }
+    setTranslatingDisclaimer(true);
+    try {
+      const [frRes, rwRes] = await Promise.all([
+        translateText(textToTranslate, "en", "fr"),
+        translateText(textToTranslate, "en", "rw"),
+      ]);
+      setDraft((d) => ({
+        ...d,
+        legalDisclaimerFr: frRes.translated_text?.trim() || d.legalDisclaimerFr,
+        legalDisclaimerRw: rwRes.translated_text?.trim() || d.legalDisclaimerRw,
+      }));
+      toast.success("Disclaimer translated into French and Kinyarwanda! Review and save.");
+    } catch {
+      toast.error("AI translation service unavailable. You can enter translations manually.");
+    } finally {
+      setTranslatingDisclaimer(false);
+    }
+  };
 
   const handleAddFaq = () =>
     setFaqs([...draft.supplementalFaqs, { id: `faq_${Date.now()}`, question: "", answer: "", category: "general" }]);
@@ -117,16 +150,80 @@ export function LegalSection({ settings, onSaved }: Props) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="settings-legal-disclaimer" className="text-xs font-semibold">
-            {t("legalDisclaimer")}
-          </Label>
-          <Textarea
-            id="settings-legal-disclaimer"
-            rows={3}
-            value={draft.legalDisclaimer}
-            onChange={(e) => set("legalDisclaimer", e.target.value)}
-            placeholder="MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation."
-          />
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="settings-legal-disclaimer" className="text-xs font-semibold">
+              {t("legalDisclaimer")}
+            </Label>
+            <div className="flex items-center gap-1.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleAutoTranslateDisclaimer}
+                disabled={translatingDisclaimer || !draft.legalDisclaimer?.trim()}
+                className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+                title="Translate English disclaimer into French and Kinyarwanda using AI"
+              >
+                {translatingDisclaimer ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                <span>✨ Auto-Translate</span>
+              </Button>
+              <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+                {(["en", "fr", "rw"] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setDisclaimerTab(l)}
+                    className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                      disclaimerTab === l
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {disclaimerTab === "en" && (
+            <Textarea
+              id="settings-legal-disclaimer"
+              rows={3}
+              value={draft.legalDisclaimer}
+              onChange={(e) => set("legalDisclaimer", e.target.value)}
+              placeholder="MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation."
+            />
+          )}
+          {disclaimerTab === "fr" && (
+            <Textarea
+              id="settings-legal-disclaimer-fr"
+              rows={3}
+              value={draft.legalDisclaimerFr}
+              onChange={(e) => set("legalDisclaimerFr", e.target.value)}
+              placeholder="MyJudicial est une plateforme technologique indépendante mettant en relation les justiciables avec des praticiens du droit accrédités..."
+            />
+          )}
+          {disclaimerTab === "rw" && (
+            <Textarea
+              id="settings-legal-disclaimer-rw"
+              rows={3}
+              value={draft.legalDisclaimerRw}
+              onChange={(e) => set("legalDisclaimerRw", e.target.value)}
+              placeholder="MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abanyamategeko bemewe..."
+            />
+          )}
+          <p className="text-[11px] text-muted-foreground">
+            {disclaimerTab === "en"
+              ? "Disclaimer displayed on public footers and checkout disclaimers."
+              : disclaimerTab === "fr"
+              ? "Avis de non-responsabilité en français (laisser vide pour la traduction standard)."
+              : "Icyitonderwa mu Kinyarwanda (sigamo ubusa ngo ukoreshe ibisanzwe)."}
+          </p>
         </div>
 
         <div className="pt-4 border-t border-border space-y-4">

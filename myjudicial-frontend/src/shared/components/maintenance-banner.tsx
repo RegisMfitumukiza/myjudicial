@@ -24,8 +24,15 @@ export function MaintenanceBanner() {
     return null;
   }
 
+  const customNotice =
+    locale === "fr"
+      ? settings.maintenanceNoticeFr
+      : locale === "rw"
+      ? settings.maintenanceNoticeRw
+      : settings.maintenanceNotice;
+
   const notice =
-    settings.maintenanceNotice?.trim() ||
+    customNotice?.trim() ||
     DEFAULT_MAINTENANCE_NOTICES[locale] ||
     DEFAULT_MAINTENANCE_NOTICES.en;
 

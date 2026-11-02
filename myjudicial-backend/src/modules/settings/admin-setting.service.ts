@@ -116,13 +116,36 @@ export interface SettingsData {
   seoKeywords: string;
   // Brand & Public Identity
   platformTagline: string;
+  platformTaglineFr?: string;
+  platformTaglineRw?: string;
   copyrightNotice: string;
   brandLogoUrl: string;
   brandFaviconUrl: string;
   // Maintenance & Broadcast Notices
   maintenanceNotice: string;
+  maintenanceNoticeFr?: string;
+  maintenanceNoticeRw?: string;
   // Legal & Regulatory Disclaimers
   legalDisclaimer: string;
+  legalDisclaimerFr?: string;
+  legalDisclaimerRw?: string;
+  // Localized Editorial & Careers Content
+  aboutVisionFr?: string;
+  aboutVisionRw?: string;
+  aboutMissionFr?: string;
+  aboutMissionRw?: string;
+  aboutStoryFr?: string;
+  aboutStoryRw?: string;
+  aboutHeroBadgeFr?: string;
+  aboutHeroBadgeRw?: string;
+  aboutHeroTitleFr?: string;
+  aboutHeroTitleRw?: string;
+  aboutHeroSubtitleFr?: string;
+  aboutHeroSubtitleRw?: string;
+  careersHeroTitleFr?: string;
+  careersHeroTitleRw?: string;
+  careersHeroSubtitleFr?: string;
+  careersHeroSubtitleRw?: string;
   // Consultation Governance Rules
   minAdvanceBookingHours: number;
   cancellationGraceHours: number;
@@ -222,11 +245,33 @@ const DEFAULTS: SettingsData = {
   seoDescription: "Browse verified lawyers, compare fixed fees, and book legal consultations instantly. Rwanda's premier legal marketplace.",
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
+  platformTaglineFr: "",
+  platformTaglineRw: "",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
   brandLogoUrl: "",
   brandFaviconUrl: "",
   maintenanceNotice: "",
+  maintenanceNoticeFr: "",
+  maintenanceNoticeRw: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
+  legalDisclaimerFr: "",
+  legalDisclaimerRw: "",
+  aboutVisionFr: "",
+  aboutVisionRw: "",
+  aboutMissionFr: "",
+  aboutMissionRw: "",
+  aboutStoryFr: "",
+  aboutStoryRw: "",
+  aboutHeroBadgeFr: "",
+  aboutHeroBadgeRw: "",
+  aboutHeroTitleFr: "",
+  aboutHeroTitleRw: "",
+  aboutHeroSubtitleFr: "",
+  aboutHeroSubtitleRw: "",
+  careersHeroTitleFr: "",
+  careersHeroTitleRw: "",
+  careersHeroSubtitleFr: "",
+  careersHeroSubtitleRw: "",
   minAdvanceBookingHours: 2,
   cancellationGraceHours: 24,
 };
@@ -249,17 +294,33 @@ const KEYS: Record<keyof SettingsData, string> = {
   officePoBox: "office_po_box",
   supportWorkingHours: "support_working_hours",
   aboutVision: "about_vision",
+  aboutVisionFr: "about_vision_fr",
+  aboutVisionRw: "about_vision_rw",
   aboutMission: "about_mission",
+  aboutMissionFr: "about_mission_fr",
+  aboutMissionRw: "about_mission_rw",
   aboutStory: "about_story",
+  aboutStoryFr: "about_story_fr",
+  aboutStoryRw: "about_story_rw",
   aboutHeroBadge: "about_hero_badge",
+  aboutHeroBadgeFr: "about_hero_badge_fr",
+  aboutHeroBadgeRw: "about_hero_badge_rw",
   aboutHeroTitle: "about_hero_title",
+  aboutHeroTitleFr: "about_hero_title_fr",
+  aboutHeroTitleRw: "about_hero_title_rw",
   aboutHeroSubtitle: "about_hero_subtitle",
+  aboutHeroSubtitleFr: "about_hero_subtitle_fr",
+  aboutHeroSubtitleRw: "about_hero_subtitle_rw",
   aboutCoreValues: "about_core_values",
   aboutMilestones: "about_milestones",
   careersEmail: "careers_email",
   careersHiringStatus: "careers_hiring_status",
   careersHeroTitle: "careers_hero_title",
+  careersHeroTitleFr: "careers_hero_title_fr",
+  careersHeroTitleRw: "careers_hero_title_rw",
   careersHeroSubtitle: "careers_hero_subtitle",
+  careersHeroSubtitleFr: "careers_hero_subtitle_fr",
+  careersHeroSubtitleRw: "careers_hero_subtitle_rw",
   careersOpenRoles: "careers_open_roles",
   careersRequirePhone: "careers_require_phone",
   careersRequireLinkedIn: "careers_require_linkedin",
@@ -274,11 +335,17 @@ const KEYS: Record<keyof SettingsData, string> = {
   seoDescription: "seo_description",
   seoKeywords: "seo_keywords",
   platformTagline: "platform_tagline",
+  platformTaglineFr: "platform_tagline_fr",
+  platformTaglineRw: "platform_tagline_rw",
   copyrightNotice: "copyright_notice",
   brandLogoUrl: "brand_logo_url",
   brandFaviconUrl: "brand_favicon_url",
   maintenanceNotice: "maintenance_notice",
+  maintenanceNoticeFr: "maintenance_notice_fr",
+  maintenanceNoticeRw: "maintenance_notice_rw",
   legalDisclaimer: "legal_disclaimer",
+  legalDisclaimerFr: "legal_disclaimer_fr",
+  legalDisclaimerRw: "legal_disclaimer_rw",
   minAdvanceBookingHours: "min_advance_booking_hours",
   cancellationGraceHours: "cancellation_grace_hours",
 };
@@ -361,11 +428,33 @@ function fromRecord(rows: { key: string; value: unknown }[]): SettingsData {
     seoDescription: (map.get(KEYS.seoDescription) as string) ?? DEFAULTS.seoDescription,
     seoKeywords: (map.get(KEYS.seoKeywords) as string) ?? DEFAULTS.seoKeywords,
     platformTagline: (map.get(KEYS.platformTagline) as string) ?? DEFAULTS.platformTagline,
+    platformTaglineFr: (map.get(KEYS.platformTaglineFr) as string) ?? DEFAULTS.platformTaglineFr,
+    platformTaglineRw: (map.get(KEYS.platformTaglineRw) as string) ?? DEFAULTS.platformTaglineRw,
     copyrightNotice: (map.get(KEYS.copyrightNotice) as string) ?? DEFAULTS.copyrightNotice,
     brandLogoUrl: (map.get(KEYS.brandLogoUrl) as string) ?? DEFAULTS.brandLogoUrl,
     brandFaviconUrl: (map.get(KEYS.brandFaviconUrl) as string) ?? DEFAULTS.brandFaviconUrl,
     maintenanceNotice: (map.get(KEYS.maintenanceNotice) as string) ?? DEFAULTS.maintenanceNotice,
+    maintenanceNoticeFr: (map.get(KEYS.maintenanceNoticeFr) as string) ?? DEFAULTS.maintenanceNoticeFr,
+    maintenanceNoticeRw: (map.get(KEYS.maintenanceNoticeRw) as string) ?? DEFAULTS.maintenanceNoticeRw,
     legalDisclaimer: (map.get(KEYS.legalDisclaimer) as string) ?? DEFAULTS.legalDisclaimer,
+    legalDisclaimerFr: (map.get(KEYS.legalDisclaimerFr) as string) ?? DEFAULTS.legalDisclaimerFr,
+    legalDisclaimerRw: (map.get(KEYS.legalDisclaimerRw) as string) ?? DEFAULTS.legalDisclaimerRw,
+    aboutVisionFr: (map.get(KEYS.aboutVisionFr) as string) ?? DEFAULTS.aboutVisionFr,
+    aboutVisionRw: (map.get(KEYS.aboutVisionRw) as string) ?? DEFAULTS.aboutVisionRw,
+    aboutMissionFr: (map.get(KEYS.aboutMissionFr) as string) ?? DEFAULTS.aboutMissionFr,
+    aboutMissionRw: (map.get(KEYS.aboutMissionRw) as string) ?? DEFAULTS.aboutMissionRw,
+    aboutStoryFr: (map.get(KEYS.aboutStoryFr) as string) ?? DEFAULTS.aboutStoryFr,
+    aboutStoryRw: (map.get(KEYS.aboutStoryRw) as string) ?? DEFAULTS.aboutStoryRw,
+    aboutHeroBadgeFr: (map.get(KEYS.aboutHeroBadgeFr) as string) ?? DEFAULTS.aboutHeroBadgeFr,
+    aboutHeroBadgeRw: (map.get(KEYS.aboutHeroBadgeRw) as string) ?? DEFAULTS.aboutHeroBadgeRw,
+    aboutHeroTitleFr: (map.get(KEYS.aboutHeroTitleFr) as string) ?? DEFAULTS.aboutHeroTitleFr,
+    aboutHeroTitleRw: (map.get(KEYS.aboutHeroTitleRw) as string) ?? DEFAULTS.aboutHeroTitleRw,
+    aboutHeroSubtitleFr: (map.get(KEYS.aboutHeroSubtitleFr) as string) ?? DEFAULTS.aboutHeroSubtitleFr,
+    aboutHeroSubtitleRw: (map.get(KEYS.aboutHeroSubtitleRw) as string) ?? DEFAULTS.aboutHeroSubtitleRw,
+    careersHeroTitleFr: (map.get(KEYS.careersHeroTitleFr) as string) ?? DEFAULTS.careersHeroTitleFr,
+    careersHeroTitleRw: (map.get(KEYS.careersHeroTitleRw) as string) ?? DEFAULTS.careersHeroTitleRw,
+    careersHeroSubtitleFr: (map.get(KEYS.careersHeroSubtitleFr) as string) ?? DEFAULTS.careersHeroSubtitleFr,
+    careersHeroSubtitleRw: (map.get(KEYS.careersHeroSubtitleRw) as string) ?? DEFAULTS.careersHeroSubtitleRw,
     minAdvanceBookingHours: (map.get(KEYS.minAdvanceBookingHours) as number) ?? DEFAULTS.minAdvanceBookingHours,
     cancellationGraceHours: (map.get(KEYS.cancellationGraceHours) as number) ?? DEFAULTS.cancellationGraceHours,
   };

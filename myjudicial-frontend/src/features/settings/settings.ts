@@ -67,13 +67,36 @@ export interface SettingsData {
   seoKeywords: string;
   // Brand & Public Identity
   platformTagline: string;
+  platformTaglineFr?: string;
+  platformTaglineRw?: string;
   copyrightNotice: string;
   brandLogoUrl?: string;
   brandFaviconUrl?: string;
   // Maintenance & Broadcast Notices
   maintenanceNotice: string;
+  maintenanceNoticeFr?: string;
+  maintenanceNoticeRw?: string;
   // Legal & Regulatory Disclaimers
   legalDisclaimer: string;
+  legalDisclaimerFr?: string;
+  legalDisclaimerRw?: string;
+  // Localized Editorial & Careers
+  aboutVisionFr?: string;
+  aboutVisionRw?: string;
+  aboutMissionFr?: string;
+  aboutMissionRw?: string;
+  aboutStoryFr?: string;
+  aboutStoryRw?: string;
+  aboutHeroBadgeFr?: string;
+  aboutHeroBadgeRw?: string;
+  aboutHeroTitleFr?: string;
+  aboutHeroTitleRw?: string;
+  aboutHeroSubtitleFr?: string;
+  aboutHeroSubtitleRw?: string;
+  careersHeroTitleFr?: string;
+  careersHeroTitleRw?: string;
+  careersHeroSubtitleFr?: string;
+  careersHeroSubtitleRw?: string;
   // Consultation Governance Rules
   minAdvanceBookingHours: number;
   cancellationGraceHours: number;
@@ -355,11 +378,33 @@ export const DEFAULTS: SettingsData = {
   seoDescription: "Browse verified lawyers, compare fixed fees, and book legal consultations instantly. Rwanda's premier legal marketplace.",
   seoKeywords: "lawyer Rwanda, legal services Kigali, legal consultation, Bar certified advocates, Rwanda Bar Association",
   platformTagline: "Democratizing Access to Justice Across Rwanda",
+  platformTaglineFr: "",
+  platformTaglineRw: "",
   copyrightNotice: "© 2026 MyJudicial Ltd. All rights reserved.",
   brandLogoUrl: "",
   brandFaviconUrl: "",
   maintenanceNotice: "",
+  maintenanceNoticeFr: "",
+  maintenanceNoticeRw: "",
   legalDisclaimer: "MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation.",
+  legalDisclaimerFr: "",
+  legalDisclaimerRw: "",
+  aboutVisionFr: "",
+  aboutVisionRw: "",
+  aboutMissionFr: "",
+  aboutMissionRw: "",
+  aboutStoryFr: "",
+  aboutStoryRw: "",
+  aboutHeroBadgeFr: "",
+  aboutHeroBadgeRw: "",
+  aboutHeroTitleFr: "",
+  aboutHeroTitleRw: "",
+  aboutHeroSubtitleFr: "",
+  aboutHeroSubtitleRw: "",
+  careersHeroTitleFr: "",
+  careersHeroTitleRw: "",
+  careersHeroSubtitleFr: "",
+  careersHeroSubtitleRw: "",
   minAdvanceBookingHours: 2,
   cancellationGraceHours: 24,
 };
@@ -440,11 +485,33 @@ export function normalizeSettings(raw: Partial<SettingsData> | null | undefined)
     seoDescription: asString(r.seoDescription, DEFAULTS.seoDescription),
     seoKeywords: asString(r.seoKeywords, DEFAULTS.seoKeywords),
     platformTagline: asString(r.platformTagline, DEFAULTS.platformTagline),
+    platformTaglineFr: asString(r.platformTaglineFr, ""),
+    platformTaglineRw: asString(r.platformTaglineRw, ""),
     copyrightNotice: asString(r.copyrightNotice, DEFAULTS.copyrightNotice),
     brandLogoUrl: asString(r.brandLogoUrl, ""),
     brandFaviconUrl: asString(r.brandFaviconUrl, ""),
     maintenanceNotice: asString(r.maintenanceNotice, DEFAULTS.maintenanceNotice),
+    maintenanceNoticeFr: asString(r.maintenanceNoticeFr, ""),
+    maintenanceNoticeRw: asString(r.maintenanceNoticeRw, ""),
     legalDisclaimer: asString(r.legalDisclaimer, DEFAULTS.legalDisclaimer),
+    legalDisclaimerFr: asString(r.legalDisclaimerFr, ""),
+    legalDisclaimerRw: asString(r.legalDisclaimerRw, ""),
+    aboutVisionFr: asString(r.aboutVisionFr, ""),
+    aboutVisionRw: asString(r.aboutVisionRw, ""),
+    aboutMissionFr: asString(r.aboutMissionFr, ""),
+    aboutMissionRw: asString(r.aboutMissionRw, ""),
+    aboutStoryFr: asString(r.aboutStoryFr, ""),
+    aboutStoryRw: asString(r.aboutStoryRw, ""),
+    aboutHeroBadgeFr: asString(r.aboutHeroBadgeFr, ""),
+    aboutHeroBadgeRw: asString(r.aboutHeroBadgeRw, ""),
+    aboutHeroTitleFr: asString(r.aboutHeroTitleFr, ""),
+    aboutHeroTitleRw: asString(r.aboutHeroTitleRw, ""),
+    aboutHeroSubtitleFr: asString(r.aboutHeroSubtitleFr, ""),
+    aboutHeroSubtitleRw: asString(r.aboutHeroSubtitleRw, ""),
+    careersHeroTitleFr: asString(r.careersHeroTitleFr, ""),
+    careersHeroTitleRw: asString(r.careersHeroTitleRw, ""),
+    careersHeroSubtitleFr: asString(r.careersHeroSubtitleFr, ""),
+    careersHeroSubtitleRw: asString(r.careersHeroSubtitleRw, ""),
     minAdvanceBookingHours: asNumber(r.minAdvanceBookingHours, DEFAULTS.minAdvanceBookingHours),
     cancellationGraceHours: asNumber(r.cancellationGraceHours, DEFAULTS.cancellationGraceHours),
   };

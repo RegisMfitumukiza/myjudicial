@@ -81,10 +81,17 @@ export default function LandingFooter() {
   const isDefaultTagline =
     !settings.platformTagline ||
     DEFAULT_TAGLINES.includes(settings.platformTagline.trim().toLowerCase());
+  const localizedCustomTagline =
+    locale === "fr"
+      ? settings.platformTaglineFr
+      : locale === "rw"
+      ? settings.platformTaglineRw
+      : null;
   const displayTagline =
-    locale !== "en" && isDefaultTagline
+    localizedCustomTagline?.trim() ||
+    (locale !== "en" && isDefaultTagline
       ? t("tagline")
-      : settings.platformTagline || t("tagline");
+      : settings.platformTagline || t("tagline"));
 
   const DEFAULT_DISCLAIMERS = [
     "myjudicial is an independent technology marketplace connecting clients with accredited legal practitioners. myjudicial does not directly provide legal representation.",
@@ -94,10 +101,17 @@ export default function LandingFooter() {
   const isDefaultDisclaimer =
     !settings.legalDisclaimer ||
     DEFAULT_DISCLAIMERS.includes(settings.legalDisclaimer.trim().toLowerCase());
+  const localizedCustomDisclaimer =
+    locale === "fr"
+      ? settings.legalDisclaimerFr
+      : locale === "rw"
+      ? settings.legalDisclaimerRw
+      : null;
   const displayDisclaimer =
-    locale !== "en" && isDefaultDisclaimer
+    localizedCustomDisclaimer?.trim() ||
+    (locale !== "en" && isDefaultDisclaimer
       ? t("disclaimer")
-      : settings.legalDisclaimer || t("disclaimer");
+      : settings.legalDisclaimer || t("disclaimer"));
 
   const displayCopyright = formatCopyright(
     settings.copyrightNotice,

@@ -62,6 +62,20 @@ export async function translateText(
   return response.data as TranslationResponse;
 }
 
+export async function translateBatch(
+  texts: string[],
+  sourceLanguage: string,
+  targetLanguage: string
+): Promise<string[]> {
+  if (texts.length === 0) return [];
+  const response = await apiFetch<{ data: { translations: string[] } }>(`${AI_PREFIX}/translate`, {
+    method: "POST",
+    body: { texts, source_language: sourceLanguage, target_language: targetLanguage },
+    ...PUBLIC_AI_OPTS,
+  });
+  return response.data?.translations ?? texts;
+}
+
 export async function getRecommendations(
   text: string,
   options?: {

@@ -162,8 +162,141 @@ export async function transcribeAudio(req: Request, res: Response) {
   }
 }
 
+async function translateWithGroq(
+  texts: string[],
+  sourceLanguage: string,
+  targetLanguage: string,
+  groqKey: string
+): Promise<string[]> {
+  const languageNames: Record<string, string> = {
+    en: "English",
+    fr: "French",
+    rw: "Kinyarwanda",
+  };
+  const srcName = languageNames[sourceLanguage] || sourceLanguage;
+  const tgtName = languageNames[targetLanguage] || targetLanguage;
+
+  const systemPrompt = `You are a professional legal translator for Rwanda. Translate the provided text(s) from ${srcName} to ${tgtName} with legal precision and natural phrasing. Output a valid JSON array of strings containing the translations in the exact same order. Do NOT include markdown code blocks, explanations, or extra keys. Just the JSON array: ["trans1", "trans2", ...]`;
+
+  const userPrompt = JSON.stringify(texts);
+
+  const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${groqKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.1,
+    }),
+  });
+
+  if (!groqRes.ok) {
+    throw new Error(`Groq translation request failed: ${groqRes.status}`);
+  }
+
+  const groqData = (await groqRes.json()) as any;
+  const rawContent = groqData.choices?.[0]?.message?.content?.trim() || "[]";
+  const cleaned = rawContent.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed) && parsed.length === texts.length) {
+      return parsed.map((s) => String(s ?? ""));
+    }
+  } catch {}
+
+  if (texts.length === 1 && cleaned.length > 0) {
+    return [cleaned];
+  }
+  return texts;
+}
+
 export async function translateText(req: Request, res: Response) {
-  await proxyToAiService(req, res, "/api/v1/translate/");
+  const { text, texts, source_language = "en", target_language = "fr" } = req.body || {};
+  const isBatch = Array.isArray(texts);
+  const itemsToTranslate: string[] = isBatch ? texts : typeof text === "string" ? [text] : [];
+
+  if (itemsToTranslate.length === 0) {
+    res.status(400).json({ success: false, error: "Text or texts array is required" });
+    return;
+  }
+
+  // 1. Try python microservice first if single text
+  if (!isBatch && AI_SERVICE_URL) {
+    try {
+      const url = `${AI_SERVICE_URL}/api/v1/translate/`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (AI_SERVICE_KEY) headers["X-API-Key"] = AI_SERVICE_KEY;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ text, source_language, target_language }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (response.ok) {
+        const data = await response.json();
+        res.status(200).json({ success: true, data });
+        return;
+      }
+    } catch {
+      logger.warn("AI microservice translate unreachable, attempting direct Groq fallback");
+    }
+  }
+
+  // 2. Direct Groq Cloud translation fallback (handles both single & batch)
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    try {
+      const translatedList = await translateWithGroq(
+        itemsToTranslate,
+        source_language,
+        target_language,
+        groqKey
+      );
+
+      if (isBatch) {
+        res.status(200).json({
+          success: true,
+          data: {
+            translations: translatedList,
+            source_language,
+            target_language,
+            provider: "groq-cloud",
+          },
+        });
+        return;
+      } else {
+        res.status(200).json({
+          success: true,
+          data: {
+            translated_text: translatedList[0] || text,
+            source_language,
+            target_language,
+            provider: "groq-cloud",
+          },
+        });
+        return;
+      }
+    } catch (err) {
+      logger.error("Direct Groq translation fallback failed", err);
+    }
+  }
+
+  res.status(502).json({
+    success: false,
+    error: "AI service unavailable",
+    message: "Translation service is currently unreachable.",
+  });
 }
 
 export async function getRecommendations(req: Request, res: Response) {

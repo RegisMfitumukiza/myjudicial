@@ -3,13 +3,14 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Sparkles, Upload, Loader2, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Upload, Loader2, Image as ImageIcon, Languages } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Button } from "@/shared/components/ui/button";
 import { SettingsSection } from "./settings-section";
 import { saveSettingsSection } from "../api";
 import { uploadContentImage } from "@/lib/api/upload";
+import { translateText } from "@/lib/api/ai";
 import type { SettingsData } from "../settings";
 
 interface Props {
@@ -19,8 +20,13 @@ interface Props {
 
 export function BrandIdentitySection({ settings, onSaved }: Props) {
   const t = useTranslations("admin.settings");
+  const [taglineTab, setTaglineTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingTagline, setTranslatingTagline] = useState(false);
+
   const [saved, setSaved] = useState({
     platformTagline: settings.platformTagline,
+    platformTaglineFr: settings.platformTaglineFr || "",
+    platformTaglineRw: settings.platformTaglineRw || "",
     copyrightNotice: settings.copyrightNotice,
     brandLogoUrl: settings.brandLogoUrl || "",
     brandFaviconUrl: settings.brandFaviconUrl || "",
@@ -35,12 +41,39 @@ export function BrandIdentitySection({ settings, onSaved }: Props) {
 
   const dirty =
     draft.platformTagline !== saved.platformTagline ||
+    draft.platformTaglineFr !== saved.platformTaglineFr ||
+    draft.platformTaglineRw !== saved.platformTaglineRw ||
     draft.copyrightNotice !== saved.copyrightNotice ||
     draft.brandLogoUrl !== saved.brandLogoUrl ||
     draft.brandFaviconUrl !== saved.brandFaviconUrl;
 
   const set = <K extends keyof typeof draft>(key: K, value: (typeof draft)[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
+
+  const handleAutoTranslateTagline = async () => {
+    const textToTranslate = draft.platformTagline?.trim();
+    if (!textToTranslate) {
+      toast.error("Please enter an English tagline first");
+      return;
+    }
+    setTranslatingTagline(true);
+    try {
+      const [frRes, rwRes] = await Promise.all([
+        translateText(textToTranslate, "en", "fr"),
+        translateText(textToTranslate, "en", "rw"),
+      ]);
+      setDraft((d) => ({
+        ...d,
+        platformTaglineFr: frRes.translated_text?.trim() || d.platformTaglineFr,
+        platformTaglineRw: rwRes.translated_text?.trim() || d.platformTaglineRw,
+      }));
+      toast.success("Tagline translated into French and Kinyarwanda! Review and save.");
+    } catch {
+      toast.error("AI translation service unavailable. You can enter translations manually.");
+    } finally {
+      setTranslatingTagline(false);
+    }
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -101,17 +134,80 @@ export function BrandIdentitySection({ settings, onSaved }: Props) {
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="settings-tagline" className="text-xs font-semibold">
-              {t("platformTagline")}
-            </Label>
-            <Input
-              id="settings-tagline"
-              value={draft.platformTagline}
-              onChange={(e) => set("platformTagline", e.target.value)}
-              placeholder="Democratizing Access to Justice Across Rwanda"
-              className="text-xs"
-            />
-            <p className="text-[11px] text-muted-foreground">{t("platformTaglineDesc")}</p>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="settings-tagline" className="text-xs font-semibold">
+                {t("platformTagline")}
+              </Label>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAutoTranslateTagline}
+                  disabled={translatingTagline || !draft.platformTagline?.trim()}
+                  className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+                  title="Translate English tagline into French and Kinyarwanda using AI"
+                >
+                  {translatingTagline ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  <span>✨ Auto-Translate</span>
+                </Button>
+                <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+                  {(["en", "fr", "rw"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setTaglineTab(l)}
+                      className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                        taglineTab === l
+                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {taglineTab === "en" && (
+              <Input
+                id="settings-tagline"
+                value={draft.platformTagline}
+                onChange={(e) => set("platformTagline", e.target.value)}
+                placeholder="Democratizing Access to Justice Across Rwanda"
+                className="text-xs"
+              />
+            )}
+            {taglineTab === "fr" && (
+              <Input
+                id="settings-tagline-fr"
+                value={draft.platformTaglineFr}
+                onChange={(e) => set("platformTaglineFr", e.target.value)}
+                placeholder="Démocratiser l'accès à la justice au Rwanda"
+                className="text-xs"
+              />
+            )}
+            {taglineTab === "rw" && (
+              <Input
+                id="settings-tagline-rw"
+                value={draft.platformTaglineRw}
+                onChange={(e) => set("platformTaglineRw", e.target.value)}
+                placeholder="Kwegereza ubutabera buri wese mu Rwanda"
+                className="text-xs"
+              />
+            )}
+            <p className="text-[11px] text-muted-foreground">
+              {taglineTab === "en"
+                ? t("platformTaglineDesc")
+                : taglineTab === "fr"
+                ? "Tagline affichée sur les pages en français (laisser vide pour la traduction standard)."
+                : "Intero igaragara mu Kinyarwanda (sigamo ubusa ngo ukoreshe ibisanzwe)."}
+            </p>
           </div>
 
           <div className="space-y-1.5">

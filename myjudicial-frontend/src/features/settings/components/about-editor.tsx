@@ -31,6 +31,8 @@ import {
 } from "@/shared/components/ui/select";
 import { saveSettingsSection } from "../api";
 import { DEFAULTS, type CoreValueItem, type MilestoneItem, type SettingsData } from "../settings";
+import { translateText } from "@/lib/api/ai";
+import { getErrorMessage } from "@/lib/utils";
 
 const ICON_OPTIONS = [
   "ShieldCheck",
@@ -59,29 +61,121 @@ export function AboutEditor({ settings, onSaved }: AboutEditorProps) {
 
   const [saved, setSaved] = useState({
     aboutVision: settings.aboutVision,
+    aboutVisionFr: settings.aboutVisionFr || "",
+    aboutVisionRw: settings.aboutVisionRw || "",
     aboutMission: settings.aboutMission,
+    aboutMissionFr: settings.aboutMissionFr || "",
+    aboutMissionRw: settings.aboutMissionRw || "",
     aboutStory: settings.aboutStory,
+    aboutStoryFr: settings.aboutStoryFr || "",
+    aboutStoryRw: settings.aboutStoryRw || "",
     aboutHeroBadge: settings.aboutHeroBadge || "",
+    aboutHeroBadgeFr: settings.aboutHeroBadgeFr || "",
+    aboutHeroBadgeRw: settings.aboutHeroBadgeRw || "",
     aboutHeroTitle: settings.aboutHeroTitle || "",
+    aboutHeroTitleFr: settings.aboutHeroTitleFr || "",
+    aboutHeroTitleRw: settings.aboutHeroTitleRw || "",
     aboutHeroSubtitle: settings.aboutHeroSubtitle || "",
+    aboutHeroSubtitleFr: settings.aboutHeroSubtitleFr || "",
+    aboutHeroSubtitleRw: settings.aboutHeroSubtitleRw || "",
     aboutCoreValues: copyDeep(settings.aboutCoreValues),
     aboutMilestones: copyDeep(settings.aboutMilestones),
   });
   const [draft, setDraft] = useState(saved);
   const [saving, setSaving] = useState(false);
+  const [heroTab, setHeroTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingHero, setTranslatingHero] = useState(false);
+  const [statementsTab, setStatementsTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingStatements, setTranslatingStatements] = useState(false);
 
   const dirty =
     draft.aboutVision !== saved.aboutVision ||
+    draft.aboutVisionFr !== saved.aboutVisionFr ||
+    draft.aboutVisionRw !== saved.aboutVisionRw ||
     draft.aboutMission !== saved.aboutMission ||
+    draft.aboutMissionFr !== saved.aboutMissionFr ||
+    draft.aboutMissionRw !== saved.aboutMissionRw ||
     draft.aboutStory !== saved.aboutStory ||
+    draft.aboutStoryFr !== saved.aboutStoryFr ||
+    draft.aboutStoryRw !== saved.aboutStoryRw ||
     draft.aboutHeroBadge !== saved.aboutHeroBadge ||
+    draft.aboutHeroBadgeFr !== saved.aboutHeroBadgeFr ||
+    draft.aboutHeroBadgeRw !== saved.aboutHeroBadgeRw ||
     draft.aboutHeroTitle !== saved.aboutHeroTitle ||
+    draft.aboutHeroTitleFr !== saved.aboutHeroTitleFr ||
+    draft.aboutHeroTitleRw !== saved.aboutHeroTitleRw ||
     draft.aboutHeroSubtitle !== saved.aboutHeroSubtitle ||
+    draft.aboutHeroSubtitleFr !== saved.aboutHeroSubtitleFr ||
+    draft.aboutHeroSubtitleRw !== saved.aboutHeroSubtitleRw ||
     JSON.stringify(draft.aboutCoreValues) !== JSON.stringify(saved.aboutCoreValues) ||
     JSON.stringify(draft.aboutMilestones) !== JSON.stringify(saved.aboutMilestones);
 
   const set = <K extends keyof typeof draft>(key: K, value: (typeof draft)[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
+
+  async function handleAutoTranslateHero() {
+    if (!draft.aboutHeroTitle.trim() && !draft.aboutHeroSubtitle.trim() && !draft.aboutHeroBadge.trim()) {
+      toast.error("Please enter English hero content first.");
+      return;
+    }
+    setTranslatingHero(true);
+    try {
+      const [badgeFr, badgeRw, titleFr, titleRw, subFr, subRw] = await Promise.all([
+        draft.aboutHeroBadge.trim() ? translateText(draft.aboutHeroBadge, "en", "fr") : null,
+        draft.aboutHeroBadge.trim() ? translateText(draft.aboutHeroBadge, "en", "rw") : null,
+        draft.aboutHeroTitle.trim() ? translateText(draft.aboutHeroTitle, "en", "fr") : null,
+        draft.aboutHeroTitle.trim() ? translateText(draft.aboutHeroTitle, "en", "rw") : null,
+        draft.aboutHeroSubtitle.trim() ? translateText(draft.aboutHeroSubtitle, "en", "fr") : null,
+        draft.aboutHeroSubtitle.trim() ? translateText(draft.aboutHeroSubtitle, "en", "rw") : null,
+      ]);
+      setDraft((d) => ({
+        ...d,
+        ...(badgeFr?.translated_text && { aboutHeroBadgeFr: badgeFr.translated_text.trim() }),
+        ...(badgeRw?.translated_text && { aboutHeroBadgeRw: badgeRw.translated_text.trim() }),
+        ...(titleFr?.translated_text && { aboutHeroTitleFr: titleFr.translated_text.trim() }),
+        ...(titleRw?.translated_text && { aboutHeroTitleRw: titleRw.translated_text.trim() }),
+        ...(subFr?.translated_text && { aboutHeroSubtitleFr: subFr.translated_text.trim() }),
+        ...(subRw?.translated_text && { aboutHeroSubtitleRw: subRw.translated_text.trim() }),
+      }));
+      toast.success("✨ About Hero content translated into French and Kinyarwanda!");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Translation failed"));
+    } finally {
+      setTranslatingHero(false);
+    }
+  }
+
+  async function handleAutoTranslateStatements() {
+    if (!draft.aboutMission.trim() && !draft.aboutVision.trim() && !draft.aboutStory.trim()) {
+      toast.error("Please enter English mission, vision, or narrative first.");
+      return;
+    }
+    setTranslatingStatements(true);
+    try {
+      const [mFr, mRw, vFr, vRw, sFr, sRw] = await Promise.all([
+        draft.aboutMission.trim() ? translateText(draft.aboutMission, "en", "fr") : null,
+        draft.aboutMission.trim() ? translateText(draft.aboutMission, "en", "rw") : null,
+        draft.aboutVision.trim() ? translateText(draft.aboutVision, "en", "fr") : null,
+        draft.aboutVision.trim() ? translateText(draft.aboutVision, "en", "rw") : null,
+        draft.aboutStory.trim() ? translateText(draft.aboutStory, "en", "fr") : null,
+        draft.aboutStory.trim() ? translateText(draft.aboutStory, "en", "rw") : null,
+      ]);
+      setDraft((d) => ({
+        ...d,
+        ...(mFr?.translated_text && { aboutMissionFr: mFr.translated_text.trim() }),
+        ...(mRw?.translated_text && { aboutMissionRw: mRw.translated_text.trim() }),
+        ...(vFr?.translated_text && { aboutVisionFr: vFr.translated_text.trim() }),
+        ...(vRw?.translated_text && { aboutVisionRw: vRw.translated_text.trim() }),
+        ...(sFr?.translated_text && { aboutStoryFr: sFr.translated_text.trim() }),
+        ...(sRw?.translated_text && { aboutStoryRw: sRw.translated_text.trim() }),
+      }));
+      toast.success("✨ Mission, Vision & Narrative translated into French and Kinyarwanda!");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Translation failed"));
+    } finally {
+      setTranslatingStatements(false);
+    }
+  }
 
   const setCoreValues = (values: CoreValueItem[]) => set("aboutCoreValues", values);
   const setMilestones = (values: MilestoneItem[]) => set("aboutMilestones", values);
@@ -175,104 +269,294 @@ export function AboutEditor({ settings, onSaved }: AboutEditorProps) {
 
       {/* ── Hero & Platform Positioning ── */}
       <Card className="rounded-xl border border-border shadow-xs">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-primary" />
-            Hero & Public Positioning
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Headline, trust badge, and introduction banner at the very top of the public /about page.
-          </CardDescription>
+        <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              Hero & Public Positioning
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Headline, trust badge, and introduction banner at the very top of the public /about page.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleAutoTranslateHero}
+              disabled={translatingHero || (!draft.aboutHeroTitle.trim() && !draft.aboutHeroSubtitle.trim())}
+              className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+              title="Translate English hero content into French and Kinyarwanda using AI"
+            >
+              {translatingHero ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3" />
+              )}
+              <span>✨ Auto-Translate</span>
+            </Button>
+            <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+              {(["en", "fr", "rw"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setHeroTab(l)}
+                  className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                    heroTab === l
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="about-hero-badge" className="text-xs font-semibold">
-                Hero Badge Text
+              <Label htmlFor={`about-hero-badge-${heroTab}`} className="text-xs font-semibold">
+                Hero Badge Text ({heroTab.toUpperCase()})
               </Label>
-              <Input
-                id="about-hero-badge"
-                value={draft.aboutHeroBadge}
-                onChange={(e) => set("aboutHeroBadge", e.target.value)}
-                placeholder="National Digital Legal Platform"
-              />
+              {heroTab === "en" && (
+                <Input
+                  id="about-hero-badge-en"
+                  value={draft.aboutHeroBadge}
+                  onChange={(e) => set("aboutHeroBadge", e.target.value)}
+                  placeholder="National Digital Legal Platform"
+                />
+              )}
+              {heroTab === "fr" && (
+                <Input
+                  id="about-hero-badge-fr"
+                  value={draft.aboutHeroBadgeFr}
+                  onChange={(e) => set("aboutHeroBadgeFr", e.target.value)}
+                  placeholder="Plateforme Juridique Numérique Nationale"
+                />
+              )}
+              {heroTab === "rw" && (
+                <Input
+                  id="about-hero-badge-rw"
+                  value={draft.aboutHeroBadgeRw}
+                  onChange={(e) => set("aboutHeroBadgeRw", e.target.value)}
+                  placeholder="Urubuga rw'Igihugu rw'Amategeko mu Buhanga bwa Dijitari"
+                />
+              )}
             </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="about-hero-title" className="text-xs font-semibold">
-                Main Hero Headline
+              <Label htmlFor={`about-hero-title-${heroTab}`} className="text-xs font-semibold">
+                Main Hero Headline ({heroTab.toUpperCase()})
               </Label>
-              <Input
-                id="about-hero-title"
-                value={draft.aboutHeroTitle}
-                onChange={(e) => set("aboutHeroTitle", e.target.value)}
-                placeholder="Democratizing Access to Justice Across Rwanda"
-              />
+              {heroTab === "en" && (
+                <Input
+                  id="about-hero-title-en"
+                  value={draft.aboutHeroTitle}
+                  onChange={(e) => set("aboutHeroTitle", e.target.value)}
+                  placeholder="Democratizing Access to Justice Across Rwanda"
+                />
+              )}
+              {heroTab === "fr" && (
+                <Input
+                  id="about-hero-title-fr"
+                  value={draft.aboutHeroTitleFr}
+                  onChange={(e) => set("aboutHeroTitleFr", e.target.value)}
+                  placeholder="Démocratiser l'Accès à la Justice à travers le Rwanda"
+                />
+              )}
+              {heroTab === "rw" && (
+                <Input
+                  id="about-hero-title-rw"
+                  value={draft.aboutHeroTitleRw}
+                  onChange={(e) => set("aboutHeroTitleRw", e.target.value)}
+                  placeholder="Kwegereza Ubutabera Abaturarwanda Bose"
+                />
+              )}
             </div>
           </div>
+
           <div className="space-y-1.5">
-            <Label htmlFor="about-hero-subtitle" className="text-xs font-semibold">
-              Hero Introduction Paragraph
+            <Label htmlFor={`about-hero-subtitle-${heroTab}`} className="text-xs font-semibold">
+              Hero Introduction Paragraph ({heroTab.toUpperCase()})
             </Label>
-            <Textarea
-              id="about-hero-subtitle"
-              rows={2}
-              value={draft.aboutHeroSubtitle}
-              onChange={(e) => set("aboutHeroSubtitle", e.target.value)}
-              placeholder="Connecting citizens and enterprises with vetted, Bar-certified advocates through transparent escrow and standardized counsel."
-            />
+            {heroTab === "en" && (
+              <Textarea
+                id="about-hero-subtitle-en"
+                rows={2}
+                value={draft.aboutHeroSubtitle}
+                onChange={(e) => set("aboutHeroSubtitle", e.target.value)}
+                placeholder="Connecting citizens and enterprises with vetted, Bar-certified advocates through transparent escrow and standardized counsel."
+              />
+            )}
+            {heroTab === "fr" && (
+              <Textarea
+                id="about-hero-subtitle-fr"
+                rows={2}
+                value={draft.aboutHeroSubtitleFr}
+                onChange={(e) => set("aboutHeroSubtitleFr", e.target.value)}
+                placeholder="Mettre en relation citoyens et entreprises avec des avocats certifiés du Barreau via un séquestre transparent."
+              />
+            )}
+            {heroTab === "rw" && (
+              <Textarea
+                id="about-hero-subtitle-rw"
+                rows={2}
+                value={draft.aboutHeroSubtitleRw}
+                onChange={(e) => set("aboutHeroSubtitleRw", e.target.value)}
+                placeholder="Guhuza abaturarwanda n'abavoka bemewe n'Urugaga binyuze mu buryo bwizewe kandi buciye mu mucyo."
+              />
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* ── Foundational Statements ── */}
       <Card className="rounded-xl border border-border shadow-xs">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-bold flex items-center gap-2">
-            <Target className="h-4 w-4 text-primary" />
-            Mission, Vision & Platform Narrative
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Core purpose statements displayed in the public /about page hero and mission section.
-          </CardDescription>
+        <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" />
+              Mission, Vision & Platform Narrative
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Core purpose statements displayed in the public /about page hero and mission section.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleAutoTranslateStatements}
+              disabled={translatingStatements || (!draft.aboutMission.trim() && !draft.aboutVision.trim() && !draft.aboutStory.trim())}
+              className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+              title="Translate English mission, vision and story into French and Kinyarwanda using AI"
+            >
+              {translatingStatements ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Sparkles className="h-3 w-3" />
+              )}
+              <span>✨ Auto-Translate</span>
+            </Button>
+            <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+              {(["en", "fr", "rw"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setStatementsTab(l)}
+                  className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                    statementsTab === l
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="about-mission" className="text-xs font-semibold">
-              {t("aboutMission")}
+            <Label htmlFor={`about-mission-${statementsTab}`} className="text-xs font-semibold">
+              {t("aboutMission")} ({statementsTab.toUpperCase()})
             </Label>
-            <Textarea
-              id="about-mission"
-              rows={2}
-              value={draft.aboutMission}
-              onChange={(e) => set("aboutMission", e.target.value)}
-              placeholder="e.g. To democratize access to justice in Rwanda by providing a trusted, transparent, and legally compliant digital platform..."
-            />
+            {statementsTab === "en" && (
+              <Textarea
+                id="about-mission-en"
+                rows={2}
+                value={draft.aboutMission}
+                onChange={(e) => set("aboutMission", e.target.value)}
+                placeholder="e.g. To democratize access to justice in Rwanda by providing a trusted, transparent, and legally compliant digital platform..."
+              />
+            )}
+            {statementsTab === "fr" && (
+              <Textarea
+                id="about-mission-fr"
+                rows={2}
+                value={draft.aboutMissionFr}
+                onChange={(e) => set("aboutMissionFr", e.target.value)}
+                placeholder="Ex. Démocratiser l'accès à la justice au Rwanda en fournissant une plateforme numérique fiable..."
+              />
+            )}
+            {statementsTab === "rw" && (
+              <Textarea
+                id="about-mission-rw"
+                rows={2}
+                value={draft.aboutMissionRw}
+                onChange={(e) => set("aboutMissionRw", e.target.value)}
+                placeholder="Urugero: Kwegereza abaturage bose ubutabera binyuze mu gukoresha ikoranabuhanga ryizewe..."
+              />
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="about-vision" className="text-xs font-semibold">
-              {t("aboutVision")}
+            <Label htmlFor={`about-vision-${statementsTab}`} className="text-xs font-semibold">
+              {t("aboutVision")} ({statementsTab.toUpperCase()})
             </Label>
-            <Textarea
-              id="about-vision"
-              rows={2}
-              value={draft.aboutVision}
-              onChange={(e) => set("aboutVision", e.target.value)}
-              placeholder="e.g. To become the premier digital legal infrastructure for East Africa..."
-            />
+            {statementsTab === "en" && (
+              <Textarea
+                id="about-vision-en"
+                rows={2}
+                value={draft.aboutVision}
+                onChange={(e) => set("aboutVision", e.target.value)}
+                placeholder="e.g. To become the premier digital legal infrastructure for East Africa..."
+              />
+            )}
+            {statementsTab === "fr" && (
+              <Textarea
+                id="about-vision-fr"
+                rows={2}
+                value={draft.aboutVisionFr}
+                onChange={(e) => set("aboutVisionFr", e.target.value)}
+                placeholder="Ex. Devenir la première infrastructure juridique numérique en Afrique de l'Est..."
+              />
+            )}
+            {statementsTab === "rw" && (
+              <Textarea
+                id="about-vision-rw"
+                rows={2}
+                value={draft.aboutVisionRw}
+                onChange={(e) => set("aboutVisionRw", e.target.value)}
+                placeholder="Urugero: Kuba umusingi ukomeye w'ikoranabuhanga mu by'amategeko muri Afurika y'Uburasirazuba..."
+              />
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="about-story" className="text-xs font-semibold">
-              {t("aboutStory")}
+            <Label htmlFor={`about-story-${statementsTab}`} className="text-xs font-semibold">
+              {t("aboutStory")} ({statementsTab.toUpperCase()})
             </Label>
-            <Textarea
-              id="about-story"
-              rows={4}
-              value={draft.aboutStory}
-              onChange={(e) => set("aboutStory", e.target.value)}
-              placeholder="e.g. Founded in Kigali, MyJudicial was established to bridge the gap between citizens seeking trusted counsel and certified Rwanda Bar Association advocates..."
-            />
+            {statementsTab === "en" && (
+              <Textarea
+                id="about-story-en"
+                rows={4}
+                value={draft.aboutStory}
+                onChange={(e) => set("aboutStory", e.target.value)}
+                placeholder="e.g. Founded in Kigali, MyJudicial was established to bridge the gap between citizens seeking trusted counsel and certified Rwanda Bar Association advocates..."
+              />
+            )}
+            {statementsTab === "fr" && (
+              <Textarea
+                id="about-story-fr"
+                rows={4}
+                value={draft.aboutStoryFr}
+                onChange={(e) => set("aboutStoryFr", e.target.value)}
+                placeholder="Ex. Fondé à Kigali, MyJudicial a été créé pour combler le fossé entre les citoyens..."
+              />
+            )}
+            {statementsTab === "rw" && (
+              <Textarea
+                id="about-story-rw"
+                rows={4}
+                value={draft.aboutStoryRw}
+                onChange={(e) => set("aboutStoryRw", e.target.value)}
+                placeholder="Urugero: Yashinzwe i Kigali, MyJudicial yashyizweho kugira ngo ifashe abaturage kubona ubufasha bw'abavoka b'umwuga..."
+              />
+            )}
           </div>
         </CardContent>
       </Card>

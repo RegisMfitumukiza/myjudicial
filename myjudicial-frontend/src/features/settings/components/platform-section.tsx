@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { Cog, AlertTriangle, Coins, ShieldCheck, Clock } from "lucide-react";
+import { Cog, AlertTriangle, Coins, ShieldCheck, Clock, Sparkles, Loader2 } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
 import { Badge } from "@/shared/components/ui/badge";
@@ -18,6 +19,8 @@ import {
 import { SettingsSection } from "./settings-section";
 import { saveSettingsSection } from "../api";
 import type { SettingsData } from "../settings";
+import { translateText } from "@/lib/api/ai";
+import { getErrorMessage } from "@/lib/utils";
 
 function formatEscrowDuration(seconds: number): string {
   if (!seconds || seconds <= 0) return "0s (immediate release)";
@@ -59,9 +62,13 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
     airtelEnabled: settings.airtelEnabled,
     maintenanceMode: settings.maintenanceMode,
     maintenanceNotice: settings.maintenanceNotice,
+    maintenanceNoticeFr: settings.maintenanceNoticeFr || "",
+    maintenanceNoticeRw: settings.maintenanceNoticeRw || "",
   });
   const [draft, setDraft] = useState(saved);
   const [saving, setSaving] = useState(false);
+  const [noticeTab, setNoticeTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingNotice, setTranslatingNotice] = useState(false);
 
   const dirty =
     draft.platformName !== saved.platformName ||
@@ -71,10 +78,36 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
     draft.paymentMode !== saved.paymentMode ||
     draft.airtelEnabled !== saved.airtelEnabled ||
     draft.maintenanceMode !== saved.maintenanceMode ||
-    draft.maintenanceNotice !== saved.maintenanceNotice;
+    draft.maintenanceNotice !== saved.maintenanceNotice ||
+    draft.maintenanceNoticeFr !== saved.maintenanceNoticeFr ||
+    draft.maintenanceNoticeRw !== saved.maintenanceNoticeRw;
 
   const set = <K extends keyof typeof draft>(key: K, value: (typeof draft)[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
+
+  async function handleAutoTranslateNotice() {
+    if (!draft.maintenanceNotice?.trim()) {
+      toast.error("Please enter an English maintenance notice first.");
+      return;
+    }
+    setTranslatingNotice(true);
+    try {
+      const [frRes, rwRes] = await Promise.all([
+        translateText(draft.maintenanceNotice, "en", "fr"),
+        translateText(draft.maintenanceNotice, "en", "rw"),
+      ]);
+      setDraft((d) => ({
+        ...d,
+        maintenanceNoticeFr: frRes.translated_text?.trim() || d.maintenanceNoticeFr,
+        maintenanceNoticeRw: rwRes.translated_text?.trim() || d.maintenanceNoticeRw,
+      }));
+      toast.success("✨ Maintenance notice translated into French and Kinyarwanda!");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Translation failed"));
+    } finally {
+      setTranslatingNotice(false);
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -241,25 +274,87 @@ export function PlatformOperationsSection({ settings, onSaved }: Props) {
               </span>
             </div>
           </div>
-          <div className="space-y-1.5 pt-3 border-t border-border/60">
-            <Label htmlFor="settings-maintenance-notice" className="text-xs font-semibold">
-              {t("maintenanceNotice")}
-            </Label>
-            <Input
-              id="settings-maintenance-notice"
-              value={draft.maintenanceNotice}
-              onChange={(e) => set("maintenanceNotice", e.target.value)}
-              placeholder="e.g. Scheduled platform upgrade Sunday at 02:00 AM CAT. Video consultations remain operational."
-            />
+          <div className="space-y-2 pt-3 border-t border-border/60">
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="settings-maintenance-notice" className="text-xs font-semibold">
+                {t("maintenanceNotice")}
+              </Label>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAutoTranslateNotice}
+                  disabled={translatingNotice || !draft.maintenanceNotice?.trim()}
+                  className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+                  title="Translate English notice into French and Kinyarwanda using AI"
+                >
+                  {translatingNotice ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  <span>✨ Auto-Translate</span>
+                </Button>
+                <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+                  {(["en", "fr", "rw"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setNoticeTab(l)}
+                      className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                        noticeTab === l
+                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {noticeTab === "en" && (
+              <Input
+                id="settings-maintenance-notice"
+                value={draft.maintenanceNotice}
+                onChange={(e) => set("maintenanceNotice", e.target.value)}
+                placeholder="e.g. Scheduled platform upgrade Sunday at 02:00 AM CAT. Video consultations remain operational."
+                className="text-xs"
+              />
+            )}
+            {noticeTab === "fr" && (
+              <Input
+                id="settings-maintenance-notice-fr"
+                value={draft.maintenanceNoticeFr}
+                onChange={(e) => set("maintenanceNoticeFr", e.target.value)}
+                placeholder="Ex. Mise à niveau programmée de la plateforme dimanche à 02h00 CAT..."
+                className="text-xs"
+              />
+            )}
+            {noticeTab === "rw" && (
+              <Input
+                id="settings-maintenance-notice-rw"
+                value={draft.maintenanceNoticeRw}
+                onChange={(e) => set("maintenanceNoticeRw", e.target.value)}
+                placeholder="Urugero: Gahunda yo kuvugurura urubuga ku cyumweru saa 02:00 z'ijoro..."
+                className="text-xs"
+              />
+            )}
+
             <p className="text-[11px] text-muted-foreground">{t("maintenanceNoticeDesc")}</p>
 
             {draft.maintenanceMode && (
               <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <span className="font-semibold block">Public Visitor Banner Preview:</span>
+                  <span className="font-semibold block">Public Visitor Banner Preview ({noticeTab.toUpperCase()}):</span>
                   <p className="mt-0.5 text-[11px] opacity-90 leading-relaxed">
-                    {draft.maintenanceNotice || "MyJudicial is currently undergoing scheduled platform maintenance. Some operations may be limited."}
+                    {(noticeTab === "fr" && draft.maintenanceNoticeFr) ||
+                      (noticeTab === "rw" && draft.maintenanceNoticeRw) ||
+                      draft.maintenanceNotice ||
+                      "MyJudicial is currently undergoing scheduled platform maintenance. Some operations may be limited."}
                   </p>
                 </div>
               </div>

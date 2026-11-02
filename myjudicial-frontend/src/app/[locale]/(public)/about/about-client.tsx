@@ -23,7 +23,7 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePublicStats } from "@/lib/api/landing";
 import { usePlatformSettings } from "@/lib/api/settings";
 
@@ -90,15 +90,44 @@ function SectionBadge({
 
 export default function AboutClient() {
   const t = useTranslations("about");
+  const locale = useLocale();
   const { data: stats, isLoading: statsLoading } = usePublicStats();
   const { settings, isLoading: settingsLoading } = usePlatformSettings();
 
-  const activeHeroBadge = settings?.aboutHeroBadge?.trim() || t("hero.badge");
-  const activeHeroTitle = settings?.aboutHeroTitle?.trim() || t("hero.title");
-  const activeHeroSubtitle = settings?.aboutHeroSubtitle?.trim() || t("hero.subtitle");
-  const activeMission = settings?.aboutMission?.trim() || t("mission.text");
-  const activeVision = settings?.aboutVision?.trim() || t("mission.visionText");
-  const customStory = settings?.aboutStory?.trim();
+  const activeHeroBadge =
+    (locale === "fr" && settings?.aboutHeroBadgeFr?.trim()) ||
+    (locale === "rw" && settings?.aboutHeroBadgeRw?.trim()) ||
+    settings?.aboutHeroBadge?.trim() ||
+    t("hero.badge");
+
+  const activeHeroTitle =
+    (locale === "fr" && settings?.aboutHeroTitleFr?.trim()) ||
+    (locale === "rw" && settings?.aboutHeroTitleRw?.trim()) ||
+    settings?.aboutHeroTitle?.trim() ||
+    t("hero.title");
+
+  const activeHeroSubtitle =
+    (locale === "fr" && settings?.aboutHeroSubtitleFr?.trim()) ||
+    (locale === "rw" && settings?.aboutHeroSubtitleRw?.trim()) ||
+    settings?.aboutHeroSubtitle?.trim() ||
+    t("hero.subtitle");
+
+  const activeMission =
+    (locale === "fr" && settings?.aboutMissionFr?.trim()) ||
+    (locale === "rw" && settings?.aboutMissionRw?.trim()) ||
+    settings?.aboutMission?.trim() ||
+    t("mission.text");
+
+  const activeVision =
+    (locale === "fr" && settings?.aboutVisionFr?.trim()) ||
+    (locale === "rw" && settings?.aboutVisionRw?.trim()) ||
+    settings?.aboutVision?.trim() ||
+    t("mission.visionText");
+
+  const customStory =
+    (locale === "fr" && settings?.aboutStoryFr?.trim()) ||
+    (locale === "rw" && settings?.aboutStoryRw?.trim()) ||
+    settings?.aboutStory?.trim();
 
   const coreValues =
     settings?.aboutCoreValues && settings.aboutCoreValues.length > 0

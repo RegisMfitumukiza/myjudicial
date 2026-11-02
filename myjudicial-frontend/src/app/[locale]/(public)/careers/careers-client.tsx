@@ -36,7 +36,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePlatformSettings, type CareerRoleItem, type PlatformPublicSettings } from "@/lib/api/settings";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 
@@ -53,6 +53,7 @@ const TECH_TAGS: Record<string, string[]> = {
 
 export default function CareersClient() {
   const t = useTranslations("careersPage");
+  const locale = useLocale();
   const { settings } = usePlatformSettings();
   const activeCareersEmail = settings.careersEmail || "careers@myjudicial.com";
 
@@ -66,8 +67,17 @@ export default function CareersClient() {
   const hasActiveRoles = hiringStatus === "ACTIVELY_HIRING" && openRoles.length > 0;
 
   // Editorial Hero Content from CMS (with fallback to localized default copy)
-  const activeHeroTitle = settings.careersHeroTitle?.trim() || t("hero.title");
-  const activeHeroSubtitle = settings.careersHeroSubtitle?.trim() || t("hero.subtitle");
+  const activeHeroTitle =
+    (locale === "fr" && settings.careersHeroTitleFr?.trim()) ||
+    (locale === "rw" && settings.careersHeroTitleRw?.trim()) ||
+    settings.careersHeroTitle?.trim() ||
+    t("hero.title");
+
+  const activeHeroSubtitle =
+    (locale === "fr" && settings.careersHeroSubtitleFr?.trim()) ||
+    (locale === "rw" && settings.careersHeroSubtitleRw?.trim()) ||
+    settings.careersHeroSubtitle?.trim() ||
+    t("hero.subtitle");
 
   const officeAddress = [settings.officeBuilding, settings.officeStreet, settings.officeDistrict]
     .filter(Boolean)

@@ -69,9 +69,12 @@ export function formatCopyright(
 ): string {
   const currentYear = new Date().getFullYear();
   const rawNotice = notice?.trim() || "";
+  const normalizedRaw = rawNotice.toLowerCase();
   const isDefaultNotice =
-    rawNotice === "© 2026 MyJudicial Ltd. All rights reserved." ||
-    rawNotice === `© ${currentYear} MyJudicial Ltd. All rights reserved.`;
+    !rawNotice ||
+    normalizedRaw.includes("myjudicial ltd. all rights reserved") ||
+    normalizedRaw.includes("myjudicial, inc. all rights reserved") ||
+    normalizedRaw.includes("myjudicial inc. all rights reserved");
 
   // If the admin notice is just the English default and a localized fallback is given, prefer fallback
   const text = (!rawNotice || (isDefaultNotice && fallback && locale && locale !== "en"))

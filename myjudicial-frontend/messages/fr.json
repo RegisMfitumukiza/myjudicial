@@ -3092,7 +3092,7 @@
   },
   "landing": {
     "footer": {
-      "tagline": "Démocratiser l'accès à une représentation juridique certifiée au Rwanda.",
+      "tagline": "Démocratiser l'accès à la justice au Rwanda",
       "subtagline": "Consultez des avocats certifiés du Barreau du Rwanda avec des tarifs clairs et des paiements sécurisés.",
       "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
@@ -3130,9 +3130,9 @@
         "allPracticeAreas": "Tous les Domaines",
         "practiceGuide": "Guide Pratique & Rémunération"
       },
-      "copyright": "MyJudicial, Inc. Tous droits réservés.",
+      "copyright": "MyJudicial Ltd. Tous droits réservés.",
       "supportEmail": "support@myjudicial.com",
-      "disclaimer": "MyJudicial est une plateforme technologique indépendante mettant en relation les justiciables avec des avocats inscrits au Barreau du Rwanda. MyJudicial n'est pas un cabinet d'avocats et ne fournit pas directement de conseils juridiques."
+      "disclaimer": "MyJudicial est une plateforme technologique indépendante mettant en relation les justiciables avec des praticiens du droit accrédités. MyJudicial ne fournit pas directement de représentation juridique."
     },
     "meta": {
       "title": "MyJudicial | Trouvez des Avocats Certifiés au Rwanda",

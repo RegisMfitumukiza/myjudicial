@@ -1,5 +1,6 @@
 "use client";
 import { Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type StarRatingProps = {
   rating: number | null | undefined;
@@ -32,7 +33,7 @@ const TEXT_SIZES = {
  * - size: sm (cards), md (lists), lg (profiles)
  * - showCount: whether to show "(128)" review count
  * - showNewBadge: show "New" badge when no reviews
- * - newBadgeLabel: localized text for "New" (defaults to "New")
+ * - newBadgeLabel: optional explicit override label for "New" (defaults to localized common.badges.new)
  */
 export function StarRating({
   rating,
@@ -40,14 +41,16 @@ export function StarRating({
   size = "sm",
   showCount = true,
   showNewBadge = true,
-  newBadgeLabel = "New",
+  newBadgeLabel,
   className = "",
 }: StarRatingProps) {
+  const t = useTranslations("common");
   const starSize = STAR_SIZES[size];
   const textSize = TEXT_SIZES[size];
   const hasRating = rating != null && rating > 0;
   const displayRating = hasRating ? Number(rating).toFixed(1) : null;
   const count = reviewCount ?? 0;
+  const badgeLabel = newBadgeLabel ?? t("badges.new");
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
@@ -70,7 +73,7 @@ export function StarRating({
         <span
           className={`${textSize} rounded-full bg-accent px-2 py-0.5 font-medium text-muted-foreground`}
         >
-          {newBadgeLabel}
+          {badgeLabel}
         </span>
       ) : null}
     </div>

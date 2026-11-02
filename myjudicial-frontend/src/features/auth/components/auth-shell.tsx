@@ -4,7 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Logo } from "@/shared/components/logo";
 import { ThemeToggle } from "@/shared/components/theme-toggle";
 import { LanguageSwitcher } from "@/shared/components/language-switcher";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { usePlatformSettings } from "@/features/settings/hooks/useSocialLinks";
 import { formatCopyright } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ interface AuthShellProps {
 
 export function AuthShell({ children, headerAction }: AuthShellProps) {
   const t = useTranslations("expertDashboard_auth-shell");
+  const locale = useLocale();
   const { settings } = usePlatformSettings();
 
   return (
@@ -46,7 +47,7 @@ export function AuthShell({ children, headerAction }: AuthShellProps) {
       {/* Footer */}
       <div className="shrink-0 px-6 py-4 text-center">
         <p className="text-[11px] text-muted-foreground">
-          {formatCopyright(settings?.copyrightNotice, t("copyright"))}{" · "}
+          {formatCopyright(settings?.copyrightNotice, t("copyright"), locale)}{" · "}
           <Link
             href="/privacy"
             target="_blank"

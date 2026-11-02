@@ -71,18 +71,29 @@ export default function LandingFooter() {
   const socialLinks = settings.socialLinks;
   const supportEmail = settings.supportEmail || t("supportEmail");
 
-  /* Fall back to localized translation when settings still hold the English default */
+  /* Fall back to localized translation when settings still hold standard English defaults */
+  const DEFAULT_TAGLINES = [
+    "democratizing access to justice across rwanda",
+    "democratizing access to certified legal representation across rwanda.",
+    "democratizing access to certified legal representation across rwanda",
+    DEFAULTS.platformTagline.trim().toLowerCase(),
+  ];
   const isDefaultTagline =
     !settings.platformTagline ||
-    settings.platformTagline.trim() === DEFAULTS.platformTagline.trim();
+    DEFAULT_TAGLINES.includes(settings.platformTagline.trim().toLowerCase());
   const displayTagline =
     locale !== "en" && isDefaultTagline
       ? t("tagline")
       : settings.platformTagline || t("tagline");
 
+  const DEFAULT_DISCLAIMERS = [
+    "myjudicial is an independent technology marketplace connecting clients with accredited legal practitioners. myjudicial does not directly provide legal representation.",
+    "myjudicial is an independent technology platform connecting clients with accredited rwanda bar association advocates. myjudicial is not a law firm and does not provide legal representation directly.",
+    DEFAULTS.legalDisclaimer.trim().toLowerCase(),
+  ];
   const isDefaultDisclaimer =
     !settings.legalDisclaimer ||
-    settings.legalDisclaimer.trim() === DEFAULTS.legalDisclaimer.trim();
+    DEFAULT_DISCLAIMERS.includes(settings.legalDisclaimer.trim().toLowerCase());
   const displayDisclaimer =
     locale !== "en" && isDefaultDisclaimer
       ? t("disclaimer")

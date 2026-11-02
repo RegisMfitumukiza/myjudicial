@@ -1675,7 +1675,7 @@
       "sw": "Swahili"
     },
     "badges": {
-      "new": "Gishya"
+      "new": "Mushya"
     },
     "roles": {
       "expert": "Umwavoka wemewe",
@@ -2846,8 +2846,8 @@
     "expertsInView": "{count, plural, =1 {# umuntu uri ku mapu} other {# abantu buri ku mapu}}",
     "satelliteLayer": "Satellite",
     "streetLayer": "Ihame",
-    "newRating": "Gishya",
-    "new": "Gishya",
+    "newRating": "Mushya",
+    "new": "Mushya",
     "verified": "Wemejwe",
     "anywhere": "Aho hose",
     "withinKm": "Mu mbibi {km}km",
@@ -3092,7 +3092,7 @@
   },
   "landing": {
     "footer": {
-      "tagline": "Guteza imbere ubwige mu gutumanahana n'abavoka bemewe mu Rwanda.",
+      "tagline": "Kwegereza ubutabera buri wese mu Rwanda",
       "subtagline": "Tumanahana n'abavoka bemejwe n'Urugaga rw'Abavoka mu Rwanda hamwe n'ibiciro bisobanutse n'ubwishyu bwizewe.",
       "kigaliRwanda": "Kigali, Rwanda",
       "columns": {
@@ -3130,9 +3130,9 @@
         "allPracticeAreas": "Inzego Zose z'Ubuhanga",
         "practiceGuide": "Amabwiriza y'Umwuga n'Amafaranga"
       },
-      "copyright": "MyJudicial, Inc. Uburenganzira bwose bwubahirizwa.",
+      "copyright": "MyJudicial Ltd. Uburenganzira bwose bwubahirizwa.",
       "supportEmail": "support@myjudicial.com",
-      "disclaimer": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abavoka bemewe n'Urugaga rw'Abavoka mu Rwanda. MyJudicial ntabwo ari ibiro by'avoka kandi ntitutanga ubufasha bw'amategeko mu buryo bweruye."
+      "disclaimer": "MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abanyamategeko bemewe. MyJudicial ntabwo itanga ubuyobozi bwo mu rukiko mu buryo butaziguye."
     },
     "meta": {
       "title": "MyJudicial | Shaka Abavoka Bemejwe mu Rwanda",

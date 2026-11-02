@@ -402,7 +402,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
             {/* Mobile Language + Theme Toggle */}
             <div className="mt-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-3 pt-3">
-              <LanguageSwitcher variant="mobile" onSelect={closeMobileMenu} />
+              <LanguageSwitcher variant="mobile" />
               <ThemeToggle />
             </div>
           </div>

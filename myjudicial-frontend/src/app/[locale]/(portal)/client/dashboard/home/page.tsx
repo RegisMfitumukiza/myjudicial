@@ -988,55 +988,63 @@ export default function ClientHomePage() {
               {/* Adaptive Layout: Rich horizontal card when exactly 1 counsel, balanced grid when 2+ */}
               {myLegalCounsel.length === 1 ? (
                 <div className="rounded-xl border border-brand-border/15 p-4 sm:p-5 bg-brand-dark/[0.01] dark:border-white/10 dark:bg-white/[0.01]">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 text-[15px] sm:text-[16px] font-bold text-brand-dark dark:text-white shadow-sm">
+                  <div className="space-y-4">
+                    {/* Top Row: Advocate Identity (Avatar, Name, Verified Badge, Specialty) */}
+                    <div className="flex items-start gap-3.5 sm:gap-4 min-w-0">
+                      <div className="flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-2xl bg-brand-dark/10 dark:bg-white/10 text-[15px] sm:text-[16px] font-bold text-brand-dark dark:text-white shadow-xs">
                         {myLegalCounsel[0].name
                           .split(" ")
                           .map((n) => n[0])
                           .join("")
                           .slice(0, 2)}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center gap-1 min-[480px]:gap-2">
-                          <p className="text-[15px] font-bold text-brand-dark dark:text-white break-words">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                          <p className="text-[15px] sm:text-[16px] font-bold text-brand-dark dark:text-white break-words">
                             {myLegalCounsel[0].name}
                           </p>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 shrink-0 w-fit whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50/90 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/40 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-300 w-fit max-w-full">
                             <BadgeCheck size={12} className="text-blue-600 dark:text-blue-400 shrink-0" />
-                            <span>{t("verifiedBarCounsel")}</span>
+                            <span className="break-words">{t("verifiedBarCounsel")}</span>
                           </span>
                         </div>
-                        <p className="text-[12px] text-brand-dark/60 dark:text-white/60 mt-0.5">
+                        <p className="text-[12px] sm:text-[13px] font-medium text-brand-dark/70 dark:text-white/70">
                           {myLegalCounsel[0].specialty}
-                        </p>
-                        <p className="text-[11px] text-brand-dark/40 dark:text-white/40 mt-1">
-                          {t("lastConsultedOn", {
-                            date: formatDate(myLegalCounsel[0].lastSeen),
-                          })}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col min-[400px]:flex-row items-stretch min-[400px]:items-center gap-2 w-full sm:w-auto shrink-0 pt-2 sm:pt-0">
-                      <Link
-                        href={
-                          myLegalCounsel[0].conversationId
-                            ? `/client/dashboard/messages?conversationId=${myLegalCounsel[0].conversationId}`
-                            : "/client/dashboard/messages"
-                        }
-                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-4 py-2.5 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors whitespace-nowrap"
-                      >
-                        <MessageSquare size={14} className="shrink-0" />
-                        <span>{t("messageAdvocate")}</span>
-                      </Link>
-                      <Link
-                        href={`/lawyers/${myLegalCounsel[0].id}`}
-                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2.5 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity whitespace-nowrap"
-                      >
-                        <CalendarCheck2 size={14} className="shrink-0" />
-                        <span>{t("bookAgain")}</span>
-                      </Link>
+                    {/* Bottom Row: Last Consultation Meta + Action Buttons */}
+                    <div className="pt-3.5 border-t border-brand-border/10 dark:border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] text-brand-dark/50 dark:text-white/50">
+                        <Clock size={13} className="shrink-0 text-brand-dark/40 dark:text-white/40" />
+                        <span>
+                          {t("lastConsultedOn", {
+                            date: formatDate(myLegalCounsel[0].lastSeen),
+                          })}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col min-[380px]:flex-row items-stretch min-[380px]:items-center gap-2 sm:gap-2.5 w-full sm:w-auto shrink-0">
+                        <Link
+                          href={
+                            myLegalCounsel[0].conversationId
+                              ? `/client/dashboard/messages?conversationId=${myLegalCounsel[0].conversationId}`
+                              : "/client/dashboard/messages"
+                          }
+                          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl border border-brand-border/30 bg-white px-4 py-2.5 text-[12px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white dark:hover:bg-white/[0.06] transition-colors whitespace-nowrap shadow-xs"
+                        >
+                          <MessageSquare size={14} className="shrink-0" />
+                          <span>{t("messageAdvocate")}</span>
+                        </Link>
+                        <Link
+                          href={`/lawyers/${myLegalCounsel[0].id}`}
+                          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-dark px-4 py-2.5 text-[12px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black dark:hover:opacity-90 transition-opacity whitespace-nowrap shadow-xs"
+                        >
+                          <CalendarCheck2 size={14} className="shrink-0" />
+                          <span>{t("bookAgain")}</span>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1079,14 +1087,14 @@ export default function ClientHomePage() {
                               ? `/client/dashboard/messages?conversationId=${counsel.conversationId}`
                               : "/client/dashboard/messages"
                           }
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-2 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white transition-colors whitespace-nowrap min-w-0"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-border/30 bg-white py-2 text-[11px] font-semibold text-brand-dark hover:bg-brand-dark/[0.04] dark:border-white/15 dark:bg-black dark:text-white dark:hover:bg-white/[0.06] transition-colors whitespace-nowrap min-w-0 shadow-xs"
                         >
                           <MessageSquare size={13} className="shrink-0" />
                           <span className="truncate">{t("messageAdvocate")}</span>
                         </Link>
                         <Link
                           href={`/lawyers/${counsel.id}`}
-                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-2 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black transition-opacity whitespace-nowrap min-w-0"
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-dark py-2 text-[11px] font-semibold text-white hover:opacity-90 dark:bg-white dark:text-black dark:hover:opacity-90 transition-opacity whitespace-nowrap min-w-0 shadow-xs"
                         >
                           <CalendarCheck2 size={13} className="shrink-0" />
                           <span className="truncate">{t("bookAgain")}</span>

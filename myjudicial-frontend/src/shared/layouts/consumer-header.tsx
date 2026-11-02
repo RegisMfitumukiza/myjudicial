@@ -109,30 +109,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
     };
   }, [visible]);
 
-  // Preserve mobile menu open when switching languages
-  useEffect(() => {
-    const handlePreserve = () => {
-      try {
-        if (sessionStorage.getItem("mj_preserve_mobile_menu") === "true") {
-          setMobileMenuOpen(true);
-          setTimeout(() => {
-            try {
-              sessionStorage.removeItem("mj_preserve_mobile_menu");
-            } catch {}
-          }, 500);
-        }
-      } catch {}
-    };
-
-    handlePreserve();
-    window.addEventListener("mj_preserve_mobile_menu", handlePreserve);
-    return () => window.removeEventListener("mj_preserve_mobile_menu", handlePreserve);
-  }, []);
-
   const closeMobileMenu = () => {
-    try {
-      sessionStorage.removeItem("mj_preserve_mobile_menu");
-    } catch {}
     setMobileMenuOpen(false);
   };
 
@@ -140,12 +117,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
-    const shouldPreserve =
-      typeof window !== "undefined" &&
-      sessionStorage.getItem("mj_preserve_mobile_menu") === "true";
-    if (!shouldPreserve) {
-      setMobileMenuOpen(false);
-    }
+    setMobileMenuOpen(false);
     setProfileOpen(false);
     setVisible(true);
   }
@@ -353,12 +325,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
             {/* Mobile/Tablet Menu Button */}
             <button
-              onClick={() => {
-                try {
-                  sessionStorage.removeItem("mj_preserve_mobile_menu");
-                } catch {}
-                setMobileMenuOpen(!mobileMenuOpen);
-              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Toggle navigation menu"
             >
@@ -435,7 +402,7 @@ export function ConsumerHeader({ user, pathname }: ConsumerHeaderProps) {
 
             {/* Mobile Language + Theme Toggle */}
             <div className="mt-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 px-3 pt-3">
-              <LanguageSwitcher variant="mobile" />
+              <LanguageSwitcher variant="mobile" onSelect={closeMobileMenu} />
               <ThemeToggle />
             </div>
           </div>

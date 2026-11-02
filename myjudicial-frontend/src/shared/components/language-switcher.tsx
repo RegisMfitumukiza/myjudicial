@@ -16,9 +16,14 @@ const LOCALES = [
 interface LanguageSwitcherProps {
   variant?: "header" | "compact" | "mobile";
   className?: string;
+  onSelect?: () => void;
 }
 
-export function LanguageSwitcher({ variant = "header", className }: LanguageSwitcherProps) {
+export function LanguageSwitcher({
+  variant = "header",
+  className,
+  onSelect,
+}: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,12 +42,9 @@ export function LanguageSwitcher({ variant = "header", className }: LanguageSwit
 
   const switchLocale = (code: string) => {
     setOpen(false);
+    onSelect?.();
     try {
       localStorage.setItem("mj_lang", code);
-      if (variant === "mobile") {
-        sessionStorage.setItem("mj_preserve_mobile_menu", "true");
-        window.dispatchEvent(new CustomEvent("mj_preserve_mobile_menu"));
-      }
     } catch {}
     const query = searchParams?.toString();
     const target = query ? `${pathname}?${query}` : pathname;

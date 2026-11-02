@@ -65,6 +65,7 @@ import { auditContentPage } from "./content-quality";
 import { ContentHealthBar } from "./content-health-bar";
 import { PreflightAuditDialog } from "./preflight-audit-dialog";
 import { RevisionDiffDialog } from "./revision-diff-dialog";
+import { translatePageBlocksWithAi } from "./translate-content";
 
 /**
  * Admin editor for the public content pages.
@@ -444,6 +445,113 @@ function PageEditor({
     }
   };
 
+  const [translating, setTranslating] = useState(false);
+
+  const handleAutoTranslateFromEnglish = async () => {
+    if (locale === "en") return;
+
+    const source = enPageReference || {
+      title: draft.title,
+      blocks: draft.blocks,
+      metaTitle: draft.metaTitle,
+      metaDescription: draft.metaDescription,
+      effectiveDate: draft.effectiveDate,
+      openGraphImage: draft.openGraphImage,
+    };
+
+    if (!source.title.trim() && source.blocks.length === 0) {
+      toast.error("No English content found to translate. Please author or load English content first.");
+      return;
+    }
+
+    if (draft.blocks.length > 0) {
+      const ok = window.confirm(
+        `Auto-translate from English into ${locale === "fr" ? "French" : "Kinyarwanda"}? This will populate the draft with AI translations for your review.`
+      );
+      if (!ok) return;
+    }
+
+    setTranslating(true);
+    try {
+      const translated = await translatePageBlocksWithAi(
+        {
+          title: source.title,
+          metaTitle: source.metaTitle ?? "",
+          metaDescription: source.metaDescription ?? "",
+          blocks: source.blocks,
+        },
+        "en",
+        locale
+      );
+
+      setDraft((prev) => ({
+        ...prev,
+        title: translated.title,
+        metaTitle: translated.metaTitle ?? prev.metaTitle,
+        metaDescription: translated.metaDescription ?? prev.metaDescription,
+        blocks: translated.blocks,
+      }));
+
+      const langName = locale === "fr" ? "French" : "Kinyarwanda";
+      toast.success(`✨ Draft populated with ${langName} AI translation! Review and save when ready.`);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "AI Translation failed. Please try again."));
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  const handleAutoTranslateToAllLocales = async () => {
+    if (locale !== "en") return;
+
+    if (!draft.title.trim() && draft.blocks.length === 0) {
+      toast.error("Please add a title and content blocks in English before auto-translating.");
+      return;
+    }
+
+    const ok = window.confirm(
+      "Auto-translate English content to French and Kinyarwanda? This will generate and save draft pages for French and Kinyarwanda that you can review and refine."
+    );
+    if (!ok) return;
+
+    setTranslating(true);
+    try {
+      const targetLocales: ContentLocale[] = ["fr", "rw"];
+      for (const targetLoc of targetLocales) {
+        const translated = await translatePageBlocksWithAi(
+          {
+            title: draft.title,
+            metaTitle: draft.metaTitle ?? "",
+            metaDescription: draft.metaDescription ?? "",
+            blocks: draft.blocks,
+          },
+          "en",
+          targetLoc
+        );
+
+        const savedPage = await saveContentPage({
+          slug,
+          locale: targetLoc,
+          title: translated.title.trim(),
+          blocks: translated.blocks,
+          status: "draft",
+          effectiveDate: draft.effectiveDate.trim() || null,
+          metaTitle: translated.metaTitle?.trim() || null,
+          metaDescription: translated.metaDescription?.trim() || null,
+          openGraphImage: draft.openGraphImage.trim() || null,
+        });
+
+        onSaved(savedPage);
+      }
+
+      toast.success("✨ French and Kinyarwanda drafts generated with AI! Click the FR and RW tabs above to review them.");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "AI Translation failed. Please try again."));
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const [loadingBlueprint, setLoadingBlueprint] = useState(false);
 
   const handleLoadBlueprint = async () => {
@@ -757,9 +865,42 @@ function PageEditor({
           )}
           Load Blueprint
         </Button>
-        {locale !== "en" && (
-          <Button variant="outline" onClick={handleCopyFromEnglish} disabled={saving}>
-            <Copy className="mr-1.5 h-3.5 w-3.5" /> {t("copyFromEnglish")}
+        {locale !== "en" ? (
+          <>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={handleAutoTranslateFromEnglish}
+              disabled={saving || translating}
+              className="border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary font-medium"
+              title={`Auto-translate from English into ${locale === "fr" ? "French" : "Kinyarwanda"} using AI`}
+            >
+              {translating ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              ✨ Auto-Translate from English
+            </Button>
+            <Button variant="outline" onClick={handleCopyFromEnglish} disabled={saving || translating}>
+              <Copy className="mr-1.5 h-3.5 w-3.5" /> {t("copyFromEnglish")}
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="outline"
+            type="button"
+            onClick={handleAutoTranslateToAllLocales}
+            disabled={saving || translating}
+            className="border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary font-medium"
+            title="Auto-translate English draft into French & Kinyarwanda drafts using AI"
+          >
+            {translating ? (
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            ✨ Auto-Translate to FR & RW
           </Button>
         )}
         <Button onClick={() => handleSave("draft")} disabled={saving || !isDirty}>

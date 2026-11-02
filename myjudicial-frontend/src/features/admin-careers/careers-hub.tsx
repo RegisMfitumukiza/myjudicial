@@ -37,6 +37,7 @@ import {
 import { FormSectionSkeleton } from "@/shared/components/dashboard";
 import { getErrorMessage } from "@/lib/utils";
 import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api";
+import { translateText } from "@/lib/api/ai";
 import {
   DEFAULTS,
   DEFAULT_CAREERS_ROLES,
@@ -351,8 +352,20 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
   const [savedHeroTitle, setSavedHeroTitle] = useState<string>(
     initialSettings?.careersHeroTitle ?? ""
   );
+  const [savedHeroTitleFr, setSavedHeroTitleFr] = useState<string>(
+    initialSettings?.careersHeroTitleFr ?? ""
+  );
+  const [savedHeroTitleRw, setSavedHeroTitleRw] = useState<string>(
+    initialSettings?.careersHeroTitleRw ?? ""
+  );
   const [savedHeroSubtitle, setSavedHeroSubtitle] = useState<string>(
     initialSettings?.careersHeroSubtitle ?? ""
+  );
+  const [savedHeroSubtitleFr, setSavedHeroSubtitleFr] = useState<string>(
+    initialSettings?.careersHeroSubtitleFr ?? ""
+  );
+  const [savedHeroSubtitleRw, setSavedHeroSubtitleRw] = useState<string>(
+    initialSettings?.careersHeroSubtitleRw ?? ""
   );
   const [savedRoles, setSavedRoles] = useState<CareerRoleItem[]>(
     initialSettings ? copyDeep(initialSettings.careersOpenRoles) : []
@@ -377,7 +390,13 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
   const [draftHiringStatus, setDraftHiringStatus] = useState<CareersHiringStatus>(savedHiringStatus);
   const [draftEmail, setDraftEmail] = useState<string>(savedEmail);
   const [draftHeroTitle, setDraftHeroTitle] = useState<string>(savedHeroTitle);
+  const [draftHeroTitleFr, setDraftHeroTitleFr] = useState<string>(savedHeroTitleFr);
+  const [draftHeroTitleRw, setDraftHeroTitleRw] = useState<string>(savedHeroTitleRw);
   const [draftHeroSubtitle, setDraftHeroSubtitle] = useState<string>(savedHeroSubtitle);
+  const [draftHeroSubtitleFr, setDraftHeroSubtitleFr] = useState<string>(savedHeroSubtitleFr);
+  const [draftHeroSubtitleRw, setDraftHeroSubtitleRw] = useState<string>(savedHeroSubtitleRw);
+  const [heroLocaleTab, setHeroLocaleTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingHero, setTranslatingHero] = useState(false);
   const [draftRoles, setDraftRoles] = useState<CareerRoleItem[]>(copyDeep(savedRoles));
   const [draftReqPhone, setDraftReqPhone] = useState<boolean>(savedReqPhone);
   const [draftReqLinkedIn, setDraftReqLinkedIn] = useState<boolean>(savedReqLinkedIn);
@@ -398,7 +417,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
       setSavedHiringStatus(initialSettings.careersHiringStatus);
       setSavedEmail(initialSettings.careersEmail);
       setSavedHeroTitle(initialSettings.careersHeroTitle ?? "");
+      setSavedHeroTitleFr(initialSettings.careersHeroTitleFr ?? "");
+      setSavedHeroTitleRw(initialSettings.careersHeroTitleRw ?? "");
       setSavedHeroSubtitle(initialSettings.careersHeroSubtitle ?? "");
+      setSavedHeroSubtitleFr(initialSettings.careersHeroSubtitleFr ?? "");
+      setSavedHeroSubtitleRw(initialSettings.careersHeroSubtitleRw ?? "");
       setSavedRoles(copyDeep(initialSettings.careersOpenRoles));
       setSavedReqPhone(initialSettings.careersRequirePhone ?? false);
       setSavedReqLinkedIn(initialSettings.careersRequireLinkedIn ?? false);
@@ -409,7 +432,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
       setDraftHiringStatus(initialSettings.careersHiringStatus);
       setDraftEmail(initialSettings.careersEmail);
       setDraftHeroTitle(initialSettings.careersHeroTitle ?? "");
+      setDraftHeroTitleFr(initialSettings.careersHeroTitleFr ?? "");
+      setDraftHeroTitleRw(initialSettings.careersHeroTitleRw ?? "");
       setDraftHeroSubtitle(initialSettings.careersHeroSubtitle ?? "");
+      setDraftHeroSubtitleFr(initialSettings.careersHeroSubtitleFr ?? "");
+      setDraftHeroSubtitleRw(initialSettings.careersHeroSubtitleRw ?? "");
       setDraftRoles(copyDeep(initialSettings.careersOpenRoles));
       setDraftReqPhone(initialSettings.careersRequirePhone ?? false);
       setDraftReqLinkedIn(initialSettings.careersRequireLinkedIn ?? false);
@@ -428,7 +455,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
         setSavedHiringStatus(norm.careersHiringStatus);
         setSavedEmail(norm.careersEmail);
         setSavedHeroTitle(norm.careersHeroTitle ?? "");
+        setSavedHeroTitleFr(norm.careersHeroTitleFr ?? "");
+        setSavedHeroTitleRw(norm.careersHeroTitleRw ?? "");
         setSavedHeroSubtitle(norm.careersHeroSubtitle ?? "");
+        setSavedHeroSubtitleFr(norm.careersHeroSubtitleFr ?? "");
+        setSavedHeroSubtitleRw(norm.careersHeroSubtitleRw ?? "");
         setSavedRoles(copyDeep(norm.careersOpenRoles));
         setSavedReqPhone(norm.careersRequirePhone);
         setSavedReqLinkedIn(norm.careersRequireLinkedIn);
@@ -439,7 +470,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
         setDraftHiringStatus(norm.careersHiringStatus);
         setDraftEmail(norm.careersEmail);
         setDraftHeroTitle(norm.careersHeroTitle ?? "");
+        setDraftHeroTitleFr(norm.careersHeroTitleFr ?? "");
+        setDraftHeroTitleRw(norm.careersHeroTitleRw ?? "");
         setDraftHeroSubtitle(norm.careersHeroSubtitle ?? "");
+        setDraftHeroSubtitleFr(norm.careersHeroSubtitleFr ?? "");
+        setDraftHeroSubtitleRw(norm.careersHeroSubtitleRw ?? "");
         setDraftRoles(copyDeep(norm.careersOpenRoles));
         setDraftReqPhone(norm.careersRequirePhone);
         setDraftReqLinkedIn(norm.careersRequireLinkedIn);
@@ -461,11 +496,42 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
     }
   }, [initialSettings, load]);
 
+  const handleAutoTranslateHero = async () => {
+    if (!draftHeroTitle.trim() && !draftHeroSubtitle.trim()) {
+      toast.error("Please enter English headline or subtitle first.");
+      return;
+    }
+    setTranslatingHero(true);
+    try {
+      const [titleFr, titleRw, subFr, subRw] = await Promise.all([
+        draftHeroTitle.trim() ? translateText(draftHeroTitle, "en", "fr") : null,
+        draftHeroTitle.trim() ? translateText(draftHeroTitle, "en", "rw") : null,
+        draftHeroSubtitle.trim() ? translateText(draftHeroSubtitle, "en", "fr") : null,
+        draftHeroSubtitle.trim() ? translateText(draftHeroSubtitle, "en", "rw") : null,
+      ]);
+
+      if (titleFr?.translated_text) setDraftHeroTitleFr(titleFr.translated_text.trim());
+      if (titleRw?.translated_text) setDraftHeroTitleRw(titleRw.translated_text.trim());
+      if (subFr?.translated_text) setDraftHeroSubtitleFr(subFr.translated_text.trim());
+      if (subRw?.translated_text) setDraftHeroSubtitleRw(subRw.translated_text.trim());
+
+      toast.success("✨ Careers hero copy translated into French and Kinyarwanda!");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Translation failed"));
+    } finally {
+      setTranslatingHero(false);
+    }
+  };
+
   const dirty =
     draftHiringStatus !== savedHiringStatus ||
     draftEmail !== savedEmail ||
     draftHeroTitle !== savedHeroTitle ||
+    draftHeroTitleFr !== savedHeroTitleFr ||
+    draftHeroTitleRw !== savedHeroTitleRw ||
     draftHeroSubtitle !== savedHeroSubtitle ||
+    draftHeroSubtitleFr !== savedHeroSubtitleFr ||
+    draftHeroSubtitleRw !== savedHeroSubtitleRw ||
     draftReqPhone !== savedReqPhone ||
     draftReqLinkedIn !== savedReqLinkedIn ||
     draftReqPortfolio !== savedReqPortfolio ||
@@ -483,7 +549,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
         careersHiringStatus: draftHiringStatus,
         careersEmail: draftEmail,
         careersHeroTitle: draftHeroTitle,
+        careersHeroTitleFr: draftHeroTitleFr,
+        careersHeroTitleRw: draftHeroTitleRw,
         careersHeroSubtitle: draftHeroSubtitle,
+        careersHeroSubtitleFr: draftHeroSubtitleFr,
+        careersHeroSubtitleRw: draftHeroSubtitleRw,
         careersOpenRoles: draftRoles,
         careersRequirePhone: draftReqPhone,
         careersRequireLinkedIn: draftReqLinkedIn,
@@ -497,7 +567,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
       setSavedHiringStatus(norm.careersHiringStatus);
       setSavedEmail(norm.careersEmail);
       setSavedHeroTitle(norm.careersHeroTitle ?? "");
+      setSavedHeroTitleFr(norm.careersHeroTitleFr ?? "");
+      setSavedHeroTitleRw(norm.careersHeroTitleRw ?? "");
       setSavedHeroSubtitle(norm.careersHeroSubtitle ?? "");
+      setSavedHeroSubtitleFr(norm.careersHeroSubtitleFr ?? "");
+      setSavedHeroSubtitleRw(norm.careersHeroSubtitleRw ?? "");
       setSavedRoles(copyDeep(norm.careersOpenRoles));
       setSavedReqPhone(norm.careersRequirePhone);
       setSavedReqLinkedIn(norm.careersRequireLinkedIn);
@@ -508,7 +582,11 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
       setDraftHiringStatus(norm.careersHiringStatus);
       setDraftEmail(norm.careersEmail);
       setDraftHeroTitle(norm.careersHeroTitle ?? "");
+      setDraftHeroTitleFr(norm.careersHeroTitleFr ?? "");
+      setDraftHeroTitleRw(norm.careersHeroTitleRw ?? "");
       setDraftHeroSubtitle(norm.careersHeroSubtitle ?? "");
+      setDraftHeroSubtitleFr(norm.careersHeroSubtitleFr ?? "");
+      setDraftHeroSubtitleRw(norm.careersHeroSubtitleRw ?? "");
       setDraftRoles(copyDeep(norm.careersOpenRoles));
       setDraftReqPhone(norm.careersRequirePhone);
       setDraftReqLinkedIn(norm.careersRequireLinkedIn);
@@ -681,33 +759,119 @@ export function CareersHub({ initialSettings, onSaved }: CareersHubProps) {
           </div>
 
           {/* Hero Headline & Subtitle Customization */}
-          <div className="grid gap-4 sm:grid-cols-2 pt-3 border-t border-border/40">
-            <div className="space-y-1.5">
-              <Label htmlFor="careers-hero-title" className="text-xs font-semibold">
-                Hero Headline (Optional Override)
-              </Label>
-              <Input
-                id="careers-hero-title"
-                type="text"
-                value={draftHeroTitle}
-                onChange={(e) => setDraftHeroTitle(e.target.value)}
-                placeholder="e.g. Build the future of accessible legal services"
-                className="h-9 text-xs"
-              />
+          <div className="space-y-3 pt-3 border-t border-border/40">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-foreground">
+                Hero Headline & Subtitle Customization
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleAutoTranslateHero}
+                  disabled={translatingHero || (!draftHeroTitle.trim() && !draftHeroSubtitle.trim())}
+                  className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+                  title="Translate English headline and subtitle into French and Kinyarwanda using AI"
+                >
+                  {translatingHero ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3" />
+                  )}
+                  <span>✨ Auto-Translate</span>
+                </Button>
+                <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+                  {(["en", "fr", "rw"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setHeroLocaleTab(l)}
+                      className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                        heroLocaleTab === l
+                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="careers-hero-subtitle" className="text-xs font-semibold">
-                Hero Subtitle (Optional Override)
-              </Label>
-              <Input
-                id="careers-hero-subtitle"
-                type="text"
-                value={draftHeroSubtitle}
-                onChange={(e) => setDraftHeroSubtitle(e.target.value)}
-                placeholder="e.g. We are engineering foundational legal infrastructure for Rwanda..."
-                className="h-9 text-xs"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor={`careers-hero-title-${heroLocaleTab}`} className="text-xs font-semibold">
+                  Hero Headline ({heroLocaleTab.toUpperCase()})
+                </Label>
+                {heroLocaleTab === "en" && (
+                  <Input
+                    id="careers-hero-title-en"
+                    type="text"
+                    value={draftHeroTitle}
+                    onChange={(e) => setDraftHeroTitle(e.target.value)}
+                    placeholder="e.g. Build the future of accessible legal services"
+                    className="h-9 text-xs"
+                  />
+                )}
+                {heroLocaleTab === "fr" && (
+                  <Input
+                    id="careers-hero-title-fr"
+                    type="text"
+                    value={draftHeroTitleFr}
+                    onChange={(e) => setDraftHeroTitleFr(e.target.value)}
+                    placeholder="Ex. Construisez l'avenir des services juridiques accessibles"
+                    className="h-9 text-xs"
+                  />
+                )}
+                {heroLocaleTab === "rw" && (
+                  <Input
+                    id="careers-hero-title-rw"
+                    type="text"
+                    value={draftHeroTitleRw}
+                    onChange={(e) => setDraftHeroTitleRw(e.target.value)}
+                    placeholder="Urugero: Twubake ejo hazaza ha serivisi z'amategeko zoroheye bose"
+                    className="h-9 text-xs"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor={`careers-hero-subtitle-${heroLocaleTab}`} className="text-xs font-semibold">
+                  Hero Subtitle ({heroLocaleTab.toUpperCase()})
+                </Label>
+                {heroLocaleTab === "en" && (
+                  <Input
+                    id="careers-hero-subtitle-en"
+                    type="text"
+                    value={draftHeroSubtitle}
+                    onChange={(e) => setDraftHeroSubtitle(e.target.value)}
+                    placeholder="e.g. We are engineering foundational legal infrastructure for Rwanda..."
+                    className="h-9 text-xs"
+                  />
+                )}
+                {heroLocaleTab === "fr" && (
+                  <Input
+                    id="careers-hero-subtitle-fr"
+                    type="text"
+                    value={draftHeroSubtitleFr}
+                    onChange={(e) => setDraftHeroSubtitleFr(e.target.value)}
+                    placeholder="Ex. Nous développons l'infrastructure juridique fondamentale pour le Rwanda..."
+                    className="h-9 text-xs"
+                  />
+                )}
+                {heroLocaleTab === "rw" && (
+                  <Input
+                    id="careers-hero-subtitle-rw"
+                    type="text"
+                    value={draftHeroSubtitleRw}
+                    onChange={(e) => setDraftHeroSubtitleRw(e.target.value)}
+                    placeholder="Urugero: Turimo kubaka urubuga rufasha abaturarwanda kubona ubutabera bwihuse..."
+                    className="h-9 text-xs"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </CardContent>

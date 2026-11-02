@@ -30,6 +30,13 @@ vi.mock("@/lib/api/content-pages", async () => {
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 
+vi.mock("./translate-content", () => ({
+  translatePageBlocksWithAi: vi.fn(async (source: any, _srcLocale: string, targetLocale: string) => ({
+    ...source,
+    title: `[${targetLocale.toUpperCase()}] ${source.title}`,
+  })),
+}));
+
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -433,6 +440,28 @@ describe("ContentEditor — copy from English and delete", () => {
 
     await waitFor(() => expect(api.copyContentPage).toHaveBeenCalledWith("PRIVACY", "en", "fr"));
     expect(await screen.findByDisplayValue("Privacy Policy (copied)")).toBeInTheDocument();
+  });
+
+  it("offers AI Auto-Translate on fr/rw and populates the translated draft", async () => {
+    renderEditorTo(existingEnPage);
+    await screen.findByDisplayValue("What we collect");
+
+    // On EN: Auto-Translate to FR & RW is visible
+    expect(screen.getByRole("button", { name: /✨ Auto-Translate to FR & RW/i })).toBeInTheDocument();
+
+    // Switch to French tab
+    fireEvent.click(screen.getByRole("button", { name: "FR" }));
+    await screen.findByText(cp.neverWrittenTitle);
+
+    // On FR: Auto-Translate from English is visible
+    const autoTranslateBtn = screen.getByRole("button", { name: /✨ Auto-Translate from English/i });
+    expect(autoTranslateBtn).toBeInTheDocument();
+
+    fireEvent.click(autoTranslateBtn);
+
+    // Should populate draft title with translated title
+    expect(await screen.findByDisplayValue("[FR] Privacy Policy")).toBeInTheDocument();
+    expect(toast.success).toHaveBeenCalledWith(expect.stringContaining("Draft populated with French AI translation"));
   });
 
   it("deletes the page after confirmation", async () => {

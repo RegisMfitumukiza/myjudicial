@@ -42,6 +42,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 
 import { fetchAdminSettings, saveSettingsSection } from "@/features/settings/api";
 import { DEFAULTS, DEFAULT_FAQS, normalizeSettings, type SettingsData, type SupplementalFaqItem } from "@/features/settings/settings";
+import { translateText } from "@/lib/api/ai";
+import { getErrorMessage } from "@/lib/utils";
 import { ContentEditor } from "./content-editor";
 import { CareersHub } from "@/features/admin-careers/careers-hub";
 import { getFaqSnapshots, saveFaqSnapshot, type FaqSnapshot } from "./snapshots-history";
@@ -111,8 +113,12 @@ export function ContentHubClient() {
     legalEffectiveDate: "",
     dpoContactEmail: "",
     legalDisclaimer: "",
+    legalDisclaimerFr: "",
+    legalDisclaimerRw: "",
   });
   const [savingGov, setSavingGov] = useState(false);
+  const [govDisclaimerTab, setGovDisclaimerTab] = useState<"en" | "fr" | "rw">("en");
+  const [translatingGovDisclaimer, setTranslatingGovDisclaimer] = useState(false);
 
   useEffect(() => {
     setFaqSnapshots(getFaqSnapshots());
@@ -158,6 +164,8 @@ export function ContentHubClient() {
           legalEffectiveDate: norm.legalEffectiveDate || "",
           dpoContactEmail: norm.dpoContactEmail || "",
           legalDisclaimer: norm.legalDisclaimer || "",
+          legalDisclaimerFr: norm.legalDisclaimerFr || "",
+          legalDisclaimerRw: norm.legalDisclaimerRw || "",
         });
       })
       .catch(() => setBackendUnreachable(true))
@@ -262,11 +270,37 @@ export function ContentHubClient() {
     }
   };
 
+  const handleAutoTranslateGovDisclaimer = async () => {
+    if (!govDraft.legalDisclaimer?.trim()) {
+      toast.error("Please enter an English legal disclaimer first.");
+      return;
+    }
+    setTranslatingGovDisclaimer(true);
+    try {
+      const [frRes, rwRes] = await Promise.all([
+        translateText(govDraft.legalDisclaimer, "en", "fr"),
+        translateText(govDraft.legalDisclaimer, "en", "rw"),
+      ]);
+      setGovDraft((d) => ({
+        ...d,
+        legalDisclaimerFr: frRes.translated_text?.trim() || d.legalDisclaimerFr,
+        legalDisclaimerRw: rwRes.translated_text?.trim() || d.legalDisclaimerRw,
+      }));
+      toast.success("✨ Legal disclaimer translated into French and Kinyarwanda!");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Translation failed"));
+    } finally {
+      setTranslatingGovDisclaimer(false);
+    }
+  };
+
   const faqsDirty = JSON.stringify(faqDraft) !== JSON.stringify(settings.supplementalFaqs);
   const govDirty =
     govDraft.legalEffectiveDate !== settings.legalEffectiveDate ||
     govDraft.dpoContactEmail !== settings.dpoContactEmail ||
-    govDraft.legalDisclaimer !== settings.legalDisclaimer;
+    govDraft.legalDisclaimer !== settings.legalDisclaimer ||
+    govDraft.legalDisclaimerFr !== settings.legalDisclaimerFr ||
+    govDraft.legalDisclaimerRw !== settings.legalDisclaimerRw;
 
   if (loading) {
     return (
@@ -648,19 +682,80 @@ export function ContentHubClient() {
                 </div>
               </div>
 
-              <div className="space-y-1.5 pt-2">
-                <Label htmlFor="gov-disclaimer" className="text-xs font-semibold">
-                  {tSettings("legalDisclaimer")}
-                </Label>
-                <Textarea
-                  id="gov-disclaimer"
-                  rows={3}
-                  value={govDraft.legalDisclaimer}
-                  onChange={(e) =>
-                    setGovDraft((d) => ({ ...d, legalDisclaimer: e.target.value }))
-                  }
-                  placeholder="MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation."
-                />
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="gov-disclaimer" className="text-xs font-semibold">
+                    {tSettings("legalDisclaimer")}
+                  </Label>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleAutoTranslateGovDisclaimer}
+                      disabled={translatingGovDisclaimer || !govDraft.legalDisclaimer?.trim()}
+                      className="h-6 text-[10px] px-2 text-primary hover:text-primary font-medium gap-1"
+                      title="Translate English disclaimer into French and Kinyarwanda using AI"
+                    >
+                      {translatingGovDisclaimer ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      <span>✨ Auto-Translate</span>
+                    </Button>
+                    <div className="inline-flex rounded-lg border border-border/80 p-0.5 bg-muted/40 text-[10px]">
+                      {(["en", "fr", "rw"] as const).map((l) => (
+                        <button
+                          key={l}
+                          type="button"
+                          onClick={() => setGovDisclaimerTab(l)}
+                          className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+                            govDisclaimerTab === l
+                              ? "bg-background text-foreground shadow-xs font-semibold"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {l.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {govDisclaimerTab === "en" && (
+                  <Textarea
+                    id="gov-disclaimer"
+                    rows={3}
+                    value={govDraft.legalDisclaimer}
+                    onChange={(e) =>
+                      setGovDraft((d) => ({ ...d, legalDisclaimer: e.target.value }))
+                    }
+                    placeholder="MyJudicial is an independent technology marketplace connecting clients with accredited legal practitioners. MyJudicial does not directly provide legal representation."
+                  />
+                )}
+                {govDisclaimerTab === "fr" && (
+                  <Textarea
+                    id="gov-disclaimer-fr"
+                    rows={3}
+                    value={govDraft.legalDisclaimerFr}
+                    onChange={(e) =>
+                      setGovDraft((d) => ({ ...d, legalDisclaimerFr: e.target.value }))
+                    }
+                    placeholder="MyJudicial est une plateforme technologique indépendante mettant en relation des clients avec des avocats inscrits au barreau..."
+                  />
+                )}
+                {govDisclaimerTab === "rw" && (
+                  <Textarea
+                    id="gov-disclaimer-rw"
+                    rows={3}
+                    value={govDraft.legalDisclaimerRw}
+                    onChange={(e) =>
+                      setGovDraft((d) => ({ ...d, legalDisclaimerRw: e.target.value }))
+                    }
+                    placeholder="MyJudicial ni urubuga rw'ikoranabuhanga ruhuza abakiriya n'abavoka bemewe..."
+                  />
+                )}
               </div>
 
               {/* Direct Statutory Policy Audit Links */}
